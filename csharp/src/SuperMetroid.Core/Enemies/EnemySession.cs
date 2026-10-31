@@ -8,11 +8,20 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// The enemy-side words that outlive each room, as the cartridge's WRAM does across enemy loading (#1329): the
 /// elevator journey, the shared fade counter, Ceres's escape progress, the critical-energy drop bias, the language
-/// flag, the random enemy counter, the death quota an empty population keeps, the staging surfaces, the Mode 7
-/// transfer residue and the sprite looks shown; and the host's installed enemy artwork, which every room's enemies draw from.
+/// flag, the random enemy counter, the death quota an empty population keeps, the staging surfaces and the sprite looks
+/// shown; the session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway leaves behind; and the
+/// host's installed enemy artwork, which every room's enemies draw from.
 /// </summary>
 public sealed class EnemySession : ISpriteObjectPage
 {
+    /// <summary>Creates the enemy words a fresh power-on holds, bound to the session's unauthored Speed Booster cadence.</summary>
+    /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives every runtime.</param>
+    public EnemySession(UnauthoredBoostCadence unauthoredBoostCadence) =>
+        UnauthoredBoostCadence = Ensure.NotNull(unauthoredBoostCadence);
+
+    /// <summary>The session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway wing frames leave behind.</summary>
+    internal UnauthoredBoostCadence UnauthoredBoostCadence { get; }
+
     /// <summary>The elevator journey words ($0E16, $0E18 and the travel direction) carried through an elevator door.</summary>
     internal ElevatorJourneyState Elevator { get; } = new();
 
@@ -47,9 +56,6 @@ public sealed class EnemySession : ISpriteObjectPage
 
     /// <summary>Required room kill count from the nonempty population's terminator for enemy-clear triggers; native empty-population initialization retains the previous quota. 0 through 255.</summary>
     internal int DeathQuota { get; set; }
-
-    /// <summary>The session's floor update residue, which Ceres Ridley's getaway writes; the runtime binds it.</summary>
-    internal SuperMetroid.Core.Compatibility.FloorUpdateResidue? FloorQueueResidue { get; set; }
 
     /// <summary>The session's record of what Mother Brain's rainbow-beam push hides from the camera; the runtime binds it.</summary>
     internal RainbowBeamCameraCheckpoint? RainbowBeamCameraCheckpoint { get; set; }

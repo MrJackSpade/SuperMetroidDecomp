@@ -18,7 +18,7 @@ internal static class FuneNamiheDefinitionsVerification
         {
             bool namihe = (variant & 2) != 0;
             bool right = (variant & 1) != 0;
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> initialize = FuneNamiheBehavior.InitializeFuneNamihe;
             Action<RoomEnemySlot, FuneNamiheEnemyState, SamusState?> runMain = FuneNamiheBehavior.RunFuneNamiheMain;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -35,7 +35,7 @@ internal static class FuneNamiheDefinitionsVerification
             AssertEqual(AnimationProgramCursor<FuneNamiheProgram>.Start(FuneNamiheSelectorOracle.ProgramAt(idleCursor)), state.Program,
                 $"Fune/Namihe production idle list {variant}");
 
-            runMain(slot, (state), namihe ? new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, slot.Position.Y.Whole)) } : null);
+            runMain(slot, (state), namihe ? new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, slot.Position.Y.Whole)) } : null);
             ushort activeCursor = (ushort)(idleCursor - FuneNamiheSelectorOracle.ActiveCursorDelta);
             AssertEqual(AnimationProgramCursor<FuneNamiheProgram>.Start(FuneNamiheSelectorOracle.ProgramAt(activeCursor)), state.Program,
                 $"Fune/Namihe production active list {variant}");

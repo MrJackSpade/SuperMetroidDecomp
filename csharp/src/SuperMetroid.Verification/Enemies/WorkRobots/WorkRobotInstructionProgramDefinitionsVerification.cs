@@ -48,7 +48,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
     internal static RoomEnemySystem CreateWorkRobotInstructionSystem(
         out RoomEnemySlot robot)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
 
         robot = enemies.SlotTable.Slots[0];

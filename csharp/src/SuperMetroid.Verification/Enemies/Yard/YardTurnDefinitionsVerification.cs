@@ -94,7 +94,7 @@ internal static class YardTurnDefinitionsVerification
             YardProgram expectedProgram,
             string context)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, YardEnemyState, RoomLevelData> run = enemies.YardBehavior.RunYardCrawlingMovement;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = slot.Position.WithWhole(new(0x0200, 0x0200));

@@ -53,7 +53,7 @@ internal static class MotherBrainMissileWalkResetVerification
     /// </summary>
     internal static void VerifyMotherBrainWalkCreditShared()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { WalkCounter = MotherBrainWalkCredit.Of(0x0180) };
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         state.RainbowBeamSequence = sequence;

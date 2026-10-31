@@ -299,7 +299,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
             session.Artwork.BeamPalettes, session.Artwork.SamusBodyArt, japaneseText)
         {
             Random = session.Random,
-            FloorQueueResidue = session.floorQueueResidue,
+            UnauthoredBoostCadence = session.unauthoredBoostCadence,
             ProjectileFrameBindings = session.Artwork.ProjectileFrameBindings,
             NarrationPresentation = session.Artwork.MapPresentation?.IntroNarration,
         };

@@ -63,7 +63,7 @@ internal static class YardInstructionProgramDefinitionsVerification
     internal static RoomEnemySystem CreateYardInstructionSystem(
         out RoomEnemySlot yard)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
 
         yard = enemies.SlotTable.Slots[0];

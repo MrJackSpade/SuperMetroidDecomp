@@ -26,7 +26,7 @@ internal static class PhantoonSoundDefinitionsVerification
             () => PhantoonSounds.MaterializationSound(3),
             "Phantoon materialization sound past definitions");
 
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
         var state = new PhantoonEnemyState(body)

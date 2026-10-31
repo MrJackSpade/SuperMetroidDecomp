@@ -529,4 +529,14 @@ internal static class SamusSourceDefinitions
 
     /// <summary>$9B:A4E3: the special beam attack trail selector table, laid out as the uncharged one.</summary>
     internal static readonly SnesAddress SpecialBeamAttackTrailSelectors = new(0x9b, 0xa4e3);
+
+    /// <summary>
+    /// $91:B5E8: the running stream word past the five boost stages' words at $91:B5DE, which a Speed Booster echo that
+    /// finds the sound queue full selects (#1338, #1473). It names a bank-$91 position below $8000, which shows memory,
+    /// not cartridge data: the floor update queue.
+    /// </summary>
+    internal static readonly SnesAddress UnauthoredBoostStreamWord = new(0x91, 0xb5e8);
+
+    /// <summary>The bank position at which a bank's cartridge half starts; a stream word below it names memory.</summary>
+    internal const int CartridgeWindowStart = 0x8000;
 }

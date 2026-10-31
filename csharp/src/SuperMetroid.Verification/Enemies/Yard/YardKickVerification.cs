@@ -25,11 +25,11 @@ internal static class YardKickVerification
         foreach (ushort whole in new ushort[] { 0, 1, 2, 15, 16, 32 })
         foreach (ushort fraction in new ushort[] { 0, 0x8000, 0xFFFF })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = FixtureEnemyTileArtwork() };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())));
             var actor = enemies.SlotTable.Slots[0];
             var state = enemies.YardStates[0];
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose, Health = 999, MaxHealth = 999,
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Health = 999, MaxHealth = 999,
                 Position = FixedPosition<RoomPixels>.FromWhole(actor.Position.Whole) };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             enemies.StepFrame(new RoomEnemyFrame { Camera = new((ushort)(actor.Position.X.Whole - 128), (ushort)(actor.Position.Y.Whole - 112)), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });

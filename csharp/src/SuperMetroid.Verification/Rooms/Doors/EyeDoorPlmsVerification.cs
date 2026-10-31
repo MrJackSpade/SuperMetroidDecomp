@@ -48,9 +48,9 @@ internal static class EyeDoorPlmsVerification
         RoomLevelData level = CreateRoom(new(16, 16),
             new RoomTerrainBlock[16 * 16],
             new RoomBlockBehavior[16 * 16]);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(220, 80)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(220, 80)) };
         int randomAdvances = 0;
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => { randomAdvances++; return 0x7777; }) { ReadRandom = () => 0x3412 });
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => { randomAdvances++; return 0x7777; }) { ReadRandom = () => 0x3412 });
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())) { Level = level, Samus = samus });
         var system = new SharedGameState();
         int plmBlock = 4 * 16 + 7;
@@ -137,7 +137,7 @@ internal static class EyeDoorPlmsVerification
             new RoomTerrainBlock[roomWidth * roomHeight],
             new RoomBlockBehavior[roomWidth * roomHeight]);
         var system = new SharedGameState();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(eyeX * 16 + 8, eyeY * 16 + 8)),
         };

@@ -39,7 +39,7 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
 
         var guard = NewBotwoonHealthThresholdReadGuard(rom);
         using var colors = new MemoryStream(BotwoonColorExtractor.Extract(rom), writable: false);
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossSourceArtwork { BotwoonColors = BotwoonColorFile.Read(colors) },
         };

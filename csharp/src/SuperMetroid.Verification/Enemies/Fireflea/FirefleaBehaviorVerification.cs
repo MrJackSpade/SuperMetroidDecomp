@@ -14,7 +14,7 @@ internal static class FirefleaBehaviorVerification
     /// <summary>The real initializer starts the Loop program, which the runtime then plays through once and back.</summary>
     internal static void VerifyFirefleaBehavior()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Fireflea, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
@@ -43,7 +43,7 @@ internal static class FirefleaBehaviorVerification
             new FrameCounters(0));
         foreach ((ushort y, EnemySpeedSign expectedSpeedSign) in new VerifyFirefleaVerticalExtentsWrapCase[] { new VerifyFirefleaVerticalExtentsWrapCase(4, EnemySpeedSign.Negative), new VerifyFirefleaVerticalExtentsWrapCase(65531, EnemySpeedSign.Positive), new VerifyFirefleaVerticalExtentsWrapCase(12, EnemySpeedSign.Positive) })
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Fireflea, slot.Definition);
             slot.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);

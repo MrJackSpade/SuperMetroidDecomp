@@ -23,7 +23,7 @@ internal static class SporeSpawnSwayVerification
                      new VerifySporeSpawnSwayPhaseWrapsCase(128, 2, 130),
                  })
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
             body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
             body.Position = body.Position.WithWhole(new(128, 624));

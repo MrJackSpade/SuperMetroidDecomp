@@ -60,7 +60,7 @@ internal static class ChargeFlarePlacementVerification
         {
             // Exercise all original low-nibble operands at the renderer's metadata
             // boundary; compiled pose rules cannot be overridden by fake ROM bytes.
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
             int record = SamusSourceDefinitions.PoseDefinitions.Value + (int)pose * 8;
             bool running = bus.ReadCartridgeByte(record + 1) == (byte)SamusMovementType.Running;
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;
@@ -82,7 +82,7 @@ internal static class ChargeFlarePlacementVerification
             AssertEqual(native.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Flare placement preserves OAM admission");
             cases++;
         }
-        var subject = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+        var subject = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
         PrepareRetailSamusFixture(subject);
         byte[] beforeSamus = GraphDigest(subject), beforeSystem = GraphDigest(system);
         OamBuffer original = SpriteFrameBuffer.DrawnOam(frame => draw(frame, subject, Position16<RoomPixels>.Zero, 0, null,

@@ -25,7 +25,7 @@ internal static class EyeDoorSweatBehaviorVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, EyeDoorSweatNativeListAddresses.Extent, "eye-door sweat");
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         const int roomWidth = 16;
         var foreground = new RoomTerrainBlock[roomWidth * 16];
         foreground[5 * roomWidth + 6] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);

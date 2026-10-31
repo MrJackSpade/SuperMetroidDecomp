@@ -22,7 +22,7 @@ internal static class MaridiaPuyoPileVerification
         var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0xd27e);
         var assets = LoadFixtureRoomAssets(room);
         var random = new SharedGameState();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }) { TileArtwork = FixtureEnemyTileArtwork() };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }) { TileArtwork = FixtureEnemyTileArtwork() };
         enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())));
         // These are the six literal retail population records, not a constructed pile.
         Population[] population =
@@ -38,7 +38,7 @@ internal static class MaridiaPuyoPileVerification
             AssertEqual(population[i].Delay, (enemies.PuyoStates[i] ?? throw new InvalidOperationException("Verification requires enemies.PuyoStates[i].")).HopCooldownTimer.RawValue, "native full-word initial cooldown");
         }
         var firstHop = Enumerable.Repeat(-1, population.Length).ToArray();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(220, 128)), Health = 999, MaxHealth = 999 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(220, 128)), Health = 999, MaxHealth = 999 };
         for (int frame = 1; frame <= 3841; frame++)
         {
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });

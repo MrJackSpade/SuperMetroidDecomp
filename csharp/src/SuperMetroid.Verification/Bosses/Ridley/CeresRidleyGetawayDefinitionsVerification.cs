@@ -3,9 +3,7 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
-using SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
@@ -41,21 +39,14 @@ internal static class CeresRidleyGetawayDefinitionsVerification
 
     /// <summary>
     /// Checks the seven floor animation lists (#1467): the import's runs write exactly the cells and tiles the cartridge's
-    /// lists write, and the installed floor updates record each getaway run's source, count and floor cell.
+    /// lists write. The delays the wing frames leave behind are checked by the stage-five residue suite (#1479).
     /// </summary>
     internal static void VerifyCompiledCeresRidleyMode7Transfers(SuperMetroidAddressSpace rom)
     {
         int checkedTransfers = 0;
-        CeresRidleyFloorUpdateSources installed = CeresRidleyFloorUpdateFiles.Read(new MemoryStream(CeresRidleyFloorUpdateFiles.Extract(rom)));
-        // The sources the getaway's updates record are installed (#1415): the import decodes the cartridge's descriptors
-        // to the values Core's catalog held before, the capsule's first run at $A6:AD1B and the wing's at $A6:ADB7.
-        AssertEqual(0xad1b, installed.Updates(CeresFloorAnimationFrame.BabyFrame0)[0].TileSource, "the capsule's first run source the import decodes");
-        AssertEqual(0xadb7, installed.Updates(CeresFloorAnimationFrame.WingFrame0)[0].TileSource, "the wing's first run source the import decodes");
         foreach (CeresFloorAnimationFrame pointer in Enum.GetValues<CeresFloorAnimationFrame>())
         {
             int cursor = 0xa60000 | CeresNativeWords.FloorAnimationFrames.Word(pointer);
-            bool getawayFrame = pointer is not (CeresFloorAnimationFrame.ElevatorLight or CeresFloorAnimationFrame.ElevatorDark);
-            int run = 0;
             var expected = new Dictionary<int, byte>();
             while (rom.ReadCartridgeByte(cursor) != 0)
             {
@@ -64,17 +55,11 @@ internal static class CeresRidleyGetawayDefinitionsVerification
                 ushort size = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 4);
                 ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 6);
                 AssertEqual((byte)0, rom.ReadCartridgeByte(cursor + 8), "Ceres floor native VRAM increment mode");
-                if (getawayFrame)
-                    AssertEqual(new FloorUpdate(source & ushort.MaxValue, size, destination), installed.Updates(pointer)[run],
-                        $"Ceres {pointer} run {run} installed floor update");
-                run++;
                 for (int index = 0; index < size; index++)
                     expected[destination + index] = rom.ReadCartridgeByte(source + index);
                 cursor += 9;
                 checkedTransfers++;
             }
-            if (getawayFrame)
-                AssertEqual(run, installed.Updates(pointer).Count, $"Ceres {pointer} installs every run's floor update");
             IReadOnlyDictionary<int, int> drawn = CeresFloorDrawings.Cells(pointer);
             AssertTrue(drawn.Count == expected.Count && expected.All(cell => drawn.TryGetValue(cell.Key, out int tile) && tile == cell.Value),
                 $"Ceres {pointer}'s picture writes exactly the cells and tiles its list writes");

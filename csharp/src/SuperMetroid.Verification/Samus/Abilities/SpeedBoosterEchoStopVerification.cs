@@ -25,14 +25,14 @@ internal static class SpeedBoosterEchoStopVerification
         renderer.RenderFrame(queue.AdvanceFrame(renderer.Acknowledgements));
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         var libraries = renderer.PlayerForVerification.soundLibraries;
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.RanIntoWallRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.RanIntoWallRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         var speed = samus.HorizontalSpeed;
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
         int animation = 0;
-        speed.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, ControllerButton.B,
+        speed.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, ControllerButton.B,
             0, ref animation, out _, () => queue.QueueSound(Library3Sound.SpeedBooster, SoundRequestPriority.Normal));
         var words = new RoomTerrainBlock[256];
         for (int index = 160; index < 176; index++) words[index] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock);
@@ -93,12 +93,12 @@ internal static class SpeedBoosterEchoStopVerification
     /// <summary>Checks deferred echo flags across charging, serialization, and quicksand suppression.</summary>
     private static void VerifyEchoFlagOwnership()
     {
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose };
         var speed = samus.HorizontalSpeed;
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
         int animation = 0;
-        speed.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, ControllerButton.B,
+        speed.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, ControllerButton.B,
             0, ref animation, out _);
         AssertTrue(speed.ConsumeEchoSoundRequest(), "deferred producer publishes its start request");
         AssertEqual(1, speed.EchoSoundFlag, "consuming the start event retains the persistent echo flag");

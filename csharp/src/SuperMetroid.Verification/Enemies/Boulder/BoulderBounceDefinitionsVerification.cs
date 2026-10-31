@@ -13,7 +13,7 @@ internal static class BoulderBounceDefinitionsVerification
     /// <summary>Compares the three native words and verifies the zero-counter bounce enters rolling with Y position preserved.</summary>
     internal static void VerifyCompiledBoulderBounces(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         Action<RoomEnemySlot, BoulderEnemyState, RoomLevelData> fall = enemies.BoulderBehavior.RunBoulderFalling;
         RoomLevelData level = VerificationHelpersVerification.CreateSolidRowsRoom(new(8, 8), firstSolidRow: 4, solidRowCount: 4);
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];

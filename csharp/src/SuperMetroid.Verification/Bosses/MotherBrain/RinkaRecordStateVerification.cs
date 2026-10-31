@@ -13,7 +13,7 @@ internal static class RinkaRecordStateVerification
     /// </summary>
     internal static void VerifyRinkaRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new RinkaEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

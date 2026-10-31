@@ -82,7 +82,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         static InitializeResult Initialize(
             InstalledEnemyArtwork artwork)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             var colors = new SamusColourRig();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 colors.SetColor(color, RgbColor.FromWord((ushort)(color * 17)));

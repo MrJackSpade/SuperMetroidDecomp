@@ -15,7 +15,7 @@ internal static class NuclearWaffleProjectileBehaviorVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, NuclearWaffleProjectileNativeListAddresses.Extent, "Nuclear Waffle body");
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot owner = enemies.SlotTable.Slots[0];
         owner.Bind(EnemyDefinitionId.Puromi, owner.Definition);
         owner.SetSpawnParameter1(EnemyDefinitionId.Puromi, 8193);

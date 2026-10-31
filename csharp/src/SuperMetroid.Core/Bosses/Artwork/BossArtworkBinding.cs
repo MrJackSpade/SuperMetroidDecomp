@@ -29,8 +29,8 @@ public sealed class BossArtworkBinding
     /// <summary>Ceres Ridley's installed Mode 7 colors, bound with the map presentation.</summary>
     public CeresRidleyFloorColorCatalog? CeresRidleyFloorColors { get; set; }
 
-    /// <summary>Where Ceres Ridley's getaway floor runs take their tile numbers from, bound with the map presentation.</summary>
-    public CeresRidleyFloorUpdateSources? CeresRidleyFloorUpdates { get; set; }
+    /// <summary>The Speed Booster delays Ceres Ridley's getaway wing frames leave behind, bound with the map presentation.</summary>
+    public CeresRidleyGetawayBoostDelays? CeresRidleyGetawayBoostDelays { get; set; }
 
     /// <summary>The escape typewriters' installed text, bound with the map presentation.</summary>
     public EscapeTypewriterPresentation? EscapeTypewriterPresentation { get; set; }

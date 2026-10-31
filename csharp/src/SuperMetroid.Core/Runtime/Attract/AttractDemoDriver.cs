@@ -108,9 +108,8 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         Ensure.NotNull(scene);
         _system.Progress.CopyFrom(DemoProgress());
 
-        _player.Samus = new SamusState(_animationContinuation)
+        _player.Samus = new SamusState(_animationContinuation, _enemySession.UnauthoredBoostCadence)
         {
-            FloorQueueResidue = _enemySession.FloorQueueResidue,
             Position = FixedPosition<RoomPixels>.FromWhole(scene.SamusPosition),
             EquippedItems = scene.Items, CollectedItems = scene.Items,
             EquippedBeams = scene.EquippedBeams, CollectedBeams = scene.CollectedBeams,

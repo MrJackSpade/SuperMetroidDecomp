@@ -116,7 +116,7 @@ internal static class EnemyRomTablePointersVerification
         Type type = typeof(RoomEnemySystem);
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
-            var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
+            var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
             system.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             slot.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
@@ -130,7 +130,7 @@ internal static class EnemyRomTablePointersVerification
 
         foreach (bool facingRight in new[] { false, true })
         {
-            var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
+            var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
             var torizo = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

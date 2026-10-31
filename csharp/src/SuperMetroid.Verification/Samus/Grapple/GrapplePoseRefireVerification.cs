@@ -20,7 +20,7 @@ internal static class GrapplePoseRefireVerification
         foreach (bool left in new[] { false, true })
         foreach (int changeFrame in Enumerable.Range(1, 10))
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) {
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) {
                 Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
             };

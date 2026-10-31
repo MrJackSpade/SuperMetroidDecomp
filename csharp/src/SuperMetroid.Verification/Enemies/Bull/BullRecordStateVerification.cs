@@ -13,7 +13,7 @@ internal static class BullRecordStateVerification
     /// </summary>
     internal static void VerifyBullRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new BullEnemyState(previous: null);
         slot.SetSpeciesState(state, state.ClearWithRecord);

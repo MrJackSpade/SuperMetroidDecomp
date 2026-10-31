@@ -396,7 +396,7 @@ internal static class EnemyDropsVerification
     }
 
     /// <summary>Creates a centered Samus fixture with full ordinary energy for pickup comparisons.</summary>
-    internal static SamusState CreateDropTestSamus() => new(InstalledFixtures.AnimationContinuation)
+    internal static SamusState CreateDropTestSamus() => new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
         Position = new(new(100, 0), new(100, 0)),
         Health = 99,
@@ -415,7 +415,7 @@ internal static class EnemyDropsVerification
         int NextRandom() => random.Count == 0 ? 1 : random.Dequeue();
 
         RoomLevelData level = CreateEmptyRoom(new(1, 1));
-        var system = new RoomEnemySystem(new EnemySession(), definitions: definitions ?? bus, services: new StandaloneRoomEnemyServices(NextRandom));
+        var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: definitions ?? bus, services: new StandaloneRoomEnemyServices(NextRandom));
         system.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9000), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())) { Level = level, Samus = samus });
         return new EnemyDropFixture(bus, system, level);
     }

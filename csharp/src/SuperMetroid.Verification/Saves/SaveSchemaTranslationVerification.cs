@@ -30,7 +30,7 @@ internal static class SaveSchemaTranslationVerification
         // Isolated arrays only; no player save file is read or changed.
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var ram = new SaveSlotStore(RetailPresentationFixture());
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { ReserveMissiles = 27 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { ReserveMissiles = 27 };
         var system = new SharedGameState { LoadedItemCount = 65535 };
         // Progress in every set schema two listed by table position, so its upgrade is exercised (#1475).
         system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss | BossBits.AreaTorizo);
@@ -54,7 +54,7 @@ internal static class SaveSchemaTranslationVerification
         AssertSameBytes(SaveRamCodec.Encode(targetSaves, RetailPresentationFixture()), SaveRamCodec.Encode(ram, RetailPresentationFixture()),
             "named schema rebuilds the canonical SRAM image");
         var loaded = targetSaves.ReadSlot(0);
-        var restoredSamus = new SamusState(InstalledFixtures.AnimationContinuation);
+        var restoredSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         var restoredSystem = new SharedGameState();
         (loaded ?? throw new InvalidOperationException("Verification requires loaded.")).ApplyTo(restoredSamus, restoredSystem);
         AssertEqual(27, restoredSamus.ReserveMissiles, "reserve missiles reach the live Samus owner");

@@ -17,7 +17,7 @@ internal static class TorizoPaletteShakeVerification
     /// <summary>Checks shake duration, masked fades, save-state continuation, and palette catalog bytes.</summary>
     internal static int VerifyTorizoPaletteShake()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         var cgram = new SamusColourRig();
         for (int i = 0; i < 256; i++) cgram.SetColor(i, RgbColor.FromWord(0x7fff));
         enemies.Presentation.BindColours(cgram.Gameplay);

@@ -25,7 +25,7 @@ internal static class BombJumpRunMomentumVerification
             floorBlocks[4 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         var floor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(floorBlocks, new RoomBlockBehavior[floorBlocks.Length], new RoomBlockAppearance[floorBlocks.Length]));
 
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.MovingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.MovingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)) };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0xc000);

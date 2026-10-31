@@ -153,7 +153,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
         internal KraidHeadClockFixture(InstalledEnemyArtwork art)
         {
             this.art = art;
-            Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
+            Enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             State = new KraidEnemyState();
             State.InitializeBodyLayer();
             step = new Func<RoomEnemySlot, KraidEnemyState, ushort>(Enemies.KraidBehavior.Head.ProcessKraidHeadInstruction);

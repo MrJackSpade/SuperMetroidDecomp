@@ -44,7 +44,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         var guard = NewTourianStatueProjectileInstructionReadGuard(rom);
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
             TourianStatueProjectileAnimationsVerification.Family.NativePointers(CartridgeImportSource.Require(rom));
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
         enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         enemies.VerificationServices().NextRandom = () => 4;
 

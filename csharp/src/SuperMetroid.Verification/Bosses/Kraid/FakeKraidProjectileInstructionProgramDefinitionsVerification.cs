@@ -40,7 +40,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
             .ObserveWords(EnemyProjectileCodePointers.BankBase,
                 FakeKraidProjectileInstructionProgramDefinitionsTooling.PresentationWordCount,
                 FakeKraidProjectileInstructionProgramDefinitionsTooling.PresentationWordAddress);
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
@@ -109,7 +109,7 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = WrappingCountdown.Start(1);
-            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation), Position16<RoomPixels>.Zero);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), Position16<RoomPixels>.Zero);
         }
     }
 

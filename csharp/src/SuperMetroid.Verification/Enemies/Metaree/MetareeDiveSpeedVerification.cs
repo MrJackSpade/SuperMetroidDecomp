@@ -17,13 +17,13 @@ internal static class MetareeDiveSpeedVerification
     {
         foreach ((int samusOffset, int expected) in new[] { new VerifyMetareeDiveSpeedCase(96, 8), new VerifyMetareeDiveSpeedCase(-1, 2734) })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Metaree, slot.Definition);
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
             MetareeBehavior.InitializeMetaree(slot);
             MetareeEnemyState state = enemies.MetareeStates[0] ?? throw new InvalidOperationException("The Metaree has no state.");
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, unchecked((ushort)(0x0080 + samusOffset)))),
             };

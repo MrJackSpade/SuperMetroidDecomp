@@ -1359,7 +1359,7 @@ internal static class LookupStream3Verification
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         sequence.State.Phase = MotherBrainBodyFunction.ThirdPhaseDeathStartEscape;
         var bus = new TestAddressSpace();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Health = 99 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 99 };
         var firstPage = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         AssertEqual(0, firstPage.EscapePaletteFxRequests.Count, "stream 3 escape palette effects wait for door graphics");
         var handoff = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
@@ -3063,7 +3063,11 @@ internal static class LookupStream3Verification
         AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
         var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
         var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, introFont: font, characterArtwork: stock,
-            beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new SharedRandom() };
+            beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes)
+        {
+            Random = new SharedRandom(),
+            UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
+        };
         byte[] nativeFont = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
             IntroCinematicSourceDefinitions.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
         AssertTrue(intro.ShownVram().AsSpan(
@@ -3262,7 +3266,11 @@ internal static class LookupStream3Verification
         AssertEqual(hash, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
         var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
         var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, introFont: font, characterArtwork: stock,
-            beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new SharedRandom() };
+            beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes)
+        {
+            Random = new SharedRandom(),
+            UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
+        };
         AssertTrue(intro.ShownVram().AsSpan(
             (IntroVramLayout.BackgroundPages.Offset * 2), native.Length).SequenceEqual(native),
             "actual opening constructor uploads all four calculated background pages");
@@ -3390,7 +3398,11 @@ BranchesToSharedBody:true),
         AssertEqual(hash, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
         var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
         var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, introFont: font, characterArtwork: stock,
-            beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new SharedRandom() };
+            beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes)
+        {
+            Random = new SharedRandom(),
+            UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
+        };
         AssertTrue(intro.ShownVram().AsSpan(
             (IntroVramLayout.PortraitTilemap.Offset * 2), native.Length).SequenceEqual(native),
             "actual opening constructor uploads calculated portrait map");

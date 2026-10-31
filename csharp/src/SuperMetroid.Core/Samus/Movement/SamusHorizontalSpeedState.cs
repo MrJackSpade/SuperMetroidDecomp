@@ -266,7 +266,7 @@ public sealed class SamusHorizontalSpeedState
     /// reaches an animation command. True means the command was consumed and frame zero
     /// was restarted from the ROM-authored delay list for the new boost stage.
     /// </summary>
-    /// <param name="floorUpdateResidue">The session's floor update residue, which the unauthored boost cadence reads.</param>
+    /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which a full sound queue selects.</param>
     /// <param name="movementType">Current movement category; only running can consume this animation command.</param>
     /// <param name="controllerInput">Current held SNES button word; the native dash button must be held.</param>
     /// <param name="animationFrameBuffer">Native frame-delay adjustment added to the selected stage's first animation delay.</param>
@@ -279,7 +279,7 @@ public sealed class SamusHorizontalSpeedState
     /// standalone callers can omit it when no cartridge audio queue is attached.
     /// </param>
     public bool TryAdvanceSpeedBoosterAnimationStage(
-        SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue,
+        UnauthoredBoostCadence unauthoredBoostCadence,
         SamusMovementType movementType,
         ControllerButton controllerInput,
         int animationFrameBuffer,
@@ -325,7 +325,7 @@ public sealed class SamusHorizontalSpeedState
         SamusRunningCadence cadence = SamusRunningCadences.SpeedBoostCadence(stage);
         animationFrame = 0;
         animationFrameTimer = WrappingCountdown.FromRaw(animationFrameBuffer)
-            .AddFrames(SamusRunningCadences.Delay(floorUpdateResidue, cadence, frame: 0)).RawValue;
+            .AddFrames(SamusRunningCadences.Delay(unauthoredBoostCadence, cadence, frame: 0)).RawValue;
         // Animation runs after movement. Native stage advancement changes cadence
         // and sound, not contact damage; the next movement epilogue publishes that.
         // Publishing here enables boost damage one frame before the cartridge.
@@ -333,10 +333,10 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>The delay, in ticks, of running frame <paramref name="frame"/> at the boost's current stage.</summary>
-    /// <param name="floorUpdateResidue">The session's floor update residue, which the unauthored cadence reads.</param>
+    /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which a full sound queue selects.</param>
     /// <param name="frame">The running frame, zero through nine.</param>
-    internal int SpeedBoosterDelay(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue, int frame) =>
-        SamusRunningCadences.Delay(floorUpdateResidue, SamusRunningCadences.SpeedBoostCadence(SpeedBoostCounter.Stage), frame);
+    internal int SpeedBoosterDelay(UnauthoredBoostCadence unauthoredBoostCadence, int frame) =>
+        SamusRunningCadences.Delay(unauthoredBoostCadence, SamusRunningCadences.SpeedBoostCadence(SpeedBoostCounter.Stage), frame);
 
     /// <summary>
     /// Ports the dry-room Speed Booster branch of

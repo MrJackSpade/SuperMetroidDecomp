@@ -17,7 +17,7 @@ internal static class DeadTorizoBehaviorVerification
     /// </summary>
     internal static void VerifyDeadTorizoBehavior()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
         RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
         corpse.Bind(EnemyDefinitionId.CorpseTorizo, corpse.Definition);
         corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));

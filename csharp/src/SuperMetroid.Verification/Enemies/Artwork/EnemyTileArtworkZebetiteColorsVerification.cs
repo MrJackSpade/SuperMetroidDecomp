@@ -123,7 +123,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         static CreateResult Create(
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             SamusColourRig cgram = SeedColors();
             enemies.Presentation.BindColours(cgram.Gameplay);
             RoomEnemySlot primarySlot = enemies.SlotTable.Slots[0];

@@ -16,7 +16,7 @@ internal static class KraidNailContourVerification
         ushort Word(int a) => LittleEndianBytes.Word(KraidNailContourRomByte(rom, a), KraidNailContourRomByte(rom, a + 1));
         Suite(nameof(VerifyKraidNailLeftOffsets), () => VerifyKraidNailLeftOffsets(rom));
         Suite(nameof(VerifyKraidNailTopBoundaries), () => VerifyKraidNailTopBoundaries(rom));
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;
         Func<RoomEnemySlot, bool> reflect = enemies.KraidBehavior.Projectiles.KraidBodyContourReflectsNail;

@@ -28,7 +28,7 @@ internal static class BoyonBehaviorVerification
         AssertTrue(!idle.Properties.HasAny(EnemyProperties.ProcessOffScreen), "Boyon idle stops off-screen processing");
 
         (RoomEnemySystem bounceSystem, RoomEnemySlot bounce, BoyonEnemyState bounceState) = Create();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(bounce.Position.Whole) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(bounce.Position.Whole) };
         BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
         BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
         AssertEqual(AnimationProgramCursor<BoyonProgram>.Start(BoyonProgram.Bouncing), bounceState.Program, "Samus nearby starts the bounce");
@@ -49,7 +49,7 @@ internal static class BoyonBehaviorVerification
     internal static void VerifyBoyonCurveIndexWrapsAtTheTop()
     {
         (_, RoomEnemySlot slot, BoyonEnemyState state) = Create();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole) };
         BoyonBehavior.RunBoyonMain(slot, state, samus);
         state.BounceMovement = BoyonBounceMovement.Rising;
         state.SpeedTableIndex = 0;
@@ -73,7 +73,7 @@ internal static class BoyonBehaviorVerification
     {
         foreach ((int heightSelector, int expected) in new VerifyBoyonJumpHeightComparesByWordSignCase[] { new VerifyBoyonJumpHeightComparesByWordSignCase(5, 144), new VerifyBoyonJumpHeightComparesByWordSignCase(6, 1) })
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Boyon, slot.Definition);
             slot.SetSpawnParameter1(EnemyDefinitionId.Boyon, checked((ushort)(heightSelector * 256)));
@@ -81,7 +81,7 @@ internal static class BoyonBehaviorVerification
             slot.Position = slot.Position.WithWhole(new(256, 512));
             BoyonBehavior.InitializeBoyon(slot);
             BoyonEnemyState state = slot.RequireSpeciesState<BoyonEnemyState>();
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole) };
 
             BoyonBehavior.RunBoyonMain(slot, state, samus);
 
@@ -93,7 +93,7 @@ internal static class BoyonBehaviorVerification
     /// <summary>A Boyon with a 64-pixel trigger range after its real initializer.</summary>
     private static BoyonBehaviorCreateResult Create()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Boyon, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

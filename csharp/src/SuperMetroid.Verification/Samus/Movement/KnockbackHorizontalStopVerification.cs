@@ -15,7 +15,7 @@ internal static class KnockbackHorizontalStopVerification
         var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
         foreach (bool right in new[] { false, true })
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = right ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left }, level: level);
             SamusPoseMetadata.RefreshCollisionRadii(samus);

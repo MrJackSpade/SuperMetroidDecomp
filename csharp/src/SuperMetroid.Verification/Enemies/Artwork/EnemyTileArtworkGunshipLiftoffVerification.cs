@@ -113,7 +113,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
 
         static SpriteArtworkPlacements ShowAllTakeoffPages(InstalledEnemyArtwork art)
         {
-            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             var part = new GunshipPartState();
             top.SetSpeciesState(part, part.ClearWithRecord);

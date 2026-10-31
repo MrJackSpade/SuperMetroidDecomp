@@ -19,7 +19,7 @@ internal static class WreckedShipGhostBobbingVerification
     internal static void VerifyWreckedShipGhostBobbing()
     {
         var frame = new ClockedEnemyAiFrame(
-            new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation) },
+            new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) },
             new FrameCounters(0));
         foreach ((string context, ushort y, ushort originY, short whole, ushort expectedY, int expectedVelocity) in
                  new VerifyWreckedShipGhostBobbingCase[]
@@ -29,7 +29,7 @@ internal static class WreckedShipGhostBobbingVerification
                      new VerifyWreckedShipGhostBobbingCase("below an origin wrapped past the top edge", 0, 65535, 1, 1, 65536 - 6144),
                  })
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Coven, slot.Definition);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(64, y));

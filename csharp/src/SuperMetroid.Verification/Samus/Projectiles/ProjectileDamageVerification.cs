@@ -44,7 +44,7 @@ internal static class ProjectileDamageVerification
         }
 
         var room = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
-        SamusState Samus() => new(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose, Position = new(new(128, 0), new(128, 0)), Missiles = 10, SuperMissiles = 10 };
+        SamusState Samus() => new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose, Position = new(new(128, 0), new(128, 0)), Missiles = 10, SuperMissiles = 10 };
         void Check(SamusProjectileSlot slot, int table, int index, int direction)
         {
             int data = 0x930000 | Word(table + index * 2);
@@ -190,7 +190,7 @@ internal static class ProjectileDamageVerification
         {
             var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
             var shared = new SamusBombProjectileSystem();
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
@@ -245,7 +245,7 @@ internal static class ProjectileDamageVerification
         {
             var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
             var shared = new SamusBombProjectileSystem();
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

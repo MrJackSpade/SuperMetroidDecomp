@@ -20,7 +20,7 @@ internal static class StatueWalkDefinitionsVerification
         // The cartridge's walking table holds one signed word per step; every walking cue reads a whole entry.
         for (int step = 0; step < GoldenTorizoWalk.StepCount; step++)
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaad59a + step * 2)), GoldenTorizoWalk.Velocity(step), "Torizo walking step velocity");
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, int, AnimationProgramCursor<TorizoBodyProgram>?> walk = enemies.BombTorizoBehavior.Choices.ProcessGoldenTorizoWalkInstruction;
         Action<RoomEnemySlot, ChozoStatueState, SamusState, RoomLevelData, int> carry = enemies.ChozoStatueBehavior.ProcessChozoStatueMovement;
         var level = CreateEmptyRoom(new(32, 32));
@@ -28,7 +28,7 @@ internal static class StatueWalkDefinitionsVerification
         slot.Radius = new(8, 8);
         var torizo = new TorizoEnemyState(slot, true);
         var statue = new ChozoStatueState();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         for (int step = 0; step < GoldenTorizoWalk.StepCount; step++)
         {
             int offset = step * 2;

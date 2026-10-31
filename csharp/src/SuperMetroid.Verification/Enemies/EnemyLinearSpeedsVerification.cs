@@ -26,7 +26,7 @@ internal static class EnemyLinearSpeedsVerification
 
         if (definitionsOnly) return;
 
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: new TestAddressSpace());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: new TestAddressSpace());
         // Only family-specific distance/timer data can be read. No speed bytes
         // are present; Stoke and Ripper do not need any bus for their speed setup.
         var cacatac = new Action<RoomEnemySlot>(CacatacBehavior.InitializeCacatac);

@@ -22,7 +22,7 @@ internal static class PauseReserveArrowRebindVerification
     internal static void VerifyPauseReserveArrowRebindKeepsLatch()
     {
         var catalog = RetailPresentationFixture();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, Health = 50, MaxHealth = 99 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, Health = 50, MaxHealth = 99 };
         var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
         EnterPauseEquipment(menu);
         AssertEqual(PauseEquipmentCategory.Reserves, menu.SelectedCategory, "fixture settles on the reserve page selection");

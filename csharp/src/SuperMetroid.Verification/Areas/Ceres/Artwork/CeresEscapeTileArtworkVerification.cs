@@ -43,7 +43,7 @@ internal static class CeresEscapeTileArtworkVerification
             writable: false);
         EscapeTimerTileAtlas timer = EscapeTimerCharacters.Read(timerPng);
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
-        var installed = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
+        var installed = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = stock.Enemies,
             AreaArtwork = stock.Areas,
@@ -114,7 +114,7 @@ internal static class CeresEscapeTileArtworkVerification
             "Ceres warning PNG edit changes the first tile-plane byte");
         AssertTrue(stockChunk.Span[1..].SequenceEqual(editedChunk.Span[1..]),
             "Ceres warning PNG edit leaves other transfer bytes unchanged");
-        var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
+        var editedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = edited.Enemies,
             AreaArtwork = edited.Areas,

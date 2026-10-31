@@ -351,11 +351,11 @@ public static class MapPresentationExtractor
             file.Write(ceresRidleyMode7ColorBytes);
         hashes.Add(CeresRidleyFloorColorFormat.FileName,
             Convert.ToHexString(SHA256.HashData(ceresRidleyMode7ColorBytes)));
-        byte[] ceresRidleyFloorUpdateBytes = CeresRidleyFloorUpdateFiles.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, CeresRidleyFloorUpdateFormat.FileName), FileMode.CreateNew, FileAccess.Write))
-            file.Write(ceresRidleyFloorUpdateBytes);
-        hashes.Add(CeresRidleyFloorUpdateFormat.FileName,
-            Convert.ToHexString(SHA256.HashData(ceresRidleyFloorUpdateBytes)));
+        byte[] ceresRidleyGetawayBoostDelayBytes = CeresRidleyGetawayBoostDelayFiles.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, CeresRidleyGetawayBoostDelayFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(ceresRidleyGetawayBoostDelayBytes);
+        hashes.Add(CeresRidleyGetawayBoostDelayFormat.FileName,
+            Convert.ToHexString(SHA256.HashData(ceresRidleyGetawayBoostDelayBytes)));
         byte[] samusHyperBeamColorBytes = SamusHyperBeamColorExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, SamusHyperBeamColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(samusHyperBeamColorBytes);

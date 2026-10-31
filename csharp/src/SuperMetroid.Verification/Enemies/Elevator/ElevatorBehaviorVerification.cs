@@ -14,7 +14,7 @@ internal static class ElevatorBehaviorVerification
     /// <summary>The real initializer starts the Loop program, which the runtime then plays through once and back.</summary>
     internal static void VerifyElevatorBehavior()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Elevator, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

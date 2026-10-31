@@ -22,7 +22,7 @@ internal static class CompactWalkOffCollisionVerification
             // Native soft-unmorph comparison: the neighboring ordinary landing's
             // grounding probe leaves a compact body near the floor. Falling expands
             // that body, so F404 must shift its center and clamp its fractional word.
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Pose = left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 240)),

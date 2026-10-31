@@ -46,7 +46,7 @@ internal static class GrappleFlarePresentationVerification
             Check(native, actual, changed);
             SamusState Seed()
             {
-                var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
+                var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
                 samus.Grapple.Phase = phase;
                 samus.Grapple.FireDirection = pose is SamusPoseId.FacingLeftNormalPose or SamusPoseId.MovingLeftNormalPose
                     ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left
@@ -63,7 +63,7 @@ internal static class GrappleFlarePresentationVerification
         }
         foreach (SamusPoseId pose in new[] { SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
         {
-            var native = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
+            var native = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
             native.Grapple.Phase = GrapplePhase.Firing;
             native.Grapple.FireDirection = pose == SamusPoseId.MovingLeftNormalPose
                 ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left
@@ -86,7 +86,7 @@ internal static class GrappleFlarePresentationVerification
         foreach (ushort timer in new ushort[] { 0, 1, 2, 32768, 65535 })
         foreach (ushort frame in new ushort[] { 0, 15, 16, 29 })
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose };
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.FlareCounter = 2;
             samus.Grapple.FlareAnimationFrame = frame;

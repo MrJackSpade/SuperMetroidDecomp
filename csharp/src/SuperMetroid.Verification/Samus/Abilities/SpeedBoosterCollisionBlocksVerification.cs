@@ -181,7 +181,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
     /// <summary>Positions Samus for the fixture contact and selects either stage-four boost or the inactive counter.</summary>
     internal static SamusState CreateSpeedBoosterCollisionSamus(bool active)
     {
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(40, 54)),

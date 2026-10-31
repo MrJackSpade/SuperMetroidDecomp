@@ -15,7 +15,7 @@ internal static class BabyMetroidWrongWaySpeedVerification
     /// </summary>
     internal static void VerifyBabyMetroidWrongWaySpeed()
     {
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)) };
         var motherBrain = new MotherBrainRainbowBeamAttackSequence();
         var baby = new BabyMetroidCutsceneState();
         baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.FromWords(0, 0x1400, 0, 0x3100));

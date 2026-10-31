@@ -15,7 +15,7 @@ internal static class ReportedShaftMomentumVerification
     internal static void VerifyReportedShaftMomentum()
     {
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new RoomTerrainBlock[32 * 32], new RoomBlockBehavior[32 * 32], new RoomBlockAppearance[32 * 32]));
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.SpinJumpLeftPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

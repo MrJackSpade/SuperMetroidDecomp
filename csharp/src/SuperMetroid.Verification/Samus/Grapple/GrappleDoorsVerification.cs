@@ -38,7 +38,7 @@ internal static class GrappleDoorsVerification
             }
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new RoomBlockAppearance[words.Length]));
             int hitBlock = origin + hitOffset * stride;
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(hitBlock % width * 16 + 8), (ushort)(hitBlock / width * 16 + 8))),
             };

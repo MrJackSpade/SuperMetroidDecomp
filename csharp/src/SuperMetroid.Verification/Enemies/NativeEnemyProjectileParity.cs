@@ -24,7 +24,7 @@ internal static class NativeEnemyProjectileParity
         int update = 0;
         for (; update < updates; update++)
         {
-            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation), Position16<RoomPixels>.Zero);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), Position16<RoomPixels>.Zero);
             native.Step(cartridge);
             string at = $"{label} update {update}";
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");

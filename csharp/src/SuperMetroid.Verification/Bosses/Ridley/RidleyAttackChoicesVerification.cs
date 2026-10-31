@@ -35,8 +35,8 @@ internal static class RidleyAttackChoicesVerification
             AssertEqual(native[row, choice], Table(row, choice), "Every native Ridley action pointer");
         }
 
-        var actual = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        var reference = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var actual = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var reference = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> select = actual.RidleyBehavior.SelectNorfairRidleyAttack;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> runReference = reference.RidleyBehavior.RunNorfairRidleyFunction;
         ushort random = 0;
@@ -44,9 +44,9 @@ internal static class RidleyAttackChoicesVerification
         actual.VerificationServices().NextRandom = () => { advances++; return random; };
         actual.VerificationServices().ReadRandom = () => { actualReads++; return random; };
         reference.VerificationServices().ReadRandom = () => { referenceReads++; return random; };
-        var standing = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 256)) };
-        var low = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 352)) };
-        var spinning = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 256)) };
+        var standing = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 256)) };
+        var low = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 352)) };
+        var spinning = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 256)) };
         // Explicit native branch cases, including spin priority over zero health,
         // health thresholds, absent Samus, and Y immediately before the pogo zone.
         RidleyAttackChoicesCase[] cases =

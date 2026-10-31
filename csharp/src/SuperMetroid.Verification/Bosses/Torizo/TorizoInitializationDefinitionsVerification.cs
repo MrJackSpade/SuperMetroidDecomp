@@ -25,7 +25,7 @@ internal static class TorizoInitializationDefinitionsVerification
             ushort[] actual = [compiled.Position.X, compiled.Position.Y, TorizoNativeListAddresses.Entry(compiled.Program), (ushort)compiled.PropertyMask, compiled.Radius.X, compiled.Radius.Y];
             AssertTrue(native.SequenceEqual(actual), "Every Torizo initialization record word matches ROM");
 
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
             bool defeated = false;
             enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;

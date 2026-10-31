@@ -13,7 +13,7 @@ internal static class KraidRecordStateVerification
     /// </summary>
     internal static void VerifyKraidRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[6];
         var part = new KraidPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);

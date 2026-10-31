@@ -14,7 +14,7 @@ internal static class ProjectileOriginsVerification
     {
         short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         var initialize = new Action<SamusState, SamusProjectileSlot>(BeamFiring.InitializePosition);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         var slot = new SamusProjectileSlot(0);
 
         void Check(SamusPoseId pose, SamusProjectileDirection direction, ushort x, ushort y)

@@ -123,7 +123,7 @@ internal static class ShotCallbackDefinitionsVerification
                 Touch = EnemyInteractionCallbacks.TryDecode(touchBank, touchWord),
                 TouchBody = EnemyInteractionCallbacks.Body(touchWord, EnemyInteractionCallbacks.IsLiteralNoOpTouch(touchBank, touchWord)),
             });
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 Health = 99,
@@ -171,7 +171,7 @@ internal static class ShotCallbackDefinitionsVerification
 
         static CreateLiteralNoOpCombatSystemResult CreateLiteralNoOpCombatSystem()
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             var interactive = (List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies;
             RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
             interactive.Add(enemy);

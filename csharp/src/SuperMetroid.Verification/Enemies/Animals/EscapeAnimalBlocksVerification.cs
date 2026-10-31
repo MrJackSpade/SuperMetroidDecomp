@@ -37,7 +37,7 @@ internal static class EscapeAnimalBlocksVerification
             AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.VerticalExtension), level.GetCollisionBlock(new(15, checked((ushort)y))).Terrain, "rescue extensions preserve visual tile");
         for (int y = 10; y <= 12; y++)
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(248, (ushort)(y * 16 + 8))) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(248, (ushort)(y * 16 + 8))) };
             SeedStationaryGrappleCollisionProbe(samus);
             int before = plms.SlotTable.ActiveCount;
             SamusGrappleMovement.StepFiring(level, samus,

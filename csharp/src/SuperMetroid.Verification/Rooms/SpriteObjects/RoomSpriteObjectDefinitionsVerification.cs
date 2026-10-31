@@ -21,7 +21,7 @@ internal static class RoomSpriteObjectDefinitionsVerification
         {
             ushort entry = RoomSpriteObjectNativeLists.Entry(rom, (ushort)kind);
             AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), $"room sprite object {kind} entry");
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomSpriteObjectSlot slot = enemies.SpriteObjects.SpawnRoomSpriteObject(new(0x1000, 0x2000), kind, SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(SpriteColouring.InFixtureSet(3)))
                 ?? throw new InvalidOperationException($"Room sprite object {kind} was not allocated.");
             AssertEqual(kind, slot.Kind, $"room sprite object {kind} identity");

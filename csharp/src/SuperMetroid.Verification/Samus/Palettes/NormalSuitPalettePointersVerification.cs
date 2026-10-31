@@ -39,7 +39,7 @@ internal static class NormalSuitPalettePointersVerification
             AssertEqual(nativePointer, SamusPaletteDefinitions.Common.NormalSuitPalettePointer(offset),
                 $"compiled normal suit pointer selection {selection} matches retail ROM");
 
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 EquippedItems = equipment[selection],
                 MetroidAttachmentPalette = SamusMetroidAttachmentPalette.NormalSuitNext,

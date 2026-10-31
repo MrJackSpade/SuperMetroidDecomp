@@ -98,7 +98,7 @@ internal static class EscapeGateVisualsVerification
 
         RoomLevelData closedLevel = CreateLevel();
         var closed = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmEscapeGateVisuals = edited });
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref closed, new PlmRoom(closedLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation)), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref closed, new PlmRoom(closedLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "edited escape gate loads its real resident header");
         closed.Step(closedLevel);
         AssertEqual(RoomTerrainBlock.Of(0x30f, BlockMirroring.None, RoomCollisionType.SolidBlock),
@@ -110,7 +110,7 @@ internal static class EscapeGateVisualsVerification
 
         RoomLevelData closingLevel = CreateLevel();
         var closing = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmEscapeGateVisuals = edited });
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref closing, new PlmRoom(closingLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation)), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref closing, new PlmRoom(closingLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "edited escape closure loads resident gate");
         var enteringDoor = new DoorDefinition(
             Name: nameof(TourianDoorDefinitions.MotherBrain1),

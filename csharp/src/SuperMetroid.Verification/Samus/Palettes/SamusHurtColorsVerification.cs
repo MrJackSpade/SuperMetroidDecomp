@@ -48,7 +48,7 @@ internal static class SamusHurtColorsVerification
         CompareHurtCycle(rom, catalog, cinematic: false);
         CompareHurtCycle(rom, catalog, cinematic: true);
         AssertThrows<InvalidOperationException>(() => SamusHurtFlashPalette.Update(
-            new SamusColourRig().Samus.Suit, new SamusState(InstalledFixtures.AnimationContinuation) { HurtFlashCounter = 1 }, 0),
+            new SamusColourRig().Samus.Suit, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { HurtFlashCounter = 1 }, 0),
             "hurt flash requires installed color artwork instead of a cartridge fallback");
         AssertThrows<InvalidDataException>(() => SamusHurtColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),
@@ -62,7 +62,7 @@ internal static class SamusHurtColorsVerification
     private static void CompareHurtCycle(ISnesAddressSpace rom,
         InstalledSamusHurtColors catalog, bool cinematic)
     {
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { HurtFlashCounter = 1 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { HurtFlashCounter = 1 };
         samus.Presentation.SuitColors = SamusSuitColorFile.Read(new MemoryStream(
             SamusSuitColorExtractor.Extract(rom)));
         samus.LiquidPhysics.CinematicFunctionActive = cinematic;
@@ -120,7 +120,7 @@ internal static class SamusHurtColorsVerification
             "hurt color override changes installed content identity");
         foreach (bool cinematic in new[] { false, true })
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { HurtFlashCounter = (ushort)(cinematic ? 2 : 1) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { HurtFlashCounter = (ushort)(cinematic ? 2 : 1) };
             samus.LiquidPhysics.CinematicFunctionActive = cinematic;
             var cgram = new SamusColourRig();
             var guarded = NewForbiddenHurtColorBus(rom);

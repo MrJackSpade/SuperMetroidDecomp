@@ -17,7 +17,7 @@ internal static class EtecoonFanfareVerification
     internal static void VerifyEtecoonFanfareAfterDoor()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         for (int index = 0; index < 3; index++)
         {
             var slot = enemies.SlotTable.Slots[index];
@@ -30,7 +30,7 @@ internal static class EtecoonFanfareVerification
             slot.SetSpawnParameter2(EnemyDefinitionId.Etecoon, (ushort)index);
             EtecoonBehavior.InitializeEtecoon(slot);
         }
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = new(new(0x240, 0), new(0xb98, 0)), Health = 999, MaxHealth = 999 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = new(new(0x240, 0), new(0xb98, 0)), Health = 999, MaxHealth = 999 };
         RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(48, 192));
         enemies.ElevatorBehavior.ElevatorDoorTransitionActive = true;
         for (int frame = 0; frame < 3; frame++)

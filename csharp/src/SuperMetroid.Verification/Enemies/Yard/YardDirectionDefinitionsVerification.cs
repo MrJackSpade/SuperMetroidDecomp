@@ -65,7 +65,7 @@ internal static class YardDirectionDefinitionsVerification
 
         for (ushort direction = 0; direction < 8; direction++)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.SetSpawnSettings(new YardSpawnSettings(SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction), SpeedIndex: 0));
             slot.Properties = EnemyProperties.RespawnIfKilled;
@@ -100,7 +100,7 @@ internal static class YardDirectionDefinitionsVerification
 
         foreach (ushort direction in new ushort[] { 0, 1 })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.SetSpawnSettings(new YardSpawnSettings(SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction), SpeedIndex: 0));
             slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
@@ -116,7 +116,7 @@ internal static class YardDirectionDefinitionsVerification
 
             state.Behavior = YardBehavior.NormalCrawling;
             state.MovementFunction = YardMovementFunction.CrawlingUpsideUpMovingLeft;
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Pose = facing == 0
                     ? SamusPoseId.FacingLeftNormalPose

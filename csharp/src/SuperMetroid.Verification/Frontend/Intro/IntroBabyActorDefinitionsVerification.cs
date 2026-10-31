@@ -68,11 +68,11 @@ internal static class IntroBabyActorDefinitionsVerification
         var guarded = NewIntroBabyActorDefinitionGuard(retail);
         RoomTerrainBlock[] nativeCollision = VerifyIntroDiscoveryCollision(retail);
         var discovery = new IntroBabyDiscoveryState(new SharedRandom(), 
-            existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.AnimationContinuation)));
+            existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())));
         var referenceBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var reference = new IntroBabyDiscoveryState(new SharedRandom(), 
-            existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.AnimationContinuation)));
+            existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())));
         for (int block = 0; block < nativeCollision.Length; block++)
             AssertEqual(nativeCollision[block], discovery.Level.GetCollisionBlockByIndex(block).Terrain,
                 $"SR388 discovery physical block {block} matches the decoded original");

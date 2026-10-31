@@ -52,7 +52,7 @@ public sealed class RidleyEnemyState
     public bool IdleTailWhipEnabled { get; internal set; }
     /// <summary>Gets the tail tip's contact damage before Samus's suit reduction: fifteen in Ceres, 120 in Lower Norfair.</summary>
     public int TailDamage { get; internal set; }
-    /// <summary>Gets the current AI phase's native countdown word; Ceres self-destruct reuses it as the even dispatch index 0, 2, 4, 6, 8, 10, or 12.</summary>
+    /// <summary>Gets the current AI phase's countdown, which times how long the phase lasts.</summary>
     public WrappingCountdown FunctionTimer { get; internal set; }
     /// <summary>
     /// Gets the shared reveal fade's step: the eye-fade schedule step (zero through 64), the body-fade shade (zero through
@@ -213,6 +213,8 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the two-phase Ridley wing graphics-transfer animation index (zero or one) during the Mode-7 getaway.</summary>
     public int GetawayWingFrame { get; internal set; }
 
+    /// <summary>Which step of the Ceres self-destruct warning runs next; the getaway's end starts it.</summary>
+    internal CeresSelfDestructPhase CeresSelfDestructPhase { get; set; }
     /// <summary>Where the Ceres self-destruct stands in its current page list, advanced as each page is shown (#1406).</summary>
     internal CeresEscapePageCursor CeresEscapePages { get; set; }
     /// <summary>Gets the Ceres warning phase or glyph delay countdown, including the initial 128-frame wait.</summary>

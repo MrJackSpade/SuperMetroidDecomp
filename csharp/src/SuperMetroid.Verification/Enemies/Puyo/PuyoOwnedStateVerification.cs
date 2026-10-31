@@ -28,7 +28,7 @@ internal static class PuyoOwnedStateVerification
         hop.StepAirborneIndex(0x0100);
         AssertEqual(new VerifyPuyoOwnedStateCase(0x7f00, true), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex, hop.Falling), "a falling step below the sign bit keeps falling");
 
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Puyo, slot.Definition);
         slot.SetSpawnParameter1(EnemyDefinitionId.Puyo, 5);

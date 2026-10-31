@@ -109,9 +109,6 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The <see cref="GameplayActorDrawing"/> owner of this SuperMetroidRuntime.</summary>
     internal GameplayActorDrawing ActorDrawing { get; }
 
-    /// <summary>The session's floor update residue, bound into the enemies and every Samus this runtime creates.</summary>
-    internal SuperMetroid.Core.Compatibility.FloorUpdateResidue FloorQueueResidue { get; }
-
     /// <summary>
     /// What Mother Brain's rainbow-beam push hides from the camera this update, bound into the enemies and consumed by
     /// the update's scrolling.
@@ -153,12 +150,12 @@ internal sealed class SuperMetroidRuntime
     /// are handed to the owners that consult them, and <see cref="BindArtwork"/> binds the rest.
     /// </param>
     /// <param name="clock">The session's frame clock, shared with the frontend that counts while no runtime exists.</param>
-    /// <param name="floorQueueResidue">The session's floor update residue, which outlives each runtime.</param>
+    /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives each runtime; its enemies and every Samus it creates share it.</param>
     /// <param name="random">The session's random-number word, which outlives each runtime and is never copied.</param>
     /// <param name="earthquakeSoundDelay">The frame the save file found at power-on adds to every earthquake rumble's delay.</param>
     /// <param name="saveChoiceInput">The session's cadence of an open save confirmation's controller reads.</param>
     internal SuperMetroidRuntime(HostGameplayOverrides overrides, IGameplayArtwork artwork,
-        FrameClock clock, SuperMetroid.Core.Compatibility.FloorUpdateResidue floorQueueResidue, SharedRandom random,
+        FrameClock clock, UnauthoredBoostCadence unauthoredBoostCadence, SharedRandom random,
         PowerOnEarthquakeSoundDelay earthquakeSoundDelay, SaveChoiceInputCadence saveChoiceInput)
     {
         Ensure.NotNull(artwork);
@@ -174,8 +171,7 @@ internal sealed class SuperMetroidRuntime
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
-        FloorQueueResidue = Ensure.NotNull(floorQueueResidue);
-        EnemySession.FloorQueueResidue = FloorQueueResidue;
+        EnemySession = new EnemySession(unauthoredBoostCadence);
         EnemySession.RainbowBeamCameraCheckpoint = RainbowBeamCameraCheckpoint;
 
         BeamCharge = new BeamChargeState();
@@ -361,7 +357,7 @@ internal sealed class SuperMetroidRuntime
     public SpriteFrameBuffer DisplayedSprites { get; } = new();
 
     /// <summary>Active room's fixed 32-slot bank-$A0 enemy system.</summary>
-    public EnemySession EnemySession { get; } = new();
+    public EnemySession EnemySession { get; }
 
     /// <summary>The installed boss artwork every room's bosses read.</summary>
     public BossArtworkBinding BossArtwork { get; } = new();

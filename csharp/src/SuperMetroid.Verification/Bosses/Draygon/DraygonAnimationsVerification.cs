@@ -137,7 +137,7 @@ internal static class DraygonAnimationsVerification
     /// <summary>Creates Draygon's four linked parts in a fresh enemy system.</summary>
     private static NewDraygonResult NewDraygon()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), services: new VerificationRoomEnemyServices(null));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
         body.Position = body.Position.WithWhole(new(256, 384));
@@ -242,7 +242,7 @@ internal static class DraygonAnimationsVerification
         RoomEnemyProjectileSlot goop = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.DraygonGoop);
         AssertTrue(goop.Animation is DraygonProjectileAnimation, "the real goop producer starts the typed goop program");
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         enemies.Projectiles.ProcessEnemyProjectileInstructions(goop, samus, Position16<RoomPixels>.Zero);
         AssertEqual(EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus, goop.PreInstruction, "the goop touch sticks the goop to Samus");
         AssertEqual(EnemyProjectileProgramFrameSources.Operand(DraygonProjectileVisualDefinitions.ShownProjectileFrames[new(DraygonProjectileFrameKind.Goop, 0)]), goop.PresentationOperandAddress,

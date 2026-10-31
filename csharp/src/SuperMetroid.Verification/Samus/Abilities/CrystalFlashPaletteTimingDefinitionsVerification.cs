@@ -40,7 +40,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
                     CrystalFlashPaletteTimingDefinitions.RecordByteCount),
             "Crystal Flash timing rejects an offset beyond the authored cycle");
 
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

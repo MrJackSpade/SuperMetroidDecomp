@@ -30,7 +30,7 @@ internal static class RidleyBreakupProgramsVerification
     /// <summary>Drives the grab-release death branch and compares all 29 fragment programs with native data.</summary>
     internal static void VerifyRidleyBreakupPrograms()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 1;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> death = enemies.RidleyBehavior.Death.TickNorfairRidleyDeathExplosions;
         var process = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.ProcessInstructions);
@@ -43,7 +43,7 @@ internal static class RidleyBreakupProgramsVerification
                 { Angle = index == 6 ? (ushort)0x10 : (ushort)0, Position = new Position16<RoomPixels>(128, 128) }).ToArray(),
         };
         enemies.RidleyEncounter.Ridley = state;
-        death(body, state, new SamusState(InstalledFixtures.AnimationContinuation));
+        death(body, state, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         AssertEqual(RidleyGrabState.Released, state.GrabState, "Ridley death releases Samus before breakup");
         var fragments = enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == EnemyDefinitionId.RidleyExplosion).ToArray();
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");

@@ -18,7 +18,7 @@ internal static class SpringBallBounceVerification
         var room = CreateRoom(new(16, 32), new RoomTerrainBlock[16 * 32], new RoomBlockBehavior[16 * 32]);
         foreach (SamusBallBounceState bounceState in new[] { SamusBallBounceState.SpringBallFirstRebound, SamusBallBounceState.None })
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Pose = SamusPoseId.SpringBallJumpRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x169)),

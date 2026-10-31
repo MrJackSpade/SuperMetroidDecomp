@@ -91,7 +91,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
     /// <summary>Compares every Evir slot's position and lifetime across the full intro, including the fight handoff.</summary>
     private static void VerifyCompleteDraygonIntroTrajectory(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
         Action<DraygonEnemyState, SamusState?, byte> run = (danceState, danceSamus, frameCounterLow) =>
             enemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounterLow);
@@ -165,7 +165,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
 
         // A restored dance step can be corrupt while the owner is still inside its native duration. Exercise the
         // production dispatcher so this cannot regress into reading past the traced path.
-        var malformedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var malformedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<DraygonEnemyState, SamusState?, byte> malformedRun = (danceState, danceSamus, frameCounterLow) =>
             malformedEnemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounterLow);
         var malformedState = new DraygonEnemyState(malformedEnemies.SlotTable.Slots[0])

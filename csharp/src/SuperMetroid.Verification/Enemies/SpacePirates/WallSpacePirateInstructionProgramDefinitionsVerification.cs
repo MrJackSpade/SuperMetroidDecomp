@@ -165,7 +165,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
 
         WallSpacePirateInstructionProgramDefinitionsCreateSystemResult CreateSystem()
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 0;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyWall, slot.Definition);
@@ -177,7 +177,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             slot.Radius = new(8, 16);
             slot.SetSpawnParameter2(EnemyDefinitionId.PirateGreyWall, 0x0080);
             WallSpacePirateBehavior.InitializeWallSpacePirate(slot);
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
             };

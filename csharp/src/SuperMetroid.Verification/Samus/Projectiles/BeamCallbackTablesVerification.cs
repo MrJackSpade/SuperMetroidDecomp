@@ -44,7 +44,7 @@ internal static class BeamCallbackTablesVerification
         foreach (int beamType in Enumerable.Range(0, 12))
         {
             var bus = new BeamSpeedRowAddressSpace(retail);
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

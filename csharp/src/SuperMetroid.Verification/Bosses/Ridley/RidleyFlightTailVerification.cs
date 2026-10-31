@@ -51,7 +51,7 @@ internal static class RidleyFlightTailVerification
             AssertEqual(NativeComponent(phase), state.Velocity.X.RawValue, "native swoop X table multiplication");
             AssertEqual(NativeComponent(phase + 64), state.Velocity.Y.RawValue, "native swoop Y table multiplication");
         }
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> tail = enemies.RidleyTail.TickRidleyTail;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
@@ -92,7 +92,7 @@ internal static class RidleyFlightTailVerification
         state.TailSegments[0].Position = new Position16<RoomPixels>(128, 128);
         state.TailSegments[0].Angle = 0x4000;
         state.TailSegments[6].Position = new Position16<RoomPixels>(128, 128);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
         aim(state, samus, 0);
         int? samusTarget = state.ClockwiseWhipTarget;
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
@@ -104,7 +104,7 @@ internal static class RidleyFlightTailVerification
         int? missileTarget = state.ClockwiseWhipTarget;
         AssertTrue(missileTarget != samusTarget, "nearby missile changes tail target");
         enemies.FrameContext.SeedSamusProjectiles(null);
-        aim(state, new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(96, 104)) }, 0);
+        aim(state, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(96, 104)) }, 0);
         AssertEqual(missileTarget, state.ClockwiseWhipTarget, "missile uses its exact position without Samus's 24-pixel offset");
         ushort seed = 0xf0;
         int advances = 0;
@@ -115,7 +115,7 @@ internal static class RidleyFlightTailVerification
         state.TailSegments[0].Angle = 0x5000;
         foreach (var segment in state.TailSegments) segment.Active = true;
         state.ClockwiseWhipTarget = state.CounterClockwiseWhipTarget = null;
-        neutral(slot, state, new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(512, 128)) });
+        neutral(slot, state, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(512, 128)) });
         AssertTrue(state.ClockwiseWhipTarget is not null, "native random fling admission works outside proximity range");
         AssertEqual(0, advances, "tail controller never advances RNG");
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> direction = enemies.RidleyBehavior.Combat.SetRidleyPogoHorizontalDirection;
@@ -124,7 +124,7 @@ internal static class RidleyFlightTailVerification
         slot.Position = slot.Position.WithWholeX(128);
         state.Velocity = state.Velocity.WithX(new SignedEightEight(0x100));
         seed = 0x1000;
-        direction(slot, state, new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 0)) });
+        direction(slot, state, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 0)) });
         AssertEqual(unchecked((ushort)-0x100), state.Velocity.X.RawValue, "pogo bounce turns toward Samus for ordinary seed");
         slot.Position = slot.Position.WithWholeX(32);
         direction(slot, state, samus);

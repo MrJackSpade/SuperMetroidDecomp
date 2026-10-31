@@ -75,7 +75,7 @@ internal sealed class RuntimeArtwork
             _bossArtwork.MotherBrainRoomColors = value?.MotherBrainRoomColors;
             _bossArtwork.CeresRidleyColors = value?.CeresRidleyColors;
             _bossArtwork.CeresRidleyFloorColors = value?.CeresRidleyFloorColors;
-            _bossArtwork.CeresRidleyFloorUpdates = value?.CeresRidleyFloorUpdates;
+            _bossArtwork.CeresRidleyGetawayBoostDelays = value?.CeresRidleyGetawayBoostDelays;
             _room.Scope?.Enemies.RebindEscapeTypewriters(value?.EscapeTypewriter);
         }
     }

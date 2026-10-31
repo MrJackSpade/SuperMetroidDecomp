@@ -43,13 +43,13 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         var cgram = new SamusColourRig();
         assets.LoadGraphics(BgArtworkFixtures.For(vram), cgram.Gameplay.BackgroundSets);
         var random = new SharedGameState();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { TileArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Enemies, BossArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Bosses, AreaArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Areas };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { TileArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Enemies, BossArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Bosses, AreaArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Areas };
         enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram), cgram.Gameplay) { Level = assets.LevelData });
 
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         AlcoonEnemyState state = enemies.AlcoonStates[0] ??
             throw new InvalidDataException("Real Alcoon initializer omitted slot-zero state.");
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Health = 999,
             MaxHealth = 999,

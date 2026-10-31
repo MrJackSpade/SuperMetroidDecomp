@@ -27,7 +27,7 @@ internal static class PhantoonAnimationsVerification
     /// <summary>Creates the four linked Phantoon parts and a deterministic random source.</summary>
     internal static RoomEnemySystem CreatePhantoonSystem()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot eye = enemies.SlotTable.Slots[1];
@@ -204,7 +204,7 @@ internal static class PhantoonAnimationsVerification
             int drops = 0;
             for (int update = 0; update < 64 && !native.Deleted; update++)
             {
-                enemies.Projectiles.ProcessEnemyProjectileInstructions(flame, new SamusState(InstalledFixtures.AnimationContinuation), Position16<RoomPixels>.Zero);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(flame, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), Position16<RoomPixels>.Zero);
                 native.Step(cartridge);
                 drops += native.Callbacks.Count;
                 string at = $"Phantoon flame {program} update {update}";
@@ -231,7 +231,7 @@ internal static class PhantoonAnimationsVerification
     {
         RoomEnemySystem enemies = CreatePhantoonSystem();
         enemies.VerificationServices().NextRandom = () => 128;
-        enemies.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation) { Health = 99, MaxHealth = 99 });
+        enemies.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 99, MaxHealth = 99 });
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(128, 96));
         return enemies;
@@ -265,7 +265,7 @@ internal static class PhantoonAnimationsVerification
     /// <summary>The pre-Phantoon room projectile's blank hold and deletion match $86:A3AA update by update.</summary>
     private static void VerifyPrePhantoonRoomAnimation(IImportCartridgeSource cartridge)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         var scroll = new BackgroundScrollState();
         enemies.PrePhantoonRoomBehavior.SpawnPrePhantoonRoomProjectile(scroll);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PrePhantoonRoom);

@@ -86,7 +86,7 @@ internal static class BombTorizoMovementDefinitionsVerification
         }
 
         var guarded = NewBombTorizoMovementReadGuard(rom);
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(new RoomTerrainBlock[4096], new RoomBlockBehavior[4096], new RoomBlockAppearance[4096]));
 
         for (int step = 0; step < BombTorizoMovement.WalkStepCount; step++)

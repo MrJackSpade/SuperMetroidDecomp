@@ -50,7 +50,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         foreach ((CrawlerAnimationFamily family, _, ushort? speciesOffset) in initialTables)
         for (ushort orientation = 0; orientation < 4; orientation++)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(family == CrawlerAnimationFamily.HZoomer ? EnemyDefinitionId.HZoomer : EnemyDefinitionId.Zoomer, slot.Definition);
             // The codec decodes the initialization word into the surface the crawler starts on, and the property word's
@@ -86,7 +86,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         Action<RoomEnemySlot, CrawlerEnemyState> setHorizontal = CrawlersBehavior.SetCrawlerHorizontalSurfaceInstruction;
         for (ushort speciesOffset = 0; speciesOffset <= 10; speciesOffset += 2)
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             var state = new CrawlerEnemyState { SurfaceTableOffset = speciesOffset };
 

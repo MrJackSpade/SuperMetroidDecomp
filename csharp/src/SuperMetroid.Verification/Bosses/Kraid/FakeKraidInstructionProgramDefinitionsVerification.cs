@@ -203,7 +203,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             out SamusState samus,
             out FakeKraidEnemyState state)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().ReadRandom = () => 0;
             Action<RoomEnemySlot, SamusState?> initialize = enemies.FakeKraidBehavior.InitializeFakeKraid;
 
@@ -213,7 +213,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             // The header's collision half-extents: the terrain movers scan the rows the body spans.
             slot.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.MiniKraid).Radius;
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
-            samus = new SamusState(InstalledFixtures.AnimationContinuation)
+            samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(movingRight ? (ushort)0x0140 : (ushort)0x00c0, slot.Position.Y.Whole)),
             };

@@ -13,7 +13,7 @@ internal static class DragonOwnedStateVerification
     /// </summary>
     internal static void VerifyDragonOwnedState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Dragon, body.Definition);
         body.SetSpawnSettings(new DragonSpawnSettings(DragonPart.Body));

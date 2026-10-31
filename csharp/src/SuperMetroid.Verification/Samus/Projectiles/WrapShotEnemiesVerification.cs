@@ -56,7 +56,7 @@ internal static class WrapShotEnemiesVerification
                 words[row * 64 + (left ? 0 : 63)] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
             }
             var level = CreateRoom(new(64, 128), words, new RoomBlockBehavior[words.Length]);
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(left ? 32 : 992), 128)),
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(left ? 32 : 992), 128)),
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
                 EquippedBeams = SamusBeamFlags.Wave };
             var shots = CreateProjectileFixture();

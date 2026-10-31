@@ -13,7 +13,7 @@ internal static class OwtchRecordStateVerification
     /// </summary>
     internal static void VerifyOwtchRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new OwtchEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -37,7 +37,7 @@ internal static class OwtchRecordStateVerification
     /// </summary>
     internal static void VerifyOwtchRecordLayout()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new OwtchEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

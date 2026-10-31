@@ -37,7 +37,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         InstalledEnemyArtwork artwork = installation.LoadEnemyTiles();
         EnemyProjectileSpritemapCatalog projectileArtwork = (artwork.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires artwork.ProjectileSpritemaps."));
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         int enemyCases = 0, projectileCases = 0;
 
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
@@ -85,7 +85,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
             Equal(expected, actual, $"direct projectile {composition}");
         }
 
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 100)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 100)) };
         var elevator = new CeresElevatorArrivalState(samus);
         elevator.Step(samus);
         var elevatorActual = new OamBuffer(); var elevatorExpected = new OamBuffer();

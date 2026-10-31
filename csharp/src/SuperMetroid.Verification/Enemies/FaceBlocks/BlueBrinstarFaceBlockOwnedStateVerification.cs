@@ -16,7 +16,7 @@ internal static class BlueBrinstarFaceBlockOwnedStateVerification
     /// </summary>
     internal static void VerifyBlueBrinstarFaceBlockOwnedState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.FaceBlock, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
@@ -26,7 +26,7 @@ internal static class BlueBrinstarFaceBlockOwnedStateVerification
         enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(slot, null);
         BlueBrinstarFaceBlockEnemyState state = enemies.BlueBrinstarFaceBlockStates[0]
             ?? throw new InvalidOperationException("The face block has no state.");
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             CollectedItems = SamusEquipmentFlags.MorphBall,
             Position = FixedPosition<RoomPixels>.FromWhole(new(224, 256)),

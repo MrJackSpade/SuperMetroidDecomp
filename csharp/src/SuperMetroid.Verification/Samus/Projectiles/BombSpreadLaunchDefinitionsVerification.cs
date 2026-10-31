@@ -21,7 +21,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
         Action<SamusBombProjectileSystem,SamusState> spawn=(system,player)=>system.SpawnBombSpread(player);
         var guarded=NewBombSpreadLaunchReadGuard(rom);
         var bombs=new SamusBombProjectileSystem();
-        var samus=new SamusState(InstalledFixtures.AnimationContinuation);
+        var samus=new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         for(int hold=0;hold<=ushort.MaxValue;hold++)
         {
             samus.BombSpreadChargeTimeoutCounter=(ushort)hold;

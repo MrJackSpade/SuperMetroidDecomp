@@ -120,7 +120,7 @@ internal sealed class InstalledSamusIsolationTests
             Suits = edited ? tests.suits.Edited : tests.suits.Stock;
             Cycles = edited ? tests.cycles.Edited : tests.cycles.Stock;
             Crystal = edited ? tests.crystal.Edited : tests.crystal.Stock;
-            Samus = new(InstalledFixtures.AnimationContinuation) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 363)),
+            Samus = new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 363)),
                 EquippedItems = equipment, Health = 99, MaxHealth = 299,
                 Presentation = { SuitColors = Suits, FullBodyCycleColors = Cycles } };
             Samus.Presentation.BodyFrames.BindBodyFixture(Body);
@@ -231,13 +231,13 @@ internal sealed class InstalledSamusIsolationTests
         var samus = InstalledFixtures.CreateSamus();
         var baseline = new SamusMechanicsSnapshot(samus);
         MustDiffer(() => samus.Position += new Offset16<RoomPixels>(1, 0), "whole position");
-        samus = new(InstalledFixtures.AnimationContinuation); baseline = new(samus);
+        samus = new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()); baseline = new(samus);
         MustDiffer(() => samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(unchecked((ushort)(samus.Kinematics.Position.X.Fraction + 1))), "fractional position");
-        samus = new(InstalledFixtures.AnimationContinuation); baseline = new(samus);
+        samus = new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()); baseline = new(samus);
         MustDiffer(() => samus.AnimationFrame++, "animation frame");
-        samus = new(InstalledFixtures.AnimationContinuation); baseline = new(samus);
+        samus = new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()); baseline = new(samus);
         MustDiffer(() => samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(unchecked((ushort)(samus.Kinematics.Radius.Y + 1))), "collision radius");
-        samus = PrepareFlash(new(InstalledFixtures.AnimationContinuation));
+        samus = PrepareFlash(new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         var sequence = new SamusMechanicsSnapshot(samus.CrystalFlash);
         Require(samus.CrystalFlash.TryBegin(samus, FlashChord),
             "Sensitivity setup could not activate the sequence");

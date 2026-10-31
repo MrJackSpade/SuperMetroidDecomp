@@ -30,7 +30,7 @@ internal static class SharedSlopeHeightsVerification
         for (int column = 0; column < 16; column++)
             AssertThrows<ArgumentOutOfRangeException>(() => SlopeHeights.Read(32, column), "shape cannot exceed catalog");
         var forbidden = NewSlopeHeightNoReadBus();
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         var enemy = enemies.SlotTable.Slots[0];
         var align = new Func<RoomLevelData, RoomEnemySlot, Position16<RoomPixels>, SlopeSurface, bool>(EnemyTerrain.AlignAgainstSlopeAtPixel);
         var missile = new Func<RoomCollisionBlock, SamusProjectileSlot, bool, bool>(ProjectileMotion.MissileSlopePointReaction);

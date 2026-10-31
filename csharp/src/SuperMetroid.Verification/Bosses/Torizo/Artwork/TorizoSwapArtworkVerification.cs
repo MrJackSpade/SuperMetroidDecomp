@@ -27,7 +27,7 @@ internal static class TorizoSwapArtworkVerification
             "all bank-AA Torizo $814B transfer descriptors are catalogued");
         AssertTrue(stock.Bosses.TorizoSwaps is not null,
             "installed Torizo instruction tile pages exist");
-        var installedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
+        var installedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
         RoomEnemySlot installedSlot = installedEnemies.SlotTable.Slots[0];
         installedSlot.Bind(EnemyDefinitionId.GoldenTorizo, installedSlot.Definition);
         installedSlot.Bind(installedSlot.DefinitionId, default(RoomEnemyDefinition));
@@ -119,7 +119,7 @@ internal static class TorizoSwapArtworkVerification
             "Golden Torizo PNG edit changes the first native tile-plane byte");
         AssertTrue(stockBytes.Span[1..].SequenceEqual(editedBytes.Span[1..]),
             "Golden Torizo PNG edit leaves every other tile byte intact");
-        var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
+        var editedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         RoomEnemySlot editedSlot = editedEnemies.SlotTable.Slots[0];
         editedSlot.Bind(EnemyDefinitionId.GoldenTorizo, editedSlot.Definition);
         editedSlot.Bind(editedSlot.DefinitionId, installedSlot.Definition);

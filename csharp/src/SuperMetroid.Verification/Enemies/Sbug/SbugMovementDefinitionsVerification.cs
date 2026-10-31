@@ -19,7 +19,7 @@ internal static class SbugMovementDefinitionsVerification
         const int instructionTable = 0xa3a111;
         const int activationTable = 0xa3a121;
 
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = SbugBehavior.InitializeSbug;
         Action<RoomEnemySlot, SamusState, RoomLevelData?> runMain = enemies.SbugBehavior.RunSbugMain;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -62,7 +62,7 @@ internal static class SbugMovementDefinitionsVerification
                 EnemyInstructionRunner.ShownFrames(slot, 21), $"Sbug facing loop {selector}");
         }
 
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
         };
@@ -101,7 +101,7 @@ internal static class SbugMovementDefinitionsVerification
     /// </summary>
     internal static void VerifySbugCustomHeadingCarriesAndFolds()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 96;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Sbug, slot.Definition);
@@ -112,7 +112,7 @@ internal static class SbugMovementDefinitionsVerification
         SbugEnemyState state = slot.RequireSpeciesState<SbugEnemyState>();
         state.FaceCustomHeading(RotationAngle.FromTableIndex(240));
         state.Function = SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar;
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) };
 
         enemies.SbugBehavior.RunSbugMain(slot, samus, null);
         AssertEqual(RotationAngle.FromTableIndex(16), state.CustomHeading, "the turn wraps the heading around the turn");

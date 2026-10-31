@@ -149,7 +149,7 @@ internal static void VerifyRoomEnemyLoading()
         stockColors.Add(pointer, EnemyPaletteSheetFile.Read(new MemoryStream(
             EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
     }
-    var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x9999))
+    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x9999))
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
     };
@@ -215,7 +215,7 @@ internal static void VerifyRoomEnemyLoading()
     // Repeating the installed-art load must preserve the same VRAM geometry while the
     // cartridge tile sources are forbidden. The second definition exercises the native
     // high-bit staging branch, so a single hard-coded destination cannot pass.
-    var installedEnemies = new RoomEnemySystem(new EnemySession(), definitions: new EnemyTileSourceReadGuard(bus), services: new StandaloneRoomEnemyServices(() => 0x9999))
+    var installedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: new EnemyTileSourceReadGuard(bus), services: new StandaloneRoomEnemyServices(() => 0x9999))
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
     };
@@ -246,7 +246,7 @@ internal static void VerifyRoomEnemyLoading()
     // tileset. Native $A0:8A6D skips graphics processing, and InitializeEnemies' early return leaves
     // the death quota untouched even though current enemy counts are cleared.
     AssertTrue(ReferenceEquals(RoomEnemyGraphicsSetDefinitions.SessionStart,
-            new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0)).GraphicsSet.LoadedSet),
+            new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0)).GraphicsSet.LoadedSet),
         "a room draws under no loaded graphics set until it loads one");
     enemies = new RoomEnemySystem(enemies.Room.Session, bus, new StandaloneRoomEnemyServices(() => 0));
     const ushort emptyPopulationPointer = 0x9400;
@@ -355,7 +355,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     var bus = new TestAddressSpace();
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 0);
 
-    var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
+    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())));
 
     RoomEnemyProjectileSlot eyeShot = enemies.Projectiles.EnemyProjectiles[17];
@@ -474,7 +474,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     RoomLevelData level = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(foreground, new RoomBlockBehavior[foreground.Length], new RoomBlockAppearance[foreground.Length]));
 
     // The fixture's enemy draws from the installed artwork's sheets; its tiles and colours are not what it checks.
-    var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0))
+    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0))
     {
         TileArtwork = InstalledFixtures.EnemyTiles,
     };
@@ -536,7 +536,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ripper.InvincibilityTimer = WrappingCountdown.Start(1);
         ripper.FrozenTimer = WrappingCountdown.Start(0);
         ripper.FlashTimer = WrappingCountdown.Start(0);
-        var touchingSamus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var touchingSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Health = 99,
@@ -590,7 +590,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         "enemy shake frame-counter bit one set subtracts one X pixel");
     AssertEqual(1, ripper.ShakeTimer.RawValue, "negative enemy draw consumes one shake tick");
 
-    var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+    var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Health = 99,
@@ -721,7 +721,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
 
     // The platform frames are drawn over the room's turning floor as its installed pictures (#1349, #1467).
     RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
-    var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus) } };
+    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus) } };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay));
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual(CeresFloorAnimation.PictureOf(CeresFloorAnimationFrame.ElevatorLight), map.Drawn.Single(),
@@ -769,8 +769,8 @@ internal static void VerifyCeresDoorBossBranch()
 
     bool areaBossDefeated = false;
     int areaBossReads = 0;
-    var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0008, 0x007f)) };
-    var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Bosses = new FixtureAreaBossFlags { IsBossDefeated = () =>
+    var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0008, 0x007f)) };
+    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Bosses = new FixtureAreaBossFlags { IsBossDefeated = () =>
         {
             areaBossReads++;
             return areaBossDefeated;
@@ -875,7 +875,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     int generatedRandomCalls = 0;
     // The escape writes its warning text over BG1 (#1346).
     RoomWrittenOverlay ceresOverlay = RoomWrittenOverlay.Empty;
-    var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, WriteBg1Pictures = picture => ceresOverlay = ceresOverlay.With(picture), Floor = RoomBackgroundsFixtures.CeresFloor() })
+    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, WriteBg1Pictures = picture => ceresOverlay = ceresOverlay.With(picture), Floor = RoomBackgroundsFixtures.CeresFloor() })
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
@@ -893,8 +893,8 @@ internal static void VerifyCeresRidleyRoomEntry()
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus))),
             CeresRidleyFloorColors = CeresRidleyMode7ColorFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(bus))),
-            CeresRidleyFloorUpdates = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyFloorUpdateFiles.Read(new MemoryStream(
-                SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyFloorUpdateFiles.Extract(bus))),
+            CeresRidleyGetawayBoostDelays = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(
+                SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyGetawayBoostDelayFiles.Extract(bus))),
         },
     };
     using (var escapeText = new MemoryStream(
@@ -930,7 +930,6 @@ internal static void VerifyCeresRidleyRoomEntry()
     overlayDoor.SetSpeciesState(overlayDoorState, overlayDoorState.ClearWithRecord);
     overlayDoor.Position = overlayDoor.Position.WithWhole(new(100, 80));
     enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped; // Skip the unrelated private Baby list in this draw fixture.
-    enemies.Room.Session.FloorQueueResidue = new SuperMetroid.Core.Compatibility.FloorUpdateResidue();
     short[] expectedDoorOffsets = [0, 0, -4, -1];
     for (ushort timer = 0; timer < expectedDoorOffsets.Length; timer++)
     {
@@ -996,7 +995,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     // Finish the 5-frame pre-roar and 253-frame pre-liftoff countdowns, then let the real
     // E969 instruction arm A6AF. Movement uses the translated common 8.8 integrator until
     // A6C8 crosses Y=$50 and publishes fight mode one.
-    var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+    var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Health = 99,
@@ -1231,7 +1230,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         bool finalSprite = record == spriteTransfers.Count - 1;
         AssertEqual(pagesBefore + record + 1, shownPages.Uploads.Count,
             "Ceres sprite pages show one per frame");
-        AssertEqual(finalSprite ? 4 : 2, state.FunctionTimer.RawValue, "Ceres sprite/background phase handoff");
+        AssertEqual(finalSprite ? CeresSelfDestructPhase.ShowingBackgroundPages : CeresSelfDestructPhase.ShowingObjectPages, state.CeresSelfDestructPhase, "Ceres sprite/background phase handoff");
     }
     for (int record = 1; record < backgroundTransfers.Count; record++)
     {
@@ -1240,7 +1239,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(pagesBefore + spriteTransfers.Count, shownPages.Uploads.Count, "Ceres background pages show nothing over the OBJ characters");
         AssertEqual(finalBackground, !ceresOverlay.Pictures.IsEmpty,
             "Ceres writes EMERGENCY over BG1 on the final background frame");
-        AssertEqual(finalBackground ? 6 : 4, state.FunctionTimer.RawValue, "Ceres background/hold phase handoff");
+        AssertEqual(finalBackground ? CeresSelfDestructPhase.HoldingTitle : CeresSelfDestructPhase.ShowingBackgroundPages, state.CeresSelfDestructPhase, "Ceres background/hold phase handoff");
     }
     for (int index = 0; index < spriteTransfers.Count; index++)
     {
@@ -1271,8 +1270,8 @@ internal static void VerifyCeresRidleyRoomEntry()
             ceresWords[0x50cb - 0x5000 + word], $"Ceres EMERGENCY word {word} is shown at BG1 row six");
     AssertEqual(emergency.WordCount, ceresWords.Count(word => word != RoomWrittenOverlay.Unwritten),
         "Ceres EMERGENCY writes only its own words over BG1");
-    AssertEqual(6, state.FunctionTimer.RawValue,
-        "Ceres self-destruct reaches the native 128-frame English hold");
+    AssertEqual(CeresSelfDestructPhase.HoldingTitle, state.CeresSelfDestructPhase,
+        "Ceres self-destruct reaches the 128-frame English title hold");
     AssertEqual(128, state.CeresEscapeTextDelayTimer.RawValue,
         "Ceres English warning hold starts at 128");
 
@@ -1285,8 +1284,8 @@ internal static void VerifyCeresRidleyRoomEntry()
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     AssertTrue(!enemies.LastEnemyFrame.CeresEscapeStarted,
         "Ceres escape does not skip the English warning after its 128-frame title hold");
-    AssertEqual(10, state.FunctionTimer.RawValue,
-        "Ceres English warning enters the native typewriter phase");
+    AssertEqual(CeresSelfDestructPhase.TypingWarning, state.CeresSelfDestructPhase,
+        "Ceres English warning enters the typewriter phase");
 
     int typewriterFrames = 0;
     while (!enemies.LastEnemyFrame.CeresEscapeStarted && typewriterFrames < 512)
@@ -1320,7 +1319,7 @@ internal static void VerifyCeresRidleyRoomEntry()
 
 /// <summary>
 /// Installs the exact USA/Japan-English typewriter program from <c>$A6:C450</c>. Keeping
-/// all three destination commands in the fixture catches the former phase-six-to-twelve
+/// all three destination commands in the fixture catches the former title-hold-to-finish
 /// jump, which rendered only EMERGENCY and never touched any of these tilemap rows.
 /// </summary>
 static void WriteCeresEnglishEscapeWarning(TestAddressSpace bus)

@@ -63,7 +63,7 @@ internal static class MotherBrainContactHitboxesVerification
             {
                 for (int xDelta = -56; xDelta <= 56; xDelta++)
                 {
-                    var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+                    var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
                     {
                         Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(originX + xDelta)), unchecked((ushort)(originY + yDelta)))),
                         Health = 999,

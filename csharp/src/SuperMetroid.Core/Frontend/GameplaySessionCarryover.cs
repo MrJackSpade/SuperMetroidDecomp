@@ -10,8 +10,8 @@ internal sealed record GameplaySessionCarryover
     /// <summary>The session's random-number word, which the runtime's system state reads and advances.</summary>
     public required SharedRandom Random { get; init; }
 
-    /// <summary>The session's floor update residue, which outlives each runtime as WRAM does.</summary>
-    public required SuperMetroid.Core.Compatibility.FloorUpdateResidue FloorQueueResidue { get; init; }
+    /// <summary>The session's unauthored Speed Booster cadence, whose delays outlive each runtime.</summary>
+    public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }
 
     /// <summary>The frame the save file found at power-on adds to every earthquake rumble's delay, fixed for the session.</summary>
     public required PowerOnEarthquakeSoundDelay EarthquakeSoundDelay { get; init; }

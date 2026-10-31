@@ -110,7 +110,7 @@ internal static class CrocomireAnimationsVerification
     /// <summary>Creates a Crocomire body with its encounter state in a fresh enemy system.</summary>
     private static NewCrocomireResult NewCrocomire()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         body.Position = body.Position.WithWhole(new(576, 144));
@@ -176,7 +176,7 @@ internal static class CrocomireAnimationsVerification
             "the sleeping body shows its initial frame");
         AssertEqual((ushort)1, state.Body.InstructionTimer.RawValue, "the initial frame lasts one update");
 
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         samus.Position = samus.Position.WithWholeX(state.Body.Position.X.Whole);
         Pass(enemies, state, samus);
         AssertEqual(CrocomireFightFunction.WaitingForFirstDamage, state.FightFunction, "Samus within range wakes Crocomire");
@@ -266,7 +266,7 @@ internal static class CrocomireAnimationsVerification
             CompareProjectile(cartridge, spikeSystem, spike, RoomEnemyProjectileKind.CrocomireSpikeWallPieces, shot: false, "spike");
 
         (RoomEnemySystem shotSystem, CrocomireEnemyState shotState) = NewCrocomire();
-        shotSystem.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation) { Health = 99, MaxHealth = 99 });
+        shotSystem.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 99, MaxHealth = 99 });
         shotSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(shotState.Body, 2);
         RoomEnemyProjectileSlot exploding = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);

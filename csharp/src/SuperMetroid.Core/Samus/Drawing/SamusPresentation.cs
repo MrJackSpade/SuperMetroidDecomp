@@ -241,8 +241,8 @@ internal sealed class SamusPresentation
             int runningOrPoseDelay = samus.HorizontalSpeed.HasRunningMomentum &&
                 SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running
                 ? samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster)
-                    ? samus.HorizontalSpeed.SpeedBoosterDelay(samus.FloorQueueResidue, samus.AnimationFrame)
-                    : SamusRunningCadences.Delay(samus.FloorQueueResidue, SamusRunningCadence.Ordinary, samus.AnimationFrame)
+                    ? samus.HorizontalSpeed.SpeedBoosterDelay(samus.UnauthoredBoostCadence, samus.AnimationFrame)
+                    : SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, samus.AnimationFrame)
                 : delay.Ticks;
             samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(runningOrPoseDelay);
             return;
@@ -259,7 +259,7 @@ internal sealed class SamusPresentation
             {
                 int stagedFrame = samus.AnimationFrame;
                 if (samus.HorizontalSpeed.TryAdvanceSpeedBoosterAnimationStage(
-                    samus.FloorQueueResidue,
+                    samus.UnauthoredBoostCadence,
                     movementType: SamusMovementType.Running,
                     controllerInput,
                     samus.AnimationFrameBuffer,
@@ -278,7 +278,7 @@ internal sealed class SamusPresentation
             {
                 samus.AnimationFrame = 0;
                 samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(
-                    SamusRunningCadences.Delay(samus.FloorQueueResidue, SamusRunningCadence.Ordinary, frame: 0));
+                    SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, frame: 0));
                 return;
             }
         }

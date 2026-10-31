@@ -45,7 +45,7 @@ internal static class HopperAnimationDefinitionsVerification
         {
             bool upsideDown = orientation != 0;
             string context = $"{variant}/{orientation}";
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses, AreaArtwork = artwork?.Areas };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses, AreaArtwork = artwork?.Areas };
             enemies.VerificationServices().SeedRandom = _ => { };
             enemies.VerificationServices().NextRandom = () => 0;
 
@@ -101,7 +101,7 @@ internal static class HopperAnimationDefinitionsVerification
     private static void VerifyTourianSidehopperInstructionAlias(
         InstalledEnemyArtwork? artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses, AreaArtwork = artwork?.Areas };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses, AreaArtwork = artwork?.Areas };
         enemies.VerificationServices().SeedRandom = _ => { };
         enemies.VerificationServices().NextRandom = () => 0;
 

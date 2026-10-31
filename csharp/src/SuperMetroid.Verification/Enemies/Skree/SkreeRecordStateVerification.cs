@@ -13,7 +13,7 @@ internal static class SkreeRecordStateVerification
     /// </summary>
     internal static void VerifySkreeRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new SkreeEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

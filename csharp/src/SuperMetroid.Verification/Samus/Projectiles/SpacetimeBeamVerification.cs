@@ -50,7 +50,7 @@ internal static class SpacetimeBeamVerification
         // Exercise the production pause input that creates Charge + Ice + Spazer + Plasma
         // without Wave; accepting the raw word only in the projectile test would miss the
         // technique's actual player-accessible setup.
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             CollectedItems = SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = SamusEquipmentFlags.HiJumpBoots,
@@ -110,7 +110,7 @@ internal static class SpacetimeBeamVerification
         AssertTrue(saved.Progression.SameAs(system.Progress),
             "save retains the corrupted events, bosses, orbs, items, doors, stations and maps");
 
-        var restarted = new SamusState(InstalledFixtures.AnimationContinuation);
+        var restarted = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         FrontendSession.RestoreSpacetimeRestartInventory(restarted, saved);
         AssertEqual((ushort)0x100e, restarted.EquippedBeams.ToEquipmentWord(),
             "Ceres restart retains the SpaceTime equipment word");

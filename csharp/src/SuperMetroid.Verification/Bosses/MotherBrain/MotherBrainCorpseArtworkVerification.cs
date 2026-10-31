@@ -129,7 +129,7 @@ internal static class MotherBrainCorpseArtworkVerification
     private static byte[] TransferMotherBrainCorpsePages(
         InstalledEnemyArtwork artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
             enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, page));
         return new ObjCharacterTablePage().Page(enemies.Room.Session.SpriteLooks, new EnemyTileTransfers(artwork))

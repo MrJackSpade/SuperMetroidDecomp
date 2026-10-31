@@ -25,7 +25,7 @@ internal static class SpeedBoosterWordRangeVerification
         {
             var speed = new SamusHorizontalSpeedState { HasRunningMomentum = true, SpeedBoostCounter = before };
             int frame = 7;
-            bool advanced = speed.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, ControllerButton.B,
+            bool advanced = speed.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, ControllerButton.B,
                 animationFrameBuffer: 0, ref frame, out _);
             AssertTrue(!advanced, $"counter {before}: a borrowing countdown leaves a nonzero cadence, so no stage advances");
             AssertEqual(expected, speed.SpeedBoostCounter, $"counter {before}: the countdown borrows a stage");
@@ -34,13 +34,13 @@ internal static class SpeedBoosterWordRangeVerification
         // Stage zero with no cadence has no stage to borrow from.
         var empty = new SamusHorizontalSpeedState { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0) };
         int emptyFrame = 7;
-        AssertThrows<InvalidOperationException>(() => empty.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running,
+        AssertThrows<InvalidOperationException>(() => empty.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running,
             ControllerButton.B, animationFrameBuffer: 0, ref emptyFrame, out _), "a stage-zero counter with no cadence cannot borrow");
 
         // A cadence of one reaching zero advances the stage and reloads the cadence.
         var advancing = new SamusHorizontalSpeedState { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(1, 1) };
         int advancingFrame = 7;
-        AssertTrue(advancing.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, ControllerButton.B,
+        AssertTrue(advancing.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, ControllerButton.B,
             animationFrameBuffer: 0, ref advancingFrame, out _), "cadence one expires and advances the stage");
         AssertEqual(new SamusSpeedBoostCounter(2, SamusRunningCadences.CountdownAfterAdvance(2)), advancing.SpeedBoostCounter,
             "stage two with its reloaded cadence");

@@ -78,7 +78,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         var guarded = NewCrocomireRumbleReadGuard(rom);
         CrocomireColorCatalog colors = CrocomireColorFile.Read(
             new MemoryStream(CrocomireColorExtractor.Extract(rom), writable: false));
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossSourceArtwork { CrocomireColors = colors },
         };

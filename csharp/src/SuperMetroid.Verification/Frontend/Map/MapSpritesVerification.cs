@@ -128,8 +128,8 @@ internal static class MapSpritesVerification
             room = DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(capture);
             room.BindFixtureArtwork(original);
             AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "restored sprite resources bind current content");
-            var pauseNative = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+            var pauseNative = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
             var pauseBefore = pauseNative.Render();
             AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause map sprite pixels match with source reads blocked");
             pause.BindFixtureArtwork(replacement);

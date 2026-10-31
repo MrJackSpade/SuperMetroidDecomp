@@ -41,7 +41,7 @@ internal static class NuclearWaffleDefinitionsVerification
                 definition.FirstTurnThreshold,
                 $"Nuclear Waffle first turn threshold {direction}");
 
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> initialize = enemies.NuclearWaffleBehavior.InitializeNuclearWaffle;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Puromi, slot.Definition);
@@ -99,7 +99,7 @@ internal static class NuclearWaffleDefinitionsVerification
         const int startAngle = 240;
         const int endAngle = 400;
         const int finishingUpdate = 163;
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Puromi, slot.Definition);
         slot.SetSpawnParameter1(EnemyDefinitionId.Puromi, LittleEndianBytes.Word(speedIndex, radius));
@@ -146,7 +146,7 @@ internal static class NuclearWaffleDefinitionsVerification
         Console.WriteLine("  Nuclear Waffle sweep: the 16.16 angle carries, both turns latch with the rising sound only, and the last link ends the sweep.");
 
         static ClockedEnemyAiFrame Frame() => new(
-            new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation) },
+            new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) },
             new FrameCounters(0));
     }
 

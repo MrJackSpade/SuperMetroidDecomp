@@ -36,7 +36,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
                 NativeEnemyProgramOracle.EntryOf(CeresDoorNativeListAddresses.Entries, definition.Program),
                 $"Ceres door instruction selector {variant}");
 
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];

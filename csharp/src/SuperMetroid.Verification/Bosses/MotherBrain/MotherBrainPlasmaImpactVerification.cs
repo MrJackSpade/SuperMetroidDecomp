@@ -18,7 +18,7 @@ internal static class MotherBrainPlasmaImpactVerification
     /// <summary>Confirms one accepted hit, recoil, immunity, first-form restriction, and later Hyper Beam behavior.</summary>
     internal static int VerifyMotherBrainPlasmaImpact()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         var head = enemies.SlotTable.Slots[1];
         head.Bind(EnemyDefinitionId.MotherBrainHead, head.Definition);
         head.Bind(head.DefinitionId, RoomEnemyHeaders.Get(head.DefinitionId));
@@ -30,7 +30,7 @@ internal static class MotherBrainPlasmaImpactVerification
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = head, Form = MotherBrainForm.SecondPhase, WalkCounter = MotherBrainWalkCredit.Of(4096) };
         enemies.MotherBrainEncounter.MotherBrain = state;
         ((List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
         var bombs = new SamusBombProjectileSystem();
         var shot = shots.Slots[0];

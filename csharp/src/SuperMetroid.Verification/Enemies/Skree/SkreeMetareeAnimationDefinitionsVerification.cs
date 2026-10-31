@@ -91,7 +91,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         slot.Bind(EnemyDefinitionId.Metaree, slot.Definition);
         MetareeBehavior.InitializeMetaree(slot);
         MetareeEnemyState state = (enemies.MetareeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MetareeStates[0]."));
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + 0x60)))),
         };
@@ -126,7 +126,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         slot.Bind(EnemyDefinitionId.Skree, slot.Definition);
         SkreeBehavior.InitializeSkree(slot);
         SkreeEnemyState state = (enemies.SkreeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SkreeStates[0]."));
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + 0x60)))),
         };
@@ -155,7 +155,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     private static RoomEnemySystem NewSkreeMetareeGuardedSystem(
 )
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         return enemies;
     }
 

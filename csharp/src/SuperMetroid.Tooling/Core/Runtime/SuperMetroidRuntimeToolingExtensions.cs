@@ -14,7 +14,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
     extension(SuperMetroidRuntime)
     {
         /// <summary>
-        /// Creates a bare frame-steppable runtime with its own frame clock and Mode 7 queue residue, over the supplied
+        /// Creates a bare frame-steppable runtime with its own frame clock and unauthored Speed Booster cadence, over the supplied
         /// session's random-number word or, without one, a word of its own; only the initial
         /// palette is bound, and the caller binds whatever catalogs it exercises.
         /// </summary>
@@ -28,7 +28,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
             SuperMetroid.Core.Assets.GameplayBasePalette? initialPaletteArt = null,
             SuperMetroid.Core.Compatibility.SharedRandom? random = null) =>
             new(overrides, new SuperMetroid.Core.Frontend.GameArtwork { GameplayBasePalettes = initialPaletteArt, SamusOverreads = samusOverreads },
-                new SuperMetroid.Core.Compatibility.FrameClock(), new SuperMetroid.Core.Compatibility.FloorUpdateResidue(),
+                new SuperMetroid.Core.Compatibility.FrameClock(), new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
                 random ?? new SuperMetroid.Core.Compatibility.SharedRandom(),
                 // A tooling runtime powers on as the game does with an empty save store.
                 new SuperMetroid.Core.Saves.SaveSlotStore().EarthquakeSoundDelayAtPowerOn(),

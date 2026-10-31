@@ -31,7 +31,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         KraidColorCatalog catalog = stock.Bosses.KraidColors
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid colors.");
         var guardForAllColors = NewKraidPaletteSourceGuard(rom);
-        var colorReaderOwner = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
+        var colorReaderOwner = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
         Func<KraidPaletteSource, int, RgbColor> productionReader = colorReaderOwner.KraidBehavior.Background.ReadKraidColor;
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         {
@@ -192,7 +192,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         InstalledEnemyArtwork artwork,
         KraidPaletteConsumer consumer)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         var cgram = new SamusColourRig();
         enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];

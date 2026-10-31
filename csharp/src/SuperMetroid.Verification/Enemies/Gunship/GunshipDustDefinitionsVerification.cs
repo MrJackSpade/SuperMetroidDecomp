@@ -16,9 +16,9 @@ internal static class GunshipDustDefinitionsVerification
     internal static void VerifyCompiledGunshipDust(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(CompiledGunshipDustRomByte(rom, address), CompiledGunshipDustRomByte(rom, address + 1));
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         var spawn = new Action<int, SamusState>(enemies.Projectiles.SpawnGunshipLiftoffDustCloud);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         var slot = enemies.Projectiles.EnemyProjectiles[^1];
         for (ushort parameter = 0; parameter <= 10; parameter += 2)
         {

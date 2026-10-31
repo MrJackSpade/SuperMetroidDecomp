@@ -19,7 +19,7 @@ internal static class PipeBugAnimationDefinitionsVerification
 
         foreach (bool strong in new[] { false, true })
         {
-            var initializedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var initializedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot initializedSlot = initializedEnemies.SlotTable.Slots[0];
             initializedSlot.Bind(strong
                 ? EnemyDefinitionId.Zebbo
@@ -41,7 +41,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                     NativeEnemyProgramOracle.EntryOf(PipeBugNativeListAddresses.Entries, PipeBugPrograms.BrinstarProgram(strong, selector)),
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
 
-                var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
                 var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
                 {
                     InstructionTimer = WrappingCountdown.Start(0x2222),

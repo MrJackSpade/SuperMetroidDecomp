@@ -166,7 +166,7 @@ internal static class LookupStream2Verification
     /// <summary>Checks Wrecked Ship ghost palette phases against native CGRAM writes.</summary>
     internal static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         var cgram = new SamusColourRig();
         enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -1188,7 +1188,7 @@ internal static class LookupStream2Verification
     /// <summary>Checks Kraid lint initialization's source values and live actor state.</summary>
     internal static void VerifyLookupStream2KraidLintInitialization(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState();
         // The parts read Kraid's room state, which the body's initializer installs; this fixture installs it directly.
         enemies.KraidBehavior.Access.Kraid = state;
@@ -1271,7 +1271,7 @@ internal static class LookupStream2Verification
         }
         foreach (ushort samusX in new ushort[] { 120, 136 })
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
             for (int member = 0; member < 5; member++)
             {
                 var slot = enemies.SlotTable.Slots[member];
@@ -1281,7 +1281,7 @@ internal static class LookupStream2Verification
                 slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)(member + 4));
                 slot.Timer = WrappingCountdown.FromRaw((ushort)(member + 8));
             }
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
             enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.SlotTable.Slots[0], (enemies.PipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PipeBugStates[0].")), samus);
             for (int member = 0; member < 5; member++)
             {
@@ -1602,7 +1602,7 @@ internal static class LookupStream2Verification
     /// </summary>
     internal static void VerifyLookupStream2DeadTorizoTransfers(ISnesAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount));
         Action<DeadTorizoEnemyState> show = SuperMetroid.Core.Enemies.Corpses.DeadTorizoBehavior.ShowNextRotHalf;
         for (ushort phase = 0; phase < 2; phase++)
@@ -1640,7 +1640,7 @@ internal static class LookupStream2Verification
     {
         var transfers = GunshipLiftoffTransferDefinitions.Frames;
         AssertEqual(5, transfers.Length, "Gunship calculated transfer count");
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { TileArtwork = InstalledFixtures.EnemyTiles };
         var slot = enemies.SlotTable.Slots[0];
         var part = new GunshipPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);
@@ -1787,7 +1787,7 @@ internal static class LookupStream2Verification
     {
         Action<RoomEnemySlot, WreckedShipGhostEnemyState, Position16<RoomPixels>> spawn = WreckedShipGhostBehavior.SpawnWreckedShipGhost;
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> flicker = WreckedShipGhostBehavior.AdvanceWreckedShipGhostFlicker;
-        var slot = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
+        var slot = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())).SlotTable.Slots[0];
         var state = new WreckedShipGhostEnemyState();
         for (int index = 0; index < 9; index++)
         {

@@ -114,7 +114,7 @@ internal static class PauseMenuFixtureVerification
             SamusChargeColors = stock.SamusChargeColors,
             CeresRidleyColors = stock.CeresRidleyColors,
             CeresRidleyFloorColors = stock.CeresRidleyFloorColors,
-            CeresRidleyFloorUpdates = stock.CeresRidleyFloorUpdates,
+            CeresRidleyGetawayBoostDelays = stock.CeresRidleyGetawayBoostDelays,
             SamusHyperBeamColors = stock.SamusHyperBeamColors,
         };
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).

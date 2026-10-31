@@ -13,7 +13,7 @@ internal static class BoyonSpeedDefinitionsVerification
     /// multipliers, including out-of-range inputs and saturated curve indexes.</summary>
     internal static void VerifyCompiledBoyonSpeeds(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         Action<RoomEnemySlot> initialize = BoyonBehavior.InitializeBoyon;
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         actor.Bind(EnemyDefinitionId.Boyon, actor.Definition);

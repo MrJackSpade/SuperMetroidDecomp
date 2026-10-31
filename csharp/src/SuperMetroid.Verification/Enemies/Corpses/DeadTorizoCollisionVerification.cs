@@ -18,7 +18,7 @@ internal static class DeadTorizoCollisionVerification
         var installation = RepositoryInstallation.Installation;
         foreach (string trigger in new[] { "contact", "shot", "power bomb", "solid collision delay" })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
             enemies.VerificationServices().ReadRandom = () => 0;
             var slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.CorpseTorizo, slot.Definition);
@@ -28,7 +28,7 @@ internal static class DeadTorizoCollisionVerification
             Require(IsInteractive(), "The intact corpse must initially be interactive.");
             Require(slot.Properties.HasAny(EnemyProperties.SolidToSamus),
                 "Native initial solidity must be retained.");
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation);
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
             samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(90, 100));
             samus.Kinematics.Radius = new(8, 16);
             Require(Probe().Collided, "Approaching the intact corpse must initially collide.");

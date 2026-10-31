@@ -46,7 +46,7 @@ internal static class OperationContractsVerification
             "the common grapple wrapper accepts main AI's frame");
 
         // The grapple wrapper hands main AI the enemy's frame without projectiles, Mode 7, bombs or a VRAM queue.
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         var frame = new RoomEnemyFrame
         {
             Camera = new(0x0120, 0x0040),

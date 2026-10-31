@@ -168,7 +168,7 @@ internal static class EnemySheetComposer
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(set);
-        var graphics = new EnemyGraphicsSet(new EnemyRoomBinding(new EnemySession { TileArtwork = inputs.Enemies },
+        var graphics = new EnemyGraphicsSet(new EnemyRoomBinding(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { TileArtwork = inputs.Enemies },
             CompiledRoomEnemyDefinitions.Instance, services: null));
         ScreenPalette cgram = RoomLoadPalettes.Colours(inputs.Palettes);
         graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, cgram.SpriteSets);

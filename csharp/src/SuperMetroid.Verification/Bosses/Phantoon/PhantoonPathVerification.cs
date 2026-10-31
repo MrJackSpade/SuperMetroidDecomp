@@ -17,7 +17,7 @@ internal static class PhantoonPathVerification
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7e3d2 + index * 2)), delta.X, "Exact Phantoon path X byte");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7e3d3 + index * 2)), delta.Y, "Exact Phantoon path Y byte");
         }
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         var body = enemies.SlotTable.Slots[0];
         var eye = enemies.SlotTable.Slots[1];
         Action<RoomEnemySlot, PhantoonPartState, PhantoonPartState> step = PhantoonPatterns.StepPhantoonFigureEight;

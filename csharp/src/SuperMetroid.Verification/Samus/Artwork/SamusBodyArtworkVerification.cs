@@ -202,7 +202,7 @@ internal static class SamusBodyArtworkVerification
         }
         AssertTrue(!stock.Atmosphere.Source.TryResolve(2, 0, out _),
             "atmospheric type two retains its retail pointer-zero address-space path");
-        var deathSamus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var deathSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
@@ -264,11 +264,11 @@ internal static class SamusBodyArtworkVerification
                 2 => SamusEquipmentFlags.GravitySuit.ToEquipmentWord(),
                 _ => 0,
             };
-            var nativeSamus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var nativeSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment),
             };
-            var installedSamus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var installedSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment),
             };
@@ -420,12 +420,12 @@ internal static class SamusBodyArtworkVerification
                 out editedArmTile) &&
             !stockArmTile.Span.SequenceEqual(editedArmTile.Span),
             "edited arm-cannon indexed PNG changes the production DMA character");
-        var originalArmSamus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var originalArmSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile,
         };
-        var editedArmSamus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var editedArmSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = originalArmSamus.Pose, Position = FixedPosition<RoomPixels>.FromWhole(originalArmSamus.Position.Whole), SelectedHudItem = originalArmSamus.SelectedHudItem,
         };
@@ -494,7 +494,7 @@ internal static class SamusBodyArtworkVerification
         AssertEqual(unchecked((byte)(stockDirectOam.LowTable[2] + 1)),
             editedDirectOam.LowTable[2],
             "edited atmospheric small-OBJ attribute reaches the production OAM byte");
-        var editedDeathSamus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var editedDeathSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
@@ -518,11 +518,11 @@ internal static class SamusBodyArtworkVerification
         AssertEqual(unchecked((byte)(stockDeathOam.LowTable[0] + 1)),
             editedDeathOam.LowTable[0],
             "edited death explosion spritemap reaches the production sequence owner");
-        var stockLandingSamus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var stockLandingSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.NormalLandingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
-        var editedLandingSamus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var editedLandingSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.NormalLandingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
@@ -533,12 +533,12 @@ internal static class SamusBodyArtworkVerification
         AssertEqual(unchecked((ushort)(stockLandingSamus.Presentation.SpritemapPosition.Y - 1)),
             editedLandingSamus.Presentation.SpritemapPosition.Y,
             "edited landing visual offset changes production OAM origin without a ROM read");
-        var editedSamus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose };
+        var editedSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose };
         editedSamus.Presentation.BodyFrames.BindBodyFixture(replacement);
         AssertEqual((sbyte)(originalYOffset + 1),
             SamusPoseMetadata.ReadGraphicsYOffset(editedSamus),
             "edited Samus visual Y offset is used without a cartridge read");
-        var stockSamus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+        var stockSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         stockSamus.Presentation.BodyFrames.BindBodyFixture(stock);
         editedSamus.Position = editedSamus.Position.WithWhole(stockSamus.Position.Whole);
         stockSamus.Presentation.Draw(stockSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
@@ -658,12 +658,12 @@ internal static class SamusBodyArtworkVerification
                     $"arm-cannon character ${source:X6} byte {offset:X2}");
         }
 
-        var nativeSamus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var nativeSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             AnimationFrame = 0, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile,
         };
-        var installedSamus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var installedSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = nativeSamus.Pose, AnimationFrame = nativeSamus.AnimationFrame,
             Position = FixedPosition<RoomPixels>.FromWhole(nativeSamus.Position.Whole),

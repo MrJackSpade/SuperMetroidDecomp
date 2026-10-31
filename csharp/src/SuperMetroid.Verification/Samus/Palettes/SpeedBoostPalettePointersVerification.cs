@@ -39,7 +39,7 @@ internal static class SpeedBoostPalettePointersVerification
                 SamusPaletteDefinitions.FullBodyCycles.SpeedBoostPalettePointer(offset),
                 $"compiled Speed Booster pointer selection {selection} matches retail ROM");
 
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 EquippedItems = equipment[selection],
                 MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext,
@@ -57,13 +57,13 @@ internal static class SpeedBoostPalettePointersVerification
         }
 
         // Without an attacker the alternation leaves the palette alone.
-        var unattached = new SamusState(InstalledFixtures.AnimationContinuation) { Presentation = { FullBodyCycleColors = cycleColors } };
+        var unattached = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Presentation = { FullBodyCycleColors = cycleColors } };
         AssertTrue(!SamusSpecialSuperPalette.Update(new SamusColourRig().Samus, unattached),
             "no attachment, no alternation");
         AssertEqual(SamusMetroidAttachmentPalette.Inactive, unattached.MetroidAttachmentPalette,
             "an inactive alternation stays inactive");
         AssertThrows<InvalidOperationException>(() => SamusSpecialSuperPalette.Update(
-            new SamusColourRig().Samus, new SamusState(InstalledFixtures.AnimationContinuation) { MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext }),
+            new SamusColourRig().Samus, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext }),
             "Metroid attachment requires installed Speed Booster colors");
         Console.WriteLine("Speed Booster palettes: four equipment cases match ROM and live CGRAM with no CPU bus; missing assets fail.");
     }

@@ -44,7 +44,7 @@ internal static class BombTorizoHandVerification
         var guarded = NewBombTorizoHandProgramReadGuard(bus);
 
         var level = CreateEmptyRoom(new(width, height));
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         var plms = PlmFixtures.Unbound();
         var editedVisuals = new RoomPlmBombTorizoHandVisualCatalog(
         [

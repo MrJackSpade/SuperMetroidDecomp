@@ -13,7 +13,7 @@ internal static class PhantoonRecordStateVerification
     /// </summary>
     internal static void VerifyPhantoonRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[1];
         var part = new PhantoonPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);

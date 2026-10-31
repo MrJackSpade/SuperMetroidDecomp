@@ -71,7 +71,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
 
         // Exercise the actual global graphics-drawn hook, not a palette helper.
         // Forbid all bus reads: installed artwork must be sufficient on every tick.
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         var cgram = new SamusColourRig();
         enemies.Presentation.BindColours(cgram.Gameplay);
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationInstalled = true;

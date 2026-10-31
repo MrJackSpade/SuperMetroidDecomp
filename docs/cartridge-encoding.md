@@ -107,8 +107,10 @@ An angle's type states its convention (SME6352). `RotationAngle` is the 8.8 turn
 reads a bearing directly from the table, the conversion is written out at that call. Steps, deltas, masks and offsets
 in table units stay integers.
 
-Processor flags do not cross routine boundaries (SME6353). `WordCarry.AddWithCarry`, `SubtractWithBorrow` and
-`AfterCompare` model the arithmetic where a carry is load-bearing, and a result names what the flag meant
+Processor flags do not cross routine boundaries (SME6353). Where a carry is load-bearing, the code states the rule it
+serves in the value's own terms: a 16.16 or 8.8 addition whose fraction overflow moves the whole part, or a seeking
+boss's velocity run (`SeekingVelocityRun`) in which a step crossing zero lengthens the next (#1479). A result names
+what the flag meant
 (`ReachedVerticalBoundary`, `GrappleBlockReaction`).
 
 ## Classifying an encoded value

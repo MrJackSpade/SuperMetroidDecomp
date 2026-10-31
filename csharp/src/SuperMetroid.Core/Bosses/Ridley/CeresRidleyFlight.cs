@@ -209,18 +209,21 @@ internal sealed class CeresRidleyFlight
         TickCeresRidleyFireballShooting(slot, state);
     }
 
-    /// <summary>Uses the current RNG word and native carry arithmetic to select the next fireball target.</summary>
+    /// <summary>Selects the next fireball target from the base position and a jitter drawn from the current random number.</summary>
     internal void TickCeresRidleyFireballShooting(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // $A6:A7F9 reads RandomNumberSeed without generating a number.
         int random = _room.Random.Read();
         int jitter = unchecked((short)random) < 0 ? -(random & 7) : random & 7;
-        // Both targets use ADC without CLC. Carry is clear on entry (the enemy AI dispatcher's
-        // CLC/ADC at $A0:9083 and $A6:A7BA's in-range compare), so the X sum carries into Y.
-        bool carry = false;
+        // Both targets add the jitter, read as a word, to the base position. When the X sum passes the end of the
+        // coordinate word, as a negative jitter's does unless X lies within the jitter of zero, the Y target lands one
+        // pixel further down.
+        int jitterWord = unchecked((ushort)jitter);
+        int xSum = state.FireballBasePosition.X + jitterWord;
+        int yNudge = xSum > ushort.MaxValue ? 1 : 0;
         Position16<RoomPixels> target = new(
-            WordCarry.AddWithCarry(state.FireballBasePosition.X, unchecked((ushort)jitter), ref carry),
-            WordCarry.AddWithCarry(state.FireballBasePosition.Y, unchecked((ushort)jitter), ref carry));
+            unchecked((ushort)xSum),
+            unchecked((ushort)(state.FireballBasePosition.Y + jitterWord + yNudge)));
         AccelerateRidleyToward(slot, state, target, 0);
         state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
         if (state.FunctionTimer.IsNegative)
@@ -422,9 +425,9 @@ internal sealed class CeresRidleyFlight
     }
 
     /// <summary>
-    /// One axis of <c>$A6:D62F</c> (Y) / <c>$A6:D6A6</c> (X). The SEC/SBC distance test's
-    /// carry feeds the first ADC/SBC of the velocity chain, and each later ADC/SBC consumes
-    /// the previous one's carry, so crossing zero while reversing adds one more unit.
+    /// One axis of <c>$A6:D62F</c> (Y) / <c>$A6:D6A6</c> (X): one run of steps toward the target, three while reversing
+    /// and one otherwise, in which a step that crosses zero makes the next one a unit larger
+    /// (<see cref="SeekingVelocityRun"/>).
     /// </summary>
     /// <param name="velocity">The axis velocity.</param>
     /// <param name="position">Ridley's whole coordinate on the axis, 0 through 65535.</param>
@@ -435,40 +438,38 @@ internal sealed class CeresRidleyFlight
         int difference = unchecked((short)(position - target));
         if (difference == 0)
             return velocity;
-        bool carry = WordCarry.AfterCompare(checked((ushort)position), checked((ushort)target));
-        bool targetBelow = difference < 0;
         // Hardware quotient of the distance, at most 32768; a zero quotient is promoted to one.
         int step = Math.Max(1, Math.Abs(difference) / divisor);
-        int word = velocity.RawValue;
+        var run = new SeekingVelocityRun(velocity, position, target);
 
-        if (targetBelow)
+        int word;
+        if (difference < 0)
         {
-            if (unchecked((short)word) < 0)
+            if (velocity.SignedRawValue < 0)
             {
-                Add(step);
-                Add(step);
+                run.Raise(step);
+                run.Raise(step);
             }
-            Add(step);
+            run.Raise(step);
+            word = run.Velocity.RawValue;
             // CMP #$0500 : BMI keeps any value whose signed difference is negative.
             if (unchecked((short)(word - CeresRidleyBehavior.CeresRidleyMaximumSpeed)) >= 0)
                 word = CeresRidleyBehavior.CeresRidleyMaximumSpeed;
         }
         else
         {
-            if (unchecked((short)word) >= 0)
+            if (velocity.SignedRawValue >= 0)
             {
-                Subtract(step);
-                Subtract(step);
+                run.Lower(step);
+                run.Lower(step);
             }
-            Subtract(step);
+            run.Lower(step);
+            word = run.Velocity.RawValue;
             // CMP #$FB00 : BPL keeps any value whose signed difference is non-negative.
             if (unchecked((short)(word - CeresRidleyBehavior.CeresRidleyMinimumSpeed)) < 0)
                 word = CeresRidleyBehavior.CeresRidleyMinimumSpeed;
         }
         return new SignedEightEight(checked((ushort)word));
-
-        void Add(int operand) => word = WordCarry.AddWithCarry(checked((ushort)word), checked((ushort)operand), ref carry);
-        void Subtract(int operand) => word = WordCarry.SubtractWithBorrow(checked((ushort)word), checked((ushort)operand), ref carry);
     }
 
     /// <summary>Applies Ridley's 8.8 motion and native arena clamps, invoking impact only at the strict left bound.</summary>

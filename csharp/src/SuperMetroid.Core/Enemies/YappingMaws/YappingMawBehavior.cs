@@ -256,9 +256,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // quarter of the signed whole part equals the cartridge's two logical right shifts of the word; the checked
         // conversion fails loudly if that range is ever violated.
         int bendStep = checked((ushort)(state.Extension.WholePixels / 4));
-        // $A8:A532 clears carry once, then adds the eight correction words in segment
-        // order (X then Y) with ADC alone, so each addition's carry adds one to the next.
-        bool carry = false;
+        // $A8:A532 corrects the eight offsets in one chain, link by link and X before Y: an offset whose correction
+        // wraps it past the last pixel of its word moves the next offset in the chain one pixel further.
+        int wrappedIntoNext = 0;
         for (int segment = 0; segment < 4; segment++)
         {
             int multiple = unchecked((ushort)(bendStep * (segment + 1)));
@@ -284,9 +284,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 CalculateYappingMawY(new ByteAngle(0), rawX)));
             state.Corrections[segment] = new Offset16<RoomPixels>(
                 unchecked((short)correctionX), unchecked((short)correctionY));
-            // X is added before Y so its carry feeds the Y addition.
-            int segmentX = WordCarry.AddWithCarry(checked((ushort)rawX), checked((ushort)correctionX), ref carry);
-            int segmentY = WordCarry.AddWithCarry(checked((ushort)rawY), checked((ushort)correctionY), ref carry);
+            int segmentX = Corrected(rawX, correctionX);
+            int segmentY = Corrected(rawY, correctionY);
             state.SegmentOffsets[segment] = new Offset16<RoomPixels>(
                 unchecked((short)segmentX), unchecked((short)segmentY));
         }
@@ -349,6 +348,15 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!skipHeldPlacement && state.HasGrabbedSamus)
             PositionSamusInYappingMaw(slot, state, samus);
+
+        // One offset of the chain, a word, moved by its correction, a word, and by one pixel when the previous offset
+        // wrapped; records whether this one wraps in turn.
+        int Corrected(int offset, int correction)
+        {
+            int sum = checked((ushort)offset) + checked((ushort)correction) + wrappedIntoNext;
+            wrappedIntoNext = sum > ushort.MaxValue ? 1 : 0;
+            return unchecked((ushort)sum);
+        }
     }
 
     /// <summary>Ports $A8:A63E: adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>

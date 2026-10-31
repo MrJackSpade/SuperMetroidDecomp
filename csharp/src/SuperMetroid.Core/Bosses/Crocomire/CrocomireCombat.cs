@@ -481,15 +481,12 @@ internal sealed class CrocomireCombat
         }
         piece.Acceleration = acceleration;
 
-        // The 65816 switches to 8-bit A here. The high acceleration byte is added to the
-        // fractional velocity byte; carry advances the signed integral velocity byte, which
-        // is then capped by this physical slot's maximum.
-        int velocityFractionSum = (EightEight.FractionOf(projectile.Velocity.X.RawValue)) + UnsignedEightEight.Whole(acceleration);
-        // Each byte keeps its eight-bit wrap: the fraction drops its carry into the whole byte,
-        // and the whole byte is capped by a signed eight-bit comparison.
-        int velocityFraction = unchecked((byte)velocityFractionSum);
-        int velocityWhole = unchecked((byte)(
-            (EightEight.WholeOf(projectile.Velocity.X.RawValue)) + (WordCarry.OutOfByte(velocityFractionSum))));
+        // The acceleration's whole part is added to the 8.8 velocity's fraction: a fraction that passes a whole
+        // pixel raises the whole velocity by one, the whole velocity wraps at its byte, and it is then capped by
+        // this physical slot's maximum with a signed comparison.
+        int accelerated = unchecked((ushort)(projectile.Velocity.X.RawValue + UnsignedEightEight.Whole(acceleration)));
+        int velocityFraction = EightEight.FractionOf(accelerated);
+        int velocityWhole = EightEight.WholeOf(accelerated);
         int maximumVelocity = CrocomireSpikeMotion.MaximumVelocity(slot);
         if (unchecked((sbyte)(velocityWhole - maximumVelocity)) >= 0)
             velocityWhole = maximumVelocity;

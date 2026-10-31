@@ -3,18 +3,17 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>
 /// <c>GradduallyAccelerateTowardsPoint</c> ($A9:F46B) and <c>GraduallyAccelerateHorizontally</c>
 /// ($A9:F4E6), shared by the Tourian Shitroid and the Mother Brain baby-Metroid cutscene.
-/// The native arithmetic is an ADC/SBC chain whose carry is never normalised: the
-/// position subtraction's carry reaches the step taken while already moving toward the
-/// target, and each reversal step borrows from the one before. Both axes are reproduced
-/// as that chain (<see cref="WordCarry"/>) rather than as signed integer arithmetic.
-/// Positions, targets, distances and velocity words all lie in 0 through 65535, the range
-/// the chain's sixteen-bit carry is defined over.
+/// Each axis accelerates in runs of steps (<see cref="SeekingVelocityRun"/>): a step that carries
+/// the velocity across zero makes the run's next step a unit larger, and a step taken while already
+/// moving toward the target is a unit larger when the distance to the target wraps around the
+/// coordinate space. A reversal starts fresh runs. Positions, targets, distances and velocity words
+/// all lie in 0 through 65535.
 /// </summary>
 internal static class BabyMetroidGradualAcceleration
 {
     /// <summary>Extra native speed adjustment while reversing direction toward the target.</summary>
     private const int ReversalStep = 8;
-    /// <summary>Horizontal signed-velocity clamp applied after the carry-sensitive update.</summary>
+    /// <summary>Horizontal signed-velocity clamp applied after the run.</summary>
     private const int MaxXSpeed = 2048;
     /// <summary>Vertical signed-velocity clamp, smaller than the horizontal limit.</summary>
     private const int MaxYSpeed = 1280;
@@ -38,49 +37,49 @@ internal static class BabyMetroidGradualAcceleration
         Func<bool> isVaguelyOffScreen)
     {
         Ensure.NotNull(isVaguelyOffScreen);
-        bool carry = true;
-        int distance = Subtract(position, target);
+        var run = new SeekingVelocityRun(velocity, position, target);
+        int distance = Wrap(position - target);
         if (distance == 0)
             return velocity;
-        int speed = velocity.RawValue;
         if (IsNegative(distance))
         {
             int step = Step(Negate(distance), divisor);
-            if (IsNegative(speed))
+            if (IsNegative(velocity.RawValue))
             {
-                // A carry-set off-screen result makes this ADC add one extra unit.
-                carry = isVaguelyOffScreen();
-                if (carry)
-                    speed = Add(speed, wrongWayOffScreenSpeed);
-                carry = false;
-                speed = Add(speed, ReversalStep);
-                speed = Add(speed, step);
+                // Off screen, a reversal first pushes the mover by its off-screen speed, raising by one unit more
+                // than the matching lowering does.
+                if (isVaguelyOffScreen())
+                {
+                    run.StartFresh();
+                    run.Raise(wrongWayOffScreenSpeed + 1);
+                }
+                run.StartFresh();
+                run.Raise(ReversalStep);
+                run.Raise(step);
             }
-            speed = Add(speed, step);
+            run.Raise(step);
+            int speed = run.Velocity.RawValue;
             return Velocity(IsNegative(Wrap(speed - MaxXSpeed)) ? speed : MaxXSpeed);
         }
         else
         {
             int step = Step(distance, divisor);
-            if (!IsNegative(speed))
+            if (!IsNegative(velocity.RawValue))
             {
-                carry = isVaguelyOffScreen();
-                if (carry)
-                    speed = Subtract(speed, wrongWayOffScreenSpeed);
-                carry = true;
-                speed = Subtract(speed, ReversalStep);
-                speed = Subtract(speed, step);
+                if (isVaguelyOffScreen())
+                {
+                    run.StartFresh();
+                    run.Lower(wrongWayOffScreenSpeed);
+                }
+                run.StartFresh();
+                run.Lower(ReversalStep);
+                run.Lower(step);
             }
-            speed = Subtract(speed, step);
+            run.Lower(step);
+            int speed = run.Velocity.RawValue;
             int limit = Negate(MaxXSpeed);
             return Velocity(IsNegative(Wrap(speed - limit)) ? limit : speed);
         }
-
-        // One link of the chain: a word sum or difference that takes and leaves the running carry.
-        int Add(int value, int addend) =>
-            WordCarry.AddWithCarry(checked((ushort)value), checked((ushort)addend), ref carry);
-        int Subtract(int value, int subtrahend) =>
-            WordCarry.SubtractWithBorrow(checked((ushort)value), checked((ushort)subtrahend), ref carry);
     }
 
     /// <summary>Returns the new Y velocity (the vertical half of $A9:F46B).</summary>
@@ -90,42 +89,37 @@ internal static class BabyMetroidGradualAcceleration
     /// <param name="divisor">The distance divisor, 1 through 16.</param>
     public static SignedEightEight AccelerateVertically(int position, int target, SignedEightEight velocity, int divisor)
     {
-        bool carry = true;
-        int distance = Subtract(position, target);
+        var run = new SeekingVelocityRun(velocity, position, target);
+        int distance = Wrap(position - target);
         if (distance == 0)
             return velocity;
-        int speed = velocity.RawValue;
         if (IsNegative(distance))
         {
             int step = Step(Negate(distance), divisor);
-            if (IsNegative(speed))
+            if (IsNegative(velocity.RawValue))
             {
-                carry = false;
-                speed = Add(speed, ReversalStep);
-                speed = Add(speed, step);
+                run.StartFresh();
+                run.Raise(ReversalStep);
+                run.Raise(step);
             }
-            speed = Add(speed, step);
+            run.Raise(step);
+            int speed = run.Velocity.RawValue;
             return Velocity(IsNegative(Wrap(speed - MaxYSpeed)) ? speed : MaxYSpeed);
         }
         else
         {
             int step = Step(distance, divisor);
-            if (!IsNegative(speed))
+            if (!IsNegative(velocity.RawValue))
             {
-                carry = true;
-                speed = Subtract(speed, ReversalStep);
-                speed = Subtract(speed, step);
+                run.StartFresh();
+                run.Lower(ReversalStep);
+                run.Lower(step);
             }
-            speed = Subtract(speed, step);
+            run.Lower(step);
+            int speed = run.Velocity.RawValue;
             int limit = Negate(MaxYSpeed);
             return Velocity(IsNegative(Wrap(speed - limit)) ? limit : speed);
         }
-
-        // One link of the chain: a word sum or difference that takes and leaves the running carry.
-        int Add(int value, int addend) =>
-            WordCarry.AddWithCarry(checked((ushort)value), checked((ushort)addend), ref carry);
-        int Subtract(int value, int subtrahend) =>
-            WordCarry.SubtractWithBorrow(checked((ushort)value), checked((ushort)subtrahend), ref carry);
     }
 
     /// <summary>Models $4204/$4206 distance division, replacing a zero quotient with one.</summary>
@@ -140,10 +134,10 @@ internal static class BabyMetroidGradualAcceleration
     /// <summary>The two's-complement negation of a word, as a word.</summary>
     private static int Negate(int word) => Wrap(-word);
 
-    /// <summary>A difference of words reduced to the word the chain compares.</summary>
+    /// <summary>A difference of words reduced to the word the run compares.</summary>
     private static int Wrap(int value) => unchecked((ushort)value);
 
-    /// <summary>A chain word as the velocity it encodes.</summary>
+    /// <summary>A velocity word as the velocity it encodes.</summary>
     private static SignedEightEight Velocity(int word) => new(checked((ushort)word));
 
     /// <summary>Tests the word sign bit before choosing an acceleration or reversal branch.</summary>

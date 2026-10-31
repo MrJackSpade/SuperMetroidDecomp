@@ -11,6 +11,18 @@ public readonly record struct SharedRandomState
     /// <summary>The bits of the lower random byte, below the upper one.</summary>
     private const int ByteBits = 8;
 
+    /// <summary>The values one random byte holds: a byte's product moved to the upper byte is multiplied by this.</summary>
+    private const int ByteSpan = 256;
+
+    /// <summary>The values the state holds: an advance wraps at this.</summary>
+    private const int StateSpan = 65536;
+
+    /// <summary>Each byte of the state is multiplied by five.</summary>
+    private const int Multiplier = 5;
+
+    /// <summary>The 17 an advance adds after the products and their 256.</summary>
+    private const int Increment = 17;
+
     /// <summary>Holds a state from 0 through 65535.</summary>
     public SharedRandomState(int value) => Value = RequireSample(value);
 
@@ -27,33 +39,17 @@ public readonly record struct SharedRandomState
     public static byte UpperByte(int sample) => unchecked((byte)(RequireSample(sample) >> ByteBits));
 
     /// <summary>
-    /// The state after one advance, exactly as <c>$80:8111</c> computes it: the two byte multiplies, the high-byte
-    /// addition's carry and the final sixteen-bit wrapping addition.
+    /// The state after one advance (<c>$80:8111</c>): roughly the state times five plus 273. Each byte of the state is
+    /// multiplied by five on its own, and the upper byte's product keeps only its own low byte; the products plus 256
+    /// form the next state, plus 17, plus one more when the products plus 256 pass the end of the state's sixteen bits.
+    /// That extra one is why the sequence is not exactly the state times five plus 273.
     /// </summary>
     public SharedRandomState Next()
     {
-        // The ROM performs two separate 8x8 multiplies through the SNES hardware
-        // multiplier ($4202/$4203). This first product is retained as a 16-bit word.
-        int lowByteProduct = LowerByte(Value) * 5;
-
-        // The second hardware multiplication is read through an 8-bit accumulator, so
-        // only its low result byte participates directly in the next addition.
-        int highByteProductLow = unchecked((byte)(UpperByte(Value) * 5));
-
-        // SEC makes the addition start with carry=1. It modifies the high byte of the
-        // first product. The ninth bit is retained separately as the processor carry.
-        int highByteSum = UpperByte(lowByteProduct) + highByteProductLow + 1;
-
-        // STA $02,S replaces the saved product's high byte but, naturally, stores only
-        // eight bits. Reconstruct that post-STA stack word explicitly.
-        int savedProduct = unchecked((byte)lowByteProduct) | unchecked((byte)highByteSum) << ByteBits;
-
-        // After PLA restores 16-bit A, ADC #$0011 consumes the carry left by the 8-bit
-        // addition. That extra carry is the reason this is only *roughly* r*5+$0111.
-        int result = savedProduct + 17 + WordCarry.OutOfByte(highByteSum);
-
-        // A 65C816 accumulator wraps at 16 bits.
-        return new SharedRandomState(unchecked((ushort)result));
+        int products = LowerByte(Value) * Multiplier + LowerByte(UpperByte(Value) * Multiplier) * ByteSpan;
+        int raised = products + ByteSpan;
+        int pastSixteenBits = raised > ushort.MaxValue ? 1 : 0;
+        return new SharedRandomState((raised + Increment + pastSixteenBits) % StateSpan);
     }
 
     /// <summary>The state with its two bytes exchanged, as the lava and acid FX routine stores it back.</summary>

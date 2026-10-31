@@ -18,4 +18,19 @@ internal static class DragonNativeWords
         [DragonEnemyFunction.Sinking] = 0xe749,
         [DragonEnemyFunction.WingNoOp] = 0xe781,
     });
+
+    /// <summary>
+    /// The cartridge's animation-table ordinal naming each <see cref="DragonAnimationSelector"/>: even ordinals face
+    /// left, odd ordinals face right. The cartridge's all-ones installed ordinal is Core's
+    /// <see cref="DragonEnemyState.ReinstallRequested"/>, not an animation.
+    /// </summary>
+    internal static readonly NativeWordIdentities<DragonAnimationSelector> AnimationSelectors = new(new Dictionary<DragonAnimationSelector, ushort>
+    {
+        [DragonAnimationSelector.IdleFacingLeft] = 0,
+        [DragonAnimationSelector.IdleFacingRight] = 1,
+        [DragonAnimationSelector.WingsFacingLeft] = 2,
+        [DragonAnimationSelector.WingsFacingRight] = 3,
+        [DragonAnimationSelector.AttackingFacingLeft] = 4,
+        [DragonAnimationSelector.AttackingFacingRight] = 5,
+    });
 }

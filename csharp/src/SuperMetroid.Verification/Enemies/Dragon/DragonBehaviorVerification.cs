@@ -18,7 +18,7 @@ internal static class DragonBehaviorVerification
     /// </summary>
     internal static void VerifyDragonBehavior()
     {
-        foreach (DragonAnimationSelector selector in Enum.GetValues<DragonAnimationSelector>().Where(selector => selector != DragonAnimationSelector.ForceReinstall))
+        foreach (DragonAnimationSelector selector in Enum.GetValues<DragonAnimationSelector>())
         {
             DragonProgram program = DragonPhases.Program(selector);
             (RoomEnemySystem enemies, RoomEnemySlot slot, DragonEnemyState state) = Install(selector);
@@ -35,7 +35,6 @@ internal static class DragonBehaviorVerification
                     break;
                 case DragonAnimationSelector.AttackingFacingLeft:
                 case DragonAnimationSelector.AttackingFacingRight:
-                case DragonAnimationSelector.ForceReinstall:
                 default:
                     int[] holds = [32, 3, 7, 3, 1];
                     AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. poses, poses[^1]], [.. holds, 1]),
@@ -71,7 +70,7 @@ internal static class DragonBehaviorVerification
         {
             DragonEnemyState body = enemies.DragonStates[bodySlot] ?? throw new InvalidOperationException("Dragon has no state.");
             body.Function = DragonEnemyFunction.Attacking;
-            body.RequestedInstructionListIndex = DragonAnimationSelector.AttackingFacingLeft;
+            body.RequestedAnimation = DragonAnimationSelector.AttackingFacingLeft;
             body.AttackCounter = WrappingCountdown.Start(3);
             body.AnimationFinished = true;
             enemies.DragonBehavior.RunDragonAttacking(enemies.SlotTable.Slots[bodySlot], body);
@@ -92,8 +91,8 @@ internal static class DragonBehaviorVerification
         slot.SetSpawnParameter1(EnemyDefinitionId.Dragon, selector is DragonAnimationSelector.WingsFacingLeft or DragonAnimationSelector.WingsFacingRight ? (ushort)1 : (ushort)0);
         DragonBehavior.InitializeDragon(slot);
         DragonEnemyState state = enemies.DragonStates[0] ?? throw new InvalidOperationException("Dragon has no state.");
-        state.InstalledInstructionListIndex = DragonAnimationSelector.ForceReinstall;
-        state.RequestedInstructionListIndex = selector;
+        state.ReinstallRequested = true;
+        state.RequestedAnimation = selector;
         state.AnimationFinished = false;
         DragonBehavior.InstallDragonInstructionList(slot, state);
         return new InstallResult(enemies, slot, state);

@@ -1667,7 +1667,7 @@ internal static class LookupStream1Verification
             AssertThrows<ArgumentOutOfRangeException>(() => HibashiEruption.ActivityFrame(invalid), "Hibashi native frame rejection");
         for (ushort selector = 0; selector < 6; selector++)
         {
-            AssertEqual(Word(0xa2e5ef + selector * 2), NativeEnemyProgramOracle.EntryOf(DragonNativeListAddresses.Entries, DragonPhases.Program((DragonAnimationSelector)selector)), "Dragon native phase/facing program");
+            AssertEqual(Word(0xa2e5ef + selector * 2), NativeEnemyProgramOracle.EntryOf(DragonNativeListAddresses.Entries, DragonPhases.Program(DragonNativeWords.AnimationSelectors.Decode(selector, "Dragon animation ordinal"))), "Dragon native phase/facing program");
             var role = EscapeEtecoons.Initialization(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.EscapeEtecoonRole(selector));
             int offset = selector & ~1;
             AssertEqual(Word(0xb3e718 + offset), role.Position.X, "Etecoon native role X");
@@ -1678,7 +1678,7 @@ internal static class LookupStream1Verification
         }
         foreach (ushort invalid in new ushort[] { 6, 7, ushort.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => DragonPhases.Program((DragonAnimationSelector)invalid), "Dragon invalid selector rejection");
+            AssertEqual(false, DragonNativeWords.AnimationSelectors.TryDecode(invalid, out _), "Dragon invalid selector rejection");
             AssertThrows<InvalidDataException>(() => EscapeEtecoons.Initialization(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.EscapeEtecoonRole(invalid)), "Etecoon invalid role rejection");
         }
     }

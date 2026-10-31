@@ -274,7 +274,7 @@ internal sealed class PhantoonCombat
     {
         if (body.Health == 0)
         {
-            state.LastCombatSoundEffect = PhantoonSoundDefinitions.ShotCry;
+            _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
             state.Parts[state.Tentacles.SlotIndex].HitReaction = 1;
             body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
             BeginPhantoonDeathSequence(body, state);
@@ -284,7 +284,7 @@ internal sealed class PhantoonCombat
         if ((body.AiStates & EnemyAiStates.Hurt) == EnemyAiStates.None)
             return;
 
-        state.LastCombatSoundEffect = PhantoonSoundDefinitions.ShotCry;
+        _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
         SamusProjectileFamily family = projectileType.Family;
         PhantoonAiFunction function = state.Parts[body.SlotIndex].Function;
         bool vulnerableWindow = function is
@@ -525,7 +525,7 @@ internal sealed class PhantoonCombat
                 return;
             // Expiry falls through to movement on this call, including signed
             // underflow. Keep each actor's native queue call rather than a last-SFX latch.
-            _audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundQueueCapacity);
+            _audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundPriority);
         }
 
         flame.Velocity = flame.Velocity.WithY(new SignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + 16))));
@@ -535,7 +535,7 @@ internal sealed class PhantoonCombat
         flame.InstructionTimer = WrappingCountdown.Start(1);
         flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole + 8)));
         flame.PreInstruction = EnemyProjectilePreInstruction.RTS_869A44;
-        _audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundQueueCapacity);
+        _audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundPriority);
     }
 
     /// <summary>Moves a spiral flame around Phantoon's body.</summary>

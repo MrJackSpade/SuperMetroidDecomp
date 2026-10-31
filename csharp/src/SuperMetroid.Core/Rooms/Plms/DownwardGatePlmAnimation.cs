@@ -39,7 +39,7 @@ internal sealed class DownwardGatePlmAnimation(DownwardGateProgram program)
                 break;
             case DownwardGateCue.QueueMovementSound:
                 context.QueueSound(DownwardGateDefinitions.MovementSound,
-                    DownwardGatePlmProgramDefinitions.MovementSoundMaximumQueued);
+                    DownwardGatePlmProgramDefinitions.MovementSoundPriority);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(DownwardGateCue)} {cue}.");

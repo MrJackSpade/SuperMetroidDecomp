@@ -17,8 +17,8 @@ internal static class SamusEaterPlmProgramDefinitions
     private const int ChewFrameDuration = 5;
     /// <summary>How long the closed mouth shows after the release.</summary>
     private const int ReleaseDuration = 96;
-    /// <summary>The chew sound's native queue cap.</summary>
-    internal static readonly SoundRequestPriority ChewSoundMaximumQueued = SoundRequestPriority.Normal;
+    /// <summary>The chew sound's request priority.</summary>
+    internal static readonly SoundRequestPriority ChewSoundPriority = SoundRequestPriority.Normal;
 
     /// <summary>Every plant program.</summary>
     internal static AnimationProgramSet<SamusEaterProgram, SamusEaterDraw, SamusEaterCue> Programs { get; } = new(

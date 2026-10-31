@@ -899,10 +899,10 @@ internal static class PaletteFxInstructionCodesVerification
             {
                 AssertEqual(Library3Sound.IncrementalEnergy,
                     request.SoundEffect,
-                    "retail Norfair heat owner publishes native library-three sound");
-                AssertEqual(PaletteFxHeatData.DamageSoundMaximumQueued,
+                    "retail Norfair heat owner requests the incremental-energy sound");
+                AssertEqual(PaletteFxHeatData.DamageSoundPriority,
                     request.Priority,
-                    "retail Norfair heat owner uses native Max6 queue");
+                    "retail Norfair heat owner requests the heat-damage priority");
             }
             if (frame == 16)
             {

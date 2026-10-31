@@ -324,7 +324,7 @@ public sealed class RoomPaletteFxSystem
             {
                 soundRequests.Add(new SoundRequest(
                     Library3Sound.IncrementalEnergy,
-                    PaletteFxHeatData.DamageSoundMaximumQueued,
+                    PaletteFxHeatData.DamageSoundPriority,
                     SoundSuppressed: audioPowerBomb?.IsActive == true));
             }
         }

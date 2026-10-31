@@ -17,6 +17,6 @@ internal static class PhantoonFlameMotionDefinitions
     internal const ushort SpiralAngleStep = 2;
     /// <summary>$86:9AA0/$9AD2: sound requested when rain starts falling and when it hits terrain.</summary>
     internal static SoundEffectId RainFallSound => Library3Sound.PhantoonFlame;
-    /// <summary>$86:9AA3/$9AD5 call QueueSound_Lib3_Max6.</summary>
-    internal static readonly SoundRequestPriority RainSoundQueueCapacity = SoundRequestPriority.Normal;
+    /// <summary>The rain sound's request priority.</summary>
+    internal static readonly SoundRequestPriority RainSoundPriority = SoundRequestPriority.Normal;
 }

@@ -60,7 +60,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         Opening = new PhantoonOpening(dependencies.Projectiles, _audio, Presentation);
         Combat = new PhantoonCombat(_room, dependencies.Projectiles, dependencies.Earthquake, _audio, _slotTable, dependencies.Collision, dependencies.DeathsAndDrops);
         Patterns = new PhantoonPatterns(_room, dependencies.Projectiles, _audio, _presentation, dependencies.FrameContext, Presentation, _bossArtwork);
-        Death = new PhantoonDeath(new PhantoonDeathDependencies { Room = _room, Projectiles = dependencies.Projectiles, Presentation = _presentation, FrameContext = dependencies.FrameContext, DeathsAndDrops = dependencies.DeathsAndDrops, PhantoonPresentation = Presentation, Patterns = Patterns, BossArtwork = _bossArtwork });
+        Death = new PhantoonDeath(new PhantoonDeathDependencies { Room = _room, Projectiles = dependencies.Projectiles, Presentation = _presentation, FrameContext = dependencies.FrameContext, DeathsAndDrops = dependencies.DeathsAndDrops, PhantoonPresentation = Presentation, Patterns = Patterns, BossArtwork = _bossArtwork, Audio = _audio });
     }
 
     /// <summary>Native per-update increase in introductory wave amplitude.</summary>
@@ -155,7 +155,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         PhantoonEnemyState state = RequireCompletePhantoonState(body);
-        state.LastMaterializationSound = null;
+        _audio.CancelPhantoonMaterializationSound();
         PhantoonAiFunction dispatched = state.Parts[body.SlotIndex].Function;
 
         switch (dispatched)
@@ -167,7 +167,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 PhantoonOpening.RunPhantoonStartingFlamePause(state.Parts[body.SlotIndex]);
                 break;
             case PhantoonAiFunction.WaitForStartingFlamesToDisappear:
-                PhantoonOpening.RunPhantoonStartingFlameOrbitWait(body, state);
+                Opening.RunPhantoonStartingFlameOrbitWait(body, state);
                 break;
             case PhantoonAiFunction.WavyFadeIn:
                 Opening.RunPhantoonWavyFadeIn(body, state);
@@ -245,7 +245,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Death.RunPhantoonDyingExplosions(body, state);
                 break;
             case PhantoonAiFunction.BeginFinalWavyDeath:
-                PhantoonDeath.BeginPhantoonWavyMosaicDeath(body, state);
+                Death.BeginPhantoonWavyMosaicDeath(body, state);
                 break;
             case PhantoonAiFunction.DyingFadeOut:
                 Death.RunPhantoonWavyMosaicDeath(body, state);
@@ -357,9 +357,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case PhantoonPartCue.PlayMaterializationSound:
-                state.LastMaterializationSound =
+                _audio.RequestPhantoonMaterializationSound(
                     PhantoonSounds.MaterializationSound(
-                        state.MaterializationSoundIndex);
+                        state.MaterializationSoundIndex));
                 state.MaterializationSoundIndex++;
                 if (state.MaterializationSoundIndex >= PhantoonSoundDefinitions.MaterializationSoundCount)
                     state.MaterializationSoundIndex = 0;
@@ -377,7 +377,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case PhantoonPartCue.SpawnCasualFlame:
                 Patterns.SpawnPhantoonDestroyableFlame(state.Body, PhantoonFlameSpawnType.Casual, 0);
-                _audio.QueueEnemySound(PhantoonSoundDefinitions.CasualFlame, PhantoonSoundDefinitions.CasualFlameQueueCapacity);
+                _audio.QueueEnemySound(PhantoonSoundDefinitions.CasualFlame, PhantoonSoundDefinitions.CasualFlamePriority);
                 return;
 
             default:
@@ -408,34 +408,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Activated flame callback that advances its orbit around the body.</summary>
     internal const EnemyProjectilePreInstruction PhantoonStartingFlameOrbitPreInstruction =
         EnemyProjectilePreInstruction.PhantoonStartingFlames_Activated;
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        // Legacy publications are momentary like their native QueueSfx/QueueMusic calls; clearing them at the
-        // EnemyMain frame boundary keeps a paused or frozen actor from replaying its previous request.
-        if (Combat.Phantoon is not null)
-        {
-            Combat.Phantoon.LastMaterializationSound = null;
-            Combat.Phantoon.LastCombatSoundEffect = null;
-            Combat.Phantoon.MusicRequest = null;
-        }
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (Combat.Phantoon?.LastMaterializationSound is { } phantoonMaterialization)
-            audio.QueueEnemySound(phantoonMaterialization, priority: SoundRequestPriority.Normal);
-        if (Combat.Phantoon?.LastCombatSoundEffect is { } phantoonCombat)
-            audio.QueueEnemySound(phantoonCombat, priority: SoundRequestPriority.Normal);
-    }
-
-    /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacyMusic(EnemyAudioQueue audio)
-    {
-        audio.QueueLegacyMusic(Combat.Phantoon?.MusicRequest, MusicQueueDelay.Shortest);
-    }
 
     /// <summary>Ports PhantoonBody's main AI.</summary>
     internal void RunPhantoonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

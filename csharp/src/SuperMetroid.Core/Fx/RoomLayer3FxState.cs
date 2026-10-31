@@ -318,7 +318,7 @@ public sealed class RoomLayer3FxState
         lavaSoundTimer = WrappingCountdown.Start(LavaAcidWaveDefinitions.AmbientSoundPeriod);
         soundRequests.Add(new SoundRequest(
             LiquidEffects.LavaAmbientSound(random),
-            LavaAcidWaveDefinitions.AmbientSoundMaximumQueued,
+            LavaAcidWaveDefinitions.AmbientSoundPriority,
             SoundSuppressed: audioPowerBomb?.IsActive == true));
     }
 

@@ -23,7 +23,7 @@ internal sealed class SamusEaterPlmAnimation(SamusEaterProgram program)
                 break;
             case SamusEaterCue.QueueChewSound:
                 context.QueueSound(SamusEaterPlmDefinitions.ChewSound,
-                    SamusEaterPlmProgramDefinitions.ChewSoundMaximumQueued);
+                    SamusEaterPlmProgramDefinitions.ChewSoundPriority);
                 break;
             case SamusEaterCue.DamageSamus:
                 context.Plms.SamusEater.DamageSamus();

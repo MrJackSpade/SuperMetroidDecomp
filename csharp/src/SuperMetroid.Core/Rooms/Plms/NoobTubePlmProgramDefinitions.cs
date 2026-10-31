@@ -10,8 +10,8 @@ internal static class NoobTubePlmProgramDefinitions
     private const int CrackedDuration = 48;
     /// <summary>How long the opened tube shows before the room's water is restored.</summary>
     private const int OpenedDuration = 96;
-    /// <summary>The break sound's native queue cap.</summary>
-    internal static readonly SoundRequestPriority BreakSoundMaximumQueued = SoundRequestPriority.Normal;
+    /// <summary>The break sound's request priority.</summary>
+    internal static readonly SoundRequestPriority BreakSoundPriority = SoundRequestPriority.Normal;
 
     /// <summary>Every n00b-tube program.</summary>
     internal static AnimationProgramSet<NoobTubeProgram, NoobTubeDraw, NoobTubeCue> Programs { get; } = new(

@@ -35,7 +35,7 @@ internal sealed class PhantoonOpening
         state.StartingFlameRequests++;
         if (SpawnPhantoonStartingFlame(body, unchecked((byte)state.Parts[body.SlotIndex].StartingFlameIndex)))
             state.StartingFlamesSpawned++;
-        _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlameQueueCapacity);
+        _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlamePriority);
         state.Parts[body.SlotIndex].FunctionTimer = 30;
         state.Parts[body.SlotIndex].StartingFlameIndex = WrappingCounter.IncrementWord(state.Parts[body.SlotIndex].StartingFlameIndex);
         if (unchecked((short)(state.Parts[body.SlotIndex].StartingFlameIndex - 8)) < 0)
@@ -59,7 +59,7 @@ internal sealed class PhantoonOpening
     }
 
     /// <summary>Waits for the initial flames to finish orbiting before the next phase.</summary>
-    internal static void RunPhantoonStartingFlameOrbitWait(
+    internal void RunPhantoonStartingFlameOrbitWait(
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
@@ -74,7 +74,7 @@ internal sealed class PhantoonOpening
         state.Parts[state.Mouth.SlotIndex].WaveAmplitude = PhantoonBehavior.PhantoonIntroMaximumAmplitude;
         state.Parts[state.Mouth.SlotIndex].WaveAmplitudeShrinking = false;
         state.Parts[state.Eye.SlotIndex].FadeComplete = false;
-        state.MusicRequest = MusicRequest.SelectTrack(5);
+        _audio.RequestPhantoonMusic(MusicRequest.SelectTrack(5));
         state.Parts[state.Mouth.SlotIndex].WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
         state.Wave.Begin(PhantoonWaveDefinitions.IntroLength);
     }

@@ -158,10 +158,10 @@ internal sealed class DoorPlms : IPlmFamilySource
 
     /// <summary>Queues the library-two dud sound a rejected or premature shot makes.</summary>
     internal void QueueDudSound() =>
-        _sounds.Queue(Library2Sound.DudShotOnDoor, Priority: DudSoundMaximumQueued);
+        _sounds.Queue(Library2Sound.DudShotOnDoor, Priority: DudSoundPriority);
 
-    /// <summary>The dud sound's native queue cap.</summary>
-    private static readonly SoundRequestPriority DudSoundMaximumQueued = SoundRequestPriority.Normal;
+    /// <summary>The dud sound's request priority.</summary>
+    private static readonly SoundRequestPriority DudSoundPriority = SoundRequestPriority.Normal;
 
     /// <summary>
     /// <c>$84:8A72</c>: whether this cap's door bit records it as opened before; a negative room argument never does.

@@ -18,14 +18,14 @@ internal static class ZoaRecordStateVerification
         var state = new ZoaEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.SpawnPosition = new Position16<RoomPixels>(1, 0);
-        state.InstructionListTableIndex = Enum.GetValues<ZoaAnimationSelector>()[^1];
-        state.PreviousInstructionListTableIndex = Enum.GetValues<ZoaAnimationSelector>()[^1];
+        state.AnimationScriptTableIndex = Enum.GetValues<ZoaAnimationSelector>()[^1];
+        state.PreviousAnimationScriptTableIndex = Enum.GetValues<ZoaAnimationSelector>()[^1];
         state.Function = Enum.GetValues<ZoaEnemyFunction>()[^1];
 
         slot.Clear();
         AssertEqual<Position16<RoomPixels>>(Position16<RoomPixels>.Zero, state.SpawnPosition, "a kill empties SpawnPosition");
-        AssertEqual<ZoaAnimationSelector>(default(ZoaAnimationSelector), state.InstructionListTableIndex, "a kill empties InstructionListTableIndex");
-        AssertEqual<ZoaAnimationSelector>(default(ZoaAnimationSelector), state.PreviousInstructionListTableIndex, "a kill empties PreviousInstructionListTableIndex");
+        AssertEqual<ZoaAnimationSelector>(default(ZoaAnimationSelector), state.AnimationScriptTableIndex, "a kill empties AnimationScriptTableIndex");
+        AssertEqual<ZoaAnimationSelector>(default(ZoaAnimationSelector), state.PreviousAnimationScriptTableIndex, "a kill empties PreviousAnimationScriptTableIndex");
         AssertEqual<ZoaEnemyFunction?>(null, state.Function, "a kill empties Function");
         Console.WriteLine("Zoa record state: a kill empties every value the record holds.");
     }

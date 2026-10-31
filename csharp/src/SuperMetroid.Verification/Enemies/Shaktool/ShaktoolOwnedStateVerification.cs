@@ -45,13 +45,13 @@ internal static class ShaktoolOwnedStateVerification
         for (int index = 0; index < states.Length; index++)
         {
             AssertEqual(ShaktoolMotionFlags.ReversedOnce, states[index].MotionFlags, $"segment {index} has reversed once and stopped straightening");
-            AssertEqual(ShaktoolPreInstruction.Idle, states[index].PreInstruction, $"segment {index} idles through the collision response");
+            AssertEqual(ShaktoolFrameBehavior.Idle, states[index].FrameBehavior, $"segment {index} idles through the collision response");
         }
 
         tail.Clear();
         AssertEqual(new ShaktoolOwnedStateVerifyShaktoolOwnedStateCase(RotationAngle.Zero, RotationAngle.Zero, 0, 0), new ShaktoolOwnedStateVerifyShaktoolOwnedStateCase(states[6].TargetAngle, states[6].OrbitAngle, states[6].AngularVelocity, states[6].OwnerSlotIndex),
             "a kill empties the segment's angles, rate and owner");
-        AssertEqual(null, states[6].PreInstruction, "a kill empties the segment's motion");
+        AssertEqual(null, states[6].FrameBehavior, "a kill empties the segment's motion");
         Console.WriteLine("Shaktool owned state: orbit wrap, reversed orientation, wall reversal and the cleared record match.");
     }
 

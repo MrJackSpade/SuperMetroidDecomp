@@ -83,8 +83,8 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Layer = Actor.Definition.Layer;
             Actor.Position = Actor.Position.WithWhole(new(128, (ushort)(FloorY - Actor.Radius.Y - 12)));
-            Actor.Properties = (EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen);
-            Actor.InstructionTimer = WrappingCountdown.Start(1);
+            Actor.Properties = (EnemyProperties.RunsAnimationScript | EnemyProperties.ProcessOffScreen);
+            Actor.FrameHold = WrappingCountdown.Start(1);
             if (graphicsSet is not null)
             {
                 Enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, graphicsSet, Colors.Gameplay.SpriteSets);
@@ -98,8 +98,8 @@ internal static class EnemyAnimationIsolationFixtureVerification
                 Actor.SpritemapPointer = GoldenTorizoRightOrbFrames()[0];
                 Enemies.BombTorizoBehavior.Access.TorizoState = new TorizoEnemyState(Actor, isGolden: true)
                 {
-                    Function = TorizoFunction.GoldenPreInstruction,
-                    PreInstruction = TorizoPreInstruction.Idle,
+                    Function = TorizoFunction.GoldenFrameBehavior,
+                    FrameBehavior = TorizoFrameBehavior.Idle,
                     BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftRightFootFwd0),
                     ReturnCursor = AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftRightFootFwd0),
                     Velocity = new EightEightVector<RoomPixels>(0, 256),

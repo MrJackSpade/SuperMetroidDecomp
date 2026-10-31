@@ -69,25 +69,25 @@ internal sealed class CrocomireCombat
     /// <summary>Registers Crocomire's owned projectile setup, movement, and instruction handlers.</summary>
     internal void AddCrocomireProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             StartCrocomireProjectileFlight(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.CrocomireShotAiming);
+        }, EnemyProjectileFrameBehavior.CrocomireShotAiming);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunCrocomireProjectileFlight(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.CrocomireShotFlight);
+        }, EnemyProjectileFrameBehavior.CrocomireShotFlight);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunCrocomireSpikeWallPiece(context.Projectile);
-        }, EnemyProjectilePreInstruction.CrocomireSpikeWallCollapse);
+        }, EnemyProjectileFrameBehavior.CrocomireSpikeWallCollapse);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunCrocomireBridgeFragment(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.CrocomireBridgeFragmentFall);
+        }, EnemyProjectileFrameBehavior.CrocomireBridgeFragmentFall);
     }
 
     /// <summary>Routes power-bomb hits on each Crocomire component to their authored reactions.</summary>
@@ -212,7 +212,7 @@ internal sealed class CrocomireCombat
             {
                 if (!projectileType.IsChargedBeam)
                 {
-                    body.InstructionTimer = WrappingCountdown.Start(8);
+                    body.FrameHold = WrappingCountdown.Start(8);
                     SpawnCrocomireShotDust(projectileType, projectile);
                     return;
                 }
@@ -237,7 +237,7 @@ internal sealed class CrocomireCombat
                 // Both regional constants at $A4:8692/$8694 are eight. Keep the branch
                 // explicit because the source distinguishes projectile-attack state even
                 // though this ROM revision stores identical delay values.
-                body.InstructionTimer = body.InstructionTimer.AddFrames(
+                body.FrameHold = body.FrameHold.AddFrames(
                     state.FightFunction == CrocomireFightFunction.ProjectileAttack ? 8 : 8);
             }
             state.HitCount = hitCount;
@@ -311,8 +311,8 @@ internal sealed class CrocomireCombat
         // The native angle starts at up, not right: Y uses negative cosine.
         projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(
             new(-64, CrocomireVolley.GradientForSpawnParameter(projectile.StateOf<CrocomireProjectileState>().VolleyParameter))));
-        projectile.PreInstruction =
-            EnemyProjectilePreInstruction.CrocomireShotFlight;
+        projectile.FrameBehavior =
+            EnemyProjectileFrameBehavior.CrocomireShotFlight;
     }
 
     /// <summary>Ports <c>sub_8690B3</c>: delete on the first horizontal/vertical wall hit.</summary>

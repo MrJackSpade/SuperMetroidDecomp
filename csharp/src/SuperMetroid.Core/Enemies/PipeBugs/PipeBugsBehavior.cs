@@ -69,7 +69,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         state.FlightSpeeds = EnemyLinearSpeeds.Row(slot.SpawnSettings<NorfairPipeBugSpawnSettings>().SpeedIndex);
         state.FormationCounter = 0;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugProgram.GametRisingLeft);
         state.Function = PipeBugEnemyFunction.NorfairWaitForFormation;
@@ -81,7 +81,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<PipeBugProgram>.Start(
             slot.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left
@@ -289,7 +289,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(
             strong: slot.SpawnSettings<BrinstarPipeBugSpawnSettings>().Kind == BrinstarPipeBugKind.Strong,
             state.RequestedAnimation));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
@@ -326,7 +326,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // $B3:8C19-$8C1F resets only the current (leader) slot. The following
         // formation stores change every instruction pointer, but leave follower
         // timers intact, including zero timers in cleared respawn placeholders.
-        leader.InstructionTimer = WrappingCountdown.Start(1);
+        leader.FrameHold = WrappingCountdown.Start(1);
         leader.Timer = WrappingCountdown.Start(0);
         bool samusIsRight = CoordinateAxis.Difference(samus.Position.X.Whole, leader.Position.X.Whole) >= 0;
         RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(leader);
@@ -400,7 +400,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.FormationCounter = 0;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) >= 0)
         {
@@ -483,7 +483,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.EmergenceDelay = state.EmergenceDelay.Decrement().Remaining;
         if (!state.EmergenceDelay.IsZero)
             return;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         if (slot.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left)
         {
@@ -587,7 +587,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
         state.Function = PipeBugEnemyFunction.YellowWaitForSamus;
         state.ArcCompleted = false;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<PipeBugProgram>.Start(
             slot.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left
@@ -650,7 +650,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InstallPipeBugProgram(RoomEnemySlot slot, PipeBugEnemyState state, PipeBugProgram program)
     {
         state.Program = AnimationProgramCursor<PipeBugProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

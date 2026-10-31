@@ -93,18 +93,18 @@ internal static class DemoInputNativeListAddresses
     }
 
     /// <summary>
-    /// The native pre-instruction word a typed object's <paramref name="preInstruction"/> stands for; a cleared object's
+    /// The native pre-instruction word a typed object's <paramref name="frameBehavior"/> stands for; a cleared object's
     /// is zero.
     /// </summary>
-    internal static ushort PreInstructionAddress(DemoInputPreInstruction preInstruction) => preInstruction switch
+    internal static ushort FrameBehaviorAddress(DemoInputFrameBehavior frameBehavior) => frameBehavior switch
     {
-        DemoInputPreInstruction.None => 0,
-        DemoInputPreInstruction.ReturnOnly => (ushort)NativeDemoPreInstruction.ReturnOnly,
-        DemoInputPreInstruction.AttractCheckLeave => (ushort)NativeDemoPreInstruction.AttractCheckLeave,
-        DemoInputPreInstruction.AttractShinespark => (ushort)NativeDemoPreInstruction.AttractShinespark,
-        DemoInputPreInstruction.IntroBabyRunningLeft => (ushort)NativeDemoPreInstruction.IntroBabyRunningLeft,
-        DemoInputPreInstruction.IntroBabyStopAndLook => (ushort)NativeDemoPreInstruction.IntroBabyStopAndLook,
-        _ => throw new ArgumentOutOfRangeException(nameof(preInstruction), preInstruction, "Undefined demo-input pre-instruction."),
+        DemoInputFrameBehavior.None => 0,
+        DemoInputFrameBehavior.ReturnOnly => (ushort)NativeDemoFrameBehavior.ReturnOnly,
+        DemoInputFrameBehavior.AttractCheckLeave => (ushort)NativeDemoFrameBehavior.AttractCheckLeave,
+        DemoInputFrameBehavior.AttractShinespark => (ushort)NativeDemoFrameBehavior.AttractShinespark,
+        DemoInputFrameBehavior.IntroBabyRunningLeft => (ushort)NativeDemoFrameBehavior.IntroBabyRunningLeft,
+        DemoInputFrameBehavior.IntroBabyStopAndLook => (ushort)NativeDemoFrameBehavior.IntroBabyStopAndLook,
+        _ => throw new ArgumentOutOfRangeException(nameof(frameBehavior), frameBehavior, "Undefined demo-input pre-instruction."),
     };
 
     /// <summary>The native instruction pointer of an object's cursor; a deleted object's is zero.</summary>

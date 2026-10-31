@@ -138,8 +138,8 @@ internal static class PhantoonAnimationsVerification
     private static void Pass(RoomEnemySlot part, bool forceExpiry = false)
     {
         if (forceExpiry)
-            part.InstructionTimer = WrappingCountdown.Start(1);
-        EnemyInstructionInterpreter.ProcessInstructions(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+            part.FrameHold = WrappingCountdown.Start(1);
+        EnemyInstructionInterpreter.RunsAnimationScript(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>
@@ -152,7 +152,7 @@ internal static class PhantoonAnimationsVerification
         PhantoonEnemyState state = RequireState(enemies);
         RoomEnemySlot eye = state.Eye;
         state.PartProgram(eye) = AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.EyeOpen);
-        eye.InstructionTimer = WrappingCountdown.Start(1);
+        eye.FrameHold = WrappingCountdown.Start(1);
         for (int frame = 0; frame < 3; frame++)
         {
             Pass(eye, forceExpiry: true);
@@ -164,7 +164,7 @@ internal static class PhantoonAnimationsVerification
         AssertEqual(PhantoonPartProgram.EyeHitboxBody, PartProgram(enemies, state.Body), "the opened eye installs the eye-only body hitbox");
         AssertEqual(PhantoonPartProgram.EyeOpen, PartProgram(enemies, eye), "the list's sleep keeps the eye on its opened program");
         AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.OpeningEye, 2)), eye.SpritemapPointer, "the opened eye keeps its last frame");
-        AssertEqual((ushort)1, eye.InstructionTimer.RawValue, "the callback's one-update timer survives the sleep");
+        AssertEqual((ushort)1, eye.FrameHold.RawValue, "the callback's one-update timer survives the sleep");
     }
 
     /// <summary>The mouth's flame program spawns one casual flame and runs on into its initial frame.</summary>
@@ -200,7 +200,7 @@ internal static class PhantoonAnimationsVerification
             RoomEnemySystem enemies = NewFlameSystem();
             RoomEnemyProjectileSlot flame = SpawnDestroyable(enemies, PhantoonFlameSpawnType.Enraged);
             flame.StartAnimation(new PhantoonFlameAnimation(program));
-            var native = new NativeEnemyProjectileListDefinitions.Reader(entry, flame.InstructionTimer.RawValue);
+            var native = new NativeEnemyProjectileListDefinitions.Reader(entry, flame.FrameHold.RawValue);
             int drops = 0;
             for (int update = 0; update < 64 && !native.Deleted; update++)
             {
@@ -211,7 +211,7 @@ internal static class PhantoonAnimationsVerification
                 AssertEqual(!native.Deleted, flame.IsActive, $"{at}: deletion");
                 if (native.Deleted)
                     break;
-                AssertEqual(native.Timer, flame.InstructionTimer.RawValue, $"{at}: timer");
+                AssertEqual(native.Timer, flame.FrameHold.RawValue, $"{at}: timer");
                 AssertEqual(native.Operand, flame.PresentationOperandAddress, $"{at}: frame");
                 AssertEqual(native.Counter, flame.GeneralTimer, $"{at}: loop counter");
             }
@@ -270,7 +270,7 @@ internal static class PhantoonAnimationsVerification
         enemies.PrePhantoonRoomBehavior.SpawnPrePhantoonRoomProjectile(scroll);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PrePhantoonRoom);
         AssertTrue(projectile.Animation is PrePhantoonRoomAnimation, "the room setup starts the typed room animation");
-        var native = new NativeEnemyProjectileListDefinitions.Reader(PrePhantoonRoomEntry, projectile.InstructionTimer.RawValue);
+        var native = new NativeEnemyProjectileListDefinitions.Reader(PrePhantoonRoomEntry, projectile.FrameHold.RawValue);
         for (int update = 0; update < 40 && !native.Deleted; update++)
         {
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
@@ -278,7 +278,7 @@ internal static class PhantoonAnimationsVerification
             AssertEqual(!native.Deleted, projectile.IsActive, $"pre-Phantoon room update {update}: deletion");
             if (native.Deleted)
                 break;
-            AssertEqual(native.Timer, projectile.InstructionTimer.RawValue, $"pre-Phantoon room update {update}: timer");
+            AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"pre-Phantoon room update {update}: timer");
             // The native operand selects the empty projectile spritemap, which has no installed program frame.
             AssertEqual(cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | native.Operand), projectile.SpritemapPointer,
                 $"pre-Phantoon room update {update}: spritemap");

@@ -6,16 +6,16 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// </summary>
 internal enum ShutterProgram
 {
-    /// <summary><c>InstructionList_ShutterGrowing_10px</c> at $A2:E998.</summary>
+    /// <summary><c>AnimationScript_ShutterGrowing_10px</c> at $A2:E998.</summary>
     GrowingTenPixels,
-    /// <summary><c>InstructionList_ShutterGrowing_20px</c> at $A2:E99E.</summary>
+    /// <summary><c>AnimationScript_ShutterGrowing_20px</c> at $A2:E99E.</summary>
     GrowingTwentyPixels,
-    /// <summary><c>InstructionList_ShutterGrowing_30px</c> at $A2:E9A4.</summary>
+    /// <summary><c>AnimationScript_ShutterGrowing_30px</c> at $A2:E9A4.</summary>
     GrowingThirtyPixels,
-    /// <summary><c>InstructionList_ShutterGrowing_40px</c> at $A2:E9AA.</summary>
+    /// <summary><c>AnimationScript_ShutterGrowing_40px</c> at $A2:E9AA.</summary>
     FortyPixels,
     /// <summary><c>InstList_ShutterHorizontal</c> at $A2:E9D4.</summary>
     Horizontal,
-    /// <summary><c>InstructionList_KamerPlatform</c> at $A2:EDE7.</summary>
+    /// <summary><c>AnimationScript_KamerPlatform</c> at $A2:EDE7.</summary>
     KamerPlatform,
 }

@@ -30,5 +30,5 @@ internal static class IntroEggEffectDefinitions
     /// identities and do not infer a sixth frame from adjacent ROM data.
     /// </remarks>
     public static CinematicActorDefinition SlimeDrop =>
-        new(CinematicSpritePreInstruction.MetroidEggSlimeDrops, CinematicSpriteProgram.MetroidEggParticle7);
+        new(CinematicSpriteFrameBehavior.MetroidEggSlimeDrops, CinematicSpriteProgram.MetroidEggParticle7);
 }

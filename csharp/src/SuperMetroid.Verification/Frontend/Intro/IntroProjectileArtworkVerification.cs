@@ -45,11 +45,11 @@ internal static class IntroProjectileArtworkVerification
         projectiles.Reset();
         ProjectileTrailFrame frame = ProjectileTrailVisualDefinitions.Frames[0];
         var side = projectiles.TrailSlots[0].Left;
-        side.InstructionPointer = (ushort)(ProjectileTrailNative.Address(frame) + 4); side.InstructionTimer = WrappingCountdown.Start(100);
+        side.InstructionPointer = (ushort)(ProjectileTrailNative.Address(frame) + 4); side.FrameHold = WrappingCountdown.Start(100);
         side.Position = side.Position.WithX(100).WithY(100); side.ShownPose = frame;
         AssertEqual(sheet.Frame(ProjectileSheetFrames.TrailFrame(frame)), Shown(intro, SpriteSourceKind.SamusProjectileTrail).Image,
             "Intro trail shows its pose's frame of the intro's projectile sheet");
-        AssertEqual(99, side.InstructionTimer.RawValue, "Intro preparation advances trail exactly once per call");
+        AssertEqual(99, side.FrameHold.RawValue, "Intro preparation advances trail exactly once per call");
         game.BindArtwork(game.Artwork with { SpriteSheets = null });
         using var without = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(without, game);

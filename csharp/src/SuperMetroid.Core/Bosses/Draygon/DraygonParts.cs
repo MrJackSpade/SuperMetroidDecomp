@@ -72,7 +72,7 @@ internal sealed class DraygonParts
         _presentation.AttachBossBody(new BossBodyCanvas(_bossArtwork.Body(BossBodyOwner.Draygon), BossBodyDefinitions.SharedBodyRows));
 
         body.Colouring = new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite);
-        body.InstructionTimer = WrappingCountdown.Start(1);
+        body.FrameHold = WrappingCountdown.Start(1);
 
         _frameContext.RequestFullSweep();
         Draygon = new DraygonEnemyState(body)
@@ -91,7 +91,7 @@ internal sealed class DraygonParts
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon part appeared before the body record.");
 
-        part.InstructionTimer = WrappingCountdown.Start(1);
+        part.FrameHold = WrappingCountdown.Start(1);
         switch (DraygonPartDefinitions.Parts[part.DefinitionId])
         {
             case DraygonPart.Eye:
@@ -161,7 +161,7 @@ internal sealed class DraygonParts
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon program started without encounter state.");
         state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(program));
-        part.InstructionTimer = WrappingCountdown.Start(1);
+        part.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>
@@ -173,9 +173,9 @@ internal sealed class DraygonParts
     {
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon part ran without encounter state.");
-        CountdownStep instructionTimer = part.InstructionTimer.Decrement();
-        part.InstructionTimer = instructionTimer.Remaining;
-        if (!instructionTimer.IsZero)
+        CountdownStep frameHold = part.FrameHold.Decrement();
+        part.FrameHold = frameHold.Remaining;
+        if (!frameHold.IsZero)
         {
             part.ExtraProperties = part.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
@@ -190,13 +190,13 @@ internal sealed class DraygonParts
         {
             case AnimationProgramAdvance<DraygonFrame>.Show shown:
                 state.SetCursor(part, cursor);
-                part.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                part.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 part.Frame = DraygonFrameDefinitions.ShownFrames.Of(shown.Frame);
                 part.ExtraProperties = part.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvance<DraygonFrame>.Wait waiting:
                 state.SetCursor(part, cursor);
-                part.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(waiting.Duration));
+                part.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(waiting.Duration));
                 return;
             case AnimationProgramAdvance<DraygonFrame>.Hold:
                 // The native sleep: the timer wraps from zero and the last frame stays.
@@ -226,10 +226,10 @@ internal sealed class DraygonParts
                 state.SetCursor(RequirePart(state.Eye), AnimationProgramCursor<DraygonProgram>.Start(start.Eye));
                 state.SetCursor(RequirePart(state.Tail), AnimationProgramCursor<DraygonProgram>.Start(start.Tail));
                 state.SetCursor(RequirePart(state.Arms), AnimationProgramCursor<DraygonProgram>.Start(start.Arms));
-                state.Arms.InstructionTimer = WrappingCountdown.Start(1);
-                state.Tail.InstructionTimer = WrappingCountdown.Start(1);
-                state.Eye.InstructionTimer = WrappingCountdown.Start(1);
-                state.Body.InstructionTimer = WrappingCountdown.Start(1);
+                state.Arms.FrameHold = WrappingCountdown.Start(1);
+                state.Tail.FrameHold = WrappingCountdown.Start(1);
+                state.Eye.FrameHold = WrappingCountdown.Start(1);
+                state.Body.FrameHold = WrappingCountdown.Start(1);
                 return null;
             case DraygonCue.SetEyeFunction eyeFunction:
                 (RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Function = eyeFunction.Function;

@@ -1382,7 +1382,7 @@ internal static class EnemySpritemapArtworkVerification
             {
                 AssertEqual((ushort)0xfa13, slot.SpritemapPointer,
                     "Ceres door art edit retains the native selected pose");
-                AssertEqual((ushort)7, slot.InstructionTimer.RawValue,
+                AssertEqual((ushort)7, slot.FrameHold.RawValue,
                     "Ceres door art edit preserves instruction timing");
             });
         AssertEqual(unchecked((byte)(stockCeresDoor.LowTable[1] + 1)),
@@ -2784,7 +2784,7 @@ internal static class EnemySpritemapArtworkVerification
             {
                 AssertEqual((ushort)0x88da, slot.SpritemapPointer,
                     "display override retains native collision frame pointer");
-                AssertEqual((ushort)7, slot.InstructionTimer.RawValue,
+                AssertEqual((ushort)7, slot.FrameHold.RawValue,
                     "display override does not move an instruction frame boundary");
                 AssertEqual((ushort)9, slot.Timer.RawValue,
                     "display override does not move an enemy AI timer");
@@ -2942,7 +2942,7 @@ internal static class EnemySpritemapArtworkVerification
                             ? EnemySpritemapDefinitions.SkulteraBank
                         : EnemySpritemapDefinitions.BoyonBank);
             slot.Frame = RoomEnemySlotFrameAccess.FrameAt(frameBank, pointer);
-            slot.InstructionTimer = WrappingCountdown.Start(7);
+            slot.FrameHold = WrappingCountdown.Start(7);
             slot.Timer = WrappingCountdown.Start(9);
             slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
             var oam = new OamBuffer();
@@ -3013,7 +3013,7 @@ internal static class EnemySpritemapArtworkVerification
         // A pose part-way through its duration is held for this draw update.
         enemies.RidleyEncounter.Ridley = new SuperMetroid.Core.Bosses.Ridley.RidleyEnemyState
         {
-            BabyCurrentPose = pose, BabyPoseDuration = 2, BabyInstructionTimer = 1,
+            BabyCurrentPose = pose, BabyPoseDuration = 2, BabyFrameHold = 1,
             BabyPosition = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)),
         };
         var oam = new OamBuffer();

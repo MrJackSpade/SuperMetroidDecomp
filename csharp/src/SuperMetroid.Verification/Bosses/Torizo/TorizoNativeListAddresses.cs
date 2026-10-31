@@ -152,8 +152,8 @@ internal static class TorizoNativeListAddresses
     /// </summary>
     internal static readonly Dictionary<ushort, TorizoNativeListAddressesBodyInstruction> BodyInstructions = new()
     {
-        [0x806b] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.SetPreInstruction>(""), [TorizoOperand.PreInstruction]),
-        [0x8074] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.ClearPreInstruction)), []),
+        [0x806b] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.SetFrameBehavior>(""), [TorizoOperand.FrameBehavior]),
+        [0x8074] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.ClearFrameBehavior)), []),
         [0xb09c] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.SetFunction>(""), [TorizoOperand.Function]),
         [0xb11d] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.BlowUpGut)), []),
         [0xb1be] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.MarkFaceBlownUp)), []),

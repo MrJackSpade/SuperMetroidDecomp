@@ -108,7 +108,7 @@ internal sealed class EndingStage
         sprites.Add(new EndingSprite(new IntroDiscoverySprite(position, colouring, program), role)
             { TraversalSlot = slot });
         if (role == EndingSpriteRole.ExplosionStarsLeft)
-            sprites[^1].Sprite.InstallPreInstruction(CinematicSpritePreInstruction.ZebesExplosionStarsWaitForFlyaway);
+            sprites[^1].Sprite.InstallFrameBehavior(CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway);
     }
 
     /// <summary>Installs a sprite from its authored position, attributes and program.</summary>
@@ -137,7 +137,7 @@ internal sealed class EndingStage
         (PaletteArtwork ?? throw new InvalidOperationException("Ending palettes require installed artwork."))[id];
 
     /// <summary>Moves animal and star actors and deletes subordinate explosion layers at their native handoffs.</summary>
-    internal void StepEndingSpritePreInstruction(EndingSprite wrapper)
+    internal void StepEndingSpriteFrameBehavior(EndingSprite wrapper)
     {
         IntroDiscoverySprite sprite = wrapper.Sprite;
         switch (wrapper.Role)
@@ -161,8 +161,8 @@ internal sealed class EndingStage
             case EndingSpriteRole.ExplosionStarsRight:
             case EndingSpriteRole.ExplosionStarsLeft:
                 // The right starfield runs no flyaway pre-instruction until its list installs $F35A.
-                if (sprite.PreInstruction is CinematicSpritePreInstruction.ZebesExplosionStarsWaitForFlyaway or CinematicSpritePreInstruction.ZebesExplosionStarsMoving)
-                    StepFlyawayStars(sprite, sprite.PreInstruction.Value);
+                if (sprite.FrameBehavior is CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway or CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving)
+                    StepFlyawayStars(sprite, sprite.FrameBehavior.Value);
                 if (Phase == EndingCreditsPhase.OperationSuccessfulText)
                     sprite.Delete();
                 break;
@@ -194,20 +194,20 @@ internal sealed class EndingStage
     }
 
     /// <summary>Starts starfield motion at flyaway and advances its aliased Y-fraction velocity word.</summary>
-    private void StepFlyawayStars(IntroDiscoverySprite sprite, CinematicSpritePreInstruction preInstruction)
+    private void StepFlyawayStars(IntroDiscoverySprite sprite, CinematicSpriteFrameBehavior frameBehavior)
     {
-        switch (preInstruction)
+        switch (frameBehavior)
         {
-            case CinematicSpritePreInstruction.ZebesExplosionStarsWaitForFlyaway:
+            case CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway:
                 if (Phase == EndingCreditsPhase.PlanetEscapeFast)
                 {
-                    sprite.InstallPreInstruction(CinematicSpritePreInstruction.ZebesExplosionStarsMoving);
+                    sprite.InstallFrameBehavior(CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving);
                     // The Y subposition word doubles as the low velocity word.
                     sprite.Position = sprite.Position.WithY(sprite.Position.Y.WithFraction(CoordinateAxis.Wrap(SixteenSixteen.FromWhole(1) / 4)));
                     sprite.GeneralTimer = 0;
                 }
                 break;
-            case CinematicSpritePreInstruction.ZebesExplosionStarsMoving:
+            case CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving:
                 int velocity = unchecked((int)(SixteenSixteen.Compose(sprite.GeneralTimer, sprite.Position.Y.Fraction))) - 32;
                 sprite.GeneralTimer = WordWrap.Unsigned(SixteenSixteen.WholeOf(velocity));
                 uint position = unchecked(IntroCinematicMotion.Packed(sprite.Position.X) + (uint)velocity);
@@ -215,43 +215,43 @@ internal sealed class EndingStage
                     IntroCinematicMotion.Unpacked(position),
                     sprite.Position.Y.WithFraction(WordWrap.Unsigned(velocity)));
                 break;
-            case CinematicSpritePreInstruction.NoOp:
-            case CinematicSpritePreInstruction.MetroidEgg:
-            case CinematicSpritePreInstruction.MetroidEggDeleteAfterCrossFade:
-            case CinematicSpritePreInstruction.MetroidEggParticle:
-            case CinematicSpritePreInstruction.MetroidEggSlimeDrops:
-            case CinematicSpritePreInstruction.BabyMetroidBeingDelivered:
-            case CinematicSpritePreInstruction.BabyMetroidBeingExamined:
-            case CinematicSpritePreInstruction.IntroMotherBrainCrossFading:
-            case CinematicSpritePreInstruction.IntroRinkaMovingHitsSamus:
-            case CinematicSpritePreInstruction.IntroRinkaMovingMissesSamus:
-            case CinematicSpritePreInstruction.ConfusedBabyWaitingForHatch:
-            case CinematicSpritePreInstruction.ConfusedBabyHatched:
-            case CinematicSpritePreInstruction.ConfusedBabyIdling:
-            case CinematicSpritePreInstruction.ConfusedBabyDancing:
-            case CinematicSpritePreInstruction.CeresStars:
-            case CinematicSpritePreInstruction.CeresLargeAsteroids:
-            case CinematicSpritePreInstruction.CeresUnderAttack:
-            case CinematicSpritePreInstruction.CeresSmallAsteroid:
-            case CinematicSpritePreInstruction.CeresPurpleSpaceVortex:
-            case CinematicSpritePreInstruction.CeresStationaryVortexNoOp:
-            case CinematicSpritePreInstruction.CeresExplosionSpawnerRepeating:
-            case CinematicSpritePreInstruction.CeresExplosion:
-            case CinematicSpritePreInstruction.Zebes:
-            case CinematicSpritePreInstruction.ZebesSlideSceneAway:
-            case CinematicSpritePreInstruction.ZebesStarsCompletionWait:
-            case CinematicSpritePreInstruction.ZebesStarsCompletionSlideSceneAway:
-            case CinematicSpritePreInstruction.ZebesStarsWait:
-            case CinematicSpritePreInstruction.ZebesStarsSlideSceneAway:
-            case CinematicSpritePreInstruction.SuperMetroidIconTopHalf:
-            case CinematicSpritePreInstruction.SuperMetroidIconBottomHalf:
-            case CinematicSpritePreInstruction.RewardSuitlessUpperNoOp:
-            case CinematicSpritePreInstruction.RewardBodyFlight:
-            case CinematicSpritePreInstruction.RewardHeadFlight:
-            case CinematicSpritePreInstruction.RewardLanding:
+            case CinematicSpriteFrameBehavior.NoOp:
+            case CinematicSpriteFrameBehavior.MetroidEgg:
+            case CinematicSpriteFrameBehavior.MetroidEggDeleteAfterCrossFade:
+            case CinematicSpriteFrameBehavior.MetroidEggParticle:
+            case CinematicSpriteFrameBehavior.MetroidEggSlimeDrops:
+            case CinematicSpriteFrameBehavior.BabyMetroidBeingDelivered:
+            case CinematicSpriteFrameBehavior.BabyMetroidBeingExamined:
+            case CinematicSpriteFrameBehavior.IntroMotherBrainCrossFading:
+            case CinematicSpriteFrameBehavior.IntroRinkaMovingHitsSamus:
+            case CinematicSpriteFrameBehavior.IntroRinkaMovingMissesSamus:
+            case CinematicSpriteFrameBehavior.ConfusedBabyWaitingForHatch:
+            case CinematicSpriteFrameBehavior.ConfusedBabyHatched:
+            case CinematicSpriteFrameBehavior.ConfusedBabyIdling:
+            case CinematicSpriteFrameBehavior.ConfusedBabyDancing:
+            case CinematicSpriteFrameBehavior.CeresStars:
+            case CinematicSpriteFrameBehavior.CeresLargeAsteroids:
+            case CinematicSpriteFrameBehavior.CeresUnderAttack:
+            case CinematicSpriteFrameBehavior.CeresSmallAsteroid:
+            case CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex:
+            case CinematicSpriteFrameBehavior.CeresStationaryVortexNoOp:
+            case CinematicSpriteFrameBehavior.CeresExplosionSpawnerRepeating:
+            case CinematicSpriteFrameBehavior.CeresExplosion:
+            case CinematicSpriteFrameBehavior.Zebes:
+            case CinematicSpriteFrameBehavior.ZebesSlideSceneAway:
+            case CinematicSpriteFrameBehavior.ZebesStarsCompletionWait:
+            case CinematicSpriteFrameBehavior.ZebesStarsCompletionSlideSceneAway:
+            case CinematicSpriteFrameBehavior.ZebesStarsWait:
+            case CinematicSpriteFrameBehavior.ZebesStarsSlideSceneAway:
+            case CinematicSpriteFrameBehavior.SuperMetroidIconTopHalf:
+            case CinematicSpriteFrameBehavior.SuperMetroidIconBottomHalf:
+            case CinematicSpriteFrameBehavior.RewardSuitlessUpperNoOp:
+            case CinematicSpriteFrameBehavior.RewardBodyFlight:
+            case CinematicSpriteFrameBehavior.RewardHeadFlight:
+            case CinematicSpriteFrameBehavior.RewardLanding:
             default:
                 throw new InvalidOperationException(
-                    $"Flyaway stars do not run {preInstruction}.");
+                    $"Flyaway stars do not run {frameBehavior}.");
         }
     }
 

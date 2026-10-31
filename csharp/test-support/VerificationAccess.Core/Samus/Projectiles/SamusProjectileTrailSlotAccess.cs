@@ -11,6 +11,6 @@ internal static class SamusProjectileTrailSlotAccess
         internal int SlotTableOffset => self.SlotIndex * 2;
 
         /// <summary>The left trail stream owns the slot while its instruction timer is active.</summary>
-        internal bool IsActive => !self.Left.InstructionTimer.IsZero;
+        internal bool IsActive => !self.Left.FrameHold.IsZero;
     }
 }

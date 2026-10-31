@@ -31,7 +31,7 @@ internal static class AnimatedTileInstructionCodesVerification
         AssertAnimatedTileCatalog(nameof(AnimatedTileObject),
             Enum.GetValues<AnimatedTileObject>().Where(header => header != AnimatedTileObject.None)
                 .Select(FxNativeWords.AnimatedTileObjects.Word).ToArray(), 19);
-        AssertAnimatedTileCatalog(typeof(AnimatedTileInstructionListPointers), 4);
+        AssertAnimatedTileCatalog(typeof(AnimatedTileAnimationScriptPointers), 4);
         Suite(nameof(VerifyConstructedAnimatedTileStreams), () => VerifyConstructedAnimatedTileStreams());
 
         string romPath = Path.GetFullPath("Super Metroid.smc");

@@ -97,7 +97,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every Ki-Hunter list is interpreted by the common enemy bytecode engine. The
         // disassembly calls this property "disable Samus collision", but the live engine
         // proves bit $2000 is the process-instructions flag.
-        body.Properties = body.Properties.With(EnemyProperties.ProcessInstructions);
+        body.Properties = body.Properties.With(EnemyProperties.RunsAnimationScript);
         state.HasLostWings = false;
         InstallKiHunterInstruction(body, state, KiHunterProgram.FlyingLeft);
         state.SwoopAngle = 0;
@@ -123,7 +123,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body = GetKiHunterBody(wings);
         KiHunterEnemyState state = CreateKiHunterState(wings);
 
-        wings.Properties = wings.Properties.With(EnemyProperties.ProcessInstructions);
+        wings.Properties = wings.Properties.With(EnemyProperties.RunsAnimationScript);
         InstallKiHunterInstruction(wings, state, KiHunterProgram.WingsLeft);
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
         state.Function = KiHunterEnemyFunction.FollowBody;
@@ -794,7 +794,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallKiHunterInstruction(RoomEnemySlot slot, KiHunterEnemyState state, KiHunterProgram program)
     {
         state.Program = AnimationProgramCursor<KiHunterProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
@@ -840,20 +840,20 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Connects acid spit startup and gravity movement to bank-$86 pre-instructions.</summary>
     internal static void AddKiHunterProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunKiHunterAcidMovement(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.KiHunterAcidFlight);
+        }, EnemyProjectileFrameBehavior.KiHunterAcidFlight);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Left);
-        }, EnemyProjectilePreInstruction.KiHunterAcidLaunchLeft);
+        }, EnemyProjectileFrameBehavior.KiHunterAcidLaunchLeft);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Right);
-        }, EnemyProjectilePreInstruction.KiHunterAcidLaunchRight);
+        }, EnemyProjectileFrameBehavior.KiHunterAcidLaunchRight);
     }
 
     /// <summary>Ports KiHunter's main AI.</summary>
@@ -888,8 +888,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
     /// <summary>Bank-$86 acid mover installed by the startup callback after the projectile's idle frames.</summary>
-    private const EnemyProjectilePreInstruction KiHunterAcidMovingPreInstruction =
-        EnemyProjectilePreInstruction.KiHunterAcidFlight;
+    private const EnemyProjectileFrameBehavior KiHunterAcidMovingFrameBehavior =
+        EnemyProjectileFrameBehavior.KiHunterAcidFlight;
     /// <summary>Positive 8.8 horizontal acid speed, negated for leftward shots.</summary>
     private const int KiHunterAcidHorizontalSpeed = 768;
     /// <summary>8.8 downward speed added to each active acid frame.</summary>
@@ -932,7 +932,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         HorizontalDirection direction)
     {
-        projectile.PreInstruction = KiHunterAcidMovingPreInstruction;
+        projectile.FrameBehavior = KiHunterAcidMovingFrameBehavior;
         projectile.Position = projectile.Position.WithWrappedWholeX(
             projectile.Position.X.Whole + (direction == HorizontalDirection.Right ? 19 : -19));
     }

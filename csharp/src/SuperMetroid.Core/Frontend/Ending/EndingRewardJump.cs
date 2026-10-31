@@ -43,15 +43,15 @@ internal sealed class EndingRewardJump
         // Both pre-instructions use the shared Samus velocity, so each call accelerates it.
         if (head is { IsActive: true })
         {
-            if (head.PreInstruction == CinematicSpritePreInstruction.RewardHeadFlight)
+            if (head.FrameBehavior == CinematicSpriteFrameBehavior.RewardHeadFlight)
             {
                 Move(head);
                 if (CoordinateAxis.AsSigned(head.WholePosition.Y) < EndingRewardJumpDefinitions.SheetSwitchY) head.Delete();
             }
             head.Step(HandleCue);
         }
-        CinematicSpritePreInstruction? bodyPreInstruction = body.PreInstruction;
-        if (bodyPreInstruction == CinematicSpritePreInstruction.RewardBodyFlight)
+        CinematicSpriteFrameBehavior? bodyFrameBehavior = body.FrameBehavior;
+        if (bodyFrameBehavior == CinematicSpriteFrameBehavior.RewardBodyFlight)
         {
             Move(body);
             if (BodyY < EndingRewardJumpDefinitions.SheetSwitchY)
@@ -59,10 +59,10 @@ internal sealed class EndingRewardJump
                 FallingSheetSelected = true;
                 body.SetColouring(ScreenColourGroup.EndingFallingSamus);
                 body.Start(CinematicSpriteProgram.Falling);
-                body.InstallPreInstruction(CinematicSpritePreInstruction.RewardLanding);
+                body.InstallFrameBehavior(CinematicSpriteFrameBehavior.RewardLanding);
             }
         }
-        else if (bodyPreInstruction == CinematicSpritePreInstruction.RewardLanding)
+        else if (bodyFrameBehavior == CinematicSpriteFrameBehavior.RewardLanding)
         {
             if (iconChunksShown < EndingRewardJumpDefinitions.IconChunkCount) queueGraphicsUpload(iconChunksShown++);
             Move(body);
@@ -70,7 +70,7 @@ internal sealed class EndingRewardJump
             {
                 body.WholePosition = body.WholePosition.WithY(EndingRewardJumpDefinitions.LandingY);
                 body.Start(CinematicSpriteProgram.Landing);
-                body.InstallPreInstruction(null);
+                body.InstallFrameBehavior(null);
             }
         }
         body.Step(HandleCue);
@@ -110,7 +110,7 @@ internal sealed class EndingRewardJump
                 body.SetColouring(ScreenColourGroup.EndingShootingSamus);
                 ShotRequested = true;
                 return;
-            case CinematicSpriteCueKind.SetPreInstruction:
+            case CinematicSpriteCueKind.SetFrameBehavior:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
             case CinematicSpriteCueKind.FadeExplosionPalette:
@@ -159,7 +159,7 @@ internal sealed class EndingRewardJump
             initialization.Position,
             initialization.Colouring,
             record.Program);
-        actor.InstallPreInstruction(record.PreInstruction);
+        actor.InstallFrameBehavior(record.FrameBehavior);
         return actor;
     }
 }

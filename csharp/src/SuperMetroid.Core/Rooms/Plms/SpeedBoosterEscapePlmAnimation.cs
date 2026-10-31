@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>The Speed Booster lavaquake's typed program (#1296); its cues install the phase pre-instructions.</summary>
 internal sealed class SpeedBoosterEscapePlmAnimation()
-    : PlmProgramAnimation<SpeedBoosterEscapeProgram, PlmNoDraw, SpeedBoosterEscapePreInstruction>(SpeedBoosterEscapeProgram.WaitForSpeedBooster)
+    : PlmProgramAnimation<SpeedBoosterEscapeProgram, PlmNoDraw, SpeedBoosterEscapeFrameBehavior>(SpeedBoosterEscapeProgram.WaitForSpeedBooster)
 {
     /// <inheritdoc/>
-    private protected override AnimationProgramSet<SpeedBoosterEscapeProgram, PlmNoDraw, SpeedBoosterEscapePreInstruction> Programs =>
+    private protected override AnimationProgramSet<SpeedBoosterEscapeProgram, PlmNoDraw, SpeedBoosterEscapeFrameBehavior> Programs =>
         SpeedBoosterEscapePlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
@@ -19,9 +19,9 @@ internal sealed class SpeedBoosterEscapePlmAnimation()
         throw new InvalidOperationException($"The lavaquake program never draws; got {frame}.");
 
     /// <inheritdoc/>
-    private protected override SpeedBoosterEscapeProgram? Publish(SpeedBoosterEscapePreInstruction cue, PlmSlot slot, PlmStepContext context)
+    private protected override SpeedBoosterEscapeProgram? Publish(SpeedBoosterEscapeFrameBehavior cue, PlmSlot slot, PlmStepContext context)
     {
-        slot.PreInstruction = SpeedBoosterEscapePreInstructions.Of(cue);
+        slot.FrameBehavior = SpeedBoosterEscapeFrameBehaviors.Of(cue);
         return null;
     }
 }

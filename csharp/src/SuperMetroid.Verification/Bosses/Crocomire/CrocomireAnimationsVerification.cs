@@ -126,14 +126,14 @@ internal static class CrocomireAnimationsVerification
     private static void Start(CrocomireEnemyState state, CrocomireBodyProgram program)
     {
         state.BodyCursor = AnimationProgramCursor<CrocomireBodyProgram>.Start(program);
-        state.Body.InstructionTimer = WrappingCountdown.Start(1);
+        state.Body.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Runs one body update through the production interpreter.</summary>
     private static void Pass(RoomEnemySystem enemies, CrocomireEnemyState state, SamusState? samus = null)
     {
         enemies.Audio.BeginFrame();
-        EnemyInstructionInterpreter.ProcessInstructions(state.Body, samus, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyInstructionInterpreter.RunsAnimationScript(state.Body, samus, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>
@@ -151,7 +151,7 @@ internal static class CrocomireAnimationsVerification
             Pass(enemies, state);
             List<ushort> callbacks = [.. native.Step(cartridge).Select(callback => callback.Word)];
             string at = $"Crocomire skeleton collapse update {update}";
-            AssertEqual(native.Timer, state.Body.InstructionTimer.RawValue, $"{at}: timer");
+            AssertEqual(native.Timer, state.Body.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Spritemap, state.Body.SpritemapPointer, $"{at}: frame");
             AssertEqual(native.NewFrame, state.Body.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
             AssertEqual(callbacks.Select(BodySound).LastOrDefault(sound => sound is not null), enemies.Audio.PublishedSoundFrom(EnemySoundSource.Crocomire),
@@ -174,7 +174,7 @@ internal static class CrocomireAnimationsVerification
         Pass(enemies, state);
         AssertEqual(CrocomireBodyFrameSpritemapsTooling.Spritemap(new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, 12)), state.Body.SpritemapPointer,
             "the sleeping body shows its initial frame");
-        AssertEqual((ushort)1, state.Body.InstructionTimer.RawValue, "the initial frame lasts one update");
+        AssertEqual((ushort)1, state.Body.FrameHold.RawValue, "the initial frame lasts one update");
 
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         samus.Position = samus.Position.WithWholeX(state.Body.Position.X.Whole);
@@ -183,7 +183,7 @@ internal static class CrocomireAnimationsVerification
         AssertTrue((state.FightFlags & CrocomireFightFlags.Engaged) != 0, "waking engages Samus");
         AssertEqual(CrocomireBodyFrameSpritemapsTooling.Spritemap(new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, 18)), state.Body.SpritemapPointer,
             "the redirect shows the damage wait's first frame in the same update");
-        AssertEqual((ushort)34, state.Body.InstructionTimer.RawValue, "the damage wait's first frame lasts 34 updates");
+        AssertEqual((ushort)34, state.Body.FrameHold.RawValue, "the damage wait's first frame lasts 34 updates");
         AssertEqual(CrocomireBodyProgram.WaitForFirstSecondDamage, state.BodyCursor.Program, "the damage wait program runs");
     }
 
@@ -199,11 +199,11 @@ internal static class CrocomireAnimationsVerification
         CrocomireAnimationsExpected[] expected = [new CrocomireAnimationsExpected(26, 32), new CrocomireAnimationsExpected(25, 5), new CrocomireAnimationsExpected(25, 8), new CrocomireAnimationsExpected(24, 2), new CrocomireAnimationsExpected(24, 1), new CrocomireAnimationsExpected(24, 48)];
         for (int index = 0; index < expected.Length; index++)
         {
-            state.Body.InstructionTimer = WrappingCountdown.Start(1);
+            state.Body.FrameHold = WrappingCountdown.Start(1);
             Pass(enemies, state);
             AssertEqual(CrocomireBodyFrameSpritemapsTooling.Spritemap(new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, expected[index].Frame)), state.Body.SpritemapPointer,
                 $"roar close frame {index}");
-            AssertEqual((ushort)expected[index].Duration, state.Body.InstructionTimer.RawValue, $"roar close duration {index}");
+            AssertEqual((ushort)expected[index].Duration, state.Body.FrameHold.RawValue, $"roar close duration {index}");
         }
         AssertEqual(CrocomireBodyProgram.Roar, state.BodyCursor.Program, "the closing loop's fight-AI cue restarts the roar");
     }
@@ -221,15 +221,15 @@ internal static class CrocomireAnimationsVerification
             state.Tongue = tongue;
             state.TongueProgram = program;
             state.TonguePosition = 0;
-            tongue.InstructionTimer = WrappingCountdown.Start(1);
+            tongue.FrameHold = WrappingCountdown.Start(1);
             var native = new NativeEnemyListDefinitions.Reader(BodyBankNumber, entry, 1, _ => 0);
             for (int update = 0; update < 60; update++)
             {
-                EnemyInstructionInterpreter.ProcessInstructions(tongue, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+                EnemyInstructionInterpreter.RunsAnimationScript(tongue, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
                 List<NativeEnemyListDefinitions.Callback> callbacks = native.Step(cartridge);
                 string at = $"Crocomire tongue {program} update {update}";
                 AssertEqual(0, callbacks.Count, $"{at}: the tongue lists have no callbacks");
-                AssertEqual(native.Timer, tongue.InstructionTimer.RawValue, $"{at}: timer");
+                AssertEqual(native.Timer, tongue.FrameHold.RawValue, $"{at}: timer");
                 AssertEqual(native.Spritemap, tongue.SpritemapPointer, $"{at}: frame");
                 AssertEqual(native.NewFrame, tongue.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
             }
@@ -295,7 +295,7 @@ internal static class CrocomireAnimationsVerification
         AssertTrue(projectile.Animation is not null, $"Crocomire {label} keeps no native list");
         var native = new NativeProjectileList(cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank |
                 (EnemyProjectileNativeWords.Kinds.Word(kind) + (shot ? ShotListOffset : InitialListOffset))),
-            projectile.InstructionTimer.RawValue);
+            projectile.FrameHold.RawValue);
         int dropsBefore = enemies.Projectiles.EnemyProjectiles.Count(item => item.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
         for (int update = 0; update < 50 && !native.Deleted; update++)
         {
@@ -308,7 +308,7 @@ internal static class CrocomireAnimationsVerification
                 $"{at}: drops");
             if (native.Deleted)
                 break;
-            AssertEqual(native.Timer, projectile.InstructionTimer.RawValue, $"{at}: timer");
+            AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
         }
         AssertEqual(shot, native.Deleted, $"Crocomire {label}: only the shot program deletes its projectile");

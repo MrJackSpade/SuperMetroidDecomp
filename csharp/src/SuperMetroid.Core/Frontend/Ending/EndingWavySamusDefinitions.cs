@@ -13,7 +13,7 @@ internal static class EndingWavySamusDefinitions
     /// <summary>$88:ECA2 / Instruction_Setup_WavySamus: the wave's angle at screen line zero before its first advance, one step before the cycle's start.</summary>
     internal const int InitialAngle = -1;
     /// <summary>
-    /// $88:ECD1-ECD6 / PreInstruction_WavySamus: the screen lines of one whole cycle of the wave, a half cycle of 64 lines
+    /// $88:ECD1-ECD6 / FrameBehavior_WavySamus: the screen lines of one whole cycle of the wave, a half cycle of 64 lines
     /// and its sign-inverted mirror.
     /// </summary>
     internal const int Period = 128;

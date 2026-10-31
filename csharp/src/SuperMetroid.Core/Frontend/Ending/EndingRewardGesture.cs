@@ -61,7 +61,7 @@ internal sealed class EndingRewardGesture
             case CinematicSpriteCueKind.SpawnSuitedJump:
                 JumpRequested = true;
                 return;
-            case CinematicSpriteCueKind.SetPreInstruction:
+            case CinematicSpriteCueKind.SetFrameBehavior:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
             case CinematicSpriteCueKind.FadeExplosionPalette:
@@ -109,7 +109,7 @@ internal sealed class EndingRewardGesture
             initialization.Position,
             initialization.Colouring,
             record.Program);
-        actor.InstallPreInstruction(record.PreInstruction);
+        actor.InstallFrameBehavior(record.FrameBehavior);
         actors.Add(actor);
     }
 }

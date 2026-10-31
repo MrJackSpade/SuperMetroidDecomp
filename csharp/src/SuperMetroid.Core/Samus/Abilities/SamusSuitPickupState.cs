@@ -53,7 +53,7 @@ public sealed class SamusSuitPickupState
     /// first call ends on a one-frame table entry and its second installs the
     /// pre-instruction and sleeps ($91:D5A2/$D67A), so the first stage runs on the third.
     /// </summary>
-    private int _preInstructionInstallCallsRemaining;
+    private int _frameBehaviorInstallCallsRemaining;
 
     /// <summary>The suit whose native stage-three function is installed.</summary>
     public SamusSuitPickupKind Kind { get; private set; }
@@ -110,7 +110,7 @@ public sealed class SamusSuitPickupState
         _lightBeamScanlines = 0;
         _lightBeamLeft = Position16<ScreenPixels>.Zero;
         _lightBeamRight = Position16<ScreenPixels>.Zero;
-        _preInstructionInstallCallsRemaining = 2;
+        _frameBehaviorInstallCallsRemaining = 2;
         PublishSharedScratch(samus);
         LightBeamWideningVelocity = WideningVelocity(SuitPickupBeamDefinitions.InitialWideningSpeed);
         Beam = SamusSuitPickupBeam.None;
@@ -160,9 +160,9 @@ public sealed class SamusSuitPickupState
         Ensure.NotNull(colours);
         if (!IsActive)
             return;
-        if (_preInstructionInstallCallsRemaining != 0)
+        if (_frameBehaviorInstallCallsRemaining != 0)
         {
-            _preInstructionInstallCallsRemaining--;
+            _frameBehaviorInstallCallsRemaining--;
             return;
         }
 

@@ -13,8 +13,8 @@ internal static class EyeDoorProjectileCueRules
     private static readonly Dictionary<NativeEnemyProjectileInstruction, EyeDoorProjectileCueRulesCommand> Commands = new()
     {
         [NativeEnemyProjectileInstruction.Delete] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.Delete, 0),
-        [NativeEnemyProjectileInstruction.ClearPreInstruction] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.ClearPreInstruction, 0),
-        [NativeEnemyProjectileInstruction.PreInstructionInY] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.SetPreInstruction, 2),
+        [NativeEnemyProjectileInstruction.ClearFrameBehavior] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.ClearFrameBehavior, 0),
+        [NativeEnemyProjectileInstruction.FrameBehaviorInY] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.SetFrameBehavior, 2),
         [NativeEnemyProjectileInstruction.CalculateDirectionTowardsSamus] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.AimAtSamus, 0),
     };
 
@@ -24,8 +24,8 @@ internal static class EyeDoorProjectileCueRules
         (word, operands, cue, at) =>
         {
             AssertEqual(Commands[(NativeEnemyProjectileInstruction)word].Kind, cue.Kind, $"{at}: cue");
-            if (cue.Kind == EyeDoorProjectileCueKind.SetPreInstruction)
-                AssertEqual(cue.PreInstruction, EnemyProjectilePreInstructionAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction");
+            if (cue.Kind == EyeDoorProjectileCueKind.SetFrameBehavior)
+                AssertEqual(cue.FrameBehavior, EnemyProjectileFrameBehaviorAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction");
         },
         cue => cue.Kind == EyeDoorProjectileCueKind.Delete);
 }

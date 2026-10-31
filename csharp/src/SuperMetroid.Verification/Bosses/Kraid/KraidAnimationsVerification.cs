@@ -124,22 +124,22 @@ internal static class KraidAnimationsVerification
         (_, KraidEnemyState state, RoomEnemySlot body, RoomEnemySlot arm) = NewKraid();
         body.Health = 104;
         state.Parts[1].Cursor = AnimationProgramCursor<KraidPartProgram>.Start(KraidPartProgram.ArmNormalPause);
-        arm.InstructionTimer = WrappingCountdown.Start(1);
+        arm.FrameHold = WrappingCountdown.Start(1);
         Pass(arm);
         Pass(arm, forceExpiry: true);
         AssertEqual(KraidPartProgram.ArmNormal, state.Parts[1].Cursor.Program, "a healthy arm loops its normal swing");
 
         body.Health = 51;
         state.Parts[1].Cursor = AnimationProgramCursor<KraidPartProgram>.Start(KraidPartProgram.ArmNormalPause);
-        arm.InstructionTimer = WrappingCountdown.Start(1);
+        arm.FrameHold = WrappingCountdown.Start(1);
         Pass(arm);
         Pass(arm, forceExpiry: true);
         AssertEqual(KraidPartProgram.ArmSlow, state.Parts[1].Cursor.Program, "below half health the pause starts the slow swing");
         AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Arm, 0)), arm.SpritemapPointer, "the slow swing's first frame shows at once");
-        AssertEqual((ushort)8, arm.InstructionTimer.RawValue, "the slow swing's first frame lasts eight updates");
+        AssertEqual((ushort)8, arm.FrameHold.RawValue, "the slow swing's first frame lasts eight updates");
 
         state.Parts[1].Cursor = new(KraidPartProgram.ArmSlow, KraidAnimations.Programs.Steps(KraidPartProgram.ArmSlow).Count - 3);
-        arm.InstructionTimer = WrappingCountdown.Start(1);
+        arm.FrameHold = WrappingCountdown.Start(1);
         Pass(arm);
         Pass(arm, forceExpiry: true);
         AssertEqual(KraidPartProgram.ArmSlow, state.Parts[1].Cursor.Program, "a slow arm's callback keeps the slow swing");
@@ -149,8 +149,8 @@ internal static class KraidAnimationsVerification
     private static void Pass(RoomEnemySlot part, bool forceExpiry = false)
     {
         if (forceExpiry)
-            part.InstructionTimer = WrappingCountdown.Start(1);
-        EnemyInstructionInterpreter.ProcessInstructions(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+            part.FrameHold = WrappingCountdown.Start(1);
+        EnemyInstructionInterpreter.RunsAnimationScript(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ internal static class KraidAnimationsVerification
             AssertTrue(enemies.KraidBehavior.Head.SpawnKraidSpitRock(NewRockSource()), "the real spit producer allocates a rock");
             RoomEnemyProjectileSlot rock = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.KraidSpitRock);
             rock.StartAnimation(new KraidRockAnimation(program));
-            var native = new NativeEnemyProjectileListDefinitions.Reader(entry, rock.InstructionTimer.RawValue);
+            var native = new NativeEnemyProjectileListDefinitions.Reader(entry, rock.FrameHold.RawValue);
             for (int update = 0; update < 40 && !native.Deleted; update++)
             {
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(rock, null, Position16<RoomPixels>.Zero);
@@ -178,10 +178,10 @@ internal static class KraidAnimationsVerification
                 AssertEqual(!native.Deleted, rock.IsActive, $"{at}: deletion");
                 if (native.Deleted)
                     break;
-                AssertEqual(native.Timer, rock.InstructionTimer.RawValue, $"{at}: timer");
+                AssertEqual(native.Timer, rock.FrameHold.RawValue, $"{at}: timer");
                 AssertEqual(native.Operand, rock.PresentationOperandAddress, $"{at}: frame");
-                if (native.PreInstruction is { } preInstruction)
-                    AssertEqual(EnemyProjectilePreInstructionAccess.FromWord(preInstruction), rock.PreInstruction, $"{at}: pre-instruction");
+                if (native.FrameBehavior is { } frameBehavior)
+                    AssertEqual(EnemyProjectileFrameBehaviorAccess.FromWord(frameBehavior), rock.FrameBehavior, $"{at}: pre-instruction");
             }
             AssertEqual(program == KraidRockProgram.SpitRockShot, native.Deleted, $"Kraid rock {program}: only the burst deletes its rock");
         }

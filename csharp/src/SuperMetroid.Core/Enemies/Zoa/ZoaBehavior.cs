@@ -51,8 +51,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new ZoaEnemyState
         {
             Function = ZoaEnemyFunction.WaitForSamus,
-            InstructionListTableIndex = ZoaAnimationSelector.None,
-            PreviousInstructionListTableIndex = ZoaAnimationSelector.None,
+            AnimationScriptTableIndex = ZoaAnimationSelector.None,
+            PreviousAnimationScriptTableIndex = ZoaAnimationSelector.None,
             ShotSpeedStage = 0,
             SpawnPosition = slot.Position.Whole,
         };
@@ -106,7 +106,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Odd indexes are rising lists: one faces left and three faces right. The sign test
         // uses the same wrapped Samus-minus-enemy word as the common bank-$A0 helper.
-        state.InstructionListTableIndex = ZoaAnimationSelector.Rising |
+        state.AnimationScriptTableIndex = ZoaAnimationSelector.Rising |
             (CoordinateAxis.AsSigned(signedDistance) < 0
                 ? ZoaAnimationSelector.None
                 : ZoaAnimationSelector.FacingRight);
@@ -129,7 +129,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.InstructionListTableIndex &= ZoaAnimationSelector.FacingRight;
+        state.AnimationScriptTableIndex &= ZoaAnimationSelector.FacingRight;
         SetZoaProgram(slot, state);
         state.Function = ZoaEnemyFunction.Shooting;
     }
@@ -144,7 +144,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Shooting list zero travels left by subtraction; list two travels right by
         // addition. The instruction bytecode changes speed at 64-, 8-, and 48-frame marks.
-        int xDisplacement = state.InstructionListTableIndex == ZoaAnimationSelector.None
+        int xDisplacement = state.AnimationScriptTableIndex == ZoaAnimationSelector.None
             ? -unsignedDisplacement
             : unsignedDisplacement;
         slot.Position = slot.Position.AdvanceX(SignedSixteenSixteen.FromRaw(xDisplacement));
@@ -160,7 +160,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         // rise and the shot carry into the next flight.
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         slot.Position = slot.Position.WithWhole(state.SpawnPosition);
-        state.InstructionListTableIndex = ZoaAnimationSelector.None;
+        state.AnimationScriptTableIndex = ZoaAnimationSelector.None;
         SetZoaProgram(slot, state);
         state.Function = ZoaEnemyFunction.WaitForSamus;
     }
@@ -168,11 +168,11 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the selected animation, restarting its timers, only when it differs from the previous one.</summary>
     internal static void SetZoaProgram(RoomEnemySlot slot, ZoaEnemyState state)
     {
-        if (state.InstructionListTableIndex == state.PreviousInstructionListTableIndex)
+        if (state.AnimationScriptTableIndex == state.PreviousAnimationScriptTableIndex)
             return;
-        state.PreviousInstructionListTableIndex = state.InstructionListTableIndex;
-        state.Program = AnimationProgramCursor<ZoaProgram>.Start(ZoaPrograms.Program(state.InstructionListTableIndex));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        state.PreviousAnimationScriptTableIndex = state.AnimationScriptTableIndex;
+        state.Program = AnimationProgramCursor<ZoaProgram>.Start(ZoaPrograms.Program(state.AnimationScriptTableIndex));
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

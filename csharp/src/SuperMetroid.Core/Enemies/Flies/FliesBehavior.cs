@@ -37,7 +37,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Program = AnimationProgramCursor<FlyProgram>.Start(FlyProgram.Flight);
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Advances room RNG and dispatches a fly's circle, attack, or retreat phase.</summary>

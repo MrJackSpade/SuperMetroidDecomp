@@ -105,7 +105,7 @@ internal static class MiscDustProjectileBehaviorVerification
     {
         for (int tick = 0; tick < count; tick++)
         {
-            projectile.InstructionTimer = WrappingCountdown.Start(1);
+            projectile.FrameHold = WrappingCountdown.Start(1);
             Process(rom, enemies, projectile, samus);
         }
     }
@@ -116,15 +116,15 @@ internal static class MiscDustProjectileBehaviorVerification
     /// </summary>
     internal static void Process(ISnesAddressSpace rom, RoomEnemySystem enemies, RoomEnemyProjectileSlot projectile, SamusState samus)
     {
-        bool selectsFrame = projectile.InstructionTimer.RawValue == 1;
+        bool selectsFrame = projectile.FrameHold.RawValue == 1;
         enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
-        if (!projectile.IsActive || !selectsFrame || projectile.InstructionTimer.IsZero || projectile.PresentationOperandAddress == 0)
+        if (!projectile.IsActive || !selectsFrame || projectile.FrameHold.IsZero || projectile.PresentationOperandAddress == 0)
             return;
         ushort operand = projectile.PresentationOperandAddress;
         AssertTrue(EnemyProjectileProgramFrameOperands.Contains(operand), "the shown frame is an installed-art identity");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, projectile.SpritemapPointer,
             "the shown frame leaves spritemap resolution to installed content");
-        AssertEqual(ReadNativeEnemyProjectileProgramWord(rom, unchecked((ushort)(operand - 2))), projectile.InstructionTimer.RawValue,
+        AssertEqual(ReadNativeEnemyProjectileProgramWord(rom, unchecked((ushort)(operand - 2))), projectile.FrameHold.RawValue,
             "the shown frame lasts its native duration");
     }
 

@@ -138,9 +138,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 Movement.ApplyBombTorizoGravity(torizo, state, TorizoMovement.RequireBombTorizoLevel(level));
                 return;
 
-            case TorizoFunction.GoldenPreInstruction:
+            case TorizoFunction.GoldenFrameBehavior:
                 Body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
-                Movement.RunBombTorizoPreInstruction(torizo, state, level);
+                Movement.RunBombTorizoFrameBehavior(torizo, state, level);
                 return;
 
             default:
@@ -256,12 +256,12 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (cue)
         {
-            case TorizoCue.SetPreInstruction setPreInstruction:
-                state.PreInstruction = setPreInstruction.PreInstruction;
+            case TorizoCue.SetFrameBehavior setFrameBehavior:
+                state.FrameBehavior = setFrameBehavior.FrameBehavior;
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.ClearPreInstruction }:
-                state.PreInstruction = TorizoPreInstruction.Idle;
+            case TorizoCue.Command { Kind: TorizoCueKind.ClearFrameBehavior }:
+                state.FrameBehavior = TorizoFrameBehavior.Idle;
                 return null;
 
             case TorizoCue.SetFunction setFunction:

@@ -216,7 +216,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetBoyonProgram(RoomEnemySlot slot, BoyonEnemyState state, BoyonProgram program)
     {
         state.Program = AnimationProgramCursor<BoyonProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

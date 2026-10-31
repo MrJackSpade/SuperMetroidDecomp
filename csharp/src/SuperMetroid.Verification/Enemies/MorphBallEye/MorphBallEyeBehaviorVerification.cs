@@ -55,7 +55,7 @@ internal static class MorphBallEyeBehaviorVerification
         for (int pose = 0; pose < active.Length; pose++)
         {
             tracking.Program = new AnimationProgramCursor<MorphBallEyeProgram>(MorphBallEyeProgram.Active, pose);
-            eye.InstructionTimer = WrappingCountdown.Start(1);
+            eye.FrameHold = WrappingCountdown.Start(1);
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([active[pose]], [1]), EnemyInstructionRunner.ShownFrames(eye, 1),
                 $"eye tracking pose {pose}");
         }

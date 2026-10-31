@@ -7,8 +7,8 @@ internal static class NativeSnapshotMemory
     public const int BeamPalettePointers = 0x90c3c9;
 
     /// <summary>$1E7D/$1E8D/$1EAD/$1EBD/$1ECD/$1EDD: eight palette FX slot arrays.</summary>
-    public const int PaletteFxId = 0x1e7d, PaletteFxColor = 0x1e8d, PaletteFxPreInstruction = 0x1ead,
-        PaletteFxInstruction = 0x1ebd, PaletteFxInstructionTimer = 0x1ecd, PaletteFxTimer = 0x1edd;
+    public const int PaletteFxId = 0x1e7d, PaletteFxColor = 0x1e8d, PaletteFxFrameBehavior = 0x1ead,
+        PaletteFxInstruction = 0x1ebd, PaletteFxFrameHold = 0x1ecd, PaletteFxTimer = 0x1edd;
     /// <summary>$1EED/$1EEF: current and consumed Samus-in-heat palette phases.</summary>
     public const int HeatPalettePhase = 0x1eed, PreviousHeatPalettePhase = 0x1eef;
 
@@ -151,10 +151,10 @@ internal static class NativeSnapshotMemory
     /// <summary>$0A50: native PeriodicDamage liquid/atmospheric owner.</summary>
     public const int PeriodicDamage = 0x0a50;
 
-    /// <summary>$D658: projectile trail left InstructionTimer, eighteen word-strided slots.</summary>
-    public const int TrailLeftInstructionTimer = 0xd658;
-    /// <summary>$D67C: projectile trail right InstructionTimer, eighteen word-strided slots.</summary>
-    public const int TrailRightInstructionTimer = 0xd67c;
+    /// <summary>$D658: projectile trail left FrameHold, eighteen word-strided slots.</summary>
+    public const int TrailLeftFrameHold = 0xd658;
+    /// <summary>$D67C: projectile trail right FrameHold, eighteen word-strided slots.</summary>
+    public const int TrailRightFrameHold = 0xd67c;
     /// <summary>$D6A0: projectile trail left InstructionPointer, eighteen word-strided slots.</summary>
     public const int TrailLeftInstructionPointer = 0xd6a0;
     /// <summary>$D6C4: projectile trail right InstructionPointer, eighteen word-strided slots.</summary>
@@ -180,7 +180,7 @@ internal static class NativeSnapshotMemory
     public const int EnemyProjectileKilledEnemy = 0xf410;
 
     /// <summary>$0C68: ordinary/bomb projectile pre-instruction words.</summary>
-    public const int ProjectilePreInstruction = 0x0c68;
+    public const int ProjectileFrameBehavior = 0x0c68;
     /// <summary>$90:B169: ProjPreInstr_Empty, retained by active impact animations.</summary>
     public const ushort ProjectileEmptyCallback = 0xb169;
     /// <summary>$90:AF68: ProjPreInstr_Missile, ordinary missile flight.</summary>
@@ -263,16 +263,16 @@ internal static class NativeSnapshotMemory
 
     /// <summary>$1C87: PLM BlockIndex, word-strided across forty physical slots.</summary>
     public const int PlmBlockIndex = 0x1c87;
-    /// <summary>$1CD7: PLM PreInstruction, word-strided across forty physical slots.</summary>
-    public const int PlmPreInstruction = 0x1cd7;
+    /// <summary>$1CD7: PLM FrameBehavior, word-strided across forty physical slots.</summary>
+    public const int PlmFrameBehavior = 0x1cd7;
     /// <summary>$1D27: PLM InstructionPointer, word-strided across forty physical slots.</summary>
     public const int PlmInstructionPointer = 0x1d27;
     /// <summary>$1D77: PLM LoopTimer, word-strided across forty physical slots.</summary>
     public const int PlmLoopTimer = 0x1d77;
     /// <summary>$1DC7: PLM RoomArgument, word-strided across forty physical slots.</summary>
     public const int PlmRoomArgument = 0x1dc7;
-    /// <summary>$DE1C: PLM InstructionTimer, word-strided across forty physical slots.</summary>
-    public const int PlmInstructionTimer = 0xde1c;
+    /// <summary>$DE1C: PLM FrameHold, word-strided across forty physical slots.</summary>
+    public const int PlmFrameHold = 0xde1c;
     /// <summary>$1E17: PLM family variable; grey-door condition table byte offset.</summary>
     public const int PlmFamilyVariable = 0x1e17;
     /// <summary>$DF0C: extra PLM variable; grey-door hit counter.</summary>
@@ -338,8 +338,8 @@ internal static class NativeSnapshotMemory
     public const int EnemyProjectileGraphics = 0x19bb;
     /// <summary>$19DF: enemy projectile Timer, word-strided per slot.</summary>
     public const int EnemyProjectileTimer = 0x19df;
-    /// <summary>$1A03: enemy projectile PreInstruction, word-strided per slot.</summary>
-    public const int EnemyProjectilePreInstruction = 0x1a03;
+    /// <summary>$1A03: enemy projectile FrameBehavior, word-strided per slot.</summary>
+    public const int EnemyProjectileFrameBehavior = 0x1a03;
     /// <summary>$1A27: enemy projectile XFraction, word-strided per slot.</summary>
     public const int EnemyProjectileXFraction = 0x1a27;
     /// <summary>$1A6F: enemy projectile YFraction, word-strided per slot.</summary>
@@ -352,8 +352,8 @@ internal static class NativeSnapshotMemory
     public const int NativeEnemyProjectileInstruction = 0x1b47;
     /// <summary>$1B6B: enemy projectile Spritemap, word-strided per slot.</summary>
     public const int EnemyProjectileSpritemap = 0x1b6b;
-    /// <summary>$1B8F: enemy projectile InstructionTimer, word-strided per slot.</summary>
-    public const int EnemyProjectileInstructionTimer = 0x1b8f;
+    /// <summary>$1B8F: enemy projectile FrameHold, word-strided per slot.</summary>
+    public const int EnemyProjectileFrameHold = 0x1b8f;
     /// <summary>$0B8C: ordinary projectile XFraction, word-strided per slot.</summary>
     public const int ProjectileXFraction = 0x0b8c;
     /// <summary>$0BA0: ordinary projectile YFraction, word-strided per slot.</summary>
@@ -366,8 +366,8 @@ internal static class NativeSnapshotMemory
     public const int ProjectileDirection = 0x0c04;
     /// <summary>$0C40: ordinary projectile Instruction, word-strided per slot.</summary>
     public const int ProjectileInstruction = 0x0c40;
-    /// <summary>$0C54: ordinary projectile InstructionTimer, word-strided per slot.</summary>
-    public const int ProjectileInstructionTimer = 0x0c54;
+    /// <summary>$0C54: ordinary projectile FrameHold, word-strided per slot.</summary>
+    public const int ProjectileFrameHold = 0x0c54;
     /// <summary>$0C7C: ordinary projectile Variable, word-strided per slot.</summary>
     public const int ProjectileVariable = 0x0c7c;
     /// <summary>$0C90: ordinary projectile TrailTimer, word-strided per slot.</summary>
@@ -563,7 +563,7 @@ internal static class NativeSnapshotMemory
     /// <summary>$18B4: HDMA object channel bitflags, six words; zero marks a free or deleted slot.</summary>
     public const int HdmaObjectChannelBitflags = 0x18b4;
     /// <summary>$18F0: HDMA object pre-instructions, six words.</summary>
-    public const int HdmaObjectPreInstructions = 0x18f0;
+    public const int HdmaObjectFrameBehaviors = 0x18f0;
     /// <summary>Number of HDMA object slots.</summary>
     public const int HdmaObjectCount = 6;
     /// <summary>$B3B0: bank-$88 lava/acid BG3 pre-instruction, imported from the original movie.</summary>

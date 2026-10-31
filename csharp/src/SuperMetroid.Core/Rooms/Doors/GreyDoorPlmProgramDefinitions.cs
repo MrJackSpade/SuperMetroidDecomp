@@ -34,16 +34,16 @@ internal static class GreyDoorPlmProgramDefinitions
     };
 
     /// <summary>The unlock-check pre-instruction a door with each condition installs.</summary>
-    internal static IReadOnlyDictionary<GreyDoorCondition, GreyDoorPreInstruction> UnlockChecks { get; } =
-        new Dictionary<GreyDoorCondition, GreyDoorPreInstruction>
+    internal static IReadOnlyDictionary<GreyDoorCondition, GreyDoorFrameBehavior> UnlockChecks { get; } =
+        new Dictionary<GreyDoorCondition, GreyDoorFrameBehavior>
     {
-        [GreyDoorCondition.AreaBossDefeated] = GreyDoorPreInstruction.WakeIfAreaBossDead,
-        [GreyDoorCondition.AreaMiniBossDefeated] = GreyDoorPreInstruction.WakeIfAreaMiniBossDead,
-        [GreyDoorCondition.AreaTorizoDefeated] = GreyDoorPreInstruction.WakeIfAreaTorizoDead,
-        [GreyDoorCondition.EnemyDeathQuota] = GreyDoorPreInstruction.WakeIfEnemiesDead,
-        [GreyDoorCondition.Never] = GreyDoorPreInstruction.PlayDudSound,
-        [GreyDoorCondition.TourianStatueFinished] = GreyDoorPreInstruction.WakeIfTourianStatueFinished,
-        [GreyDoorCondition.CrittersEscaped] = GreyDoorPreInstruction.WakeIfCrittersEscaped,
+        [GreyDoorCondition.AreaBossDefeated] = GreyDoorFrameBehavior.WakeIfAreaBossDead,
+        [GreyDoorCondition.AreaMiniBossDefeated] = GreyDoorFrameBehavior.WakeIfAreaMiniBossDead,
+        [GreyDoorCondition.AreaTorizoDefeated] = GreyDoorFrameBehavior.WakeIfAreaTorizoDead,
+        [GreyDoorCondition.EnemyDeathQuota] = GreyDoorFrameBehavior.WakeIfEnemiesDead,
+        [GreyDoorCondition.Never] = GreyDoorFrameBehavior.PlayDudSound,
+        [GreyDoorCondition.TourianStatueFinished] = GreyDoorFrameBehavior.WakeIfTourianStatueFinished,
+        [GreyDoorCondition.CrittersEscaped] = GreyDoorFrameBehavior.WakeIfCrittersEscaped,
     };
 
     /// <summary>One grey cap's seven programs, closing with <paramref name="closing"/>; the unlocked flash shows three blue-and-cap pairs per pass.</summary>

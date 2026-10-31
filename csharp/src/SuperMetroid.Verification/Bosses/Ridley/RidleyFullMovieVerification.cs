@@ -80,11 +80,11 @@ internal static class RidleyFullMovieVerification
             (state ?? throw new InvalidOperationException("Verification requires state.")).Roaring = sample.Second; state.FacingDirection = sample.Third;
             state.FunctionTimer = WrappingCountdown.Start(20); samus.Pose = SamusPoseId.SpinJumpRightPose;
             state.BodyProgram = pointers.BodyCursorAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
-            body.InstructionTimer = WrappingCountdown.Start(9); body.Timer = WrappingCountdown.Start(11);
+            body.FrameHold = WrappingCountdown.Start(9); body.Timer = WrappingCountdown.Start(11);
             runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyPogo(body, state, samus, VerticalDirection.Down);
             AssertEqual(sample.Fourth ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodyProgram.Fireballing) : NativeSnapshotMemory.RidleyRightFlyingSleep,
                 pointers.Body(state), "native spin-response fireball threshold/roar/facing gate");
-            AssertEqual(sample.Fourth ? (ushort)1 : (ushort)9, body.InstructionTimer.RawValue, "native fireball restarts instruction timer only when admitted");
+            AssertEqual(sample.Fourth ? (ushort)1 : (ushort)9, body.FrameHold.RawValue, "native fireball restarts instruction timer only when admitted");
             AssertEqual(sample.Fourth ? (ushort)0 : (ushort)11, body.Timer.RawValue, "native fireball clears loop counter only when admitted");
             AssertEqual((ushort)sample.First, runtime.System.RandomNumber, "native fireball admission does not generate random state");
         }
@@ -626,7 +626,7 @@ internal static class RidleyFullMovieVerification
         foreach (var sample in cases)
         {
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(sample.X, 0)),
-                InstructionTimer = WrappingCountdown.Start(7), Timer = WrappingCountdown.Start(9) };
+                FrameHold = WrappingCountdown.Start(7), Timer = WrappingCountdown.Start(9) };
             var state = new RidleyEnemyState { FacingDirection = sample.Facing };
             state.BodyProgram = pointers.BodyCursorAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
             NorfairRidleyCombat.SelectNorfairRidleyFacingInstruction(slot, state);
@@ -634,7 +634,7 @@ internal static class RidleyFullMovieVerification
                 : sample.Facing == RidleyFacing.Left ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodyProgram.TurnFromLeftToRight)
                 : RidleyNativeInstructionPointers.BodyEntry(RidleyBodyProgram.TurnFromRightToLeft);
             AssertEqual(expected, pointers.Body(state), $"native center-facing instruction at {sample.X:X4}, facing {sample.Facing}");
-            AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, slot.InstructionTimer.RawValue, "turn timer changes only when native condition is met");
+            AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, slot.FrameHold.RawValue, "turn timer changes only when native condition is met");
             AssertEqual(sample.Turn ? (ushort)0 : (ushort)9, slot.Timer.RawValue, "loop counter is preserved when no turn is needed");
         }
         var hoverState = new RidleyEnemyState { FunctionTimer = WrappingCountdown.Start(0), Function = RidleyAiFunction.NorfairHover };
@@ -778,14 +778,14 @@ internal static class RidleyFullMovieVerification
         var pipeBugPointers = new PipeBugNativeInstructionPointers(CartridgeImportSource.Require(bus));
         PipeBugEnemyState pipeBug = runtime.Enemies.PipeBugStates[6] ?? throw new InvalidOperationException("The source-room pipe bug has no state.");
         pipeBug.Program = pipeBugPointers.CursorAt(NativeSnapshotMemory.PipeBugBeforeFadeInstruction);
-        actor.InstructionTimer = WrappingCountdown.Start(1);
+        actor.FrameHold = WrappingCountdown.Start(1);
         actor.SpritemapPointer = NativeSnapshotMemory.PipeBugBeforeFadeSpritemap;
         game.Step(0);
         AssertEqual(0xadd4, runtime.System.RandomNumber, "first source fade advances native HDMA/RNG");
         AssertEqual(0xa4e2, runtime.Clock.Counter, "fade accepts exactly one NMI per update");
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeInstruction, pipeBugPointers.Pointer(pipeBug.Program), "fade advances the native enemy instruction");
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeSpritemap, actor.SpritemapPointer, "fade changes to the native enemy sprite");
-        AssertEqual((ushort)2, actor.InstructionTimer.RawValue, "fade installs the native visual duration");
+        AssertEqual((ushort)2, actor.FrameHold.RawValue, "fade installs the native visual duration");
         int fadeSteps = 0;
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FadeOutSourcePalette && fadeSteps++ < 32)
             game.Step(0);
@@ -860,11 +860,11 @@ internal static class RidleyFullMovieVerification
         AssertEqual(1, runtime.Clock.ShortCounter, "first destination drawing frame resumes the byte counter");
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeInstruction, pointers.Enemy(runtime.Enemies, ridley), "first fade runs native Ridley instruction list");
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeSpritemap, ridley.SpritemapPointer, "first fade publishes native Ridley sprite");
-        AssertEqual((ushort)12, ridley.InstructionTimer.RawValue, "first native fade visual duration");
+        AssertEqual((ushort)12, ridley.FrameHold.RawValue, "first native fade visual duration");
         AssertEqual(RidleyAiFunction.WaitForDoorTransition, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).Function, "native Ridley AI remains gated during fade visuals");
         AssertEqual((ushort)0, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).FunctionTimer.RawValue, "fade does not consume the reveal countdown");
         game.Step(0);
-        AssertEqual((ushort)11, ridley.InstructionTimer.RawValue, "later fade updates continue enemy animation");
+        AssertEqual((ushort)11, ridley.FrameHold.RawValue, "later fade updates continue enemy animation");
         int remainingFade = 0;
         while (game.GameState == SuperMetroidGameState.LoadingNextRoomB && remainingFade++ < 32)
         {
@@ -949,7 +949,7 @@ internal static class RidleyFullMovieVerification
             foreach (var actor in runtime.Enemies.SlotTable.Slots)
                 words.AddRange([SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), actor.Position.X.Whole, actor.Position.X.Fraction,
                     actor.Position.Y.Whole, actor.Position.Y.Fraction, checked((ushort)actor.Health), actor.SpritemapPointer,
-                    actor.InstructionTimer.RawValue]);
+                    actor.FrameHold.RawValue]);
             return words.ToArray();
         }
         int pairedBodyDraws = 0, phaseShiftedBodyDraws = 0, retainedHiddenBodyRecords = 0;
@@ -1328,7 +1328,7 @@ internal static class RidleyFullMovieVerification
                 // Only actors whose animation cursor translates to a native pointer are compared on it (#1471).
                 if (pointers.TranslatedEnemy(runtime.Enemies, actor) is { } instruction)
                     Check(owner + " instruction", instruction, address + 26);
-                Check(owner + " instruction timer", actor.InstructionTimer.RawValue, address + 28);
+                Check(owner + " instruction timer", actor.FrameHold.RawValue, address + 28);
                 Check(owner + " XRadius", actor.Radius.X, address + 10);
                 Check(owner + " YRadius", actor.Radius.Y, address + 12);
                 // The native words also hold species bits that species code writes and nothing reads (#1472); the port
@@ -1425,7 +1425,7 @@ internal static class RidleyFullMovieVerification
                     bool active = plmSlots.TryGetValue(slotIndex, out var slot);
                     Check($"PLM {slotIndex} header", active ? PlmNativeWords.Word(slot.HeaderPointer) : (ushort)0, NativeSnapshotMemory.PlmHeaders + offset);
                     if (!active || W(NativeSnapshotMemory.PlmHeaders + offset) == 0) continue;
-                    ushort preInstruction = slot.PreInstruction;
+                    ushort frameBehavior = slot.FrameBehavior;
                     var greyDoor = runtime.Plms.GreyDoorSnapshots.FirstOrDefault(door => door.Header == slot.HeaderPointer && door.BlockIndex == slot.BlockIndex);
                     AssertTrue(greyDoor.Header != PlmHeaderId.None,
                         $"Movie PLM {slot.HeaderPointer} needs a family-variable coverage mapping");
@@ -1442,7 +1442,7 @@ internal static class RidleyFullMovieVerification
                         Check($"PLM {slotIndex} grey-door link", RoomPlmProgramsVerification.GreyDoorNativeEntry(typedDoor.Variant, link),
                             NativeSnapshotMemory.PlmLinkInstruction + offset);
                     Check($"PLM {slotIndex} BlockIndex", unchecked((ushort)(slot.BlockIndex * 2)), NativeSnapshotMemory.PlmBlockIndex + offset);
-                    Check($"PLM {slotIndex} PreInstruction", preInstruction, NativeSnapshotMemory.PlmPreInstruction + offset);
+                    Check($"PLM {slotIndex} FrameBehavior", frameBehavior, NativeSnapshotMemory.PlmFrameBehavior + offset);
                     Check($"PLM {slotIndex} InstructionPointer", instruction, NativeSnapshotMemory.PlmInstructionPointer + offset);
                     // The cartridge keeps a pending projectile hit in the loop counter's storage; a pending hit is
                     // compared as the family the recorded word decodes to, otherwise the loop counter is compared.
@@ -1460,7 +1460,7 @@ internal static class RidleyFullMovieVerification
                     // The native sleep leaves the countdown at zero and lets it run on from $FFFF; the typed hold re-arms
                     // one on each pass. Both wake with one, so only a sleeping door's countdown is left uncompared.
                     if (typedDoor.Program != GreyDoorProgram.Sleep)
-                        Check($"PLM {slotIndex} InstructionTimer", slot.InstructionTimer, NativeSnapshotMemory.PlmInstructionTimer + offset);
+                        Check($"PLM {slotIndex} FrameHold", slot.FrameHold, NativeSnapshotMemory.PlmFrameHold + offset);
                 }
                 var activeLevel = runtime.Room.LevelData ?? throw new InvalidDataException("Missing active collision data.");
                 for (int block = 0; block < activeLevel.Size.X * activeLevel.Size.Y; block++)
@@ -1480,16 +1480,16 @@ internal static class RidleyFullMovieVerification
             {
                 foreach (var trail in runtime.Projectiles.TrailSlots)
                 {
-                    Check($"Trail {trail.SlotIndex} Left timer", trail.Left.InstructionTimer.RawValue, NativeSnapshotMemory.TrailLeftInstructionTimer + trail.SlotTableOffset);
-                    if (!trail.Left.InstructionTimer.IsZero)
+                    Check($"Trail {trail.SlotIndex} Left timer", trail.Left.FrameHold.RawValue, NativeSnapshotMemory.TrailLeftFrameHold + trail.SlotTableOffset);
+                    if (!trail.Left.FrameHold.IsZero)
                     {
                         Check($"Trail {trail.SlotIndex} Left InstructionPointer", trail.Left.InstructionPointer, NativeSnapshotMemory.TrailLeftInstructionPointer + trail.SlotTableOffset);
                         Check($"Trail {trail.SlotIndex} Left TileNumberAttributes", ProjectileTrailNative.NativeWord(trail.Left.ShownPose), NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.SlotTableOffset);
                         Check($"Trail {trail.SlotIndex} Left XPosition", trail.Left.Position.X, NativeSnapshotMemory.TrailLeftXPosition + trail.SlotTableOffset);
                         Check($"Trail {trail.SlotIndex} Left YPosition", trail.Left.Position.Y, NativeSnapshotMemory.TrailLeftYPosition + trail.SlotTableOffset);
                     }
-                    Check($"Trail {trail.SlotIndex} Right timer", trail.Right.InstructionTimer.RawValue, NativeSnapshotMemory.TrailRightInstructionTimer + trail.SlotTableOffset);
-                    if (!trail.Right.InstructionTimer.IsZero)
+                    Check($"Trail {trail.SlotIndex} Right timer", trail.Right.FrameHold.RawValue, NativeSnapshotMemory.TrailRightFrameHold + trail.SlotTableOffset);
+                    if (!trail.Right.FrameHold.IsZero)
                     {
                         Check($"Trail {trail.SlotIndex} Right InstructionPointer", trail.Right.InstructionPointer, NativeSnapshotMemory.TrailRightInstructionPointer + trail.SlotTableOffset);
                         Check($"Trail {trail.SlotIndex} Right TileNumberAttributes", ProjectileTrailNative.NativeWord(trail.Right.ShownPose), NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.SlotTableOffset);
@@ -1558,31 +1558,31 @@ internal static class RidleyFullMovieVerification
                     projectile.IsSpent != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeSpent(recordedDirection))
                     mismatches.Add($"{owner} Direction: native={recordedDirection:X4} port={projectile.Direction} spent={projectile.IsSpent}");
                 Check(owner + " Instruction", unchecked((ushort)projectile.InstructionPointer), NativeSnapshotMemory.ProjectileInstruction + index);
-                ushort callback = projectile.PreInstruction switch
+                ushort callback = projectile.FrameBehavior switch
                 {
-                    SamusProjectilePreInstruction.None => NativeSnapshotMemory.ProjectileEmptyCallback,
-                    SamusProjectilePreInstruction.NoWaveBeam => SamusBeamPreInstructionCodes.NoWave,
-                    SamusProjectilePreInstruction.WaveBeamThreeFrameTrail => SamusBeamPreInstructionCodes.WaveThreeFrameTrail,
-                    SamusProjectilePreInstruction.WaveBeamFourFrameTrail => SamusBeamPreInstructionCodes.WaveFourFrameTrail,
-                    SamusProjectilePreInstruction.Missile => NativeSnapshotMemory.ProjectileMissileCallback,
-                    SamusProjectilePreInstruction.SuperMissile => NativeSnapshotMemory.ProjectileSuperMissileCallback,
-                    SamusProjectilePreInstruction.SuperMissileLink => NativeSnapshotMemory.ProjectileSuperMissileLinkCallback,
-                    SamusProjectilePreInstruction.HyperBeam or
-                        SamusProjectilePreInstruction.IceCombo or
-                        SamusProjectilePreInstruction.IceComboOutward or
-                        SamusProjectilePreInstruction.WaveCombo or
-                        SamusProjectilePreInstruction.SpazerCombo or
-                        SamusProjectilePreInstruction.PlasmaCombo or
-                        SamusProjectilePreInstruction.SpazerComboFalling or
-                        SamusProjectilePreInstruction.ShinesparkEcho or
-                        SamusProjectilePreInstruction.SpacetimePaletteCopyTail or
-                        SamusProjectilePreInstruction.ChainsawPowerBomb or
-                        SamusProjectilePreInstruction.ChargedChainsawOverrun or
-                        SamusProjectilePreInstruction.MurderBeamMisalignedExecution => throw new InvalidDataException($"Movie projectile callback {projectile.PreInstruction} needs a native identity mapping"),
-                    _ => throw new InvalidDataException($"Movie projectile callback {projectile.PreInstruction} needs a native identity mapping"),
+                    SamusProjectileFrameBehavior.None => NativeSnapshotMemory.ProjectileEmptyCallback,
+                    SamusProjectileFrameBehavior.NoWaveBeam => SamusBeamFrameBehaviorCodes.NoWave,
+                    SamusProjectileFrameBehavior.WaveBeamThreeFrameTrail => SamusBeamFrameBehaviorCodes.WaveThreeFrameTrail,
+                    SamusProjectileFrameBehavior.WaveBeamFourFrameTrail => SamusBeamFrameBehaviorCodes.WaveFourFrameTrail,
+                    SamusProjectileFrameBehavior.Missile => NativeSnapshotMemory.ProjectileMissileCallback,
+                    SamusProjectileFrameBehavior.SuperMissile => NativeSnapshotMemory.ProjectileSuperMissileCallback,
+                    SamusProjectileFrameBehavior.SuperMissileLink => NativeSnapshotMemory.ProjectileSuperMissileLinkCallback,
+                    SamusProjectileFrameBehavior.HyperBeam or
+                        SamusProjectileFrameBehavior.IceCombo or
+                        SamusProjectileFrameBehavior.IceComboOutward or
+                        SamusProjectileFrameBehavior.WaveCombo or
+                        SamusProjectileFrameBehavior.SpazerCombo or
+                        SamusProjectileFrameBehavior.PlasmaCombo or
+                        SamusProjectileFrameBehavior.SpazerComboFalling or
+                        SamusProjectileFrameBehavior.ShinesparkEcho or
+                        SamusProjectileFrameBehavior.SpacetimePaletteCopyTail or
+                        SamusProjectileFrameBehavior.ChainsawPowerBomb or
+                        SamusProjectileFrameBehavior.ChargedChainsawOverrun or
+                        SamusProjectileFrameBehavior.MurderBeamMisalignedExecution => throw new InvalidDataException($"Movie projectile callback {projectile.FrameBehavior} needs a native identity mapping"),
+                    _ => throw new InvalidDataException($"Movie projectile callback {projectile.FrameBehavior} needs a native identity mapping"),
                 };
-                Check(owner + " PreInstruction", callback, NativeSnapshotMemory.ProjectilePreInstruction + index);
-                Check(owner + " InstructionTimer", unchecked(projectile.InstructionTimer.RawValue), NativeSnapshotMemory.ProjectileInstructionTimer + index);
+                Check(owner + " FrameBehavior", callback, NativeSnapshotMemory.ProjectileFrameBehavior + index);
+                Check(owner + " FrameHold", unchecked(projectile.FrameHold.RawValue), NativeSnapshotMemory.ProjectileFrameHold + index);
                 // Only missiles keep state in the variable word that this movie reaches: their ignition and link.
                 if (projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
                 {
@@ -1609,9 +1609,9 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " Graphics", NativeSpriteGraphicsWords.GraphicsWord(projectile.Graphics, projectile.Graphics.PaletteRowIn(runtime.Enemies)),
                     NativeSnapshotMemory.EnemyProjectileGraphics + index);
                 Check(owner + " Timer", projectile.GeneralTimer, NativeSnapshotMemory.EnemyProjectileTimer + index);
-                EnemyProjectilePreInstruction nativePreInstruction = EnemyProjectilePreInstructionAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index));
-                if (projectile.PreInstruction != nativePreInstruction)
-                    mismatches.Add($"{owner} PreInstruction: native={nativePreInstruction} port={projectile.PreInstruction}");
+                EnemyProjectileFrameBehavior nativeFrameBehavior = EnemyProjectileFrameBehaviorAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));
+                if (projectile.FrameBehavior != nativeFrameBehavior)
+                    mismatches.Add($"{owner} FrameBehavior: native={nativeFrameBehavior} port={projectile.FrameBehavior}");
                 Check(owner + " XFraction", projectile.Position.X.Fraction, NativeSnapshotMemory.EnemyProjectileXFraction + index);
                 Check(owner + " YFraction", projectile.Position.Y.Fraction, NativeSnapshotMemory.EnemyProjectileYFraction + index);
                 Check(owner + " XVelocity", projectile.Velocity.X.RawValue, NativeSnapshotMemory.EnemyProjectileXVelocity + index);
@@ -1636,7 +1636,7 @@ internal static class RidleyFullMovieVerification
                         !actualOam.HighTable.SequenceEqual(expectedOam.HighTable))
                         mismatches.Add(owner + $" composition differs from native ${nativeMap:X4}");
                 }
-                Check(owner + " InstructionTimer", projectile.InstructionTimer.RawValue, NativeSnapshotMemory.EnemyProjectileInstructionTimer + index);
+                Check(owner + " FrameHold", projectile.FrameHold.RawValue, NativeSnapshotMemory.EnemyProjectileFrameHold + index);
                 Check(owner + " radii", LittleEndianBytes.Word(unchecked((byte)projectile.Radius.X), unchecked((byte)projectile.Radius.Y)), NativeSnapshotMemory.EnemyProjectileRadius + index);
                 ushort properties = checked((ushort)projectile.Damage);
                 if (projectile.Depth == EnemyProjectileDepth.InFrontOfSamus) properties |= NativeSnapshotMemory.EnemyProjectileInFrontOfSamus;

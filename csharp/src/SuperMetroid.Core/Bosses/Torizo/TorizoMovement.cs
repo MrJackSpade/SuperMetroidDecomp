@@ -74,13 +74,13 @@ internal sealed class TorizoMovement
         torizo.ExtraProperties = torizo.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         torizo.Radius = definition.Radius;
-        torizo.InstructionTimer = WrappingCountdown.Start(1);
+        torizo.FrameHold = WrappingCountdown.Start(1);
         torizo.Timer = WrappingCountdown.Start(0);
         torizo.Colouring = SharedSpriteColouring.Common;
         torizo.Frame = EnemyFrameId.BombTorizoDormant;
 
         state.Function = TorizoFunction.Falling;
-        state.PreInstruction = TorizoPreInstruction.Idle;
+        state.FrameBehavior = TorizoFrameBehavior.Idle;
         state.Velocity = new EightEightVector<RoomPixels>(0, 256);
 
         // Init writes the shared colours' targets and then selects the encounter-specific body
@@ -152,41 +152,41 @@ internal sealed class TorizoMovement
             return;
         }
 
-        RunBombTorizoPreInstruction(torizo, state, level);
+        RunBombTorizoFrameBehavior(torizo, state, level);
     }
 
     /// <summary>Dispatches the movement callback installed by the current Bomb or Golden instruction list.</summary>
-    internal void RunBombTorizoPreInstruction(
+    internal void RunBombTorizoFrameBehavior(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         RoomLevelData? level)
     {
-        switch (state.PreInstruction)
+        switch (state.FrameBehavior)
         {
-            case TorizoPreInstruction.Idle:
+            case TorizoFrameBehavior.Idle:
                 return;
-            case TorizoPreInstruction.AirTransition:
+            case TorizoFrameBehavior.AirTransition:
                 RunBombTorizoAirTransition(
                     torizo,
                     state,
                     RequireBombTorizoLevel(level));
                 return;
-            case TorizoPreInstruction.Gravity:
+            case TorizoFrameBehavior.Gravity:
                 ApplyBombTorizoGravity(
                     torizo,
                     state,
                     RequireBombTorizoLevel(level));
                 return;
-            case TorizoPreInstruction.Jump:
+            case TorizoFrameBehavior.Jump:
                 RunBombTorizoJump(torizo, state, RequireBombTorizoLevel(level));
                 return;
-            case TorizoPreInstruction.GoldenAirTransition:
+            case TorizoFrameBehavior.GoldenAirTransition:
                 RunGoldenTorizoAirTransition(
                     torizo,
                     state,
                     RequireBombTorizoLevel(level));
                 return;
-            case TorizoPreInstruction.GoldenGravity:
+            case TorizoFrameBehavior.GoldenGravity:
                 ApplyBombTorizoGravity(
                     torizo,
                     state,
@@ -194,7 +194,7 @@ internal sealed class TorizoMovement
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Bomb Torizo pre-instruction {state.PreInstruction} is not translated.");
+                    $"Bomb Torizo pre-instruction {state.FrameBehavior} is not translated.");
         }
     }
 

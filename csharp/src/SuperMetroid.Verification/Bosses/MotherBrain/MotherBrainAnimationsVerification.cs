@@ -191,7 +191,7 @@ internal static class MotherBrainAnimationsVerification
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
         FamilyProjectileStarts.Initialize(projectile, kind, MotherBrainTurretDefinitions.Graphics);
         projectile.StartAnimation(animation);
-        var native = new NativeEnemyProjectileListDefinitions.Reader(entry, projectile.InstructionTimer.RawValue);
+        var native = new NativeEnemyProjectileListDefinitions.Reader(entry, projectile.FrameHold.RawValue);
         int update = 0;
         for (; update < updates && !native.Deleted; update++)
         {
@@ -201,12 +201,12 @@ internal static class MotherBrainAnimationsVerification
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
             if (native.Deleted)
                 break;
-            AssertEqual(native.Timer, projectile.InstructionTimer.RawValue, $"{at}: timer");
+            AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.PaletteCleared)
                 AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.Emptied, projectile.Graphics, $"{at}: the cleared graphics word, in the common colours");
-            if (native.PreInstructionCleared)
-                AssertEqual(EnemyProjectilePreInstruction.Stationary, projectile.PreInstruction, $"{at}: pre-instruction cleared");
+            if (native.FrameBehaviorCleared)
+                AssertEqual(EnemyProjectileFrameBehavior.Stationary, projectile.FrameBehavior, $"{at}: pre-instruction cleared");
         }
         return update;
     }
@@ -226,7 +226,7 @@ internal static class MotherBrainAnimationsVerification
         RoomEnemyProjectileSlot beam = enemies.Projectiles.EnemyProjectiles[^1];
         FamilyProjectileStarts.Initialize(beam, RoomEnemyProjectileKind.MotherBrainHandBeamCharging, default);
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
-        var native = new NativeEnemyProjectileListDefinitions.Reader(HandBeamProgram, beam.InstructionTimer.RawValue);
+        var native = new NativeEnemyProjectileListDefinitions.Reader(HandBeamProgram, beam.FrameHold.RawValue);
         int spawns = 0;
         int update = 0;
         for (; update < 64 && !native.Deleted; update++)
@@ -243,7 +243,7 @@ internal static class MotherBrainAnimationsVerification
             AssertEqual(!native.Deleted, beam.IsActive, $"{at}: deletion");
             if (native.Deleted)
                 break;
-            AssertEqual(native.Timer, beam.InstructionTimer.RawValue, $"{at}: timer");
+            AssertEqual(native.Timer, beam.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, beam.PresentationOperandAddress, $"{at}: frame");
         }
         AssertEqual(MotherBrainHandBeamAnimations.StageCount, spawns, "the hand beam spawns the next beam once a stage");

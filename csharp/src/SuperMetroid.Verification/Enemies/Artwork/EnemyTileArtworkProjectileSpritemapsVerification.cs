@@ -1014,7 +1014,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             foreach (RoomEnemyProjectileSlot particle in enemies.Projectiles.EnemyProjectiles
                          .Where(particle => particle.IsActive))
             {
-                particle.InstructionTimer = WrappingCountdown.Start(1);
+                particle.FrameHold = WrappingCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(particle, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), Position16<RoomPixels>.Zero);
             }
             var oam = new OamBuffer();

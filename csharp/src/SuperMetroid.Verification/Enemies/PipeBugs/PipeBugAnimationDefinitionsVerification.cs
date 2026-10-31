@@ -41,7 +41,7 @@ internal static class PipeBugAnimationDefinitionsVerification
 
                 var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
                 {
-                    InstructionTimer = WrappingCountdown.Start(0x2222),
+                    FrameHold = WrappingCountdown.Start(0x2222),
                     Timer = WrappingCountdown.Start(0x3333),
                 };
                 slot.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? 1 : 0);
@@ -57,7 +57,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                     $"production {(strong ? "strong" : "normal")} Pipe Bug selector {selector}");
                 AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(strong, selector)), state.Program,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug animation {selector}");
-                AssertEqual(1, slot.InstructionTimer.RawValue,
+                AssertEqual(1, slot.FrameHold.RawValue,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug timer {selector}");
                 AssertEqual(0, slot.Timer.RawValue,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug loop {selector}");

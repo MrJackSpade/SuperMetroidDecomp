@@ -110,7 +110,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
             state.WalkStepTimer = WrappingCountdown.Start(0x0100);
@@ -132,7 +132,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             state.WalkStepTimer = WrappingCountdown.Start(0x0100);
             state.SpitDecisionTimer = WrappingCountdown.Start(0x0100);
 
@@ -154,7 +154,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
             state.WalkStepTimer = WrappingCountdown.Start(1);
@@ -180,7 +180,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
             state.WalkStepTimer = WrappingCountdown.Start(0);

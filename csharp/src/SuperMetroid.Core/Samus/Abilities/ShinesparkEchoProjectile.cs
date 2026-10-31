@@ -28,7 +28,7 @@ internal sealed class ShinesparkEchoProjectile
         _slotTable.ProjectileCounter = WrappingCounter.IncrementWord(_slotTable.ProjectileCounter);
         slot.Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho);
         BeamCombos.InitializeComboData(slot, BeamComboData.Echo);
-        slot.PreInstruction = SamusProjectilePreInstruction.ShinesparkEcho;
+        slot.FrameBehavior = SamusProjectileFrameBehavior.ShinesparkEcho;
         slot.EchoAngle = angle.ToByteAngle();
         slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(0));
     }
@@ -37,7 +37,7 @@ internal sealed class ShinesparkEchoProjectile
     internal void StepShinesparkEcho(SamusState samus,
         SamusProjectileSlot slot, Position16<RoomPixels> camera)
     {
-        if (slot.PreInstruction != SamusProjectilePreInstruction.ShinesparkEcho)
+        if (slot.FrameBehavior != SamusProjectileFrameBehavior.ShinesparkEcho)
             throw new InvalidOperationException("Departing echo no longer owns this projectile slot.");
         if (!samus.Shinespark.StepOwnedReleasedCrashEcho(samus, camera, slot))
             _animation.ClearProjectile(slot);

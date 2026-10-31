@@ -47,14 +47,14 @@ internal static class MotherBrainGlassSuperMissileVerification
         // A fired Super Missile occupies two slots at one position, as on the movie's frame:
         // the missile and its zero-radius link, with the instruction lists the port fires.
         MotherBrainGlassSuperMissilePair[] pair =
-            [new MotherBrainGlassSuperMissilePair(0x9f6b, 8, SamusProjectilePreInstruction.SuperMissile), new MotherBrainGlassSuperMissilePair(0x9f7b, 0, SamusProjectilePreInstruction.SuperMissileLink)];
+            [new MotherBrainGlassSuperMissilePair(0x9f6b, 8, SamusProjectileFrameBehavior.SuperMissile), new MotherBrainGlassSuperMissilePair(0x9f7b, 0, SamusProjectileFrameBehavior.SuperMissileLink)];
         for (int slot = 0; slot < pair.Length; slot++)
         {
             var shot = shots.Slots[slot];
             shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Left;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(pair[slot].Radius, pair[slot].Radius);
-            shot.Cursor = SamusProjectileProgramAddresses.CursorAt(pair[slot].List); shot.InstructionTimer = WrappingCountdown.Start(1);
-            shot.PreInstruction = pair[slot].Pre;
+            shot.Cursor = SamusProjectileProgramAddresses.CursorAt(pair[slot].List); shot.FrameHold = WrappingCountdown.Start(1);
+            shot.FrameBehavior = pair[slot].Pre;
         }
 
         AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus), "the glass accepts one projectile per pass");

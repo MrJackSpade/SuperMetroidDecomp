@@ -120,7 +120,7 @@ internal static class EyeDoorPlmProgramDefinitions
             ],
             [EyeDoorPlmProgram.EyeDestroyed] =
             [
-                Step.Publish(EyeDoorPlmCue.ClearPreInstruction),
+                Step.Publish(EyeDoorPlmCue.ClearFrameBehavior),
                 Step.Publish(EyeDoorPlmCue.SpawnSmoke),
                 Step.Publish(EyeDoorPlmCue.SpawnSmoke),
                 Step.Publish(EyeDoorPlmCue.SpawnTwoSmoke),

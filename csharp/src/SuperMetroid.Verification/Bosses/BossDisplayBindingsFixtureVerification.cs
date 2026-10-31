@@ -75,13 +75,13 @@ internal static class BossDisplayBindingsFixtureVerification
             Actor.Position = Actor.Position.WithWhole(new(128, 128));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
-            Actor.Properties = (EnemyProperties.ProcessInstructions);
+            Actor.Properties = (EnemyProperties.RunsAnimationScript);
             Enemies.Drawing.Enqueue(0, Actor);
             // The boss draws under the retail graphics set its room loads, whose sheets hold its frames.
             SpawnedObjectFixtures.LoadSetDrawing(Enemies, definition, Actor);
             // A boss that owns BG2 attaches its body layer as its initialisation does, before any of its frames draw on it.
             ClearBg2();
-            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.ProcessInstructions);
+            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.RunsAnimationScript);
             hitbox = new HitboxQuery(Enemies.Collision.TryFindExtendedHitboxReaction);
         }
 

@@ -92,7 +92,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>Starts <paramref name="program"/> on <paramref name="slot"/> from the next update.</summary>
     private void StartGunshipProgram(RoomEnemySlot slot, GunshipProgram program)
     {
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         _shipPrograms[slot.SlotIndex] = AnimationProgramCursor<GunshipProgram>.Start(program);
     }
 
@@ -119,8 +119,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         var part = new GunshipPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);
         slot.Properties = slot.Properties.With(
-            EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+            EnemyProperties.RunsAnimationScript | EnemyProperties.IgnoreSamusCollision);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         _shipPrograms[slot.SlotIndex] = AnimationProgramCursor<GunshipProgram>.Start(GunshipProgram.TopHull);
         slot.Colouring = ShipColouring;
@@ -150,8 +150,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         var part = new GunshipPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);
         slot.Properties = slot.Properties.With(
-            EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+            EnemyProperties.RunsAnimationScript | EnemyProperties.IgnoreSamusCollision);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         _shipPrograms[slot.SlotIndex] = AnimationProgramCursor<GunshipProgram>.Start(slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad
             ? GunshipProgram.BottomEntrancePad

@@ -59,11 +59,11 @@ internal static class DragonAnimationDefinitionsVerification
         DragonEnemyState state = NewDragonAnimationState();
         state.RequestedAnimation = DragonAnimationSelector.AttackingFacingLeft;
         state.InstalledAnimation = DragonAnimationSelector.AttackingFacingLeft;
-        DragonBehavior.InstallDragonInstructionList(slot, state);
-        AssertEqual(0x2222, slot.InstructionTimer.RawValue, "Dragon installs nothing for the installed animation");
+        DragonBehavior.InstallDragonAnimationScript(slot, state);
+        AssertEqual(0x2222, slot.FrameHold.RawValue, "Dragon installs nothing for the installed animation");
 
         state.ReinstallRequested = true;
-        DragonBehavior.InstallDragonInstructionList(slot, state);
+        DragonBehavior.InstallDragonAnimationScript(slot, state);
         AssertDragonAnimationHandoff(slot, state, DragonAnimationSelector.AttackingFacingLeft, "Dragon reinstall request");
         AssertEqual(false, state.ReinstallRequested, "Dragon reinstall request is spent by the install");
     }
@@ -78,7 +78,7 @@ internal static class DragonAnimationDefinitionsVerification
             DragonEnemyState state = NewDragonAnimationState();
             state.RequestedAnimation = requested;
             state.ReinstallRequested = true;
-            DragonBehavior.InstallDragonInstructionList(slot, state);
+            DragonBehavior.InstallDragonAnimationScript(slot, state);
             AssertDragonAnimationHandoff(slot, state, requested, $"Dragon {requested}");
         }
     }
@@ -120,13 +120,13 @@ internal static class DragonAnimationDefinitionsVerification
             bodyState,
             idle,
             facingLeft ? "live left-facing Dragon body" : "live right-facing Dragon body",
-            expectedInstructionTimer: facingLeft ? (ushort)0 : (ushort)1);
+            expectedFrameHold: facingLeft ? (ushort)0 : (ushort)1);
         AssertDragonAnimationHandoff(
             wing,
             (wingState),
             wings,
             facingLeft ? "live left-facing Dragon wing" : "live right-facing Dragon wing",
-            expectedInstructionTimer: facingLeft ? (ushort)0 : (ushort)1);
+            expectedFrameHold: facingLeft ? (ushort)0 : (ushort)1);
 
         bodyState.FunctionTimer = WrappingCountdown.Start(0);
         enemies.DragonBehavior.RunDragonRising(body, bodyState);
@@ -144,7 +144,7 @@ internal static class DragonAnimationDefinitionsVerification
     /// <summary>Starts with nondefault instruction values so an omitted install remains observable.</summary>
     private static RoomEnemySlot NewDragonAnimationSlot(int index) => new(index, EnemySlotFixtures.Registry)
     {
-        InstructionTimer = WrappingCountdown.Start(0x2222),
+        FrameHold = WrappingCountdown.Start(0x2222),
         Timer = WrappingCountdown.Start(0x3333),
     };
 
@@ -157,7 +157,7 @@ internal static class DragonAnimationDefinitionsVerification
         DragonEnemyState state,
         DragonAnimationSelector expected,
         string context,
-        ushort expectedInstructionTimer = 1)
+        ushort expectedFrameHold = 1)
     {
         AssertEqual(expected, state.RequestedAnimation,
             $"{context} requested selector");
@@ -166,7 +166,7 @@ internal static class DragonAnimationDefinitionsVerification
         AssertEqual(AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(expected)),
             state.Program,
             $"{context} animation");
-        AssertEqual(expectedInstructionTimer, slot.InstructionTimer.RawValue,
+        AssertEqual(expectedFrameHold, slot.FrameHold.RawValue,
             $"{context} instruction timer");
         AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");
     }

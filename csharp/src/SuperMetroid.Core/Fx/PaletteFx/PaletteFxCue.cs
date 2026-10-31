@@ -21,8 +21,8 @@ public abstract record PaletteFxCue
     public sealed record SetHeatPaletteIndex(int HeatPhase) : PaletteFxCue;
 
     /// <summary><c>$8D:C5D4</c>: installs a pre-instruction.</summary>
-    /// <param name="PreInstruction">The pre-instruction a <see cref="SetPreInstruction"/> cue installs.</param>
-    public sealed record SetPreInstruction(PaletteFxPreInstruction PreInstruction) : PaletteFxCue;
+    /// <param name="FrameBehavior">The pre-instruction a <see cref="SetFrameBehavior"/> cue installs.</param>
+    public sealed record SetFrameBehavior(PaletteFxFrameBehavior FrameBehavior) : PaletteFxCue;
 
     /// <summary>A cue that carries no operand.</summary>
     /// <param name="Kind">What the cue does.</param>

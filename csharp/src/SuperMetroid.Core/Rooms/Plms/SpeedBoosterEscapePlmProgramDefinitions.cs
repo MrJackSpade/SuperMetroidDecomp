@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Rooms.Plms.SpeedBoosterEscapeProgram, SuperMetroid.Core.Rooms.Plms.PlmNoDraw, SuperMetroid.Core.Rooms.Plms.SpeedBoosterEscapePreInstruction>;
+using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Rooms.Plms.SpeedBoosterEscapeProgram, SuperMetroid.Core.Rooms.Plms.PlmNoDraw, SuperMetroid.Core.Rooms.Plms.SpeedBoosterEscapeFrameBehavior>;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -10,11 +10,11 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class SpeedBoosterEscapePlmProgramDefinitions
 {
     /// <summary>The lavaquake phases; each cue installs the named pre-instruction.</summary>
-    internal static AnimationProgramSet<SpeedBoosterEscapeProgram, PlmNoDraw, SpeedBoosterEscapePreInstruction> Programs { get; } = new(
+    internal static AnimationProgramSet<SpeedBoosterEscapeProgram, PlmNoDraw, SpeedBoosterEscapeFrameBehavior> Programs { get; } = new(
         new Dictionary<SpeedBoosterEscapeProgram, Step[]>
         {
-            [SpeedBoosterEscapeProgram.WaitForSpeedBooster] = [Step.Publish(SpeedBoosterEscapePreInstruction.WaitForSpeedBooster), Step.Hold],
-            [SpeedBoosterEscapeProgram.WaitForSamusLeft] = [Step.Publish(SpeedBoosterEscapePreInstruction.WaitForSamusLeft), Step.Hold],
-            [SpeedBoosterEscapeProgram.AdvanceLava] = [Step.Publish(SpeedBoosterEscapePreInstruction.AdvanceLava), Step.Hold],
+            [SpeedBoosterEscapeProgram.WaitForSpeedBooster] = [Step.Publish(SpeedBoosterEscapeFrameBehavior.WaitForSpeedBooster), Step.Hold],
+            [SpeedBoosterEscapeProgram.WaitForSamusLeft] = [Step.Publish(SpeedBoosterEscapeFrameBehavior.WaitForSamusLeft), Step.Hold],
+            [SpeedBoosterEscapeProgram.AdvanceLava] = [Step.Publish(SpeedBoosterEscapeFrameBehavior.AdvanceLava), Step.Hold],
         });
 }

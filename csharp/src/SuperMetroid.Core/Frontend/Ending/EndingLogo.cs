@@ -39,7 +39,7 @@ internal sealed class EndingLogo
                 EndingLogoActors.Origin(i),
                 ScreenColourGroup.EndingLogoSprites,
                 definition.Program);
-            actors[i].InstallPreInstruction(definition.PreInstruction);
+            actors[i].InstallFrameBehavior(definition.FrameBehavior);
         }
         Ensure.NotNull(colours).Colours(ScreenColourGroup.EndingLogoBackground).Fill(RgbColor.Black);
         RequirePaletteArtwork()[EndingPaletteId.LogoInitial].LoadTo(colours.Colours(ScreenColourGroup.EndingLogoSprites), 0);

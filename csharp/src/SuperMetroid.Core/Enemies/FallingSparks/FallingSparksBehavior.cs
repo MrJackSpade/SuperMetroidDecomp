@@ -64,7 +64,7 @@ internal sealed class FallingSparksBehavior
     private static readonly SignedSixteenSixteen FallingSparkImpactBounce = SignedSixteenSixteen.FromParts(-1, 32768);
 
     /// <summary>Ports pre-instruction <c>$86:F3F0</c>.</summary>
-    internal void RunFallingSparkPreInstruction(
+    internal void RunFallingSparkFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
         int frameCounterByte)
@@ -141,9 +141,9 @@ internal sealed class FallingSparksBehavior
     /// <summary>Connects the falling-spark pre-instruction to the projectile handler table.</summary>
     internal void AddFallingSparksProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunFallingSparkPreInstruction(context.Projectile, context.Level, context.ShortCounter);
-        }, EnemyProjectilePreInstruction.FallingSparkBounce);
+            RunFallingSparkFrameBehavior(context.Projectile, context.Level, context.ShortCounter);
+        }, EnemyProjectileFrameBehavior.FallingSparkBounce);
     }
 }

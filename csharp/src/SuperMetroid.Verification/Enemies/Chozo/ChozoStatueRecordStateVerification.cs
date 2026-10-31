@@ -18,11 +18,11 @@ internal static class ChozoStatueRecordStateVerification
         var state = new ChozoStatueState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.CarryRecord = 1;
-        state.PreInstruction = Enum.GetValues<ChozoStatuePreInstruction>()[^1];
+        state.FrameBehavior = Enum.GetValues<ChozoStatueFrameBehavior>()[^1];
 
         slot.Clear();
         AssertEqual<int>(0, state.CarryRecord, "a kill empties CarryRecord");
-        AssertEqual<ChozoStatuePreInstruction?>(null, state.PreInstruction, "a kill empties PreInstruction");
+        AssertEqual<ChozoStatueFrameBehavior?>(null, state.FrameBehavior, "a kill empties FrameBehavior");
         Console.WriteLine("ChozoStatue record state: a kill empties every value the record holds.");
     }
 

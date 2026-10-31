@@ -10,7 +10,7 @@ internal enum CinematicSpriteInstruction : ushort
     Sleep = 0x9442,
 
     /// <summary>Pre-instruction = [[Y]] at $8B:944C.</summary>
-    SetPreInstruction = 0x944c,
+    SetFrameBehavior = 0x944c,
 
     /// <summary><c>CinematicSpriteObject_Instruction_GotoY</c> at $8B:94BC.</summary>
     Goto = 0x94bc,

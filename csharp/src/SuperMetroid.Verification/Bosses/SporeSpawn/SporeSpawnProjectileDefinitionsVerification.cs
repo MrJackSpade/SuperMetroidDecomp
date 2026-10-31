@@ -34,7 +34,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, ushort> spawnStalk = (stalkBody, stalkArgument) => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(stalkBody, stalkArgument);
         Action<RoomEnemySlot, ushort> spawnSpawner = (spawnerBody, spawnerArgument) => enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(spawnerBody, spawnerArgument);
-        Action<RoomEnemyProjectileSlot> move = SporeSpawnBehavior.RunSporeSpawnSporePreInstruction;
+        Action<RoomEnemyProjectileSlot> move = SporeSpawnBehavior.RunSporeSpawnSporeFrameBehavior;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(0x1234, 0x0200));
         for (ushort index = 0; index < 4; index++)

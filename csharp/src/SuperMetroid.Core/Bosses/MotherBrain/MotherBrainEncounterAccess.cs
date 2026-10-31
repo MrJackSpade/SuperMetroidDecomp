@@ -64,7 +64,7 @@ internal sealed class MotherBrainEncounterAccess
     internal static void SetMotherBrainBodyProgram(MotherBrainEnemyState state, MotherBrainBodyProgram program)
     {
         state.BodyCursor = AnimationProgramCursor<MotherBrainBodyProgram>.Start(program);
-        state.Body.InstructionTimer = WrappingCountdown.Start(1);
+        state.Body.FrameHold = WrappingCountdown.Start(1);
         state.Body.Timer = WrappingCountdown.Start(0);
     }
 }

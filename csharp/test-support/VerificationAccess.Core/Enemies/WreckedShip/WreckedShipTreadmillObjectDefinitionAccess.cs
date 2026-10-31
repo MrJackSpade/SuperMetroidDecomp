@@ -11,8 +11,8 @@ internal static class WreckedShipTreadmillObjectDefinitionAccess
     {
         /// <summary>The boss-wait command installed by the object header.</summary>
         public ushort WaitInstructionPointer => self.Direction == WreckedShipTreadmillDirection.Rightwards
-            ? AnimatedTileInstructionListPointers.WreckedShipTreadmillRightwardsWait
-            : AnimatedTileInstructionListPointers.WreckedShipTreadmillLeftwardsWait;
+            ? AnimatedTileAnimationScriptPointers.WreckedShipTreadmillRightwardsWait
+            : AnimatedTileAnimationScriptPointers.WreckedShipTreadmillLeftwardsWait;
         /// <summary>The first timed frame reached after Phantoon is defeated.</summary>
         public ushort LoopInstructionPointer => unchecked((ushort)(self.WaitInstructionPointer + 2));
         /// <summary>The four timed frame-control addresses in execution order.</summary>

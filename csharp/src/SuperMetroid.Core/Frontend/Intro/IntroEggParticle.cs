@@ -23,7 +23,7 @@ internal sealed class IntroEggParticle
         {
             GeneralTimer = index,
         };
-        sprite.InstallPreInstruction(definition.PreInstruction);
+        sprite.InstallFrameBehavior(definition.FrameBehavior);
     }
 
     /// <summary>
@@ -44,10 +44,10 @@ internal sealed class IntroEggParticle
     {
         if (!sprite.IsActive)
             return;
-        if (sprite.PreInstruction != IntroEggParticleActors.Particle(Fragment).PreInstruction)
+        if (sprite.FrameBehavior != IntroEggParticleActors.Particle(Fragment).FrameBehavior)
         {
             throw new InvalidDataException(
-                $"Intro egg particle names invalid pre-instruction {sprite.PreInstruction}.");
+                $"Intro egg particle names invalid pre-instruction {sprite.FrameBehavior}.");
         }
 
         // $A994 indexes the horizontal velocities by fragment and the gravity table by the

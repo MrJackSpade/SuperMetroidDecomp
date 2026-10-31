@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsConstants
 {
     /// <summary>$86:B443, <c>InstList_EnemyProj_OldTourianEscapeShaftFakeWallExplosion_0</c>.</summary>
-    internal const ushort InitialInstructionList = 0xb443;
+    internal const ushort InitialAnimationScript = 0xb443;
 }

@@ -36,7 +36,7 @@ internal sealed class CrocomireBodyLayer
             throw new InvalidOperationException("Crocomire's tongue program started without a tongue.");
         state.TongueProgram = program;
         state.TonguePosition = 0;
-        tongue.InstructionTimer = timer;
+        tongue.FrameHold = timer;
         tongue.Timer = WrappingCountdown.Start(0);
     }
 

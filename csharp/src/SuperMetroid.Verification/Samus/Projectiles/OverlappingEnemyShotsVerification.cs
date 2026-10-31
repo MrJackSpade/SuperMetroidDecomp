@@ -49,8 +49,8 @@ internal static class OverlappingEnemyShotsVerification
         shot.Position = shot.Position.WithWhole(new(128, 128));
         shot.Radius = new(4, 4);
         shot.Cursor = ProjectileFixtureCursors.Active;
-        shot.InstructionTimer = WrappingCountdown.Start(1);
-        shot.PreInstruction = SamusProjectilePreInstruction.Missile;
+        shot.FrameHold = WrappingCountdown.Start(1);
+        shot.FrameBehavior = SamusProjectileFrameBehavior.Missile;
 
         AssertEqual(3, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus),
             "one missile reaches all three overlapping Beetoms in the same pass");

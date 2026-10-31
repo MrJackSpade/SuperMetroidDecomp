@@ -37,7 +37,7 @@ internal static class CeresFlightActorMetadataVerification
             AssertEqual(0, actor.InitialTimer, "rear initializer leaves cleared timer");
             if (index != 4)
                 AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (definition + 2))),
-                    actor.ActivePreInstruction.NativeAddress, "rear initializer preserves the definition callback");
+                    actor.ActiveFrameBehavior.NativeAddress, "rear initializer preserves the definition callback");
             switch (index)
             {
                 case 0:
@@ -63,7 +63,7 @@ internal static class CeresFlightActorMetadataVerification
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbea9), actor.Position.Y, "rear stars Y");
                     PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbeaf), ScreenColourGroups.SpriteSet(actor.Colouring),
                         "rear stars attributes");
-                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe9d), actor.ActivePreInstruction.NativeAddress,
+                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe9d), actor.ActiveFrameBehavior.NativeAddress,
                         "rear stars initializer callback override");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfcb),
                         unchecked((ushort)-actor.HorizontalDelta), "rear stars speed magnitude");
@@ -86,7 +86,7 @@ internal static class CeresFlightActorMetadataVerification
         AssertEqual((ushort)1, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe5a), "rear stars native initializer parameter");
         AssertEqual(front.Program, CeresFlightActors.RearViewActor(4).Program, "front/rear program alias");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (frontDefinition + 2))),
-            front.ActivePreInstruction.NativeAddress, "front stars preserve the definition callback");
+            front.ActiveFrameBehavior.NativeAddress, "front stars preserve the definition callback");
         AssertEqual(0, front.HorizontalDelta, "front stars have callback-driven acceleration instead of fixed X velocity");
         AssertEqual(false, front.WrapX, "front stars have no nine-bit wrap");
         static void VerifyActor(

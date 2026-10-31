@@ -57,7 +57,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every part starts with the one-frame hitbox map. Only part zero replaces it with
         // the eruption animation and initializes the state-machine words below.
         state.Program = AnimationProgramCursor<HibashiProgram>.Start(HibashiProgram.Hitbox);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         if (state.IsCollisionPart)
             return;
@@ -105,7 +105,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
         state.Function = HibashiEnemyFunction.Active;
         state.ActivityFinished = false;
-        graphics.InstructionTimer = WrappingCountdown.Start(1);
+        graphics.FrameHold = WrappingCountdown.Start(1);
         graphics.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<HibashiProgram>.Start(HibashiProgram.Graphics);
 

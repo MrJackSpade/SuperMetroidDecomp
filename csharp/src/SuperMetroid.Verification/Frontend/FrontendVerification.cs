@@ -405,10 +405,10 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
         motherBrain.RecordMissileHit();
     var cgram = new ScreenPalette();
     ScreenColours introPalette = ScreenColourImage.Decode(ToColors(new ushort[SnesCgram.ColorCount]));
-    motherBrain.RunPreInstruction(cgram, introPalette, cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);
+    motherBrain.RunFrameBehavior(cgram, introPalette, cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);
     AssertEqual(12, motherBrain.Background.Y,
         "intro Mother Brain even-frame shake adds four to inherited scroll");
-    motherBrain.RunPreInstruction(cgram, introPalette, cinematicFrameCounter: 3, introCrossfadeTimer: 0x7f);
+    motherBrain.RunFrameBehavior(cgram, introPalette, cinematicFrameCounter: 3, introCrossfadeTimer: 0x7f);
     AssertEqual(8, motherBrain.Background.Y,
         "intro Mother Brain odd-frame shake returns to inherited scroll");
     AssertEqual(0, motherBrain.Background.X, "intro Mother Brain shake leaves BG1 horizontal scroll at zero");
@@ -484,7 +484,7 @@ internal static void VerifyDemoInputObject()
     {
         for (int frame = 0; frame < boundaries[record]; frame++)
         {
-            demo.Step(DemoInputState.RunReturnOnlyPreInstruction, EndRoutine);
+            demo.Step(DemoInputState.RunReturnOnlyFrameBehavior, EndRoutine);
             AssertEqual(held[record], demo.Held, $"demo record {record} held frame {frame}");
             AssertEqual(newlyPressed[record], demo.NewlyPressed,
                 $"demo record {record} new frame {frame}");
@@ -498,11 +498,11 @@ internal static void VerifyDemoInputObject()
     // Loading a record and publishing its first visible frame happen in the same handler
     // call. Consequently the last of its 70 visible frames leaves timer one; the following
     // call decrements to zero and fetches the next record.
-    AssertEqual(1, demo.InstructionTimer.RawValue, "final visible record frame retains timer one");
+    AssertEqual(1, demo.FrameHold.RawValue, "final visible record frame retains timer one");
 
     // $8739 disables the object and returns into the shared delete in the same handler call.
     for (int frame = 0; frame < 1024 && demo.IsActive; frame++)
-        demo.Step(DemoInputState.RunReturnOnlyPreInstruction, EndRoutine);
+        demo.Step(DemoInputState.RunReturnOnlyFrameBehavior, EndRoutine);
     AssertEqual(1, ends, "flashback demo end routine runs once");
     AssertEqual(false, demo.Enabled, "demo end routine disables the object");
     AssertEqual(false, demo.IsActive, "demo end routine continues into delete");

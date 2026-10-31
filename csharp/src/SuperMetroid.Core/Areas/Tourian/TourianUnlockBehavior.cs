@@ -140,9 +140,9 @@ internal sealed class TourianUnlockBehavior
     /// <summary>Registers the statue effects' movers and program cues.</summary>
     internal void AddTourianUnlockProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context => HoldTourianStatueSplash(context.Projectile), EnemyProjectilePreInstruction.TourianStatueSplashMotion);
-        table.AddPreInstruction(context => DropTourianStatueParticle(context.Projectile), EnemyProjectilePreInstruction.TourianStatueParticleMotion);
-        table.AddPreInstruction(context => RaiseTourianStatueSoul(context.Projectile), EnemyProjectilePreInstruction.TourianStatueSoulMotion);
+        table.AddFrameBehavior(context => HoldTourianStatueSplash(context.Projectile), EnemyProjectileFrameBehavior.TourianStatueSplashMotion);
+        table.AddFrameBehavior(context => DropTourianStatueParticle(context.Projectile), EnemyProjectileFrameBehavior.TourianStatueParticleMotion);
+        table.AddFrameBehavior(context => RaiseTourianStatueSoul(context.Projectile), EnemyProjectileFrameBehavior.TourianStatueSoulMotion);
         table.AddCue<TourianStatueProjectileCue>((context, cue) =>
         {
             RoomEnemyProjectileSlot projectile = context.Projectile;
@@ -168,7 +168,7 @@ internal sealed class TourianUnlockBehavior
                     projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + moveDown.Pixels);
                     break;
                 case TourianStatueProjectileCue.StartMoving startMoving:
-                    projectile.PreInstruction = startMoving.Movement;
+                    projectile.FrameBehavior = startMoving.Movement;
                     break;
                 default:
                     throw new InvalidOperationException($"The Tourian statue projectiles have no {cue} cue.");

@@ -64,7 +64,7 @@ internal sealed class IntroRinkaSystem
             }
             else
             {
-                RunPreInstruction(actor, samus, motherBrainExploding);
+                RunFrameBehavior(actor, samus, motherBrainExploding);
                 if (actor.IsActive)
                 {
                     actor.Step(cue => HandleRinkaCue(actor, cue));
@@ -103,7 +103,7 @@ internal sealed class IntroRinkaSystem
                 Spawn(3);
                 return;
 
-            case CinematicSpriteCueKind.SetPreInstruction:
+            case CinematicSpriteCueKind.SetFrameBehavior:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
             case CinematicSpriteCueKind.FadeExplosionPalette:
@@ -151,10 +151,10 @@ internal sealed class IntroRinkaSystem
 
         // Init parameter zero is the sole “hits Samus” route. Parameters one through three
         // select the miss routine and remain in GeneralTimer for its velocity table lookup.
-        rinka.InstallPreInstruction(
+        rinka.InstallFrameBehavior(
             rinka.GeneralTimer == 0
-                ? CinematicSpritePreInstruction.IntroRinkaMovingHitsSamus
-                : CinematicSpritePreInstruction.IntroRinkaMovingMissesSamus);
+                ? CinematicSpriteFrameBehavior.IntroRinkaMovingHitsSamus
+                : CinematicSpriteFrameBehavior.IntroRinkaMovingMissesSamus);
     }
 
     /// <summary>Allocates one definition-selected Rinka in the highest available cinematic slot.</summary>
@@ -180,24 +180,24 @@ internal sealed class IntroRinkaSystem
         {
             GeneralTimer = WordWrap.Unsigned(parameter),
         };
-        rinka.InstallPreInstruction(
-            IntroRinkaDefinitions.RinkaActor.PreInstruction);
+        rinka.InstallFrameBehavior(
+            IntroRinkaDefinitions.RinkaActor.FrameBehavior);
         slots[slot] = rinka;
     }
 
     /// <summary>Moves a Rinka, publishes Samus knockback on the hit route, or deletes it at its exit bounds.</summary>
-    private static void RunPreInstruction(
+    private static void RunFrameBehavior(
         IntroDiscoverySprite rinka,
         SamusState samus,
         bool motherBrainExploding)
     {
-        switch (rinka.PreInstruction)
+        switch (rinka.FrameBehavior)
         {
             case null:
-            case CinematicSpritePreInstruction.NoOp:
+            case CinematicSpriteFrameBehavior.NoOp:
                 return;
 
-            case CinematicSpritePreInstruction.IntroRinkaMovingHitsSamus:
+            case CinematicSpriteFrameBehavior.IntroRinkaMovingHitsSamus:
                 MoveHalfPixelX(rinka, IntroRinkaLaunches.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
 
@@ -217,7 +217,7 @@ internal sealed class IntroRinkaSystem
                 rinka.Delete();
                 return;
 
-            case CinematicSpritePreInstruction.IntroRinkaMovingMissesSamus:
+            case CinematicSpriteFrameBehavior.IntroRinkaMovingMissesSamus:
                 MoveHalfPixelX(rinka,
                     IntroRinkaLaunches.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
@@ -226,41 +226,41 @@ internal sealed class IntroRinkaSystem
                     rinka.Delete();
                 return;
 
-            case CinematicSpritePreInstruction.MetroidEgg:
-            case CinematicSpritePreInstruction.MetroidEggDeleteAfterCrossFade:
-            case CinematicSpritePreInstruction.MetroidEggParticle:
-            case CinematicSpritePreInstruction.MetroidEggSlimeDrops:
-            case CinematicSpritePreInstruction.BabyMetroidBeingDelivered:
-            case CinematicSpritePreInstruction.BabyMetroidBeingExamined:
-            case CinematicSpritePreInstruction.IntroMotherBrainCrossFading:
-            case CinematicSpritePreInstruction.ConfusedBabyWaitingForHatch:
-            case CinematicSpritePreInstruction.ConfusedBabyHatched:
-            case CinematicSpritePreInstruction.ConfusedBabyIdling:
-            case CinematicSpritePreInstruction.ConfusedBabyDancing:
-            case CinematicSpritePreInstruction.CeresStars:
-            case CinematicSpritePreInstruction.CeresLargeAsteroids:
-            case CinematicSpritePreInstruction.CeresUnderAttack:
-            case CinematicSpritePreInstruction.CeresSmallAsteroid:
-            case CinematicSpritePreInstruction.CeresPurpleSpaceVortex:
-            case CinematicSpritePreInstruction.CeresStationaryVortexNoOp:
-            case CinematicSpritePreInstruction.CeresExplosionSpawnerRepeating:
-            case CinematicSpritePreInstruction.CeresExplosion:
-            case CinematicSpritePreInstruction.Zebes:
-            case CinematicSpritePreInstruction.ZebesSlideSceneAway:
-            case CinematicSpritePreInstruction.ZebesStarsCompletionWait:
-            case CinematicSpritePreInstruction.ZebesStarsCompletionSlideSceneAway:
-            case CinematicSpritePreInstruction.ZebesStarsWait:
-            case CinematicSpritePreInstruction.ZebesStarsSlideSceneAway:
-            case CinematicSpritePreInstruction.SuperMetroidIconTopHalf:
-            case CinematicSpritePreInstruction.SuperMetroidIconBottomHalf:
-            case CinematicSpritePreInstruction.ZebesExplosionStarsWaitForFlyaway:
-            case CinematicSpritePreInstruction.ZebesExplosionStarsMoving:
-            case CinematicSpritePreInstruction.RewardSuitlessUpperNoOp:
-            case CinematicSpritePreInstruction.RewardBodyFlight:
-            case CinematicSpritePreInstruction.RewardHeadFlight:
-            case CinematicSpritePreInstruction.RewardLanding:
+            case CinematicSpriteFrameBehavior.MetroidEgg:
+            case CinematicSpriteFrameBehavior.MetroidEggDeleteAfterCrossFade:
+            case CinematicSpriteFrameBehavior.MetroidEggParticle:
+            case CinematicSpriteFrameBehavior.MetroidEggSlimeDrops:
+            case CinematicSpriteFrameBehavior.BabyMetroidBeingDelivered:
+            case CinematicSpriteFrameBehavior.BabyMetroidBeingExamined:
+            case CinematicSpriteFrameBehavior.IntroMotherBrainCrossFading:
+            case CinematicSpriteFrameBehavior.ConfusedBabyWaitingForHatch:
+            case CinematicSpriteFrameBehavior.ConfusedBabyHatched:
+            case CinematicSpriteFrameBehavior.ConfusedBabyIdling:
+            case CinematicSpriteFrameBehavior.ConfusedBabyDancing:
+            case CinematicSpriteFrameBehavior.CeresStars:
+            case CinematicSpriteFrameBehavior.CeresLargeAsteroids:
+            case CinematicSpriteFrameBehavior.CeresUnderAttack:
+            case CinematicSpriteFrameBehavior.CeresSmallAsteroid:
+            case CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex:
+            case CinematicSpriteFrameBehavior.CeresStationaryVortexNoOp:
+            case CinematicSpriteFrameBehavior.CeresExplosionSpawnerRepeating:
+            case CinematicSpriteFrameBehavior.CeresExplosion:
+            case CinematicSpriteFrameBehavior.Zebes:
+            case CinematicSpriteFrameBehavior.ZebesSlideSceneAway:
+            case CinematicSpriteFrameBehavior.ZebesStarsCompletionWait:
+            case CinematicSpriteFrameBehavior.ZebesStarsCompletionSlideSceneAway:
+            case CinematicSpriteFrameBehavior.ZebesStarsWait:
+            case CinematicSpriteFrameBehavior.ZebesStarsSlideSceneAway:
+            case CinematicSpriteFrameBehavior.SuperMetroidIconTopHalf:
+            case CinematicSpriteFrameBehavior.SuperMetroidIconBottomHalf:
+            case CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway:
+            case CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving:
+            case CinematicSpriteFrameBehavior.RewardSuitlessUpperNoOp:
+            case CinematicSpriteFrameBehavior.RewardBodyFlight:
+            case CinematicSpriteFrameBehavior.RewardHeadFlight:
+            case CinematicSpriteFrameBehavior.RewardLanding:
             default:
-                throw new InvalidOperationException($"A Rinka does not run {rinka.PreInstruction}.");
+                throw new InvalidOperationException($"A Rinka does not run {rinka.FrameBehavior}.");
         }
     }
 

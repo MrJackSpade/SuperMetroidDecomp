@@ -347,7 +347,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         HopperProgram program)
     {
         state.Program = AnimationProgramCursor<HopperProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

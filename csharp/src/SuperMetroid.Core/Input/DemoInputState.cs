@@ -16,13 +16,13 @@ public sealed class DemoInputState
     public bool Enabled { get; private set; }
 
     /// <summary>Object-specific routine its owner runs before the shared instruction timer.</summary>
-    public DemoInputPreInstruction PreInstruction { get; private set; }
+    public DemoInputFrameBehavior FrameBehavior { get; private set; }
 
     /// <summary>Where the object's program resumes; null once the object is deleted.</summary>
     internal AnimationProgramCursor<DemoInputProgram>? Cursor { get; private set; }
 
     /// <summary>Frames remaining in the active input record, with native word wrapping.</summary>
-    public WrappingCountdown InstructionTimer { get; private set; }
+    public WrappingCountdown FrameHold { get; private set; }
 
     /// <summary>General loop timer of instructions <c>$844F/$8459</c>; no demo program counts it.</summary>
     public WrappingCountdown Timer { get; private set; }
@@ -55,9 +55,9 @@ public sealed class DemoInputState
     public void Clear()
     {
         Enabled = false;
-        PreInstruction = DemoInputPreInstruction.None;
+        FrameBehavior = DemoInputFrameBehavior.None;
         Cursor = null;
-        InstructionTimer = WrappingCountdown.Start(0);
+        FrameHold = WrappingCountdown.Start(0);
         Timer = WrappingCountdown.Start(0);
         Held = 0;
         NewlyPressed = 0;
@@ -79,9 +79,9 @@ public sealed class DemoInputState
     /// </summary>
     public void Load(DemoInputObjectDefinition definition)
     {
-        PreInstruction = definition.PreInstruction;
+        FrameBehavior = definition.FrameBehavior;
         Cursor = AnimationProgramCursor<DemoInputProgram>.Start(definition.Program);
-        InstructionTimer = WrappingCountdown.Start(1);
+        FrameHold = WrappingCountdown.Start(1);
         Timer = WrappingCountdown.Start(0);
     }
 
@@ -93,33 +93,33 @@ public sealed class DemoInputState
     /// prevents a host callback from publishing a new list with a stale countdown for one
     /// frame, a state the native routine cannot expose.
     /// </remarks>
-    public void Redirect(DemoInputPreInstruction preInstruction, DemoInputProgram program, int instructionTimer = 1)
+    public void Redirect(DemoInputFrameBehavior frameBehavior, DemoInputProgram program, int frameHold = 1)
     {
-        PreInstruction = preInstruction;
+        FrameBehavior = frameBehavior;
         Cursor = AnimationProgramCursor<DemoInputProgram>.Start(program);
-        InstructionTimer = WrappingCountdown.FromRaw(instructionTimer);
+        FrameHold = WrappingCountdown.FromRaw(frameHold);
     }
 
     /// <summary>
     /// Executes <c>$91:83C0/$83F2</c> once and publishes the resulting controller words. The owner runs the object's
-    /// pre-instruction in <paramref name="preInstruction"/> and its private routines in <paramref name="cue"/>.
+    /// pre-instruction in <paramref name="frameBehavior"/> and its private routines in <paramref name="cue"/>.
     /// </summary>
-    public void Step(Action<DemoInputState, DemoInputPreInstruction> preInstruction, Action<DemoInputCue> cue)
+    public void Step(Action<DemoInputState, DemoInputFrameBehavior> frameBehavior, Action<DemoInputCue> cue)
     {
-        Ensure.NotNull(preInstruction);
+        Ensure.NotNull(frameBehavior);
         Ensure.NotNull(cue);
         if (!Enabled || Cursor is not { } cursor)
             return;
 
-        preInstruction(this, PreInstruction);
+        frameBehavior(this, FrameBehavior);
         cursor = Cursor ?? throw new InvalidOperationException("A demo pre-instruction deleted its object.");
 
         // DEC is a 16-bit 65C816 operation. In particular, a zero duration wraps and lasts
         // 65,536 handler calls; using an int countdown would quietly change malformed or
         // intentionally unusual ROM data.
-        CountdownStep instructionTimer = InstructionTimer.Decrement();
-        InstructionTimer = instructionTimer.Remaining;
-        if (instructionTimer.IsZero)
+        CountdownStep frameHold = FrameHold.Decrement();
+        FrameHold = frameHold.Remaining;
+        if (frameHold.IsZero)
         {
             WrappingCountdown timer = Timer;
             AnimationProgramAdvance<DemoInputFrame> advance = DemoInputAnimations.Programs.Advance(ref cursor, ref timer,
@@ -132,7 +132,7 @@ public sealed class DemoInputState
             switch (advance)
             {
                 case AnimationProgramAdvance<DemoInputFrame>.Show shown:
-                    InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                    FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                     Held = shown.Frame.Held;
                     NewlyPressed = shown.Frame.NewlyPressed;
                     Cursor = cursor;
@@ -158,9 +158,9 @@ public sealed class DemoInputState
     /// <summary>
     /// The pre-instruction of an object whose owner has none of its own: only the return-only routine may be installed.
     /// </summary>
-    public static void RunReturnOnlyPreInstruction(DemoInputState _, DemoInputPreInstruction preInstruction)
+    public static void RunReturnOnlyFrameBehavior(DemoInputState _, DemoInputFrameBehavior frameBehavior)
     {
-        if (preInstruction != DemoInputPreInstruction.ReturnOnly)
-            throw new InvalidOperationException($"Demo-input pre-instruction {preInstruction} was not supplied by the owning object.");
+        if (frameBehavior != DemoInputFrameBehavior.ReturnOnly)
+            throw new InvalidOperationException($"Demo-input pre-instruction {frameBehavior} was not supplied by the owning object.");
     }
 }

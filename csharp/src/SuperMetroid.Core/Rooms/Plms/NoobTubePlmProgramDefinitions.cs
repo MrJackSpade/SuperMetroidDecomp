@@ -33,7 +33,7 @@ internal static class NoobTubePlmProgramDefinitions
             ],
             [NoobTubeProgram.Break] =
             [
-                Step.Publish(NoobTubeCue.ClearPreInstruction),
+                Step.Publish(NoobTubeCue.ClearFrameBehavior),
                 Step.Publish(NoobTubeCue.LockSamus),
                 Step.Publish(NoobTubeCue.SpawnCrack),
                 Step.Show(NoobTubeDraw.Damaged, CrackedDuration),

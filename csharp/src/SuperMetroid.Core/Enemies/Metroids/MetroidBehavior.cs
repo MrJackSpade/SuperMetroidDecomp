@@ -442,7 +442,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetMetroidProgram(RoomEnemySlot slot, MetroidEnemyState state, MetroidProgram program)
     {
         state.Program = AnimationProgramCursor<MetroidProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Routes bomb-family collisions through Metroid's attachment and recoil rules.</summary>

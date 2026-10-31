@@ -80,7 +80,7 @@ internal static class ChozoStatuePlmDefinitionsVerification
             AssertEqual(definition.Header, slot.HeaderPointer, "Chozo PLM header identity");
             AssertEqual(4 * width + 3, slot.BlockIndex, "Chozo PLM requested block coordinate");
             AssertTrue(PlmProgramStartOracle.IsRunning(definition.Program, slot), "Chozo PLM starts its first program");
-            AssertEqual(1, slot.InstructionTimer, "Chozo PLM starts on timer one");
+            AssertEqual(1, slot.FrameHold, "Chozo PLM starts on timer one");
 
             if (definition.Header == PlmHeaderId.WreckedShipChozoHand)
             {

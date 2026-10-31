@@ -196,8 +196,8 @@ public sealed class SamusBombProjectileSystem
             bool wasNormalBomb = slot.Type.Family == SamusProjectileFamily.Bomb;
             // Spawn queues its startup cue before setting the active bit. Preserve
             // that earlier guard separately from sounds produced after the pre-instruction.
-            bool soundSuppressedBeforePreInstruction = PowerBombExplosion.IsActive;
-            bool slotExplosionStarted = RunBombPreInstruction(
+            bool soundSuppressedBeforeFrameBehavior = PowerBombExplosion.IsActive;
+            bool slotExplosionStarted = RunBombFrameBehavior(
                 terrain.Level,
                 slot,
                 blockReactions,
@@ -224,7 +224,7 @@ public sealed class SamusBombProjectileSystem
                 soundRequests.Add(new SoundRequest(
                     Library1Sound.PowerBombExplosion,
                     Priority: SoundRequestPriority.Essential,
-                    SoundSuppressed: soundSuppressedBeforePreInstruction));
+                    SoundSuppressed: soundSuppressedBeforeFrameBehavior));
             }
 
             // The native loop still calls $93:81E9 after a pre-instruction clears a slot.
@@ -566,11 +566,11 @@ public sealed class SamusBombProjectileSystem
             throw new InvalidDataException($"Bomb header {header} has crash-marker damage ${slot.Damage:X4}.");
 
         slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaders.Program(header, 0));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Advances one bomb fuse or spread trajectory, starts explosions and visits terrain on the native trigger frame.</summary>
-    private bool RunBombPreInstruction(
+    private bool RunBombFrameBehavior(
         RoomLevelData level,
         SamusBombProjectileSlot slot,
         List<BombBlockReaction> blockReactions,
@@ -626,7 +626,7 @@ public sealed class SamusBombProjectileSystem
                 // $93:814E reads the pointer word embedded in the bomb-explosion data
                 // record at $93:8683 and resets the instruction timer to one.
                 slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileProgram.BombExplosion);
-                slot.InstructionTimer = WrappingCountdown.Start(1);
+                slot.FrameHold = WrappingCountdown.Start(1);
                 explosionStarted = true;
             }
         }
@@ -1040,8 +1040,8 @@ public sealed class SamusBombProjectileSystem
     {
         // $93:81F2 is a wrapping 16-bit DEC. A legitimate initialized timer is always at
         // least one, but preserving wrap gives corrupt-state inspection the same behavior.
-        slot.InstructionTimer = slot.InstructionTimer.Decrement().Remaining;
-        if (!slot.InstructionTimer.IsZero)
+        slot.FrameHold = slot.FrameHold.Decrement().Remaining;
+        if (!slot.FrameHold.IsZero)
             return false;
 
         AnimationProgramCursor<SamusProjectileProgram> cursor = slot.Cursor
@@ -1054,7 +1054,7 @@ public sealed class SamusBombProjectileSystem
         if (duration == 0)
             throw new InvalidDataException($"Bomb record {frame.Record} has zero duration.");
         SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame);
-        slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(duration));
+        slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(duration));
         slot.Sprite = FrameBindings?.Resolve(frame) ?? record.Sprite;
         slot.Radius = record.Radius;
         slot.Cursor = cursor;

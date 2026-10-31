@@ -55,8 +55,8 @@ internal sealed class BeamCombos
         SamusComboKind? combo = SamusComboMechanics.ComboKind(beam);
         // A live Ice or Plasma combo is not restarted.
         bool activated = combo is not null &&
-            !(combo == SamusComboKind.Ice && _slotTable.Slots[0].PreInstruction is SamusProjectilePreInstruction.IceCombo or SamusProjectilePreInstruction.IceComboOutward ||
-              combo == SamusComboKind.Plasma && _slotTable.Slots[0].PreInstruction == SamusProjectilePreInstruction.PlasmaCombo);
+            !(combo == SamusComboKind.Ice && _slotTable.Slots[0].FrameBehavior is SamusProjectileFrameBehavior.IceCombo or SamusProjectileFrameBehavior.IceComboOutward ||
+              combo == SamusComboKind.Plasma && _slotTable.Slots[0].FrameBehavior == SamusProjectileFrameBehavior.PlasmaCombo);
         if (activated && combo is SamusComboKind kind)
         {
             for (int i = 3; i >= 0; i--)
@@ -65,12 +65,12 @@ internal sealed class BeamCombos
                 slot.Type = SamusProjectileType.Beam(beam, charged: true);
                 slot.Direction = kind == SamusComboKind.Spazer ? SamusProjectileDirection.DownFacingLeft : SamusProjectileDirection.UpFacingRight;
                 slot.IsSpent = false;
-                slot.PreInstruction = kind switch
+                slot.FrameBehavior = kind switch
                 {
-                    SamusComboKind.Wave => SamusProjectilePreInstruction.WaveCombo,
-                    SamusComboKind.Ice => SamusProjectilePreInstruction.IceCombo,
-                    SamusComboKind.Spazer => SamusProjectilePreInstruction.SpazerCombo,
-                    SamusComboKind.Plasma => SamusProjectilePreInstruction.PlasmaCombo,
+                    SamusComboKind.Wave => SamusProjectileFrameBehavior.WaveCombo,
+                    SamusComboKind.Ice => SamusProjectileFrameBehavior.IceCombo,
+                    SamusComboKind.Spazer => SamusProjectileFrameBehavior.SpazerCombo,
+                    SamusComboKind.Plasma => SamusProjectileFrameBehavior.PlasmaCombo,
                     _ => throw new InvalidOperationException($"Undefined combo {kind}."),
                 };
                 if (kind != SamusComboKind.Plasma) slot.TrailTimer = WrappingCountdown.FromRaw(kind == SamusComboKind.Spazer && i < 2 ? 0 : 4);
@@ -125,7 +125,7 @@ internal sealed class BeamCombos
         if (WordWrap.Signed(slot.Damage) < 0) throw new InvalidDataException("Negative native combo projectile damage.");
         SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, comboData != BeamComboData.Combo ? slot.Direction.ToAimIndex() : 0);
         slot.Cursor = SamusProjectilePrograms.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         if (comboData == BeamComboData.Charged)
             slot.Radius = SamusProjectilePrograms.InitialRadius(program);
     }
@@ -137,8 +137,8 @@ internal sealed class BeamCombos
     internal SoundEffectId? StepIceCombo(SamusState samus,
         SamusProjectileSlot slot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
     {
-        bool outward = slot.PreInstruction == SamusProjectilePreInstruction.IceComboOutward;
-        if (!outward && slot.PreInstruction != SamusProjectilePreInstruction.IceCombo)
+        bool outward = slot.FrameBehavior == SamusProjectileFrameBehavior.IceComboOutward;
+        if (!outward && slot.FrameBehavior != SamusProjectileFrameBehavior.IceCombo)
             throw new InvalidOperationException("Ice combo update requires its own pre-instruction.");
         if (slot.IsSpent)
         {
@@ -178,7 +178,7 @@ internal sealed class BeamCombos
             slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(WordWrap.Signed(oldLifetime - 1)));
             if (oldLifetime == 1)
             {
-                slot.PreInstruction = SamusProjectilePreInstruction.IceComboOutward;
+                slot.FrameBehavior = SamusProjectileFrameBehavior.IceComboOutward;
                 slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(40));
                 sound = Library1Sound.IceSpecialAttackEnd;
             }
@@ -191,7 +191,7 @@ internal sealed class BeamCombos
     internal void StepPlasmaCombo(SamusState samus,
         SamusProjectileSlot slot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
     {
-        if (slot.PreInstruction != SamusProjectilePreInstruction.PlasmaCombo)
+        if (slot.FrameBehavior != SamusProjectileFrameBehavior.PlasmaCombo)
             throw new InvalidOperationException("Plasma update requires its own pre-instruction.");
         if (slot.IsSpent)
         {
@@ -248,8 +248,8 @@ internal sealed class BeamCombos
     internal SoundEffectId? StepSpazerCombo(SamusState samus,
         SamusProjectileSlot slot, SamusBombProjectileSystem shared, int cameraY)
     {
-        bool falling = slot.PreInstruction == SamusProjectilePreInstruction.SpazerComboFalling;
-        if (!falling && slot.PreInstruction != SamusProjectilePreInstruction.SpazerCombo)
+        bool falling = slot.FrameBehavior == SamusProjectileFrameBehavior.SpazerComboFalling;
+        if (!falling && slot.FrameBehavior != SamusProjectileFrameBehavior.SpazerCombo)
             throw new InvalidOperationException("Spazer update requires its own pre-instruction.");
         if (slot.IsSpent)
         {
@@ -339,7 +339,7 @@ internal sealed class BeamCombos
         slot.Direction = SamusProjectileDirection.DownFacingLeft;
         slot.IsSpent = false;
         slot.TrailTimer = WrappingCountdown.Start(4);
-        slot.PreInstruction = SamusProjectilePreInstruction.SpazerComboFalling;
+        slot.FrameBehavior = SamusProjectileFrameBehavior.SpazerComboFalling;
         if (slot.SlotIndex < 2)
         {
             slot.Type = SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail);
@@ -350,7 +350,7 @@ internal sealed class BeamCombos
     internal SoundEffectId? StepWaveCombo(SamusState samus,
         SamusProjectileSlot slot, SamusBombProjectileSystem shared)
     {
-        if (slot.PreInstruction != SamusProjectilePreInstruction.WaveCombo)
+        if (slot.FrameBehavior != SamusProjectileFrameBehavior.WaveCombo)
             throw new InvalidOperationException("Wave update requires its own pre-instruction.");
         // A hit skips even the lifetime decrement. Expiry and collision both queue
         // the terminal sound, unlike Ice's silent outward-phase removal.

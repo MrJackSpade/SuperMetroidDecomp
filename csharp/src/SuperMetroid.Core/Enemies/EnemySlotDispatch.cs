@@ -51,7 +51,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         slot.ExtraProperties = population.ExtraProperties;
         slot.AiStates = EnemyAiStates.None;
         slot.Timer = WrappingCountdown.Start(0);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.FrameCounter = 0;
         slot.HurtAiTime = definition.HurtFlashFrames;
         slot.Colouring = loaded.Colouring;
@@ -97,7 +97,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         InitializeSlotFromDefinition(slot, population, _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionId));
         RunInitializationAi(slot, EnemySpawnSurroundings.None);
         // SpawnEnemy's post-init $A0:93D9 write precedes the first instruction tick.
-        slot.Frame = slot.Properties.HasAny(EnemyProperties.ProcessInstructions)
+        slot.Frame = slot.Properties.HasAny(EnemyProperties.RunsAnimationScript)
             ? EnemyFrameId.Empty
             : null;
         _slotTable.CoverSpawn(slot);

@@ -94,7 +94,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // `$B3:9583` installs InstList_Botwoon_Hide: the head starts hidden in its hole.
         state.HeadProgram = BotwoonHeadProgram.Hidden;
         state.HeadAnimationPosition = 0;
-        head.InstructionTimer = WrappingCountdown.Start(1);
+        head.FrameHold = WrappingCountdown.Start(1);
         head.Timer = WrappingCountdown.Start(0);
 
         // A previously defeated Botwoon does not allocate body actors. The room loader
@@ -598,7 +598,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.HeadProgram = program;
         state.HeadAnimationPosition = 0;
-        head.InstructionTimer = WrappingCountdown.Start(1);
+        head.FrameHold = WrappingCountdown.Start(1);
         head.Timer = WrappingCountdown.Start(0);
     }
 
@@ -615,9 +615,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void AdvanceBotwoonHeadAnimation(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        CountdownStep instructionTimer = head.InstructionTimer.Decrement();
-        head.InstructionTimer = instructionTimer.Remaining;
-        if (!instructionTimer.IsZero)
+        CountdownStep frameHold = head.FrameHold.Decrement();
+        head.FrameHold = frameHold.Remaining;
+        if (!frameHold.IsZero)
         {
             head.ExtraProperties = head.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
@@ -632,7 +632,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         if (advance is not AnimationProgramAdvance<BotwoonHeadFrame>.Show shown)
             throw new InvalidOperationException($"Botwoon's head program ended an update with {advance}.");
-        head.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+        head.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
         head.Frame = BotwoonVisualDefinitions.HeadFrames.Of(shown.Frame);
         head.ExtraProperties = head.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
@@ -847,15 +847,15 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Registers body-segment and spit pre-instruction handlers.</summary>
     internal void AddBotwoonProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunBotwoonBodyPreInstruction(context.Projectile, context.ShortCounter);
-        }, EnemyProjectilePreInstruction.BotwoonBodySegment);
+            RunBotwoonBodyFrameBehavior(context.Projectile, context.ShortCounter);
+        }, EnemyProjectileFrameBehavior.BotwoonBodySegment);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunBotwoonSpitPreInstruction(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.BotwoonSpitFlight);
+            RunBotwoonSpitFrameBehavior(context.Projectile, context.Camera);
+        }, EnemyProjectileFrameBehavior.BotwoonSpitFlight);
     }
 
     /// <summary>Ports Botwoon's main AI.</summary>
@@ -937,7 +937,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>EprojPreInstr_BotwoonsBody</c> and its four function states.</summary>
-    internal void RunBotwoonBodyPreInstruction(
+    internal void RunBotwoonBodyFrameBehavior(
         RoomEnemyProjectileSlot segment,
         int randomEnemyCounter)
     {
@@ -973,7 +973,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 dying.DeathDelay++;
                 if (dying.DeathDelay >= BotwoonSegmentState.FallAt)
                     state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.Falling;
-                segment.InstructionTimer = WrappingCountdown.Start(0);
+                segment.FrameHold = WrappingCountdown.Start(0);
                 ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
                 return;
             }
@@ -998,7 +998,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         BotwoonProjectileAnimation animation = segment.Animation as BotwoonProjectileAnimation
             ?? throw new InvalidOperationException($"Botwoon body segment {segment.SlotIndex} has no segment animation.");
         if (animation.Install(segment.StateOf<BotwoonSegmentState>().Pose))
-            segment.InstructionTimer = WrappingCountdown.Start(1);
+            segment.FrameHold = WrappingCountdown.Start(1);
         ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
     }
 
@@ -1025,7 +1025,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(segment.Position.Y.Whole, 200) < 0)
         {
             segment.Velocity = segment.Velocity.WithY(SignedEightEight.Wrapped(segment.Velocity.Y.RawValue + 192));
-            segment.InstructionTimer = WrappingCountdown.Start(0);
+            segment.FrameHold = WrappingCountdown.Start(0);
             ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
             return;
         }
@@ -1067,7 +1067,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>EprojPreInstr_BotwoonsSpit</c> at <c>$86:EC05</c>.</summary>
-    internal static void RunBotwoonSpitPreInstruction(
+    internal static void RunBotwoonSpitFrameBehavior(
         RoomEnemyProjectileSlot spit,
         Position16<RoomPixels> camera)
     {

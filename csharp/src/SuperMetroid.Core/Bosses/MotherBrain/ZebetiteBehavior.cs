@@ -109,9 +109,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // $8000 is still unnamed globally: its wider engine meaning is not proven. Keep it
         // raw while naming only the independently verified instruction-processing bit.
-        slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
+        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.Colouring = new EncounterSpriteColouring(ZebetiteDefinitions.PulseColours);
         slot.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.Zebetite];
@@ -235,7 +235,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Cursor = AnimationProgramCursor<ZebetiteProgram>.Start(ZebetiteAnimations.HealthProgram(
             linkedPair: (state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != ZebetiteGenerationFlags.None,
             slot.Health));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
@@ -326,9 +326,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceZebetiteAnimation(RoomEnemySlot slot)
     {
         ZebetiteEnemyState state = slot.RequireSpeciesState<ZebetiteEnemyState>();
-        CountdownStep instructionTimer = slot.InstructionTimer.Decrement();
-        slot.InstructionTimer = instructionTimer.Remaining;
-        if (!instructionTimer.IsZero)
+        CountdownStep frameHold = slot.FrameHold.Decrement();
+        slot.FrameHold = frameHold.Remaining;
+        if (!frameHold.IsZero)
         {
             slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
@@ -343,7 +343,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (advance)
         {
             case AnimationProgramAdvance<ZebetiteFrame>.Show shown:
-                slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 slot.Frame = ZebetiteVisualDefinitions.ShownFrames.Of(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;

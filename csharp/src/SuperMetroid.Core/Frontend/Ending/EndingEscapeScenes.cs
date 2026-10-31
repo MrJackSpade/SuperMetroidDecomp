@@ -100,7 +100,7 @@ internal sealed class EndingEscapeScenes
         {
             EndingSprite? wrapper = sprites.Find(actor => actor.TraversalSlot == slot && actor.Sprite.IsActive);
             if (wrapper is null) continue;
-            _stage.StepEndingSpritePreInstruction(wrapper);
+            _stage.StepEndingSpriteFrameBehavior(wrapper);
             wrapper.Sprite.Step(HandleSpriteCue);
         }
         sprites.RemoveAll(wrapper => !wrapper.Sprite.IsActive);
@@ -193,7 +193,7 @@ internal sealed class EndingEscapeScenes
                 _stage.Phase = EndingCreditsPhase.FadeOutToCredits;
                 return;
 
-            case CinematicSpriteCueKind.SetPreInstruction:
+            case CinematicSpriteCueKind.SetFrameBehavior:
             case CinematicSpriteCueKind.FadeInZebesText:
             case CinematicSpriteCueKind.FadeOutZebesText:
             case CinematicSpriteCueKind.GreyOut:

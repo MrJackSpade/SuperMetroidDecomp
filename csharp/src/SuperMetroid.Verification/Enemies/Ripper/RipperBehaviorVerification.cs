@@ -100,7 +100,7 @@ internal static class RipperBehaviorVerification
             ushort[] loop = RipperAnimationsConstants.Spritemaps(expectedProgram).ToArray();
             ushort[] expected = [.. loop, loop[0]];
             int[] expectedUpdates = [0, 8, 15, 23, 30];
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             slot.Timer = WrappingCountdown.Start(0);
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             List<VerifyInstalledLoopCase> shown = [];

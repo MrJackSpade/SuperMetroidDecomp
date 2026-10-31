@@ -37,7 +37,7 @@ public sealed class HyperBeamPaletteFxState
     /// Native per-object instruction timer. Spawn initializes it to one; the handler
     /// decrements before testing, so the first palette record executes on its first call.
     /// </summary>
-    public WrappingCountdown InstructionTimer { get; private set; }
+    public WrappingCountdown FrameHold { get; private set; }
 
     /// <summary>Last palette record written, or -1 before the first handler call.</summary>
     public int CurrentFrameIndex { get; private set; } = -1;
@@ -58,7 +58,7 @@ public sealed class HyperBeamPaletteFxState
         // one, then calls the object's no-op setup routine. This specialized state has no
         // reusable slot fields to clear, but preserves every observable field and delay.
         IsActive = true;
-        InstructionTimer = WrappingCountdown.Start(1);
+        FrameHold = WrappingCountdown.Start(1);
         CurrentFrameIndex = -1;
         CompletedCycles = 0;
         Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(HyperBeamDefinition().InitialProgram);
@@ -86,8 +86,8 @@ public sealed class HyperBeamPaletteFxState
 
         // `$8D:C552` decrements before testing. A timer of two therefore displays a frame
         // on the load call and one following call, then advances on the third handler call.
-        InstructionTimer = InstructionTimer.Decrement().Remaining;
-        if (!InstructionTimer.IsZero)
+        FrameHold = FrameHold.Decrement().Remaining;
+        if (!FrameHold.IsZero)
         {
             return new HyperBeamPaletteFxStepResult();
         }
@@ -110,7 +110,7 @@ public sealed class HyperBeamPaletteFxState
             "Hyper Beam palette FX requires installed colors."))
             .Apply(colours.HyperBeam, frameIndex);
 
-        InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+        FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
         CurrentFrameIndex = frameIndex;
         return new HyperBeamPaletteFxStepResult();
     }

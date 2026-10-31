@@ -235,7 +235,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             throw new InvalidOperationException("The active rainbow-beam sequence has not started.");
 
         MotherBrainBodyFunction? phaseBefore = State.Phase;
-        uint headInstructionListRequestSerialBefore = State.HeadInstructionListRequestSerial;
+        uint headAnimationScriptRequestSerialBefore = State.HeadAnimationScriptRequestSerial;
         var requests = new MotherBrainRainbowBeamStepRequests();
 
         bool handsOver;
@@ -496,6 +496,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         }
         while (handsOver);
 
-        return requests.ToResult(phaseBefore, State.Phase, State.HeadInstructionListRequestSerial != headInstructionListRequestSerialBefore);
+        return requests.ToResult(phaseBefore, State.Phase, State.HeadAnimationScriptRequestSerial != headAnimationScriptRequestSerialBefore);
     }
 }

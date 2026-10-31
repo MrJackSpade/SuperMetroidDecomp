@@ -86,7 +86,7 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
         slot.Header = definition.Header;
         slot.BlockIndex = index;
         definition.Program.StartOn(slot);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         if (request.Header == PlmHeaderId.WreckedShipChozoHand)
             WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,
                 ChozoStatueRoomDefinitions.WreckedShipHandBehavior);
@@ -140,7 +140,7 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
             .SetLiquidMotion(baseYPosition: ChozoStatueRoomDefinitions.LoweredAcidY);
 
     /// <summary>Restores the Lower Norfair hand collision block once its trigger location becomes air.</summary>
-    internal static void RunChozoStatuePreInstruction(RoomLevelData level, PlmSlot slot)
+    internal static void RunChozoStatueFrameBehavior(RoomLevelData level, PlmSlot slot)
     {
         int index = level.GetBlockIndex(new(ChozoStatueRoomDefinitions.LowerNorfairTriggerX, ChozoStatueRoomDefinitions.LowerNorfairTriggerY));
         if (level.GetCollisionBlockByIndex(index).Terrain != RoomTerrainBlocks.BlankAir) return;

@@ -224,7 +224,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         static void Install(RoomEnemySlot slot, KiHunterEnemyState state, KiHunterProgram program)
         {
             state.Program = AnimationProgramCursor<KiHunterProgram>.Start(program);
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             slot.Timer = WrappingCountdown.Start(0);
         }
 

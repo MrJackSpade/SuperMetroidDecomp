@@ -195,12 +195,12 @@ public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms
                 continue;
 
             // Native JSR ($1CD7,x): the slot's one pre-instruction. A routine it installs runs from the next pass.
-            slot.PreInstruction.Run(slot, context);
+            slot.FrameBehavior.Run(slot, context);
             if (!slot.Active)
                 continue;
 
-            slot.InstructionTimer = slot.InstructionTimer.Decrement().Remaining;
-            if (!slot.InstructionTimer.IsZero)
+            slot.FrameHold = slot.FrameHold.Decrement().Remaining;
+            if (!slot.FrameHold.IsZero)
                 continue;
 
             (slot.Animation ?? throw new InvalidOperationException(
@@ -296,12 +296,12 @@ public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms
     ShaktoolPlms IEnemyRoomPlms.Shaktool => Shaktool;
 
     /// <inheritdoc/>
-    IPlmPreInstruction IScriptedRoomPlmHooks.PreInstruction(ScriptedRoomPlmPreInstruction preInstruction) => preInstruction switch
+    IPlmFrameBehavior IScriptedRoomPlmHooks.FrameBehavior(ScriptedRoomPlmFrameBehavior frameBehavior) => frameBehavior switch
     {
-        ScriptedRoomPlmPreInstruction.ShaktoolRoomController => ShaktoolRoomPreInstructions.Controller,
-        ScriptedRoomPlmPreInstruction.OldTourianWallWaitForSamus => TourianPreInstructions.OldTourianEscapeShaftWallWaitForSamus,
-        ScriptedRoomPlmPreInstruction.LowerNorfairChozoHandWait => ChozoStatuePreInstructions.WaitForLowerNorfairHand,
-        _ => throw new InvalidOperationException($"Undefined {nameof(ScriptedRoomPlmPreInstruction)} {preInstruction}."),
+        ScriptedRoomPlmFrameBehavior.ShaktoolRoomController => ShaktoolRoomFrameBehaviors.Controller,
+        ScriptedRoomPlmFrameBehavior.OldTourianWallWaitForSamus => TourianFrameBehaviors.OldTourianEscapeShaftWallWaitForSamus,
+        ScriptedRoomPlmFrameBehavior.LowerNorfairChozoHandWait => ChozoStatueFrameBehaviors.WaitForLowerNorfairHand,
+        _ => throw new InvalidOperationException($"Undefined {nameof(ScriptedRoomPlmFrameBehavior)} {frameBehavior}."),
     };
 
     /// <inheritdoc/>

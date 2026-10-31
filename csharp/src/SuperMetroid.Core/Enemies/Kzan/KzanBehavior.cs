@@ -44,7 +44,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.Program = AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Function = KzanEnemyFunction.WaitingToFall;
 

@@ -101,16 +101,16 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         // no translated caller has proved a stable semantic name for that property yet.
         statue.Properties = statue.Properties.With(
             EnemyProperties.SolidToSamus |
-            EnemyProperties.ProcessInstructions |
+            EnemyProperties.RunsAnimationScript |
             EnemyProperties.ProcessOffScreen);
         statue.Frame = EnemyFrameId.Empty;
-        statue.InstructionTimer = WrappingCountdown.Start(1);
+        statue.FrameHold = WrappingCountdown.Start(1);
         statue.Timer = WrappingCountdown.Start(0);
         statue.Colouring = SharedSpriteColouring.Common;
 
         var state = new ChozoStatueState
         {
-            PreInstruction = ChozoStatuePreInstruction.Idle,
+            FrameBehavior = ChozoStatueFrameBehavior.Idle,
             IsWreckedShip = variant == 0,
             HandTriggered = false,
         };
@@ -196,32 +196,32 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Dispatches statue phases, including boss-gated movement and authored scene transitions.</summary>
     private void RunChozoStatueMain(RoomEnemySlot statue, ChozoStatueState state)
     {
-        switch (state.PreInstruction)
+        switch (state.FrameBehavior)
         {
-            case ChozoStatuePreInstruction.Idle:
-            case ChozoStatuePreInstruction.Cleared:
-            case ChozoStatuePreInstruction.Walking:
+            case ChozoStatueFrameBehavior.Idle:
+            case ChozoStatueFrameBehavior.Cleared:
+            case ChozoStatueFrameBehavior.Walking:
                 return;
 
-            case ChozoStatuePreInstruction.WaitForLowerNorfairHandTrigger:
+            case ChozoStatueFrameBehavior.WaitForLowerNorfairHandTrigger:
                 if (state.HandTriggered)
                 {
                     state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.LowerNorfairActivated);
-                    statue.InstructionTimer = WrappingCountdown.Start(1);
+                    statue.FrameHold = WrappingCountdown.Start(1);
                 }
                 return;
 
-            case ChozoStatuePreInstruction.WaitForWreckedShipHandTrigger:
+            case ChozoStatueFrameBehavior.WaitForWreckedShipHandTrigger:
                 if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss) && state.HandTriggered)
                 {
                     state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipActivated);
-                    statue.InstructionTimer = WrappingCountdown.Start(1);
+                    statue.FrameHold = WrappingCountdown.Start(1);
                 }
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Chozo statue pre-instruction {state.PreInstruction?.ToString() ?? "none"} is not translated.");
+                    $"Chozo statue pre-instruction {state.FrameBehavior?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -238,12 +238,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
         switch (cue)
         {
-            case ChozoStatueCue.SetPreInstruction setPreInstruction:
-                state.PreInstruction = setPreInstruction.PreInstruction;
+            case ChozoStatueCue.SetFrameBehavior setFrameBehavior:
+                state.FrameBehavior = setFrameBehavior.FrameBehavior;
                 return null;
 
-            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.ClearPreInstruction }:
-                state.PreInstruction = ChozoStatuePreInstruction.Cleared;
+            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.ClearFrameBehavior }:
+                state.FrameBehavior = ChozoStatueFrameBehavior.Cleared;
                 return null;
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.StartLoweringAcid }:

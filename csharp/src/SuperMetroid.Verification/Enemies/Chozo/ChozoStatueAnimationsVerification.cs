@@ -24,7 +24,7 @@ internal static class ChozoStatueAnimationsVerification
                     // The native operands are the footstep's signed X word and the carry record's byte offset.
                     'F' => unchecked((ushort)AssertIs<ChozoStatueCue.Footstep>(cue, $"{at}: cue").Offset.X),
                     'R' => checked((ushort)(AssertIs<ChozoStatueCue.Move>(cue, $"{at}: cue").CarryRecord * 2)),
-                    'E' => ChozoNativeWords.ChozoStatuePreInstructions.Word(AssertIs<ChozoStatueCue.SetPreInstruction>(cue, $"{at}: cue").PreInstruction),
+                    'E' => ChozoNativeWords.ChozoStatueFrameBehaviors.Word(AssertIs<ChozoStatueCue.SetFrameBehavior>(cue, $"{at}: cue").FrameBehavior),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             });

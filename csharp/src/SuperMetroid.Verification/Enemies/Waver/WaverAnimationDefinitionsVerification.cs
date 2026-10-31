@@ -25,7 +25,7 @@ internal static class WaverAnimationDefinitionsVerification
             WaverProgram selector = WaverNativeWords.Animations.Decode(index, "Waver animation index");
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
-                InstructionTimer = WrappingCountdown.Start(0x2222),
+                FrameHold = WrappingCountdown.Start(0x2222),
                 Timer = WrappingCountdown.Start(0x3333),
             };
             var state = new WaverEnemyState
@@ -41,7 +41,7 @@ internal static class WaverAnimationDefinitionsVerification
             AssertEqual(AnimationProgramCursor<WaverProgram>.Start(selector),
                 state.Program,
                 $"production Waver animation {selector}");
-            AssertEqual(1, slot.InstructionTimer.RawValue,
+            AssertEqual(1, slot.FrameHold.RawValue,
                 $"production Waver instruction timer {selector}");
             AssertEqual(0, slot.Timer.RawValue,
                 $"production Waver loop timer {selector}");

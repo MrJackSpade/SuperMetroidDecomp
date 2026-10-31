@@ -16,8 +16,8 @@ internal static class TorizoDefinitionMigrationVerification
     internal static void VerifyTorizoDefinitionMigration()
     {
         AssertEqual(0xc6ab, TorizoNativeWords.Functions.Word(TorizoFunction.Idle), "idle function routine");
-        AssertEqual(0xd5e6, TorizoNativeWords.Functions.Word(TorizoFunction.GoldenPreInstruction), "golden normal movement routine");
-        AssertEqual(0xc95e, TorizoNativeWords.PreInstructions.Word(TorizoPreInstruction.Idle), "idle movement routine");
+        AssertEqual(0xd5e6, TorizoNativeWords.Functions.Word(TorizoFunction.GoldenFrameBehavior), "golden normal movement routine");
+        AssertEqual(0xc95e, TorizoNativeWords.FrameBehaviors.Word(TorizoFrameBehavior.Idle), "idle movement routine");
 
         // The latches sit where the cartridge's parameter words keep them.
         AssertEqual(0xb234, TorizoParameterWords.ToParameterWord(TorizoPostureFlags.FacingRight | TorizoPostureFlags.OppositeLegForward, 0x1234),

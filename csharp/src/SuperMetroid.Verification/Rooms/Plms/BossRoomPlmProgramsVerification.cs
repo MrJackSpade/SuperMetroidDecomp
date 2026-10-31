@@ -101,13 +101,13 @@ internal static class BossRoomPlmProgramsVerification
         (bool known, cue, length) = instruction switch
         {
             RoomPlmInstruction.LinkInstruction => new DraygonCannonCueAtCase(true, DraygonCannonCue.LinkHit, 4),
-            RoomPlmInstruction.InstallPreInstruction => new DraygonCannonCueAtCase(true, DraygonCannonCue.ArmMissileWake, 4),
+            RoomPlmInstruction.InstallFrameBehavior => new DraygonCannonCueAtCase(true, DraygonCannonCue.ArmMissileWake, 4),
             RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual => new DraygonCannonCueAtCase(true, DraygonCannonCue.CountHit, 5),
             RoomPlmInstruction.DamageDraygonCannonFacingRight or RoomPlmInstruction.DamageDraygonCannonFacingLeft => new DraygonCannonCueAtCase(true, DraygonCannonCue.Damage, 2),
-            RoomPlmInstruction.SetGreyDoorPreInstruction or
+            RoomPlmInstruction.SetGreyDoorFrameBehavior or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or
-                RoomPlmInstruction.ClearPreInstruction or
+                RoomPlmInstruction.ClearFrameBehavior or
                 RoomPlmInstruction.GotoIfDoorBitSet or
                 RoomPlmInstruction.IncrementDoorHitCounterAndGoto or
                 RoomPlmInstruction.GotoIfSamusNear or
@@ -166,7 +166,7 @@ internal static class BossRoomPlmProgramsVerification
                     Entry(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2))), "cannon links its own hit program");
                 break;
             case DraygonCannonCue.ArmMissileWake:
-                AssertEqual(DraygonNativeWords.MissileHitPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "cannon missile wake");
+                AssertEqual(DraygonNativeWords.MissileHitFrameBehavior, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "cannon missile wake");
                 break;
             case DraygonCannonCue.CountHit:
                 AssertEqual(DraygonCannonDefinitions.HitsToDestroy, ReadOperandByte(cartridge, cursor + 2), "cannon hits to destroy");
@@ -212,8 +212,8 @@ internal static class BossRoomPlmProgramsVerification
                 cue = MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SkipIfGlassDestroyed);
                 length = 6;
                 return true;
-            case RoomPlmInstruction.InstallPreInstruction:
-                AssertEqual(MotherBrainGlassPlmProgramDefinitionsConstants.HitPreInstruction, Word(2), "glass hit wake");
+            case RoomPlmInstruction.InstallFrameBehavior:
+                AssertEqual(MotherBrainGlassPlmProgramDefinitionsConstants.HitFrameBehavior, Word(2), "glass hit wake");
                 cue = MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.ArmHitWake);
                 length = 4;
                 return true;
@@ -232,10 +232,10 @@ internal static class BossRoomPlmProgramsVerification
                 cue = MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SetGlassDestroyed);
                 length = 4;
                 return true;
-            case RoomPlmInstruction.SetGreyDoorPreInstruction:
+            case RoomPlmInstruction.SetGreyDoorFrameBehavior:
             case RoomPlmInstruction.Sleep:
             case RoomPlmInstruction.Delete:
-            case RoomPlmInstruction.ClearPreInstruction:
+            case RoomPlmInstruction.ClearFrameBehavior:
             case RoomPlmInstruction.LinkInstruction:
             case RoomPlmInstruction.GotoIfDoorBitSet:
             case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:
@@ -307,8 +307,8 @@ internal static class BossRoomPlmProgramsVerification
         ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
         switch (InstructionAt<RoomPlmInstruction>(cartridge, cursor))
         {
-            case RoomPlmInstruction.InstallPreInstruction:
-                AssertEqual(BombTorizoHandPlmProgramDefinitionsConstants.WakeIfSamusHasBombsPreInstruction, Word(2), "hand bomb wake");
+            case RoomPlmInstruction.InstallFrameBehavior:
+                AssertEqual(BombTorizoHandPlmProgramDefinitionsConstants.WakeIfSamusHasBombsFrameBehavior, Word(2), "hand bomb wake");
                 cue = new BombTorizoHandCue(BombTorizoHandCueKind.ArmBombWake);
                 length = 4;
                 return true;
@@ -321,11 +321,11 @@ internal static class BossRoomPlmProgramsVerification
                 cue = new BombTorizoHandCue(BombTorizoHandCueKind.QueueMusic);
                 length = 2;
                 return true;
-            case RoomPlmInstruction.SetGreyDoorPreInstruction:
+            case RoomPlmInstruction.SetGreyDoorFrameBehavior:
             case RoomPlmInstruction.CopyFromRamToVram:
             case RoomPlmInstruction.Sleep:
             case RoomPlmInstruction.Delete:
-            case RoomPlmInstruction.ClearPreInstruction:
+            case RoomPlmInstruction.ClearFrameBehavior:
             case RoomPlmInstruction.LinkInstruction:
             case RoomPlmInstruction.GotoIfDoorBitSet:
             case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:

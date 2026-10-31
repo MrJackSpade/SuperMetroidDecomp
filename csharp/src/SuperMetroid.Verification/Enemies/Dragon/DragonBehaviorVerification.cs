@@ -12,7 +12,7 @@ using SuperMetroid.Core.World;
 internal static class DragonBehaviorVerification
 {
     /// <summary>
-    /// Each selector installed through <see cref="DragonBehavior.InstallDragonInstructionList"/> runs its program: the idle
+    /// Each selector installed through <see cref="DragonBehavior.InstallDragonAnimationScript"/> runs its program: the idle
     /// pose shows once and holds, the wings loop on time, and the attack shows its five poses for 32, 3, 7, 3 and 1
     /// updates before its cue marks the attack complete for main AI.
     /// </summary>
@@ -94,7 +94,7 @@ internal static class DragonBehaviorVerification
         state.ReinstallRequested = true;
         state.RequestedAnimation = selector;
         state.AnimationFinished = false;
-        DragonBehavior.InstallDragonInstructionList(slot, state);
+        DragonBehavior.InstallDragonAnimationScript(slot, state);
         return new InstallResult(enemies, slot, state);
     }
 

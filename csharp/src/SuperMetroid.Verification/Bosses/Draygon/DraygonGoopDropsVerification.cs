@@ -26,7 +26,7 @@ internal static class DraygonGoopDropsVerification
         var enemies = runtime.Enemies;
         var goop = enemies.Projectiles.EnemyProjectiles[^1];
         goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
-        goop.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+        goop.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.GoopShot));
         goop.Position = goop.Position.WithWhole(new(120, 240));
         var burstMaps = new HashSet<ushort>();

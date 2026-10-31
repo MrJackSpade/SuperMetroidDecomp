@@ -16,9 +16,9 @@ internal static class CartridgeEncodingAnalyzerTests
     internal static void VerifyCartridgeEncodingAnalyzer()
     {
         const string functional = "csharp/src/SuperMetroid.Core/Game/Walker.cs";
-        const string catalog = "csharp/src/SuperMetroid.Core/Game/WalkerInstructionLists.cs";
+        const string catalog = "csharp/src/SuperMetroid.Core/Game/WalkerAnimationScripts.cs";
         const string pointers =
-            "static class WalkerInstructionLists { public const ushort Idle = 37769; public const ushort Turn = 37793; } " +
+            "static class WalkerAnimationScripts { public const ushort Idle = 37769; public const ushort Turn = 37793; } " +
             "static class Limits { public const ushort Ceiling = 36864; }";
 
         // Every repository assembly is in scope except the analyzer projects; other assemblies are never analyzed.
@@ -37,7 +37,7 @@ internal static class CartridgeEncodingAnalyzerTests
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawHexId, "NumericQuantity"));
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { int M() => 16; }")]);
         // #1480: a catalog holds data (decimal quantities, typed values, arbitrary identities), never native word notation.
-        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerInstructionLists { public const ushort Idle = 0x9389; }")],
+        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerAnimationScripts { public const ushort Idle = 0x9389; }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawHexId, ""));
         ExpectEncoding([new AnalyzerTestSource(catalog, "enum WalkerProgram { Idle = 0x9389 }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawHexId, ""));
@@ -56,32 +56,32 @@ internal static class CartridgeEncodingAnalyzerTests
 
 
         // SME6341: a primitive interpreted against address-valued code or instruction constants.
-        ExpectEncoding([new AnalyzerTestSource(catalog, pointers), new AnalyzerTestSource(functional, "class C { bool M(ushort p) => p == WalkerInstructionLists.Idle; }")],
+        ExpectEncoding([new AnalyzerTestSource(catalog, pointers), new AnalyzerTestSource(functional, "class C { bool M(ushort p) => p == WalkerAnimationScripts.Idle; }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.PointerDispatchId, "CartridgeAddress"));
-        ExpectEncoding([new AnalyzerTestSource(catalog, pointers), new AnalyzerTestSource(functional, "class C { int M(ushort p) => p - WalkerInstructionLists.Turn; }")],
+        ExpectEncoding([new AnalyzerTestSource(catalog, pointers), new AnalyzerTestSource(functional, "class C { int M(ushort p) => p - WalkerAnimationScripts.Turn; }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.PointerDispatchId, "offset from"));
         ExpectEncoding([new AnalyzerTestSource(catalog, pointers),
-                new AnalyzerTestSource(functional, "class C { int M(ushort p) { switch (p) { case WalkerInstructionLists.Idle: return 1; default: return 0; } } }")],
+                new AnalyzerTestSource(functional, "class C { int M(ushort p) { switch (p) { case WalkerAnimationScripts.Idle: return 1; default: return 0; } } }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.PointerDispatchId, "switch arm"));
-        ExpectEncoding([new AnalyzerTestSource(catalog, pointers), new AnalyzerTestSource(functional, "class C { bool M(ushort p) => p is WalkerInstructionLists.Turn; }")],
+        ExpectEncoding([new AnalyzerTestSource(catalog, pointers), new AnalyzerTestSource(functional, "class C { bool M(ushort p) => p is WalkerAnimationScripts.Turn; }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.PointerDispatchId, "pattern"));
         // Ordinary limits, constant folding and typed identities are not pointer dispatch.
         ExpectEncoding([new AnalyzerTestSource(catalog, pointers), new AnalyzerTestSource(functional, "class C { bool M(ushort p) => p >= Limits.Ceiling; }")]);
-        ExpectEncoding([new AnalyzerTestSource(catalog, pointers), new AnalyzerTestSource(functional, "class C { const int Next = WalkerInstructionLists.Idle + 4; }")]);
+        ExpectEncoding([new AnalyzerTestSource(catalog, pointers), new AnalyzerTestSource(functional, "class C { const int Next = WalkerAnimationScripts.Idle + 4; }")]);
         ExpectEncoding([new AnalyzerTestSource(catalog, "enum WalkerProgram : ushort { Idle = 37769 }"),
             new AnalyzerTestSource(functional, "class C { bool M(WalkerProgram p) => p == WalkerProgram.Idle; }")]);
 
         // SME6342: integral array and collection literals holding hexadecimal words, catalogs included.
         // Each hexadecimal word is reported too (#1480).
-        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerInstructionLists { static readonly ushort[] Words = { 0x812f, 0x0001, 0xe329, 0x80ed }; }")],
+        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerAnimationScripts { static readonly ushort[] Words = { 0x812f, 0x0001, 0xe329, 0x80ed }; }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.OpaqueWordArrayId, "StructuredInstruction"),
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawHexId, ""), new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawHexId, ""), new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawHexId, ""), new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawHexId, ""));
-        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerInstructionLists { static readonly byte[] Words = [0x12, 0x34, 0x56, 0x78]; }")],
+        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerAnimationScripts { static readonly byte[] Words = [0x12, 0x34, 0x56, 0x78]; }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.OpaqueWordArrayId, "collection literal"),
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawHexId, ""), new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawHexId, ""), new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawHexId, ""), new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawHexId, ""));
-        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerInstructionLists { static readonly ushort[] Words = { 1, 2, 3, 4 }; }")]);
+        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerAnimationScripts { static readonly ushort[] Words = { 1, 2, 3, 4 }; }")]);
         // Three words are not an opaque array, but each hexadecimal word is still a literal.
-        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerInstructionLists { static readonly ushort[] Words = { 0x812f, 0x0001, 0xe329 }; }")],
+        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerAnimationScripts { static readonly ushort[] Words = { 0x812f, 0x0001, 0xe329 }; }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawHexId, ""), new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawHexId, ""), new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawHexId, ""));
 
         // SME6345 (#223): a shift by a byte, word or bank width or a byte/word/bank mask must name its meaning.
@@ -98,7 +98,7 @@ internal static class CartridgeEncodingAnalyzerTests
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { int M(int value) => (value >> 3) + (value & 7) + (value << 4); }")]);
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { const int Bank = 126 << 16; int M() => Bank; }")]);
         // A catalog is not exempt (#1480): a width operation there is reported like any other.
-        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerInstructionLists { static int M(int pointer) => pointer >> 16; }")],
+        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerAnimationScripts { static int M(int pointer) => pointer >> 16; }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawWidthId, "moves a value down"));
         // A named catalog mask still decodes a packed field by hand outside its owner, however it is spelled (#1461).
         ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerLayout { public const int PackedXMask = 255; }"),
@@ -218,7 +218,7 @@ internal static class CartridgeEncodingAnalyzerTests
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'b' holds byte as a local"),
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'s' holds short as a local"));
         // A catalog file or a same-line comment no longer excuses narrow state.
-        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerInstructionLists { } sealed class WalkerRecord { public ushort Word { get; init; } }")],
+        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerAnimationScripts { } sealed class WalkerRecord { public ushort Word { get; init; } }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'Word' stores ushort instance state"));
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { ushort frameCounter; // cartridge-encoding: allow(Wrap) - wraps by design\n }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'frameCounter' stores ushort instance state"));
@@ -255,7 +255,7 @@ internal static class CartridgeEncodingAnalyzerTests
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowingCastId, "narrows to ushort"),
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowingCastId, "narrows to short"),
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowingCastId, "narrows to byte"));
-        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerInstructionLists { public static readonly int Top = unchecked((sbyte)200); }")],
+        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerAnimationScripts { public static readonly int Top = unchecked((sbyte)200); }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowingCastId, "narrows to sbyte"));
         // Wide casts, encoding owners, the Compatibility module, reviewed allowances and code outside the simulation are not reported.
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { long M(int x) => (long)x + (int)(uint)x; }")]);

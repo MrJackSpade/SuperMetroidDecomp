@@ -24,7 +24,7 @@ internal static class CinematicSpriteAnimationsVerification
         /// <summary>The sleep.</summary>
         Sleep,
         /// <summary>The pre-instruction install and its routine operand.</summary>
-        SetPreInstruction,
+        SetFrameBehavior,
         /// <summary>The goto and its target operand.</summary>
         GoTo,
         /// <summary>The timer countdown and its target operand.</summary>
@@ -38,7 +38,7 @@ internal static class CinematicSpriteAnimationsVerification
     {
         [(ushort)CinematicSpriteInstruction.Delete] = SharedWord.Delete,
         [(ushort)CinematicSpriteInstruction.Sleep] = SharedWord.Sleep,
-        [(ushort)CinematicSpriteInstruction.SetPreInstruction] = SharedWord.SetPreInstruction,
+        [(ushort)CinematicSpriteInstruction.SetFrameBehavior] = SharedWord.SetFrameBehavior,
         [(ushort)CinematicSpriteInstruction.Goto] = SharedWord.GoTo,
         [(ushort)CinematicSpriteInstruction.DecrementTimerAndGoto] = SharedWord.RepeatWhileCounting,
         [(ushort)CinematicSpriteInstruction.SetTimer] = SharedWord.SetCounter,
@@ -123,10 +123,10 @@ internal static class CinematicSpriteAnimationsVerification
                     var goTo = AssertIs<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.GoToStep>(step, $"{at}: goto");
                     AssertEqual(operand, Entry(goTo.Target), $"{at}: goto target");
                     break;
-                case SharedWord.SetPreInstruction:
+                case SharedWord.SetFrameBehavior:
                     var cueStep = AssertIs<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.CueStep>(step, $"{at}: pre-instruction install");
-                    AssertEqual(CinematicSpriteCueKind.SetPreInstruction, cueStep.Cue.Kind, $"{at}: pre-instruction cue");
-                    AssertEqual(operand, cueStep.Cue.PreInstruction.NativeAddress, $"{at}: pre-instruction");
+                    AssertEqual(CinematicSpriteCueKind.SetFrameBehavior, cueStep.Cue.Kind, $"{at}: pre-instruction cue");
+                    AssertEqual(operand, cueStep.Cue.FrameBehavior.NativeAddress, $"{at}: pre-instruction");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case SharedWord.SetCounter:
@@ -167,7 +167,7 @@ internal static class CinematicSpriteAnimationsVerification
             if (!native.Active)
                 return update + 1;
             AssertEqual(native.Spritemap, CinematicSpritePoseSpritemaps.Of(actor.Pose), $"{at}: spritemap");
-            AssertEqual(native.PreInstruction, actor.PreInstructionPointer, $"{at}: pre-instruction");
+            AssertEqual(native.FrameBehavior, actor.FrameBehaviorPointer, $"{at}: pre-instruction");
             AssertEqual(native.Timer.RawValue, actor.GeneralTimer, $"{at}: loop timer");
             AssertTrue(native.Cues.SequenceEqual(cues), $"{at}: owner cues");
         }
@@ -186,7 +186,7 @@ internal static class CinematicSpriteAnimationsVerification
         /// <summary>The latest frame's spritemap.</summary>
         internal ushort Spritemap { get; private set; }
         /// <summary>The installed pre-instruction.</summary>
-        internal ushort PreInstruction { get; private set; }
+        internal ushort FrameBehavior { get; private set; }
         /// <summary>The goto timer word.</summary>
         internal WrappingCountdown Timer { get; private set; }
         /// <summary>The owner instructions the latest update ran.</summary>
@@ -226,8 +226,8 @@ internal static class CinematicSpriteAnimationsVerification
                         return;
                     case SharedWord.Sleep:
                         return;
-                    case SharedWord.SetPreInstruction:
-                        PreInstruction = operand;
+                    case SharedWord.SetFrameBehavior:
+                        FrameBehavior = operand;
                         cursor = unchecked((ushort)(cursor + 4));
                         continue;
                     case SharedWord.GoTo:

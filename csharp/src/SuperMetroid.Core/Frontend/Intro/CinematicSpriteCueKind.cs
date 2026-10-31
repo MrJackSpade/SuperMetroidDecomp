@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>What a cue of a cinematic sprite program does: the shared pre-instruction install and each owner instruction the lists use.</summary>
 internal enum CinematicSpriteCueKind
 {
-    /// <summary>Installs <see cref="CinematicSpriteCue.PreInstruction"/> (the shared pre-instruction install at $8B:944C).</summary>
-    SetPreInstruction,
+    /// <summary>Installs <see cref="CinematicSpriteCue.FrameBehavior"/> (the shared pre-instruction install at $8B:944C).</summary>
+    SetFrameBehavior,
     /// <summary>Ends the Zebes explosion (<c>Instruction_EndZebesExplosion</c>, $8B:F32B).</summary>
     EndZebesExplosion,
     /// <summary>Starts the explosion finale (<c>Instruction_ZebesExplosionFinale</c>, $8B:F2FA).</summary>

@@ -17,7 +17,7 @@ internal static class EnemyPropertyWordCodecVerification
         EnemyProperties[] flags =
         [
             EnemyProperties.Invisible, EnemyProperties.Deleted, EnemyProperties.IgnoreSamusCollision,
-            EnemyProperties.ProcessOffScreen, EnemyProperties.BlocksPlasmaBeam, EnemyProperties.ProcessInstructions,
+            EnemyProperties.ProcessOffScreen, EnemyProperties.BlocksPlasmaBeam, EnemyProperties.RunsAnimationScript,
             EnemyProperties.RespawnIfKilled, EnemyProperties.SolidToSamus,
         ];
         foreach (EnemyProperties flag in flags)

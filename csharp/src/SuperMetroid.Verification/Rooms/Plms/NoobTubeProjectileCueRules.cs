@@ -13,7 +13,7 @@ internal static class NoobTubeProjectileCueRules
     private static readonly Dictionary<NativeEnemyProjectileInstruction, NoobTubeProjectileCueRulesCommand> Commands = new()
     {
         [NativeEnemyProjectileInstruction.Delete] = new NoobTubeProjectileCueRulesCommand(NoobTubeProjectileCueKind.Delete, 0),
-        [NativeEnemyProjectileInstruction.PreInstructionInY] = new NoobTubeProjectileCueRulesCommand(NoobTubeProjectileCueKind.SetPreInstruction, 2),
+        [NativeEnemyProjectileInstruction.FrameBehaviorInY] = new NoobTubeProjectileCueRulesCommand(NoobTubeProjectileCueKind.SetFrameBehavior, 2),
         [NativeEnemyProjectileInstruction.NoobTubeShardAssignFallingAngle] = new NoobTubeProjectileCueRulesCommand(NoobTubeProjectileCueKind.AssignShardFallingAngle, 0),
         [NativeEnemyProjectileInstruction.NoobTubeBubbleAssignFallingAngle] = new NoobTubeProjectileCueRulesCommand(NoobTubeProjectileCueKind.AssignBubbleFallingAngle, 0),
         [NativeEnemyProjectileInstruction.NoobTubeShardReflectFlicker] = new NoobTubeProjectileCueRulesCommand(NoobTubeProjectileCueKind.FlickerReflected, 4),
@@ -26,8 +26,8 @@ internal static class NoobTubeProjectileCueRules
         (word, operands, cue, at) =>
         {
             AssertEqual(Commands[(NativeEnemyProjectileInstruction)word].Kind, cue.Kind, $"{at}: cue");
-            if (cue.Kind == NoobTubeProjectileCueKind.SetPreInstruction)
-                AssertEqual(cue.PreInstruction, EnemyProjectilePreInstructionAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction");
+            if (cue.Kind == NoobTubeProjectileCueKind.SetFrameBehavior)
+                AssertEqual(cue.FrameBehavior, EnemyProjectileFrameBehaviorAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction");
         },
         cue => cue.Kind == NoobTubeProjectileCueKind.Delete,
         word => (NativeEnemyProjectileInstruction)word is NativeEnemyProjectileInstruction.NoobTubeShardReflectFlicker or NativeEnemyProjectileInstruction.NoobTubeShardFlicker);

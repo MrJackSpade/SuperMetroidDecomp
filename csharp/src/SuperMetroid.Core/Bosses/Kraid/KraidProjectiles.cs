@@ -50,7 +50,7 @@ internal sealed class KraidProjectiles
         KraidEncounterAccess.EnsureKraidSlot(lint, expectedSlot, "lint");
         KraidEncounterAccess.AttachKraidPart(lint, state);
         lint.Colouring = _slotTable.Slots[0].Colouring;
-        lint.InstructionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
+        lint.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
         lint.Frame = EnemyFrameId.KraidLint00;
         state.Parts[lint.SlotIndex].Function = KraidAiFunction.LintInactive;
@@ -71,7 +71,7 @@ internal sealed class KraidProjectiles
         KraidPartState nailPart = state.Parts[nail.SlotIndex];
         nailPart.NailVelocity = nailPart.NailVelocity.WithX(nailPart.NailVelocity.X.WithFraction(40));
         nail.Properties = nail.Properties.With(EnemyProperties.Invisible);
-        nail.InstructionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
+        nail.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
         nail.Frame = EnemyFrameId.KraidNail0;
         state.Parts[nail.SlotIndex].NextFunction = KraidAiFunction.FingernailInitialize;
@@ -82,15 +82,15 @@ internal sealed class KraidProjectiles
     /// <summary>Registers the rock projectile initializers and per-frame handlers.</summary>
     internal static void AddKraidProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunKraidRockPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.KraidRockFlight);
+            RunKraidRockFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.KraidRockFlight);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunKraidCeilingRockPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.KraidCeilingRockFall);
+            RunKraidCeilingRockFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.KraidCeilingRockFall);
     }
 
     /// <summary>Ports KraidLintTop's initialization AI.</summary>
@@ -134,7 +134,7 @@ internal sealed class KraidProjectiles
             switch (cue)
             {
                 case KraidRockCue.UsePaletteZero:
-                    projectile.PreInstruction = EnemyProjectilePreInstruction.KraidShotRockRecolor;
+                    projectile.FrameBehavior = EnemyProjectileFrameBehavior.KraidShotRockRecolor;
                     return;
                 case KraidRockCue.Delete:
                     projectile.Clear();
@@ -275,7 +275,7 @@ internal sealed class KraidProjectiles
         part.NailLaunched = true;
         nail.Properties = nail.Properties.Without(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
-        nail.InstructionTimer = WrappingCountdown.Start(1);
+        nail.FrameHold = WrappingCountdown.Start(1);
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
         part.Function = KraidAiFunction.FingernailFire;
 
@@ -335,7 +335,7 @@ internal sealed class KraidProjectiles
         KraidEnemyState state = _access.RequireKraidState(lint);
         if (samus is not null)
             ResolveKraidLintContact(lint, samus);
-        lint.InstructionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
+        lint.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         KraidPartState part = state.Parts[lint.SlotIndex];
         switch (state.Parts[lint.SlotIndex].Function)
         {
@@ -489,7 +489,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Updates a spit rock's flight and removes it at its native boundary.</summary>
-    internal static void RunKraidRockPreInstruction(
+    internal static void RunKraidRockFrameBehavior(
         RoomEnemyProjectileSlot rock,
         RoomLevelData level)
     {
@@ -508,7 +508,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Updates a falling ceiling rock and its contact with room terrain.</summary>
-    internal static void RunKraidCeilingRockPreInstruction(
+    internal static void RunKraidCeilingRockFrameBehavior(
         RoomEnemyProjectileSlot rock,
         RoomLevelData level)
     {
@@ -537,11 +537,11 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Registers the shared pre-instruction used by spit rocks.</summary>
-    internal static void AddKraidRockSpitPreInstruction(EnemyProjectileHandlerTable table)
+    internal static void AddKraidRockSpitFrameBehavior(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             context.Projectile.Graphics = default;
-        }, EnemyProjectilePreInstruction.KraidShotRockRecolor);
+        }, EnemyProjectileFrameBehavior.KraidShotRockRecolor);
     }
 }

@@ -10,7 +10,7 @@ internal static class EnemyRomTablePointersTorizo
     /// <summary>Two Bomb Torizo wake positions at $AA:C963 (4 bytes).</summary>
     public const int WakeYPositions = 0xaac963;
     /// <summary>Two Bomb Torizo wake instruction lists at $AA:C967 (4 bytes).</summary>
-    public const int WakeInstructionLists = 0xaac967;
+    public const int WakeAnimationScripts = 0xaac967;
     /// <summary>Two Bomb Torizo wake property masks at $AA:C96B (4 bytes).</summary>
     public const int WakePropertyMasks = 0xaac96b;
     /// <summary>Two Bomb Torizo wake X radii at $AA:C96F (4 bytes).</summary>

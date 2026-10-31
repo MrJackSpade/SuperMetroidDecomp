@@ -42,7 +42,7 @@ internal static class TourianStatueProjectileAnimationsVerification
         [(ushort)TourianStatueInstruction.SpawnParticle] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.SpawnParticle)), 0),
         [(ushort)TourianStatueInstruction.SpawnTail] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.SpawnTail)), 0),
         [(ushort)TourianStatueInstruction.AddY] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Of<TourianStatueProjectileCue.MoveDown>(""), 2),
-        [(ushort)NativeEnemyProjectileInstruction.PreInstructionInY] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Of<TourianStatueProjectileCue.StartMoving>(""), 2),
+        [(ushort)NativeEnemyProjectileInstruction.FrameBehaviorInY] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Of<TourianStatueProjectileCue.StartMoving>(""), 2),
     };
 
     /// <summary>The oracle rules for the statue projectile programs.</summary>
@@ -61,7 +61,7 @@ internal static class TourianStatueProjectileAnimationsVerification
                     AssertEqual((short)(operands[0] | operands[1] << 8), moveDown.Pixels, $"{at}: Y offset");
                     break;
                 case TourianStatueProjectileCue.StartMoving startMoving:
-                    AssertEqual(startMoving.Movement, EnemyProjectilePreInstructionAccess.FromWord((ushort)(operands[0] | operands[1] << 8)), $"{at}: movement");
+                    AssertEqual(startMoving.Movement, EnemyProjectileFrameBehaviorAccess.FromWord((ushort)(operands[0] | operands[1] << 8)), $"{at}: movement");
                     break;
                 case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Delete } or TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Earthquake } or TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.SpawnParticle } or TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.SpawnTail }:
                     break;

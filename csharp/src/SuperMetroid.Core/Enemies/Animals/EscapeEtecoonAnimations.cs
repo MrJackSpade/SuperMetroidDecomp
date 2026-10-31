@@ -58,7 +58,7 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.RunningForEscape] =
         [
-            Cue(new EscapeEtecoonCue.SetPreInstruction(PreInstruction: EscapeEtecoonPreInstruction.EscapeRight)),
+            Cue(new EscapeEtecoonCue.SetFrameBehavior(FrameBehavior: EscapeEtecoonFrameBehavior.EscapeRight)),
             FallInto(P.RunningForEscapeLoop),
         ],
         [P.RunningForEscapeLoop] =
@@ -79,7 +79,7 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.ExpressGratitudeThenEscape] =
         [
-            Cue(new EscapeEtecoonCue.Command(K.ClearPreInstruction)),
+            Cue(new EscapeEtecoonCue.Command(K.ClearFrameBehavior)),
             SetCounter(8),
             FallInto(P.ExpressGratitudeThenEscapeLoop),
         ],

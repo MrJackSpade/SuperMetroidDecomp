@@ -416,22 +416,22 @@ public sealed class SamusProjectileSystem
             if (slot.Cursor is null)
                 continue;
 
-            if (slot.PreInstruction == SamusProjectilePreInstruction.ShinesparkEcho)
+            if (slot.FrameBehavior == SamusProjectileFrameBehavior.ShinesparkEcho)
             {
                 Shinespark.StepShinesparkEcho(samus, slot, layer1);
                 projectileDeleted |= !slot.IsActive;
             }
-            else if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or
-                SamusProjectilePreInstruction.IceComboOutward or SamusProjectilePreInstruction.WaveCombo or
-                SamusProjectilePreInstruction.SpazerCombo or SamusProjectilePreInstruction.SpazerComboFalling or
-                SamusProjectilePreInstruction.PlasmaCombo)
+            else if (slot.FrameBehavior is SamusProjectileFrameBehavior.IceCombo or
+                SamusProjectileFrameBehavior.IceComboOutward or SamusProjectileFrameBehavior.WaveCombo or
+                SamusProjectileFrameBehavior.SpazerCombo or SamusProjectileFrameBehavior.SpazerComboFalling or
+                SamusProjectileFrameBehavior.PlasmaCombo)
             {
                 SoundEffectId? comboSound = null;
-                if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or SamusProjectilePreInstruction.IceComboOutward)
+                if (slot.FrameBehavior is SamusProjectileFrameBehavior.IceCombo or SamusProjectileFrameBehavior.IceComboOutward)
                     comboSound = Combos.StepIceCombo(samus, slot, sharedProjectiles, layer1);
-                else if (slot.PreInstruction == SamusProjectilePreInstruction.WaveCombo)
+                else if (slot.FrameBehavior == SamusProjectileFrameBehavior.WaveCombo)
                     comboSound = Combos.StepWaveCombo(samus, slot, sharedProjectiles);
-                else if (slot.PreInstruction == SamusProjectilePreInstruction.PlasmaCombo)
+                else if (slot.FrameBehavior == SamusProjectileFrameBehavior.PlasmaCombo)
                     Combos.StepPlasmaCombo(samus, slot, sharedProjectiles, layer1);
                 else comboSound = Combos.StepSpazerCombo(samus, slot, sharedProjectiles, layer1.Y);
                 projectileDeleted |= !slot.IsActive;
@@ -440,28 +440,28 @@ public sealed class SamusProjectileSystem
                         sound, SoundRequestPriority.Normal,
                         SoundSuppressed: sharedProjectiles.PowerBombExplosion.IsActive));
             }
-            else if (slot.PreInstruction == SamusProjectilePreInstruction.NoWaveBeam)
+            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.NoWaveBeam)
             {
-                collisionStartedExplosion |= Motion.RunNoWaveBeamPreInstruction(
+                collisionStartedExplosion |= Motion.RunNoWaveBeamFrameBehavior(
                     terrain.Level,
                     slot,
                     layer1,
                     terrain.Plms,
                     sharedProjectiles.PowerBombExplosion);
             }
-            else if (slot.PreInstruction is
-                SamusProjectilePreInstruction.WaveBeamThreeFrameTrail or
-                SamusProjectilePreInstruction.WaveBeamFourFrameTrail)
+            else if (slot.FrameBehavior is
+                SamusProjectileFrameBehavior.WaveBeamThreeFrameTrail or
+                SamusProjectileFrameBehavior.WaveBeamFourFrameTrail)
             {
-                Motion.RunWaveBeamPreInstruction(terrain.Level, slot, layer1, terrain.Plms);
+                Motion.RunWaveBeamFrameBehavior(terrain.Level, slot, layer1, terrain.Plms);
             }
-            else if (slot.PreInstruction == SamusProjectilePreInstruction.HyperBeam)
+            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.HyperBeam)
             {
-                Motion.RunHyperBeamPreInstruction(terrain.Level, slot, layer1, terrain.Plms);
+                Motion.RunHyperBeamFrameBehavior(terrain.Level, slot, layer1, terrain.Plms);
             }
-            else if (slot.PreInstruction == SamusProjectilePreInstruction.Missile)
+            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.Missile)
             {
-                collisionStartedExplosion |= Motion.RunMissilePreInstruction(
+                collisionStartedExplosion |= Motion.RunMissileFrameBehavior(
                     terrain.Level,
                     samus,
                     slot,
@@ -469,9 +469,9 @@ public sealed class SamusProjectileSystem
                     sharedProjectiles,
                     terrain.Plms);
             }
-            else if (slot.PreInstruction == SamusProjectilePreInstruction.SuperMissile)
+            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.SuperMissile)
             {
-                collisionStartedExplosion |= Motion.RunSuperMissilePreInstruction(
+                collisionStartedExplosion |= Motion.RunSuperMissileFrameBehavior(
                     terrain.Level,
                     samus,
                     slot,
@@ -479,17 +479,17 @@ public sealed class SamusProjectileSystem
                     sharedProjectiles,
                     terrain.Plms);
             }
-            else if (slot.PreInstruction == SamusProjectilePreInstruction.SuperMissileLink)
+            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.SuperMissileLink)
             {
-                Motion.RunSuperMissileLinkPreInstruction(slot);
+                Motion.RunSuperMissileLinkFrameBehavior(slot);
             }
-            else if (slot.PreInstruction == SamusProjectilePreInstruction.SpacetimePaletteCopyTail)
+            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.SpacetimePaletteCopyTail)
             {
                 Combos.RunSpacetimePaletteCopyTail(terrain.Progression, slot);
             }
-            else if (slot.PreInstruction == SamusProjectilePreInstruction.ChainsawPowerBomb)
+            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.ChainsawPowerBomb)
             {
-                Chainsaw.RunPowerBombPreInstruction(
+                Chainsaw.RunPowerBombFrameBehavior(
                     terrain.Level,
                     samus,
                     slot,
@@ -497,8 +497,8 @@ public sealed class SamusProjectileSystem
                     terrain.Plms);
                 projectileDeleted |= !slot.IsActive;
             }
-            else if (slot.PreInstruction ==
-                SamusProjectilePreInstruction.ChargedChainsawOverrun)
+            else if (slot.FrameBehavior ==
+                SamusProjectileFrameBehavior.ChargedChainsawOverrun)
             {
                 // Charged combination thirteen does not point at ROM code. Its table
                 // overrun stores $0A0A, so native JSR enters the low-WRAM mirror and begins
@@ -509,8 +509,8 @@ public sealed class SamusProjectileSystem
                     "Charged Chainsaw callback $90:0A0A enters mutable low WRAM at " +
                     "$7E:0A0A; arbitrary data-as-65C816 execution is not translated.");
             }
-            else if (slot.PreInstruction ==
-                SamusProjectilePreInstruction.MurderBeamMisalignedExecution)
+            else if (slot.FrameBehavior ==
+                SamusProjectileFrameBehavior.MurderBeamMisalignedExecution)
             {
                 // Safe left-facing Murder Beam has instruction pointer zero and never
                 // enters HandleProjectile. Other directions retain an instruction list;

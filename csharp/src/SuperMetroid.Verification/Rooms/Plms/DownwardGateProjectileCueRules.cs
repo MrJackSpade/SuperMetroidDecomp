@@ -12,9 +12,9 @@ internal static class DownwardGateProjectileCueRules
     private static readonly Dictionary<NativeEnemyProjectileInstruction, NativeCueCommand<DownwardGateProjectileCue>> Commands = new()
     {
         [NativeEnemyProjectileInstruction.Delete] = NativeCueCommand<DownwardGateProjectileCue>.Exactly(new DownwardGateProjectileCue.Command(DownwardGateProjectileCueKind.Delete)),
-        [NativeEnemyProjectileInstruction.ClearPreInstruction] = NativeCueCommand<DownwardGateProjectileCue>.Exactly(new DownwardGateProjectileCue.Command(DownwardGateProjectileCueKind.ClearPreInstruction)),
-        [NativeEnemyProjectileInstruction.PreInstructionInY] = NativeCueCommand<DownwardGateProjectileCue>.Of<DownwardGateProjectileCue.SetPreInstruction>(2, (operands, cue, at) =>
-            AssertEqual(cue.PreInstruction, EnemyProjectilePreInstructionAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction")),
+        [NativeEnemyProjectileInstruction.ClearFrameBehavior] = NativeCueCommand<DownwardGateProjectileCue>.Exactly(new DownwardGateProjectileCue.Command(DownwardGateProjectileCueKind.ClearFrameBehavior)),
+        [NativeEnemyProjectileInstruction.FrameBehaviorInY] = NativeCueCommand<DownwardGateProjectileCue>.Of<DownwardGateProjectileCue.SetFrameBehavior>(2, (operands, cue, at) =>
+            AssertEqual(cue.FrameBehavior, EnemyProjectileFrameBehaviorAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction")),
         [NativeEnemyProjectileInstruction.DownwardGateSetYVelocityInstruction] = NativeCueCommand<DownwardGateProjectileCue>.Of<DownwardGateProjectileCue.SetYVelocity>(2, (operands, cue, at) =>
             AssertEqual(LittleEndianBytes.Word(operands[0], operands[1]), cue.YVelocity.RawValue, $"{at}: Y velocity")),
     };

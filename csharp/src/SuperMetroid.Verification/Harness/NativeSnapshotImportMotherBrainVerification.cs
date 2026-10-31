@@ -32,10 +32,10 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.Function = MotherBrainNativeWords.MotherBrainBodyFunctions.Decode(W(MotherBrainMemory.BodyFunction), "recorded MotherBrainBodyFunction");
         state.BrainFunction = MotherBrainNativeListAddresses.NativeBrainFunctions[W(MotherBrainMemory.BrainFunction)];
         state.FunctionTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BodyFunctionTimer));
-        ushort flash = W(MotherBrainMemory.RoomPaletteInstructionList);
+        ushort flash = W(MotherBrainMemory.RoomPaletteAnimationScript);
         state.RoomFlashFrame = flash == 0 ? null
             : MotherBrainNativeListAddresses.RoomFlashRecords.Single(record => unchecked((ushort)record.Record) == flash).Frame;
-        state.RoomFlashTimer = W(MotherBrainMemory.RoomPaletteInstructionTimer);
+        state.RoomFlashTimer = W(MotherBrainMemory.RoomPaletteFrameHold);
         // The sub-function word is shared: outside the tube collapse it holds the death-explosion interval timer
         // (imported below), so only a collapse routine pointer decodes to a collapse function.
         if (MotherBrainNativeListAddresses.NativeTubeCollapseFunctions.TryGetValue(W(MotherBrainMemory.BrainSubFunction), out MotherBrainTubeCollapseFunction collapse))
@@ -49,19 +49,19 @@ internal static class NativeSnapshotImportMotherBrainVerification
         EnemyGraphicsSet graphicsSet = runtime.Enemies.GraphicsSet;
         state.NeckColouring = graphicsSet.ColouringInRow(SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.NeckPaletteIndex)).PaletteIndex);
         state.BrainColouring = graphicsSet.ColouringInRow(SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex)).PaletteIndex);
-        ushort brain = W(MotherBrainMemory.BrainInstructionList);
+        ushort brain = W(MotherBrainMemory.BrainAnimationScript);
         // Bit 15 clear means the brain list is not live.
         state.BrainCursor = unchecked((short)brain) >= 0 ? null : MotherBrainNativeListAddresses.CompareHead(cartridge)[brain];
-        state.BrainFrameTimer = W(MotherBrainMemory.BrainInstructionTimer);
+        state.BrainFrameTimer = W(MotherBrainMemory.BrainFrameHold);
         Dictionary<ushort, AnimationProgramCursor<MotherBrainBodyProgram>> body = MotherBrainNativeListAddresses.CompareBody(cartridge);
         // Each record's instruction-list word is read from the snapshot; the port keeps the typed cursor it names.
-        ushort InstructionList(RoomEnemySlot slot) => W(NativeSnapshotMemory.EnemyBase +
-            SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(slot.SlotIndex) + MovieDesyncMemory.EnemyInstructionListOffset);
-        state.BodyCursor = body[InstructionList(state.Body)];
-        state.HeadSlotCursor = body[InstructionList(state.Head)];
+        ushort AnimationScript(RoomEnemySlot slot) => W(NativeSnapshotMemory.EnemyBase +
+            SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(slot.SlotIndex) + MovieDesyncMemory.EnemyAnimationScriptOffset);
+        state.BodyCursor = body[AnimationScript(state.Body)];
+        state.HeadSlotCursor = body[AnimationScript(state.Head)];
         Dictionary<ushort, AnimationProgramCursor<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
         foreach (RoomEnemySlot tube in runtime.Enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == EnemyDefinitionId.MotherBrainTubes))
-            tube.RequireSpeciesState<MotherBrainFallingTubeState>().Cursor = tubes[InstructionList(tube)];
+            tube.RequireSpeciesState<MotherBrainFallingTubeState>().Cursor = tubes[AnimationScript(tube)];
         state.BrainMainShakeTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainMainShakeTimer));
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
         state.RainbowPaletteCursor = W(MotherBrainMemory.RainbowPaletteIndex);

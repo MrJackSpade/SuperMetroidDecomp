@@ -336,7 +336,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         WalkingSpacePirateProgram program)
     {
         state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Ports firing opcodes <c>$B2:FC68/$FC90</c> and initializer $86:A009.</summary>
@@ -427,7 +427,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         // Although the definition starts the laser flying left, the initializer holds it still: the three two-frame
         // muzzle maps are stationary until the program installs the flight and runs it at once.
-        projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+        projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         projectile.State = new PirateLaserState(speed == PirateLaserSpeed.Slow);
 
         // A009 replaces the projectile definition's property word with enemy damage OR
@@ -464,9 +464,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>The direction a laser mover flies.</summary>
-    private static HorizontalDirection LaserFlightDirection(EnemyProjectilePreInstruction movement) =>
-        movement == EnemyProjectilePreInstruction.LaserFlightRight ? HorizontalDirection.Right
-        : movement == EnemyProjectilePreInstruction.LaserFlightLeft ? HorizontalDirection.Left
+    private static HorizontalDirection LaserFlightDirection(EnemyProjectileFrameBehavior movement) =>
+        movement == EnemyProjectileFrameBehavior.LaserFlightRight ? HorizontalDirection.Right
+        : movement == EnemyProjectileFrameBehavior.LaserFlightLeft ? HorizontalDirection.Left
         : throw new InvalidOperationException($"{movement} is not a laser flight.");
 
     /// <summary>Requires the physical slot to have been initialized as a walking pirate.</summary>
@@ -478,16 +478,16 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Registers laser movement and the opcode that immediately runs its installed pre-instruction.</summary>
     internal static void AddWalkingSpacePirateProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(
+        table.AddFrameBehavior(
             context => FlyPirateLaser(context.Projectile, context.Camera, HorizontalDirection.Left),
-            EnemyProjectilePreInstruction.LaserFlightLeft);
-        table.AddPreInstruction(
+            EnemyProjectileFrameBehavior.LaserFlightLeft);
+        table.AddFrameBehavior(
             context => FlyPirateLaser(context.Projectile, context.Camera, HorizontalDirection.Right),
-            EnemyProjectilePreInstruction.LaserFlightRight);
+            EnemyProjectileFrameBehavior.LaserFlightRight);
 
         table.AddCue<SpacePirateProjectileCue>((context, cue) =>
         {
-            context.Projectile.PreInstruction = cue.Movement;
+            context.Projectile.FrameBehavior = cue.Movement;
             // A050 returns the argument cursor unchanged, so the common interpreter dispatches the installed
             // movement once at once: the laser moves on the update it starts and may leave the screen then.
             if (cue.Kind == SpacePirateProjectileCueKind.StartMovingNow)

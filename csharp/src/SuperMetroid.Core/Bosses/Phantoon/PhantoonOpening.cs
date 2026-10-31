@@ -119,7 +119,7 @@ internal sealed class PhantoonOpening
         var orbit = new PhantoonOrbitingFlameState(new ByteAngle(WordWrap.LowByte(directionIndex * 32)));
         flame.State = orbit;
         PhantoonCombat.PositionPhantoonFlameAroundBody(flame, body, orbit.Angle, radius: 48);
-        flame.PreInstruction = PhantoonBehavior.PhantoonStartingFlameWaitingPreInstruction;
+        flame.FrameBehavior = PhantoonBehavior.PhantoonStartingFlameWaitingFrameBehavior;
         return true;
     }
 }

@@ -519,7 +519,7 @@ internal sealed class NorfairRidleyCombat
             state.FacingDirection == RidleyFacing.Left
                 ? RidleyBodyProgram.TurnFromLeftToRight
                 : RidleyBodyProgram.TurnFromRightToLeft);
-        slot.InstructionTimer = WrappingCountdown.Start(2);
+        slot.FrameHold = WrappingCountdown.Start(2);
     }
 
     /// <summary>Selects a hover acceleration divisor from Ridley's capped health stage.</summary>

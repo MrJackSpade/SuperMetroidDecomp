@@ -199,7 +199,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateProgram program)
     {
         state.Program = AnimationProgramCursor<WallSpacePirateProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Climbs, or after terrain contact returns the opposite climb to continue at; null runs on.</summary>

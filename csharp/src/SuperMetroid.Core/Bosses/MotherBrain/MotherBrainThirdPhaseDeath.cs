@@ -358,7 +358,7 @@ internal sealed class MotherBrainThirdPhaseDeath
                 BodyClearRequested = true;
                 BodyProperties = BodyProperties
                     .With(EnemyProperties.Invisible)
-                    .Without(EnemyProperties.ProcessInstructions);
+                    .Without(EnemyProperties.RunsAnimationScript);
                 BodyProperties2 = default;
                 _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions;
                 _state.FunctionTimer = WrappingCountdown.Start(16);
@@ -520,7 +520,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // by the fallthrough into `$B211`, leaving observable timer `$13` now.
         BrainProperties = BrainProperties
             .With(EnemyProperties.Invisible)
-            .Without(EnemyProperties.ProcessInstructions);
+            .Without(EnemyProperties.RunsAnimationScript);
         BrainProperties2 = default;
         requests.MusicStopQueued = true;   // Queue music value `$0000`.
         requests.EscapeMusicQueued = true; // Queue music value `$FF24`.

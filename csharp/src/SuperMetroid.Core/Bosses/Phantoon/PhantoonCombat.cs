@@ -71,45 +71,45 @@ internal sealed class PhantoonCombat
     /// <summary>Registers Phantoon flame initializers, pre-instructions, and instructions.</summary>
     internal void AddPhantoonProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunPhantoonStartingFlameWaiting(context.Projectile);
-        }, EnemyProjectilePreInstruction.PhantoonIntroFlameWaiting);
+        }, EnemyProjectileFrameBehavior.PhantoonIntroFlameWaiting);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunPhantoonStartingFlameOrbit(context.Projectile);
-        }, EnemyProjectilePreInstruction.PhantoonIntroFlameOrbit);
+        }, EnemyProjectileFrameBehavior.PhantoonIntroFlameOrbit);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunPhantoonCasualFlameFalling(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.PhantoonCasualFlameFall);
+        }, EnemyProjectileFrameBehavior.PhantoonCasualFlameFall);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunPhantoonCasualFlameImpactPause(context.Projectile, _projectiles.CurrentFrame16);
-        }, EnemyProjectilePreInstruction.PhantoonCasualFlameLanding);
+        }, EnemyProjectileFrameBehavior.PhantoonCasualFlameLanding);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunPhantoonCasualFlameBouncing(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.PhantoonCasualFlameBounce);
+        }, EnemyProjectileFrameBehavior.PhantoonCasualFlameBounce);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunPhantoonEnragedFlame(context.Projectile);
-        }, EnemyProjectilePreInstruction.PhantoonRageFlameOrbit);
+        }, EnemyProjectileFrameBehavior.PhantoonRageFlameOrbit);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunPhantoonRainFlame(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.PhantoonFlameRainFall);
+        }, EnemyProjectileFrameBehavior.PhantoonFlameRainFall);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunPhantoonSpiralFlame(context.Projectile);
-        }, EnemyProjectilePreInstruction.PhantoonSpiralFlameOrbit);
+        }, EnemyProjectileFrameBehavior.PhantoonSpiralFlameOrbit);
 
         table.AddShotAnimation(RoomEnemyProjectileKind.PhantoonDestroyableFlame,
             () => new PhantoonFlameAnimation(PhantoonFlameProgram.DestroyableShot));
@@ -381,7 +381,7 @@ internal sealed class PhantoonCombat
         PhantoonEnemyState? state = Phantoon;
         if (state is null || !state.Parts[state.Body.SlotIndex].StartingFlamesActive)
             return;
-        flame.PreInstruction = PhantoonBehavior.PhantoonStartingFlameOrbitPreInstruction;
+        flame.FrameBehavior = PhantoonBehavior.PhantoonStartingFlameOrbitFrameBehavior;
         PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
         orbit.StartDelay = PhantoonFlameMotionDefinitions.IntroCircleDelay;
         orbit.Radius = PhantoonFlameMotionDefinitions.IntroCircleRadius;
@@ -409,7 +409,7 @@ internal sealed class PhantoonCombat
             {
                 flame.Position = flame.Position.WithWhole(new(state.Body.Position.X.Whole, CoordinateAxis.Wrap(state.Body.Position.Y.Whole + 16)));
                 flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.Delete));
-                flame.InstructionTimer = WrappingCountdown.Start(1);
+                flame.FrameHold = WrappingCountdown.Start(1);
                 return;
             }
         }
@@ -433,10 +433,10 @@ internal sealed class PhantoonCombat
 
         flame.CanDamageSamus = true;
         flame.BlocksSamusProjectiles = true;
-        flame.PreInstruction =
-            EnemyProjectilePreInstruction.PhantoonCasualFlameLanding;
+        flame.FrameBehavior =
+            EnemyProjectileFrameBehavior.PhantoonCasualFlameLanding;
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualHitGround));
-        flame.InstructionTimer = WrappingCountdown.Start(1);
+        flame.FrameHold = WrappingCountdown.Start(1);
         flame.State = new PhantoonCasualFlameState();
         flame.Position = flame.Position.WithWrappedWholeY(flame.Position.Y.Whole + 8);
     }
@@ -451,10 +451,10 @@ internal sealed class PhantoonCombat
         if (casual.ImpactPause != 0)
             return;
 
-        flame.PreInstruction =
-            EnemyProjectilePreInstruction.PhantoonCasualFlameBounce;
+        flame.FrameBehavior =
+            EnemyProjectileFrameBehavior.PhantoonCasualFlameBounce;
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualBouncing));
-        flame.InstructionTimer = WrappingCountdown.Start(1);
+        flame.FrameHold = WrappingCountdown.Start(1);
         flame.Position = flame.Position.WithWrappedWholeY(flame.Position.Y.Whole - 8);
         flame.Velocity = flame.Velocity.WithY(SignedEightEight.FromSignedRaw(-768));
         // The flame's drift reads the 16-bit frame counter.
@@ -488,8 +488,8 @@ internal sealed class PhantoonCombat
     private static void RestPhantoonCasualFlame(RoomEnemyProjectileSlot flame)
     {
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualResting));
-        flame.InstructionTimer = WrappingCountdown.Start(1);
-        flame.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+        flame.FrameHold = WrappingCountdown.Start(1);
+        flame.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
     }
 
     /// <summary>Advances a rage-phase flame through its authored movement.</summary>
@@ -532,9 +532,9 @@ internal sealed class PhantoonCombat
         if (!EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
             return;
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.RainImpact));
-        flame.InstructionTimer = WrappingCountdown.Start(1);
+        flame.FrameHold = WrappingCountdown.Start(1);
         flame.Position = flame.Position.WithWrappedWholeY(flame.Position.Y.Whole + 8);
-        flame.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+        flame.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         _audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundPriority);
     }
 
@@ -590,7 +590,7 @@ internal sealed class PhantoonCombat
             CoordinateAxis.AsSigned(flame.Position.Y.Whole) < 0 || flame.Position.Y.Whole >= 256)
         {
             flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.Delete));
-            flame.InstructionTimer = WrappingCountdown.Start(1);
+            flame.FrameHold = WrappingCountdown.Start(1);
         }
     }
 

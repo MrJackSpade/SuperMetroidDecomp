@@ -29,7 +29,7 @@ internal static class CeresSpawnerScheduleVerification
                     actualCountdown = WrappingCountdown.Start(CeresExplosionDefinitions.RepeatingCountdownSeed);
                 }
                 CeresExplosionSpawnEvents expected = default;
-                if (native.IsActive && native.ListPreInstruction == CinematicSpritePreInstruction.CeresExplosionSpawnerRepeating && !disabled)
+                if (native.IsActive && native.ListFrameBehavior == CinematicSpriteFrameBehavior.CeresExplosionSpawnerRepeating && !disabled)
                 {
                     if (frame >= departure) disabled = true;
                     else
@@ -49,7 +49,7 @@ internal static class CeresSpawnerScheduleVerification
                     {
                         CinematicSpriteCueKind.SpawnInitialExplosionWave => expected with { Initial = true },
                         CinematicSpriteCueKind.SpawnFinalExplosionWave => expected with { Final = true },
-                        CinematicSpriteCueKind.SetPreInstruction or
+                        CinematicSpriteCueKind.SetFrameBehavior or
                             CinematicSpriteCueKind.EndZebesExplosion or
                             CinematicSpriteCueKind.ExplosionFinale or
                             CinematicSpriteCueKind.FadeExplosionPalette or

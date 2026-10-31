@@ -8,7 +8,7 @@ internal enum TorizoOperand
     /// <summary>A main-AI function.</summary>
     Function,
     /// <summary>A pre-instruction.</summary>
-    PreInstruction,
+    FrameBehavior,
     /// <summary>A list pointer: the cue's target program.</summary>
     Target,
     /// <summary>A second list pointer: the cue's alternate program.</summary>

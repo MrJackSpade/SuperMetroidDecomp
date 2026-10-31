@@ -461,8 +461,8 @@ internal static class GModeGateGlitchVerification
             "suspended glass tube leaves its water-physics disable bit intact");
 
         StepNoobTube(plms, level);
-        AssertEqual(PlmPreInstructionNativeWords.NoobTube.Word(NoobTubePlmPreInstruction.WakeOnAcceptedInput),
-            plms.PopulationSlots.Single().PreInstruction,
+        AssertEqual(PlmFrameBehaviorNativeWords.NoobTube.Word(NoobTubePlmFrameBehavior.WakeOnAcceptedInput),
+            plms.PopulationSlots.Single().FrameBehavior,
             "first post-G-Mode PLM pass consumes the Power Bomb and arms the input callback");
     }
 

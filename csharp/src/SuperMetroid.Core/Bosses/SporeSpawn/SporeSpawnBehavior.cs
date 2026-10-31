@@ -211,7 +211,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(body.Position.Y.Whole, SporeSpawnDeathCenterY) >= 0)
         {
             state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.FightStarted);
-            body.InstructionTimer = WrappingCountdown.Start(1);
+            body.FrameHold = WrappingCountdown.Start(1);
         }
 
         state.MaximumXRadius = SporeSpawnDescentMaximumXRadius;
@@ -348,15 +348,15 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Binds spore movement, emitter timing, impact properties, and drop opcodes.</summary>
     internal void AddSporeSpawnProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunSporeSpawnSporePreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.SporeDrift);
+            RunSporeSpawnSporeFrameBehavior(context.Projectile);
+        }, EnemyProjectileFrameBehavior.SporeDrift);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunSporeSpawnSpawnerPreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.SporeSpawnerCadence);
+            RunSporeSpawnSpawnerFrameBehavior(context.Projectile);
+        }, EnemyProjectileFrameBehavior.SporeSpawnerCadence);
 
         table.AddShotAnimation(RoomEnemyProjectileKind.SporeSpawnSpore,
             () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SporeShot));
@@ -499,7 +499,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.AngleDelta = -state.AngleDelta;
                 state.Damaged = true;
                 state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.CloseAndMove);
-                body.InstructionTimer = WrappingCountdown.Start(1);
+                body.FrameHold = WrappingCountdown.Start(1);
 
                 int healthFrame = body.Health >= 770
                     ? 0
@@ -544,7 +544,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             _projectiles.EnemyProjectiles[projectileSlot].Clear();
 
         state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.Death);
-        body.InstructionTimer = WrappingCountdown.Start(1);
+        body.FrameHold = WrappingCountdown.Start(1);
         _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
         state.ScrollClampHookActive = false;
         PublishSporeSpawnPlm(header: PlmHeaderId.CrumbleSporeSpawnCeiling);
@@ -572,7 +572,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.Harden }:
                 body.Position = body.Position.WithWhole(new(SporeSpawnDeathCenterX, SporeSpawnDeathCenterY));
                 body.Properties = body.Properties
-                    .With(EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions)
+                    .With(EnemyProperties.SolidToSamus | EnemyProperties.RunsAnimationScript)
                     .Without(EnemyProperties.IgnoreSamusCollision);
                 return;
             case SporeSpawnCue.QueueSound queueSound:
@@ -757,8 +757,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         spore.State = new SporeSpawnSporeState(mirrored: RoomGridConversions.OffsetWithinScreen(position.X) >= 128);
     }
 
-    /// <summary>Ports <c>PreInstruction_EnemyProjectile_Spores</c> at $86:DCEE.</summary>
-    internal static void RunSporeSpawnSporePreInstruction(RoomEnemyProjectileSlot spore)
+    /// <summary>Ports <c>FrameBehavior_EnemyProjectile_Spores</c> at $86:DCEE.</summary>
+    internal static void RunSporeSpawnSporeFrameBehavior(RoomEnemyProjectileSlot spore)
     {
         SporeSpawnSporeState drift = spore.StateOf<SporeSpawnSporeState>();
         Offset16<RoomPixels> movement =
@@ -776,8 +776,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         drift.AdvancePath();
     }
 
-    /// <summary>Ports <c>PreInstruction_EnemyProjectile_SporeSpawner</c> at $86:DD46.</summary>
-    internal void RunSporeSpawnSpawnerPreInstruction(RoomEnemyProjectileSlot spawner)
+    /// <summary>Ports <c>FrameBehavior_EnemyProjectile_SporeSpawner</c> at $86:DD46.</summary>
+    internal void RunSporeSpawnSpawnerFrameBehavior(RoomEnemyProjectileSlot spawner)
     {
         SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
             "A Spore Spawn ceiling emitter survived without its owning boss state.");

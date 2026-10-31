@@ -425,25 +425,25 @@ public sealed class TitleSequenceState : IFrontendScreen
 
             switch (command)
             {
-                case TitleSequenceInstruction.TriggerScene0:
+                case TitleSequenceScriptStep.TriggerScene0:
                     Phase = TitleSequencePhase.SceneZeroPan;
                     floorBackgroundEnabled = true; // `$8B:9CE3-$9CE5` shows the floor beside the objects.
                     ApplyScene(TitleSequenceDefinitions.Scenes.SceneZero);
                     return;
 
-                case TitleSequenceInstruction.TriggerScene1:
+                case TitleSequenceScriptStep.TriggerScene1:
                     Phase = TitleSequencePhase.SceneOnePan;
                     floorBackgroundEnabled = true; // `$8B:9D5D-$9D61` shows the floor beside the objects.
                     ApplyScene(TitleSequenceDefinitions.Scenes.SceneOne);
                     return;
 
-                case TitleSequenceInstruction.TriggerScene2:
+                case TitleSequenceScriptStep.TriggerScene2:
                     Phase = TitleSequencePhase.SceneTwoPan;
                     floorBackgroundEnabled = true; // `$8B:9DD6-$9DDA` shows the floor beside the objects.
                     ApplyScene(TitleSequenceDefinitions.Scenes.SceneTwo);
                     return;
 
-                case TitleSequenceInstruction.TriggerScene3:
+                case TitleSequenceScriptStep.TriggerScene3:
                     Phase = TitleSequencePhase.SceneThreeZoom;
                     gradientEnabled = true;
                     floorBackgroundEnabled = true; // `$8B:9E58-$9E5C` shows the floor beside the objects.
@@ -451,12 +451,12 @@ public sealed class TitleSequenceState : IFrontendScreen
                     ApplyScene(TitleSequenceDefinitions.Scenes.SceneThree);
                     return;
 
-                case TitleSequenceInstruction.Delete:
+                case TitleSequenceScriptStep.Delete:
                     ActiveSprite = null;
                     return;
 
                 default:
-                    throw new InvalidOperationException($"Undefined TitleSequenceInstruction {command}.");
+                    throw new InvalidOperationException($"Undefined TitleSequenceScriptStep {command}.");
             }
         }
     }

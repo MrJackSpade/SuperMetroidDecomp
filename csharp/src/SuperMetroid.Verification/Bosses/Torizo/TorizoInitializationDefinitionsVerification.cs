@@ -19,7 +19,7 @@ internal static class TorizoInitializationDefinitionsVerification
         for (int variant = 0; variant < 2; variant++)
         {
             ushort[] native = [CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXPositions + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYPositions + variant * 2),
-                CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeInstructionLists + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakePropertyMasks + variant * 2),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeAnimationScripts + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakePropertyMasks + variant * 2),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXRadii + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYRadii + variant * 2)];
             var compiled = variant == 0 ? TorizoInitializationDefinitions.Bomb : TorizoInitializationDefinitions.Golden;
             ushort[] actual = [compiled.Position.X, compiled.Position.Y, TorizoNativeListAddresses.Entry(compiled.Program), (ushort)compiled.PropertyMask, compiled.Radius.X, compiled.Radius.Y];
@@ -44,7 +44,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 actor.Health = 0x3456;
                 actor.Colouring = SpriteColouring.InFixtureSet(7);
                 actor.Timer = WrappingCountdown.Start(0xffff);
-                actor.InstructionTimer = WrappingCountdown.Start(0xffff);
+                actor.FrameHold = WrappingCountdown.Start(0xffff);
                 initialize(actor);
                 AssertEqual(native[0], actor.Position.X.Whole, "Real Torizo initial X");
                 AssertEqual(native[1], actor.Position.Y.Whole, "Real Torizo initial Y");
@@ -59,7 +59,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual((ushort)0x1234, actor.Position.X.Fraction, "Torizo initialization preserves X fraction");
                 AssertEqual((ushort)0xabcd, actor.Position.Y.Fraction, "Torizo initialization preserves Y fraction");
                 AssertEqual(0x3456, actor.Health, "Torizo initialization preserves population health");
-                AssertEqual((ushort)1, actor.InstructionTimer.RawValue, "Initial instruction timer");
+                AssertEqual((ushort)1, actor.FrameHold.RawValue, "Initial instruction timer");
                 AssertEqual((ushort)0, actor.Timer.RawValue, "Initial actor timer");
                 AssertEqual(SharedSpriteColouring.Common, actor.Colouring, "Initial colours: the common sprite colours, row zero");
                 var state = variant == 0 ? enemies.BombTorizo : enemies.BombTorizoBehavior.Attacks.GoldenTorizo;
@@ -69,12 +69,12 @@ internal static class TorizoInitializationDefinitionsVerification
             defeated = true;
             actor.Properties = EnemyProperties.BlocksPlasmaBeam | EnemyProperties.IgnoreSamusCollision;
             actor.Position = actor.Position.WithWhole(new(0x1111, 0x2222));
-            actor.InstructionTimer = WrappingCountdown.Start(0x3333);
+            actor.FrameHold = WrappingCountdown.Start(0x3333);
             initialize(actor);
             AssertEqual(EnemyProperties.BlocksPlasmaBeam | EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted, actor.Properties, "Defeated Torizo is deleted before initialization writes");
             AssertEqual((ushort)0x1111, actor.Position.X.Whole, "Defeated Torizo preserves X");
             AssertEqual((ushort)0x2222, actor.Position.Y.Whole, "Defeated Torizo preserves Y");
-            AssertEqual((ushort)0x3333, actor.InstructionTimer.RawValue, "Defeated Torizo leaves its animation untouched");
+            AssertEqual((ushort)0x3333, actor.FrameHold.RawValue, "Defeated Torizo leaves its animation untouched");
         }
         Console.WriteLine("Torizo initialization: all 12 native words, 131072 real live initializations and both defeated early returns pass without ROM reads.");
     }

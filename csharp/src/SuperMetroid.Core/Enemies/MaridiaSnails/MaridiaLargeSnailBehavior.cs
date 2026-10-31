@@ -69,8 +69,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     {
         var state = new MaridiaLargeSnailEnemyState
         {
-            RequestedInstructionListIndex = 0,
-            InstalledInstructionListIndex = 0,
+            RequestedAnimationScriptIndex = 0,
+            InstalledAnimationScriptIndex = 0,
             AttackAnimationFinished = false,
             AttackAllowsRotation = false,
             SamusInPushingRange = false,
@@ -144,13 +144,13 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
         }
 
-        state.RequestedInstructionListIndex = 0;
+        state.RequestedAnimationScriptIndex = 0;
         if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
         {
             state.MovingLeft = true;
-            state.RequestedInstructionListIndex = 1;
+            state.RequestedAnimationScriptIndex = 1;
         }
-        InstallMaridiaLargeSnailInstructionList(slot, state);
+        InstallMaridiaLargeSnailAnimationScript(slot, state);
 
         if (!EnemyMath.IsWithinStrictModularDistance(
                 samus.Position.X.Whole,
@@ -160,8 +160,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
         }
 
-        state.RequestedInstructionListIndex |= MaridiaLargeSnailRollingSelector;
-        InstallMaridiaLargeSnailInstructionList(slot, state);
+        state.RequestedAnimationScriptIndex |= MaridiaLargeSnailRollingSelector;
+        InstallMaridiaLargeSnailAnimationScript(slot, state);
         state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
     }
 
@@ -203,18 +203,18 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 state.RemainingBounces.IsZero;
             if (mayAttack)
             {
-                state.RequestedInstructionListIndex = 0;
+                state.RequestedAnimationScriptIndex = 0;
                 state.MovingLeft = false;
                 if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
                 {
-                    state.RequestedInstructionListIndex = 1;
+                    state.RequestedAnimationScriptIndex = 1;
                     state.MovingLeft = true;
                 }
 
                 state.AttackCooldown = WrappingCountdown.Start(MaridiaLargeSnailInitialAttackCooldown);
-                state.RequestedInstructionListIndex =
-                    (state.RequestedInstructionListIndex & MaridiaLargeSnailFacingSelector) | MaridiaLargeSnailAttackSelector;
-                InstallMaridiaLargeSnailInstructionList(slot, state);
+                state.RequestedAnimationScriptIndex =
+                    (state.RequestedAnimationScriptIndex & MaridiaLargeSnailFacingSelector) | MaridiaLargeSnailAttackSelector;
+                InstallMaridiaLargeSnailAnimationScript(slot, state);
                 state.Function = MaridiaLargeSnailEnemyFunction.Attacking;
                 return;
             }
@@ -232,8 +232,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         state.AttackAnimationFinished = false;
-        state.RequestedInstructionListIndex -= MaridiaLargeSnailRollingSelector;
-        InstallMaridiaLargeSnailInstructionList(slot, state);
+        state.RequestedAnimationScriptIndex -= MaridiaLargeSnailRollingSelector;
+        InstallMaridiaLargeSnailAnimationScript(slot, state);
         state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
     }
 
@@ -327,8 +327,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         state.MovingLeft = !state.MovingLeft;
-        state.RequestedInstructionListIndex ^= MaridiaLargeSnailAttackSelector;
-        InstallMaridiaLargeSnailInstructionList(slot, state);
+        state.RequestedAnimationScriptIndex ^= MaridiaLargeSnailAttackSelector;
+        InstallMaridiaLargeSnailAnimationScript(slot, state);
     }
 
     /// <summary>Captures whether Samus is within both push ranges and on which side.</summary>
@@ -466,23 +466,23 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>Starts one of eight Oum animations only when the requested index changes.</summary>
-    internal static void InstallMaridiaLargeSnailInstructionList(
+    internal static void InstallMaridiaLargeSnailAnimationScript(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state)
     {
-        if (state.RequestedInstructionListIndex == state.InstalledInstructionListIndex)
+        if (state.RequestedAnimationScriptIndex == state.InstalledAnimationScriptIndex)
             return;
-        if (state.RequestedInstructionListIndex >= 8)
+        if (state.RequestedAnimationScriptIndex >= 8)
         {
             throw new InvalidDataException(
-                $"Maridia Large Snail list index {state.RequestedInstructionListIndex} " +
+                $"Maridia Large Snail list index {state.RequestedAnimationScriptIndex} " +
                 "is outside the retail eight-entry table.");
         }
 
-        state.InstalledInstructionListIndex = state.RequestedInstructionListIndex;
+        state.InstalledAnimationScriptIndex = state.RequestedAnimationScriptIndex;
         state.Program = AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(MaridiaLargeSnailPrograms
-            .Program(state.RequestedInstructionListIndex));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+            .Program(state.RequestedAnimationScriptIndex));
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

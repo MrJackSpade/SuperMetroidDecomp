@@ -118,25 +118,25 @@ internal sealed class ProjectileEnemyImpacts
         SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.Direction.ToAimIndex());
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
 
         if (family == SamusProjectileFamily.Missile)
         {
-            slot.PreInstruction = SamusProjectilePreInstruction.Missile;
+            slot.FrameBehavior = SamusProjectileFrameBehavior.Missile;
             slot.MissileIgnition = SamusMissileIgnition.PendingAfterReflection;
             slot.SuperMissileLinkSlot = null;
         }
         else if (family == SamusProjectileFamily.SuperMissile)
         {
-            slot.PreInstruction = SamusProjectilePreInstruction.SuperMissile;
+            slot.FrameBehavior = SamusProjectileFrameBehavior.SuperMissile;
             slot.MissileIgnition = SamusMissileIgnition.PendingAfterReflection;
             slot.SuperMissileLinkSlot = null;
         }
         else
         {
-            slot.PreInstruction = !slot.Type.BeamCombination.HasWave
-                ? SamusProjectilePreInstruction.NoWaveBeam
-                : SamusProjectilePreInstruction.WaveBeamFourFrameTrail;
+            slot.FrameBehavior = !slot.Type.BeamCombination.HasWave
+                ? SamusProjectileFrameBehavior.NoWaveBeam
+                : SamusProjectileFrameBehavior.WaveBeamFourFrameTrail;
         }
     }
 
@@ -187,10 +187,10 @@ internal sealed class ProjectileEnemyImpacts
         if (!slot.HasEnemyCollisionPayload)
             return false;
 
-        if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or
-            SamusProjectilePreInstruction.IceComboOutward or SamusProjectilePreInstruction.WaveCombo or
-            SamusProjectilePreInstruction.SpazerCombo or SamusProjectilePreInstruction.SpazerComboFalling or
-            SamusProjectilePreInstruction.PlasmaCombo)
+        if (slot.FrameBehavior is SamusProjectileFrameBehavior.IceCombo or
+            SamusProjectileFrameBehavior.IceComboOutward or SamusProjectileFrameBehavior.WaveCombo or
+            SamusProjectileFrameBehavior.SpazerCombo or SamusProjectileFrameBehavior.SpazerComboFalling or
+            SamusProjectileFrameBehavior.PlasmaCombo)
         {
             // Enemy collision only marks the native direction word. These particles own
             // hit deletion (and Spazer's paired deletion) in their next pre-instruction;

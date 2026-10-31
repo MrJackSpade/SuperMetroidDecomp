@@ -85,7 +85,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 slot.Properties = population.Properties;
                 slot.ExtraProperties = population.ExtraProperties;
 
-                slot.InstructionTimer = WrappingCountdown.Start(1);
+                slot.FrameHold = WrappingCountdown.Start(1);
 
                 bool translatedRecord = true;
                 try
@@ -113,7 +113,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 // A record still marked deleted after initialization (the n00b tube crack's palette-only record) is
                 // removed by the scheduler before any AI or instruction frame.
                 bool processesInstructions =
-                    slot.Properties.HasAny(EnemyProperties.ProcessInstructions) &&
+                    slot.Properties.HasAny(EnemyProperties.RunsAnimationScript) &&
                     !slot.Properties.HasAny(EnemyProperties.Deleted);
                 if (!processesInstructions)
                     continue;

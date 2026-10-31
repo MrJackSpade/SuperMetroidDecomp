@@ -34,7 +34,7 @@ internal sealed class SamusEaterPlms
         slot.Header = header;
         slot.BlockIndex = block.Index;
         slot.StartAnimation(new SamusEaterPlmAnimation(definition.Program));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.PlantHeldPosition = new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1)));
         level.SetTerrain(block.Index, block.Terrain.Deactivated());
         return;
@@ -51,7 +51,7 @@ internal sealed class SamusEaterPlms
         ?? throw new InvalidOperationException("Samus Eater PLM requires the live Samus owner.");
 
     /// <summary>Repositions held Samus after normal movement and ORs in the native invincibility bit.</summary>
-    internal void RunSamusEaterPreInstruction(PlmSlot slot)
+    internal void RunSamusEaterFrameBehavior(PlmSlot slot)
     {
         var samus = RequirePlantSamus();
         samus.Position = samus.Position.WithWhole(new(slot.PlantHeldPosition.X, slot.PlantHeldPosition.Y));

@@ -94,9 +94,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // but the executable scheduler also consumes that same bit for instructions, so
         // the translated property enum retains the directly observed scheduler meaning.
         slot.Properties = slot.Properties.With(
-            EnemyProperties.BlocksPlasmaBeam | EnemyProperties.ProcessInstructions);
+            EnemyProperties.BlocksPlasmaBeam | EnemyProperties.RunsAnimationScript);
         slot.Colouring = new EncounterSpriteColouring(BossColourDefinitions.ShitroidBody);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
         var state = new ShitroidEnemyState(slot)
@@ -345,7 +345,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     // `$A9:F39A` clears instruction processing and invisibility as Shitroid
                     // reaches the off-screen destination, leaving a dormant non-drawn actor.
                     slot.Properties = slot.Properties.Without(
-                        EnemyProperties.ProcessInstructions | EnemyProperties.Invisible);
+                        EnemyProperties.RunsAnimationScript | EnemyProperties.Invisible);
                     state.Function = ShitroidAiFunction.Dormant;
                 }
                 return;
@@ -782,7 +782,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void SetShitroidProgram(RoomEnemySlot slot, ShitroidProgram program)
     {
         RequireShitroidState(slot).Cursor = AnimationProgramCursor<ShitroidProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
@@ -847,9 +847,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AdvanceShitroidAnimation(RoomEnemySlot slot)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
-        CountdownStep instructionTimer = slot.InstructionTimer.Decrement();
-        slot.InstructionTimer = instructionTimer.Remaining;
-        if (!instructionTimer.IsZero)
+        CountdownStep frameHold = slot.FrameHold.Decrement();
+        slot.FrameHold = frameHold.Remaining;
+        if (!frameHold.IsZero)
         {
             slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
@@ -863,7 +863,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Cursor = cursor;
         if (advance is not AnimationProgramAdvance<BabyMetroidFrame>.Show shown)
             throw new InvalidOperationException($"The Shitroid's programs have no {advance} step.");
-        slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+        slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
         slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(shown.Frame);
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }

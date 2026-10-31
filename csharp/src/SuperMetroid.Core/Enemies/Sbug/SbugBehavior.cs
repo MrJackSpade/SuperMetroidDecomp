@@ -441,7 +441,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.InstalledProgram = state.RequestedProgram;
         state.Program = AnimationProgramCursor<SbugProgram>.Start(state.RequestedProgram.Value);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

@@ -202,7 +202,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetOwtchProgram(RoomEnemySlot slot, OwtchEnemyState state, OwtchProgram program)
     {
         state.Program = AnimationProgramCursor<OwtchProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

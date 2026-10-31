@@ -60,8 +60,8 @@ internal static class MaridiaElevatubePlmVerification
         {
             int pointer = SnesAddressMath.OffsetInBank(address);
             return (SnesAddressMath.BankNumber(address)) == 0x84 &&
-                ((pointer >= MaridiaElevatubePlmDefinitionsConstants.InstructionList &&
-                  pointer < MaridiaElevatubePlmDefinitionsConstants.InstructionList + 9) ||
+                ((pointer >= MaridiaElevatubePlmDefinitionsConstants.AnimationScript &&
+                  pointer < MaridiaElevatubePlmDefinitionsConstants.AnimationScript + 9) ||
                  (pointer >= PlmDrawSourceDefinitions.MaridiaElevatubeBlock.Offset &&
                   pointer < PlmDrawSourceDefinitions.MaridiaElevatubeBlock.Offset + 6));
         }, address => $"Elevatube PLM reread compiled source ${address:X6}.");

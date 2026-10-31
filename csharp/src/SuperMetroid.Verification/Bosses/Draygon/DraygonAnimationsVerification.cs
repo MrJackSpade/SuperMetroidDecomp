@@ -162,7 +162,7 @@ internal static class DraygonAnimationsVerification
 
     /// <summary>Runs one update of <paramref name="part"/> through the production interpreter.</summary>
     private static void Pass(RoomEnemySlot part) =>
-        EnemyInstructionInterpreter.ProcessInstructions(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyInstructionInterpreter.RunsAnimationScript(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
 
     /// <summary>
     /// The body's reset starts all four parts in the same update, gives the eye its tracking function and the
@@ -172,13 +172,13 @@ internal static class DraygonAnimationsVerification
     {
         (_, DraygonEnemyState state) = NewDraygon();
         state.SetCursor(state.Body, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.BodyFacingRightReset));
-        state.Body.InstructionTimer = WrappingCountdown.Start(1);
+        state.Body.FrameHold = WrappingCountdown.Start(1);
         Pass(state.Body);
         AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.EyeFacingRightIdle), state.Cursor(state.Eye), "the reset starts the eye");
         AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.TailFacingRightIdle), state.Cursor(state.Tail), "the reset starts the tail");
         AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingRightIdle), state.Cursor(state.Arms), "the reset starts the arms");
         foreach (RoomEnemySlot part in new[] { state.Eye, state.Tail, state.Arms })
-            AssertEqual((ushort)1, part.InstructionTimer.RawValue, "the reset's started parts run on their next update");
+            AssertEqual((ushort)1, part.FrameHold.RawValue, "the reset's started parts run on their next update");
         AssertEqual(DraygonProgram.BodyFacingRightReset, state.Cursor(state.Body).Program, "the body's own frame keeps it in the reset");
         AssertEqual(DraygonFrameToolingDefinitions.Spritemap(new DraygonFrame(63)), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
         AssertEqual<DraygonEyeFunction?>(DraygonEyeFunction.FacingRight, state.Eye.SpeciesState<DraygonEyeState>()?.Function, "the reset gives the eye its tracking function");
@@ -194,7 +194,7 @@ internal static class DraygonAnimationsVerification
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         RoomEnemySlot arms = state.Arms;
         state.SetCursor(arms, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingLeftDying));
-        arms.InstructionTimer = WrappingCountdown.Start(1);
+        arms.FrameHold = WrappingCountdown.Start(1);
         var native = new NativeEnemyListDefinitions.Reader(BodyBankNumber, Entry(DraygonProgram.ArmsFacingLeftDying), 1, OperandWords);
         bool paralysed = false;
         for (int update = 0; update < 400; update++)
@@ -203,7 +203,7 @@ internal static class DraygonAnimationsVerification
             Pass(arms);
             List<NativeEnemyListDefinitions.Callback> callbacks = native.Step(cartridge);
             string at = $"Draygon dying update {update}";
-            AssertEqual(native.Timer, arms.InstructionTimer.RawValue, $"{at}: timer");
+            AssertEqual(native.Timer, arms.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Spritemap, arms.SpritemapPointer, $"{at}: frame");
             AssertEqual(native.NewFrame, arms.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
             AssertEqual(native.Counter, arms.Timer.RawValue, $"{at}: loop counter");
@@ -244,10 +244,10 @@ internal static class DraygonAnimationsVerification
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         enemies.Projectiles.ProcessEnemyProjectileInstructions(goop, samus, Position16<RoomPixels>.Zero);
-        AssertEqual(EnemyProjectilePreInstruction.DraygonGoopStuckToSamus, goop.PreInstruction, "the goop touch sticks the goop to Samus");
+        AssertEqual(EnemyProjectileFrameBehavior.DraygonGoopStuckToSamus, goop.FrameBehavior, "the goop touch sticks the goop to Samus");
         AssertEqual(EnemyProjectileProgramFrameSources.Operand(DraygonProjectileVisualDefinitions.ShownProjectileFrames[new(DraygonProjectileFrameKind.Goop, 0)]), goop.PresentationOperandAddress,
             "the goop touch shows the goop's first frame in the same update");
-        AssertEqual((ushort)10, goop.InstructionTimer.RawValue, "the goop's first frame lasts ten updates");
+        AssertEqual((ushort)10, goop.FrameHold.RawValue, "the goop's first frame lasts ten updates");
         Console.WriteLine("  Draygon projectile programs: goop, burst, touch, bloom and flight match bank $86; the touch sticks the goop at once.");
     }
 

@@ -197,7 +197,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetRipperProgram(RoomEnemySlot slot, RipperProgram program)
     {
         slot.RequireSpeciesState<RipperEnemyState>().Program = AnimationProgramCursor<RipperProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

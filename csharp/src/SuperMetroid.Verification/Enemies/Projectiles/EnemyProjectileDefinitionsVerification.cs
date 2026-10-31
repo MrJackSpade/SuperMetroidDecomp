@@ -61,12 +61,12 @@ internal static class EnemyProjectileDefinitionsVerification
             projectile.Clear();
             initialize(projectile, kind, SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.Frozen));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
-            AssertEqual(definition.PreInstruction, projectile.PreInstruction,
+            AssertEqual(definition.FrameBehavior, projectile.FrameBehavior,
                 $"{kind} production pre-instruction");
             // A kind with a typed initial program (#641) runs it in place of the definition's native list.
             bool typedStart = EnemyProjectileTypedStarts.Initial(kind) is not null;
             AssertEqual(typedStart, projectile.Animation is not null, $"{kind} production typed start");
-            AssertEqual((ushort)1, projectile.InstructionTimer.RawValue,
+            AssertEqual((ushort)1, projectile.FrameHold.RawValue,
                 $"{kind} production timer");
             AssertEqual((ushort)0x8000, projectile.SpritemapPointer,
                 $"{kind} production initial spritemap");
@@ -522,7 +522,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 forbidden.Add(address + index);
 
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
-            AssertEqual(definition.PreInstruction, EnemyProjectilePreInstructionAccess.FromWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2)),
+            AssertEqual(definition.FrameBehavior, EnemyProjectileFrameBehaviorAccess.FromWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2)),
                 $"{kind} pre-instruction");
             // The record's radius word holds X in its low byte and Y in its high byte; its property word holds the
             // contact damage in its low twelve bits and the four behaviour bits above them.

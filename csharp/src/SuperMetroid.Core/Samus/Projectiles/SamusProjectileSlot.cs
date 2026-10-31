@@ -44,7 +44,7 @@ public sealed class SamusProjectileSlot
     /// <summary>Where the slot's projectile program resumes; null marks the slot inactive for animation.</summary>
     internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
     /// <summary>Updates remaining before the current projectile instruction advances.</summary>
-    public WrappingCountdown InstructionTimer { get; internal set; }
+    public WrappingCountdown FrameHold { get; internal set; }
     /// <summary>The composition the projectile shows, selected by the timed-frame interpreter or installed frame binding; none before its first frame.</summary>
     public ProjectileSpriteId? Sprite { get; internal set; }
     /// <summary>Current animation frame index.</summary>
@@ -81,7 +81,7 @@ public sealed class SamusProjectileSlot
     /// <summary>The Spazer special attack's particle phase; it survives slot reuse.</summary>
     public SpazerComboPhase AuxiliaryPhase { get; internal set; }
     /// <summary>The slot's projectile pre-instruction.</summary>
-    public SamusProjectilePreInstruction PreInstruction { get; internal set; }
+    public SamusProjectileFrameBehavior FrameBehavior { get; internal set; }
 
     /// <summary>A live projectile program marks the slot allocated and drawable.</summary>
     public bool IsActive => Cursor is not null;
@@ -103,11 +103,11 @@ public sealed class SamusProjectileSlot
         Velocity = default(EightEightVector<RoomPixels>);
         Radius = Extent16<RoomPixels>.Zero;
         Cursor = null;
-        InstructionTimer = WrappingCountdown.Start(0);
+        FrameHold = WrappingCountdown.Start(0);
         Sprite = null;
         AnimationFrame = 0;
         ClearKindState();
-        PreInstruction = SamusProjectilePreInstruction.None;
+        FrameBehavior = SamusProjectileFrameBehavior.None;
     }
 
     /// <summary>
@@ -126,10 +126,10 @@ public sealed class SamusProjectileSlot
         Type = SamusProjectileType.None;
         Damage = 0;
         Cursor = null;
-        InstructionTimer = WrappingCountdown.Start(0);
+        FrameHold = WrappingCountdown.Start(0);
         ClearKindState();
         Sprite = null;
-        PreInstruction = SamusProjectilePreInstruction.None;
+        FrameBehavior = SamusProjectileFrameBehavior.None;
     }
 
     /// <summary>Clears the state each projectile kind keeps: missile ignition and link, particle angles and speeds, the Chainsaw fuse.</summary>

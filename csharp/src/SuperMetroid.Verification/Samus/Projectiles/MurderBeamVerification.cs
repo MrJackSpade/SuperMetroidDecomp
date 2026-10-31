@@ -72,8 +72,8 @@ internal static class MurderBeamVerification
             "safe Murder Beam faces left");
         AssertEqual((ushort)116, shot.Position.X.Whole, "Murder Beam native muzzle X");
         AssertEqual((ushort)123, shot.Position.Y.Whole, "Murder Beam native muzzle Y");
-        AssertEqual(SamusProjectilePreInstruction.MurderBeamMisalignedExecution,
-            shot.PreInstruction, "Murder Beam retains its overread callback identity");
+        AssertEqual(SamusProjectileFrameBehavior.MurderBeamMisalignedExecution,
+            shot.FrameBehavior, "Murder Beam retains its overread callback identity");
         AssertEqual(0, shot.InstructionPointer,
             "safe left-facing data record selects no animation list");
         AssertEqual((ushort)0, shot.Radius.X, "safe Murder Beam X radius");

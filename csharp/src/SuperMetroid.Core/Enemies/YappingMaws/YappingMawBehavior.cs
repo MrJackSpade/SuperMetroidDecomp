@@ -99,7 +99,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<YappingMawProgram>.Start(slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
             ? YappingMawProgram.AttackingDown
             : YappingMawProgram.AttackingUp);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
         // SpawnEprojWithGfx searches native indexes $22,$20,... downward. The initializer
@@ -238,7 +238,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         YappingMawAim aim = YappingMawAnimationDefinitions.Aims.At(direction);
         state.Aim = aim;
         state.Program = AnimationProgramCursor<YappingMawProgram>.Start(YappingMawBites.AttackForDirection(aim));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
         state.HeldSamusOffset = YappingMawAttackGeometry.HeldSamusOffset(direction);
@@ -343,7 +343,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             });
             skipHeldPlacement = state.Aim is not (YappingMawAim.Right or YappingMawAim.Left);
         }
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
         if (!skipHeldPlacement && state.HasGrabbedSamus)

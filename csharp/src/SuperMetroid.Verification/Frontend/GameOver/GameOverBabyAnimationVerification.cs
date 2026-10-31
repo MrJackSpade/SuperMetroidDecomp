@@ -40,13 +40,13 @@ internal static class GameOverBabyAnimationVerification
         AssertEqual(original.Count, GameOverBabyAnimationDefinitions.InstructionCount, "Baby count contract");
         AssertEqual(original.Count, GameOverBabyAnimation.StepCount, "Baby step count");
         AssertEqual(original[0].Pointer, GameOverBabyAnimationDefinitions.FirstPointer, "extraction walk starts at the first native record");
-        GameOverBabyInstruction[] enumerated = GameOverBabyAnimation.All.ToArray();
+        GameOverBabyScriptStep[] enumerated = GameOverBabyAnimation.All.ToArray();
         AssertEqual(original.Count, enumerated.Length, "Baby enumeration count");
         for (int index = 0; index < original.Count; index++)
         {
             var expected = original[index];
             // The native stream's record order is the step identity: record N of the walk is step N.
-            GameOverBabyInstruction actual = GameOverBabyAnimation.Get(index);
+            GameOverBabyScriptStep actual = GameOverBabyAnimation.Get(index);
             AssertEqual(index, actual.Step, "Baby step identity follows native record order");
             AssertEqual(expected.Duration, actual.Duration, "Baby duration field");
             AssertEqual(expected.Sprite, GameOverBabyAnimationDefinitions.NativeSpritemap(actual.Frame), "Baby frame field");

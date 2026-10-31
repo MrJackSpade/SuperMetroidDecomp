@@ -16,7 +16,7 @@ internal static class SpacePirateProjectileAnimations
             Show(0, 2),
             Show(1, 2),
             Show(2, 2),
-            Cue(SpacePirateProjectileCueKind.StartMovingNow, EnemyProjectilePreInstruction.LaserFlightLeft),
+            Cue(SpacePirateProjectileCueKind.StartMovingNow, EnemyProjectileFrameBehavior.LaserFlightLeft),
             Show(3, 1),
             Show(4, 1),
             Show(5, 1),
@@ -38,7 +38,7 @@ internal static class SpacePirateProjectileAnimations
             Show(13, 2),
             Show(14, 2),
             Show(15, 2),
-            Cue(SpacePirateProjectileCueKind.StartMovingNow, EnemyProjectilePreInstruction.LaserFlightRight),
+            Cue(SpacePirateProjectileCueKind.StartMovingNow, EnemyProjectileFrameBehavior.LaserFlightRight),
             Show(16, 1),
             Show(17, 1),
             Show(18, 1),
@@ -57,7 +57,7 @@ internal static class SpacePirateProjectileAnimations
         ],
         [P.ClawLeft] =
         [
-            Cue(SpacePirateProjectileCueKind.StartMoving, EnemyProjectilePreInstruction.PirateClawThrownLeft),
+            Cue(SpacePirateProjectileCueKind.StartMoving, EnemyProjectileFrameBehavior.PirateClawThrownLeft),
             FallInto(P.ClawLeftLoop),
         ],
         [P.ClawLeftLoop] =
@@ -74,7 +74,7 @@ internal static class SpacePirateProjectileAnimations
         ],
         [P.ClawRight] =
         [
-            Cue(SpacePirateProjectileCueKind.StartMoving, EnemyProjectilePreInstruction.PirateClawThrownRight),
+            Cue(SpacePirateProjectileCueKind.StartMoving, EnemyProjectileFrameBehavior.PirateClawThrownRight),
             FallInto(P.ClawRightLoop),
         ],
         [P.ClawRightLoop] =
@@ -97,7 +97,7 @@ internal static class SpacePirateProjectileAnimations
 
     /// <summary>Publishes a cue of <paramref name="kind"/> installing <paramref name="movement"/>.</summary>
     private static AnimationProgramStep<SpacePirateProjectileProgram, SpacePirateProjectileFrame, SpacePirateProjectileCue> Cue(
-        SpacePirateProjectileCueKind kind, EnemyProjectilePreInstruction movement) =>
+        SpacePirateProjectileCueKind kind, EnemyProjectileFrameBehavior movement) =>
         AnimationProgramStep<SpacePirateProjectileProgram, SpacePirateProjectileFrame, SpacePirateProjectileCue>.Publish(new(kind, movement));
 
     /// <summary>Runs on into <paramref name="program"/>.</summary>

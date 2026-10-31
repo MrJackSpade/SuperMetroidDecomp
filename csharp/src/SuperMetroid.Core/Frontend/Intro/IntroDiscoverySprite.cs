@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroDiscoverySprite
 {
     /// <summary>Countdown before the next sprite instruction is decoded; setup may stagger the first frame.</summary>
-    private WrappingCountdown instructionTimer = WrappingCountdown.Start(1);
+    private WrappingCountdown frameHold = WrappingCountdown.Start(1);
 
     /// <summary>Creates an actor at a whole-pixel origin with the screen colours it starts drawing in and its program.</summary>
     public IntroDiscoverySprite(
@@ -74,16 +74,16 @@ internal sealed class IntroDiscoverySprite
     }
 
     /// <summary>The pre-instruction the actor runs, or none.</summary>
-    internal CinematicSpritePreInstruction? PreInstruction { get; private set; }
+    internal CinematicSpriteFrameBehavior? FrameBehavior { get; private set; }
 
     /// <summary>The pre-instruction the actor's program installed, until an owner installs its own.</summary>
-    internal CinematicSpritePreInstruction? ListPreInstruction { get; private set; }
+    internal CinematicSpriteFrameBehavior? ListFrameBehavior { get; private set; }
 
     /// <summary>Starts <paramref name="program"/> on the next handler call, discarding the old frame countdown.</summary>
     public void Start(CinematicSpriteProgram program)
     {
         Program = AnimationProgramCursor<CinematicSpriteProgram>.Start(program);
-        instructionTimer = WrappingCountdown.Start(1);
+        frameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>
@@ -101,14 +101,14 @@ internal sealed class IntroDiscoverySprite
     {
         if (frames == 0)
             throw new ArgumentOutOfRangeException(nameof(frames), "A native instruction delay must be nonzero.");
-        instructionTimer = WrappingCountdown.Start(frames);
+        frameHold = WrappingCountdown.Start(frames);
     }
 
     /// <summary>Installs the pre-instruction the actor's owner selects, or none.</summary>
-    internal void InstallPreInstruction(CinematicSpritePreInstruction? preInstruction)
+    internal void InstallFrameBehavior(CinematicSpriteFrameBehavior? frameBehavior)
     {
-        PreInstruction = preInstruction;
-        ListPreInstruction = null;
+        FrameBehavior = frameBehavior;
+        ListFrameBehavior = null;
     }
 
     /// <summary>Retires the actor and clears its visible frame.</summary>
@@ -128,8 +128,8 @@ internal sealed class IntroDiscoverySprite
         if (!IsActive)
             return;
 
-        instructionTimer = instructionTimer.Decrement().Remaining;
-        if (!instructionTimer.IsZero)
+        frameHold = frameHold.Decrement().Remaining;
+        if (!frameHold.IsZero)
             return;
 
         AnimationProgramCursor<CinematicSpriteProgram> cursor = Program;
@@ -149,7 +149,7 @@ internal sealed class IntroDiscoverySprite
         switch (advance)
         {
             case AnimationProgramAdvance<CinematicSpritePose>.Show shown:
-                instructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                frameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 Pose = shown.Frame;
                 return;
             case AnimationProgramAdvance<CinematicSpritePose>.Hold:
@@ -165,10 +165,10 @@ internal sealed class IntroDiscoverySprite
     /// <summary>Installs a pre-instruction, or hands any other cue to the actor's owner.</summary>
     private void ApplyCue(CinematicSpriteCue cue, Action<CinematicSpriteCueKind>? ownerCue)
     {
-        if (cue.Kind == CinematicSpriteCueKind.SetPreInstruction)
+        if (cue.Kind == CinematicSpriteCueKind.SetFrameBehavior)
         {
-            PreInstruction = cue.PreInstruction;
-            ListPreInstruction = cue.PreInstruction;
+            FrameBehavior = cue.FrameBehavior;
+            ListFrameBehavior = cue.FrameBehavior;
             return;
         }
         (ownerCue ?? throw new InvalidOperationException(

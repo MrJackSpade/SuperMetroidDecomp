@@ -542,7 +542,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             definition.Position,
             definition.Colouring,
             definition.Program);
-        actor.InstallPreInstruction(definition.ActivePreInstruction);
+        actor.InstallFrameBehavior(definition.ActiveFrameBehavior);
         return actor;
     }
 
@@ -610,11 +610,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             {
                 CeresDestructionActorDefinition definition =
                     CeresDestructionActors.InitialActor(index);
-                if (actor.PreInstruction != definition.ActivePreInstruction)
+                if (actor.FrameBehavior != definition.ActiveFrameBehavior)
                 {
                     throw new InvalidDataException(
                         $"Ceres destruction actor {index} names invalid pre-instruction " +
-                        $"{actor.PreInstruction}.");
+                        $"{actor.FrameBehavior}.");
                 }
                 if (definition.WrapX)
                     AddWrappedX(actor, WordWrap.Unsigned(definition.HorizontalDelta));
@@ -656,8 +656,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole)),
             ScreenColourGroup.CeresExplosions,
             CeresExplosionDefinitions.StationBlastActor.Program);
-        cinematicExplosion.InstallPreInstruction(
-            CeresExplosionDefinitions.StationBlastActor.PreInstruction);
+        cinematicExplosion.InstallFrameBehavior(
+            CeresExplosionDefinitions.StationBlastActor.FrameBehavior);
         _ = TryAddCeresActor(cinematicExplosion);
 
         LoadFinalExplosionMaps();
@@ -675,7 +675,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                     CoordinateAxis.AsSigned(Background.Y.Whole) + placement.Offset.Y)),
             ScreenColourGroup.CeresExplosions,
             definition.Program);
-        actor.InstallPreInstruction(definition.PreInstruction);
+        actor.InstallFrameBehavior(definition.FrameBehavior);
 
         // The native initializer writes its stagger directly to the instruction timer.
         // GeneralTimer is a different WRAM array used by decrement-and-goto opcodes; using
@@ -734,12 +734,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                         : ReferenceEquals(actor, zebesTitleActor)
                             ? CeresDestructionActors.ZebesActor(5)
                             : CeresDestructionActors.ZebesActor(1);
-                if (definition.SlidePreInstruction is null)
+                if (definition.SlideFrameBehavior is null)
                 {
                     throw new InvalidDataException(
                         "PLANET ZEBES title actor remained active when scene sliding began.");
                 }
-                actor.InstallPreInstruction(definition.SlidePreInstruction);
+                actor.InstallFrameBehavior(definition.SlideFrameBehavior);
                 // Zebes accelerates by $40 in 8.8; all four star sheets use $20. Star
                 // sheet five is the native completion owner at C8F2. Identify the actors
                 // by ownership, not their mutable list index: native actors delete as they
@@ -791,7 +791,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 Phase = CeresDestructionPhase.FlyingTowardZebesA;
                 return;
 
-            case CinematicSpriteCueKind.SetPreInstruction:
+            case CinematicSpriteCueKind.SetFrameBehavior:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
             case CinematicSpriteCueKind.FadeExplosionPalette:

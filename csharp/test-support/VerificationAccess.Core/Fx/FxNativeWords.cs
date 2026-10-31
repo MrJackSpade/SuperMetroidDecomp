@@ -82,18 +82,18 @@ internal static class FxNativeWords
         [SpecialAirReactionSetup.WreckedShipChozoHand] = 0xd620,
     });
 
-    /// <summary>The bank-$8D pre-instruction routine naming each <see cref="PaletteFxPreInstruction"/>.</summary>
-    internal static readonly NativeWordIdentities<PaletteFxPreInstruction> PaletteFxPreInstructions = new(new Dictionary<PaletteFxPreInstruction, ushort>
+    /// <summary>The bank-$8D pre-instruction routine naming each <see cref="PaletteFxFrameBehavior"/>.</summary>
+    internal static readonly NativeWordIdentities<PaletteFxFrameBehavior> PaletteFxFrameBehaviors = new(new Dictionary<PaletteFxFrameBehavior, ushort>
     {
-        [PaletteFxPreInstruction.Null] = 0xc526,
-        [PaletteFxPreInstruction.Cleared] = 0xc5e3,
-        [PaletteFxPreInstruction.Intro] = 0xe20b,
-        [PaletteFxPreInstruction.DeleteWhenEnemyZeroDies] = 0xe2e0,
-        [PaletteFxPreInstruction.Heat] = 0xe379,
-        [PaletteFxPreInstruction.SwitchAboveY380] = 0xec59,
-        [PaletteFxPreInstruction.SwitchAboveY380Second] = 0xed84,
-        [PaletteFxPreInstruction.DeleteWhenAreaMiniBossDies] = 0xeec5,
-        [PaletteFxPreInstruction.InspectAdjacentSlot] = 0xf621,
+        [PaletteFxFrameBehavior.Null] = 0xc526,
+        [PaletteFxFrameBehavior.Cleared] = 0xc5e3,
+        [PaletteFxFrameBehavior.Intro] = 0xe20b,
+        [PaletteFxFrameBehavior.DeleteWhenEnemyZeroDies] = 0xe2e0,
+        [PaletteFxFrameBehavior.Heat] = 0xe379,
+        [PaletteFxFrameBehavior.SwitchAboveY380] = 0xec59,
+        [PaletteFxFrameBehavior.SwitchAboveY380Second] = 0xed84,
+        [PaletteFxFrameBehavior.DeleteWhenAreaMiniBossDies] = 0xeec5,
+        [PaletteFxFrameBehavior.InspectAdjacentSlot] = 0xf621,
     });
 
     /// <summary>The bank-$8D setup routine naming each <see cref="PaletteFxSetup"/>.</summary>

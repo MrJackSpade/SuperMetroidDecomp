@@ -18,7 +18,7 @@ internal static class TorizoProjectileAnimations
     {
         [P.ExplosionLowHealthInitial] =
         [
-            Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
+            Cue(new TorizoProjectileCue.Command(K.ClearFrameBehavior)),
             Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             SetCounter(3),
             FallInto(P.ExplosionLowHealthInitialLoop),
@@ -39,7 +39,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.ExplosionDeathInitial] =
         [
-            Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
+            Cue(new TorizoProjectileCue.Command(K.ClearFrameBehavior)),
             Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             Cue(new TorizoProjectileCue.GoToSometimes(Target: P.ExplosionDeathSmokeSetup)),
             SetCounter(2),
@@ -90,7 +90,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.DroolNoDelay] =
         [
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoDroolFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoDroolFall)),
             Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             Show(P.DroolNoDelay, 0, 5),
             Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus)),
@@ -103,13 +103,13 @@ internal static class TorizoProjectileAnimations
         ],
         [P.DroolWallImpact] =
         [
-            Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
+            Cue(new TorizoProjectileCue.Command(K.ClearFrameBehavior)),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
         ],
         [P.DroolFloorImpact] =
         [
-            Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
+            Cue(new TorizoProjectileCue.Command(K.ClearFrameBehavior)),
             Show(P.DroolFloorImpact, 0, 8),
             Show(P.DroolFloorImpact, 1, 8),
             Show(P.DroolFloorImpact, 2, 8),
@@ -131,7 +131,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment0, 0, 128),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment0, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -140,7 +140,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment1, 0, 120),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment1, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -149,7 +149,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment2, 0, 112),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment2, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -158,7 +158,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment3, 0, 104),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment3, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -167,7 +167,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment4, 0, 96),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment4, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -176,7 +176,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment5, 0, 88),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment5, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -185,7 +185,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment6, 0, 80),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment6, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -194,7 +194,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment7, 0, 72),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment7, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -203,7 +203,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment8, 0, 64),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment8, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -212,7 +212,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment9, 0, 64),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment9, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -221,7 +221,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment10, 0, 64),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment10, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -230,7 +230,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment11, 0, 64),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment11, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -239,7 +239,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment12, 0, 64),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment12, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -248,7 +248,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment13, 0, 64),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment13, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -257,7 +257,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment14, 0, 64),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment14, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -266,7 +266,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.StatueFragment15, 0, 64),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)),
             Show(P.StatueFragment15, 1, 112),
             Cue(new TorizoProjectileCue.Command(K.Delete)),
             Hold,
@@ -283,7 +283,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.ChozoOrbWallImpact] =
         [
-            Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
+            Cue(new TorizoProjectileCue.Command(K.ClearFrameBehavior)),
             Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             Show(P.ChozoOrbWallImpact, 0, 4),
             Show(P.ChozoOrbWallImpact, 1, 4),
@@ -295,7 +295,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.ChozoOrbFloorImpact] =
         [
-            Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
+            Cue(new TorizoProjectileCue.Command(K.ClearFrameBehavior)),
             Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus)),
             Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library3Sound.ProjectileImpact, Priority: SoundRequestPriority.Normal)),
@@ -310,7 +310,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.ChozoOrbShot] =
         [
-            Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
+            Cue(new TorizoProjectileCue.Command(K.ClearFrameBehavior)),
             Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             Show(P.ChozoOrbShot, 0, 4),
             Show(P.ChozoOrbShot, 1, 4),
@@ -347,7 +347,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.SonicBoomWallImpact] =
         [
-            Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
+            Cue(new TorizoProjectileCue.Command(K.ClearFrameBehavior)),
             Cue(new TorizoProjectileCue.Command(K.StopBlockingShots)),
             Cue(new TorizoProjectileCue.Command(K.StopHarmingSamus)),
             Cue(new TorizoProjectileCue.Command(K.DrawInFront)),
@@ -399,7 +399,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.EggBouncingLeftHatching] =
         [
-            Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
+            Cue(new TorizoProjectileCue.Command(K.ClearFrameBehavior)),
             Show(P.EggBouncingLeftHatching, 0, 4),
             Show(P.EggBouncingLeftHatching, 1, 4),
             Show(P.EggBouncingLeftHatching, 2, 4),
@@ -412,7 +412,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.EggBouncingRightHatching] =
         [
-            Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
+            Cue(new TorizoProjectileCue.Command(K.ClearFrameBehavior)),
             Show(P.EggBouncingRightHatching, 0, 4),
             Show(P.EggBouncingRightHatching, 1, 4),
             Show(P.EggBouncingRightHatching, 2, 4),
@@ -428,7 +428,7 @@ internal static class TorizoProjectileAnimations
         [P.EggHatchedLeft] =
         [
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.ShotPipeBug, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.GoldenTorizoEggCharge)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.GoldenTorizoEggCharge)),
             FallInto(P.EggHatchedLeftLoop),
         ],
         [P.EggHatchedLeftLoop] =
@@ -442,7 +442,7 @@ internal static class TorizoProjectileAnimations
         [P.EggHatchedRight] =
         [
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.ShotPipeBug, Priority: SoundRequestPriority.Normal)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.GoldenTorizoEggCharge)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.GoldenTorizoEggCharge)),
             FallInto(P.EggHatchedRightLoop),
         ],
         [P.EggHatchedRightLoop] =
@@ -455,7 +455,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.EggBreakLeft] =
         [
-            Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
+            Cue(new TorizoProjectileCue.Command(K.ClearFrameBehavior)),
             Show(P.EggBreakLeft, 0, 4),
             Show(P.EggBreakLeft, 1, 4),
             Show(P.EggBreakLeft, 2, 4),
@@ -466,7 +466,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.EggBreakRight] =
         [
-            Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
+            Cue(new TorizoProjectileCue.Command(K.ClearFrameBehavior)),
             Show(P.EggBreakRight, 0, 4),
             Show(P.EggBreakRight, 1, 4),
             Show(P.EggBreakRight, 2, 4),
@@ -479,7 +479,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.SuperMissileRightInitial, 0, 48),
             Cue(new TorizoProjectileCue.Command(K.AimSuperMissileTowardSamus)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.GoldenTorizoSuperMissileThrown)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.GoldenTorizoSuperMissileThrown)),
             FallInto(P.SuperMissileRightLoop),
         ],
         [P.SuperMissileRightLoop] =
@@ -498,7 +498,7 @@ internal static class TorizoProjectileAnimations
         [
             Show(P.SuperMissileLeftInitial, 0, 48),
             Cue(new TorizoProjectileCue.Command(K.AimSuperMissileAwayFromSamus)),
-            Cue(new TorizoProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.GoldenTorizoSuperMissileThrown)),
+            Cue(new TorizoProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.GoldenTorizoSuperMissileThrown)),
             FallInto(P.SuperMissileLeftLoop),
         ],
         [P.SuperMissileLeftLoop] =
@@ -516,7 +516,7 @@ internal static class TorizoProjectileAnimations
         [P.SuperMissileImpact] =
         [
             Cue(new TorizoProjectileCue.SetRadius(Radius: new(16, 16))),
-            Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
+            Cue(new TorizoProjectileCue.Command(K.ClearFrameBehavior)),
             Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus | EnemyProjectilePropertyFlags.BlocksShots)),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
@@ -531,7 +531,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.EyeBeamWallImpact] =
         [
-            Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
+            Cue(new TorizoProjectileCue.Command(K.ClearFrameBehavior)),
             Show(P.EyeBeamWallImpact, 0, 4),
             Show(P.EyeBeamWallImpact, 1, 4),
             Show(P.EyeBeamWallImpact, 2, 4),
@@ -542,7 +542,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.EyeBeamFloorImpact] =
         [
-            Cue(new TorizoProjectileCue.Command(K.ClearPreInstruction)),
+            Cue(new TorizoProjectileCue.Command(K.ClearFrameBehavior)),
             FallInto(P.EyeBeamFloorImpactLoop),
         ],
         [P.EyeBeamFloorImpactLoop] =

@@ -129,7 +129,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PhantoonEnemyState state = Combat.Phantoon ??
             throw new InvalidOperationException("Phantoon body must initialize before its parts.");
         part.Frame = EnemyFrameId.Empty;
-        part.InstructionTimer = WrappingCountdown.Start(1);
+        part.FrameHold = WrappingCountdown.Start(1);
         part.Timer = WrappingCountdown.Start(0);
         part.Colouring = state.Body.Colouring;
         part.TileIndexBase = state.Body.TileIndexBase;
@@ -403,11 +403,11 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             ? stateSlot
             : _slotTable.Slots[0]);
     /// <summary>Initial flame callback that holds position before orbit activation.</summary>
-    internal const EnemyProjectilePreInstruction PhantoonStartingFlameWaitingPreInstruction =
-        EnemyProjectilePreInstruction.PhantoonIntroFlameWaiting;
+    internal const EnemyProjectileFrameBehavior PhantoonStartingFlameWaitingFrameBehavior =
+        EnemyProjectileFrameBehavior.PhantoonIntroFlameWaiting;
     /// <summary>Activated flame callback that advances its orbit around the body.</summary>
-    internal const EnemyProjectilePreInstruction PhantoonStartingFlameOrbitPreInstruction =
-        EnemyProjectilePreInstruction.PhantoonIntroFlameOrbit;
+    internal const EnemyProjectileFrameBehavior PhantoonStartingFlameOrbitFrameBehavior =
+        EnemyProjectileFrameBehavior.PhantoonIntroFlameOrbit;
 
     /// <summary>Ports PhantoonBody's main AI.</summary>
     internal void RunPhantoonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

@@ -36,7 +36,7 @@ internal enum EyeDoorPlmCue
     /// <summary><c>$84:D790</c>: the eye sweats.</summary>
     SpawnSweat,
     /// <summary><c>$84:86CA</c>: the destroyed eye takes no more hits.</summary>
-    ClearPreInstruction,
+    ClearFrameBehavior,
     /// <summary><c>$84:D7B6</c>: one centred smoke puff.</summary>
     SpawnSmoke,
     /// <summary><c>$84:D7C3</c> (right) / <c>$84:D7DA</c> (left): the eye moves up a block and lays the blue cap's collision.</summary>

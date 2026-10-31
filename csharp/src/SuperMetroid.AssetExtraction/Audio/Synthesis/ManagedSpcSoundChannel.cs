@@ -6,7 +6,7 @@ internal sealed class ManagedSpcSoundChannel
     /// <summary>Bit selecting the hardware voice temporarily owned by this SFX stream.</summary>
     internal int VoiceBitset;
     /// <summary>Ticks until this stream reads its next sound instruction.</summary>
-    internal int InstructionTimer;
+    internal int FrameHold;
     /// <summary>Fractional pitch byte advanced during a sound effect slide.</summary>
     internal int Subnote;
     /// <summary>Instruction index saved at a sound effect repeat-start command.</summary>
@@ -53,7 +53,7 @@ internal sealed class ManagedSpcSoundChannel
     /// <summary>Appends every field of this sound-effect channel, in declaration order, to a driver-state snapshot (#1305).</summary>
     internal void WriteState(List<byte> state)
     {
-        SpcDriverSnapshot.AddBytes(state, [VoiceBitset, InstructionTimer, Subnote, RepeatPoint, Note, PointerIndex, VoiceIndex, VoiceIndexTimesEight, ReleaseTimer, Volume, TargetNote, PhaseInvert, RepeatCounter, EnablePitchSlide, ReleaseFlag, EnablePitchSlideLegato, ChannelMask, Legato, Disabled, SubnoteDelta, UpdateAdsr]);
+        SpcDriverSnapshot.AddBytes(state, [VoiceBitset, FrameHold, Subnote, RepeatPoint, Note, PointerIndex, VoiceIndex, VoiceIndexTimesEight, ReleaseTimer, Volume, TargetNote, PhaseInvert, RepeatCounter, EnablePitchSlide, ReleaseFlag, EnablePitchSlideLegato, ChannelMask, Legato, Disabled, SubnoteDelta, UpdateAdsr]);
         SpcDriverSnapshot.AddWords(state, [Pointer, AdsrSettings]);
     }
 }

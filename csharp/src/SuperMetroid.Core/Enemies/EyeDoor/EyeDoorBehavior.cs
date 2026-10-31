@@ -266,7 +266,7 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>Moves the eye shot, accelerates along its angle, and switches to impact on collision or door opening.</summary>
-    internal void RunEyeDoorProjectilePreInstruction(
+    internal void RunEyeDoorProjectileFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -291,7 +291,7 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>Applies sweat gravity and enters the impact list on a downward vertical collision.</summary>
-    internal static void RunEyeDoorSweatPreInstruction(
+    internal static void RunEyeDoorSweatFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -301,7 +301,7 @@ internal sealed class EyeDoorBehavior
         {
             projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 4);
             // The floor splash stops the drop's movement, as the native list switch does.
-            projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+            projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
             projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatProgram.HitFloor));
             return;
         }
@@ -319,7 +319,7 @@ internal sealed class EyeDoorBehavior
     /// <summary>Sends an eye-door shot into its typed impact program, stopping its movement as the native list switch does.</summary>
     private static void StartEyeDoorProjectileImpact(RoomEnemyProjectileSlot projectile)
     {
-        projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+        projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Impact));
     }
 
@@ -331,11 +331,11 @@ internal sealed class EyeDoorBehavior
             case EyeDoorProjectileCueKind.AimAtSamus:
                 AimEyeDoorProjectileAtSamus(projectile, samus ?? throw new InvalidOperationException("The eye-door shot's aim requires Samus."));
                 break;
-            case EyeDoorProjectileCueKind.SetPreInstruction:
-                projectile.PreInstruction = cue.PreInstruction;
+            case EyeDoorProjectileCueKind.SetFrameBehavior:
+                projectile.FrameBehavior = cue.FrameBehavior;
                 break;
-            case EyeDoorProjectileCueKind.ClearPreInstruction:
-                projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+            case EyeDoorProjectileCueKind.ClearFrameBehavior:
+                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
                 break;
             case EyeDoorProjectileCueKind.Delete:
                 projectile.Clear();
@@ -487,14 +487,14 @@ internal sealed class EyeDoorBehavior
         // A shot eye-door projectile runs its typed shot program, the list its definition names.
         table.AddShotAnimation(RoomEnemyProjectileKind.EyeDoorProjectile, () => new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Shot));
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunEyeDoorProjectilePreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.EyeDoorShotFlight);
+            RunEyeDoorProjectileFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.EyeDoorShotFlight);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunEyeDoorSweatPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.EyeDoorSweatFall);
+            RunEyeDoorSweatFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.EyeDoorSweatFall);
     }
 }

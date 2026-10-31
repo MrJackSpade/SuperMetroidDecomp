@@ -95,8 +95,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // ORA #$A000 installs the common instruction bit and unknown-but-observable bit
         // $8000. Population records already carry process-off-screen $0800 in retail rooms.
         slot.Properties = slot.Properties.With(
-            EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions);
-        slot.InstructionTimer = WrappingCountdown.Start(4);
+            EnemyProperties.SolidToSamus | EnemyProperties.RunsAnimationScript);
+        slot.FrameHold = WrappingCountdown.Start(4);
         slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(WorkRobotProgram.Initial);
         state.LaserVelocity = WorkRobotFacingLeftVelocity;
@@ -123,7 +123,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(
             WorkRobotPoses.InitialProgram(animation));
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
         // This global write disables an earlier robot's palette hook too. Mixed powered and
@@ -151,7 +151,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Enemy instruction processing will decrement the timer later in this same frame.
         // Incrementing here cancels that tick, freezing the current art while airborne.
-        slot.InstructionTimer = slot.InstructionTimer.AddFrames(1);
+        slot.FrameHold = slot.FrameHold.AddFrames(1);
         // The fraction carries into the whole pixels, which wrap, as the cartridge's paired additions do.
         state.FallVelocity += WorkRobotGravity;
     }
@@ -342,7 +342,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? WorkRobotProgram.FacingRightShotSamusAhead
                 : WorkRobotProgram.FacingRightShotSamusBehind);
         }
-        robot.InstructionTimer = WrappingCountdown.Start(1);
+        robot.FrameHold = WrappingCountdown.Start(1);
         state.LaserCooldown = state.LaserCooldown.AddFrames(64);
     }
 
@@ -389,10 +389,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Connects robot lasers to collision-first movement in their projectile pre-instruction.</summary>
     internal static void AddWorkRobotProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunWorkRobotLaserPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.WorkRobotLaserFlight);
+            RunWorkRobotLaserFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.WorkRobotLaserFlight);
     }
 
     /// <summary>Ports WorkRobot's main AI.</summary>
@@ -485,7 +485,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports pre-instruction $86:D3BF: X collision, then Y collision, else move.</summary>
-    internal static void RunWorkRobotLaserPreInstruction(
+    internal static void RunWorkRobotLaserFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {

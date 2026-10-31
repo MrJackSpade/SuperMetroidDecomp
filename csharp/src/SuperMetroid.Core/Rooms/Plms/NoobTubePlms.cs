@@ -45,11 +45,11 @@ internal sealed class NoobTubePlms
     }
 
     /// <summary>Runs either of the two callbacks that can own the sleeping tube actor.</summary>
-    internal void RunNoobTubePreInstruction(PlmSlot slot, NoobTubePlmPreInstruction preInstruction, ControllerButton controllerNewInput)
+    internal void RunNoobTubeFrameBehavior(PlmSlot slot, NoobTubePlmFrameBehavior frameBehavior, ControllerButton controllerNewInput)
     {
-        switch (preInstruction)
+        switch (frameBehavior)
         {
-            case NoobTubePlmPreInstruction.WakeOnPowerBomb:
+            case NoobTubePlmFrameBehavior.WakeOnPowerBomb:
                 if (slot.ProjectileHit?.Family == SamusProjectileFamily.PowerBomb)
                 {
                     slot.WakeAtLink();
@@ -63,16 +63,16 @@ internal sealed class NoobTubePlms
                 slot.ProjectileHit = null;
                 return;
 
-            case NoobTubePlmPreInstruction.WakeOnAcceptedInput:
+            case NoobTubePlmFrameBehavior.WakeOnAcceptedInput:
                 if ((controllerNewInput & NoobTubePlmDefinitions.AcceptedWakeInputMask) != ControllerButton.None)
                 {
                     slot.WakeAtLink();
                 }
                 return;
 
-            case NoobTubePlmPreInstruction.Inactive:
+            case NoobTubePlmFrameBehavior.Inactive:
             default:
-                throw new InvalidOperationException($"Undefined n00b-tube pre-instruction {preInstruction}.");
+                throw new InvalidOperationException($"Undefined n00b-tube pre-instruction {frameBehavior}.");
         }
     }
 

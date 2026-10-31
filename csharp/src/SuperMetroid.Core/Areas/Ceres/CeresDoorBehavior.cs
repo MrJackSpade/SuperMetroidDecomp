@@ -146,7 +146,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         CeresDoorInitializationDefinition initialization = CeresDoorInitializations.For(variant);
 
         slot.Frame = EnemyFrameId.CeresDoorInitial;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.CeresDoor];
         slot.Colouring = new EncounterSpriteColouring(CeresDoorColourDefinitions.Inactive);

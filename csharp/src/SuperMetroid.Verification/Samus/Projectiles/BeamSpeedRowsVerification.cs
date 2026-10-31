@@ -131,8 +131,8 @@ internal static class BeamSpeedRowsVerification
         public byte ReadByte(int address)
         {
             if (address is >= 0x90c2d1 and < 0x90c37b or
-                >= SamusBeamPreInstructionCodes.UnchargedTable and < SamusBeamPreInstructionCodes.UnchargedTable + 32 or
-                >= SamusBeamPreInstructionCodes.ChargedTable and < SamusBeamPreInstructionCodes.ChargedTable + 32)
+                >= SamusBeamFrameBehaviorCodes.UnchargedTable and < SamusBeamFrameBehaviorCodes.UnchargedTable + 32 or
+                >= SamusBeamFrameBehaviorCodes.ChargedTable and < SamusBeamFrameBehaviorCodes.ChargedTable + 32)
                 throw new InvalidOperationException($"Compiled projectile mechanics unexpectedly read ROM ${address:X6}.");
             return _overrides.TryGetValue(address, out byte value) ? value : CpuBusRegionRead.Read(source, address);
         }

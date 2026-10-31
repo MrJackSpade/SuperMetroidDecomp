@@ -56,7 +56,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     {
         TourianEntranceStatueProgram part = statue.Spawn.Population.SpawnSettingsOf<TourianEntranceStatueSpawnSettings>().Statue;
         statue.Colouring = SharedSpriteColouring.Common;
-        statue.InstructionTimer = WrappingCountdown.Start(1);
+        statue.FrameHold = WrappingCountdown.Start(1);
         statue.Timer = WrappingCountdown.Start(0);
         statue.SetSpeciesState(new TourianEntranceStatueState(AnimationProgramCursor<TourianEntranceStatueProgram>.Start(part)));
 
@@ -101,7 +101,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>Tracks the BG2 statue's vertical displacement and publishes the base decoration's completion latch.</summary>
     internal void PositionTourianEntranceStatueProjectile(RoomEnemyProjectileSlot projectile)
     {
-        if (projectile.PreInstruction == EnemyProjectilePreInstruction.TourianStatueRevealFollow &&
+        if (projectile.FrameBehavior == EnemyProjectileFrameBehavior.TourianStatueRevealFollow &&
             TourianEntranceStatueAnimationState == TourianStatueAnimationState.None)
         {
             TourianEntranceStatueFinished = true;
@@ -119,10 +119,10 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>Registers the shared pre-instruction for base, Ridley, and Phantoon decoration actors.</summary>
     internal void AddTourianEntranceStatueProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             PositionTourianEntranceStatueProjectile(context.Projectile);
-        }, EnemyProjectilePreInstruction.TourianStatueRevealFollow, EnemyProjectilePreInstruction.TourianStatueDecorationSettled);
+        }, EnemyProjectileFrameBehavior.TourianStatueRevealFollow, EnemyProjectileFrameBehavior.TourianStatueDecorationSettled);
     }
 
     /// <summary>Advances TourianEntranceStatue's typed animation.</summary>

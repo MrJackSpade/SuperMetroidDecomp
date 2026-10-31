@@ -37,7 +37,7 @@ public static class GameOverBabyAnimation
     private const int ThirdGroupSteps = ThirdGroupIdleSteps + CrySteps;
 
     /// <summary>Lazily enumerates every step once in play order, ending with the step that restarts the program.</summary>
-    public static IEnumerable<GameOverBabyInstruction> All
+    public static IEnumerable<GameOverBabyScriptStep> All
     {
         get
         {
@@ -50,7 +50,7 @@ public static class GameOverBabyAnimation
     /// <param name="step">Step ordinal in play order, zero through <see cref="StepCount"/> minus one.</param>
     /// <returns>The step's complete compiled instruction.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The step is outside the program.</exception>
-    public static GameOverBabyInstruction Get(int step)
+    public static GameOverBabyScriptStep Get(int step)
     {
         if ((uint)step >= StepCount)
             throw new ArgumentOutOfRangeException(nameof(step), step, "The game-over Baby program has sixty steps.");

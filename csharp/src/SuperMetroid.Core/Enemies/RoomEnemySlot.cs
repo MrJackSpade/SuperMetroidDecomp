@@ -126,7 +126,7 @@ public sealed class RoomEnemySlot
     public WrappingCountdown Timer { get; internal set; }
 
     /// <summary>Updates left before the enemy's animation takes its next step; a new occupant starts at one.</summary>
-    public WrappingCountdown InstructionTimer { get; internal set; }
+    public WrappingCountdown FrameHold { get; internal set; }
     /// <summary>
     /// What colours the enemy draws in (#1464), normally the colours its graphics set loads for it; an emptied slot
     /// draws in the common sprite colours.
@@ -200,7 +200,7 @@ public sealed class RoomEnemySlot
         ExtraProperties = default;
         Health = 0;
         AiStates = EnemyAiStates.None;
-        InstructionTimer = WrappingCountdown.Start(0);
+        FrameHold = WrappingCountdown.Start(0);
 
         Timer = WrappingCountdown.Start(0);
         Frame = null;

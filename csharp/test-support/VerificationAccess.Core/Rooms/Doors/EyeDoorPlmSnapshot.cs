@@ -10,4 +10,4 @@ internal readonly record struct EyeDoorPlmSnapshot(
     EyeDoorComponent Component,
     byte HitCounter,
     PlmAnimation? Animation,
-    ushort PreInstruction);
+    ushort FrameBehavior);

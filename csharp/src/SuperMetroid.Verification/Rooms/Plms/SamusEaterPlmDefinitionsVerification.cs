@@ -45,7 +45,7 @@ internal static class SamusEaterPlmDefinitionsVerification
             AssertEqual(5, slot.BlockIndex, "Samus Eater trigger block");
             AssertTrue(slot.Animation is SamusEaterPlmAnimation animation && animation.Program == definition.Program,
                 "Samus Eater starts its typed bite");
-            AssertEqual(1, slot.InstructionTimer, "Samus Eater starts on timer one");
+            AssertEqual(1, slot.FrameHold, "Samus Eater starts on timer one");
             AssertEqual(
                 RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock),
                 level.GetCollisionBlock(new(1, 1)).Terrain,

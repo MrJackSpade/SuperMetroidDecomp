@@ -19,10 +19,10 @@ public sealed class MetareeEnemyState
     public MetareeEnemyFunction? Function { get; internal set; }
 
     /// <summary>Animation phase requested by AI.</summary>
-    public SkreeMetareeAnimationPhase RequestedInstructionListIndex { get; internal set; }
+    public SkreeMetareeAnimationPhase RequestedAnimationScriptIndex { get; internal set; }
 
     /// <summary>Animation phase currently installed.</summary>
-    public SkreeMetareeAnimationPhase InstalledInstructionListIndex { get; internal set; }
+    public SkreeMetareeAnimationPhase InstalledAnimationScriptIndex { get; internal set; }
 
     /// <summary>Set by the launch crouch's finishing cue.</summary>
     public bool AttackReady { get; internal set; }
@@ -39,8 +39,8 @@ public sealed class MetareeEnemyState
     {
         BurrowTimer = WrappingCountdown.Start(0);
         Function = null;
-        RequestedInstructionListIndex = SkreeMetareeAnimationPhase.Idling;
-        InstalledInstructionListIndex = SkreeMetareeAnimationPhase.Idling;
+        RequestedAnimationScriptIndex = SkreeMetareeAnimationPhase.Idling;
+        InstalledAnimationScriptIndex = SkreeMetareeAnimationPhase.Idling;
         AttackReady = false;
         YVelocity = 0;
     }

@@ -26,8 +26,8 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
     /// <summary>Maps an ordinal to the respawning or permanent native breakable-block list.</summary>
     internal static Program ProgramAt(int index) => index switch
     {
-        0 => new(RoomPlmInstructionListsConstants.RespawningBreakableGrappleBlock, true),
-        1 => new(RoomPlmInstructionListsConstants.PermanentBreakableGrappleBlock, false),
+        0 => new(RoomPlmAnimationScriptsConstants.RespawningBreakableGrappleBlock, true),
+        1 => new(RoomPlmAnimationScriptsConstants.PermanentBreakableGrappleBlock, false),
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 

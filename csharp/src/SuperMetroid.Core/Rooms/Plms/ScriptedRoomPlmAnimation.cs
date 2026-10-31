@@ -29,12 +29,12 @@ internal sealed class ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram program)
             case ScriptedRoomPlmCue.QueueSoundLibrary2Maximum6 queueSoundLibrary2Maximum6:
                 context.QueueSound(queueSoundLibrary2Maximum6.Sound, SoundRequestPriority.Normal);
                 return null;
-            case ScriptedRoomPlmCue.InstallPreInstruction installPreInstruction:
-                slot.PreInstruction = context.Plms.ScriptedHooks.PreInstruction(installPreInstruction.PreInstruction ?? throw new InvalidOperationException(
-                    $"Undefined {nameof(ScriptedRoomPlmPreInstruction)} in {installPreInstruction}."));
+            case ScriptedRoomPlmCue.InstallFrameBehavior installFrameBehavior:
+                slot.FrameBehavior = context.Plms.ScriptedHooks.FrameBehavior(installFrameBehavior.FrameBehavior ?? throw new InvalidOperationException(
+                    $"Undefined {nameof(ScriptedRoomPlmFrameBehavior)} in {installFrameBehavior}."));
                 return null;
-            case ScriptedRoomPlmCue.Command { Kind: ScriptedRoomPlmCueKind.ClearPreInstruction }:
-                slot.PreInstruction = PlmPreInstructions.Inert;
+            case ScriptedRoomPlmCue.Command { Kind: ScriptedRoomPlmCueKind.ClearFrameBehavior }:
+                slot.FrameBehavior = PlmFrameBehaviors.Inert;
                 return null;
             case ScriptedRoomPlmCue.Command { Kind: ScriptedRoomPlmCueKind.SetAnimalsEscapedEvent }:
                 (context.Plms.Events ?? throw new InvalidOperationException("Animal rescue requires the room event owner."))

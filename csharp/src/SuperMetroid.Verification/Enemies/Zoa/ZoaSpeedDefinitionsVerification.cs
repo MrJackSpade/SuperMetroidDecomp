@@ -40,7 +40,7 @@ internal static class ZoaSpeedDefinitionsVerification
             for (ushort direction = 0; direction <= 2; direction += 2)
             {
                 // Keep the same animation installed: this exercises movement without an art-data bus.
-                state.InstructionListTableIndex = state.PreviousInstructionListTableIndex =
+                state.AnimationScriptTableIndex = state.PreviousAnimationScriptTableIndex =
                     (ZoaAnimationSelector)direction;
                 int displacement = direction == 0 ? -magnitude : magnitude;
                 for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)
@@ -59,7 +59,7 @@ internal static class ZoaSpeedDefinitionsVerification
         // #1269: leaving the camera square snaps Zoa to its spawn coordinate. $A3:B51E-$B527
         // writes only the whole words, so both subpixel fractions carry into the next flight.
         state.ShotSpeedStage = 0;
-        state.InstructionListTableIndex = state.PreviousInstructionListTableIndex =
+        state.AnimationScriptTableIndex = state.PreviousAnimationScriptTableIndex =
             ZoaAnimationSelector.None;
         state.SpawnPosition = new(0x560, 0xd8);
         actor.Position = new(new(128, 0x8000), new(128, 0x4000));

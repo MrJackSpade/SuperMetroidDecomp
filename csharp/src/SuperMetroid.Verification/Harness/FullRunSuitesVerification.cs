@@ -292,7 +292,7 @@ using static SuperMetroid.Verification.Fx.RoomFxSnapshotTestsVerification;
 using static SuperMetroid.Verification.Rooms.RoomHeaderDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 using static SuperMetroid.Verification.Rooms.Plms.RoomPlmHeaderCatalogVerification;
-using static SuperMetroid.Verification.Rooms.Plms.RoomPlmInstructionListCatalogVerification;
+using static SuperMetroid.Verification.Rooms.Plms.RoomPlmAnimationScriptCatalogVerification;
 using static SuperMetroid.Verification.Rooms.Plms.RoomPlmPopulationDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.RoomPlmPopulationVerification;
 using static SuperMetroid.Verification.Rooms.Scrolling.RoomScrollDefinitionsVerification;
@@ -672,7 +672,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyRoomScrollGridAndBoundaryCamera), () => VerifyRoomScrollGridAndBoundaryCamera()),
         new(nameof(VerifyRoomScrollPlms), () => VerifyRoomScrollPlms()),
         new(nameof(VerifyRoomPlmHeaderCatalog), () => VerifyRoomPlmHeaderCatalog()),
-        new(nameof(VerifyRoomPlmInstructionListCatalog), () => VerifyRoomPlmInstructionListCatalog()),
+        new(nameof(VerifyRoomPlmAnimationScriptCatalog), () => VerifyRoomPlmAnimationScriptCatalog()),
         new(nameof(VerifySequentialRoomPlmPopulationLoader), () => VerifySequentialRoomPlmPopulationLoader()),
         new(nameof(VerifyMotherBrainEscapeGateCompiledDefinitions), () => VerifyMotherBrainEscapeGateCompiledDefinitions(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),

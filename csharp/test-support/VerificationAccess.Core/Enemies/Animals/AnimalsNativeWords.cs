@@ -21,13 +21,13 @@ internal static class AnimalsNativeWords
         [DachoraAiFunction.Echo] = 0xf98c,
     });
 
-    /// <summary>The routine word naming each <see cref="EscapeEtecoonPreInstruction"/>.</summary>
-    internal static readonly NativeWordIdentities<EscapeEtecoonPreInstruction> EscapeEtecoonPreInstructions = new(new Dictionary<EscapeEtecoonPreInstruction, ushort>
+    /// <summary>The routine word naming each <see cref="EscapeEtecoonFrameBehavior"/>.</summary>
+    internal static readonly NativeWordIdentities<EscapeEtecoonFrameBehavior> EscapeEtecoonFrameBehaviors = new(new Dictionary<EscapeEtecoonFrameBehavior, ushort>
     {
-        [EscapeEtecoonPreInstruction.Cleared] = 0x807b,
-        [EscapeEtecoonPreInstruction.EscapeRight] = 0xe65c,
-        [EscapeEtecoonPreInstruction.WaitForEscapeEvent] = 0xe670,
-        [EscapeEtecoonPreInstruction.WalkAndFall] = 0xe680,
+        [EscapeEtecoonFrameBehavior.Cleared] = 0x807b,
+        [EscapeEtecoonFrameBehavior.EscapeRight] = 0xe65c,
+        [EscapeEtecoonFrameBehavior.WaitForEscapeEvent] = 0xe670,
+        [EscapeEtecoonFrameBehavior.WalkAndFall] = 0xe680,
     });
 
     /// <summary>The routine word naming each <see cref="EtecoonAiFunction"/>.</summary>

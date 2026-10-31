@@ -256,7 +256,7 @@ internal sealed class TorizoCombat
                 c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
                 c.Projectile.IsSpent = false;
                 torizoState.Function = TorizoFunction.Idle;
-                enemy.InstructionTimer = WrappingCountdown.Start(1);
+                enemy.FrameHold = WrappingCountdown.Start(1);
                 _access.RequireBombTorizoState(enemy).BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(_access.FacesRight(enemy)
                     ? TorizoBodyProgram.GoldenDodgeTurningRight
                     : TorizoBodyProgram.GoldenDodgeTurningLeft);
@@ -271,7 +271,7 @@ internal sealed class TorizoCombat
                     SetBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile);
                     torizoState.Function = TorizoFunction.Idle;
                     c.Projectile.IsSpent = true;
-                    enemy.InstructionTimer = WrappingCountdown.Start(1);
+                    enemy.FrameHold = WrappingCountdown.Start(1);
                     _access.RequireBombTorizoState(enemy).BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(_access.Posture(enemy).HasFlag(TorizoPostureFlags.OppositeLegForward)
                         ? _access.FacesRight(enemy)
                             ? TorizoBodyProgram.GoldenCaughtSuperFacingRightLeftLegFwd

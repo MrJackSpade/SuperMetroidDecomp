@@ -124,15 +124,15 @@ internal static class BotwoonAnimationsVerification
         state.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
         state.InsideHole = false;
         animateHead(head, state);
-        head.InstructionTimer = WrappingCountdown.Start(7);
+        head.FrameHold = WrappingCountdown.Start(7);
         state.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
         animateHead(head, state);
-        AssertEqual((ushort)7, head.InstructionTimer.RawValue, "reinstalling Botwoon's unchanged head program keeps it running");
+        AssertEqual((ushort)7, head.FrameHold.RawValue, "reinstalling Botwoon's unchanged head program keeps it running");
         state.InsideHole = true;
         state.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
         animateHead(head, state);
         AssertEqual(BotwoonHeadProgram.Hidden, state.HeadProgram, "Botwoon's head hides inside the wall");
-        AssertEqual((ushort)1, head.InstructionTimer.RawValue, "a changed Botwoon head program restarts on the next update");
+        AssertEqual((ushort)1, head.FrameHold.RawValue, "a changed Botwoon head program restarts on the next update");
 
         for (ushort selector = 0; selector < 64; selector += 2)
         {
@@ -178,17 +178,17 @@ internal static class BotwoonAnimationsVerification
         Pass(segment);
         Pass(segment);
         animate(segment, 0);
-        AssertEqual((ushort)7, segment.InstructionTimer.RawValue, "an unchanged Botwoon segment program keeps its timer");
+        AssertEqual((ushort)7, segment.FrameHold.RawValue, "an unchanged Botwoon segment program keeps its timer");
         segment.StateOf<BotwoonSegmentState>().Pose = BotwoonSegmentSelectorCodec.Program(2);
         animate(segment, 0);
-        AssertEqual((ushort)1, segment.InstructionTimer.RawValue, "a changed Botwoon segment program restarts");
+        AssertEqual((ushort)1, segment.FrameHold.RawValue, "a changed Botwoon segment program restarts");
         Pass(segment);
         AssertEqual(EnemyProjectileProgramFrameSources.Operand(BotwoonVisualDefinitions.ShownProjectileFrames[new(BotwoonProjectileFrameKind.Body, BotwoonFacing.UpRight, 0)]),
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.
         Action<RoomEnemySlot, BotwoonEnemyState, int> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
-        Action<RoomEnemyProjectileSlot, int> runBody = enemies.BotwoonBehavior.RunBotwoonBodyPreInstruction;
+        Action<RoomEnemyProjectileSlot, int> runBody = enemies.BotwoonBehavior.RunBotwoonBodyFrameBehavior;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState();
         enemies.BotwoonBehavior.BotwoonState = state;
@@ -227,7 +227,7 @@ internal static class BotwoonAnimationsVerification
         (RoomEnemySystem enemies, RoomEnemySlot head, BotwoonEnemyState state) = NewBotwoonHead();
         state.HeadProgram = program;
         state.HeadAnimationPosition = 0;
-        head.InstructionTimer = WrappingCountdown.Start(1);
+        head.FrameHold = WrappingCountdown.Start(1);
         CompareBotwoonHead(rom, nativeList, enemies, head, state, label, drawn);
     }
 
@@ -235,14 +235,14 @@ internal static class BotwoonAnimationsVerification
     private static void CompareBotwoonHead(SuperMetroidAddressSpace rom, ushort nativeList, RoomEnemySystem enemies,
         RoomEnemySlot head, BotwoonEnemyState state, string label, HashSet<ushort>? drawn = null)
     {
-        var native = new NativeBotwoonHead(nativeList, head.InstructionTimer.RawValue, head.Radius);
+        var native = new NativeBotwoonHead(nativeList, head.FrameHold.RawValue, head.Radius);
         for (int update = 0; update < 70; update++)
         {
             enemies.Audio.BeginFrame();
-            EnemyInstructionInterpreter.ProcessInstructions(head, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+            EnemyInstructionInterpreter.RunsAnimationScript(head, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
             bool nativeSound = native.Step(rom);
             string at = $"Botwoon {label} update {update}";
-            AssertEqual(native.Timer, head.InstructionTimer.RawValue, $"{at}: timer");
+            AssertEqual(native.Timer, head.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Spritemap, head.SpritemapPointer, $"{at}: frame");
             if (native.NewFrame)
                 drawn?.Add(head.SpritemapPointer);
@@ -257,7 +257,7 @@ internal static class BotwoonAnimationsVerification
     private static void CompareBotwoonProjectile(SuperMetroidAddressSpace rom, ushort nativeList, RoomEnemyProjectileSlot projectile,
         Action<RoomEnemyProjectileSlot> pass, string label)
     {
-        ushort cursor = nativeList, timer = projectile.InstructionTimer.RawValue, operand = 0;
+        ushort cursor = nativeList, timer = projectile.FrameHold.RawValue, operand = 0;
         for (int update = 0; update < 40; update++)
         {
             pass(projectile);
@@ -286,7 +286,7 @@ internal static class BotwoonAnimationsVerification
                 }
             }
             string at = $"Botwoon {label} pass {update}";
-            AssertEqual(timer, projectile.InstructionTimer.RawValue, $"{at}: timer");
+            AssertEqual(timer, projectile.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(operand, projectile.PresentationOperandAddress, $"{at}: frame");
         }
     }

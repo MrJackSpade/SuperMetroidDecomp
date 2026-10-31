@@ -24,7 +24,7 @@ internal static class SparkMovementDefinitionsVerification
         slot.Bind(EnemyDefinitionId.Spark, slot.Definition);
         for (ushort selector = 0; selector < 3; selector++)
         {
-            ushort nativeList = CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.InstructionListTable + selector * 2);
+            ushort nativeList = CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.AnimationScriptTable + selector * 2);
             var nativeFunction = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.FunctionTable + selector * 2),
                 $"Spark selector {selector}'s function");
             SparkMovementDefinition definition = SparkStarts.InitialState(selector);
@@ -75,7 +75,7 @@ internal static class SparkMovementDefinitionsVerification
         enemies.SparkBehavior.InitializeSpark(slot);
         SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
         state.Program = AnimationProgramCursor<SparkProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(intangible ? (ushort)EnemyProperties.IgnoreSamusCollision : (ushort)0);
         return new SparkMovementDefinitionsStartResult(enemies, slot, state);
     }

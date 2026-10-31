@@ -286,7 +286,7 @@ internal sealed class MotherBrainRainbowAndDeath
         // The dedicated latch is essential because the running program advances away from
         // the list origin while the request itself remains unchanged.
         if (sequence.State.HeadProgram is { } headProgram &&
-            (step is { HeadInstructionListRequested: true } ||
+            (step is { HeadAnimationScriptRequested: true } ||
              headProgram != state.RainbowAppliedHeadProgram))
         {
             MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, headProgram);

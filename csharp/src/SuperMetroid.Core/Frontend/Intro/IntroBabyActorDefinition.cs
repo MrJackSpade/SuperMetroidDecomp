@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// sprite palette row written by its initialization callback.
 /// </summary>
 internal readonly record struct IntroBabyActorDefinition(
-    CinematicSpritePreInstruction PreInstruction,
+    CinematicSpriteFrameBehavior FrameBehavior,
     CinematicSpriteProgram Program,
     Position16<ScreenPixels> Position,
     ScreenColourGroup Colouring);

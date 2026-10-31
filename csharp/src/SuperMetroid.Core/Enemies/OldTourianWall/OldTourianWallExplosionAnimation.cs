@@ -16,7 +16,7 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionPr
         {
             [OldTourianWallExplosionProgram.Start] =
             [
-                Step.Publish(OldTourianWallExplosionCue.ClearPreInstruction),
+                Step.Publish(OldTourianWallExplosionCue.ClearFrameBehavior),
                 Step.SetCounter(D.BurstCount),
                 Step.FallInto(OldTourianWallExplosionProgram.Burst),
             ],

@@ -145,19 +145,19 @@ internal static class TitleSequenceRomDataVerification
         WriteConstructedTitleTextList(
             rom,
             TitleSequenceDefinitions.TextSequences.Year,
-            TitleNativeWords.Instructions.Word(TitleSequenceInstruction.TriggerScene0));
+            TitleNativeWords.Instructions.Word(TitleSequenceScriptStep.TriggerScene0));
         WriteConstructedTitleTextList(
             rom,
             TitleSequenceDefinitions.TextSequences.Nintendo,
-            TitleNativeWords.Instructions.Word(TitleSequenceInstruction.TriggerScene1));
+            TitleNativeWords.Instructions.Word(TitleSequenceScriptStep.TriggerScene1));
         WriteConstructedTitleTextList(
             rom,
             TitleSequenceDefinitions.TextSequences.Presents,
-            TitleNativeWords.Instructions.Word(TitleSequenceInstruction.TriggerScene2));
+            TitleNativeWords.Instructions.Word(TitleSequenceScriptStep.TriggerScene2));
         WriteConstructedTitleTextList(
             rom,
             TitleSequenceDefinitions.TextSequences.MetroidThree,
-            TitleNativeWords.Instructions.Word(TitleSequenceInstruction.TriggerScene3));
+            TitleNativeWords.Instructions.Word(TitleSequenceScriptStep.TriggerScene3));
         WriteRomWord(
             rom,
             (int)FrontendSourceDefinitions.TitleLogoSpritemapOperand,

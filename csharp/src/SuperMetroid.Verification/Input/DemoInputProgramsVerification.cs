@@ -30,7 +30,7 @@ internal static class DemoInputProgramsVerification
         foreach ((ushort header, DemoInputObjectDefinition definition) in DemoInputNativeListAddresses.Objects)
         {
             AssertEqual(DemoInputRomData.Routines.NoOp, Word(header), $"demo object $91:{header:X4} initializer");
-            AssertEqual(Word(header + 2), DemoInputNativeListAddresses.PreInstructionAddress(definition.PreInstruction), $"demo object $91:{header:X4} pre-instruction");
+            AssertEqual(Word(header + 2), DemoInputNativeListAddresses.FrameBehaviorAddress(definition.FrameBehavior), $"demo object $91:{header:X4} pre-instruction");
             AssertEqual(Word(header + 4), DemoInputNativeListAddresses.Entry(definition.Program), $"demo object $91:{header:X4} list");
         }
 
@@ -81,8 +81,8 @@ internal static class DemoInputProgramsVerification
                         AssertTrue(step is AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue>.StopStep, $"{at}: delete");
                         AssertEqual(steps.Count, index + 1, $"{at}: the delete ends the program");
                         break;
-                    case DemoInputInstruction.SetPreInstruction:
-                    case DemoInputInstruction.ClearPreInstruction:
+                    case DemoInputInstruction.SetFrameBehavior:
+                    case DemoInputInstruction.ClearFrameBehavior:
                     case DemoInputInstruction.DecrementTimerAndGoto:
                     case DemoInputInstruction.SetTimer:
                     default:

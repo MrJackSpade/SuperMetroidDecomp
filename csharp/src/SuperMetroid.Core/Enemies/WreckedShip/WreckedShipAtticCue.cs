@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 internal enum WreckedShipAtticCue
 {
     /// <summary>Installs the attic's inert pre-instruction.</summary>
-    InstallInertPreInstruction,
+    InstallInertFrameBehavior,
 }

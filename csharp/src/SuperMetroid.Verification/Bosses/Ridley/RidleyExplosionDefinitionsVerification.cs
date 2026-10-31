@@ -204,7 +204,7 @@ internal static class RidleyExplosionDefinitionsVerification
 
                 initialize(fragment, body, state);
 
-                AssertEqual((ushort)1, fragment.InstructionTimer.RawValue,
+                AssertEqual((ushort)1, fragment.FrameHold.RawValue,
                     "Ridley breakup production instruction timer");
                 AssertEqual(SuperMetroid.Core.Bosses.Ridley.RidleyEnemyState.OwnColours, fragment.Colouring,
                     "Ridley breakup production colours: Ridley's own, sprite set seven");

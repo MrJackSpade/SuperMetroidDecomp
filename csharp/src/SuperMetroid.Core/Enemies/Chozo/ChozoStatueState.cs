@@ -14,13 +14,13 @@ public sealed class ChozoStatueState
     public int CarryRecord { get; internal set; }
 
     /// <summary>The literal bank-$AA pre-instruction pointer; none once a kill has emptied the record.</summary>
-    public ChozoStatuePreInstruction? PreInstruction { get; internal set; }
+    public ChozoStatueFrameBehavior? FrameBehavior { get; internal set; }
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         CarryRecord = 0;
-        PreInstruction = null;
+        FrameBehavior = null;
         HandTriggered = false;
     }
 

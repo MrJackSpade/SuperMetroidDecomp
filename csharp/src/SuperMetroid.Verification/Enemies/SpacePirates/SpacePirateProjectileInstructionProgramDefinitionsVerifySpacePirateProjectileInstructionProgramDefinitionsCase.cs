@@ -7,4 +7,4 @@ namespace SuperMetroid.Verification.Enemies.SpacePirates;
 /// <param name="Program">The program.</param>
 /// <param name="Loop">The loop.</param>
 /// <param name="Movement">The movement.</param>
-internal readonly record struct SpacePirateProjectileInstructionProgramDefinitionsVerifySpacePirateProjectileInstructionProgramDefinitionsCase(ushort Direction, ushort Program, ushort Loop, EnemyProjectilePreInstruction Movement);
+internal readonly record struct SpacePirateProjectileInstructionProgramDefinitionsVerifySpacePirateProjectileInstructionProgramDefinitionsCase(ushort Direction, ushort Program, ushort Loop, EnemyProjectileFrameBehavior Movement);

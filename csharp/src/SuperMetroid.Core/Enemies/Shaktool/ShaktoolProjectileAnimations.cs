@@ -28,7 +28,7 @@ internal static class ShaktoolProjectileAnimations
         [P.Middle] =
         [
             Show(3, 6),
-            Cue(new EnemyProjectileCommonCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.ShaktoolTrailingCircleFlight)),
+            Cue(new EnemyProjectileCommonCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.ShaktoolTrailingCircleFlight)),
             Show(4, 4),
             FallInto(P.MiddleLoop),
         ],
@@ -40,7 +40,7 @@ internal static class ShaktoolProjectileAnimations
         [P.Back] =
         [
             Show(6, 10),
-            Cue(new EnemyProjectileCommonCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.ShaktoolTrailingCircleFlight)),
+            Cue(new EnemyProjectileCommonCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.ShaktoolTrailingCircleFlight)),
             FallInto(P.BackLoop),
         ],
         [P.BackLoop] =

@@ -455,7 +455,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Resets <paramref name="slot"/>'s instruction clocks and returns <paramref name="program"/>'s starting cursor.</summary>
     internal static AnimationProgramCursor<DeadTourianProgram> StartDeadTourianProgram(RoomEnemySlot slot, DeadTourianProgram program)
     {
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         return AnimationProgramCursor<DeadTourianProgram>.Start(program);
     }

@@ -79,8 +79,8 @@ internal static class EyeDoorPlmsVerification
             "direction opcode seeds zero Y velocity for a level target");
         system.SetOpenedDoorBit(5);
         enemies.StepEnemyProjectiles(level, samus);
-        AssertEqual(EnemyProjectilePreInstruction.Stationary,
-            attack.PreInstruction,
+        AssertEqual(EnemyProjectileFrameBehavior.Stationary,
+            attack.FrameBehavior,
             "opened door impact executes its native clear-pre-instruction command");
 
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
@@ -171,8 +171,8 @@ internal static class EyeDoorPlmsVerification
         AssertEqual(orientation, shot.Facing, $"{orientation} attack carries the eye's facing");
         AssertEqual(eyeBlock, shot.PlmBlockIndex, $"{orientation} attack leaves the eye's block");
         AssertEqual(doorBit, shot.DoorBit, $"{orientation} attack carries the door bit");
-        AssertEqual(DoorsNativeWords.EyeDoorPreInstructions.Word(EyeDoorPreInstruction.MissileHit),
-            plms.EyeDoorSnapshots.Single(door => door.Component == EyeDoorComponent.Eye).PreInstruction,
+        AssertEqual(DoorsNativeWords.EyeDoorFrameBehaviors.Word(EyeDoorFrameBehavior.MissileHit),
+            plms.EyeDoorSnapshots.Single(door => door.Component == EyeDoorComponent.Eye).FrameBehavior,
             $"{orientation} open eye arms its missile wake");
 
         AssertTrue(plms.TryNotifyColoredDoorHit(

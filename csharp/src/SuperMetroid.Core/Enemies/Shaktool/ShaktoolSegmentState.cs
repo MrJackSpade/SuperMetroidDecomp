@@ -36,7 +36,7 @@ public sealed class ShaktoolSegmentState
     /// <summary>The slot of the first segment of the seven-segment chain, whose segments occupy consecutive slots.</summary>
     public int OwnerSlotIndex { get; internal set; }
     /// <summary>The segment motion run by Shaktool's main AI; collision-response animations temporarily replace it with the idle attack motion, and none once a kill has emptied the record.</summary>
-    public ShaktoolPreInstruction? PreInstruction { get; internal set; }
+    public ShaktoolFrameBehavior? FrameBehavior { get; internal set; }
     /// <summary>The chain's reversal, straightening and orbit-direction flags, written to every segment together.</summary>
     internal ShaktoolMotionFlags MotionFlags { get; set; }
 
@@ -56,7 +56,7 @@ public sealed class ShaktoolSegmentState
         AngularVelocity = 0;
         ResetOrientation();
         OwnerSlotIndex = 0;
-        PreInstruction = null;
+        FrameBehavior = null;
         MotionFlags = 0;
     }
 }

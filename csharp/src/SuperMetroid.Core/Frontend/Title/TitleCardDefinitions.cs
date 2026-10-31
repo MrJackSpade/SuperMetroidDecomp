@@ -24,8 +24,8 @@ internal static class TitleCardDefinitions
         TitleCardStep.Show(RevealFrames, TitleSprite.YearReveal2),
         TitleCardStep.Show(RevealFrames, TitleSprite.YearReveal3),
         TitleCardStep.Show(CardHoldFrames, TitleSprite.YearReveal4),
-        TitleCardStep.Run(TitleSequenceInstruction.TriggerScene0),
-        TitleCardStep.Run(TitleSequenceInstruction.Delete),
+        TitleCardStep.Run(TitleSequenceScriptStep.TriggerScene0),
+        TitleCardStep.Run(TitleSequenceScriptStep.Delete),
     ];
 
     /// <summary>$8B:A055: the Nintendo card's eight reveals and the scene-one trigger.</summary>
@@ -39,8 +39,8 @@ internal static class TitleCardDefinitions
         TitleCardStep.Show(RevealFrames, TitleSprite.NintendoReveal6),
         TitleCardStep.Show(RevealFrames, TitleSprite.NintendoReveal7),
         TitleCardStep.Show(CardHoldFrames, TitleSprite.NintendoReveal8),
-        TitleCardStep.Run(TitleSequenceInstruction.TriggerScene1),
-        TitleCardStep.Run(TitleSequenceInstruction.Delete),
+        TitleCardStep.Run(TitleSequenceScriptStep.TriggerScene1),
+        TitleCardStep.Run(TitleSequenceScriptStep.Delete),
     ];
 
     /// <summary>$8B:A079: the Presents card's eight reveals and the scene-two trigger.</summary>
@@ -54,8 +54,8 @@ internal static class TitleCardDefinitions
         TitleCardStep.Show(RevealFrames, TitleSprite.PresentsReveal6),
         TitleCardStep.Show(RevealFrames, TitleSprite.PresentsReveal7),
         TitleCardStep.Show(CardHoldFrames, TitleSprite.PresentsReveal8),
-        TitleCardStep.Run(TitleSequenceInstruction.TriggerScene2),
-        TitleCardStep.Run(TitleSequenceInstruction.Delete),
+        TitleCardStep.Run(TitleSequenceScriptStep.TriggerScene2),
+        TitleCardStep.Run(TitleSequenceScriptStep.Delete),
     ];
 
     /// <summary>$8B:A09D: the Metroid 3 card's nine reveals, its 120-update final hold and the scene-three trigger.</summary>
@@ -70,7 +70,7 @@ internal static class TitleCardDefinitions
         TitleCardStep.Show(RevealFrames, TitleSprite.MetroidThreeReveal7),
         TitleCardStep.Show(RevealFrames, TitleSprite.MetroidThreeReveal8),
         TitleCardStep.Show(MetroidThreeHoldFrames, TitleSprite.MetroidThreeReveal9),
-        TitleCardStep.Run(TitleSequenceInstruction.TriggerScene3),
-        TitleCardStep.Run(TitleSequenceInstruction.Delete),
+        TitleCardStep.Run(TitleSequenceScriptStep.TriggerScene3),
+        TitleCardStep.Run(TitleSequenceScriptStep.Delete),
     ];
 }

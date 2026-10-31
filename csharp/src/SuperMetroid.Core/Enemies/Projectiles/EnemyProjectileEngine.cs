@@ -40,7 +40,7 @@ internal sealed class EnemyProjectileEngine
     {
         var table = new EnemyProjectileHandlerTable();
         // A stationary projectile does not move itself: it holds still, or its owner positions it.
-        table.AddPreInstruction(static _ => { }, EnemyProjectilePreInstruction.Stationary);
+        table.AddFrameBehavior(static _ => { }, EnemyProjectileFrameBehavior.Stationary);
         table.AddCue<EnemyProjectileCommonCue>((context, cue) => ApplyCommonCue(context.Projectile, cue));
         foreach (IEnemyProjectileHandlerSource source in _handlerSources)
             source.AddEnemyProjectileHandlers(table);
@@ -55,11 +55,11 @@ internal sealed class EnemyProjectileEngine
             case EnemyProjectileCommonCue.Command { Kind: EnemyProjectileCommonCueKind.Delete }:
                 projectile.Clear();
                 break;
-            case EnemyProjectileCommonCue.SetPreInstruction setPreInstruction:
-                projectile.PreInstruction = setPreInstruction.PreInstruction;
+            case EnemyProjectileCommonCue.SetFrameBehavior setFrameBehavior:
+                projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
                 break;
-            case EnemyProjectileCommonCue.Command { Kind: EnemyProjectileCommonCueKind.ClearPreInstruction }:
-                projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+            case EnemyProjectileCommonCue.Command { Kind: EnemyProjectileCommonCueKind.ClearFrameBehavior }:
+                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
                 break;
             case EnemyProjectileCommonCue.Scatter scatter:
                 Scatter(projectile, scatter.Spread);
@@ -184,7 +184,7 @@ internal sealed class EnemyProjectileEngine
                     enemyProjectile.StartAnimation(Handlers.TryGetShotAnimation(enemyProjectile.Kind, out Func<EnemyProjectileAnimation>? shotAnimation)
                         ? shotAnimation()
                         : EnemyProjectileDeleteAnimation.Instance);
-                    enemyProjectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+                    enemyProjectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
 
                     // Native masks properties with $0FFF. The typed fields below are the
                     // three high property bits represented by this runtime, so clearing
@@ -250,7 +250,7 @@ internal sealed class EnemyProjectileEngine
             if (!projectile.IsActive)
                 continue;
 
-            RunEnemyProjectilePreInstruction(
+            RunEnemyProjectileFrameBehavior(
                 projectile,
                 level,
                 samus,
@@ -416,10 +416,10 @@ internal sealed class EnemyProjectileEngine
     {
         EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
         projectile.Kind = kind;
-        projectile.PreInstruction = definition.PreInstruction;
+        projectile.FrameBehavior = definition.FrameBehavior;
         // SpawnEprojInner starts the instruction timer at one, so the first step runs on the first pass. A kind without
         // a typed start has its spawner start the program its producer chooses.
-        projectile.InstructionTimer = WrappingCountdown.Start(1);
+        projectile.FrameHold = WrappingCountdown.Start(1);
         if (EnemyProjectileTypedStarts.Initial(kind) is { } animation)
             projectile.StartAnimation(animation);
 
@@ -438,7 +438,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>Runs the projectile's current pre-instruction before its program advances.</summary>
-    private void RunEnemyProjectilePreInstruction(
+    private void RunEnemyProjectileFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
         SamusState? samus,
@@ -446,13 +446,13 @@ internal sealed class EnemyProjectileEngine
         int frameCounterByte,
         SamusBombProjectileSystem? samusBombs)
     {
-        EnemyProjectilePreInstruction id = projectile.PreInstruction;
-        if (!Handlers.TryGetPreInstruction(id, out EnemyProjectilePreInstructionHandler? handler))
+        EnemyProjectileFrameBehavior id = projectile.FrameBehavior;
+        if (!Handlers.TryGetFrameBehavior(id, out EnemyProjectileFrameBehaviorHandler? handler))
         {
             throw new InvalidDataException(
-                $"Enemy projectile pre-instruction {projectile.PreInstruction} is not translated.");
+                $"Enemy projectile pre-instruction {projectile.FrameBehavior} is not translated.");
         }
-        handler(new EnemyProjectilePreInstructionContext(projectile, level, samus, camera, frameCounterByte, samusBombs));
+        handler(new EnemyProjectileFrameBehaviorContext(projectile, level, samus, camera, frameCounterByte, samusBombs));
     }
 
     /// <summary>Moves one projectile axis through each crossed room block and clamps it flush at the first collision.</summary>
@@ -982,9 +982,9 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>Registers Skree/Metaree particle movement with falling acceleration and camera-square deletion.</summary>
-    internal static void AddMetalSkreeParticlePreInstruction(EnemyProjectileHandlerTable table)
+    internal static void AddMetalSkreeParticleFrameBehavior(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             context.Projectile.Position = context.Projectile.Position.Advance(context.Projectile.Velocity.ToSixteenSixteen());
             context.Projectile.Velocity = context.Projectile.Velocity.WithY(SignedEightEight.Wrapped(context.Projectile.Velocity.Y.RawValue + 80));
@@ -993,13 +993,13 @@ internal sealed class EnemyProjectileEngine
             {
                 context.Projectile.Clear();
             }
-        }, EnemyProjectilePreInstruction.SkreeParticleFlight);
+        }, EnemyProjectileFrameBehavior.SkreeParticleFlight);
     }
 
     /// <summary>Registers tile gravity and impact dust/sound when Ceres debris strikes room terrain.</summary>
-    internal void AddCeresFallingTilePreInstruction(EnemyProjectileHandlerTable table)
+    internal void AddCeresFallingTileFrameBehavior(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             context.Projectile.Velocity = context.Projectile.Velocity.WithY(SignedEightEight.Wrapped(context.Projectile.Velocity.Y.RawValue + 16));
             if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Vertical))
@@ -1009,7 +1009,7 @@ internal sealed class EnemyProjectileEngine
                 SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallDustCloud);
                 _audio.QueueEnemySound(Library2Sound.CeresTileFall, priority: SoundRequestPriority.Normal);
             }
-        }, EnemyProjectilePreInstruction.CeresTileFall);
+        }, EnemyProjectileFrameBehavior.CeresTileFall);
     }
 
     /// <summary>

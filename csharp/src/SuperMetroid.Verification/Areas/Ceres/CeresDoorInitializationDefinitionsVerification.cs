@@ -49,7 +49,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
                 $"production Ceres door function selector {variant}");
             AssertEqual(AnimationProgramCursor<CeresDoorProgram>.Start(definition.Program), enemies.CeresDoorPrograms[slot.SlotIndex],
                 $"production Ceres door program selector {variant}");
-            AssertEqual((ushort)1, slot.InstructionTimer.RawValue,
+            AssertEqual((ushort)1, slot.FrameHold.RawValue,
                 $"production Ceres door instruction timer {variant}");
             AssertEqual((ushort)0, slot.Timer.RawValue,
                 $"production Ceres door general timer {variant}");

@@ -85,7 +85,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         // SpawnEnemy installs the canonical empty map after init when property $2000 is set.
         // The actor's list is still live and produces its first visible map on its first
         // scheduled turn; the active-index array was frozen before this allocation.
-        babySlot.Frame = babySlot.Properties.HasAny(EnemyProperties.ProcessInstructions)
+        babySlot.Frame = babySlot.Properties.HasAny(EnemyProperties.RunsAnimationScript)
             ? EnemyFrameId.Empty
             : null;
         _slotTable.CoverSpawn(babySlot);
@@ -110,7 +110,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         state.BabyCursor = AnimationProgramCursor<MotherBrainBabyProgram>.Start(baby.Program);
 
         CopyBabyMetroidActorToPhysicalSlot(slot, baby);
-        slot.InstructionTimer = baby.InstructionTimer;
+        slot.FrameHold = baby.FrameHold;
         slot.Timer = WrappingCountdown.Start(0);
 
         // The writer receives byte index $01E2 and count $000F. Color zero is deliberately
@@ -280,9 +280,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
             "The cutscene Baby's program ran without Mother Brain's encounter state.");
-        CountdownStep instructionTimer = slot.InstructionTimer.Decrement();
-        slot.InstructionTimer = instructionTimer.Remaining;
-        if (!instructionTimer.IsZero)
+        CountdownStep frameHold = slot.FrameHold.Decrement();
+        slot.FrameHold = frameHold.Remaining;
+        if (!frameHold.IsZero)
         {
             slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
@@ -297,7 +297,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         switch (advance)
         {
             case AnimationProgramAdvance<BabyMetroidFrame>.Show shown:
-                slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
@@ -314,7 +314,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         state.BabyCursor = AnimationProgramCursor<MotherBrainBabyProgram>.Start(program);
         state.BabyAppliedProgram = program;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 }

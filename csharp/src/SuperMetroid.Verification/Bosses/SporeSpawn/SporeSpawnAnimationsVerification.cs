@@ -179,7 +179,7 @@ internal static class SporeSpawnAnimationsVerification
                 started.Cursor == AnimationProgramCursor<SporeSpawnProjectileProgram>.Start(SporeSpawnProjectileProgram.Spore),
                 "the real spore producer starts the falling-spore program");
             projectile.StartAnimation(new SporeSpawnProjectileAnimation(program));
-            var native = new NativeEnemyProjectileListDefinitions.Reader(entry, projectile.InstructionTimer.RawValue);
+            var native = new NativeEnemyProjectileListDefinitions.Reader(entry, projectile.FrameHold.RawValue);
             int drops = 0;
             for (int update = 0; update < 48 && !native.Deleted; update++, updates++)
             {
@@ -190,7 +190,7 @@ internal static class SporeSpawnAnimationsVerification
                 AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
                 if (native.Deleted)
                     break;
-                AssertEqual(native.Timer, projectile.InstructionTimer.RawValue, $"{at}: timer");
+                AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
                 AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             }
             AssertEqual(drops, enemies.SporeSpawnDropRequests.Count, $"Spore Spawn projectile {program}: drop requests");
@@ -225,7 +225,7 @@ internal static class SporeSpawnAnimationsVerification
         body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
-        body.InstructionTimer = WrappingCountdown.Start(1);
+        body.FrameHold = WrappingCountdown.Start(1);
 
         var state = new SporeSpawnEnemyState(body)
         {
@@ -242,7 +242,7 @@ internal static class SporeSpawnAnimationsVerification
 
         for (int frame = 0; frame < frames; frame++)
         {
-            EnemyInstructionInterpreter.ProcessInstructions(body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+            EnemyInstructionInterpreter.RunsAnimationScript(body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
             afterFrame?.Invoke(enemies, body);
         }
         return new RunSporeSpawnProgramResult(enemies, body);

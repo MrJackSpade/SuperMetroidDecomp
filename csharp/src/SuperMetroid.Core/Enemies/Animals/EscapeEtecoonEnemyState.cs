@@ -19,12 +19,12 @@ public sealed class EscapeEtecoonEnemyState
     public EightEightVector<RoomPixels> Velocity { get; set; }
 
     /// <summary>The installed pre-instruction; none once a kill has emptied the record.</summary>
-    public EscapeEtecoonPreInstruction? PreInstruction { get; set; }
+    public EscapeEtecoonFrameBehavior? FrameBehavior { get; set; }
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record: no velocity and no pre-instruction.</summary>
     internal void ClearWithRecord()
     {
         Velocity = default;
-        PreInstruction = null;
+        FrameBehavior = null;
     }
 }

@@ -59,7 +59,7 @@ internal sealed class EnemyPopulationLoader
             // InitializeEnemies deliberately clears the init routine's immediate map.
             // Disable-Samus-collision actors receive the canonical empty map until their
             // first instruction-list tick replaces it. Gunship properties contain $2000.
-            slot.Frame = slot.Properties.HasAny(EnemyProperties.ProcessInstructions)
+            slot.Frame = slot.Properties.HasAny(EnemyProperties.RunsAnimationScript)
                 ? slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap)
                     ? EnemyFrameId.EmptyExtended
                     : EnemyFrameId.Empty

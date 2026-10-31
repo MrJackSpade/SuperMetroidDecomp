@@ -17,17 +17,17 @@ internal static class TorizoNativeWords
         [TorizoFunction.Active] = 0xc6ff,
         [TorizoFunction.GoldenWaitForSamus] = 0xd5c2,
         [TorizoFunction.GoldenGravity] = 0xd5df,
-        [TorizoFunction.GoldenPreInstruction] = 0xd5e6,
+        [TorizoFunction.GoldenFrameBehavior] = 0xd5e6,
     });
 
-    /// <summary>The routine word naming each <see cref="TorizoPreInstruction"/>.</summary>
-    internal static readonly NativeWordIdentities<TorizoPreInstruction> PreInstructions = new(new Dictionary<TorizoPreInstruction, ushort>
+    /// <summary>The routine word naming each <see cref="TorizoFrameBehavior"/>.</summary>
+    internal static readonly NativeWordIdentities<TorizoFrameBehavior> FrameBehaviors = new(new Dictionary<TorizoFrameBehavior, ushort>
     {
-        [TorizoPreInstruction.Idle] = 0xc95e,
-        [TorizoPreInstruction.AirTransition] = 0xc752,
-        [TorizoPreInstruction.Gravity] = 0xc828,
-        [TorizoPreInstruction.Jump] = 0xc82c,
-        [TorizoPreInstruction.GoldenAirTransition] = 0xd5f1,
-        [TorizoPreInstruction.GoldenGravity] = 0xd5ed,
+        [TorizoFrameBehavior.Idle] = 0xc95e,
+        [TorizoFrameBehavior.AirTransition] = 0xc752,
+        [TorizoFrameBehavior.Gravity] = 0xc828,
+        [TorizoFrameBehavior.Jump] = 0xc82c,
+        [TorizoFrameBehavior.GoldenAirTransition] = 0xd5f1,
+        [TorizoFrameBehavior.GoldenGravity] = 0xd5ed,
     });
 }

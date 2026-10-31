@@ -102,7 +102,7 @@ internal static class RoomPlmSystemAccess
                     ((entry.Door ?? throw new InvalidOperationException("Verification requires entry.door."))).Component,
                     checked((byte)(entry.Door).HitCounter),
                     entry.Slot.Animation,
-                    PlmPreInstructionNativeRoutines.Of(entry.Slot.PreInstruction))),
+                    PlmFrameBehaviorNativeRoutines.Of(entry.Slot.FrameBehavior))),
         ];
 
         /// <summary>
@@ -117,7 +117,7 @@ internal static class RoomPlmSystemAccess
             {
                 if (slot.BlockIndex != blockIndex || slot.Family is not (ColoredDoorPlmState or GreyDoorPlmState))
                     continue;
-                if (slot.PreInstruction == PlmPreInstructions.Inert)
+                if (slot.FrameBehavior == PlmFrameBehaviors.Inert)
                     return false;
                 return self.ProjectileTriggers.TryNotifyResidentProjectileHit(blockIndex, projectileType);
             }
@@ -162,12 +162,12 @@ internal static class RoomPlmSystemAccess
             if (active.Length != 1)
                 throw new InvalidOperationException("Program probe requires exactly one active PLM slot.");
             start.StartOn(active[0]);
-            active[0].InstructionTimer = WrappingCountdown.Start(1);
+            active[0].FrameHold = WrappingCountdown.Start(1);
         }
 
         /// <summary>Current PLM instruction countdown, or zero after deletion.</summary>
-        internal ushort MotherBrainGlassInstructionTimer => MotherBrainGlassSlot(self) is { } slot
-            ? slot.InstructionTimer.RawValue
+        internal ushort MotherBrainGlassFrameHold => MotherBrainGlassSlot(self) is { } slot
+            ? slot.FrameHold.RawValue
             : (ushort)0;
 
         /// <summary>
@@ -212,8 +212,8 @@ internal static class RoomPlmSystemAccess
                     HeaderPointer: entry.Slot.Header,
                     BlockIndex: entry.Slot.BlockIndex,
                     RoomArgument: entry.Slot.NativeRoomArgument,
-                    PreInstruction: PlmPreInstructionNativeRoutines.Of(entry.Slot.PreInstruction),
-                    InstructionTimer: entry.Slot.InstructionTimer.RawValue,
+                    FrameBehavior: PlmFrameBehaviorNativeRoutines.Of(entry.Slot.FrameBehavior),
+                    FrameHold: entry.Slot.FrameHold.RawValue,
                     LoopTimer: entry.Slot.LoopTimer.RawValue,
                     ProjectileHit: entry.Slot.ProjectileHit,
                     Animation: entry.Slot.Animation)),
@@ -354,7 +354,7 @@ internal static class RoomPlmSystemAccess
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
             slot.BlockIndex = blockIndex;
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             slot.RestoreTerrain = PlmSlotDefinitions.ClearedRestoreTerrain;
 
             if (areaDependent)

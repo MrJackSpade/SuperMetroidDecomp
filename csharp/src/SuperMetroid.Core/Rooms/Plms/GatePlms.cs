@@ -181,24 +181,24 @@ internal sealed class GatePlms : IPlmFamilySource
     }
 
     /// <summary>Wakes a resident gate when shot or when Samus occupies the column for the appropriate pre-instruction.</summary>
-    internal void RunDownwardGatePreInstruction(PlmSlot slot, DownwardGatePreInstruction preInstruction)
+    internal void RunDownwardGateFrameBehavior(PlmSlot slot, DownwardGateFrameBehavior frameBehavior)
     {
-        bool wake = preInstruction switch
+        bool wake = frameBehavior switch
         {
-            DownwardGatePreInstruction.WakeIfTriggered => !slot.LoopTimer.IsZero,
-            DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow =>
+            DownwardGateFrameBehavior.WakeIfTriggered => !slot.LoopTimer.IsZero,
+            DownwardGateFrameBehavior.WakeIfTriggeredOrSamusBelow =>
                 !slot.LoopTimer.IsZero || IsSamusInsideDownwardGateColumn(slot),
-            DownwardGatePreInstruction.None or
-                DownwardGatePreInstruction.Inert => throw new InvalidOperationException(
-                $"Undefined downward gate pre-instruction {preInstruction}."),
+            DownwardGateFrameBehavior.None or
+                DownwardGateFrameBehavior.Inert => throw new InvalidOperationException(
+                $"Undefined downward gate pre-instruction {frameBehavior}."),
             _ => throw new InvalidOperationException(
-                $"Undefined downward gate pre-instruction {preInstruction}."),
+                $"Undefined downward gate pre-instruction {frameBehavior}."),
         };
         if (!wake)
             return;
 
         slot.WakePastSleep();
-        slot.PreInstruction = DownwardGatePreInstructions.Inert;
+        slot.FrameBehavior = DownwardGateFrameBehaviors.Inert;
     }
 
     /// <summary>Tests Samus's block position against the resident gate's five-cell vertical column.</summary>

@@ -190,23 +190,23 @@ internal sealed class DraygonGoop
     /// <summary>Registers goop flight and attachment instructions with the projectile interpreter.</summary>
     internal void AddDraygonProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunAttachedDraygonGoop(context.Projectile, context.Samus);
-        }, EnemyProjectilePreInstruction.DraygonGoopStuckToSamus);
+        }, EnemyProjectileFrameBehavior.DraygonGoopStuckToSamus);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             // $86:8DFF deletes a power-bombed shot, then still moves the released slot.
             DeleteEnemyProjectileIfPowerBombed(context.Projectile, context.Samus);
             MoveDraygonProjectile(context.Projectile);
             DeleteDraygonProjectileOutsideRoom(context.Projectile);
-        }, EnemyProjectilePreInstruction.DraygonTurretShotFlight);
+        }, EnemyProjectileFrameBehavior.DraygonTurretShotFlight);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunFlyingDraygonGoop(context.Projectile, context.Samus);
-        }, EnemyProjectilePreInstruction.DraygonGoopFlight);
+        }, EnemyProjectileFrameBehavior.DraygonGoopFlight);
 
         // A shot wall turret runs the shared misc-dust small explosion, the list its definition names.
         table.AddShotAnimation(RoomEnemyProjectileKind.DraygonWallTurret,
@@ -232,7 +232,7 @@ internal sealed class DraygonGoop
                     projectile.Clear();
                     return;
                 case DraygonProjectileCue.Fire:
-                    projectile.PreInstruction = EnemyProjectilePreInstruction.DraygonTurretShotFlight;
+                    projectile.FrameBehavior = EnemyProjectileFrameBehavior.DraygonTurretShotFlight;
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(DraygonProjectileCue)} {cue}.");
@@ -292,8 +292,8 @@ internal sealed class DraygonGoop
 
         samus.XSpeedDivisor = nextDivisor;
         goop.State = new DraygonGoopAttachedState(nextDivisor);
-        goop.PreInstruction =
-            EnemyProjectilePreInstruction.DraygonGoopStuckToSamus;
+        goop.FrameBehavior =
+            EnemyProjectileFrameBehavior.DraygonGoopStuckToSamus;
         goop.BlocksSamusProjectiles = false;
         goop.CanDamageSamus = false;
         goop.PersistsOnSamusContact = true;

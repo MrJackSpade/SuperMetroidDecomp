@@ -17,7 +17,7 @@ internal static class WorkRobotInitialSelectionVerification
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
-            int address = EnemyRomTablePointers.WorkRobot.InitialInstructionListWords + 2 * parameter;
+            int address = EnemyRomTablePointers.WorkRobot.InitialAnimationScriptWords + 2 * parameter;
             WorkRobotProgram expected = WorkRobotPoses.InitialProgram(parameter);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 NativeEnemyProgramOracle.EntryOf(WorkRobotNativeListAddresses.Entries, expected),

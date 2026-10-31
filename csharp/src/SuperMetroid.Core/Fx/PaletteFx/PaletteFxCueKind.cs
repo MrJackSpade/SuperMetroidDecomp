@@ -4,5 +4,5 @@
 public enum PaletteFxCueKind
 {
     /// <summary><c>$8D:C5DD</c>: clears the pre-instruction.</summary>
-    ClearPreInstruction,
+    ClearFrameBehavior,
 }

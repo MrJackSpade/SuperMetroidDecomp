@@ -187,7 +187,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         ChootProgram program)
     {
         state.Program = AnimationProgramCursor<ChootProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

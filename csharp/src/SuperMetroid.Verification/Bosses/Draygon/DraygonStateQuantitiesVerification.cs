@@ -56,7 +56,7 @@ internal static class DraygonStateQuantitiesVerification
     {
         RoomEnemyProjectileSlot goop = enemies.Projectiles.EnemyProjectiles[^1];
         goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
-        goop.PreInstruction = EnemyProjectilePreInstruction.DraygonGoopStuckToSamus;
+        goop.FrameBehavior = EnemyProjectileFrameBehavior.DraygonGoopStuckToSamus;
         goop.State = new DraygonGoopAttachedState(stackPosition: 1) { Lifetime = WrappingCountdown.FromRaw(lifetime) };
         return goop;
     }

@@ -58,7 +58,7 @@ internal static class PhantoonCasualFlamesVerification
             for (int frame = 0; frame < 2048; frame++)
             {
                 state.PartProgram(mouth) = default;
-                mouth.InstructionTimer = WrappingCountdown.Start(0);
+                mouth.FrameHold = WrappingCountdown.Start(0);
                 bool draw = false;
                 timer = WrappingCounter.Decrement(timer).Value;
                 if ((short)timer <= 0)
@@ -85,7 +85,7 @@ internal static class PhantoonCasualFlamesVerification
                 // The count is the signed value the cartridge's word holds.
                 AssertEqual(unchecked((short)count), state.Parts[mouth.SlotIndex].CasualFlameCount, "Actual casual frame remaining count");
                 AssertEqual(draw ? AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.MouthSpawnFlame) : default, state.PartProgram(mouth), "Exact casual mouth animation trigger frame");
-                AssertEqual(draw ? (ushort)1 : (ushort)0, mouth.InstructionTimer.RawValue, "Exact casual instruction timer reset");
+                AssertEqual(draw ? (ushort)1 : (ushort)0, mouth.FrameHold.RawValue, "Exact casual instruction timer reset");
             }
         }
         Console.WriteLine("Phantoon casual schedules: 30 native words, 65536 RNG selections and 8192 frame-exact mouth transitions match without a bus.");

@@ -126,9 +126,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The population already supplies $A800, but the initializer explicitly ORs $2000.
         // Spell that write out because instruction processing is essential to leaving shell.
-        slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
+        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.Radius = slot.Radius.WithY(0);
         state.Program = AnimationProgramCursor<MamaTurtleProgram>.Start(MamaTurtleProgram.MamaAsleep);
@@ -146,7 +146,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<MamaTurtleProgram>.Start(slot.SpawnSettings<TurtleSpawnSettings>().Speed < 0
             ? MamaTurtleProgram.BabyCrawlingLeft
@@ -830,14 +830,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallTurtleInstruction(RoomEnemySlot slot, MamaTurtleEnemyState state, MamaTurtleProgram program)
     {
         state.Program = AnimationProgramCursor<MamaTurtleProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Starts a baby turtle animation with its instruction timer set to one.</summary>
     private static void InstallTurtleInstruction(RoomEnemySlot slot, BabyTurtleEnemyState state, MamaTurtleProgram program)
     {
         state.Program = AnimationProgramCursor<MamaTurtleProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Rejects turtle movement without active room collision data.</summary>

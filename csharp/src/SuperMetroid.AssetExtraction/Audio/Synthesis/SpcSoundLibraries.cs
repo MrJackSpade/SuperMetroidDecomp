@@ -184,7 +184,7 @@ internal sealed class SpcSoundLibraries
                 channel.Pointer = _voices.ReadPointerEntry(library.CurrentPointer, index);
                 channel.VoiceIndexTimesEight = unchecked((byte)(channel.VoiceIndex * 8));
                 channel.PointerIndex = 0;
-                channel.InstructionTimer = 1;
+                channel.FrameHold = 1;
             }
         }
         foreach (ManagedSpcSoundChannel channel in libraryChannels)
@@ -276,8 +276,8 @@ internal sealed class SpcSoundLibraries
     {
         if (soundChannel.Disabled == SpcDriverDefinitions.SoundEffects.Active)
             return;
-        soundChannel.InstructionTimer = SpcDriverWrap.Byte(soundChannel.InstructionTimer - 1);
-        if (soundChannel.InstructionTimer == 0)
+        soundChannel.FrameHold = SpcDriverWrap.Byte(soundChannel.FrameHold - 1);
+        if (soundChannel.FrameHold == 0)
         {
             if (soundChannel.Legato == 0)
             {
@@ -288,7 +288,7 @@ internal sealed class SpcSoundLibraries
                 {
                     _voices.keyOff = _voices.keyOff | soundChannel.VoiceBitset;
                     soundChannel.ReleaseTimer = 2;
-                    soundChannel.InstructionTimer = 1;
+                    soundChannel.FrameHold = 1;
                     soundChannel.ReleaseFlag = SpcDriverDefinitions.SoundEffects.Active;
                 }
                 soundChannel.ReleaseTimer = SpcDriverWrap.Byte(soundChannel.ReleaseTimer - 1);
@@ -360,7 +360,7 @@ internal sealed class SpcSoundLibraries
                 soundChannel.Subnote = 0;
             }
             _voices.WritePitchInner(musicChannel, SpcFixedPoint.Compose(soundChannel.Note, soundChannel.Subnote));
-            soundChannel.InstructionTimer = ReadSoundByte(soundChannel);
+            soundChannel.FrameHold = ReadSoundByte(soundChannel);
             if (soundChannel.UpdateAdsr != 0)
             {
                 WriteSoundEffectAdsr(soundChannel.VoiceIndexTimesEight, soundChannel.AdsrSettings);

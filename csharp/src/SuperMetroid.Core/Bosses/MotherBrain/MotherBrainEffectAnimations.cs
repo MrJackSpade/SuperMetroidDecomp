@@ -34,7 +34,7 @@ internal static class MotherBrainEffectAnimations
         [P.OnionRingHit] =
         [
             Cue(new MotherBrainEffectCue.Command(K.UsePaletteZero)),
-            Cue(new MotherBrainEffectCue.Command(K.ClearPreInstruction)),
+            Cue(new MotherBrainEffectCue.Command(K.ClearFrameBehavior)),
             Show(6, 5),
             Show(7, 5),
             Show(8, 5),
@@ -75,14 +75,14 @@ internal static class MotherBrainEffectAnimations
             Show(29, 10),
             Show(30, 10),
             Show(31, 10),
-            Cue(new MotherBrainEffectCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.MotherBrainDroolFall)),
+            Cue(new MotherBrainEffectCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.MotherBrainDroolFall)),
             Cue(new MotherBrainEffectCue.Command(K.DropDrool)),
             Show(32, 10),
             Hold,
         ],
         [P.DroolHitFloor] =
         [
-            Cue(new MotherBrainEffectCue.Command(K.ClearPreInstruction)),
+            Cue(new MotherBrainEffectCue.Command(K.ClearFrameBehavior)),
             Show(33, 10),
             Show(34, 10),
             Show(35, 10),
@@ -104,7 +104,7 @@ internal static class MotherBrainEffectAnimations
         ],
         [P.PurpleBreathBig] =
         [
-            Cue(new MotherBrainEffectCue.Command(K.ClearPreInstruction)),
+            Cue(new MotherBrainEffectCue.Command(K.ClearFrameBehavior)),
             Show(45, 8),
             Show(46, 8),
             Show(47, 9),
@@ -118,7 +118,7 @@ internal static class MotherBrainEffectAnimations
         ],
         [P.PurpleBreathSmall] =
         [
-            Cue(new MotherBrainEffectCue.Command(K.ClearPreInstruction)),
+            Cue(new MotherBrainEffectCue.Command(K.ClearFrameBehavior)),
             Show(53, 8),
             Show(54, 8),
             Show(55, 10),

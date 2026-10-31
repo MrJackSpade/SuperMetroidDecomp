@@ -85,7 +85,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         slot.SetSpawnParameter1(EnemyDefinitionId.Fune, unchecked((ushort)((program.Namihe ? 1 : 0) | (program.Right ? 0x10 : 0))));
         slot.SetSpawnParameter2(EnemyDefinitionId.Fune, 0);
         slot.Position = slot.Position.WithWhole(new(128, 128));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
 
         var state = new FuneNamiheEnemyState
         {

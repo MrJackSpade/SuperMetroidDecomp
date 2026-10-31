@@ -12,7 +12,7 @@ internal static class EnemyVisualProgramRoutingContracts
     private static readonly RoutedMethod[] Methods =
     [
         new RoutedMethod("PublishSheetFrame", "EnemyPresentation"),
-        new RoutedMethod("ProcessInstructions", "EnemyInstructionInterpreter"),
+        new RoutedMethod("RunsAnimationScript", "EnemyInstructionInterpreter"),
         new RoutedMethod("ProcessEnemyProjectileInstructions", "EnemyProjectileEngine"),
     ];
 

@@ -89,10 +89,10 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         // normal instructions animate visibility, while extended maps supply per-frame art
         // and collision boxes whose geometry cannot be represented by header radii.
         slot.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.Steam];
-        slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
+        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.Colouring = SharedSpriteColouring.EnemyProjectiles;
 

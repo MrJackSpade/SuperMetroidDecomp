@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal interface IScriptedRoomPlmHooks
 {
     /// <summary>The pre-instruction routine a scripted cue installs.</summary>
-    IPlmPreInstruction PreInstruction(ScriptedRoomPlmPreInstruction preInstruction);
+    IPlmFrameBehavior FrameBehavior(ScriptedRoomPlmFrameBehavior frameBehavior);
 
     /// <summary>Whether the Lower Norfair Chozo statue has already lowered the acid.</summary>
     bool HasLoweredLowerNorfairAcid { get; }

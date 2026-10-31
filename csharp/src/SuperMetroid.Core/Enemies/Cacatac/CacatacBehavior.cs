@@ -172,18 +172,18 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void SetCacatacProgram(RoomEnemySlot slot, CacatacEnemyState state, CacatacProgram program)
     {
         state.Program = AnimationProgramCursor<CacatacProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Registers the spike's ten direction-table movers and viewport cull.</summary>
     internal static void AddCacatacProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             // Cacatac spike: ten direction-table movers.
-            RunCacatacSpikePreInstruction(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.CacatacSpikeFlight);
+            RunCacatacSpikeFrameBehavior(context.Projectile, context.Camera);
+        }, EnemyProjectileFrameBehavior.CacatacSpikeFlight);
     }
 
     /// <summary>Ports Cacatac's main AI.</summary>
@@ -224,7 +224,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Ports pre-instruction $86:D9DB: the spike moves along its velocity, horizontally then vertically, then is culled
     /// once outside the view.
     /// </summary>
-    internal static void RunCacatacSpikePreInstruction(
+    internal static void RunCacatacSpikeFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {

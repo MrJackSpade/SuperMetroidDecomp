@@ -27,7 +27,7 @@ internal sealed class ProjectileMotion
         _trails = trails;
     }
     /// <summary>Accelerates a non-Wave beam, emits its old-position trail, and resolves directional block collision.</summary>
-    internal bool RunNoWaveBeamPreInstruction(
+    internal bool RunNoWaveBeamFrameBehavior(
         RoomLevelData level,
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
@@ -90,7 +90,7 @@ internal sealed class ProjectileMotion
     }
 
     /// <summary>Updates Wave's three- or four-frame trail cadence before its block-transparent movement.</summary>
-    internal void RunWaveBeamPreInstruction(
+    internal void RunWaveBeamFrameBehavior(
         RoomLevelData level,
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
@@ -109,8 +109,8 @@ internal sealed class ProjectileMotion
         slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
         if (slot.TrailTimer.IsZero)
         {
-            slot.TrailTimer = WrappingCountdown.FromRaw(slot.PreInstruction ==
-                SamusProjectilePreInstruction.WaveBeamThreeFrameTrail
+            slot.TrailTimer = WrappingCountdown.FromRaw(slot.FrameBehavior ==
+                SamusProjectileFrameBehavior.WaveBeamThreeFrameTrail
                     ? 3
                     : 4);
             _trails.SpawnTrail(slot);
@@ -120,7 +120,7 @@ internal sealed class ProjectileMotion
     }
 
     /// <summary>Uses Wave's block-transparent movement for Hyper Beam without spawning projectile trails.</summary>
-    internal void RunHyperBeamPreInstruction(
+    internal void RunHyperBeamFrameBehavior(
         RoomLevelData level,
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
@@ -173,7 +173,7 @@ internal sealed class ProjectileMotion
     }
 
     /// <summary>Handles ordinary missile ignition, acceleration, trail, point collision, and post-impact deletion.</summary>
-    internal bool RunMissilePreInstruction(
+    internal bool RunMissileFrameBehavior(
         RoomLevelData level,
         SamusState samus,
         SamusProjectileSlot slot,
@@ -242,7 +242,7 @@ internal sealed class ProjectileMotion
     }
 
     /// <summary>Ignites a Super Missile with its invisible link and updates both point reactions after each movement axis.</summary>
-    internal bool RunSuperMissilePreInstruction(
+    internal bool RunSuperMissileFrameBehavior(
         RoomLevelData level,
         SamusState samus,
         SamusProjectileSlot slot,
@@ -373,15 +373,15 @@ internal sealed class ProjectileMotion
         SamusProjectileHeader header = SamusProjectileSelection.Select(SamusProjectileSelectorTable.SuperMissileLink, 2);
         link.Damage = SamusProjectileDamage.Read(header);
         link.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaders.Program(header, 0));
-        link.InstructionTimer = WrappingCountdown.Start(1);
-        link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
+        link.FrameHold = WrappingCountdown.Start(1);
+        link.FrameBehavior = SamusProjectileFrameBehavior.SuperMissileLink;
 
         owner.SuperMissileLinkSlot = link.SlotIndex;
         _slotTable.ProjectileCounter = WrappingCounter.IncrementWord(_slotTable.ProjectileCounter);
     }
 
     /// <summary>Keeps an ordinary link stationary or clears the whole Super Missile family on its deletion signal.</summary>
-    internal void RunSuperMissileLinkPreInstruction(SamusProjectileSlot link)
+    internal void RunSuperMissileLinkFrameBehavior(SamusProjectileSlot link)
     {
         // `$90:B075` leaves an ordinary link completely stationary. A spent link clears every
         // Super Missile slot, including its owner.

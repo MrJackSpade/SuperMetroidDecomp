@@ -33,7 +33,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 state.JumpPhase = phase;
                 state.Velocity = new EightEightVector<RoomPixels>(0x1234, 0x1234);
                 state.Program = AnimationProgramCursor<DeadTourianProgram>.Start(DeadTourianProgram.SidehopperCorpse);
-                slot.InstructionTimer = WrappingCountdown.Start(9);
+                slot.FrameHold = WrappingCountdown.Start(9);
                 slot.Timer = WrappingCountdown.Start(17);
                 dispatch(slot, state, null, null, default);
                 ushort timer = unchecked((ushort)(raw - 1));
@@ -46,7 +46,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                     state.Function, "Exact launch versus transformation handoff");
                 AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(launch ? DeadTourianProgram.SidehopperIdle : DeadTourianProgram.SidehopperCorpse),
                     state.Program, "Launch restarts the alive-idle animation");
-                AssertEqual(launch ? (ushort)1 : (ushort)9, slot.InstructionTimer.RawValue, "Launch instruction timer");
+                AssertEqual(launch ? (ushort)1 : (ushort)9, slot.FrameHold.RawValue, "Launch instruction timer");
                 AssertEqual(launch ? (ushort)0 : (ushort)17, slot.Timer.RawValue, "Launch clears instruction loop timer");
                 AssertEqual(phase, state.JumpPhase, "Launch does not advance landing-owned phase");
             }

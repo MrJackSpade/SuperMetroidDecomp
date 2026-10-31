@@ -106,8 +106,8 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             RoomEnemyProjectileKind.TourianStatueBaseDecoration);
         Run(baseDecoration, 2);
         AssertEqual(
-            EnemyProjectilePreInstruction.TourianStatueRevealFollow,
-            baseDecoration.PreInstruction,
+            EnemyProjectileFrameBehavior.TourianStatueRevealFollow,
+            baseDecoration.FrameBehavior,
             "base decoration installs its delayed position callback");
         AssertEqual((ushort)0xb866, NativePointer(baseDecoration),
             "base decoration reaches its stable loop");
@@ -164,7 +164,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         {
             for (int frame = 0; frame < frames; frame++)
             {
-                projectile.InstructionTimer = WrappingCountdown.Start(1);
+                projectile.FrameHold = WrappingCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
                 // The shown frame's operand sits just before the instruction the native pointer stands on.
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands,

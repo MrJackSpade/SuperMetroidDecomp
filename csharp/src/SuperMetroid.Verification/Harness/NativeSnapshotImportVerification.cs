@@ -104,16 +104,16 @@ internal static class NativeSnapshotImportVerification
             paletteSlot.Target = SuperMetroid.Core.Fx.PaletteFx.PaletteFxColoursPositions.FromCartridge(paletteSlot.Object,
                 RoomPaletteFxSystemConstants.PaletteFxColorIndex(W(NativeSnapshotMemory.PaletteFxColor + slot * 2), paletteSlot.Id));
             // The pre-instruction values are arbitrary (#1415): a live object's routine word translates through the native view.
-            paletteSlot.PreInstruction = paletteSlot.Id == 0
+            paletteSlot.FrameBehavior = paletteSlot.Id == 0
                 ? default
-                : SuperMetroid.Core.Fx.FxNativeWords.PaletteFxPreInstructions.Decode(
-                    W(NativeSnapshotMemory.PaletteFxPreInstruction + slot * 2), "palette-FX pre-instruction");
+                : SuperMetroid.Core.Fx.FxNativeWords.PaletteFxFrameBehaviors.Decode(
+                    W(NativeSnapshotMemory.PaletteFxFrameBehavior + slot * 2), "palette-FX pre-instruction");
             // A live object resumes its typed program where the recorded native pointer stands.
             paletteSlot.Cursor = paletteSlot.Id == 0
                 ? default
                 : SuperMetroid.Verification.Fx.PaletteFx.PaletteFxProgramsVerification.CursorAt(
                     SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
-            paletteSlot.InstructionTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxInstructionTimer + slot * 2));
+            paletteSlot.FrameHold = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2));
             paletteSlot.Timer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxTimer + slot * 2));
         }
         runtime.PaletteFxSession.SamusInHeatPaletteIndex = W(NativeSnapshotMemory.HeatPalettePhase);
@@ -223,8 +223,8 @@ internal static class NativeSnapshotImportVerification
 
         foreach (var trail in runtime.Projectiles.TrailSlots)
         {
-            trail.Left.InstructionTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.TrailLeftInstructionTimer + trail.SlotTableOffset));
-            trail.Right.InstructionTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.TrailRightInstructionTimer + trail.SlotTableOffset));
+            trail.Left.FrameHold = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.TrailLeftFrameHold + trail.SlotTableOffset));
+            trail.Right.FrameHold = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.TrailRightFrameHold + trail.SlotTableOffset));
             trail.Left.InstructionPointer = W(NativeSnapshotMemory.TrailLeftInstructionPointer + trail.SlotTableOffset);
             trail.Right.InstructionPointer = W(NativeSnapshotMemory.TrailRightInstructionPointer + trail.SlotTableOffset);
             trail.Left.ShownPose = ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.SlotTableOffset));
@@ -276,10 +276,10 @@ internal static class NativeSnapshotImportVerification
         // $A9:8C0C has cleared the channel flags, the room's liquid objects are deleted.
         bool lavaAcidObjectLive = Enumerable.Range(0, NativeSnapshotMemory.HdmaObjectCount).Any(slot =>
             W(NativeSnapshotMemory.HdmaObjectChannelBitflags + slot * 2) != 0 &&
-            W(NativeSnapshotMemory.HdmaObjectPreInstructions + slot * 2) == NativeSnapshotMemory.AcidHdmaCallback);
+            W(NativeSnapshotMemory.HdmaObjectFrameBehaviors + slot * 2) == NativeSnapshotMemory.AcidHdmaCallback);
         AssertTrue(runtime.RoomLayer3Fx.Type is RoomFxType.Lava or RoomFxType.Acid,
             "snapshot import models the lava/acid HDMA objects of its room");
-        runtime.RoomLayer3Fx.LavaAcidBg3PreInstructionInstalled = true;
+        runtime.RoomLayer3Fx.LavaAcidBg3FrameBehaviorInstalled = true;
         runtime.RoomLayer3Fx.LiquidMotionStopped = !lavaAcidObjectLive;
         runtime.RoomLayer3Fx.TidePhase = W(NativeSnapshotMemory.TidePhase);
         runtime.RoomLayer3Fx.TideFixedOffset = unchecked((int)(SixteenSixteen.Compose(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction))));
@@ -308,7 +308,7 @@ internal static class NativeSnapshotImportVerification
             slot.SpritemapPointer = W(address) == 0 ? (ushort)0 : W(address + 22);
             slot.Timer = WrappingCountdown.FromRaw(W(address + 24));
 
-            slot.InstructionTimer = WrappingCountdown.FromRaw(W(address + 28));
+            slot.FrameHold = WrappingCountdown.FromRaw(W(address + 28));
             // The native palette word names a row; the colouring it denotes is decoded under the room's loaded set.
             slot.SetPaletteRow(runtime.Enemies, NativeSpriteGraphicsWords.PaletteRow(W(address + 30)));
             slot.TileIndexBase = W(address + 32);
@@ -329,7 +329,7 @@ internal static class NativeSnapshotImportVerification
                 kraid.HeadProgram = kraidHeadCursors.TryCursorAt(words.B);
             // A Pipe Bug's animation runs as a typed program (#641): resume it where the recorded pointer stands.
             if (runtime.Enemies.PipeBugStates[index] is { } pipeBug)
-                pipeBug.Program = pipeBugPointers.CursorAt(W(address + MovieDesyncMemory.EnemyInstructionListOffset));
+                pipeBug.Program = pipeBugPointers.CursorAt(W(address + MovieDesyncMemory.EnemyAnimationScriptOffset));
             if (runtime.Enemies.PipeBugStates[index] is { IsBrinstar: true } pipe)
             {
                 pipe.SpawnPosition = new(words.B, words.C);
@@ -399,14 +399,14 @@ internal static class NativeSnapshotImportVerification
             var graphics = new SnesObjAttributeWord(W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
             FamilyProjectileStarts.Initialize(
                 projectile, kind, new SpriteGraphics(graphics.TileNumber, graphicsSet.ColouringInRow(graphics.PaletteIndex)));
-            projectile.PreInstruction = EnemyProjectilePreInstructionAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index));
+            projectile.FrameBehavior = EnemyProjectileFrameBehaviorAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));
             ushort instruction = W(NativeSnapshotMemory.NativeEnemyProjectileInstruction + index);
             // The typed family resumes at the step the recorded native pointer stands for.
             EnemyProjectileAnimation typed = projectile.Animation ?? throw new InvalidOperationException(
                 $"Initial enemy projectile {projectile.SlotIndex} kind {kind} starts no typed program.");
             AssertEqual(1, NativeEnemyProjectileFamilies.All.Count(family => family.TryResumeAt(cartridge, typed, instruction)),
                 $"initial enemy projectile {projectile.SlotIndex} resumes its typed program");
-            projectile.InstructionTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.EnemyProjectileInstructionTimer + index));
+            projectile.FrameHold = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.EnemyProjectileFrameHold + index));
             projectile.GeneralTimer = W(NativeSnapshotMemory.EnemyProjectileTimer + index);
             projectile.Position = projectile.Position
                 .WithFractionX(W(NativeSnapshotMemory.EnemyProjectileXFraction + index))

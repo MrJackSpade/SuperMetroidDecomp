@@ -41,38 +41,38 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     /// (setting Zebes awake for the enemy quota), and otherwise plays the dud sound for a shot; once activated, any
     /// shot wakes the cap at its hit. Each consumes the hit.
     /// </summary>
-    internal void RunGreyDoorPreInstruction(PlmSlot slot, GreyDoorPreInstruction preInstruction, int enemyDeaths, int enemyDeathQuota)
+    internal void RunGreyDoorFrameBehavior(PlmSlot slot, GreyDoorFrameBehavior frameBehavior, int enemyDeaths, int enemyDeathQuota)
     {
-        switch (preInstruction)
+        switch (frameBehavior)
         {
-            case GreyDoorPreInstruction.WakeWhenShot:
+            case GreyDoorFrameBehavior.WakeWhenShot:
                 if (slot.ProjectileHit is null)
                     return;
                 slot.ProjectileHit = null;
                 slot.WakeAtLink();
                 return;
-            case GreyDoorPreInstruction.PlayDudSound:
+            case GreyDoorFrameBehavior.PlayDudSound:
                 PlayDudSoundIfShot(slot);
                 return;
-            case GreyDoorPreInstruction.WakeIfAreaBossDead:
-            case GreyDoorPreInstruction.WakeIfAreaMiniBossDead:
-            case GreyDoorPreInstruction.WakeIfAreaTorizoDead:
-            case GreyDoorPreInstruction.WakeIfEnemiesDead:
-            case GreyDoorPreInstruction.WakeIfTourianStatueFinished:
-            case GreyDoorPreInstruction.WakeIfCrittersEscaped:
-                if (!IsUnlocked(preInstruction, enemyDeaths, enemyDeathQuota))
+            case GreyDoorFrameBehavior.WakeIfAreaBossDead:
+            case GreyDoorFrameBehavior.WakeIfAreaMiniBossDead:
+            case GreyDoorFrameBehavior.WakeIfAreaTorizoDead:
+            case GreyDoorFrameBehavior.WakeIfEnemiesDead:
+            case GreyDoorFrameBehavior.WakeIfTourianStatueFinished:
+            case GreyDoorFrameBehavior.WakeIfCrittersEscaped:
+                if (!IsUnlocked(frameBehavior, enemyDeaths, enemyDeathQuota))
                 {
                     PlayDudSoundIfShot(slot);
                     return;
                 }
-                if (preInstruction == GreyDoorPreInstruction.WakeIfEnemiesDead)
+                if (frameBehavior == GreyDoorFrameBehavior.WakeIfEnemiesDead)
                     RequireSystem().SetEvent(EventNumber.ZebesAwake);
                 slot.ProjectileHit = null;
                 slot.WakeAtLink();
                 return;
-            case GreyDoorPreInstruction.None:
+            case GreyDoorFrameBehavior.None:
             default:
-                throw new InvalidOperationException($"Undefined {nameof(GreyDoorPreInstruction)} {preInstruction}.");
+                throw new InvalidOperationException($"Undefined {nameof(GreyDoorFrameBehavior)} {frameBehavior}.");
         }
     }
 
@@ -103,22 +103,22 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     private SharedGameState RequireSystem() =>
         _system ?? throw new InvalidOperationException("A resident grey door has no progression-state owner.");
 
-    /// <summary>Whether the unlock check <paramref name="preInstruction"/> passes.</summary>
-    private bool IsUnlocked(GreyDoorPreInstruction preInstruction, int enemyDeaths, int enemyDeathQuota)
+    /// <summary>Whether the unlock check <paramref name="frameBehavior"/> passes.</summary>
+    private bool IsUnlocked(GreyDoorFrameBehavior frameBehavior, int enemyDeaths, int enemyDeathQuota)
     {
         SharedGameState system = RequireSystem();
-        return preInstruction switch
+        return frameBehavior switch
         {
-            GreyDoorPreInstruction.WakeIfAreaBossDead => system.HasAnyBossBits(_area, BossBits.AreaBoss),
-            GreyDoorPreInstruction.WakeIfAreaMiniBossDead => system.HasAnyBossBits(_area, BossBits.AreaMiniBoss),
-            GreyDoorPreInstruction.WakeIfAreaTorizoDead => system.HasAnyBossBits(_area, BossBits.AreaTorizo),
-            GreyDoorPreInstruction.WakeIfEnemiesDead => enemyDeaths >= enemyDeathQuota,
-            GreyDoorPreInstruction.WakeIfTourianStatueFinished => _tourianStatue?.IsFinished == true,
-            GreyDoorPreInstruction.WakeIfCrittersEscaped => system.HasEvent(EventNumber.CrittersEscaped),
-            GreyDoorPreInstruction.None or
-                GreyDoorPreInstruction.WakeWhenShot or
-                GreyDoorPreInstruction.PlayDudSound => throw new InvalidOperationException($"{preInstruction} is not an unlock check."),
-            _ => throw new InvalidOperationException($"{preInstruction} is not an unlock check."),
+            GreyDoorFrameBehavior.WakeIfAreaBossDead => system.HasAnyBossBits(_area, BossBits.AreaBoss),
+            GreyDoorFrameBehavior.WakeIfAreaMiniBossDead => system.HasAnyBossBits(_area, BossBits.AreaMiniBoss),
+            GreyDoorFrameBehavior.WakeIfAreaTorizoDead => system.HasAnyBossBits(_area, BossBits.AreaTorizo),
+            GreyDoorFrameBehavior.WakeIfEnemiesDead => enemyDeaths >= enemyDeathQuota,
+            GreyDoorFrameBehavior.WakeIfTourianStatueFinished => _tourianStatue?.IsFinished == true,
+            GreyDoorFrameBehavior.WakeIfCrittersEscaped => system.HasEvent(EventNumber.CrittersEscaped),
+            GreyDoorFrameBehavior.None or
+                GreyDoorFrameBehavior.WakeWhenShot or
+                GreyDoorFrameBehavior.PlayDudSound => throw new InvalidOperationException($"{frameBehavior} is not an unlock check."),
+            _ => throw new InvalidOperationException($"{frameBehavior} is not an unlock check."),
         };
     }
 

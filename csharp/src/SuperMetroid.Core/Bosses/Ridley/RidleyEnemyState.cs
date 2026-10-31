@@ -168,7 +168,7 @@ public sealed class RidleyEnemyState
     /// <summary>How many draw updates the Baby's current pose lasts; zero before its program shows the first pose.</summary>
     internal int BabyPoseDuration { get; set; }
     /// <summary>Gets the Ceres Baby's elapsed draw-update count in its current pose, compared with the pose's duration and restarted at one.</summary>
-    public int BabyInstructionTimer { get; internal set; }
+    public int BabyFrameHold { get; internal set; }
     /// <summary>Gets the Ceres Baby's native bank-$A6 behavior pointer selecting hand attachment, falling setup, falling motion, or idle.</summary>
     public CeresBabyFunction BabyFunction { get; internal set; }
     /// <summary>The pose the Ceres Baby's program currently shows, or null before it has shown one.</summary>

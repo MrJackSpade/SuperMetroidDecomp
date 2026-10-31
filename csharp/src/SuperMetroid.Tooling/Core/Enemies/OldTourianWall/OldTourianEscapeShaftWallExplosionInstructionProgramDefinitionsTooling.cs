@@ -26,7 +26,7 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
     /// </summary>
     private static readonly InstructionMechanicsWord[] Words =
     [
-        new(0xb443, (ushort)EnemyProjectileInstruction.ClearPreInstruction),
+        new(0xb443, (ushort)EnemyProjectileInstruction.ClearFrameBehavior),
         new(0xb445, (ushort)EnemyProjectileInstruction.TimerInY),
         new(0xb447, checked(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.BurstCount)),
         new(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, (ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius),

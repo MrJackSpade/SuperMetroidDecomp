@@ -7,19 +7,19 @@
 /// </remarks>
 public enum RoomPlmInstruction : ushort
 {
-    /// <summary><c>$84:BE3F Instruction_PLM_SetGreyDoorPreInstruction</c>: typed resident-door owner installs its room-argument condition callback; no operands.</summary>
-    SetGreyDoorPreInstruction = 0xbe3f,
+    /// <summary><c>$84:BE3F Instruction_PLM_SetGreyDoorFrameBehavior</c>: typed resident-door owner installs its room-argument condition callback; no operands.</summary>
+    SetGreyDoorFrameBehavior = 0xbe3f,
     /// <summary><c>$84:86B4 Instruction_PLM_Sleep</c>: leave the list on this word.</summary>
     Sleep = 0x86b4,
 
     /// <summary><c>$84:86BC Instruction_PLM_Delete</c>: release the current PLM slot.</summary>
     Delete = 0x86bc,
 
-    /// <summary><c>$84:86C1 Instruction_PLM_PreInstruction</c>: install a bank-$84 callback.</summary>
-    InstallPreInstruction = 0x86c1,
+    /// <summary><c>$84:86C1 Instruction_PLM_FrameBehavior</c>: install a bank-$84 callback.</summary>
+    InstallFrameBehavior = 0x86c1,
 
-    /// <summary><c>$84:86CA Instruction_PLM_ClearPreInstruction</c>.</summary>
-    ClearPreInstruction = 0x86ca,
+    /// <summary><c>$84:86CA Instruction_PLM_ClearFrameBehavior</c>.</summary>
+    ClearFrameBehavior = 0x86ca,
 
     /// <summary><c>$84:8A24 Instruction_PLM_LinkInstruction_Y</c>.</summary>
     LinkInstruction = 0x8a24,

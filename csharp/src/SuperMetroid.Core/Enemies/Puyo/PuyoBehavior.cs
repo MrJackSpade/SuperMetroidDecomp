@@ -424,7 +424,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetPuyoProgram(RoomEnemySlot slot, PuyoEnemyState state, PuyoProgram program)
     {
         state.Program = AnimationProgramCursor<PuyoProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

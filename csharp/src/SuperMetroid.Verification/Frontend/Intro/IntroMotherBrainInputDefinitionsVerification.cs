@@ -26,7 +26,7 @@ internal static class IntroMotherBrainInputDefinitionsVerification
         int endFrame = -1;
         for (int frame = 0; frame < 1024; frame++)
         {
-            compiled.Step(DemoInputState.RunReturnOnlyPreInstruction, cue =>
+            compiled.Step(DemoInputState.RunReturnOnlyFrameBehavior, cue =>
             {
                 AssertEqual(DemoInputCue.EndIntroMotherBrainFlashback, cue, $"intro Mother Brain demo routine frame {frame}");
                 compiled.Disable();

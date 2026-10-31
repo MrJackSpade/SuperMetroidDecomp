@@ -58,9 +58,9 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         slot.Properties = slot.Properties.With(
-            EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions);
+            EnemyProperties.SolidToSamus | EnemyProperties.RunsAnimationScript);
         program = AnimationProgramCursor<DeadTorizoProgram>.Start(Corpses.DeadTorizoProgram.Stationary);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.Colouring = new GraphicsSetMemberColouring(EnemyDefinitionId.CorpseTorizo);
 

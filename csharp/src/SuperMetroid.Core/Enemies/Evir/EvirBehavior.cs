@@ -453,7 +453,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.Program = AnimationProgramCursor<EvirProgram>.Start(state.RequestedProgram);
         state.InstalledProgram = state.RequestedProgram;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

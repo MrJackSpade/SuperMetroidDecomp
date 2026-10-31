@@ -1278,7 +1278,7 @@ internal static class LookupStream2Verification
                 slot.Bind(EnemyDefinitionId.Gamet, slot.Definition);
                 slot.Position = slot.Position.WithWhole(new(128, 128)); slot.SetSpawnParameter2(EnemyDefinitionId.Gamet, 64);
                 PipeBugsBehavior.InitializeNorfairPipeBug(slot);
-                slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)(member + 4));
+                slot.FrameHold = WrappingCountdown.FromRaw((ushort)(member + 4));
                 slot.Timer = WrappingCountdown.FromRaw((ushort)(member + 8));
             }
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
@@ -1293,7 +1293,7 @@ internal static class LookupStream2Verification
                 AssertEqual(PipeBugEnemyFunction.NorfairRise, state.Function, "Actual formation begins rising");
                 AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(samusX < 128 ? PipeBugProgram.GametRisingLeft : PipeBugProgram.GametRisingRight),
                     state.Program, "Actual formation selects facing");
-                AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.SlotTable.Slots[member].InstructionTimer.RawValue,
+                AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.SlotTable.Slots[member].FrameHold.RawValue,
                     "Only leader instruction timer resets");
                 AssertEqual((ushort)(member == 0 ? 0 : member + 8), enemies.SlotTable.Slots[member].Timer.RawValue,
                     "Only leader loop counter resets");
@@ -1372,7 +1372,7 @@ internal static class LookupStream2Verification
             {
                 var pair = system.TrailSlots[0];
                 foreach (var side in new[] { pair.Left, pair.Right })
-                { side.InstructionPointer = start; side.InstructionTimer = WrappingCountdown.Start(1); side.Position = side.Position.WithX(100).WithY(100); }
+                { side.InstructionPointer = start; side.FrameHold = WrappingCountdown.Start(1); side.Position = side.Position.WithX(100).WithY(100); }
             }
             for (int frame = 0; frame < 80; frame++)
             {
@@ -1389,7 +1389,7 @@ internal static class LookupStream2Verification
                 foreach (var sides in new[] { new VerifyLookupStream2TrailProgramsCase(nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), new VerifyLookupStream2TrailProgramsCase(nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
                 {
                     AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
-                    AssertEqual(sides.First.InstructionTimer.RawValue, sides.Second.InstructionTimer.RawValue, "Trail artwork cannot change live timing");
+                    AssertEqual(sides.First.FrameHold.RawValue, sides.Second.FrameHold.RawValue, "Trail artwork cannot change live timing");
                     AssertEqual(sides.First.Position.Y, sides.Second.Position.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
@@ -1414,8 +1414,8 @@ internal static class LookupStream2Verification
         Console.WriteLine("Stream 2 trail programs: 67 native mechanics words,42 visual record addresses, all four actual paired trail lifetimes/freeze states and mutable alias pass.");
         void StepNative(SamusProjectileTrailSlot pair, SamusProjectileTrailSide side, OamBuffer oam, bool frozen)
         {
-            if (side.InstructionTimer.IsZero) return;
-            if (!frozen && (side.InstructionTimer = side.InstructionTimer.Decrement().Remaining).IsZero)
+            if (side.FrameHold.IsZero) return;
+            if (!frozen && (side.FrameHold = side.FrameHold.Decrement().Remaining).IsZero)
             {
                 ushort cursor = checked((ushort)side.InstructionPointer);
                 while (true)
@@ -1423,7 +1423,7 @@ internal static class LookupStream2Verification
                     ushort word = ReadVerificationWord(bus, 0x900000 | cursor);
                     if (word < 0x8000)
                     {
-                        side.InstructionTimer = WrappingCountdown.FromRaw(word);
+                        side.FrameHold = WrappingCountdown.FromRaw(word);
                         if (word == 0) return;
                         nativeWords[side] = ReadVerificationWord(bus, 0x900000 | (cursor + 2));
                         side.InstructionPointer = (ushort)(cursor + 4);
@@ -1487,11 +1487,11 @@ internal static class LookupStream2Verification
             projectiles.Trails.SpawnTrail(projectile);
             var trail = projectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             // An empty trail family (programs, direction list or coordinates outside the compiled data) draws no trail (#1318).
-            if (trail.Left.InstructionTimer.IsZero)
+            if (trail.Left.FrameHold.IsZero)
                 continue;
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects left trail including adjacent right-table entries");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn retains right-table overrun behavior");
-            AssertEqual(1, trail.Left.InstructionTimer.RawValue, "Selector extraction leaves allocation timer unchanged");
+            AssertEqual(1, trail.Left.FrameHold.RawValue, "Selector extraction leaves allocation timer unchanged");
             AssertEqual(96, trail.Left.Position.X, "Selector extraction leaves origin offset unchanged");
         }
         Console.WriteLine("Trail selectors: 103 reachable native words and every trailing projectile's real spawn selection pass with the complete selector window forbidden.");
@@ -2043,7 +2043,7 @@ internal static class LookupStream2Verification
         {
             ushort pointer = (ushort)(0x86db + direction * 12);
             AssertTrue(!remaining.Contains(pointer), "Stock compass selector is absent from stored residuals");
-            var shot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1) };
+            var shot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), FrameHold = WrappingCountdown.Start(1) };
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
@@ -2051,11 +2051,11 @@ internal static class LookupStream2Verification
             string original = document.Frames[key];
             document.Frames[key] = ProjectileSpriteDefinitions.Name(ProjectileSpriteDefinitions.NativePointers[0]);
             var edited = InstalledProjectileFrameBindings.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
-            var editedShot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1) };
+            var editedShot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), FrameHold = WrappingCountdown.Start(1) };
             system.Animation.FrameBindings = edited;
             _ = system.Animation.RunProjectileInstructionHandler(editedShot);
             AssertEqual(ProjectileSpriteDefinitions.NativePointers[0], editedShot.SpritemapPointer, "Independent direction edit overrides calculation in actual handler");
-            AssertEqual(shot.InstructionTimer.RawValue, editedShot.InstructionTimer.RawValue, "Visual edit preserves duration");
+            AssertEqual(shot.FrameHold.RawValue, editedShot.FrameHold.RawValue, "Visual edit preserves duration");
             AssertEqual(shot.InstructionPointer, editedShot.InstructionPointer, "Visual edit preserves control flow");
             AssertEqual(shot.Radius.X, editedShot.Radius.X, "Visual edit preserves horizontal radius");
             AssertEqual(shot.Radius.Y, editedShot.Radius.Y, "Visual edit preserves vertical radius");
@@ -2087,7 +2087,7 @@ internal static class LookupStream2Verification
                 checkedCappedSweep++;
             }
             AssertTrue(!remaining.Contains(pointer), "Calculated Wave/Ice selector is absent from stored residuals");
-            var shot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1) };
+            var shot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), FrameHold = WrappingCountdown.Start(1) };
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
@@ -2098,10 +2098,10 @@ internal static class LookupStream2Verification
             document.Frames[key] = ProjectileSpriteDefinitions.Name(replacement);
             var edited = InstalledProjectileFrameBindings.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
             system.Animation.FrameBindings = edited;
-            var editedShot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1) };
+            var editedShot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), FrameHold = WrappingCountdown.Start(1) };
             _ = system.Animation.RunProjectileInstructionHandler(editedShot);
             AssertEqual(replacement, editedShot.SpritemapPointer, "Every Wave/Ice supplied edit takes precedence");
-            AssertEqual(shot.InstructionTimer.RawValue, editedShot.InstructionTimer.RawValue, "Wave/Ice visual edit preserves duration");
+            AssertEqual(shot.FrameHold.RawValue, editedShot.FrameHold.RawValue, "Wave/Ice visual edit preserves duration");
             AssertEqual(shot.InstructionPointer, editedShot.InstructionPointer, "Wave/Ice visual edit preserves flow");
             AssertEqual(shot.Radius.X, editedShot.Radius.X, "Wave/Ice visual edit preserves X radius");
             AssertEqual(shot.Radius.Y, editedShot.Radius.Y, "Wave/Ice visual edit preserves Y radius");
@@ -2115,7 +2115,7 @@ internal static class LookupStream2Verification
         foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
         {
             if (pointer is < 0x9f87 or >= 0xa007) continue;
-            var bomb = new SamusBombProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            var bomb = new SamusBombProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
             _ = bombs.RunProjectileInstructionHandler(bomb);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");

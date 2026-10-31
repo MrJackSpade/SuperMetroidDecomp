@@ -8,93 +8,93 @@ public static class DemoInputObjectDefinitions
 {
     /// <summary>The LandingSite title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractLandingSite { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractLandingSite);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractLandingSite);
 
     /// <summary>The PseudoScrewAttack title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractPseudoScrewAttack { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractPseudoScrewAttack);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractPseudoScrewAttack);
 
     /// <summary>The SpeedBooster title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractSpeedBooster { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractSpeedBooster);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractSpeedBooster);
 
     /// <summary>The Dachora title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractDachora { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractDachora);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractDachora);
 
     /// <summary>The RedBrinstarElevator title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractRedBrinstarElevator { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractRedBrinstarElevator);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractRedBrinstarElevator);
 
     /// <summary>The PrePhantoonHall title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractPrePhantoonHall { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractPrePhantoonHall);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractPrePhantoonHall);
 
     /// <summary>The LowerNorfairEntrance title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractLowerNorfairEntrance { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractLowerNorfairEntrance);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractLowerNorfairEntrance);
 
     /// <summary>The EyeDoor title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractEyeDoor { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractEyeDoor);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractEyeDoor);
 
     /// <summary>The DiagonalShinespark title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractDiagonalShinespark { get; } =
-        new(DemoInputPreInstruction.AttractShinespark, DemoInputProgram.AttractDiagonalShinespark);
+        new(DemoInputFrameBehavior.AttractShinespark, DemoInputProgram.AttractDiagonalShinespark);
 
     /// <summary>The MissileDoor title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractMissileDoor { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractMissileDoor);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractMissileDoor);
 
     /// <summary>The Kraid title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractKraid { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractKraid);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractKraid);
 
     /// <summary>The FirefleaRoom title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractFirefleaRoom { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractFirefleaRoom);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractFirefleaRoom);
 
     /// <summary>The ScrewAttack title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractScrewAttack { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractScrewAttack);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractScrewAttack);
 
     /// <summary>The BrinstarDiagonalRoom title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractBrinstarDiagonalRoom { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractBrinstarDiagonalRoom);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractBrinstarDiagonalRoom);
 
     /// <summary>The PreSporeSpawnHall title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractPreSporeSpawnHall { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractPreSporeSpawnHall);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractPreSporeSpawnHall);
 
     /// <summary>The GrappleBeam title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractGrappleBeam { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractGrappleBeam);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractGrappleBeam);
 
     /// <summary>The IceBeam title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractIceBeam { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractIceBeam);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractIceBeam);
 
     /// <summary>The GauntletEntrance title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractGauntletEntrance { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractGauntletEntrance);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractGauntletEntrance);
 
     /// <summary>The AdvancedGrappleBeam title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractAdvancedGrappleBeam { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractAdvancedGrappleBeam);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractAdvancedGrappleBeam);
 
     /// <summary>The InfiniteBombJump title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractInfiniteBombJump { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractInfiniteBombJump);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractInfiniteBombJump);
 
     /// <summary>The SpecialBeamAttack title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractSpecialBeamAttack { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractSpecialBeamAttack);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractSpecialBeamAttack);
 
     /// <summary>The TourianEntrance title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractTourianEntrance { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractTourianEntrance);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractTourianEntrance);
 
     /// <summary>The CrystalFlash title demonstration's object.</summary>
     public static DemoInputObjectDefinition AttractCrystalFlash { get; } =
-        new(DemoInputPreInstruction.AttractCheckLeave, DemoInputProgram.AttractCrystalFlash);
+        new(DemoInputFrameBehavior.AttractCheckLeave, DemoInputProgram.AttractCrystalFlash);
 }

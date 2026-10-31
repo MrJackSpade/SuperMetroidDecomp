@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Fx;
 public sealed class WreckedShipTreadmillAnimatedTilesState
 {
     /// <summary>Passes left before the object next shows a frame or re-tests the boss wait.</summary>
-    private WrappingCountdown _instructionTimer;
+    private WrappingCountdown _frameHold;
     /// <summary>Whether the object is still waiting for Phantoon's area-boss bit before its first frame.</summary>
     private bool _waitingForAreaBoss;
 
@@ -64,7 +64,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
             throw new InvalidDataException(
                 $"Wrecked Ship treadmill {animatedObject} belongs to {_compiledMechanics.Direction}, not {direction}.");
         _waitingForAreaBoss = true;
-        _instructionTimer = WrappingCountdown.Start(1);
+        _frameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>
@@ -81,15 +81,15 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         if (!IsActive)
             return;
 
-        _instructionTimer = _instructionTimer.Decrement().Remaining;
-        if (!_instructionTimer.IsZero)
+        _frameHold = _frameHold.Decrement().Remaining;
+        if (!_frameHold.IsZero)
             return;
 
         if (_waitingForAreaBoss)
         {
             if (!areaBossDefeated)
             {
-                _instructionTimer = WrappingCountdown.Start(1);
+                _frameHold = WrappingCountdown.Start(1);
                 return;
             }
             _waitingForAreaBoss = false;
@@ -97,7 +97,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
 
         WreckedShipTreadmillLoop definition = _compiledMechanics ?? throw new InvalidOperationException(
             "Wrecked Ship treadmill lost its compiled mechanics.");
-        _instructionTimer = WrappingCountdown.Start(WreckedShipTreadmillMechanicsDefinitions.FrameDuration);
+        _frameHold = WrappingCountdown.Start(WreckedShipTreadmillMechanicsDefinitions.FrameDuration);
         AnimatedTileImage image = definition.Image(NextFrameIndex);
         LastImage = image;
         frames.Select(AnimatedTileFrames.Frame(definition.AnimatedObject, NextFrameIndex));

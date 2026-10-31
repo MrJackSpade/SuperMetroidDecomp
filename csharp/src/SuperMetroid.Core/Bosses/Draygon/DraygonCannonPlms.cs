@@ -345,7 +345,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
     }
 
     /// <summary>Accepts pending missile hits, treating a Super Missile as enough damage to reach the destruction threshold.</summary>
-    internal static void RunDraygonCannonPreInstruction(PlmSlot slot)
+    internal static void RunDraygonCannonFrameBehavior(PlmSlot slot)
     {
         DraygonCannonPlmState state = slot.Family as DraygonCannonPlmState
             ?? throw new InvalidOperationException("A Draygon cannon's hit ran without its cannon state.");
@@ -378,7 +378,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
             return false;
         }
         slot.HitCounter = ushort.MaxValue;
-        slot.PreInstruction = PlmPreInstructions.Inert;
+        slot.FrameBehavior = PlmFrameBehaviors.Inert;
         return true;
     }
 

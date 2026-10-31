@@ -57,7 +57,7 @@ internal static class YardAirborneVerification
             var actor = enemies.SlotTable.Slots[0];
             var state = enemies.YardStates[0];
             actor.Position = new(new(512, 0xF000), new(512, 0xF000));
-            actor.InstructionTimer = WrappingCountdown.Start(ushort.MaxValue);
+            actor.FrameHold = WrappingCountdown.Start(ushort.MaxValue);
             (state ?? throw new InvalidOperationException("Verification requires state.")).MovementFunction = YardMovementFunction.Airborne;
             state.Behavior = behavior;
             state.AirborneVelocity = new FixedVector<RoomPixels>(

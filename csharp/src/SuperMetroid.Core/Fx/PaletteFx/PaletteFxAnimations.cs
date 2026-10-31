@@ -588,7 +588,7 @@ public static class PaletteFxAnimations
         [P.BombTorizoBelly0] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.TorizoBelly)),
-            Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.DeleteWhenEnemyZeroDies)),
+            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.DeleteWhenEnemyZeroDies)),
             FallInto(P.BombTorizoBelly1),
         ],
         [P.BombTorizoBelly1] =
@@ -604,7 +604,7 @@ public static class PaletteFxAnimations
         [P.GoldenTorizoBelly0] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.TorizoBelly)),
-            Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.DeleteWhenEnemyZeroDies)),
+            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.DeleteWhenEnemyZeroDies)),
             FallInto(P.GoldenTorizoBelly1),
         ],
         [P.GoldenTorizoBelly1] =
@@ -619,7 +619,7 @@ public static class PaletteFxAnimations
         ],
         [P.SamusInHeatPowerSuit0] =
         [
-            Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.Heat)),
+            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.Heat)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.HeatSuitGlow)),
             FallInto(P.SamusInHeatPowerSuit1),
         ],
@@ -705,7 +705,7 @@ public static class PaletteFxAnimations
         ],
         [P.SamusInHeatVariaSuit0] =
         [
-            Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.Heat)),
+            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.Heat)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.HeatSuitGlow)),
             FallInto(P.SamusInHeatVariaSuit2),
         ],
@@ -791,7 +791,7 @@ public static class PaletteFxAnimations
         ],
         [P.SamusInHeatGravitySuit0] =
         [
-            Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.Heat)),
+            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.Heat)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.HeatSuitGlow)),
             FallInto(P.SamusInHeatGravitySuit2),
         ],
@@ -894,7 +894,7 @@ public static class PaletteFxAnimations
         ],
         [P.Crateria10] =
         [
-            Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.SwitchAboveY380)),
+            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.SwitchAboveY380)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.LandingSiteLightning)),
             FallInto(P.Crateria11),
         ],
@@ -929,7 +929,7 @@ public static class PaletteFxAnimations
         ],
         [P.ListEC6E] =
         [
-            Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.SwitchAboveY380Second)),
+            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.SwitchAboveY380Second)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.UnusedDarkLightning)),
             FallInto(P.CrateriaAboveY380Second),
         ],
@@ -988,7 +988,7 @@ public static class PaletteFxAnimations
         ],
         [P.Brinstar80] =
         [
-            Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.DeleteWhenAreaMiniBossDies)),
+            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.DeleteWhenAreaMiniBossDies)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.BrinstarBlueSpores)),
             FallInto(P.Brinstar81),
         ],
@@ -1224,7 +1224,7 @@ public static class PaletteFxAnimations
         ],
         [P.CommonTourian2Tourian40] =
         [
-            Cue(new PaletteFxCue.SetPreInstruction(PreInstruction: PaletteFxPreInstruction.InspectAdjacentSlot)),
+            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.InspectAdjacentSlot)),
             FallInto(P.CommonTourian2Tourian41),
         ],
         [P.CommonTourian2Tourian41] =

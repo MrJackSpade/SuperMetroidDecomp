@@ -29,14 +29,14 @@ internal static class SyntheticRoomCartridgeFixturesVerification
     /// <summary>
     /// Seeds a one-record population at <paramref name="population"/> placing the elevator
     /// platform PLM header (<c>$84:B70B</c>) at <paramref name="block"/>,
-    /// and points that header's instruction-list word (<c>$84:B70D</c>) at <paramref name="instructionList"/>.
+    /// and points that header's instruction-list word (<c>$84:B70D</c>) at <paramref name="animationScript"/>.
     /// </summary>
     internal static void SeedSoleElevatorPlatformPlm(
-        TestAddressSpace bus, ushort population, Position16<RoomBlocks> block, ushort instructionList)
+        TestAddressSpace bus, ushort population, Position16<RoomBlocks> block, ushort animationScript)
     {
         SeedRoomPlmPopulation(bus, population,
             [0x0b, 0xb7, unchecked((byte)block.X), unchecked((byte)block.Y), 0x00, 0x00, 0x00, 0x00]);
-        SeedPlmProgramWords(bus, 0xb70d, instructionList);
+        SeedPlmProgramWords(bus, 0xb70d, animationScript);
     }
 
     /// <summary>

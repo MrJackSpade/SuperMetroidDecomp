@@ -17,7 +17,7 @@ internal static class DraygonNativeWords
     });
 
     /// <summary>Pre-instruction <c>$84:DB64</c>, accepting missiles and Super Missiles.</summary>
-    public const ushort MissileHitPreInstruction = 0xdb64;
+    public const ushort MissileHitFrameBehavior = 0xdb64;
 
     /// <summary>
     /// The bytes of one swoop path entry: the cartridge's record keeps the swoop entry and the path's length as byte

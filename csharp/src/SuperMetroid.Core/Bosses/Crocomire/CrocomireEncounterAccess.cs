@@ -50,7 +50,7 @@ internal sealed class CrocomireEncounterAccess
     internal static void StartCrocomireBodyProgram(CrocomireEnemyState state, CrocomireBodyProgram program)
     {
         state.BodyCursor = AnimationProgramCursor<CrocomireBodyProgram>.Start(program);
-        state.Body.InstructionTimer = WrappingCountdown.Start(1);
+        state.Body.FrameHold = WrappingCountdown.Start(1);
         state.Body.Timer = WrappingCountdown.Start(0);
     }
 

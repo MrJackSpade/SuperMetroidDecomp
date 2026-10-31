@@ -65,19 +65,19 @@ internal static class RoomPlmShotBlockProgramDefinitions
     /// <summary>Maps a shot-block role to the native start of its instruction program.</summary>
     private static ushort StartOf(Role role) => role switch
     {
-        Role.RespawningShot1x1 => RoomPlmInstructionListsConstants.RespawningShotBlock1x1,
-        Role.RespawningShot2x1 => RoomPlmInstructionListsConstants.RespawningShotBlock2x1,
-        Role.RespawningShot1x2 => RoomPlmInstructionListsConstants.RespawningShotBlock1x2,
-        Role.RespawningShot2x2 => RoomPlmInstructionListsConstants.RespawningShotBlock2x2,
-        Role.PermanentShot1x1 => RoomPlmInstructionListsConstants.PermanentShotBlock1x1,
-        Role.PermanentShot2x1 => RoomPlmInstructionListsConstants.PermanentShotBlock2x1,
-        Role.PermanentShot1x2 => RoomPlmInstructionListsConstants.PermanentShotBlock1x2,
-        Role.PermanentShot2x2 => RoomPlmInstructionListsConstants.PermanentShotBlock2x2,
-        Role.RespawningSuperMissile => RoomPlmInstructionListsConstants.RespawningSuperMissileBlock,
-        Role.RespawningPowerBomb => RoomPlmInstructionListsConstants.RespawningPowerBombBlock,
-        Role.PermanentSuperMissile => RoomPlmInstructionListsConstants.PermanentSuperMissileBlock,
-        Role.PermanentPowerBomb => RoomPlmInstructionListsConstants.PermanentPowerBombBlock,
-        Role.EnemyBreakableTerrain => EnemyBreakableTerrainDefinitionsConstants.InstructionList,
+        Role.RespawningShot1x1 => RoomPlmAnimationScriptsConstants.RespawningShotBlock1x1,
+        Role.RespawningShot2x1 => RoomPlmAnimationScriptsConstants.RespawningShotBlock2x1,
+        Role.RespawningShot1x2 => RoomPlmAnimationScriptsConstants.RespawningShotBlock1x2,
+        Role.RespawningShot2x2 => RoomPlmAnimationScriptsConstants.RespawningShotBlock2x2,
+        Role.PermanentShot1x1 => RoomPlmAnimationScriptsConstants.PermanentShotBlock1x1,
+        Role.PermanentShot2x1 => RoomPlmAnimationScriptsConstants.PermanentShotBlock2x1,
+        Role.PermanentShot1x2 => RoomPlmAnimationScriptsConstants.PermanentShotBlock1x2,
+        Role.PermanentShot2x2 => RoomPlmAnimationScriptsConstants.PermanentShotBlock2x2,
+        Role.RespawningSuperMissile => RoomPlmAnimationScriptsConstants.RespawningSuperMissileBlock,
+        Role.RespawningPowerBomb => RoomPlmAnimationScriptsConstants.RespawningPowerBombBlock,
+        Role.PermanentSuperMissile => RoomPlmAnimationScriptsConstants.PermanentSuperMissileBlock,
+        Role.PermanentPowerBomb => RoomPlmAnimationScriptsConstants.PermanentPowerBombBlock,
+        Role.EnemyBreakableTerrain => EnemyBreakableTerrainDefinitionsConstants.AnimationScript,
         _ => throw new InvalidOperationException($"Undefined shot-block role {role}."),
     };
 

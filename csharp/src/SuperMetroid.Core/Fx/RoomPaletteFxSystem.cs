@@ -162,14 +162,14 @@ public sealed class RoomPaletteFxSystem
             if (slot.Object is null)
                 continue;
 
-            RunPreInstruction(slot, slotIndex, conditions);
+            RunFrameBehavior(slot, slotIndex, conditions);
             if (slot.Object is null)
                 continue;
 
             // `$8D:C552` decrements before comparing with one. Unsigned underflow is
             // intentional cartridge behavior for malformed or externally edited state.
-            slot.InstructionTimer = slot.InstructionTimer.Decrement().Remaining;
-            if (!slot.InstructionTimer.IsZero)
+            slot.FrameHold = slot.FrameHold.Decrement().Remaining;
+            if (!slot.FrameHold.IsZero)
                 continue;
 
             ExecuteProgram(owners, colors, slot);
@@ -200,9 +200,9 @@ public sealed class RoomPaletteFxSystem
         RoomPaletteFxDefinition compiled = RoomPaletteFxSelection.Get(definition);
         slot.Object = definition;
         slot.Target = null;
-        slot.PreInstruction = PaletteFxPreInstruction.Null;
+        slot.FrameBehavior = PaletteFxFrameBehavior.Null;
         slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(compiled.InitialProgram);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
         PaletteFxSetup setup = compiled.SetupCallback;
@@ -212,7 +212,7 @@ public sealed class RoomPaletteFxSystem
                 return;
 
             case PaletteFxSetup.Intro:
-                slot.PreInstruction = PaletteFxPreInstruction.Intro;
+                slot.FrameBehavior = PaletteFxFrameBehavior.Intro;
                 return;
 
             case PaletteFxSetup.Norfair:
@@ -234,59 +234,59 @@ public sealed class RoomPaletteFxSystem
     }
 
     /// <summary>Runs the slot's condition handler before timer and bytecode execution, including room heat and cutscene gates.</summary>
-    private void RunPreInstruction(PaletteFxSlot slot, int slotIndex, PaletteFxConditions conditions)
+    private void RunFrameBehavior(PaletteFxSlot slot, int slotIndex, PaletteFxConditions conditions)
     {
-        if (slot.PreInstruction is not { } preInstruction || !Enum.IsDefined(preInstruction))
+        if (slot.FrameBehavior is not { } frameBehavior || !Enum.IsDefined(frameBehavior))
         {
             throw new NotSupportedException(
-                $"Room palette-FX pre-instruction {slot.PreInstruction} is not translated " +
+                $"Room palette-FX pre-instruction {slot.FrameBehavior} is not translated " +
                 $"for object {slot.Object} (Samus Y=${conditions.SamusY:X4}, items={conditions.EquippedItems}).");
         }
-        switch (preInstruction)
+        switch (frameBehavior)
         {
-            case PaletteFxPreInstruction.Null:
-            case PaletteFxPreInstruction.Cleared:
-            case PaletteFxPreInstruction.Intro:
+            case PaletteFxFrameBehavior.Null:
+            case PaletteFxFrameBehavior.Cleared:
+            case PaletteFxFrameBehavior.Intro:
                 return;
 
-            case PaletteFxPreInstruction.DeleteWhenEnemyZeroDies:
+            case PaletteFxFrameBehavior.DeleteWhenEnemyZeroDies:
                 if (conditions.EnemyZeroIsDead)
                     slot.Clear();
                 return;
 
-            case PaletteFxPreInstruction.SwitchAboveY380:
+            case PaletteFxFrameBehavior.SwitchAboveY380:
                 if (conditions.SamusY <
                     CrateriaLightningPaletteFxColorDefinitions.VerticalSwitchSamusY)
                 {
-                    slot.InstructionTimer = WrappingCountdown.Start(1);
+                    slot.FrameHold = WrappingCountdown.Start(1);
                     slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.Crateria11);
                 }
                 return;
 
-            case PaletteFxPreInstruction.SwitchAboveY380Second:
+            case PaletteFxFrameBehavior.SwitchAboveY380Second:
                 if (conditions.SamusY <
                     CrateriaLightningPaletteFxColorDefinitions.VerticalSwitchSamusY)
                 {
-                    slot.InstructionTimer = WrappingCountdown.Start(1);
+                    slot.FrameHold = WrappingCountdown.Start(1);
                     slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.CrateriaAboveY380Second);
                 }
                 return;
 
-            case PaletteFxPreInstruction.DeleteWhenAreaMiniBossDies:
+            case PaletteFxFrameBehavior.DeleteWhenAreaMiniBossDies:
                 if (conditions.AreaMiniBossDefeated)
                     slot.Clear();
                 return;
 
-            case PaletteFxPreInstruction.Heat:
-                RunHeatPreInstruction(slot, conditions.EquippedItems, conditions.Samus, conditions.FrameCounter);
+            case PaletteFxFrameBehavior.Heat:
+                RunHeatFrameBehavior(slot, conditions.EquippedItems, conditions.Samus, conditions.FrameCounter);
                 return;
 
-            case PaletteFxPreInstruction.InspectAdjacentSlot:
+            case PaletteFxFrameBehavior.InspectAdjacentSlot:
                 if (InspectedNeighbourIsSet(slotIndex)) slot.Clear();
                 return;
 
             default:
-                throw new InvalidOperationException($"Undefined palette-FX pre-instruction {preInstruction}.");
+                throw new InvalidOperationException($"Undefined palette-FX pre-instruction {frameBehavior}.");
         }
     }
 
@@ -301,12 +301,12 @@ public sealed class RoomPaletteFxSystem
         || slots[slotIndex - PaletteFxSlotInspectionDefinitions.InspectedSlotDistance].Object is not null;
 
     /// <summary>
-    /// Ports <c>PreInstruction_PaletteFXObject_SamusInHeat</c> at $8D:E379. The palette
+    /// Ports <c>FrameBehavior_PaletteFXObject_SamusInHeat</c> at $8D:E379. The palette
     /// object deliberately owns both presentation and damage: an unprotected Samus gains
     /// one quarter-unit of 16.16 damage per frame, while a second Norfair object publishes
     /// the animation index consumed here on the following descending-slot pass.
     /// </summary>
-    private void RunHeatPreInstruction(
+    private void RunHeatFrameBehavior(
         PaletteFxSlot slot,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         IRoomSamus? samus,
@@ -333,7 +333,7 @@ public sealed class RoomPaletteFxSystem
             return;
 
         _session.PreviousSamusInHeatPaletteIndex = _session.SamusInHeatPaletteIndex;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxHeatPrograms.Phase(
             PaletteFxHeatPrograms.SuitFor(equippedItems),
             _session.SamusInHeatPaletteIndex));
@@ -358,7 +358,7 @@ public sealed class RoomPaletteFxSystem
         switch (advance)
         {
             case AnimationProgramAdvance<PaletteFxFrame>.Show shown:
-                slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 WritePaletteRecord(owners, colors, slot, shown.Frame);
                 return;
             case AnimationProgramAdvance<PaletteFxFrame>.Stop:
@@ -379,11 +379,11 @@ public sealed class RoomPaletteFxSystem
             case PaletteFxCue.SetColours setColours:
                 slot.Target = setColours.Target;
                 return;
-            case PaletteFxCue.SetPreInstruction setPreInstruction:
-                slot.PreInstruction = setPreInstruction.PreInstruction;
+            case PaletteFxCue.SetFrameBehavior setFrameBehavior:
+                slot.FrameBehavior = setFrameBehavior.FrameBehavior;
                 return;
-            case PaletteFxCue.Command { Kind: PaletteFxCueKind.ClearPreInstruction }:
-                slot.PreInstruction = PaletteFxPreInstruction.Cleared;
+            case PaletteFxCue.Command { Kind: PaletteFxCueKind.ClearFrameBehavior }:
+                slot.FrameBehavior = PaletteFxFrameBehavior.Cleared;
                 return;
             case PaletteFxCue.SetHeatPaletteIndex setHeatPaletteIndex:
                 _session.SamusInHeatPaletteIndex = setHeatPaletteIndex.HeatPhase;
@@ -453,11 +453,11 @@ public sealed class RoomPaletteFxSystem
         /// Pre-instruction evaluated before this slot's program timer; none while the slot is free, which never runs
         /// because the slot is skipped while free.
         /// </summary>
-        public PaletteFxPreInstruction? PreInstruction { get; set; }
+        public PaletteFxFrameBehavior? FrameBehavior { get; set; }
         /// <summary>Where this object's typed program resumes.</summary>
         public AnimationProgramCursor<PaletteFxProgram> Cursor { get; set; }
         /// <summary>Frames remaining before this object's next bytecode step.</summary>
-        public WrappingCountdown InstructionTimer { get; set; }
+        public WrappingCountdown FrameHold { get; set; }
         /// <summary>Loop counter consumed by the decrement-and-goto command.</summary>
         public WrappingCountdown Timer { get; set; }
 
@@ -466,9 +466,9 @@ public sealed class RoomPaletteFxSystem
         {
             Object = null;
             Target = null;
-            PreInstruction = null;
+            FrameBehavior = null;
             Cursor = default;
-            InstructionTimer = WrappingCountdown.Start(0);
+            FrameHold = WrappingCountdown.Start(0);
             Timer = WrappingCountdown.Start(0);
         }
     }

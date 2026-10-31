@@ -39,7 +39,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         Action<int> setRandomNumber = _room.Random.Seed;
 
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         var state = new PolypEnemyState
         {
@@ -125,11 +125,11 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Routes Polyp rock projectiles through their rise, fall, and viewport-culling routine.</summary>
     internal static void AddPolypProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             // Polyp rock: quadratic rise/fall and viewport cull.
-            RunPolypRockPreInstruction(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.PolypRockFlight);
+            RunPolypRockFrameBehavior(context.Projectile, context.Camera);
+        }, EnemyProjectileFrameBehavior.PolypRockFlight);
     }
 
     /// <summary>Advances Polyp's typed animation.</summary>
@@ -144,8 +144,8 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Native projectile pre-instruction installed on each launched rock.</summary>
-    private const EnemyProjectilePreInstruction PolypRockPreInstruction =
-        EnemyProjectilePreInstruction.PolypRockFlight;
+    private const EnemyProjectileFrameBehavior PolypRockFrameBehavior =
+        EnemyProjectileFrameBehavior.PolypRockFlight;
     /// <summary>Each rock frame advances the quadratic speed-table index by two records.</summary>
     private const int PolypRockGravityStep = 2;
     /// <summary>Falling rocks stop accelerating at the native $0040 speed index.</summary>
@@ -169,14 +169,14 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.PolypRock,
             source.Graphics);
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockProgram.Initial));
-        projectile.PreInstruction = PolypRockPreInstruction;
+        projectile.FrameBehavior = PolypRockFrameBehavior;
         projectile.State = new PolypRockState(initialYSpeed);
         projectile.Velocity = new(new SignedEightEight(xVelocity), new SignedEightEight(0));
         projectile.Position = source.Position;
     }
 
     /// <summary>Ports pre-instruction $86:BC0F and its rising/falling dispatcher.</summary>
-    internal static void RunPolypRockPreInstruction(
+    internal static void RunPolypRockFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {

@@ -52,7 +52,7 @@ internal static class SamusEaterPlmProgramDefinitions
         Step.Show(closed, ChewFrameDuration),
         Step.RepeatWhileCounting(self),
         Step.Publish(SamusEaterCue.ReleaseSamus),
-        Step.Publish(SamusEaterCue.ClearPreInstruction),
+        Step.Publish(SamusEaterCue.ClearFrameBehavior),
         Step.Show(closed, ReleaseDuration),
         Step.Show(idle, 1),
         Step.Stop,

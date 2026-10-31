@@ -75,7 +75,7 @@ internal sealed class DoorPlms : IPlmFamilySource
                 residentDoor.StartClosing();
             else
                 ResidentDoorClosings.Resolve(resident.Header).StartOn(resident);
-            resident.InstructionTimer = WrappingCountdown.Start(1);
+            resident.FrameHold = WrappingCountdown.Start(1);
             return true;
         }
 
@@ -88,7 +88,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         slot.Header = fallback.Header;
         slot.BlockIndex = blockIndex;
         fallback.Start.StartOn(slot);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         SetupDoorTransitionDeactivatedSlot(level, slot);
         return true;
     }
@@ -129,22 +129,22 @@ internal sealed class DoorPlms : IPlmFamilySource
     /// The coloured cap's shot wake (<c>$84:BD26</c>, <c>$BD50</c>, <c>$BD88</c>): a hit by the colour's projectile wakes
     /// the cap at its hit program; any other hit queues the dud sound. Either way the hit is consumed.
     /// </summary>
-    internal void RunColoredDoorWake(PlmSlot slot, ColoredDoorPreInstruction preInstruction)
+    internal void RunColoredDoorWake(PlmSlot slot, ColoredDoorFrameBehavior frameBehavior)
     {
         ColoredDoorPlmState door = slot.Family as ColoredDoorPlmState
             ?? throw new InvalidOperationException("A coloured cap's wake ran without its door state.");
         if (slot.ProjectileHit is not { Family: var family })
             return;
-        bool accepted = preInstruction switch
+        bool accepted = frameBehavior switch
         {
-            ColoredDoorPreInstruction.WakeOnPowerBomb => family == SamusProjectileFamily.PowerBomb,
-            ColoredDoorPreInstruction.WakeOnSuperMissile => family == SamusProjectileFamily.SuperMissile,
-            ColoredDoorPreInstruction.WakeOnMissile => family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile,
-            ColoredDoorPreInstruction.None => throw new InvalidOperationException("An inert coloured cap reached its shot test."),
-            _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorPreInstruction)} {preInstruction}."),
+            ColoredDoorFrameBehavior.WakeOnPowerBomb => family == SamusProjectileFamily.PowerBomb,
+            ColoredDoorFrameBehavior.WakeOnSuperMissile => family == SamusProjectileFamily.SuperMissile,
+            ColoredDoorFrameBehavior.WakeOnMissile => family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile,
+            ColoredDoorFrameBehavior.None => throw new InvalidOperationException("An inert coloured cap reached its shot test."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorFrameBehavior)} {frameBehavior}."),
         };
         // $BD50 seeds a red cap's counter for a Super Missile: the next count passes its threshold.
-        if (preInstruction == ColoredDoorPreInstruction.WakeOnMissile && family == SamusProjectileFamily.SuperMissile)
+        if (frameBehavior == ColoredDoorFrameBehavior.WakeOnMissile && family == SamusProjectileFamily.SuperMissile)
             door.HitCounter = ColoredDoorPlmProgramDefinitions.RedSuperMissileHitCounter;
         if (accepted)
         {
@@ -183,7 +183,7 @@ internal sealed class DoorPlms : IPlmFamilySource
             int firstDoor = SpentDoorArgument.FirstDoorOfWindow(cap.DoorBit);
             slot.Argument = new SpentDoorArgument(firstDoor, system.OpenedDoorsFrom(firstDoor, SpentDoorArgument.WindowDoorCount));
         }
-        slot.PreInstruction = PlmPreInstructions.Inert;
+        slot.FrameBehavior = PlmFrameBehaviors.Inert;
     }
 
     /// <summary><c>$84:8A91</c>: counts a hit on a coloured cap; true when it opens the door.</summary>
@@ -263,8 +263,8 @@ internal sealed class DoorPlms : IPlmFamilySource
         slot.BlockIndex = blockIndex;
         slot.RestoreTerrain = PlmSlotDefinitions.ClearedRestoreTerrain;
         slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.OpeningPrograms[orientation]));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
-        slot.PreInstruction = PlmPreInstructions.Inert;
+        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.FrameBehavior = PlmFrameBehaviors.Inert;
         // The native spawn leaves the argument zero: door bit zero, which a later closing check reads.
         slot.Argument = new DoorBitArgument(0, DoorOpeningPersistence.Persistent);
         slot.LoopTimer = WrappingCountdown.Start(0);

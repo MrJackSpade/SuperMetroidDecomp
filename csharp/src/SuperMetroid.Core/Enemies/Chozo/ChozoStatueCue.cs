@@ -17,8 +17,8 @@ internal abstract record ChozoStatueCue
     internal sealed record Move(int CarryRecord) : ChozoStatueCue;
 
     /// <summary>Sets the pre-instruction main AI runs (<c>Instruction_CommonAA_Enemy0FB2_InY</c>, $AA:806B).</summary>
-    /// <param name="PreInstruction">The cue's PreInstruction operand.</param>
-    internal sealed record SetPreInstruction(ChozoStatuePreInstruction PreInstruction) : ChozoStatueCue;
+    /// <param name="FrameBehavior">The cue's FrameBehavior operand.</param>
+    internal sealed record SetFrameBehavior(ChozoStatueFrameBehavior FrameBehavior) : ChozoStatueCue;
 
     /// <summary>A cue that carries no operand.</summary>
     /// <param name="Kind">What the cue does.</param>

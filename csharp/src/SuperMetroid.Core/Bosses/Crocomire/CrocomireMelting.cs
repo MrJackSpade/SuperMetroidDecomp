@@ -43,11 +43,11 @@ internal sealed class CrocomireMelting
         {
             CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Melting, WrappingCountdown.Start(1));
             tongue.Properties = tongue.Properties.Replace(
-                EnemyProperties.ProcessInstructions |
+                EnemyProperties.RunsAnimationScript |
                     EnemyProperties.ProcessOffScreen |
                     EnemyProperties.IgnoreSamusCollision |
                     EnemyProperties.Invisible,
-                EnemyProperties.ProcessInstructions |
+                EnemyProperties.RunsAnimationScript |
                     EnemyProperties.ProcessOffScreen |
                     EnemyProperties.IgnoreSamusCollision);
             tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, CoordinateAxis.Wrap(state.Body.Position.Y.Whole + 16)));

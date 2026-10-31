@@ -160,7 +160,7 @@ internal static class ShotCallbackDefinitionsVerification
             projectile.Position = projectile.Position.WithWhole(enemy.Position.Whole);
             projectile.Radius = new(4, 4);
             projectile.Cursor = ProjectileFixtureCursors.Active;
-            projectile.InstructionTimer = WrappingCountdown.Start(1);
+            projectile.FrameHold = WrappingCountdown.Start(1);
 
             AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(
                     projectiles,

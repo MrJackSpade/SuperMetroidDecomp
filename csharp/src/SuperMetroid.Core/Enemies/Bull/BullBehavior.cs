@@ -33,7 +33,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         BullEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous));
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<BullProgram>.Start(BullProgram.Normal);
 
@@ -213,7 +213,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.ShotReactionDisabled)
             return;
 
-        bull.InstructionTimer = WrappingCountdown.Start(1);
+        bull.FrameHold = WrappingCountdown.Start(1);
         bull.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<BullProgram>.Start(BullProgram.Shot);
         int direction = projectileDirection.ToAimIndex();

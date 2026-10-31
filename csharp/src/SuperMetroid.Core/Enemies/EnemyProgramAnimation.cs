@@ -18,8 +18,8 @@ internal static class EnemyProgramAnimation
     internal static bool Expire(RoomEnemySlot slot)
     {
         Ensure.NotNull(slot);
-        CountdownStep frameStep = slot.InstructionTimer.Decrement();
-        slot.InstructionTimer = frameStep.Remaining;
+        CountdownStep frameStep = slot.FrameHold.Decrement();
+        slot.FrameHold = frameStep.Remaining;
         if (frameStep.IsZero)
             return true;
         slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
@@ -121,7 +121,7 @@ internal static class EnemyProgramAnimation
         if (installed is { } current && EqualityComparer<TProgram>.Default.Equals(current, program))
             return;
         install(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
@@ -162,12 +162,12 @@ internal static class EnemyProgramAnimation
         switch (advance)
         {
             case AnimationProgramAdvance<TFrame>.Show shown:
-                slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 slot.Frame = frame(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvance<TFrame>.Wait waiting:
-                slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(waiting.Duration));
+                slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(waiting.Duration));
                 return;
             case AnimationProgramAdvance<TFrame>.Hold:
                 return;

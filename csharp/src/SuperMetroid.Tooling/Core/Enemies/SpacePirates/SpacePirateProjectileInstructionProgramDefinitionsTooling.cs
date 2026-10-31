@@ -38,10 +38,10 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitionsToolin
             if (word < 3) return new((ushort)(start + word * 4), LaserStartupFrames);
             if (word < 5)
                 return new((ushort)(start + 12 + (word - 3) * 2),
-                    word == 3 ? (ushort)EnemyProjectileInstruction.PreInstructionInY_ExecuteY
-                        : EnemyProjectilePreInstructionWords.Word(right
-                            ? EnemyProjectilePreInstruction.LaserFlightRight
-                            : EnemyProjectilePreInstruction.LaserFlightLeft));
+                    word == 3 ? (ushort)EnemyProjectileInstruction.FrameBehaviorInY_ExecuteY
+                        : EnemyProjectileFrameBehaviorWords.Word(right
+                            ? EnemyProjectileFrameBehavior.LaserFlightRight
+                            : EnemyProjectileFrameBehavior.LaserFlightLeft));
             if (word < 15) return new((ushort)(start + 16 + (word - 5) * 4), 1);
             return new((ushort)(loop + 8 + (word - 15) * 2),
                 word == 15 ? (ushort)EnemyProjectileInstruction.GotoY : loop);
@@ -54,10 +54,10 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitionsToolin
             ushort loop = right ? SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRightLoop : SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeftLoop;
             if (word < 2)
                 return new((ushort)(start + word * 2),
-                    word == 0 ? (ushort)EnemyProjectileInstruction.PreInstructionInY
-                        : EnemyProjectilePreInstructionWords.Word(right
-                            ? EnemyProjectilePreInstruction.PirateClawThrownRight
-                            : EnemyProjectilePreInstruction.PirateClawThrownLeft));
+                    word == 0 ? (ushort)EnemyProjectileInstruction.FrameBehaviorInY
+                        : EnemyProjectileFrameBehaviorWords.Word(right
+                            ? EnemyProjectileFrameBehavior.PirateClawThrownRight
+                            : EnemyProjectileFrameBehavior.PirateClawThrownLeft));
             if (word < 10) return new((ushort)(loop + (word - 2) * 4), 1);
             return new((ushort)(loop + 32 + (word - 10) * 2),
                 word == 10 ? (ushort)EnemyProjectileInstruction.GotoY : loop);

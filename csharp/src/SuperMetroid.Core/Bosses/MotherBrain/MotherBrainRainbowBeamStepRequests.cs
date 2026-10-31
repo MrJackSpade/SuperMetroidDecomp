@@ -98,9 +98,9 @@ internal sealed class MotherBrainRainbowBeamStepRequests
 
     /// <summary>The call's result, from the phases it started and ended in.</summary>
     internal MotherBrainRainbowBeamAttackStepResult ToResult(
-        MotherBrainBodyFunction? phaseBefore, MotherBrainBodyFunction? phaseAfter, bool headInstructionListRequested) =>
+        MotherBrainBodyFunction? phaseBefore, MotherBrainBodyFunction? phaseAfter, bool headAnimationScriptRequested) =>
         new(phaseBefore, phaseAfter, Movement, SoundQueued, PaletteRequested, Explosion, ChargeSoundQueued, BodyWalkRequested,
-            headInstructionListRequested, BodyPostureRequested, SpritePage, BabySpawnRequested, FinalBeamSoundQueued,
+            headAnimationScriptRequested, BodyPostureRequested, SpritePage, BabySpawnRequested, FinalBeamSoundQueued,
             DeathExplosions, CorpseRotStepShown, CorpseDustRequests, MusicStopQueued, EscapeMusicQueued,
             EscapeSequencePages, ExplodedDoorPaletteRequested, EscapeMusicTrackQueued, EscapePaletteFxRequests,
             EscapeTypewriterSetupRequested, TimeBombSetSubtitleSpawnRequested, EscapeDoorExplosion, TimerHandlingEnableRequested,

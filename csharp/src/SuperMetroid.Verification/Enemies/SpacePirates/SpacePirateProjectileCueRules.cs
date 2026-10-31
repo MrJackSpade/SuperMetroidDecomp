@@ -9,8 +9,8 @@ internal static class SpacePirateProjectileCueRules
     /// <summary>Each command the lists use and the cue it becomes; both carry the movement routine as a word operand.</summary>
     private static readonly Dictionary<NativeEnemyProjectileInstruction, SpacePirateProjectileCueKind> Commands = new()
     {
-        [NativeEnemyProjectileInstruction.PreInstructionInY] = SpacePirateProjectileCueKind.StartMoving,
-        [NativeEnemyProjectileInstruction.PreInstructionInY_ExecuteY] = SpacePirateProjectileCueKind.StartMovingNow,
+        [NativeEnemyProjectileInstruction.FrameBehaviorInY] = SpacePirateProjectileCueKind.StartMoving,
+        [NativeEnemyProjectileInstruction.FrameBehaviorInY_ExecuteY] = SpacePirateProjectileCueKind.StartMovingNow,
     };
 
     /// <summary>The oracle rules for the laser and claw programs.</summary>
@@ -19,6 +19,6 @@ internal static class SpacePirateProjectileCueRules
         (word, operands, cue, at) =>
         {
             AssertEqual(Commands[(NativeEnemyProjectileInstruction)word], cue.Kind, $"{at}: cue");
-            AssertEqual(cue.Movement, EnemyProjectilePreInstructionAccess.FromWord((ushort)(operands[0] | operands[1] << 8)), $"{at}: movement");
+            AssertEqual(cue.Movement, EnemyProjectileFrameBehaviorAccess.FromWord((ushort)(operands[0] | operands[1] << 8)), $"{at}: movement");
         });
 }

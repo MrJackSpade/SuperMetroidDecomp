@@ -117,12 +117,12 @@ internal static class PaletteFxProgramsVerification
                         $"{at}: {setColours.Target} starts at the native colour");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
-                case PaletteFxInstruction.SetPreInstruction:
-                    AssertCue(step, new PaletteFxCue.SetPreInstruction(PreInstruction: FxNativeWords.PaletteFxPreInstructions.Decode(operandWord, "palette-FX pre-instruction")), at);
+                case PaletteFxInstruction.SetFrameBehavior:
+                    AssertCue(step, new PaletteFxCue.SetFrameBehavior(FrameBehavior: FxNativeWords.PaletteFxFrameBehaviors.Decode(operandWord, "palette-FX pre-instruction")), at);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
-                case PaletteFxInstruction.ClearPreInstruction:
-                    AssertCue(step, new PaletteFxCue.Command(PaletteFxCueKind.ClearPreInstruction), at);
+                case PaletteFxInstruction.ClearFrameBehavior:
+                    AssertCue(step, new PaletteFxCue.Command(PaletteFxCueKind.ClearFrameBehavior), at);
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 case PaletteFxInstruction.SetPaletteFxIndex:
@@ -170,8 +170,8 @@ internal static class PaletteFxProgramsVerification
                         PaletteFxInstruction.ColorPlus15 => 15,
                         PaletteFxInstruction.Wait or
                             PaletteFxInstruction.Delete or
-                            PaletteFxInstruction.SetPreInstruction or
-                            PaletteFxInstruction.ClearPreInstruction or
+                            PaletteFxInstruction.SetFrameBehavior or
+                            PaletteFxInstruction.ClearFrameBehavior or
                             PaletteFxInstruction.Goto or
                             PaletteFxInstruction.DecrementTimerAndGoto or
                             PaletteFxInstruction.SetTimer or

@@ -14,8 +14,8 @@ internal abstract class EnemyProjectileAnimation
     internal void Advance(EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers)
     {
         RoomEnemyProjectileSlot projectile = context.Projectile;
-        CountdownStep frameStep = projectile.InstructionTimer.Decrement();
-        projectile.InstructionTimer = frameStep.Remaining;
+        CountdownStep frameStep = projectile.FrameHold.Decrement();
+        projectile.FrameHold = frameStep.Remaining;
         if (!frameStep.IsZero)
             return;
         bool shown = TryShowNextFrame(context, handlers, out int duration, out EnemyProjectileFrameId frame);
@@ -24,10 +24,10 @@ internal abstract class EnemyProjectileAnimation
         if (!shown)
         {
             // A held timeline is the native sleep: the timer stays zero and wraps, never expiring again.
-            projectile.InstructionTimer = WrappingCountdown.Start(0);
+            projectile.FrameHold = WrappingCountdown.Start(0);
             return;
         }
-        projectile.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(duration));
+        projectile.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(duration));
         projectile.Frame = frame;
     }
 

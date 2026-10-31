@@ -47,14 +47,14 @@ internal static class SkreeMetareeParticleBehaviorVerification
                 // SpawnEprojInner copies the definition's properties: four contact damage.
                 AssertTrue(particle.CanDamageSamus && particle.Damage == 4 && particle.InvincibilityFrames == 96,
                     $"the {particle.Kind} particle keeps its definition's contact damage");
-                var native = new NativeEnemyProjectileListDefinitions.Reader(SkreeMetareeParticleNativeListAddresses.Entry(program), particle.InstructionTimer.RawValue);
+                var native = new NativeEnemyProjectileListDefinitions.Reader(SkreeMetareeParticleNativeListAddresses.Entry(program), particle.FrameHold.RawValue);
                 for (int update = 0; update < 40; update++)
                 {
                     enemies.Projectiles.ProcessEnemyProjectileInstructions(particle, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), Position16<RoomPixels>.Zero);
                     native.Step(cartridge);
                     string at = $"{particle.Kind} update {update}";
                     AssertTrue(!native.Deleted && particle.IsActive, $"{at}: the particle lives");
-                    AssertEqual(native.Timer, particle.InstructionTimer.RawValue, $"{at}: timer");
+                    AssertEqual(native.Timer, particle.FrameHold.RawValue, $"{at}: timer");
                     AssertEqual(cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | native.Operand), particle.SpritemapPointer,
                         $"{at}: the drawn composition is the one the native operand names");
                 }

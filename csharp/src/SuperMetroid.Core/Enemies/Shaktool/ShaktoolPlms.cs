@@ -34,7 +34,7 @@ internal sealed class ShaktoolPlms
         slot.Header = PlmHeaderId.ShaktoolsRoom;
         slot.BlockIndex = 0;
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.ShaktoolRoomController));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
             scrolls.SetStorage(cell, cell == 0 ? RoomScrollState.Blue : RoomScrollState.RedBoundary);
         return true;
@@ -42,7 +42,7 @@ internal sealed class ShaktoolPlms
 
     /// <summary>Opens all scroll cells during a power bomb and retires the controller after Samus passes the cleared-path boundary.</summary>
     /// <remarks>Retiring clears the PLM ID but leaves its instruction words in RAM.</remarks>
-    internal void RunShaktoolRoomPreInstruction(PlmSlot slot, RoomScrollGrid? scrolls,
+    internal void RunShaktoolRoomFrameBehavior(PlmSlot slot, RoomScrollGrid? scrolls,
         bool powerBombExplosionActive)
     {
         if (scrolls is null || _samus?.Current is not { } samus || _events is null)

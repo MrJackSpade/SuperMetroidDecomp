@@ -50,7 +50,7 @@ internal static class CeresRidleyPicturesVerification
         // A pose part-way through its duration is held for the draw.
         runtime.Enemies.RidleyEncounter.Ridley = new RidleyEnemyState
         {
-            MovementAnimationEnabled = false, BabyCurrentPose = CeresBabyPose.Round, BabyPoseDuration = 2, BabyInstructionTimer = 1,
+            MovementAnimationEnabled = false, BabyCurrentPose = CeresBabyPose.Round, BabyPoseDuration = 2, BabyFrameHold = 1,
             BabyPosition = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)),
         };
         ImmutableArray<SpriteDraw> scene = Draw(runtime, (sprites, live) =>

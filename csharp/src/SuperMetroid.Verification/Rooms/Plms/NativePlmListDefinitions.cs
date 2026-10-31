@@ -214,9 +214,9 @@ internal static class NativePlmListDefinitions
                         // A character load the typed programs picture instead (#1406): no step, no time.
                         cursor = unchecked((ushort)(cursor + CopyFromRamToVramLength));
                         continue;
-                    case RoomPlmInstruction.SetGreyDoorPreInstruction:
-                    case RoomPlmInstruction.InstallPreInstruction:
-                    case RoomPlmInstruction.ClearPreInstruction:
+                    case RoomPlmInstruction.SetGreyDoorFrameBehavior:
+                    case RoomPlmInstruction.InstallFrameBehavior:
+                    case RoomPlmInstruction.ClearFrameBehavior:
                     case RoomPlmInstruction.LinkInstruction:
                     case RoomPlmInstruction.GotoIfDoorBitSet:
                     case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:

@@ -24,7 +24,7 @@ internal sealed class DraygonCannonPlmAnimation(DraygonCannonProgram program)
                 SetLink(right ? DraygonCannonProgram.RightHit : DraygonCannonProgram.LeftHit);
                 return null;
             case DraygonCannonCue.ArmMissileWake:
-                slot.PreInstruction = DraygonCannonPreInstructions.MissileHit;
+                slot.FrameBehavior = DraygonCannonFrameBehaviors.MissileHit;
                 return null;
             case DraygonCannonCue.CountHit:
                 return DraygonCannonPlms.CountHit(slot)

@@ -270,7 +270,7 @@ internal sealed class IntroCeresFlightState
         {
             GeneralTimer = definition.InitialTimer,
         };
-        actor.InstallPreInstruction(definition.ActivePreInstruction);
+        actor.InstallFrameBehavior(definition.ActiveFrameBehavior);
         return actor;
     }
 
@@ -362,11 +362,11 @@ internal sealed class IntroCeresFlightState
             IntroDiscoverySprite actor = RearViewActors[index];
             CeresFlightActorDefinition definition =
                 CeresFlightActors.RearViewActor(index);
-            if (actor.PreInstruction != definition.ActivePreInstruction)
+            if (actor.FrameBehavior != definition.ActiveFrameBehavior)
             {
                 throw new InvalidDataException(
                     $"Ceres flight actor {index} names invalid pre-instruction " +
-                    $"{actor.PreInstruction}.");
+                    $"{actor.FrameBehavior}.");
             }
             if (definition.WrapX)
                 AddWrappedX(actor, WordWrap.Unsigned(definition.HorizontalDelta));
@@ -394,12 +394,12 @@ internal sealed class IntroCeresFlightState
     {
         // BEBE adds $0080 to a signed 8.8 speed, then applies that same growing delta to
         // the star actor and both Mode 7 offsets. This is why the ship rush feels diagonal.
-        if (stars.PreInstruction !=
-            CeresFlightActorDefinitions.FrontStars.ActivePreInstruction)
+        if (stars.FrameBehavior !=
+            CeresFlightActorDefinitions.FrontStars.ActiveFrameBehavior)
         {
             throw new InvalidDataException(
                 $"Ceres front stars name invalid pre-instruction " +
-                $"{stars.PreInstruction}.");
+                $"{stars.FrameBehavior}.");
         }
         stars.GeneralTimer = WordWrap.Unsigned(stars.GeneralTimer +
             CeresFlightActorDefinitions.FrontStarAcceleration);

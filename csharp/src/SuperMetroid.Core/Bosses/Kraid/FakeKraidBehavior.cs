@@ -118,8 +118,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpikeTimers[2] = WrappingCountdown.Start(seedDelay + 48);
         state.SpikeTimerIndex = 0;
 
-        slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.WalkDelta = -4;
         state.FacingDelta = -4;
@@ -300,7 +300,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>EprojPreInit_MiniKraidSpit</c> at <c>$86:9E1E</c>.</summary>
-    internal static void RunFakeKraidSpitPreInstruction(
+    internal static void RunFakeKraidSpitFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -319,7 +319,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>EprojPreInstr_MiniKraidSpikes</c> at <c>$86:9E83</c>.</summary>
-    internal static void RunFakeKraidSpikePreInstruction(
+    internal static void RunFakeKraidSpikeFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -381,15 +381,15 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Dispatches spit gravity and spike wall collision through their projectile pre-instructions.</summary>
     internal static void AddFakeKraidProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunFakeKraidSpitPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.FakeKraidSpitFlight);
+            RunFakeKraidSpitFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.FakeKraidSpitFlight);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunFakeKraidSpikePreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.FakeKraidSpikeFlight);
+            RunFakeKraidSpikeFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.FakeKraidSpikeFlight);
     }
 
     /// <summary>Ports FakeKraid's initialization AI.</summary>

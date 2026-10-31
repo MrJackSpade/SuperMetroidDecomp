@@ -346,7 +346,7 @@ internal static class FullMovieReplayVerification
             var portProjectiles = traceEnemies.Projectiles.EnemyProjectiles.Select((projectile, slot) => new PortProjectile(projectile, slot))
                 .Where(entry => entry.Projectile.IsActive)
                 .Select(entry => $"{entry.Slot}:{EnemyProjectileNativeWords.Kinds.Word(entry.Projectile.Kind):X4}@{entry.Projectile.Position.X.Whole:X}/{entry.Projectile.Position.Y.Whole:X}" +
-                    $"#{entry.Projectile.Animation?.GetType().Name}/{entry.Projectile.InstructionTimer.RawValue:X}");
+                    $"#{entry.Projectile.Animation?.GetType().Name}/{entry.Projectile.FrameHold.RawValue:X}");
             var nativeProjectiles = Enumerable.Range(0, 18).Where(slot => Word(memory, 0x1997 + 2 * slot) != 0)
                 .Select(slot => $"{slot}:{Native(0x1997 + 2 * slot)}@{Word(memory, 0x1a4b + 2 * slot):X}/{Word(memory, 0x1a93 + 2 * slot):X}" +
                     $"#{Word(memory, 0x1b47 + 2 * slot):X4}/{Word(memory, 0x1b8f + 2 * slot):X}");
@@ -359,7 +359,7 @@ internal static class FullMovieReplayVerification
                 // $0F86 properties, $0F92 instruction list pointer, $0F94 instruction timer.
                 int slotBase = MovieDesyncMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(actor.SlotIndex);
                 Console.WriteLine($"  enemy {actor.SlotIndex} {actor.DefinitionId} " +
-                    $"port timer={actor.InstructionTimer.RawValue:X4} prop={actor.Properties:X4} " +
+                    $"port timer={actor.FrameHold.RawValue:X4} prop={actor.Properties:X4} " +
                     $"pos={actor.Position.X.Whole:X4}.{actor.Position.X.Fraction:X4}/{actor.Position.Y.Whole:X4}.{actor.Position.Y.Fraction:X4} " +
                     $"native inst={Native(slotBase + 0x1a)}/{Native(slotBase + 0x1c)} prop={Native(slotBase + 0x0e)} " +
                     $"pos={Native(slotBase + 2)}.{Native(slotBase + 4)}/{Native(slotBase + 6)}.{Native(slotBase + 8)}");

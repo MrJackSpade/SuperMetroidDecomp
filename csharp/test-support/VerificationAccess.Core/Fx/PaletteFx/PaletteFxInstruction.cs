@@ -22,10 +22,10 @@ public enum PaletteFxInstruction : ushort
     ColorPlus15 = 0xc5c6,
     /// <summary><c>Instruction_PaletteFx_Delete</c> at $8D:C5CF.</summary>
     Delete = 0xc5cf,
-    /// <summary><c>Instruction_PaletteFx_SetPreInstruction</c> at $8D:C5D4.</summary>
-    SetPreInstruction = 0xc5d4,
-    /// <summary><c>Instruction_PaletteFx_ClearPreInstruction</c> at $8D:C5DD.</summary>
-    ClearPreInstruction = 0xc5dd,
+    /// <summary><c>Instruction_PaletteFx_SetFrameBehavior</c> at $8D:C5D4.</summary>
+    SetFrameBehavior = 0xc5d4,
+    /// <summary><c>Instruction_PaletteFx_ClearFrameBehavior</c> at $8D:C5DD.</summary>
+    ClearFrameBehavior = 0xc5dd,
     /// <summary><c>Instruction_PaletteFx_Goto</c> at $8D:C61E.</summary>
     Goto = 0xc61e,
     /// <summary><c>Instruction_PaletteFx_DecrementTimerAndGoto</c> at $8D:C639.</summary>

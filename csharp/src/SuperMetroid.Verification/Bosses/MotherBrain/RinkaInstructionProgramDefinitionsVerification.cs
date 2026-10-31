@@ -58,7 +58,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         rinka.Bind(EnemyDefinitionId.Rinka, rinka.Definition);
         rinka.Bind(rinka.DefinitionId, default(RoomEnemyDefinition));
         rinka.SetSpawnParameter1(EnemyDefinitionId.Rinka, special ? (ushort)1 : (ushort)0);
-        rinka.InstructionTimer = WrappingCountdown.Start(1);
+        rinka.FrameHold = WrappingCountdown.Start(1);
 
         var state = new RinkaEnemyState()
         {

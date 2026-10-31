@@ -12,11 +12,11 @@ internal enum EnemyProjectileInstruction : ushort
     /// <summary><c>Instruction_EnemyProjectile_Sleep</c> at $86:8159. Sleep forever while pre-instruction movement remains active.</summary>
         Sleep = 0x8159,
 
-    /// <summary><c>Instruction_EnemyProjectile_PreInstructionInY</c> at $86:8161. Install the operand as pre-instruction.</summary>
-        PreInstructionInY = 0x8161,
+    /// <summary><c>Instruction_EnemyProjectile_FrameBehaviorInY</c> at $86:8161. Install the operand as pre-instruction.</summary>
+        FrameBehaviorInY = 0x8161,
 
-    /// <summary><c>Instruction_EnemyProjectile_ClearPreInstruction</c> at $86:816A. Clear pre-instruction to $8170 RTS.</summary>
-        ClearPreInstruction = 0x816a,
+    /// <summary><c>Instruction_EnemyProjectile_ClearFrameBehavior</c> at $86:816A. Clear pre-instruction to $8170 RTS.</summary>
+        ClearFrameBehavior = 0x816a,
 
     /// <summary><c>Instruction_EnemyProjectile_GotoY</c> at $86:81AB. Same-bank goto.</summary>
         GotoY = 0x81ab,
@@ -30,6 +30,6 @@ internal enum EnemyProjectileInstruction : ushort
     /// <summary><c>Instruction_MoveRandomlyWithinXRadius_YRadius</c> at $86:81DF. Randomly offset the actor inside authored X/Y radii.</summary>
         MoveRandomlyWithinXRadius_YRadius = 0x81df,
 
-    /// <summary><c>Instruction_PreInstructionInY_ExecuteY</c> at $86:A050. Pirate laser: install operand as pre-instruction and run it.</summary>
-        PreInstructionInY_ExecuteY = 0xa050,
+    /// <summary><c>Instruction_FrameBehaviorInY_ExecuteY</c> at $86:A050. Pirate laser: install operand as pre-instruction and run it.</summary>
+        FrameBehaviorInY_ExecuteY = 0xa050,
 }

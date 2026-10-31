@@ -4,5 +4,5 @@
 internal static class OldTourianEscapeShaftWallPlmDefinitionsConstants
 {
     /// <summary>$84:B927, the pre-instruction that waits for Samus and spawns the explosion.</summary>
-    internal const ushort WaitForSamusPreInstruction = 0xb927;
+    internal const ushort WaitForSamusFrameBehavior = 0xb927;
 }

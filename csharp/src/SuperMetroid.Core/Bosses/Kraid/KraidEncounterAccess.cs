@@ -45,7 +45,7 @@ internal sealed class KraidEncounterAccess
     internal static void MarkKraidPartDead(RoomEnemySlot slot) =>
         slot.Properties = slot.Properties.Replace(
             EnemyProperties.SolidToSamus |
-                EnemyProperties.ProcessInstructions |
+                EnemyProperties.RunsAnimationScript |
                 EnemyProperties.ProcessOffScreen |
                 EnemyProperties.IgnoreSamusCollision |
                 EnemyProperties.Deleted |
@@ -62,7 +62,7 @@ internal sealed class KraidEncounterAccess
     internal void StartKraidPartProgram(RoomEnemySlot part, KraidPartProgram program)
     {
         SetKraidPartProgram(part, program);
-        part.InstructionTimer = WrappingCountdown.Start(1);
+        part.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Consumes one value from the room RNG for Kraid's next decision.</summary>

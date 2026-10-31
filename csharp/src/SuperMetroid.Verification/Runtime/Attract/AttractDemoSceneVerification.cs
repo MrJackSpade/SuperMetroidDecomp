@@ -37,7 +37,7 @@ internal static class AttractDemoSceneVerification
         WriteRomWord(rom, 0x91b000, 0x8a53);
         WriteRomWord(rom, 0x829012, AttractDemoSceneSources.EndOfSet);
         WriteRomWord(rom, DemoInputRomData.BankBase | inputObject, DemoInputRomData.Routines.NoOp);
-        WriteRomWord(rom, (DemoInputRomData.BankBase | inputObject) + 2, (ushort)NativeDemoPreInstruction.AttractCheckLeave);
+        WriteRomWord(rom, (DemoInputRomData.BankBase | inputObject) + 2, (ushort)NativeDemoFrameBehavior.AttractCheckLeave);
         WriteRomWord(rom, (DemoInputRomData.BankBase | inputObject) + 4, 0xc000);
         WriteRomWord(rom, 0x91c000, 5);
         WriteRomWord(rom, 0x91c002, (ushort)ControllerButton.Left);
@@ -58,19 +58,19 @@ internal static class AttractDemoSceneVerification
             throw new InvalidDataException("Demo room sentinel did not terminate the set.");
         var input = new ReferenceAttractInput(bus, expected);
         input.Step(SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
-        if (input.Script.Held != (ushort)ControllerButton.Left || input.Script.InstructionTimer.RawValue != 5)
+        if (input.Script.Held != (ushort)ControllerButton.Left || input.Script.FrameHold.RawValue != 5)
             throw new InvalidDataException("Title demo did not publish its first timed input record.");
         input.Step(SuperMetroidGameState.TransitionFromDemoB, SamusMovementType.Standing);
         if (input.Script.InstructionPointer != 0 || input.Script.Held != 0)
             throw new InvalidDataException("Title demo departure did not delete input in the same handler call.");
         input = new ReferenceAttractInput(bus, expected);
-        input.Script.Redirect((ushort)NativeDemoPreInstruction.AttractShinespark, 0xc000);
+        input.Script.Redirect((ushort)NativeDemoFrameBehavior.AttractShinespark, 0xc000);
         input.Step(SuperMetroidGameState.PlayingDemo, SamusMovementType.DraygonHeld);
         if (input.Script.Held != (ushort)ControllerButton.Left)
             throw new InvalidDataException("Native type-$1A branch should leave the current script intact.");
         input.Step(SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
-        if (input.Script.Held != (ushort)ControllerButton.Right || input.Script.InstructionTimer.RawValue != 7 ||
-            input.Script.PreInstructionPointer != (ushort)NativeDemoPreInstruction.AttractCheckLeave)
+        if (input.Script.Held != (ushort)ControllerButton.Right || input.Script.FrameHold.RawValue != 7 ||
+            input.Script.FrameBehaviorPointer != (ushort)NativeDemoFrameBehavior.AttractCheckLeave)
             throw new InvalidDataException("Demo pre-instruction redirect lost its list, timer, or normal callback.");
         Console.WriteLine("  Attract demo data: joined fields, signed placement, and end-of-set sentinel agree.");
         // $80:8261 fixes NumberOfDemoSets once at boot, so each eligibility case boots a session.

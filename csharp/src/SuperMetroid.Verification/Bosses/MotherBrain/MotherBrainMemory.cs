@@ -31,9 +31,9 @@ internal static class MotherBrainMemory
     /// <summary>$7E:781A: brain palette index.</summary>
     public const int BrainPaletteIndex = 0x781a;
     /// <summary>$7E:781C: room palette instruction-list pointer.</summary>
-    public const int RoomPaletteInstructionList = 0x781c;
+    public const int RoomPaletteAnimationScript = 0x781c;
     /// <summary>$7E:781E: room palette instruction timer.</summary>
-    public const int RoomPaletteInstructionTimer = 0x781e;
+    public const int RoomPaletteFrameHold = 0x781e;
     /// <summary>$7E:782E: death (hand) beam attack phase.</summary>
     public const int DeathBeamAttackPhase = 0x782e;
     /// <summary>$7E:7830: attack phase.</summary>
@@ -71,9 +71,9 @@ internal static class MotherBrainMemory
     /// <summary>$7E:786A: active small purple breath flag.</summary>
     public const int SmallPurpleBreathActive = 0x786a;
     /// <summary>$7E:8000: brain instruction timer.</summary>
-    public const int BrainInstructionTimer = 0x8000;
+    public const int BrainFrameHold = 0x8000;
     /// <summary>$7E:8002: brain instruction-list pointer.</summary>
-    public const int BrainInstructionList = 0x8002;
+    public const int BrainAnimationScript = 0x8002;
     /// <summary>$7E:8004: sprite tile transfer entry pointer.</summary>
     public const int SpriteTileTransferEntry = 0x8004;
     /// <summary>$7E:8006-$8013: death beam next X/Y sub-position and position, velocities, angle.</summary>

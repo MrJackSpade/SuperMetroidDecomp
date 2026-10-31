@@ -31,12 +31,12 @@ internal static class RoomPlmBombedRevealProgramDefinitions
     /// <summary>Maps a supported reveal variant to its native bank-$84 list pointer.</summary>
     private static ushort StartOf(Reveal reveal) => reveal switch
     {
-        Reveal.Crumble1x1 => RoomPlmInstructionListsConstants.CrumbleReveal1x1,
-        Reveal.Crumble2x1 => RoomPlmInstructionListsConstants.CrumbleReveal2x1,
-        Reveal.Crumble1x2 => RoomPlmInstructionListsConstants.CrumbleReveal1x2,
-        Reveal.Crumble2x2 => RoomPlmInstructionListsConstants.CrumbleReveal2x2,
-        Reveal.PowerBomb => RoomPlmInstructionListsConstants.BombedPowerBombBlockUnused,
-        Reveal.SuperMissile => RoomPlmInstructionListsConstants.BombedSuperMissileBlockUnused,
+        Reveal.Crumble1x1 => RoomPlmAnimationScriptsConstants.CrumbleReveal1x1,
+        Reveal.Crumble2x1 => RoomPlmAnimationScriptsConstants.CrumbleReveal2x1,
+        Reveal.Crumble1x2 => RoomPlmAnimationScriptsConstants.CrumbleReveal1x2,
+        Reveal.Crumble2x2 => RoomPlmAnimationScriptsConstants.CrumbleReveal2x2,
+        Reveal.PowerBomb => RoomPlmAnimationScriptsConstants.BombedPowerBombBlockUnused,
+        Reveal.SuperMissile => RoomPlmAnimationScriptsConstants.BombedSuperMissileBlockUnused,
         _ => throw new InvalidOperationException($"Undefined bombed-reveal list {reveal}."),
     };
 

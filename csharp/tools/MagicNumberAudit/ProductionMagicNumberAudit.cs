@@ -35,7 +35,7 @@ internal static partial class ProductionMagicNumberAudit
         "Definition.cs",
         "Definitions.cs",
         "Flags.cs",
-        "InstructionLists.cs",
+        "AnimationScripts.cs",
         "Layout.cs",
         "Masks.cs",
         "Pointers.cs",

@@ -89,7 +89,7 @@ internal static class EnemyRomTablePointersVerification
         new RepresentativeEnemyRomRangesResult(EnemyRomTablePointersPhantoon.FirstRoundHidingTimerWords, 16),
         new RepresentativeEnemyRomRangesResult(EnemyRomTablePointers.Ridley.HealthPaletteWords, 84),
         new RepresentativeEnemyRomRangesResult(EnemyRomTablePointers.TourianStatue.StatuePaletteWords, 32),
-        new RepresentativeEnemyRomRangesResult(EnemyRomTablePointers.WorkRobot.InitialInstructionListWords, 4),
+        new RepresentativeEnemyRomRangesResult(EnemyRomTablePointers.WorkRobot.InitialAnimationScriptWords, 4),
     ];
 
     /// <summary>Compares Golden Torizo, Work Robot, and Tourian statue selectors with cartridge words and production initializers.</summary>
@@ -105,7 +105,7 @@ internal static class EnemyRomTablePointersVerification
             "Golden Torizo right reflected-Super list");
         Suite(nameof(VerifyWorkRobotInitialSelection), () => VerifyWorkRobotInitialSelection(rom));
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.TourianStatue.InstructionListWords + parameter)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.TourianStatue.AnimationScriptWords + parameter)),
                 NativeEnemyProgramOracle.EntryOf(TourianEntranceStatueNativeListAddresses.Entries,
                     SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(parameter)),
                 $"Tourian entrance statue initial selector {parameter}");
@@ -154,10 +154,10 @@ internal static class EnemyRomTablePointersVerification
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= EnemyRomTablePointersTorizo.SuperMissileInstructionPointers and
                     < EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 4 or
-                    >= EnemyRomTablePointers.WorkRobot.InitialInstructionListWords and
-                    < EnemyRomTablePointers.WorkRobot.InitialInstructionListWords + 8 or
-                    >= EnemyRomTablePointers.TourianStatue.InstructionListWords and
-                    < EnemyRomTablePointers.TourianStatue.InstructionListWords + 6,
+                    >= EnemyRomTablePointers.WorkRobot.InitialAnimationScriptWords and
+                    < EnemyRomTablePointers.WorkRobot.InitialAnimationScriptWords + 8 or
+                    >= EnemyRomTablePointers.TourianStatue.AnimationScriptWords and
+                    < EnemyRomTablePointers.TourianStatue.AnimationScriptWords + 6,
                 address => $"Enemy instruction selector still reads compiled ROM byte ${address:X6}.");
 
     /// <summary>Runs the enemy ROM pointer catalog check from the command dispatcher.</summary>

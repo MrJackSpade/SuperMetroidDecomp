@@ -150,7 +150,7 @@ internal static class SamusOverreadDecoding
         {
             foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
             {
-                if (SamusBeamCallbacks.Resolve(charged, beams).Translated != SamusProjectilePreInstruction.SpacetimePaletteCopyTail)
+                if (SamusBeamCallbacks.Resolve(charged, beams).Translated != SamusProjectileFrameBehavior.SpacetimePaletteCopyTail)
                     continue;
                 SamusProjectileHeader header = SamusProjectileSelection.Select(
                     charged ? SamusProjectileSelectorTable.ChargedBeam : SamusProjectileSelectorTable.UnchargedBeam, beams.TableIndex);

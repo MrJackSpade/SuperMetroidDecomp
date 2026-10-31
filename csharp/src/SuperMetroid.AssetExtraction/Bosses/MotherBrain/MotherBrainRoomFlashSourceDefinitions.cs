@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 [EncodingOwner("bank-$AD addresses of Mother Brain's fake-death room flash lists")]
 internal static class MotherBrainRoomFlashSourceDefinitions
 {
-    /// <summary><c>MotherBrain_FakeDeath_RoomPalette_InstructionList</c> at $A9:D046: the room flash's fourteen timed entries.</summary>
+    /// <summary><c>MotherBrain_FakeDeath_RoomPalette_AnimationScript</c> at $A9:D046: the room flash's fourteen timed entries.</summary>
     internal const ushort FlashList = 0xd046;
 
     /// <summary>Bytes in one timed room-flash entry: its duration word, then its palette operand word.</summary>

@@ -30,11 +30,11 @@ public sealed class RoomEnemyProjectileSlot
     /// <summary>The typed program the projectile plays (#641), or null for a free slot.</summary>
     internal EnemyProjectileAnimation? Animation { get; private set; }
     /// <summary>Gets the native draw-instruction countdown; allocation starts it at one so the initial list runs on its first reached pass.</summary>
-    public WrappingCountdown InstructionTimer { get; internal set; }
+    public WrappingCountdown FrameHold { get; internal set; }
     /// <summary>The frame the projectile shows: the blank frame from allocation until its program shows one, none once freed.</summary>
     public EnemyProjectileFrameId? Frame { get; internal set; }
     /// <summary>How the projectile moves itself on each pass, before its program advances.</summary>
-    internal EnemyProjectilePreInstruction PreInstruction { get; set; }
+    internal EnemyProjectileFrameBehavior FrameBehavior { get; set; }
     /// <summary>Gets the sheet characters and colours the projectile draws with, as its spawner supplied them.</summary>
     public SpriteGraphics Graphics { get; internal set; } = SpriteGraphics.Emptied;
     /// <summary>Gets the collision half-extents in pixels, decoded from the definition's native packed radii.</summary>
@@ -111,7 +111,7 @@ public sealed class RoomEnemyProjectileSlot
     internal void StartAnimation(EnemyProjectileAnimation animation)
     {
         Animation = Ensure.NotNull(animation);
-        InstructionTimer = WrappingCountdown.Start(1);
+        FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>
@@ -133,9 +133,9 @@ public sealed class RoomEnemyProjectileSlot
         // $86:8016/8154 release identity only. SpawnEprojInner clears fractions,
         // but leaves whole coordinates and velocities for the family initializer.
         Position = Position.WithFractionX(0).WithFractionY(0);
-        PreInstruction = EnemyProjectilePreInstruction.Stationary;
+        FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         Frame = null;
-        InstructionTimer = WrappingCountdown.Start(0);
+        FrameHold = WrappingCountdown.Start(0);
         Animation = null;
         Radius = Extent16<RoomPixels>.Zero;
         Graphics = SpriteGraphics.Emptied;

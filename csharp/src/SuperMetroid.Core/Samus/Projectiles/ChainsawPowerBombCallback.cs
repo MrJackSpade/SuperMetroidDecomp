@@ -23,7 +23,7 @@ internal sealed class ChainsawPowerBombCallback
     }
 
     /// <summary>Runs the Power Bomb fuse over the shot, then the Power Bomb boundary reactions.</summary>
-    internal void RunPowerBombPreInstruction(
+    internal void RunPowerBombFrameBehavior(
         RoomLevelData level,
         SamusState samus,
         SamusProjectileSlot slot,

@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>The cues Ridley's fireball and afterburn programs publish.</summary>
 internal enum RidleyFireballCue
 {
-    /// <summary>Stops the projectile's motion (<c>Instruction_EnemyProjectile_ClearPreInstruction</c>, $86:816A).</summary>
-    ClearPreInstruction,
+    /// <summary>Stops the projectile's motion (<c>Instruction_EnemyProjectile_ClearFrameBehavior</c>, $86:816A).</summary>
+    ClearFrameBehavior,
     /// <summary>Starts the fireball's flight: installs its moving pre-instruction ($86:940E), as the list's $86:8161 does.</summary>
     BeginFlight,
     /// <summary>Emits the right and left afterburns (<c>Instruction_Spawn_HorizontalAfterburn_EnemyProjectiles</c>, $86:95BA).</summary>

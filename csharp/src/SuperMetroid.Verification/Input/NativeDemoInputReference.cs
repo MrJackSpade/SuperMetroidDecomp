@@ -13,13 +13,13 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     internal bool Enabled { get; private set; }
 
     /// <summary>Object-specific routine called before the shared instruction timer.</summary>
-    internal ushort PreInstructionPointer { get; private set; }
+    internal ushort FrameBehaviorPointer { get; private set; }
 
     /// <summary>Address of the next bank-$91 input record or control instruction; zero once deleted.</summary>
     internal ushort InstructionPointer { get; private set; }
 
     /// <summary>Frames remaining in the active input record, with native word wrapping.</summary>
-    internal WrappingCountdown InstructionTimer { get; private set; }
+    internal WrappingCountdown FrameHold { get; private set; }
 
     /// <summary>General loop timer manipulated by instructions <c>$844F/$8459</c>.</summary>
     internal WrappingCountdown Timer { get; private set; }
@@ -56,33 +56,33 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     {
         InitializationParameter = initializationParameter;
         AssertEqual(DemoInputRomData.Routines.NoOp, readWord(objectPointer), $"demo object $91:{objectPointer:X4} initializer");
-        PreInstructionPointer = readWord(unchecked((ushort)(objectPointer + 2)));
+        FrameBehaviorPointer = readWord(unchecked((ushort)(objectPointer + 2)));
         InstructionPointer = readWord(unchecked((ushort)(objectPointer + 4)));
-        InstructionTimer = WrappingCountdown.Start(1);
+        FrameHold = WrappingCountdown.Start(1);
         Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>A pre-instruction's redirect of all three object words.</summary>
-    internal void Redirect(ushort preInstructionPointer, ushort instructionPointer, ushort instructionTimer = 1)
+    internal void Redirect(ushort frameBehaviorPointer, ushort instructionPointer, ushort frameHold = 1)
     {
-        PreInstructionPointer = preInstructionPointer;
+        FrameBehaviorPointer = frameBehaviorPointer;
         InstructionPointer = instructionPointer;
-        InstructionTimer = WrappingCountdown.FromRaw(instructionTimer);
+        FrameHold = WrappingCountdown.FromRaw(frameHold);
     }
 
     /// <summary>
-    /// Executes <c>$91:83C0/$83F2</c> once. <paramref name="preInstruction"/> runs the object's pre-instruction and
+    /// Executes <c>$91:83C0/$83F2</c> once. <paramref name="frameBehavior"/> runs the object's pre-instruction and
     /// <paramref name="routine"/> each no-operand private routine of its list.
     /// </summary>
-    internal void Step(Action<NativeDemoInputReference, ushort> preInstruction, Action<NativeDemoInputReference, ushort> routine)
+    internal void Step(Action<NativeDemoInputReference, ushort> frameBehavior, Action<NativeDemoInputReference, ushort> routine)
     {
         if (!Enabled || InstructionPointer == 0)
             return;
-        preInstruction(this, PreInstructionPointer);
-        CountdownStep instructionTimer = InstructionTimer.Decrement();
-        InstructionTimer = instructionTimer.Remaining;
-        if (instructionTimer.IsZero)
-            ProcessInstructionList(routine);
+        frameBehavior(this, FrameBehaviorPointer);
+        CountdownStep frameHold = FrameHold.Decrement();
+        FrameHold = frameHold.Remaining;
+        if (frameHold.IsZero)
+            ProcessAnimationScript(routine);
         PublishedPreviousHeld = PreviousHeld;
         PublishedPreviousNewlyPressed = PreviousNewlyPressed;
         PreviousHeld = Held;
@@ -90,7 +90,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     }
 
     /// <summary>Runs list words until an input record or a deletion yields.</summary>
-    private void ProcessInstructionList(Action<NativeDemoInputReference, ushort> routine)
+    private void ProcessAnimationScript(Action<NativeDemoInputReference, ushort> routine)
     {
         ushort cursor = InstructionPointer;
         while (true)
@@ -98,7 +98,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
             ushort word = readWord(cursor);
             if (word < DemoInputListWords.RoutineWord)
             {
-                InstructionTimer = WrappingCountdown.FromRaw(word);
+                FrameHold = WrappingCountdown.FromRaw(word);
                 Held = readWord(unchecked((ushort)(cursor + 2)));
                 NewlyPressed = readWord(unchecked((ushort)(cursor + 4)));
                 InstructionPointer = unchecked((ushort)(cursor + DemoInputListWords.InputRecordBytes));
@@ -117,12 +117,12 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
                     Held = 0;
                     NewlyPressed = 0;
                     return;
-                case DemoInputInstruction.SetPreInstruction:
-                    PreInstructionPointer = readWord(cursor);
+                case DemoInputInstruction.SetFrameBehavior:
+                    FrameBehaviorPointer = readWord(cursor);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case DemoInputInstruction.ClearPreInstruction:
-                    PreInstructionPointer = DemoInputRomData.Routines.ClearedPreInstruction;
+                case DemoInputInstruction.ClearFrameBehavior:
+                    FrameBehaviorPointer = DemoInputRomData.Routines.ClearedFrameBehavior;
                     break;
                 case DemoInputInstruction.Goto:
                     cursor = readWord(cursor);
@@ -147,29 +147,29 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     /// parameter is left out: every object's initializer returns at once, so nothing reads it.
     /// </summary>
     internal string Snapshot() =>
-        $"{Enabled}/{PreInstructionPointer}/{InstructionPointer}/{InstructionTimer.RawValue}/" +
+        $"{Enabled}/{FrameBehaviorPointer}/{InstructionPointer}/{FrameHold.RawValue}/" +
         $"{Timer.RawValue}/{Held}/{NewlyPressed}/{PreviousHeld}/{PreviousNewlyPressed}/{PublishedPreviousHeld}/{PublishedPreviousNewlyPressed}";
 
     /// <summary>A typed object's words: its cursor as the native instruction pointer and its buttons as joypad words.</summary>
     internal static string Of(DemoInputState state) =>
-        $"{state.Enabled}/{DemoInputNativeListAddresses.PreInstructionAddress(state.PreInstruction)}/{DemoInputNativeListAddresses.Address(state.Cursor)}/" +
-        $"{state.InstructionTimer.RawValue}/{state.Timer.RawValue}/{(ushort)state.Held}/{(ushort)state.NewlyPressed}/{(ushort)state.PreviousHeld}/" +
+        $"{state.Enabled}/{DemoInputNativeListAddresses.FrameBehaviorAddress(state.FrameBehavior)}/{DemoInputNativeListAddresses.Address(state.Cursor)}/" +
+        $"{state.FrameHold.RawValue}/{state.Timer.RawValue}/{(ushort)state.Held}/{(ushort)state.NewlyPressed}/{(ushort)state.PreviousHeld}/" +
         $"{(ushort)state.PreviousNewlyPressed}/{(ushort)state.PublishedPreviousHeld}/{(ushort)state.PublishedPreviousNewlyPressed}";
 
     /// <summary>A pre-instruction for an object whose owner runs none: only the return-only routines may be installed.</summary>
-    internal static void ReturnOnly(NativeDemoInputReference _, ushort preInstruction)
+    internal static void ReturnOnly(NativeDemoInputReference _, ushort frameBehavior)
     {
-        if (!Enum.IsDefined((ReturnOnlyPreInstruction)preInstruction))
-            throw new InvalidDataException($"Demo object pre-instruction $91:{preInstruction:X4} needs its owner.");
+        if (!Enum.IsDefined((ReturnOnlyFrameBehavior)frameBehavior))
+            throw new InvalidDataException($"Demo object pre-instruction $91:{frameBehavior:X4} needs its owner.");
     }
 
     /// <summary>The return-only pre-instructions an object without its own may hold.</summary>
-    private enum ReturnOnlyPreInstruction : ushort
+    private enum ReturnOnlyFrameBehavior : ushort
     {
         /// <summary>$91:83BF, installed by the demo object definition.</summary>
         NoOp = DemoInputRomData.Routines.NoOp,
         /// <summary>$91:8447, installed when the pre-instruction is cleared.</summary>
-        Cleared = DemoInputRomData.Routines.ClearedPreInstruction,
+        Cleared = DemoInputRomData.Routines.ClearedFrameBehavior,
     }
 
     /// <summary>A list routine for an object whose list calls none.</summary>

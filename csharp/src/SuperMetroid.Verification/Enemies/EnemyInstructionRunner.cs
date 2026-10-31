@@ -16,7 +16,7 @@ internal static class EnemyInstructionRunner
 {
     /// <summary>Processes the slot's instruction list for one frame.</summary>
     internal static void Process(object?[] arguments) =>
-        EnemyInstructionInterpreter.ProcessInstructions(
+        EnemyInstructionInterpreter.RunsAnimationScript(
             arguments[0] as RoomEnemySlot ?? throw new ArgumentException("Element 0 must be the enemy slot.", nameof(arguments)),
             Optional<SamusState>(arguments, 1),
             Optional<RoomLevelData>(arguments, 2),

@@ -186,12 +186,12 @@ internal static class RidleyAnimationsVerification
             }
             switch ((NativeEnemyProjectileInstruction)word)
             {
-                case NativeEnemyProjectileInstruction.ClearPreInstruction:
-                    AssertEqual(RidleyFireballCue.ClearPreInstruction, AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.CueStep>(step, $"{at}: cue step").Cue, $"{at}: clear pre-instruction");
+                case NativeEnemyProjectileInstruction.ClearFrameBehavior:
+                    AssertEqual(RidleyFireballCue.ClearFrameBehavior, AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.CueStep>(step, $"{at}: cue step").Cue, $"{at}: clear pre-instruction");
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
-                case NativeEnemyProjectileInstruction.PreInstructionInY:
-                    AssertEqual(EnemyProjectilePreInstruction.RidleyFireballFlight, EnemyProjectilePreInstructionAccess.FromWord(operand), $"{at}: the fireball's moving pre-instruction");
+                case NativeEnemyProjectileInstruction.FrameBehaviorInY:
+                    AssertEqual(EnemyProjectileFrameBehavior.RidleyFireballFlight, EnemyProjectileFrameBehaviorAccess.FromWord(operand), $"{at}: the fireball's moving pre-instruction");
                     AssertEqual(RidleyFireballCue.BeginFlight, AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.CueStep>(step, $"{at}: cue step").Cue, $"{at}: begin flight");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
@@ -250,7 +250,7 @@ internal static class RidleyAnimationsVerification
                 case NativeEnemyProjectileInstruction.NoobTubeShardFlicker:
                 case NativeEnemyProjectileInstruction.RTS_8681DE:
                 case NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius:
-                case NativeEnemyProjectileInstruction.PreInstructionInY_ExecuteY:
+                case NativeEnemyProjectileInstruction.FrameBehaviorInY_ExecuteY:
                 case NativeEnemyProjectileInstruction.Torizo_ResetPosition:
                 case NativeEnemyProjectileInstruction.UNUSED_Instruction_EnemyProj_MoveHorizontally_GotoY_86AD92:
                 case NativeEnemyProjectileInstruction.GoldenTorizoEgg_GoToHatched:
@@ -313,8 +313,8 @@ internal static class RidleyAnimationsVerification
     /// <summary>Runs one body update, expiring the current frame first.</summary>
     private static void Pass(RoomEnemySlot body, SamusState? samus)
     {
-        body.InstructionTimer = WrappingCountdown.Start(1);
-        EnemyInstructionInterpreter.ProcessInstructions(body, samus, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        body.FrameHold = WrappingCountdown.Start(1);
+        EnemyInstructionInterpreter.RunsAnimationScript(body, samus, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>A right-facing Ridley starting a left-facing entry runs its right-facing program in the same update.</summary>
@@ -326,7 +326,7 @@ internal static class RidleyAnimationsVerification
         AssertEqual(RidleyBodyProgram.OpeningRoarFacingRight, state.BodyProgram.Program, "a right-facing Ridley roars facing right");
         AssertEqual((RidleyCollisionDefinitions.BodyFrame?)RidleyCollisionDefinitions.BodyFrame.Right,
             RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the right-facing roar shows its first frame at once");
-        AssertEqual((ushort)6, body.InstructionTimer.RawValue, "the right-facing roar's first frame lasts six updates");
+        AssertEqual((ushort)6, body.FrameHold.RawValue, "the right-facing roar's first frame lasts six updates");
 
         (_, state, body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Left);
         CeresRidleyFlight.StartRidleyProgram(state, body, RidleyBodyProgram.OpeningRoar);

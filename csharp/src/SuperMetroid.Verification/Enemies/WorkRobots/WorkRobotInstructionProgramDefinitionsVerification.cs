@@ -33,10 +33,10 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
             state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(program);
             for (int call = 0; call < 400; call++)
             {
-                robot.InstructionTimer = WrappingCountdown.Start(1);
+                robot.FrameHold = WrappingCountdown.Start(1);
                 robot.Position = robot.Position.WithWhole(new(512, unchecked((ushort)(320 - robot.Radius.Y))));
                 state.LaserCooldown = WrappingCountdown.Start(ushort.MaxValue);
-                EnemyInstructionInterpreter.ProcessInstructions(robot, null, level, new Position16<RoomPixels>(384, 192), 0);
+                EnemyInstructionInterpreter.RunsAnimationScript(robot, null, level, new Position16<RoomPixels>(384, 192), 0);
             }
         }
 

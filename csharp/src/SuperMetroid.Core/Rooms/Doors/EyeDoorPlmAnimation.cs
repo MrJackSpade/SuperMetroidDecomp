@@ -46,10 +46,10 @@ internal sealed class EyeDoorPlmAnimation(EyeDoorOrientation orientation, EyeDoo
                 SetLink(EyeDoorPlmProgram.ComponentDelete);
                 return null;
             case EyeDoorPlmCue.ArmMissileWake:
-                slot.PreInstruction = EyeDoorPreInstructions.MissileHit;
+                slot.FrameBehavior = EyeDoorFrameBehaviors.MissileHit;
                 return null;
             case EyeDoorPlmCue.ArmDoorBitWake:
-                slot.PreInstruction = EyeDoorPreInstructions.WakeWhenDoorBitSet;
+                slot.FrameBehavior = EyeDoorFrameBehaviors.WakeWhenDoorBitSet;
                 return null;
             case EyeDoorPlmCue.Shoot:
                 eyes.Shoot(slot, Orientation);
@@ -66,8 +66,8 @@ internal sealed class EyeDoorPlmAnimation(EyeDoorOrientation orientation, EyeDoo
             case EyeDoorPlmCue.SpawnSweat:
                 eyes.SpawnSweat(slot, Orientation);
                 return null;
-            case EyeDoorPlmCue.ClearPreInstruction:
-                slot.PreInstruction = PlmPreInstructions.Inert;
+            case EyeDoorPlmCue.ClearFrameBehavior:
+                slot.FrameBehavior = PlmFrameBehaviors.Inert;
                 return null;
             case EyeDoorPlmCue.SpawnSmoke:
                 eyes.SpawnSmoke(slot, Orientation);

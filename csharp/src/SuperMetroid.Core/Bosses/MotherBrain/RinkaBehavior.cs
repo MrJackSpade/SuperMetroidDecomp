@@ -118,7 +118,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         // the physical slot from its population snapshot.
         EnemyProperties resetMask =
             EnemyProperties.RespawnIfKilled |
-            EnemyProperties.ProcessInstructions |
+            EnemyProperties.RunsAnimationScript |
             EnemyProperties.ProcessOffScreen |
             EnemyProperties.IgnoreSamusCollision;
         slot.Properties = slot.Properties.Without(resetMask);
@@ -132,7 +132,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             else
                 ReserveSpecialRinkaSpawn(slot, state);
             slot.Properties = slot.Properties.With(
-                EnemyProperties.ProcessInstructions |
+                EnemyProperties.RunsAnimationScript |
                 EnemyProperties.ProcessOffScreen |
                 EnemyProperties.IgnoreSamusCollision);
         }
@@ -140,7 +140,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             slot.Properties = slot.Properties.With(
                 EnemyProperties.RespawnIfKilled |
-                EnemyProperties.ProcessInstructions |
+                EnemyProperties.RunsAnimationScript |
                 EnemyProperties.IgnoreSamusCollision);
         }
 
@@ -181,7 +181,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Program = AnimationProgramCursor<RinkaProgram>.Start(RinkaProgram.Ordinary);
         }
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
@@ -601,12 +601,12 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Attaches the native camera cull to miscellaneous dust and explosion projectiles.</summary>
-    internal static void AddMiscDustPreInstruction(EnemyProjectileHandlerTable table)
+    internal static void AddMiscDustFrameBehavior(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             CullMiscDustOutsideCamera(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.DustCameraCull);
+        }, EnemyProjectileFrameBehavior.DustCameraCull);
     }
 
     /// <summary>Runs the Rinka viewport and termination check before common frozen AI.</summary>

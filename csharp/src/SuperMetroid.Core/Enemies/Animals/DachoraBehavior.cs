@@ -96,9 +96,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Native property $2000 both disables Samus collision and admits enemy bytecode.
         // Population property $0400 already excludes these actors from host interaction.
-        slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
+        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
         if (settings.Role == DachoraRole.SpeedBoostEcho)
@@ -334,7 +334,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // The charge animation is asleep at $F4B7. Stepping past the sleep enters the same
         // right-facing echo animation used by the four trails, exactly as the cartridge does on launch.
         state.Program = AnimationProgramCursor<DachoraProgram>.Start(DachoraAnimations.AfterSleep(state.Program.Program));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         state.Function = DachoraAiFunction.Shinesparking;
 
         RoomEnemySlot[] echoes = RequireDachoraEchoSlots(slot);
@@ -520,7 +520,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallDachoraInstruction(RoomEnemySlot slot, DachoraEnemyState state, DachoraProgram program)
     {
         state.Program = AnimationProgramCursor<DachoraProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>The faster clone of a run loop, where native's 28-byte speed-up jump lands at the same pose.</summary>

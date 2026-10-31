@@ -66,12 +66,12 @@ internal static class ColoredDoorPlmProgramDefinitions
     };
 
     /// <summary>The shot-wake pre-instruction each colour's cap installs.</summary>
-    internal static IReadOnlyDictionary<ColoredDoorColor, ColoredDoorPreInstruction> Wakes { get; } =
-        new Dictionary<ColoredDoorColor, ColoredDoorPreInstruction>
+    internal static IReadOnlyDictionary<ColoredDoorColor, ColoredDoorFrameBehavior> Wakes { get; } =
+        new Dictionary<ColoredDoorColor, ColoredDoorFrameBehavior>
     {
-        [ColoredDoorColor.Yellow] = ColoredDoorPreInstruction.WakeOnPowerBomb,
-        [ColoredDoorColor.Green] = ColoredDoorPreInstruction.WakeOnSuperMissile,
-        [ColoredDoorColor.Red] = ColoredDoorPreInstruction.WakeOnMissile,
+        [ColoredDoorColor.Yellow] = ColoredDoorFrameBehavior.WakeOnPowerBomb,
+        [ColoredDoorColor.Green] = ColoredDoorFrameBehavior.WakeOnSuperMissile,
+        [ColoredDoorColor.Red] = ColoredDoorFrameBehavior.WakeOnMissile,
     };
 
     /// <summary>A waiting cap links its hit, arms its wake and sleeps.</summary>

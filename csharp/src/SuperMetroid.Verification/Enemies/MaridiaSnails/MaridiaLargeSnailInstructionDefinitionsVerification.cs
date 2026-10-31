@@ -28,15 +28,15 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             var state = new MaridiaLargeSnailEnemyState()
             {
-                RequestedInstructionListIndex = animationIndex,
-                InstalledInstructionListIndex = -1,
+                RequestedAnimationScriptIndex = animationIndex,
+                InstalledAnimationScriptIndex = -1,
             };
-            slot.InstructionTimer = WrappingCountdown.Start(0x1234);
+            slot.FrameHold = WrappingCountdown.Start(0x1234);
             slot.Timer = WrappingCountdown.Start(0x5678);
-            MaridiaLargeSnailBehavior.InstallMaridiaLargeSnailInstructionList(slot, state);
-            AssertEqual(animationIndex, state.InstalledInstructionListIndex, $"Oum installed selector {animationIndex}");
+            MaridiaLargeSnailBehavior.InstallMaridiaLargeSnailAnimationScript(slot, state);
+            AssertEqual(animationIndex, state.InstalledAnimationScriptIndex, $"Oum installed selector {animationIndex}");
             AssertEqual(AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(program), state.Program, $"Oum installed animation {animationIndex}");
-            AssertEqual((ushort)1, slot.InstructionTimer.RawValue, $"Oum instruction timer {animationIndex}");
+            AssertEqual((ushort)1, slot.FrameHold.RawValue, $"Oum instruction timer {animationIndex}");
             AssertEqual((ushort)0, slot.Timer.RawValue, $"Oum general timer {animationIndex}");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => MaridiaLargeSnailPrograms.Program(8), "Oum selector past table");
@@ -90,7 +90,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
     private static void Start(RoomEnemySlot slot, MaridiaLargeSnailEnemyState state, MaridiaLargeSnailProgram program)
     {
         state.Program = AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

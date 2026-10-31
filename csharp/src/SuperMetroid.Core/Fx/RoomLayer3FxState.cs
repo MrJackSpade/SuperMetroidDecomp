@@ -92,7 +92,7 @@ public sealed class RoomLayer3FxState
     /// Set after the first liquid BG3 per-line effect pass installs its pre-instruction. Later passes
     /// run it before main-loop RNG; water uses this latch despite its older lava/acid name.
     /// </summary>
-    internal bool LavaAcidBg3PreInstructionInstalled { get; set; }
+    internal bool LavaAcidBg3FrameBehaviorInstalled { get; set; }
     /// <summary>
     /// Records direct deletion of liquid scroll per-line effect objects at $A9:8C0C, which stops
     /// their per-frame updates until the next room load.
@@ -281,9 +281,9 @@ public sealed class RoomLayer3FxState
         bool lavaOrAcid = Type is RoomFxType.Lava or RoomFxType.Acid;
         EarthquakeRequest = null;
         soundRequests.Clear();
-        if (!LavaAcidBg3PreInstructionInstalled)
+        if (!LavaAcidBg3FrameBehaviorInstalled)
         {
-            LavaAcidBg3PreInstructionInstalled = true;
+            LavaAcidBg3FrameBehaviorInstalled = true;
             // $88:C3E7 sets the sound timer in the same pass that installs the pre-instruction.
             if (lavaOrAcid)
                 lavaSoundTimer = WrappingCountdown.Start(LavaAcidWaveDefinitions.AmbientSoundPeriod);
@@ -786,7 +786,7 @@ public sealed class RoomLayer3FxState
         lavaAcidBg2WaveTimer = WrappingCountdown.Start(0);
         lavaAcidBg2WavePhase = 0;
         liquidRisePhase = LiquidRisePhase.Dormant;
-        LavaAcidBg3PreInstructionInstalled = false;
+        LavaAcidBg3FrameBehaviorInstalled = false;
         LiquidMotionStopped = false;
         lavaSoundTimer = WrappingCountdown.Start(0);
         EarthquakeRequest = null;

@@ -26,7 +26,7 @@ internal static class CeresInitialActorMetadataVerification
             VerifyActor(retail, CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperands[index]), actor,
                 preservesDefinitionCallback: index != 2, $"initial destruction actor {index}");
             AssertEqual(0, actor.SlideAcceleration, "destruction actor has no slide acceleration");
-            AssertEqual((ushort)0, actor.SlidePreInstruction.NativeAddress, "destruction actor has no slide callback");
+            AssertEqual((ushort)0, actor.SlideFrameBehavior.NativeAddress, "destruction actor has no slide callback");
             AssertEqual(false, actor.CompletesScene, "destruction actor does not own Zebes completion");
         }
         Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActors.InitialActor(0), new WrappedActorRomFields(0x8bbf23, 0x8bbf29, 0x8bbf2f, 0x8bbf3a, 0x8bbf46), "destruction large asteroids"));
@@ -37,12 +37,12 @@ internal static class CeresInitialActorMetadataVerification
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfba), vortex.Position.Y, "destruction vortex Y");
         PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), ScreenColourGroups.SpriteSet(vortex.Colouring),
             "destruction vortex attributes");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfac), vortex.ActivePreInstruction.NativeAddress,
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfac), vortex.ActiveFrameBehavior.NativeAddress,
             "destruction vortex no-op callback override");
 
         AssertEqual((byte)0xa9, retail.ReadCartridgeByte(0x8bc292), "stationary vortex parameter opcode");
         AssertEqual((ushort)0, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc293), "stationary vortex parameter zero");
-        AssertEqual((byte)0x60, retail.ReadCartridgeByte(0x8b0000 | vortex.ActivePreInstruction.NativeAddress), "stationary vortex RTS");
+        AssertEqual((byte)0x60, retail.ReadCartridgeByte(0x8b0000 | vortex.ActiveFrameBehavior.NativeAddress), "stationary vortex RTS");
         AssertEqual(0, vortex.HorizontalDelta, "stationary vortex has no displacement");
         AssertEqual(false, vortex.WrapX, "stationary vortex has no wrap operation");
         foreach (int index in new[] { int.MinValue, -1, 3, int.MaxValue })
@@ -60,7 +60,7 @@ internal static class CeresInitialActorMetadataVerification
             // The asteroid initializers keep the definition's pre-instruction; only the
             // vortex's parameter-zero initializer replaces it with the no-op override.
             if (preservesDefinitionCallback)
-                AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), actor.ActivePreInstruction.NativeAddress,
+                AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), actor.ActiveFrameBehavior.NativeAddress,
                     $"{name} initializer preserves definition pre-instruction");
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Program),
                 $"{name} instruction list");

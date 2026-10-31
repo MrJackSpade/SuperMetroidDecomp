@@ -20,7 +20,7 @@ internal static class NativeEnemyProjectileParity
     internal static CompareResult Compare(IImportCartridgeSource cartridge, RoomEnemySystem enemies,
         RoomEnemyProjectileSlot projectile, ushort entry, int updates, string label)
     {
-        var native = new NativeEnemyProjectileListDefinitions.Reader(entry, projectile.InstructionTimer.RawValue);
+        var native = new NativeEnemyProjectileListDefinitions.Reader(entry, projectile.FrameHold.RawValue);
         int update = 0;
         for (; update < updates; update++)
         {
@@ -30,12 +30,12 @@ internal static class NativeEnemyProjectileParity
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
             if (native.Deleted)
                 return new CompareResult(true, update + 1);
-            AssertEqual(native.Timer, projectile.InstructionTimer.RawValue, $"{at}: timer");
+            AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
-            if (native.PreInstructionCleared)
-                AssertEqual(EnemyProjectilePreInstruction.Stationary, projectile.PreInstruction, $"{at}: cleared pre-instruction");
-            else if (native.PreInstruction is { } installed)
-                AssertEqual(EnemyProjectilePreInstructionAccess.FromWord(installed), projectile.PreInstruction, $"{at}: installed pre-instruction");
+            if (native.FrameBehaviorCleared)
+                AssertEqual(EnemyProjectileFrameBehavior.Stationary, projectile.FrameBehavior, $"{at}: cleared pre-instruction");
+            else if (native.FrameBehavior is { } installed)
+                AssertEqual(EnemyProjectileFrameBehaviorAccess.FromWord(installed), projectile.FrameBehavior, $"{at}: installed pre-instruction");
         }
         return new CompareResult(false, update);
     }

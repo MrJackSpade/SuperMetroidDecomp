@@ -29,32 +29,32 @@ internal static class AttractInputFixtureVerification
 
         /// <summary>Advances one reference input frame using native words and pre-instructions.</summary>
         public void Step(SuperMetroidGameState gameState, SamusMovementType movementType) =>
-            Script.Step((state, pointer) => RunPreInstruction(state, pointer, gameState, movementType), NativeDemoInputReference.NoRoutines);
+            Script.Step((state, pointer) => RunFrameBehavior(state, pointer, gameState, movementType), NativeDemoInputReference.NoRoutines);
     }
 
     /// <summary>Applies demo leave and movement branches using the native pre-instruction identities.</summary>
-    private static void RunPreInstruction(NativeDemoInputReference state, ushort pointer, SuperMetroidGameState gameState,
+    private static void RunFrameBehavior(NativeDemoInputReference state, ushort pointer, SuperMetroidGameState gameState,
         SamusMovementType movementType)
     {
-        switch (ClosedEnumWordDecoding.Decode<NativeDemoPreInstruction>(pointer, "reference demo pre-instruction"))
+        switch (ClosedEnumWordDecoding.Decode<NativeDemoFrameBehavior>(pointer, "reference demo pre-instruction"))
         {
-            case NativeDemoPreInstruction.ReturnOnly:
-            case NativeDemoPreInstruction.Cleared:
+            case NativeDemoFrameBehavior.ReturnOnly:
+            case NativeDemoFrameBehavior.Cleared:
                 break;
-            case NativeDemoPreInstruction.AttractCheckLeave:
+            case NativeDemoFrameBehavior.AttractCheckLeave:
                 if (gameState == SuperMetroidGameState.TransitionFromDemoB)
                     state.Redirect(pointer, DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDelete));
                 break;
-            case NativeDemoPreInstruction.AttractShinespark:
+            case NativeDemoFrameBehavior.AttractShinespark:
                 if (movementType != SamusMovementType.DraygonHeld)
-                    state.Redirect((ushort)NativeDemoPreInstruction.AttractCheckLeave,
+                    state.Redirect((ushort)NativeDemoFrameBehavior.AttractCheckLeave,
                         DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDiagonalShinesparkContinuation));
                 break;
-            case NativeDemoPreInstruction.IntroBabyRunningLeft:
-            case NativeDemoPreInstruction.IntroBabyStopAndLook:
+            case NativeDemoFrameBehavior.IntroBabyRunningLeft:
+            case NativeDemoFrameBehavior.IntroBabyStopAndLook:
                 throw new InvalidOperationException($"A title demonstration's input object cannot hold {pointer:X4}.");
             default:
-                throw new InvalidOperationException($"Undefined {nameof(NativeDemoPreInstruction)} {pointer:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(NativeDemoFrameBehavior)} {pointer:X4}.");
         }
     }
 }

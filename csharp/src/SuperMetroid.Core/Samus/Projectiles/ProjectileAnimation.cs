@@ -29,8 +29,8 @@ internal sealed class ProjectileAnimation
     internal bool RunProjectileInstructionHandler(
         SamusProjectileSlot slot)
     {
-        slot.InstructionTimer = slot.InstructionTimer.Decrement().Remaining;
-        if (!slot.InstructionTimer.IsZero)
+        slot.FrameHold = slot.FrameHold.Decrement().Remaining;
+        if (!slot.FrameHold.IsZero)
             return false;
         AnimationProgramCursor<SamusProjectileProgram> cursor = slot.Cursor
             ?? throw new InvalidOperationException("An inactive projectile has no list to run.");
@@ -40,7 +40,7 @@ internal sealed class ProjectileAnimation
             return true;
         }
         SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame);
-        slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(duration));
+        slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(duration));
         slot.Sprite = FrameBindings?.Resolve(frame) ?? record.Sprite;
         slot.Radius = record.Radius;
         slot.AnimationFrame = record.AnimationFrame;

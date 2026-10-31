@@ -243,7 +243,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         int yRadius)
     {
         state.Program = AnimationProgramCursor<ShutterProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.Radius = slot.Radius.WithY(yRadius);
     }
@@ -508,7 +508,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallHorizontalShutterProgram(RoomEnemySlot slot, HorizontalShutterEnemyState state)
     {
         state.Program = AnimationProgramCursor<ShutterProgram>.Start(ShutterProgram.Horizontal);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
@@ -981,7 +981,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallVerticalShutterProgram(RoomEnemySlot slot, VerticalShutterEnemyState state, ShutterProgram program)
     {
         state.Program = AnimationProgramCursor<ShutterProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

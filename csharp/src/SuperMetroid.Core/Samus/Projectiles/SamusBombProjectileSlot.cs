@@ -42,7 +42,7 @@ public sealed class SamusBombProjectileSlot
     /// <summary>Where the slot's projectile program resumes; null marks an inactive slot, and a consumed timed frame advances it past that record.</summary>
     internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
     /// <summary>Wrapping duration countdown, decremented once per unfrozen projectile update; reaching zero runs the next program instruction.</summary>
-    public WrappingCountdown InstructionTimer { get; internal set; }
+    public WrappingCountdown FrameHold { get; internal set; }
     /// <summary>The composition the bomb shows, selected by the timed-frame interpreter or installed frame binding; none before its first frame.</summary>
     public ProjectileSpriteId? Sprite { get; internal set; }
     /// <summary>Collision half-extents in whole pixels, loaded from the timed frames; not the global Power Bomb blast radius.</summary>
@@ -75,7 +75,7 @@ public sealed class SamusBombProjectileSlot
         HasReactedToTerrain = false;
         Damage = 0;
         Cursor = null;
-        InstructionTimer = WrappingCountdown.Start(0);
+        FrameHold = WrappingCountdown.Start(0);
         Sprite = null;
         Radius = Extent16<RoomPixels>.Zero;
         BombTimer = WrappingCountdown.Start(0);

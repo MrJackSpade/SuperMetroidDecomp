@@ -15,10 +15,10 @@ public sealed class MaridiaLargeSnailEnemyState
     /// Its lowest bit selects the left-facing program, and the idle, roll and attack transitions set, clear and toggle
     /// its upper two bits, which never carries it outside the table.
     /// </summary>
-    public int RequestedInstructionListIndex { get; internal set; }
+    public int RequestedAnimationScriptIndex { get; internal set; }
 
     /// <summary>Extra word $01: the last requested animation <c>SetOumInstList</c> installed, 0 through 7.</summary>
-    public int InstalledInstructionListIndex { get; internal set; }
+    public int InstalledAnimationScriptIndex { get; internal set; }
 
     /// <summary>Extra word $02: set by instruction $CCB3 when the attack animation ends.</summary>
     public bool AttackAnimationFinished { get; internal set; }

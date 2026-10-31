@@ -10,9 +10,9 @@ internal abstract record DownwardGateProjectileCue
     {
     }
 
-    /// <summary>Installs a movement routine (<c>Instruction_EnemyProjectile_PreInstructionInY</c>, $86:8161).</summary>
-    /// <param name="PreInstruction">The movement routine the cue installs.</param>
-    internal sealed record SetPreInstruction(EnemyProjectilePreInstruction PreInstruction) : DownwardGateProjectileCue;
+    /// <summary>Installs a movement routine (<c>Instruction_EnemyProjectile_FrameBehaviorInY</c>, $86:8161).</summary>
+    /// <param name="FrameBehavior">The movement routine the cue installs.</param>
+    internal sealed record SetFrameBehavior(EnemyProjectileFrameBehavior FrameBehavior) : DownwardGateProjectileCue;
 
     /// <summary>Sets the gate's signed 8.8 Y velocity (<c>Instruction_EnemyProjectile_ShotGate_EnemyVelocityInY</c>, $86:E533).</summary>
     /// <param name="YVelocity">The vertical velocity a <see cref="SetYVelocity"/> cue installs.</param>

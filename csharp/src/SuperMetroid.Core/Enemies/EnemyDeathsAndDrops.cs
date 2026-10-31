@@ -40,8 +40,8 @@ internal sealed class EnemyDeathsAndDrops
         _powerBombRadius = powerBombRadius;
     }
     /// <summary>Bank-$86 callback that checks pickup lifetime, Grapple, and Samus contact.</summary>
-    private const EnemyProjectilePreInstruction EnemyPickupPreInstruction =
-        EnemyProjectilePreInstruction.PickupLifetime;
+    private const EnemyProjectileFrameBehavior EnemyPickupFrameBehavior =
+        EnemyProjectileFrameBehavior.PickupLifetime;
     /// <summary>Frames a newly spawned enemy pickup remains collectible.</summary>
     private const int EnemyPickupLifetime = 400;
     /// <summary>Initial pickup frames during which a Grapple endpoint cannot collect it.</summary>
@@ -262,7 +262,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
         projectile.State = new EnemyPickupState(kind, EnemyPickupLifetime);
-        projectile.PreInstruction = EnemyPickupPreInstruction;
+        projectile.FrameBehavior = EnemyPickupFrameBehavior;
 
         // $86:EEAF clears property $4000 but retains the other definition bits. The typed
         // representation stores the three collision flags separately from the low damage.
@@ -279,7 +279,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         // The blank map lasts 64 frames before $EF10 handles a retained respawning enemy
         // and $8154 deletes the actor. Collection and natural expiry use this same tail.
-        projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+        projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         projectile.CanDamageSamus = false;
         projectile.PersistsOnSamusContact = false;
         projectile.BlocksSamusProjectiles = false;
@@ -412,7 +412,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>
-    internal void RunEnemyPickupPreInstruction(
+    internal void RunEnemyPickupFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         SamusState? samus)
     {
@@ -573,13 +573,13 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Connects pickup lifetime and contact handling to the projectile engine.</summary>
-    internal void ConnectPickupPreInstruction(EnemyProjectileHandlerTable table)
+    internal void ConnectPickupFrameBehavior(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             // Lifetime, grapple endpoint, then Samus body.
-            RunEnemyPickupPreInstruction(context.Projectile, context.Samus);
-        }, EnemyProjectilePreInstruction.PickupLifetime);
+            RunEnemyPickupFrameBehavior(context.Projectile, context.Samus);
+        }, EnemyProjectileFrameBehavior.PickupLifetime);
     }
 
     /// <summary>Queues the library-two enemy-killed sound 9, as <c>EprojInstr_QueueSfx2_9</c> ($86:EE8B) does.</summary>

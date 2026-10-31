@@ -62,7 +62,7 @@ internal static class CrocomireStateQuantitiesVerification
             state.FightFunction = CrocomireFightFunction.PowerBombCharge;
             state.StepCounter = start;
             state.BodyCursor = AnimationProgramCursor<CrocomireBodyProgram>.Start(CrocomireBodyProgram.Initial);
-            state.Body.InstructionTimer = WrappingCountdown.Start(1);
+            state.Body.FrameHold = WrappingCountdown.Start(1);
             // The initial program shows its frame on the first update and runs its fight-AI cue on every later one.
             Pass(enemies, state);
 
@@ -351,7 +351,7 @@ internal static class CrocomireStateQuantitiesVerification
     private static void Pass(RoomEnemySystem enemies, CrocomireEnemyState state)
     {
         enemies.Audio.BeginFrame();
-        EnemyInstructionInterpreter.ProcessInstructions(state.Body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyInstructionInterpreter.RunsAnimationScript(state.Body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>Runs Crocomire's state-quantity checks from the command dispatcher.</summary>

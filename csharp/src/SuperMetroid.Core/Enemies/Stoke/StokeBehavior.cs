@@ -184,7 +184,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetStokeProgram(RoomEnemySlot slot, StokeEnemyState state, StokeProgram program)
     {
         state.Program = AnimationProgramCursor<StokeProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
@@ -198,11 +198,11 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Connects the fireball's horizontal motion and viewport cull pre-instruction.</summary>
     internal static void AddStokeProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             // Stoke shot: horizontal motion and viewport cull.
-            RunStokeProjectilePreInstruction(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.StokeFireballFlight);
+            RunStokeProjectileFrameBehavior(context.Projectile, context.Camera);
+        }, EnemyProjectileFrameBehavior.StokeFireballFlight);
     }
 
     /// <summary>Ports Stoke's main AI.</summary>
@@ -238,7 +238,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports pre-instruction <c>$86:DB5B</c>: the projectile flies sideways at its speed until it leaves the view.</summary>
-    internal static void RunStokeProjectilePreInstruction(
+    internal static void RunStokeProjectileFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {

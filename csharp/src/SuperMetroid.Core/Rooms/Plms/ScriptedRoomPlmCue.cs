@@ -9,8 +9,8 @@ internal abstract record ScriptedRoomPlmCue
     }
 
     /// <summary>Installs a pre-instruction the slot runs before its timer on later passes.</summary>
-    /// <param name="PreInstruction">The pre-instruction an install cue installs.</param>
-    internal sealed record InstallPreInstruction(ScriptedRoomPlmPreInstruction? PreInstruction) : ScriptedRoomPlmCue;
+    /// <param name="FrameBehavior">The pre-instruction an install cue installs.</param>
+    internal sealed record InstallFrameBehavior(ScriptedRoomPlmFrameBehavior? FrameBehavior) : ScriptedRoomPlmCue;
 
     /// <summary>Queues a library-2 sound, at most three pending.</summary>
     /// <param name="Sound">The library-2 sound a queue cue plays.</param>

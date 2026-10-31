@@ -43,7 +43,7 @@ internal static class DownwardGateProjectileBehaviorVerification
             DownwardGateBehavior.RunDownwardGateProjectileMovement(gate);
             DownwardGateProjectileProgram resumed = DownwardGateProjectileAnimations.Resumption[current];
             AssertTrue(gate.Animation is DownwardGateProjectileAnimation next && next.Cursor.Program == resumed, $"a block's travel resumes {current} with {resumed}");
-            AssertEqual((ushort)1, gate.InstructionTimer.RawValue, $"{resumed} wakes on the same pass");
+            AssertEqual((ushort)1, gate.FrameHold.RawValue, $"{resumed} wakes on the same pass");
             current = resumed;
             resumes++;
         }

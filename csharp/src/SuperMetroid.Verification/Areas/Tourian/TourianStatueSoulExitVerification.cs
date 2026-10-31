@@ -24,7 +24,7 @@ internal static class TourianStatueSoulExitVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
             RoomEnemyProjectileSlot soul = enemies.Projectiles.EnemyProjectiles[0];
-            soul.PreInstruction = EnemyProjectilePreInstruction.TourianStatueSoulMotion;
+            soul.FrameBehavior = EnemyProjectileFrameBehavior.TourianStatueSoulMotion;
             soul.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(132, checked((ushort)start)));
             soul.Velocity = soul.Velocity.WithY(new SignedEightEight(unchecked((ushort)(-RisePixels * 256))));
 

@@ -42,9 +42,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new MorphBallEyeEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
+        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
         MorphBallEyePlacement placement = MorphBallEyePlacement.Of(slot.SpawnSettings<MorphBallEyeSpawnSettings>());
@@ -114,7 +114,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.FunctionTimer = WrappingCountdown.Start(EyeTransitionDuration);
-        eye.InstructionTimer = WrappingCountdown.Start(1);
+        eye.FrameHold = WrappingCountdown.Start(1);
         state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
             ? MorphBallEyeProgram.FacingRightActivating
             : MorphBallEyeProgram.FacingLeftActivating);
@@ -158,7 +158,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? MorphBallEyeProgram.FacingRightDeactivating
                 : MorphBallEyeProgram.FacingLeftDeactivating);
             state.Function = MorphBallEyeAiFunction.Deactivating;
-            eye.InstructionTimer = WrappingCountdown.Start(1);
+            eye.FrameHold = WrappingCountdown.Start(1);
             return;
         }
 
@@ -168,7 +168,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         // pose: the tracking loop resumes at the pose for the arc of the turn the angle lies in.
         state.Program = new AnimationProgramCursor<MorphBallEyeProgram>(MorphBallEyeProgram.Active,
             state.Angle.Sector(MorphBallEyeBeamDefinitions.TrackingPoses));
-        eye.InstructionTimer = WrappingCountdown.Start(1);
+        eye.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Returns to waiting when the native closing word reaches zero or a negative wrapped value.</summary>

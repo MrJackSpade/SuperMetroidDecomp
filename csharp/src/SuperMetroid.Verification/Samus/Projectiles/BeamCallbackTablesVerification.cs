@@ -23,8 +23,8 @@ internal static class BeamCallbackTablesVerification
         foreach (bool charged in new[] { false, true })
         {
             int table = charged
-                ? SamusBeamPreInstructionCodes.ChargedTable
-                : SamusBeamPreInstructionCodes.UnchargedTable;
+                ? SamusBeamFrameBehaviorCodes.ChargedTable
+                : SamusBeamFrameBehaviorCodes.UnchargedTable;
             for (int combination = 0; combination < Enum.GetValues<SamusBeamCombination>().Length; combination++)
             {
                 AssertEqual(
@@ -58,7 +58,7 @@ internal static class BeamCallbackTablesVerification
                 AssertTrue(!projectiles.Slots[0].Type.IsNone || projectiles.Slots[0].InstructionPointer != 0,
                     $"charged={charged} beam {beamType:X1} initializes");
                 AssertEqual((SamusBeamCallbacks.Resolve(charged, SamusBeamCombinations.FromTableIndex(beamType)).Translated ?? throw new InvalidOperationException("Verification requires SamusBeamCallbacks.Resolve(charged, SamusBeamCombinations.FromTableIndex(beam....")),
-                    projectiles.Slots[0].PreInstruction,
+                    projectiles.Slots[0].FrameBehavior,
                     $"charged={charged} beam {beamType:X1} initializer installs compiled callback");
                 continue;
             }
@@ -80,7 +80,7 @@ internal static class BeamCallbackTablesVerification
                 SamusBeamCallbacks.Resolve(charged, SamusBeamCombinations.FromTableIndex(beamType));
             AssertEqual(
                 (expected.Translated ?? throw new InvalidOperationException("Verification requires expected.Translated.")),
-                fired.PreInstruction,
+                fired.FrameBehavior,
                 $"charged={charged} beam {beamType:X1} installs compiled callback");
         }
         Console.WriteLine(

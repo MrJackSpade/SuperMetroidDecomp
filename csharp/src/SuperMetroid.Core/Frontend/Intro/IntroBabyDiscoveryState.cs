@@ -98,7 +98,7 @@ internal sealed class IntroBabyDiscoveryState
         {
             // $90:E91D: the demo pose-input handler runs DemoInputObjectHandler inside Samus's
             // current-state handler, ahead of her pose input and movement.
-            demo.Step((_, preInstruction) => RunDemoPreInstruction(preInstruction, introCrossfadeTimer), HandleDemoCue);
+            demo.Step((_, frameBehavior) => RunDemoFrameBehavior(frameBehavior, introCrossfadeTimer), HandleDemoCue);
             // $90:E70D ends the current-state handler with ResetMovementAndPoseChangeVariables,
             // before this dispatch's movement records new distances.
             SamusAerialPoseTransitions.DropPendingTransitionShot(Samus);
@@ -124,18 +124,18 @@ internal sealed class IntroBabyDiscoveryState
 
         // The egg's $A8E8 pre-instruction tests Samus's post-movement X during the later
         // cinematic-sprite pass. It permanently redirects the list once X is below $A9.
-        if (egg.PreInstruction == IntroBabyActorDefinitions.Egg.PreInstruction &&
+        if (egg.FrameBehavior == IntroBabyActorDefinitions.Egg.FrameBehavior &&
             CoordinateAxis.Difference(Samus.Position.X.Whole, 169) < 0)
         {
             egg.Start(CinematicSpriteProgram.MetroidEggHatching);
-            egg.InstallPreInstruction(
-                CinematicSpritePreInstruction.NoOp);
+            egg.InstallFrameBehavior(
+                CinematicSpriteFrameBehavior.NoOp);
             EggHatchingStarted = true;
         }
 
         // $A903 replaces the egg with the shared delete list only when page three's reverse
         // crossfade reaches zero. The egg's program installs it after starting page three.
-        if (egg.ListPreInstruction == CinematicSpritePreInstruction.MetroidEggDeleteAfterCrossFade &&
+        if (egg.ListFrameBehavior == CinematicSpriteFrameBehavior.MetroidEggDeleteAfterCrossFade &&
             introCrossfadeTimer == 0)
         {
             egg.Start(CinematicSpriteProgram.Delete);
@@ -171,35 +171,35 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Changes the demo from running to waiting or ending at its scripted position and crossfade edges.</summary>
-    private void RunDemoPreInstruction(DemoInputPreInstruction preInstruction, int introCrossfadeTimer)
+    private void RunDemoFrameBehavior(DemoInputFrameBehavior frameBehavior, int introCrossfadeTimer)
     {
         // The Baby-discovery object holds only its own two routines or the return-only one.
-        switch (preInstruction)
+        switch (frameBehavior)
         {
-            case DemoInputPreInstruction.IntroBabyRunningLeft:
+            case DemoInputFrameBehavior.IntroBabyRunningLeft:
                 if (Samus.Position.X.Whole < 178)
                     demo.Redirect(
-                        DemoInputPreInstruction.IntroBabyStopAndLook,
+                        DemoInputFrameBehavior.IntroBabyStopAndLook,
                         DemoInputProgram.IntroBabyDiscoveryStopAndLook);
                 return;
 
-            case DemoInputPreInstruction.IntroBabyStopAndLook:
+            case DemoInputFrameBehavior.IntroBabyStopAndLook:
                 if (introCrossfadeTimer == 0)
                     demo.Redirect(
-                        DemoInputPreInstruction.ReturnOnly,
+                        DemoInputFrameBehavior.ReturnOnly,
                         DemoInputProgram.IntroBabyDiscoveryEnd);
                 return;
 
-            case DemoInputPreInstruction.ReturnOnly:
+            case DemoInputFrameBehavior.ReturnOnly:
                 return;
 
-            case DemoInputPreInstruction.None:
-            case DemoInputPreInstruction.AttractCheckLeave:
-            case DemoInputPreInstruction.AttractShinespark:
-                throw new InvalidOperationException($"The Baby-discovery demo object cannot hold the {preInstruction} pre-instruction.");
+            case DemoInputFrameBehavior.None:
+            case DemoInputFrameBehavior.AttractCheckLeave:
+            case DemoInputFrameBehavior.AttractShinespark:
+                throw new InvalidOperationException($"The Baby-discovery demo object cannot hold the {frameBehavior} pre-instruction.");
 
             default:
-                throw new InvalidOperationException($"Undefined {nameof(DemoInputPreInstruction)} {preInstruction}.");
+                throw new InvalidOperationException($"Undefined {nameof(DemoInputFrameBehavior)} {frameBehavior}.");
         }
     }
 
@@ -237,7 +237,7 @@ internal sealed class IntroBabyDiscoveryState
                 PageThreeRequested = true;
                 return;
 
-            case CinematicSpriteCueKind.SetPreInstruction:
+            case CinematicSpriteCueKind.SetFrameBehavior:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
             case CinematicSpriteCueKind.FadeExplosionPalette:
@@ -278,75 +278,75 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>Advances the baby from hatch wait through rise, idle, and crossfade dance phases.</summary>
     private void StepConfusedBaby(int introCrossfadeTimer)
     {
-        switch (confusedBaby.PreInstruction)
+        switch (confusedBaby.FrameBehavior)
         {
-            case CinematicSpritePreInstruction.ConfusedBabyWaitingForHatch:
+            case CinematicSpriteFrameBehavior.ConfusedBabyWaitingForHatch:
                 // $BA5E watches the egg's *next* instruction pointer reach CB79, the first fully-hatched frame list:
                 // the egg's program is then MetroidEggHatchedFrame2 or a later one, so the baby starts moving on that
                 // exact handoff.
                 if (egg.CurrentProgram is CinematicSpriteProgram.MetroidEggHatchedFrame2 or
                     CinematicSpriteProgram.MetroidEggHatched or CinematicSpriteProgram.Delete)
                 {
-                    confusedBaby.InstallPreInstruction(
-                        CinematicSpritePreInstruction.ConfusedBabyHatched);
+                    confusedBaby.InstallFrameBehavior(
+                        CinematicSpriteFrameBehavior.ConfusedBabyHatched);
                     BabyVelocity = BabyVelocity.WithY(default);
                 }
                 return;
 
-            case CinematicSpritePreInstruction.ConfusedBabyHatched:
+            case CinematicSpriteFrameBehavior.ConfusedBabyHatched:
                 StepHatchedBaby();
                 return;
 
-            case CinematicSpritePreInstruction.ConfusedBabyIdling:
+            case CinematicSpriteFrameBehavior.ConfusedBabyIdling:
                 BabyIdleTimer = BabyIdleTimer.Decrement().Remaining;
                 if (BabyIdleTimer.IsZeroOrNegative)
                 {
-                    confusedBaby.InstallPreInstruction(
-                        CinematicSpritePreInstruction.ConfusedBabyDancing);
+                    confusedBaby.InstallFrameBehavior(
+                        CinematicSpriteFrameBehavior.ConfusedBabyDancing);
                     BabyIdleTimer = WrappingCountdown.Start(0);
                     BabyVelocity = BabyVelocity.WithY(default);
                     confusedBaby.GeneralTimer = 0;
                 }
                 return;
 
-            case CinematicSpritePreInstruction.ConfusedBabyDancing:
+            case CinematicSpriteFrameBehavior.ConfusedBabyDancing:
                 StepDancingBaby(introCrossfadeTimer);
                 return;
 
-            case CinematicSpritePreInstruction.NoOp:
-            case CinematicSpritePreInstruction.MetroidEgg:
-            case CinematicSpritePreInstruction.MetroidEggDeleteAfterCrossFade:
-            case CinematicSpritePreInstruction.MetroidEggParticle:
-            case CinematicSpritePreInstruction.MetroidEggSlimeDrops:
-            case CinematicSpritePreInstruction.BabyMetroidBeingDelivered:
-            case CinematicSpritePreInstruction.BabyMetroidBeingExamined:
-            case CinematicSpritePreInstruction.IntroMotherBrainCrossFading:
-            case CinematicSpritePreInstruction.IntroRinkaMovingHitsSamus:
-            case CinematicSpritePreInstruction.IntroRinkaMovingMissesSamus:
-            case CinematicSpritePreInstruction.CeresStars:
-            case CinematicSpritePreInstruction.CeresLargeAsteroids:
-            case CinematicSpritePreInstruction.CeresUnderAttack:
-            case CinematicSpritePreInstruction.CeresSmallAsteroid:
-            case CinematicSpritePreInstruction.CeresPurpleSpaceVortex:
-            case CinematicSpritePreInstruction.CeresStationaryVortexNoOp:
-            case CinematicSpritePreInstruction.CeresExplosionSpawnerRepeating:
-            case CinematicSpritePreInstruction.CeresExplosion:
-            case CinematicSpritePreInstruction.Zebes:
-            case CinematicSpritePreInstruction.ZebesSlideSceneAway:
-            case CinematicSpritePreInstruction.ZebesStarsCompletionWait:
-            case CinematicSpritePreInstruction.ZebesStarsCompletionSlideSceneAway:
-            case CinematicSpritePreInstruction.ZebesStarsWait:
-            case CinematicSpritePreInstruction.ZebesStarsSlideSceneAway:
-            case CinematicSpritePreInstruction.SuperMetroidIconTopHalf:
-            case CinematicSpritePreInstruction.SuperMetroidIconBottomHalf:
-            case CinematicSpritePreInstruction.ZebesExplosionStarsWaitForFlyaway:
-            case CinematicSpritePreInstruction.ZebesExplosionStarsMoving:
-            case CinematicSpritePreInstruction.RewardSuitlessUpperNoOp:
-            case CinematicSpritePreInstruction.RewardBodyFlight:
-            case CinematicSpritePreInstruction.RewardHeadFlight:
-            case CinematicSpritePreInstruction.RewardLanding:
+            case CinematicSpriteFrameBehavior.NoOp:
+            case CinematicSpriteFrameBehavior.MetroidEgg:
+            case CinematicSpriteFrameBehavior.MetroidEggDeleteAfterCrossFade:
+            case CinematicSpriteFrameBehavior.MetroidEggParticle:
+            case CinematicSpriteFrameBehavior.MetroidEggSlimeDrops:
+            case CinematicSpriteFrameBehavior.BabyMetroidBeingDelivered:
+            case CinematicSpriteFrameBehavior.BabyMetroidBeingExamined:
+            case CinematicSpriteFrameBehavior.IntroMotherBrainCrossFading:
+            case CinematicSpriteFrameBehavior.IntroRinkaMovingHitsSamus:
+            case CinematicSpriteFrameBehavior.IntroRinkaMovingMissesSamus:
+            case CinematicSpriteFrameBehavior.CeresStars:
+            case CinematicSpriteFrameBehavior.CeresLargeAsteroids:
+            case CinematicSpriteFrameBehavior.CeresUnderAttack:
+            case CinematicSpriteFrameBehavior.CeresSmallAsteroid:
+            case CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex:
+            case CinematicSpriteFrameBehavior.CeresStationaryVortexNoOp:
+            case CinematicSpriteFrameBehavior.CeresExplosionSpawnerRepeating:
+            case CinematicSpriteFrameBehavior.CeresExplosion:
+            case CinematicSpriteFrameBehavior.Zebes:
+            case CinematicSpriteFrameBehavior.ZebesSlideSceneAway:
+            case CinematicSpriteFrameBehavior.ZebesStarsCompletionWait:
+            case CinematicSpriteFrameBehavior.ZebesStarsCompletionSlideSceneAway:
+            case CinematicSpriteFrameBehavior.ZebesStarsWait:
+            case CinematicSpriteFrameBehavior.ZebesStarsSlideSceneAway:
+            case CinematicSpriteFrameBehavior.SuperMetroidIconTopHalf:
+            case CinematicSpriteFrameBehavior.SuperMetroidIconBottomHalf:
+            case CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway:
+            case CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving:
+            case CinematicSpriteFrameBehavior.RewardSuitlessUpperNoOp:
+            case CinematicSpriteFrameBehavior.RewardBodyFlight:
+            case CinematicSpriteFrameBehavior.RewardHeadFlight:
+            case CinematicSpriteFrameBehavior.RewardLanding:
             default:
-                throw new InvalidOperationException($"The confused baby does not run {confusedBaby.PreInstruction}.");
+                throw new InvalidOperationException($"The confused baby does not run {confusedBaby.FrameBehavior}.");
         }
     }
 
@@ -389,8 +389,8 @@ internal sealed class IntroBabyDiscoveryState
         if (BabyVelocity.Y.SignedRawValue >= 0)
         {
             BabyIdleTimer = WrappingCountdown.Start(128);
-            confusedBaby.InstallPreInstruction(
-                CinematicSpritePreInstruction.ConfusedBabyIdling);
+            confusedBaby.InstallFrameBehavior(
+                CinematicSpriteFrameBehavior.ConfusedBabyIdling);
         }
     }
 
@@ -471,7 +471,7 @@ internal sealed class IntroBabyDiscoveryState
             definition.Position,
             definition.Colouring,
             definition.Program);
-        actor.InstallPreInstruction(definition.PreInstruction);
+        actor.InstallFrameBehavior(definition.FrameBehavior);
         return actor;
     }
 

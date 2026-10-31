@@ -318,7 +318,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallPlatformProgram(RoomEnemySlot slot, PlatformEnemyState state, PlatformProgram program)
     {
         state.Program = AnimationProgramCursor<PlatformProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

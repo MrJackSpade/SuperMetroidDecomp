@@ -52,8 +52,8 @@ internal static class ZoaAnimationDefinitionsVerification
             var slot = NewZoaAnimationSlot();
             var state = new ZoaEnemyState()
             {
-                InstructionListTableIndex = selector,
-                PreviousInstructionListTableIndex = selector == ZoaAnimationSelector.None
+                AnimationScriptTableIndex = selector,
+                PreviousAnimationScriptTableIndex = selector == ZoaAnimationSelector.None
                     ? ZoaAnimationSelector.Rising
                     : ZoaAnimationSelector.None,
             };
@@ -100,7 +100,7 @@ internal static class ZoaAnimationDefinitionsVerification
     /// <summary>Seeds nondefault list and timer values so animation handoff writes are visible.</summary>
     private static RoomEnemySlot NewZoaAnimationSlot() => new(0, EnemySlotFixtures.Registry)
     {
-        InstructionTimer = WrappingCountdown.Start(0x2222),
+        FrameHold = WrappingCountdown.Start(0x2222),
         Timer = WrappingCountdown.Start(0x3333),
     };
 
@@ -111,14 +111,14 @@ internal static class ZoaAnimationDefinitionsVerification
         ZoaAnimationSelector expected,
         string context)
     {
-        AssertEqual(expected, state.InstructionListTableIndex,
+        AssertEqual(expected, state.AnimationScriptTableIndex,
             $"{context} requested selector");
-        AssertEqual(expected, state.PreviousInstructionListTableIndex,
+        AssertEqual(expected, state.PreviousAnimationScriptTableIndex,
             $"{context} installed selector");
         AssertEqual(AnimationProgramCursor<ZoaProgram>.Start(ZoaPrograms.Program(expected)),
             state.Program,
             $"{context} animation");
-        AssertEqual(1, slot.InstructionTimer.RawValue, $"{context} instruction timer");
+        AssertEqual(1, slot.FrameHold.RawValue, $"{context} instruction timer");
         AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");
     }
 

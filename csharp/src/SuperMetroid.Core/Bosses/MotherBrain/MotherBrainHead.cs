@@ -66,7 +66,7 @@ internal sealed class MotherBrainHead
         // `$A9:8714` gives the head enemy the dummy program for life (the encounter state's
         // head-slot cursor starts there): its $A320 frame is the head's collision hitbox.
         // The visible brain runs a separate program (`$A9:8734`).
-        head.InstructionTimer = WrappingCountdown.Start(1);
+        head.FrameHold = WrappingCountdown.Start(1);
         head.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.MotherBrainHead];
         head.Properties = head.Properties.With(
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.Invisible);
@@ -485,7 +485,7 @@ internal sealed class MotherBrainHead
         // SpawnEnemyProjectile runs initializer C843 immediately. It falls through into
         // the attached pre-instruction, so debugger-visible coordinates are valid before
         // the later global projectile pass repeats the same attachment calculation.
-        _projectileAttacks.RunMotherBrainAttachedDroolPreInstruction(drool);
+        _projectileAttacks.RunMotherBrainAttachedDroolFrameBehavior(drool);
     }
 
     /// <summary>Ports head opcode <c>$A9:9B6D</c> and initializer <c>$86:CA6A</c>.</summary>
@@ -533,6 +533,6 @@ internal sealed class MotherBrainHead
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
         projectile.Graphics = default;
-        _projectileAttacks.RunMotherBrainRainbowChargingPreInstruction(projectile);
+        _projectileAttacks.RunMotherBrainRainbowChargingFrameBehavior(projectile);
     }
 }

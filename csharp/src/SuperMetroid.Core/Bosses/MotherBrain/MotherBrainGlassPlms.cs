@@ -98,7 +98,7 @@ internal sealed class MotherBrainGlassPlms
     internal void BeginMotherBrainGlassFrame() => _motherBrainGlassProjectileRequests.Clear();
 
     /// <summary>Counts missile or super-missile block hits through the installed glass pre-instruction.</summary>
-    internal static void RunMotherBrainGlassPreInstruction(PlmSlot slot)
+    internal static void RunMotherBrainGlassFrameBehavior(PlmSlot slot)
     {
         if (slot.ProjectileHit?.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
             slot.HitCounter = WrappingCounter.IncrementWord(slot.HitCounter);
@@ -156,6 +156,6 @@ internal sealed class MotherBrainGlassPlms
         // Deleted slots are reusable. Clear the family discriminator now so a
         // later ordinary PLM cannot accidentally inherit glass-only instruction dispatch.
         slot.Header = 0;
-        slot.PreInstruction = PlmPreInstructions.Inert;
+        slot.FrameBehavior = PlmFrameBehaviors.Inert;
     }
 }

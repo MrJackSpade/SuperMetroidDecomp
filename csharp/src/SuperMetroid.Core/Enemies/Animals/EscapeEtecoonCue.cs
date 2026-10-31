@@ -16,9 +16,9 @@ internal abstract record EscapeEtecoonCue
     /// <param name="Offset">The cue's signed pixel offset.</param>
     internal sealed record Move(int Offset) : EscapeEtecoonCue;
 
-    /// <summary>Installs the Etecoon's movement routine (<c>SetPreInstruction</c>, $B3:806B).</summary>
-    /// <param name="PreInstruction">The cue's PreInstruction operand.</param>
-    internal sealed record SetPreInstruction(EscapeEtecoonPreInstruction PreInstruction) : EscapeEtecoonCue;
+    /// <summary>Installs the Etecoon's movement routine (<c>SetFrameBehavior</c>, $B3:806B).</summary>
+    /// <param name="FrameBehavior">The cue's FrameBehavior operand.</param>
+    internal sealed record SetFrameBehavior(EscapeEtecoonFrameBehavior FrameBehavior) : EscapeEtecoonCue;
 
     /// <summary>A cue that carries no operand.</summary>
     /// <param name="Kind">What the cue does.</param>

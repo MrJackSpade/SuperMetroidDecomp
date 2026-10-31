@@ -84,7 +84,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Function = FuneNamiheEnemyFunction.NamiheWaitForSamus;
 
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        InstallFuneNamiheInstructionList(slot, state);
+        InstallFuneNamiheAnimationScript(slot, state);
     }
 
     /// <summary>Starts Fune's activity after a wrapping cooldown or Namihe's after strict modular Y proximity; active lists own the return to idle.</summary>
@@ -104,7 +104,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
 
                 state.ShowsActiveAnimation = true;
-                InstallFuneNamiheInstructionList(slot, state);
+                InstallFuneNamiheAnimationScript(slot, state);
                 state.Function = FuneNamiheEnemyFunction.FuneActivityNoOp;
                 state.CooldownTimer = 0;
                 return;
@@ -127,7 +127,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
 
                 state.ShowsActiveAnimation = true;
-                InstallFuneNamiheInstructionList(slot, state);
+                InstallFuneNamiheAnimationScript(slot, state);
                 state.Function = FuneNamiheEnemyFunction.NamiheActivityNoOp;
                 return;
 
@@ -147,11 +147,11 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Models <c>SetFuneNamiheInstList</c>: installs the animation the species, activity and facing select. Both
     /// instruction timers are reset together.
     /// </summary>
-    private static void InstallFuneNamiheInstructionList(
+    private static void InstallFuneNamiheAnimationScript(
         RoomEnemySlot slot,
         FuneNamiheEnemyState state)
     {
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<FuneNamiheProgram>.Start(SelectFuneNamiheProgram(state));
     }
@@ -182,11 +182,11 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Binds the shared fireball pre-instruction to 8.8 horizontal travel and inclusive camera culling.</summary>
     internal static void AddFuneNamiheProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             // Fune/Namihe: directional 8.8 flight and cull.
-            RunFuneNamiheFireballPreInstruction(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.FuneNamiheFireballFlight);
+            RunFuneNamiheFireballFrameBehavior(context.Projectile, context.Camera);
+        }, EnemyProjectileFrameBehavior.FuneNamiheFireballFlight);
     }
 
     /// <summary>Ports FuneNamihe's main AI.</summary>
@@ -202,8 +202,8 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue, _) => ApplyFuneNamiheCue(slot, state, cue));
 
     /// <summary>Shared projectile movement callback installed for both Fune and Namihe fireballs.</summary>
-    private const EnemyProjectilePreInstruction NamiFuneFireballPreInstruction =
-        EnemyProjectilePreInstruction.FuneNamiheFireballFlight;
+    private const EnemyProjectileFrameBehavior NamiFuneFireballFrameBehavior =
+        EnemyProjectileFrameBehavior.FuneNamiheFireballFlight;
 
     /// <summary>
     /// Ports the shared projectile initializer at $86:DED6. The source population's low
@@ -224,7 +224,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             kind,
             source.Graphics);
         projectile.InstallAnimation(new FuneNamiheFireballAnimation(direction == HorizontalDirection.Right ? FuneNamiheFireballProgram.Right : FuneNamiheFireballProgram.Left));
-        projectile.PreInstruction = NamiFuneFireballPreInstruction;
+        projectile.FrameBehavior = NamiFuneFireballFrameBehavior;
 
         projectile.Position = source.Position;
 
@@ -241,7 +241,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports pre-instruction $86:DF39: the fireball flies sideways at its speed until it leaves the view.</summary>
-    internal static void RunFuneNamiheFireballPreInstruction(
+    internal static void RunFuneNamiheFireballFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {

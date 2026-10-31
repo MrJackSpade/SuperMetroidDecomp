@@ -15,8 +15,8 @@ internal static class StationNativeWords
         [StationAnimationList.MapAcquired] = 0xad76,
         [StationAnimationList.Energy] = 0xadc6,
         [StationAnimationList.Missile] = 0xae50,
-        [StationAnimationList.SaveIdle] = RoomPlmInstructionListsConstants.SaveStationIdleDraw,
-        [StationAnimationList.SaveFirstFrame] = RoomPlmInstructionListsConstants.SaveStationAnimationFirstFrame,
-        [StationAnimationList.SaveSecondFrame] = RoomPlmInstructionListsConstants.SaveStationAnimationSecondFrame,
+        [StationAnimationList.SaveIdle] = RoomPlmAnimationScriptsConstants.SaveStationIdleDraw,
+        [StationAnimationList.SaveFirstFrame] = RoomPlmAnimationScriptsConstants.SaveStationAnimationFirstFrame,
+        [StationAnimationList.SaveSecondFrame] = RoomPlmAnimationScriptsConstants.SaveStationAnimationSecondFrame,
     });
 }

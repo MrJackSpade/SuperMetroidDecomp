@@ -22,9 +22,9 @@ internal static class NativeEnemyProjectileListDefinitions
         /// <summary>A frame: a duration and a spritemap operand.</summary>
         Frame,
         /// <summary>The pre-instruction install and its routine operand.</summary>
-        PreInstruction,
+        FrameBehavior,
         /// <summary>Clears the pre-instruction.</summary>
-        ClearPreInstruction,
+        ClearFrameBehavior,
         /// <summary>Clears the projectile's palette selection.</summary>
         UsePaletteZero,
         /// <summary>A long call to an external routine, recorded rather than run.</summary>
@@ -50,8 +50,8 @@ internal static class NativeEnemyProjectileListDefinitions
     /// <summary>The bank-$86 opcodes the reader decodes besides frames.</summary>
     private static readonly Dictionary<ushort, WordKind> Words = new()
     {
-        [(ushort)NativeEnemyProjectileInstruction.PreInstructionInY] = WordKind.PreInstruction,
-        [(ushort)NativeEnemyProjectileInstruction.ClearPreInstruction] = WordKind.ClearPreInstruction,
+        [(ushort)NativeEnemyProjectileInstruction.FrameBehaviorInY] = WordKind.FrameBehavior,
+        [(ushort)NativeEnemyProjectileInstruction.ClearFrameBehavior] = WordKind.ClearFrameBehavior,
         [(ushort)NativeEnemyProjectileInstruction.UsePalette0] = WordKind.UsePaletteZero,
         [(ushort)NativeEnemyProjectileInstruction.CallExternalFunctionInY] = WordKind.CallExternal,
         [(ushort)NativeEnemyProjectileInstruction.GotoY] = WordKind.GoTo,
@@ -93,9 +93,9 @@ internal static class NativeEnemyProjectileListDefinitions
         /// <summary>The spritemap operand address of the latest native frame.</summary>
         internal ushort Operand { get; private set; }
         /// <summary>The pre-instruction the list installed, if any.</summary>
-        internal ushort? PreInstruction { get; private set; }
+        internal ushort? FrameBehavior { get; private set; }
         /// <summary>Whether the list cleared its pre-instruction.</summary>
-        internal bool PreInstructionCleared { get; private set; }
+        internal bool FrameBehaviorCleared { get; private set; }
         /// <summary>Whether the list cleared its palette selection.</summary>
         internal bool PaletteCleared { get; private set; }
         /// <summary>The long routine of each external call the latest update made.</summary>
@@ -126,12 +126,12 @@ internal static class NativeEnemyProjectileListDefinitions
                         Operand = unchecked((ushort)(cursor + 2));
                         cursor = unchecked((ushort)(cursor + 4));
                         return;
-                    case WordKind.PreInstruction:
-                        PreInstruction = cartridge.ReadCartridgeWord(ProjectileBank | (cursor + 2));
+                    case WordKind.FrameBehavior:
+                        FrameBehavior = cartridge.ReadCartridgeWord(ProjectileBank | (cursor + 2));
                         cursor = unchecked((ushort)(cursor + 4));
                         continue;
-                    case WordKind.ClearPreInstruction:
-                        PreInstructionCleared = true;
+                    case WordKind.ClearFrameBehavior:
+                        FrameBehaviorCleared = true;
                         cursor = unchecked((ushort)(cursor + 2));
                         continue;
                     case WordKind.UsePaletteZero:

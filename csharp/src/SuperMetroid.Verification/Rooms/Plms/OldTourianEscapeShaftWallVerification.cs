@@ -72,9 +72,9 @@ internal static class OldTourianEscapeShaftWallVerification
 
         var start = programs.Steps(OldTourianWallExplosionProgram.Start);
         AssertEqual(3, start.Count, "the setup has three steps");
-        AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsConstants.InitialInstructionList, (ushort)0xb443, "the setup starts the list");
-        AssertEqual((ushort)NativeEnemyProjectileInstruction.ClearPreInstruction, Word(0xb443), "the list first clears the movement");
-        AssertEqual(OldTourianWallExplosionCue.ClearPreInstruction, AssertIs<AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.CueStep>(start[0], "the setup publishes a cue").Cue, "the setup clears the movement");
+        AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsConstants.InitialAnimationScript, (ushort)0xb443, "the setup starts the list");
+        AssertEqual((ushort)NativeEnemyProjectileInstruction.ClearFrameBehavior, Word(0xb443), "the list first clears the movement");
+        AssertEqual(OldTourianWallExplosionCue.ClearFrameBehavior, AssertIs<AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.CueStep>(start[0], "the setup publishes a cue").Cue, "the setup clears the movement");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.TimerInY, Word(0xb445), "the list then loads the timer");
         var setCounter = AssertIs<AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.SetCounterStep>(start[1], "the setup loads the counter");
         AssertEqual(Word(0xb447), setCounter.Count, "the burst count");

@@ -12,5 +12,5 @@ internal enum SamusEaterCue
     /// <summary>Gives Samus her release immunity.</summary>
     ReleaseSamus,
     /// <summary>Clears the hold pre-instruction.</summary>
-    ClearPreInstruction,
+    ClearFrameBehavior,
 }

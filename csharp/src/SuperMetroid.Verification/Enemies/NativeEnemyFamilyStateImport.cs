@@ -308,7 +308,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)
         {
             chozoStatueRecord.CarryRecord = words.C / 2;
-            chozoStatueRecord.PreInstruction = words.F == 0 ? null : ChozoNativeWords.ChozoStatuePreInstructions.Decode(words.F, "recorded ChozoStatuePreInstruction");
+            chozoStatueRecord.FrameBehavior = words.F == 0 ? null : ChozoNativeWords.ChozoStatueFrameBehaviors.Decode(words.F, "recorded ChozoStatueFrameBehavior");
         }
         if (slot.SpeciesState<YardEnemyState>() is { } yardRecord)
         {
@@ -325,8 +325,8 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<ZoaEnemyState>() is { } zoaRecord)
         {
             zoaRecord.SpawnPosition = new(words.A, words.B);
-            zoaRecord.InstructionListTableIndex = (ZoaAnimationSelector)words.C;
-            zoaRecord.PreviousInstructionListTableIndex = (ZoaAnimationSelector)words.D;
+            zoaRecord.AnimationScriptTableIndex = (ZoaAnimationSelector)words.C;
+            zoaRecord.PreviousAnimationScriptTableIndex = (ZoaAnimationSelector)words.D;
             zoaRecord.Function = words.F == 0 ? null : ZoaNativeWords.ZoaEnemyFunctions.Decode(words.F, "recorded ZoaEnemyFunction");
         }
         if (slot.SpeciesState<BabyTurtleEnemyState>() is { } babyTurtleRecord)
@@ -528,7 +528,7 @@ internal static class NativeEnemyFamilyStateImport
             segment.AngularVelocity = Index(words.C, 1020, "Shaktool angular velocity");
             ImportShaktoolOrientation(segment, slot.SpawnSettings<ShaktoolSpawnSettings>().Segment, words.D);
             segment.OwnerSlotIndex = SlotIndex(words.E, "Shaktool owner");
-            segment.PreInstruction = words.F == 0 ? null : ShaktoolNativeWords.DecodePreInstruction(words.F, "recorded ShaktoolPreInstruction");
+            segment.FrameBehavior = words.F == 0 ? null : ShaktoolNativeWords.DecodeFrameBehavior(words.F, "recorded ShaktoolFrameBehavior");
         }
         if (enemies.ChootStates[index] is { } choot)
         {
@@ -600,7 +600,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.DefinitionId == EnemyDefinitionId.EtecoonEscape && slot.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
         {
             escape.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(words.A), default);
-            escape.PreInstruction = words.F == 0 ? null : AnimalsNativeWords.EscapeEtecoonPreInstructions.Decode(words.F, "recorded EscapeEtecoonPreInstruction");
+            escape.FrameBehavior = words.F == 0 ? null : AnimalsNativeWords.EscapeEtecoonFrameBehaviors.Decode(words.F, "recorded EscapeEtecoonFrameBehavior");
         }
         if (slot.DefinitionId == EnemyDefinitionId.FaceBlock && slot.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
         {
@@ -736,8 +736,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             metaree.BurrowTimer = WrappingCountdown.FromRaw(words.A);
             metaree.Function = words.B == 0 ? null : MetareeNativeWords.MetareeEnemyFunctions.Decode(words.B, "recorded MetareeEnemyFunction");
-            metaree.RequestedInstructionListIndex = (SkreeMetareeAnimationPhase)words.C;
-            metaree.InstalledInstructionListIndex = (SkreeMetareeAnimationPhase)words.D;
+            metaree.RequestedAnimationScriptIndex = (SkreeMetareeAnimationPhase)words.C;
+            metaree.InstalledAnimationScriptIndex = (SkreeMetareeAnimationPhase)words.D;
             metaree.AttackReady = words.E != 0;
             metaree.YVelocity = Index(words.F, 2734, "Metaree dive speed");
         }

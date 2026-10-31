@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
-/// <summary>The neighbour the <see cref="PaletteFxPreInstruction.InspectAdjacentSlot"/> pre-instruction inspects.</summary>
+/// <summary>The neighbour the <see cref="PaletteFxFrameBehavior.InspectAdjacentSlot"/> pre-instruction inspects.</summary>
 internal static class PaletteFxSlotInspectionDefinitions
 {
     /// <summary>

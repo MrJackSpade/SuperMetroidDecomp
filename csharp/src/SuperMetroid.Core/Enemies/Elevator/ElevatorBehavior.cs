@@ -125,7 +125,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<ElevatorProgram>.Start(ElevatorProgram.Loop);
         state.DirectionTableByteOffset = CoordinateAxis.Wrap(slot.SpawnSettings<ElevatorSpawnSettings>().DirectionIndex * 2);

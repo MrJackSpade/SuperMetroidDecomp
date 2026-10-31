@@ -98,7 +98,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     if (state.AnimationSignal)
                     {
                         state.AnimationSignal = false;
-                        InstallNorfairRioInstructionList(
+                        InstallNorfairRioAnimationScript(
                             slot,
                             state,
                             NorfairRioProgram.Idle);
@@ -113,7 +113,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     new SignedEightEight(RioLaunches.NorfairYVelocity(random)));
                 if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
                     state.Velocity = state.Velocity.WithX(SignedEightEight.Wrapped(-state.Velocity.X.SignedRawValue));
-                InstallNorfairRioInstructionList(
+                InstallNorfairRioAnimationScript(
                     slot,
                     state,
                     NorfairRioProgram.StartDescending);
@@ -124,7 +124,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!state.AnimationSignal)
                     return;
                 state.AnimationSignal = false;
-                InstallNorfairRioInstructionList(
+                InstallNorfairRioAnimationScript(
                     slot,
                     state,
                     NorfairRioProgram.Descending);
@@ -165,7 +165,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.AnimationSignal)
                 {
                     state.AnimationSignal = false;
-                    InstallNorfairRioInstructionList(
+                    InstallNorfairRioAnimationScript(
                         slot,
                         state,
                         NorfairRioProgram.Ascending);
@@ -249,7 +249,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         NorfairRioProgram followerList = parentState.FollowerOffset.Y < 0
             ? NorfairRioProgram.FlamesDescending
             : NorfairRioProgram.FlamesAscending;
-        InstallNorfairRioInstructionList(follower, followerState, followerList);
+        InstallNorfairRioAnimationScript(follower, followerState, followerList);
         follower.Properties = follower.Properties.Without(EnemyProperties.Invisible);
         follower.Position = follower.Position.WithWhole(parent.Position.Whole + parentState.FollowerOffset);
     }
@@ -260,7 +260,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         NorfairRioEnemyState state)
     {
         state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(-1));
-        InstallNorfairRioInstructionList(
+        InstallNorfairRioAnimationScript(
             slot,
             state,
             NorfairRioProgram.StartAscending);
@@ -283,7 +283,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restarts an animation only when it changes.</summary>
-    private static void InstallNorfairRioInstructionList(
+    private static void InstallNorfairRioAnimationScript(
         RoomEnemySlot slot,
         NorfairRioEnemyState state,
         NorfairRioProgram program) =>

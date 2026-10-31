@@ -2908,7 +2908,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Heat selector oracle revision");
-        Suite(nameof(VerifyPaletteFxHeatInstructionListDefinitions), () => VerifyPaletteFxHeatInstructionListDefinitions(rom));
+        Suite(nameof(VerifyPaletteFxHeatAnimationScriptDefinitions), () => VerifyPaletteFxHeatAnimationScriptDefinitions(rom));
         Console.WriteLine("Heat selectors: all48 native words, program layout, bounds and full equipment selection pass.");
         return 0;
     }

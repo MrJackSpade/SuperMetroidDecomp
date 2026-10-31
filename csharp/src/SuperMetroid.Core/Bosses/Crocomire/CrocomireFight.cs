@@ -122,7 +122,7 @@ internal sealed class CrocomireFight
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
         {
             slot.Properties = slot.Properties.Replace(
-                EnemyProperties.ProcessInstructions |
+                EnemyProperties.RunsAnimationScript |
                     EnemyProperties.Deleted |
                     EnemyProperties.Invisible,
                 EnemyProperties.Deleted | EnemyProperties.Invisible);
@@ -166,9 +166,9 @@ internal sealed class CrocomireFight
         CrocomireEnemyState state = _access.Crocomire is { } owner && ReferenceEquals(owner.Tongue, tongue)
             ? owner
             : throw new InvalidOperationException("Crocomire's tongue has no body owner.");
-        CountdownStep instructionTimer = tongue.InstructionTimer.Decrement();
-        tongue.InstructionTimer = instructionTimer.Remaining;
-        if (!instructionTimer.IsZero)
+        CountdownStep frameHold = tongue.FrameHold.Decrement();
+        tongue.FrameHold = frameHold.Remaining;
+        if (!frameHold.IsZero)
         {
             tongue.ExtraProperties = tongue.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
@@ -183,7 +183,7 @@ internal sealed class CrocomireFight
             return;
         if (advance is not AnimationProgramAdvance<CrocomireTongueFrame>.Show shown)
             throw new InvalidOperationException($"Crocomire's tongue program ended an update with {advance}.");
-        tongue.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+        tongue.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
         tongue.Frame = CrocomireTongueFrameDefinitions.ShownFrames.Of(shown.Frame);
         tongue.ExtraProperties = tongue.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
@@ -196,9 +196,9 @@ internal sealed class CrocomireFight
     internal void AdvanceCrocomireBodyAnimation(RoomEnemySlot body, SamusState? samus, RoomLevelData? level, int cameraX)
     {
         CrocomireEnemyState state = _access.RequireCrocomire(body);
-        CountdownStep instructionTimer = body.InstructionTimer.Decrement();
-        body.InstructionTimer = instructionTimer.Remaining;
-        if (!instructionTimer.IsZero)
+        CountdownStep frameHold = body.FrameHold.Decrement();
+        body.FrameHold = frameHold.Remaining;
+        if (!frameHold.IsZero)
         {
             body.ExtraProperties = body.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
@@ -219,7 +219,7 @@ internal sealed class CrocomireFight
                 throw new InvalidOperationException($"Crocomire's body program ended an update with {advance}.");
             return;
         }
-        body.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+        body.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
         state.BodyFrame = shown.Frame;
         body.Frame = CrocomireBodyFrameSpritemaps.ShownFrames.Of(shown.Frame);
         body.ExtraProperties = body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
@@ -338,7 +338,7 @@ internal sealed class CrocomireFight
         switch (state.FightFunction)
         {
             case CrocomireFightFunction.ResetAnimation:
-                state.Body.InstructionTimer = WrappingCountdown.Start(1);
+                state.Body.FrameHold = WrappingCountdown.Start(1);
                 return CrocomireBodyProgram.Initial;
 
             case CrocomireFightFunction.StepForward:
@@ -466,7 +466,7 @@ internal sealed class CrocomireFight
                 return CrocomireBodyProgram.RoarCloseMouth;
 
             case CrocomireFightFunction.ResetAnimationUnused:
-                state.Body.InstructionTimer = WrappingCountdown.Start(1);
+                state.Body.FrameHold = WrappingCountdown.Start(1);
                 state.FightFlags |= CrocomireFightFlags.UnusedAttackSequenceStarted;
                 state.StepCounter = 32;
                 state.FightFunction = CrocomireFightFunction.ChooseAttackUnused;
@@ -475,7 +475,7 @@ internal sealed class CrocomireFight
             case CrocomireFightFunction.ChooseAttackUnused:
                 if ((state.FightFlags & CrocomireFightFlags.UnusedPreferClawAttack) != CrocomireFightFlags.None)
                 {
-                    state.Body.InstructionTimer = WrappingCountdown.Start(1);
+                    state.Body.FrameHold = WrappingCountdown.Start(1);
                     state.StepCounter = 16;
                     state.FightFunction = CrocomireFightFunction.MoveUntilSamusUnused;
                     return CrocomireBodyProgram.Initial;
@@ -484,7 +484,7 @@ internal sealed class CrocomireFight
                 return CrocomireBodyProgram.UnusedChargeForwardOneStep;
 
             case CrocomireFightFunction.StepForwardUnused:
-                state.Body.InstructionTimer = WrappingCountdown.Start(1);
+                state.Body.FrameHold = WrappingCountdown.Start(1);
                 if (state.StepCounter == 0)
                 {
                     state.FightFlags |= CrocomireFightFlags.UnusedForwardStepsDone;
@@ -532,7 +532,7 @@ internal sealed class CrocomireFight
                 if (state.StepCounter == 0)
                 {
                     state.FightFlags &= ~CrocomireFightFlags.ClawTouchedSamus;
-                    state.Body.InstructionTimer = WrappingCountdown.Start(1);
+                    state.Body.FrameHold = WrappingCountdown.Start(1);
                     state.FightFunction = state.SavedFightFunction;
                     return CrocomireBodyProgram.MovingClaws;
                 }

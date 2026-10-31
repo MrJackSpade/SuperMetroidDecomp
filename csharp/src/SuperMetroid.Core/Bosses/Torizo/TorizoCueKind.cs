@@ -4,7 +4,7 @@
 internal enum TorizoCueKind
 {
     /// <summary>Clears the body's pre-instruction (<c>Instruction_CommonAA3_SetEnemy0FB2ToRTS</c>, $AA:8074).</summary>
-    ClearPreInstruction,
+    ClearFrameBehavior,
     /// <summary>Marks Bomb Torizo's gut blown up and spawns six drool pieces (<c>Instruction_Torizo_MarkBTGutBlownUp_Spawn6BTDroolProjectiles</c>, $AA:B11D).</summary>
     BlowUpGut,
     /// <summary>Marks Bomb Torizo's face blown up (<c>Instruction_Torizo_MarkBombTorizoFaceBlownUp</c>, $AA:B1BE).</summary>

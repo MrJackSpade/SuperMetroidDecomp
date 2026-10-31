@@ -68,7 +68,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BaseFunctionTime = slot.SpawnSettings<SparkSpawnSettings>().BaseFunctionTime;
         SetSparkFunctionTimer(state, additionalTime: 0);
 
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         state.Program = AnimationProgramCursor<SparkProgram>.Start(definition.Program);
         slot.Timer = WrappingCountdown.Start(0);
         // Spark keeps its population properties: the original initializer's extra property change before Phantoon's
@@ -147,7 +147,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallSparkProgram(RoomEnemySlot slot, SparkEnemyState state, SparkProgram program)
     {
         state.Program = AnimationProgramCursor<SparkProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Ports Spark's main AI.</summary>

@@ -261,7 +261,7 @@ internal sealed class KraidDeath
         _slotTable.Slots[1].Properties = armProperties;
         EnemyProperties otherProperties = armProperties.Replace(
             EnemyProperties.SolidToSamus |
-                EnemyProperties.ProcessInstructions |
+                EnemyProperties.RunsAnimationScript |
                 EnemyProperties.ProcessOffScreen,
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted);
         for (int slot = 2; slot <= 5; slot++)

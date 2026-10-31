@@ -90,7 +90,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.StepCounter = WrappingCountdown.Start(0);
         state.SpawnPosition = slot.Position.Whole;
-        slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
+        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         state.Program = AnimationProgramCursor<AlcoonProgram>.Start(AlcoonProgram.WalkingLeft);
         state.Function = AlcoonEnemyFunction.WaitingForSamus;
         SetupAlcoonJumpMovement(state);
@@ -346,7 +346,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallAlcoonInstruction(RoomEnemySlot slot, AlcoonEnemyState state, AlcoonProgram program)
     {
         state.Program = AnimationProgramCursor<AlcoonProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Implements Alcoon instruction <c>$A8:DF3F</c> and returns the walk the animation continues at.</summary>
@@ -390,10 +390,10 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Connects Alcoon fireballs to their bank-$86 movement pre-instruction.</summary>
     internal static void AddAlcoonProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunAlcoonFireballPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.AlcoonFireballFlight);
+            RunAlcoonFireballFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.AlcoonFireballFlight);
     }
 
     /// <summary>Ports Alcoon's initialization AI.</summary>
@@ -456,7 +456,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Alcoon fireball pre-instruction <c>$86:9EFF-$9F40</c>.</summary>
-    internal static void RunAlcoonFireballPreInstruction(
+    internal static void RunAlcoonFireballFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {

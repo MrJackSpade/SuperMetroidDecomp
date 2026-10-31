@@ -65,7 +65,7 @@ internal static class EnemyFormatDrawEntriesVerification
         extended.Frame = extendedFrame;
         extended.TileIndexBase = checked((ushort)pirate.TileIndexBase);
         extended.Colouring = new GraphicsSetMemberColouring(pirate.DefinitionId);
-        extended.InstructionTimer = WrappingCountdown.Start(7);
+        extended.FrameHold = WrappingCountdown.Start(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));
         enemies.Drawing.Enqueue(1, extended);
 

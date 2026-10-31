@@ -82,12 +82,12 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
             {
                 case AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep show:
                     Cursor = next;
-                    slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(show.Duration));
+                    slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(show.Duration));
                     Draw(show.Frame, slot, context);
                     return;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.WaitStep wait:
                     Cursor = next;
-                    slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(wait.Duration));
+                    slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(wait.Duration));
                     return;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.CueStep cue:
                     Cursor = next;
@@ -115,7 +115,7 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
                     break;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep:
                     // The native sleep rewinds onto itself and runs again on the next pass.
-                    slot.InstructionTimer = WrappingCountdown.Start(1);
+                    slot.FrameHold = WrappingCountdown.Start(1);
                     return;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.StopStep:
                     context.Plms.DeletePlm(slot);

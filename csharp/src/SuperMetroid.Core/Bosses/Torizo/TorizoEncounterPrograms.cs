@@ -157,7 +157,7 @@ internal static class TorizoEncounterPrograms
         ],
         [P.Stunned0] =
         [
-            Cue(new TorizoCue.SetPreInstruction(PreInstruction: TorizoPreInstruction.GoldenGravity)),
+            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
             Cue(new TorizoCue.Command(K.LockAnimation)),
             Wait(24),
             SetCounter(2),
@@ -177,7 +177,7 @@ internal static class TorizoEncounterPrograms
             Wait(16),
             Cue(new TorizoCue.Command(K.UnlockAnimation)),
             Cue(new TorizoCue.Command(K.UnmarkStunned)),
-            Cue(new TorizoCue.SetPreInstruction(PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
             Cue(new TorizoCue.Command(K.Return)),
             Unreachable,
         ],

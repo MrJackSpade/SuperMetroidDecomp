@@ -11,6 +11,6 @@ internal static class WreckedShipAtticPlmProgramDefinitions
     internal static AnimationProgramSet<WreckedShipAtticProgram, PlmNoDraw, WreckedShipAtticCue> Programs { get; } = new(
         new Dictionary<WreckedShipAtticProgram, Step[]>
         {
-            [WreckedShipAtticProgram.Attic] = [Step.Publish(WreckedShipAtticCue.InstallInertPreInstruction), Step.Hold],
+            [WreckedShipAtticProgram.Attic] = [Step.Publish(WreckedShipAtticCue.InstallInertFrameBehavior), Step.Hold],
         });
 }

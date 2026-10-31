@@ -4,5 +4,5 @@
 internal static class EnemyBreakableTerrainDefinitionsConstants
 {
     /// <summary>$84:CD53, sound plus four timed crumble draws, then deletion.</summary>
-    public const ushort InstructionList = 0xcd53;
+    public const ushort AnimationScript = 0xcd53;
 }

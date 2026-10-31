@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// <param name="Duration">The frame's duration in title updates, one through 120; zero for a command.</param>
 /// <param name="Sprite">The composition the frame shows, or null for a blank frame or a command.</param>
 /// <param name="Command">The command the step runs, or null for a timed frame.</param>
-internal readonly record struct TitleCardStep(int Duration, TitleSprite? Sprite, TitleSequenceInstruction? Command = null)
+internal readonly record struct TitleCardStep(int Duration, TitleSprite? Sprite, TitleSequenceScriptStep? Command = null)
 {
     /// <summary>A timed frame showing <paramref name="sprite"/>, or nothing when null, for <paramref name="duration"/> updates.</summary>
     internal static TitleCardStep Show(int duration, TitleSprite? sprite) => new(duration, sprite);
 
     /// <summary>A step running <paramref name="command"/>.</summary>
-    internal static TitleCardStep Run(TitleSequenceInstruction command) => new(0, null, command);
+    internal static TitleCardStep Run(TitleSequenceScriptStep command) => new(0, null, command);
 }

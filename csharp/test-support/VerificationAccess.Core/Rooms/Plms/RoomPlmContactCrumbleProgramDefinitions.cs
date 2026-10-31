@@ -25,7 +25,7 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
 
     /// <summary>Decodes shape from low BTS bits and respawn behavior from bit two without a stored descriptor table.</summary>
     internal static Program ProgramAt(int index) => new(
-        RoomPlmInstructionListsConstants.ContactCrumbleByReactionIndex(index), index < 4, index & 3);
+        RoomPlmAnimationScriptsConstants.ContactCrumbleByReactionIndex(index), index < 4, index & 3);
 
     /// <summary>Resolves a timed animation draw or linked restore pointer in one of the eight lists.</summary>
     internal static bool TryReadDrawPointerWord(ushort address, out ushort value)

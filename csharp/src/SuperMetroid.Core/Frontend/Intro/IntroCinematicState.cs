@@ -563,7 +563,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // position during this same frame, exactly as $8B:B786 does.
         if (CurrentFlashbackMotherBrain is not null)
         {
-            CurrentFlashbackMotherBrain.RunPreInstruction(
+            CurrentFlashbackMotherBrain.RunFrameBehavior(
                 palette,
                 introColours,
                 FrameCounterWord(elapsedUpdates),
@@ -937,7 +937,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Runs the scripted Samus gameplay, projectiles, collisions, and palette updates for the Mother Brain flashback.</summary>
     internal void StepMotherBrainDemo()
     {
-        FlashbackDemoInput.Step(DemoInputState.RunReturnOnlyPreInstruction, HandleMotherBrainDemoCue);
+        FlashbackDemoInput.Step(DemoInputState.RunReturnOnlyFrameBehavior, HandleMotherBrainDemoCue);
 
         // HandleHUDSpecificBehaviorAndProjectiles calls the shared cooldown owner before
         // its ordinary-projectile half. Standing pose two cannot place bombs, but running

@@ -1012,8 +1012,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     // incorrectly advanced a Metroid's body animation while its frozen
                     // callback still owned the two composited outer sprite objects.
                     if ((slot.AiStates & EnemyAiStates.Frozen) == EnemyAiStates.None &&
-                        slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
-                        EnemyInstructionInterpreter.ProcessInstructions(
+                        slot.Properties.HasAny(EnemyProperties.RunsAnimationScript))
+                        EnemyInstructionInterpreter.RunsAnimationScript(
                             slot,
                             frame.Samus,
                             frame.Level,
@@ -1318,17 +1318,17 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         WalkingSpacePirateBehavior.AddWalkingSpacePirateProjectiles(table);
         WorkRobotBehavior.AddWorkRobotProjectiles(table);
 
-        DeathsAndDrops.ConnectPickupPreInstruction(table);
+        DeathsAndDrops.ConnectPickupFrameBehavior(table);
 
-        RinkaBehavior.AddMiscDustPreInstruction(table);
+        RinkaBehavior.AddMiscDustFrameBehavior(table);
 
-        RidleyProjectiles.AddFireballPreInstructions(table);
+        RidleyProjectiles.AddFireballFrameBehaviors(table);
 
-        EnemyProjectileEngine.AddMetalSkreeParticlePreInstruction(table);
+        EnemyProjectileEngine.AddMetalSkreeParticleFrameBehavior(table);
 
-        KraidProjectiles.AddKraidRockSpitPreInstruction(table);
+        KraidProjectiles.AddKraidRockSpitFrameBehavior(table);
 
-        Projectiles.AddCeresFallingTilePreInstruction(table);
+        Projectiles.AddCeresFallingTileFrameBehavior(table);
 
         EnemyProjectileEngine.AddGunshipDustCues(table);
 

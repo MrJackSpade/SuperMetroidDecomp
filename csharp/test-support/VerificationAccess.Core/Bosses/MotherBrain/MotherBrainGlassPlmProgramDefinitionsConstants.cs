@@ -4,5 +4,5 @@
 internal static class MotherBrainGlassPlmProgramDefinitionsConstants
 {
     /// <summary><c>$84:D1E6</c>: the pre-instruction that counts missile hits on the glass.</summary>
-    internal const ushort HitPreInstruction = 0xd1e6;
+    internal const ushort HitFrameBehavior = 0xd1e6;
 }

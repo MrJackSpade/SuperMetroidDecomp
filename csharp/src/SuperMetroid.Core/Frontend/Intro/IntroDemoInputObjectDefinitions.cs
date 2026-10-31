@@ -7,9 +7,9 @@ public static class IntroDemoInputObjectDefinitions
 {
     /// <summary><c>$91:8784</c>: the intro Mother Brain flashback's object.</summary>
     public static DemoInputObjectDefinition IntroMotherBrainFlashback { get; } =
-        new(DemoInputPreInstruction.ReturnOnly, DemoInputProgram.IntroMotherBrainFlashback);
+        new(DemoInputFrameBehavior.ReturnOnly, DemoInputProgram.IntroMotherBrainFlashback);
 
     /// <summary><c>$91:877E</c>: the intro Baby Metroid discovery's object.</summary>
     public static DemoInputObjectDefinition IntroBabyDiscovery { get; } =
-        new(DemoInputPreInstruction.IntroBabyRunningLeft, DemoInputProgram.IntroBabyDiscoveryRunningLeft);
+        new(DemoInputFrameBehavior.IntroBabyRunningLeft, DemoInputProgram.IntroBabyDiscoveryRunningLeft);
 }

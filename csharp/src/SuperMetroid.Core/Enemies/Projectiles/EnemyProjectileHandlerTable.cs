@@ -7,15 +7,15 @@
 internal sealed class EnemyProjectileHandlerTable
 {
     /// <summary>Each pre-instruction and its sole registered implementation.</summary>
-    private readonly Dictionary<EnemyProjectilePreInstruction, EnemyProjectilePreInstructionHandler> _preInstructions = [];
+    private readonly Dictionary<EnemyProjectileFrameBehavior, EnemyProjectileFrameBehaviorHandler> _frameBehaviors = [];
 
     /// <summary>Registers <paramref name="handler"/> for every listed pre-instruction.</summary>
-    internal void AddPreInstruction(EnemyProjectilePreInstructionHandler handler, params EnemyProjectilePreInstruction[] ids)
+    internal void AddFrameBehavior(EnemyProjectileFrameBehaviorHandler handler, params EnemyProjectileFrameBehavior[] ids)
     {
         Ensure.NotNull(handler);
-        foreach (EnemyProjectilePreInstruction id in ids)
+        foreach (EnemyProjectileFrameBehavior id in ids)
         {
-            if (!_preInstructions.TryAdd(id, handler))
+            if (!_frameBehaviors.TryAdd(id, handler))
                 throw new InvalidOperationException($"Enemy projectile pre-instruction {id} is registered twice.");
         }
     }
@@ -88,6 +88,6 @@ internal sealed class EnemyProjectileHandlerTable
     }
 
     /// <summary>The handler registered for <paramref name="id"/>, if any.</summary>
-    internal bool TryGetPreInstruction(EnemyProjectilePreInstruction id, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out EnemyProjectilePreInstructionHandler? handler) =>
-        _preInstructions.TryGetValue(id, out handler);
+    internal bool TryGetFrameBehavior(EnemyProjectileFrameBehavior id, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out EnemyProjectileFrameBehaviorHandler? handler) =>
+        _frameBehaviors.TryGetValue(id, out handler);
 }

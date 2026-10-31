@@ -166,7 +166,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = currentlyMovingLeft
             ? SkulteraEnemyFunction.TurningRight
             : SkulteraEnemyFunction.TurningLeft;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<SkulteraProgram>.Start(currentlyMovingLeft
             ? SkulteraProgram.TurningRight
@@ -187,7 +187,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? SkulteraEnemyFunction.SwimmingLeft
             : SkulteraEnemyFunction.SwimmingRight;
         state.AngleDelta = -state.AngleDelta;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<SkulteraProgram>.Start(direction == HorizontalDirection.Left
             ? SkulteraProgram.SwimmingLeft

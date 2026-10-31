@@ -65,7 +65,7 @@ internal static class KraidSuperMissileDamageVerification
             if(body.Health!=oldHealth || frame%8==0)
             {
                 Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} samusHp={samus.Health} pose={samus.Pose} mouth={state.DisplayedHeadFrame?.InvulnerableShape}");
-                foreach(var shot in runtime.Projectiles.Slots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.SlotIndex} type={shot.Type} damage={shot.Damage} x={shot.Position.X.Whole} y={shot.Position.Y.Whole} r={shot.Radius.X},{shot.Radius.Y} pre={shot.PreInstruction}");
+                foreach(var shot in runtime.Projectiles.Slots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.SlotIndex} type={shot.Type} damage={shot.Damage} x={shot.Position.X.Whole} y={shot.Position.Y.Whole} r={shot.Radius.X},{shot.Radius.Y} pre={shot.FrameBehavior}");
             }
             if (frame is 8 or 32)
             {
@@ -73,10 +73,10 @@ internal static class KraidSuperMissileDamageVerification
                     "Each actual close-range Super Missile deals exactly 300 damage");
                 AssertEqual(2, runtime.Projectiles.SlotTable.ProjectileCounter,
                     "Mouth collision defers owner/link removal to projectile pre-instructions");
-                AssertEqual(SamusProjectilePreInstruction.SuperMissile,
-                    runtime.Projectiles.Slots[0].PreInstruction, "Owner retains native pre-instruction");
-                AssertEqual(SamusProjectilePreInstruction.SuperMissileLink,
-                    runtime.Projectiles.Slots[1].PreInstruction, "Link retains native pre-instruction");
+                AssertEqual(SamusProjectileFrameBehavior.SuperMissile,
+                    runtime.Projectiles.Slots[0].FrameBehavior, "Owner retains native pre-instruction");
+                AssertEqual(SamusProjectileFrameBehavior.SuperMissileLink,
+                    runtime.Projectiles.Slots[1].FrameBehavior, "Link retains native pre-instruction");
                 AssertEqual(true, runtime.Projectiles.Slots[1].IsSpent,
                     "Descending mouth pass marks the overlapping link for native cleanup");
             }

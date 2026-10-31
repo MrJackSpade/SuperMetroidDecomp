@@ -61,20 +61,20 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // In the original property vocabulary, $2000 disables ordinary Samus collision and
         // $0400 marks the actor tangible. In this port those bits retain their independently
-        // observed scheduler/collision meanings as ProcessInstructions and
+        // observed scheduler/collision meanings as RunsAnimationScript and
         // IgnoreSamusCollision. Raw $8000 remains unnamed because this family never proves
         // its broader engine-wide meaning.
         slot.Properties = slot.Properties.With(
-            EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
+            EnemyProperties.RunsAnimationScript | EnemyProperties.IgnoreSamusCollision);
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.Colouring = SharedSpriteColouring.Common;
 
         EscapeEtecoonInitialization initialization =
             EscapeEtecoons.Initialization(slot.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
         slot.Position = slot.Position.WithWhole(initialization.Position);
-        state.PreInstruction = initialization.PreInstruction;
+        state.FrameBehavior = initialization.FrameBehavior;
         state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(initialization.Program);
         state.Velocity = initialization.Velocity;
     }
@@ -92,9 +92,9 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         // Dachora's population already supplies $2400, but the initializer ORs $2000 again.
         // Expressing the idempotent write documents the executable routine and keeps a
         // synthetic/debug population faithful to retail initialization.
-        slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
+        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.RequireSpeciesState<EscapeDachoraEnemyState>().Program = AnimationProgramCursor<EscapeDachoraProgram>.Start(EscapeDachoraProgram.RunningAroundLowTide);
     }
@@ -105,16 +105,16 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         EscapeEtecoonEnemyState state,
         RoomLevelData? level)
     {
-        switch (state.PreInstruction)
+        switch (state.FrameBehavior)
         {
-            case EscapeEtecoonPreInstruction.Cleared:
+            case EscapeEtecoonFrameBehavior.Cleared:
                 return;
 
-            case EscapeEtecoonPreInstruction.EscapeRight:
+            case EscapeEtecoonFrameBehavior.EscapeRight:
                 AddEscapeAnimalX(slot, EscapeEtecoonUncollidedExitSpeed);
                 return;
 
-            case EscapeEtecoonPreInstruction.WaitForEscapeEvent:
+            case EscapeEtecoonFrameBehavior.WaitForEscapeEvent:
                 // $B3:E670 changes only the list pointer. It deliberately leaves the
                 // existing instruction timer intact, so the new list begins on the same
                 // scheduler boundary the SNES would observe.
@@ -122,13 +122,13 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(EscapeEtecoonProgram.ExpressGratitudeThenEscape);
                 return;
 
-            case EscapeEtecoonPreInstruction.WalkAndFall:
+            case EscapeEtecoonFrameBehavior.WalkAndFall:
                 RunEscapeEtecoonWalking(slot, state, level);
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Escape Etecoon pre-instruction {state.PreInstruction?.ToString() ?? "none"} " +
+                    $"Escape Etecoon pre-instruction {state.FrameBehavior?.ToString() ?? "none"} " +
                     "is not translated.");
         }
     }
@@ -148,7 +148,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         int horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta().RawValue;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             state.Velocity = state.Velocity.ReversedX();
             state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(HasCrittersEscaped()
                 ? EscapeEtecoonProgram.RunningForEscape
@@ -189,11 +189,11 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (cue)
         {
-            case EscapeEtecoonCue.SetPreInstruction setPreInstruction:
-                state.PreInstruction = setPreInstruction.PreInstruction;
+            case EscapeEtecoonCue.SetFrameBehavior setFrameBehavior:
+                state.FrameBehavior = setFrameBehavior.FrameBehavior;
                 return null;
-            case EscapeEtecoonCue.Command { Kind: EscapeEtecoonCueKind.ClearPreInstruction }:
-                state.PreInstruction = EscapeEtecoonPreInstruction.Cleared;
+            case EscapeEtecoonCue.Command { Kind: EscapeEtecoonCueKind.ClearFrameBehavior }:
+                state.FrameBehavior = EscapeEtecoonFrameBehavior.Cleared;
                 return null;
             case EscapeEtecoonCue.GoToIfAcidHigh goToIfAcidHigh:
                 return EscapeAnimalLavaY(samus) >= EscapeAnimalLavaBranchY ? null : goToIfAcidHigh.Target;

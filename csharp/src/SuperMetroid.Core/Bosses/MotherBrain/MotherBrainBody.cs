@@ -66,9 +66,9 @@ internal sealed class MotherBrainBody
     /// </summary>
     internal static void AdvanceMotherBrainTubeAnimation(RoomEnemySlot tube)
     {
-        CountdownStep instructionTimer = tube.InstructionTimer.Decrement();
-        tube.InstructionTimer = instructionTimer.Remaining;
-        if (!instructionTimer.IsZero)
+        CountdownStep frameHold = tube.FrameHold.Decrement();
+        tube.FrameHold = frameHold.Remaining;
+        if (!frameHold.IsZero)
         {
             tube.ExtraProperties = tube.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
@@ -84,7 +84,7 @@ internal sealed class MotherBrainBody
         switch (advance)
         {
             case AnimationProgramAdvance<MotherBrainTubeFrame>.Show shown:
-                tube.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                tube.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 tube.Frame = MotherBrainVisualDefinitions.TubeFrames.Of(shown.Frame);
                 tube.ExtraProperties = tube.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
@@ -105,7 +105,7 @@ internal sealed class MotherBrainBody
                 $"Mother Brain's body requires native slot zero, not slot {body.SlotIndex}.");
         }
 
-        body.InstructionTimer = WrappingCountdown.Start(1);
+        body.FrameHold = WrappingCountdown.Start(1);
         body.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.MotherBrainBody];
         body.Properties = body.Properties.With(
             EnemyProperties.BlocksPlasmaBeam |
@@ -191,9 +191,9 @@ internal sealed class MotherBrainBody
     {
         MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(slot);
         bool body = ReferenceEquals(slot, state.Body);
-        CountdownStep instructionTimer = slot.InstructionTimer.Decrement();
-        slot.InstructionTimer = instructionTimer.Remaining;
-        if (!instructionTimer.IsZero)
+        CountdownStep frameHold = slot.FrameHold.Decrement();
+        slot.FrameHold = frameHold.Remaining;
+        if (!frameHold.IsZero)
         {
             slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
@@ -215,7 +215,7 @@ internal sealed class MotherBrainBody
         switch (advance)
         {
             case AnimationProgramAdvance<MotherBrainBodyFrame>.Show shown:
-                slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 slot.Frame = MotherBrainBodyVisualDefinitions.ShownFrames.Of(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;

@@ -15,13 +15,13 @@ public sealed class ZoaEnemyState
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
     /// <summary>Element index zero through three in the instruction-list pointer table.</summary>
-    public ZoaAnimationSelector InstructionListTableIndex { get; internal set; }
+    public ZoaAnimationSelector AnimationScriptTableIndex { get; internal set; }
 
     /// <summary>
     /// Last installed animation selector, initially zero; $A3:B537 compares it with the requested selector so unchanged
     /// lists keep their timer and loop state.
     /// </summary>
-    public ZoaAnimationSelector PreviousInstructionListTableIndex { get; internal set; }
+    public ZoaAnimationSelector PreviousAnimationScriptTableIndex { get; internal set; }
 
     /// <summary>
     /// Same-bank AI dispatch word, initialized to wait and transitioned through rise, horizontal launch, and offscreen
@@ -39,8 +39,8 @@ public sealed class ZoaEnemyState
     internal void ClearWithRecord()
     {
         SpawnPosition = Position16<RoomPixels>.Zero;
-        InstructionListTableIndex = default;
-        PreviousInstructionListTableIndex = default;
+        AnimationScriptTableIndex = default;
+        PreviousAnimationScriptTableIndex = default;
         Function = null;
     }
 }

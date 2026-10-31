@@ -107,7 +107,7 @@ internal static class EnemyRomTablePointers
         /// <summary>Sixteen base-decoration palette words at $AA:D785 (32 bytes).</summary>
         public const int BaseDecorationPaletteWords = 0xaad785;
         /// <summary>Statue instruction-list table at $AA:D810.</summary>
-        public const int InstructionListWords = 0xaad810;
+        public const int AnimationScriptWords = 0xaad810;
         /// <summary>Sixteen statue palette words at $AA:D765 (32 bytes).</summary>
         public const int StatuePaletteWords = 0xaad765;
     }
@@ -116,7 +116,7 @@ internal static class EnemyRomTablePointers
     internal static class WorkRobot
     {
         /// <summary>Parameterized instruction-list pointer words at $A8:CC30.</summary>
-        public const int InitialInstructionListWords = 0xa8cc30;
+        public const int InitialAnimationScriptWords = 0xa8cc30;
         /// <summary>Six four-color/timer palette records at $A8:CCC1 (60 bytes).</summary>
         public const int PaletteAnimationRecords = 0xa8ccc1;
     }

@@ -36,7 +36,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// <summary>Current step of the Baby pose program, or null before the first animation update of this visit.</summary>
     internal int? BabyStep { get; private set; }
     /// <summary>Remaining duration of the current Baby pose or accepted-answer hold.</summary>
-    internal WrappingCountdown BabyInstructionTimer { get; private set; }
+    internal WrappingCountdown BabyFrameHold { get; private set; }
     /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
     private readonly bool continueLoadsCeresArrival;
     /// <summary>Installed artwork rebound after debugger restoration without changing menu timing.</summary>
@@ -111,7 +111,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         screen.BindMapPalettes(catalog.Palettes);
         if (BabyStep is int step)
         {
-            GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(step);
+            GameOverBabyScriptStep instruction = GameOverBabyAnimation.Get(step);
             catalog.GameOver.ApplyBabyPalette(screen.Palette, instruction.Palette);
         }
     }
@@ -162,7 +162,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 audio.QueueMusic(MusicRequest.Stop);
                 audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
                 BabyStep = null;
-                BabyInstructionTimer = WrappingCountdown.Start(0);
+                BabyFrameHold = WrappingCountdown.Start(0);
                 StepBabyMetroid();
                 SelectedItem = YesNoChoice.Yes;
                 brightness = 0;
@@ -200,7 +200,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 {
                     // `$81:914B` holds the current Baby frame for 180 ticks once either
                     // answer is accepted, while the selected fade owner continues drawing.
-                    BabyInstructionTimer =
+                    BabyFrameHold =
                         WrappingCountdown.Start(GameOverMenuDefinitions.AcceptedAnswerHoldDuration);
                     if (SelectedItem == YesNoChoice.Yes && continueLoadsCeresArrival)
                         CeresArrivalRequested = true;
@@ -247,7 +247,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOver);
-        GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(BabyStep ?? 0);
+        GameOverBabyScriptStep instruction = GameOverBabyAnimation.Get(BabyStep ?? 0);
         content.GameOver.DrawBaby(sprites, sheet, instruction.Frame);
         content.GameOver.DrawEgg(sprites, sheet);
         content.GameOver.DrawCursor(sprites, sheet, missile.Frame, SelectedItem != YesNoChoice.Yes);
@@ -263,22 +263,22 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// <summary>Advances the compiled Baby pose stream and applies its palette and sound effects.</summary>
     private void StepCompiledBabyMetroid()
     {
-        if (BabyInstructionTimer.IsZero)
+        if (BabyFrameHold.IsZero)
         {
             BabyStep = 0;
-            BabyInstructionTimer = WrappingCountdown.Start(GameOverBabyAnimation.Get(0).Duration);
+            BabyFrameHold = WrappingCountdown.Start(GameOverBabyAnimation.Get(0).Duration);
         }
 
-        BabyInstructionTimer = BabyInstructionTimer.Decrement().Remaining;
-        GameOverBabyInstruction current = GameOverBabyAnimation.Get(BabyStep ??
+        BabyFrameHold = BabyFrameHold.Decrement().Remaining;
+        GameOverBabyScriptStep current = GameOverBabyAnimation.Get(BabyStep ??
             throw new InvalidOperationException("The game-over Baby program is held before its first step."));
-        if (BabyInstructionTimer.IsZero)
+        if (BabyFrameHold.IsZero)
         {
             if (current.SoundAfter != GameOverBabySound.None)
                 QueueCompiledBabySound(current.SoundAfter);
             current = GameOverBabyAnimation.Get(current.NextStep);
             BabyStep = current.Step;
-            BabyInstructionTimer = WrappingCountdown.Start(current.Duration);
+            BabyFrameHold = WrappingCountdown.Start(current.Duration);
         }
 
         MapPresentation.GameOver.ApplyBabyPalette(screen.Palette, current.Palette);

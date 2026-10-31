@@ -1171,7 +1171,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             {
                 AssertEqual(sourcePointer, slot.SpritemapPointer,
                     "Pirate visual binding retains the native hitbox-frame pointer");
-                AssertEqual((ushort)7, slot.InstructionTimer.RawValue,
+                AssertEqual((ushort)7, slot.FrameHold.RawValue,
                     "Pirate visual binding retains the instruction timer");
             });
         AssertTrue(!sourceOam.LowTable.SequenceEqual(targetOam.LowTable),
@@ -1378,7 +1378,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         slot.Frame = frame;
-        slot.InstructionTimer = WrappingCountdown.Start(7);
+        slot.FrameHold = WrappingCountdown.Start(7);
         slot.Position = slot.Position.WithWhole(position);
         var oam = new OamBuffer();
         enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);

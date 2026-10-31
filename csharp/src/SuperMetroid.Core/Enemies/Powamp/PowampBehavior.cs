@@ -70,9 +70,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer forces animation processing for both halves and clears the
         // instruction interpreter's loop counter before choosing the half-specific list.
-        slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
+        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
         if (!state.IsBalloon)
@@ -486,7 +486,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetPowampProgram(RoomEnemySlot slot, PowampEnemyState state, PowampProgram program)
     {
         state.Program = AnimationProgramCursor<PowampProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
@@ -522,10 +522,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Connects radial spikes to their bank-$86 movement pre-instruction.</summary>
     internal static void AddPowampProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunPowampSpikePreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.PowampSpikeFlight);
+            RunPowampSpikeFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.PowampSpikeFlight);
         // A shot spike runs the same private delete program its definition names as its shot list.
         table.AddShotAnimation(RoomEnemyProjectileKind.PowampSpike, () => new PowampSpikeAnimation(PowampSpikeProgram.Delete));
     }
@@ -625,8 +625,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private int FullPoolDeathAnimation(RoomEnemySlot body) =>
         _presentation.Placement.SharesColours(body.Colouring, SharedSpriteColouring.Common) ? body.TileIndexBase : 0;
 
-    /// <summary>Ports <c>PreInstruction_EnemyProjectile_PowampSpike</c> at $86:D263.</summary>
-    internal static void RunPowampSpikePreInstruction(
+    /// <summary>Ports <c>FrameBehavior_EnemyProjectile_PowampSpike</c> at $86:D263.</summary>
+    internal static void RunPowampSpikeFrameBehavior(
         RoomEnemyProjectileSlot spike,
         RoomLevelData level)
     {

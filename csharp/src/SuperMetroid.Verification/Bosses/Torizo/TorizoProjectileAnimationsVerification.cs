@@ -47,8 +47,8 @@ internal static class TorizoProjectileAnimationsVerification
         [NativeEnemyProjectileInstruction.GoldenTorizoEgg_GoToHatched] = new TorizoProjectileAnimationsWord(ProjectileWord.Hatch, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.Hatch))),
         [NativeEnemyProjectileInstruction.TimerInY] = new TorizoProjectileAnimationsWord(ProjectileWord.SetCounter, null),
         [NativeEnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero] = new TorizoProjectileAnimationsWord(ProjectileWord.RepeatWhileCounting, null),
-        [NativeEnemyProjectileInstruction.ClearPreInstruction] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.ClearPreInstruction))),
-        [NativeEnemyProjectileInstruction.PreInstructionInY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.SetPreInstruction>("")),
+        [NativeEnemyProjectileInstruction.ClearFrameBehavior] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Command(TorizoProjectileCueKind.ClearFrameBehavior))),
+        [NativeEnemyProjectileInstruction.FrameBehaviorInY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.SetFrameBehavior>("")),
         [NativeEnemyProjectileInstruction.Properties_OrY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.SetProperties>("")),
         [NativeEnemyProjectileInstruction.Properties_AndY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.ClearProperties>("")),
         [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.PlaySound>("")),
@@ -224,8 +224,8 @@ internal static class TorizoProjectileAnimationsVerification
         }
         switch (cue)
         {
-            case TorizoProjectileCue.SetPreInstruction setPreInstruction:
-                AssertEqual(setPreInstruction.PreInstruction, EnemyProjectilePreInstructionAccess.FromWord(first), $"{at}: movement routine");
+            case TorizoProjectileCue.SetFrameBehavior setFrameBehavior:
+                AssertEqual(setFrameBehavior.FrameBehavior, EnemyProjectileFrameBehaviorAccess.FromWord(first), $"{at}: movement routine");
                 return 2;
             case TorizoProjectileCue.SetProperties setProperties:
                 // The cue's behaviours, encoded by the import's property-word bits, are the OR operand the cartridge stores;
@@ -260,7 +260,7 @@ internal static class TorizoProjectileAnimationsVerification
                         new(OperandByte(cartridge, address + 3), OperandByte(cartridge, address + 5))),
                     scatter.Spread, $"{at}: scatter");
                 return 4;
-            case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.ClearPreInstruction or TorizoProjectileCueKind.AimSuperMissileTowardSamus or
+            case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.ClearFrameBehavior or TorizoProjectileCueKind.AimSuperMissileTowardSamus or
                 TorizoProjectileCueKind.AimSuperMissileAwayFromSamus or TorizoProjectileCueKind.ReturnToOrigin or TorizoProjectileCueKind.RaiseDust or
                 TorizoProjectileCueKind.StopBlockingShots or TorizoProjectileCueKind.StopHarmingSamus or TorizoProjectileCueKind.DrawInFront or
                 TorizoProjectileCueKind.NoOperation }:

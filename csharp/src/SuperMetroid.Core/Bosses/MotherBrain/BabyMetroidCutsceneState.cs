@@ -67,7 +67,7 @@ public sealed class BabyMetroidCutsceneState
     public MotherBrainBabyProgram Program { get; private set; }
 
     /// <summary>Enemy instruction timer, restarted at one whenever the program changes.</summary>
-    public WrappingCountdown InstructionTimer { get; private set; }
+    public WrappingCountdown FrameHold { get; private set; }
 
     /// <summary>
     /// Native 16.16 room position. Only the high byte of each subposition participates in
@@ -178,9 +178,9 @@ public sealed class BabyMetroidCutsceneState
         EnemyProperties? populationProperties = null)
     {
         Properties = (populationProperties ??
-            (EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen)).With(
+            (EnemyProperties.RunsAnimationScript | EnemyProperties.ProcessOffScreen)).With(
             EnemyProperties.BlocksPlasmaBeam |
-            EnemyProperties.ProcessInstructions);
+            EnemyProperties.RunsAnimationScript);
         HitFlashPaletteShown = false;
         TileBase = BabyTileBase;
         SetProgram(MotherBrainBabyProgram.Initial);
@@ -871,7 +871,7 @@ public sealed class BabyMetroidCutsceneState
     private void SetProgram(MotherBrainBabyProgram program)
     {
         Program = program;
-        InstructionTimer = WrappingCountdown.Start(1);
+        FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Clamps speed and angle toward their targets before deriving 8.8 X/Y velocity from native sine values.</summary>

@@ -93,7 +93,7 @@ internal static class KraidMovementChoicesVerification
                 rng = (ushort)(choice * 4);
                 reads = 0;
                 part.ThinkTimer = WrappingCountdown.Start(1);
-                foot.InstructionTimer = WrappingCountdown.Start(99);
+                foot.FrameHold = WrappingCountdown.Start(99);
                 var expected = Expected(body.Position.X.Whole, rng);
                 think(body, foot, part);
                 bool right = unchecked((short)(expected.TargetX - raw)) >= 0;
@@ -104,7 +104,7 @@ internal static class KraidMovementChoicesVerification
                     AnimationProgramCursor<KraidPartProgram>.Start(right ? KraidPartProgram.FootWalkingBackward : KraidPartProgram.FootWalkingForward),
                     state.Parts[foot.SlotIndex].Cursor,
                     "Chosen direction starts matching animation");
-                AssertEqual((ushort)1, foot.InstructionTimer.RawValue, "Choice restarts animation timer");
+                AssertEqual((ushort)1, foot.FrameHold.RawValue, "Choice restarts animation timer");
                 AssertEqual(1, reads, "Choice reads current RNG once");
             }
             part.ThinkTimer = WrappingCountdown.FromRaw((ushort)raw);

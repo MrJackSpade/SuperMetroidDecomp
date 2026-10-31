@@ -55,12 +55,12 @@ internal static class CeresDestructionActors
         };
         return index switch
         {
-            0 => new(                flight.ActivePreInstruction, CinematicSpriteProgram.CeresDestructionLargeAsteroid, flight.Position, flight.Colouring,
+            0 => new(                flight.ActiveFrameBehavior, CinematicSpriteProgram.CeresDestructionLargeAsteroid, flight.Position, flight.Colouring,
                 flight.HorizontalDelta, flight.WrapX, 0, null, false),
-            1 => new(                flight.ActivePreInstruction, flight.Program, flight.Position,
+            1 => new(                flight.ActiveFrameBehavior, flight.Program, flight.Position,
                 flight.Colouring, flight.HorizontalDelta, flight.WrapX, 0, null, false),
             // Parameter zero makes BFA0 replace BFC6 with the BFD9 no-op and use X=$70.
-            2 => new(                CinematicSpritePreInstruction.CeresStationaryVortexNoOp, flight.Program, flight.Position.WithX(112), flight.Colouring,
+            2 => new(                CinematicSpriteFrameBehavior.CeresStationaryVortexNoOp, flight.Program, flight.Position.WithX(112), flight.Colouring,
                 0, false, 0, null, false),
             _ => throw new InvalidOperationException("Validated Ceres actor index became invalid."),
         };
@@ -90,13 +90,13 @@ internal static class CeresDestructionActors
     private static CeresDestructionActorDefinition ZebesStarSheet(int quadrant)
     {
         bool completesScene = quadrant == 3;
-        CinematicSpritePreInstruction wait = completesScene ? CinematicSpritePreInstruction.ZebesStarsCompletionWait : CinematicSpritePreInstruction.ZebesStarsWait;
+        CinematicSpriteFrameBehavior wait = completesScene ? CinematicSpriteFrameBehavior.ZebesStarsCompletionWait : CinematicSpriteFrameBehavior.ZebesStarsWait;
         return new(
 wait,
             ZebesStarSheets[quadrant],
             new(WordWrap.Unsigned(48 + 160 * (quadrant & 1)), WordWrap.Unsigned(47 + 160 * (quadrant >> 1))),
             ScreenColourGroup.CeresFlightSpaceObjects, 0, false, 32,
-            completesScene ? CinematicSpritePreInstruction.ZebesStarsCompletionSlideSceneAway : CinematicSpritePreInstruction.ZebesStarsSlideSceneAway,
+            completesScene ? CinematicSpriteFrameBehavior.ZebesStarsCompletionSlideSceneAway : CinematicSpriteFrameBehavior.ZebesStarsSlideSceneAway,
             completesScene);
     }
 }

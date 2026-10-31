@@ -56,8 +56,8 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     {
         switch (cue)
         {
-            case OldTourianWallExplosionCue.ClearPreInstruction:
-                projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+            case OldTourianWallExplosionCue.ClearFrameBehavior:
+                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
                 break;
             case OldTourianWallExplosionCue.Scatter:
                 _projectiles.Scatter(projectile, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter);

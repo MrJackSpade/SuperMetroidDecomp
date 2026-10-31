@@ -28,8 +28,8 @@ internal static class EnemyPickupDefinitionsVerification
             var kind = (EnemyPickupKind)index;
             var projectile = new RoomEnemyProjectileSlot(index)
             {
-                InstructionTimer = WrappingCountdown.Start(0xffff),
-                PreInstruction = EnemyProjectilePreInstruction.Stationary,
+                FrameHold = WrappingCountdown.Start(0xffff),
+                FrameBehavior = EnemyProjectileFrameBehavior.Stationary,
                 PersistsOnSamusContact = true,
             };
             EnemyDeathsAndDropsConstants.BeginEnemyPickup(projectile, kind);
@@ -38,12 +38,12 @@ internal static class EnemyPickupDefinitionsVerification
                 $"production pickup kind {kind}");
             AssertEqual(expected.Program, ProgramOf(projectile),
                 $"production pickup program {kind}");
-            AssertEqual(1, projectile.InstructionTimer.RawValue,
+            AssertEqual(1, projectile.FrameHold.RawValue,
                 $"production pickup instruction timer {kind}");
             AssertEqual(400, projectile.StateOf<EnemyPickupState>().Lifetime,
                 $"production pickup lifetime {kind}");
-            AssertEqual(EnemyProjectilePreInstruction.PickupLifetime,
-                projectile.PreInstruction,
+            AssertEqual(EnemyProjectileFrameBehavior.PickupLifetime,
+                projectile.FrameBehavior,
                 $"production pickup pre-instruction {kind}");
             AssertTrue(!projectile.PersistsOnSamusContact,
                 $"production pickup contact persistence {kind}");

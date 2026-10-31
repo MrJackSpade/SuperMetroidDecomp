@@ -7,13 +7,13 @@ internal static class EndingLogoDefinitions
 {
 
     /// <summary>$8B:EF81: upper S, initialized by F18F, moved by F1E7, showing LogoUpperS.</summary>
-    internal static CinematicActorDefinition UpperS => new(CinematicSpritePreInstruction.SuperMetroidIconTopHalf, CinematicSpriteProgram.LogoUpperS);
+    internal static CinematicActorDefinition UpperS => new(CinematicSpriteFrameBehavior.SuperMetroidIconTopHalf, CinematicSpriteProgram.LogoUpperS);
     /// <summary>$8B:EF87: lower S, initialized by F1A8, moved by F227, showing LogoLowerS.</summary>
-    internal static CinematicActorDefinition LowerS => new(CinematicSpritePreInstruction.SuperMetroidIconBottomHalf, CinematicSpriteProgram.LogoLowerS);
+    internal static CinematicActorDefinition LowerS => new(CinematicSpriteFrameBehavior.SuperMetroidIconBottomHalf, CinematicSpriteProgram.LogoLowerS);
     /// <summary>$8B:EF8D: upper circle, initialized by F1C1, stationary running LogoUpperCircle.</summary>
-    internal static CinematicActorDefinition UpperCircle => new(CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.LogoUpperCircle);
+    internal static CinematicActorDefinition UpperCircle => new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.LogoUpperCircle);
     /// <summary>$8B:EF93: lower circle, initialized by F1D4, stationary running LogoLowerCircle.</summary>
-    internal static CinematicActorDefinition LowerCircle => new(CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.LogoLowerCircle);
+    internal static CinematicActorDefinition LowerCircle => new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.LogoLowerCircle);
 
     /// <summary>The logo actors in allocation order.</summary>
     internal static readonly EndingLogoActorKind[] ActorKinds =

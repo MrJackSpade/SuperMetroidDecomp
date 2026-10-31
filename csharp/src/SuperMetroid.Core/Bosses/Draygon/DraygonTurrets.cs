@@ -70,7 +70,7 @@ internal sealed class DraygonTurrets
 
         // The definition says $8DFF, but init replaces it with RTS until the 84-frame muzzle
         // bloom reaches instruction $8CF6 and explicitly enables flight.
-        turret.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+        turret.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         state.WallTurretsSpawned++;
     }
 }

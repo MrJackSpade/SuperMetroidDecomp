@@ -51,7 +51,7 @@ internal sealed class EnemyInstructionInterpreter
     /// Advances one enemy's typed animation (#641). Every enemy that processes instructions runs a typed program; one
     /// without is a missing conversion and fails here rather than reading cartridge instruction lists.
     /// </summary>
-    internal static void ProcessInstructions(
+    internal static void RunsAnimationScript(
         RoomEnemySlot slot,
         SamusState? samus,
         RoomLevelData? level,

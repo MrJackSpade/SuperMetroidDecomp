@@ -88,7 +88,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.InitialProgram(
             animationFamily, orientation));
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         state.Function = CrawlerEnemyFunction.InstructionPending;
 
         state.Velocity = ResetCrawlerVelocities(blockSide, state.SpeedParameter, state.Velocity);
@@ -148,7 +148,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.InitialProgram(
             CrawlerAnimationFamily.HZoomer, orientation));
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         int velocity = CrawlerSpeeds.ForParameter(Ensure.BetweenInclusive(0, ushort.MaxValue, speedParameter));
         state.Velocity = new(new SignedEightEight(velocity), new SignedEightEight(velocity));
         state.Velocity = SignedForBlockSide(settings.BlockSide, state.Velocity);
@@ -307,7 +307,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerProgram program)
     {
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
@@ -484,7 +484,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.SurfaceProgram(
             Ensure.BetweenInclusive(0, ushort.MaxValue, state.SurfaceTableOffset), orientation));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

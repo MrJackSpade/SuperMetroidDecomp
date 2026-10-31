@@ -56,13 +56,13 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         // The population entry names the chain's initial motion; the chain then writes its flags to every segment
         // together.
         state.MotionFlags = settings.Motion;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.TargetAngle = RotationAngle.Zero;
         state.ResetOrientation();
         slot.Properties = slot.Properties.With(definition.PropertyMask);
         state.OwnerSlotIndex = slot.SlotIndex - definition.OwnerSlotDistance;
-        state.PreInstruction = definition.PreInstruction;
+        state.FrameBehavior = definition.FrameBehavior;
         // Native initialization subtracts the parallel all-zero table; synchronization
         // uses the same authored velocity directly.
         state.AngularVelocity = definition.AngularVelocity;
@@ -87,20 +87,20 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         ShaktoolSegmentState state,
         RoomLevelData? level)
     {
-        switch (state.PreInstruction)
+        switch (state.FrameBehavior)
         {
-            case ShaktoolPreInstruction.Idle:
+            case ShaktoolFrameBehavior.Idle:
                 return;
 
-            case ShaktoolPreInstruction.OrbitPreviousSegment:
+            case ShaktoolFrameBehavior.OrbitPreviousSegment:
                 AdvanceShaktoolOrbit(slot, state);
                 return;
 
-            case ShaktoolPreInstruction.OrbitAndOrientCenter:
+            case ShaktoolFrameBehavior.OrbitAndOrientCenter:
                 AdvanceAndOrientShaktoolCenter(slot, state);
                 return;
 
-            case ShaktoolPreInstruction.DriveTailAndReverseAtWalls:
+            case ShaktoolFrameBehavior.DriveTailAndReverseAtWalls:
                 if (level is null)
                 {
                     throw new InvalidOperationException(
@@ -111,7 +111,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Shaktool pre-instruction {state.PreInstruction?.ToString() ?? "none"} " +
+                    $"Shaktool pre-instruction {state.FrameBehavior?.ToString() ?? "none"} " +
                     "is not translated.");
         }
     }
@@ -177,7 +177,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.OrientationBucket = directionBucket;
         state.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
             ShaktoolPrograms.ForOrientationBucket(directionBucket));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Ports the last segment's collision/reversal controller at <c>$AA:DD25</c>.</summary>
@@ -283,10 +283,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemySlot segment = group[index];
             ShaktoolSegmentState segmentState = RequireShaktoolState(segment);
             CalculateShaktoolAngularVelocity(segmentState);
-            segmentState.PreInstruction = ShaktoolPreInstruction.Idle;
+            segmentState.FrameBehavior = ShaktoolFrameBehavior.Idle;
             segmentState.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
                 ShaktoolPrograms.CollisionForSegment(index));
-            segment.InstructionTimer = WrappingCountdown.Start(1);
+            segment.FrameHold = WrappingCountdown.Start(1);
         }
     }
 
@@ -458,8 +458,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
                 RoomEnemySlot[] group = GetShaktoolGroup(slot);
                 for (int index = 0; index < ShaktoolSegmentCount; index++)
                 {
-                    RequireShaktoolState(group[index]).PreInstruction =
-                        ShaktoolSegments.ForIndex(index).PreInstruction;
+                    RequireShaktoolState(group[index]).FrameBehavior =
+                        ShaktoolSegments.ForIndex(index).FrameBehavior;
                 }
                 break;
             }
@@ -520,15 +520,15 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Registers front and linked attack-circle movement callbacks.</summary>
     internal void AddShaktoolProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunShaktoolFrontCirclePreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.ShaktoolFrontCircleFlight);
+            RunShaktoolFrontCircleFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.ShaktoolFrontCircleFlight);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunShaktoolLinkedCirclePreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.ShaktoolTrailingCircleFlight);
+            RunShaktoolLinkedCircleFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.ShaktoolTrailingCircleFlight);
     }
 
     /// <summary>Ports Shaktool's main AI.</summary>
@@ -567,7 +567,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
     /// <summary>Ports front-circle pre-instruction <c>$86:BE03</c>.</summary>
-    internal static void RunShaktoolFrontCirclePreInstruction(
+    internal static void RunShaktoolFrontCircleFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -585,7 +585,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int LinkedCircleOwnerSlot = 0;
 
     /// <summary>Ports middle/back linked-circle pre-instruction <c>$86:BE12</c>.</summary>
-    internal void RunShaktoolLinkedCirclePreInstruction(
+    internal void RunShaktoolLinkedCircleFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {

@@ -108,7 +108,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BurrowTimer = WrappingCountdown.Start(21);
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(level, slot, 6 << 16))
         {
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             slot.Timer = WrappingCountdown.Start(0);
             state.Function = SkreeEnemyFunction.Burrowing;
             // The floor collision has its own distinct impact/burrow request at `$A3:C771`.
@@ -149,7 +149,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InstalledInstructionIndex = state.RequestedInstructionIndex;
         state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareePrograms.SkreeProgram(
             state.RequestedInstructionIndex));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// </summary>
 internal static class ChozoNativeWords
 {
-    /// <summary>The routine word naming each <see cref="ChozoStatuePreInstruction"/>.</summary>
-    internal static readonly NativeWordIdentities<ChozoStatuePreInstruction> ChozoStatuePreInstructions = new(new Dictionary<ChozoStatuePreInstruction, ushort>
+    /// <summary>The routine word naming each <see cref="ChozoStatueFrameBehavior"/>.</summary>
+    internal static readonly NativeWordIdentities<ChozoStatueFrameBehavior> ChozoStatueFrameBehaviors = new(new Dictionary<ChozoStatueFrameBehavior, ushort>
     {
-        [ChozoStatuePreInstruction.Idle] = 0xe7a6,
-        [ChozoStatuePreInstruction.Cleared] = 0x807b,
-        [ChozoStatuePreInstruction.WaitForLowerNorfairHandTrigger] = 0xe445,
-        [ChozoStatuePreInstruction.WaitForWreckedShipHandTrigger] = 0xe7ae,
-        [ChozoStatuePreInstruction.Walking] = 0xe7da,
+        [ChozoStatueFrameBehavior.Idle] = 0xe7a6,
+        [ChozoStatueFrameBehavior.Cleared] = 0x807b,
+        [ChozoStatueFrameBehavior.WaitForLowerNorfairHandTrigger] = 0xe445,
+        [ChozoStatueFrameBehavior.WaitForWreckedShipHandTrigger] = 0xe7ae,
+        [ChozoStatueFrameBehavior.Walking] = 0xe7da,
     });
 }

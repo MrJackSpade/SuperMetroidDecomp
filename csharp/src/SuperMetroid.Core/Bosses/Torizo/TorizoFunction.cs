@@ -22,5 +22,5 @@ public enum TorizoFunction
     GoldenGravity,
 
     /// <summary><c>Function_GoldenTorizo_NormalMovement</c> at $AA:D5E6.</summary>
-    GoldenPreInstruction,
+    GoldenFrameBehavior,
 }

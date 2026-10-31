@@ -52,8 +52,8 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             BurrowTimer = WrappingCountdown.Start(0),
             Function = MetareeEnemyFunction.Idling,
-            RequestedInstructionListIndex = SkreeMetareeAnimationPhase.Idling,
-            InstalledInstructionListIndex = SkreeMetareeAnimationPhase.Idling,
+            RequestedAnimationScriptIndex = SkreeMetareeAnimationPhase.Idling,
+            InstalledAnimationScriptIndex = SkreeMetareeAnimationPhase.Idling,
             AttackReady = false,
             YVelocity = 0,
         };
@@ -122,7 +122,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         // instead of sanitizing the old bug into modern signed physics.
         int verticalDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole - slot.Position.Y.Whole);
         state.YVelocity = verticalDifference / MetareeDiveDivisorNtsc + MetareeMinimumYVelocity;
-        state.RequestedInstructionListIndex = SkreeMetareeAnimationPhase.PreparingAttack;
+        state.RequestedAnimationScriptIndex = SkreeMetareeAnimationPhase.PreparingAttack;
         InstallRequestedMetareeInstruction(slot, state);
         state.Function = MetareeEnemyFunction.PreparingAttack;
     }
@@ -134,7 +134,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.AttackReady = false;
-        state.RequestedInstructionListIndex = SkreeMetareeAnimationPhase.Diving;
+        state.RequestedAnimationScriptIndex = SkreeMetareeAnimationPhase.Diving;
         InstallRequestedMetareeInstruction(slot, state);
         state.Function = MetareeEnemyFunction.LaunchedAttack;
 
@@ -158,7 +158,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot,
                 SixteenSixteen.FromWhole(state.YVelocity)))
         {
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             slot.Timer = WrappingCountdown.Start(0);
             state.Function = MetareeEnemyFunction.Burrowing;
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metaree, EnemySoundEffectDefinitions.BurrowSound, priority: SoundRequestPriority.Normal);
@@ -198,13 +198,13 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         MetareeEnemyState state)
     {
-        SkreeMetareeAnimationPhase requested = state.RequestedInstructionListIndex;
-        if (requested == state.InstalledInstructionListIndex)
+        SkreeMetareeAnimationPhase requested = state.RequestedAnimationScriptIndex;
+        if (requested == state.InstalledAnimationScriptIndex)
             return;
 
-        state.InstalledInstructionListIndex = requested;
+        state.InstalledAnimationScriptIndex = requested;
         state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareePrograms.MetareeProgram(requested));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

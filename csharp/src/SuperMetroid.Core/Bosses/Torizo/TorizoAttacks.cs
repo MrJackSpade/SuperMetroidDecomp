@@ -40,60 +40,60 @@ internal sealed class TorizoAttacks
     /// <summary>Installs movement handlers and typed program cues for statue fragments, orbs, attacks, and reflected missiles.</summary>
     internal void AddBombTorizoProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunBombTorizoStatueBreakingPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall);
+            RunBombTorizoStatueBreakingFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunBombTorizoChozoOrbPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.BombTorizoOrbFall);
+            RunBombTorizoChozoOrbFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.BombTorizoOrbFall);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunGoldenTorizoChozoOrbPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.GoldenTorizoOrbBounce);
+            RunGoldenTorizoChozoOrbFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.GoldenTorizoOrbBounce);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunBombTorizoSonicBoomPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.TorizoSonicBoomFlight);
+            RunBombTorizoSonicBoomFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.TorizoSonicBoomFlight);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunBombTorizoDroolPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.BombTorizoDroolFall);
+            RunBombTorizoDroolFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.BombTorizoDroolFall);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunGoldenTorizoEggPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.GoldenTorizoEggBounce);
+            RunGoldenTorizoEggFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.GoldenTorizoEggBounce);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunGoldenTorizoEggHorizontalCharge(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.GoldenTorizoEggCharge);
+        }, EnemyProjectileFrameBehavior.GoldenTorizoEggCharge);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunGoldenTorizoEggFall(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.GoldenTorizoEggDrop);
+        }, EnemyProjectileFrameBehavior.GoldenTorizoEggDrop);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunGoldenTorizoSuperMissilePreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.GoldenTorizoSuperMissileHeld);
+            RunGoldenTorizoSuperMissileFrameBehavior(context.Projectile);
+        }, EnemyProjectileFrameBehavior.GoldenTorizoSuperMissileHeld);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunGoldenTorizoSuperMissileFlight(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.GoldenTorizoSuperMissileThrown);
+        }, EnemyProjectileFrameBehavior.GoldenTorizoSuperMissileThrown);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunGoldenTorizoEyeBeamPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.GoldenTorizoEyeBeamFlight);
+            RunGoldenTorizoEyeBeamFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.GoldenTorizoEyeBeamFlight);
 
         table.AddBranchingCue<TorizoProjectileProgram, TorizoProjectileCue>((context, cue) => ApplyTorizoProjectileCue(context.Projectile, context.Samus, cue));
         table.AddShotAnimation(RoomEnemyProjectileKind.BombTorizoChozoOrb, () => new TorizoProjectileAnimation(TorizoProjectileProgram.ChozoOrbShot));
@@ -111,11 +111,11 @@ internal sealed class TorizoAttacks
     {
         switch (cue)
         {
-            case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.ClearPreInstruction }:
-                projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+            case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.ClearFrameBehavior }:
+                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
                 return null;
-            case TorizoProjectileCue.SetPreInstruction setPreInstruction:
-                projectile.PreInstruction = setPreInstruction.PreInstruction;
+            case TorizoProjectileCue.SetFrameBehavior setFrameBehavior:
+                projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
                 return null;
             case TorizoProjectileCue.SetProperties setProperties:
                 EnemyProjectileEngine.SetPropertyFlags(projectile, setProperties.Properties);
@@ -496,7 +496,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Moves Bomb Torizo's orb through walls and floor, disabling damage on impact and adding gravity in flight.</summary>
-    internal static void RunBombTorizoChozoOrbPreInstruction(
+    internal static void RunBombTorizoChozoOrbFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -523,7 +523,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Accelerates the sonic boom horizontally and switches to its non-damaging wall-impact program.</summary>
-    internal static void RunBombTorizoSonicBoomPreInstruction(
+    internal static void RunBombTorizoSonicBoomFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -546,7 +546,7 @@ internal sealed class TorizoAttacks
     /// low-health initial drool. The peculiar positive-three clamp is authentic: both the
     /// negative and nonnegative drag branches load <c>$0003</c> when they cross zero.
     /// </summary>
-    internal static void RunBombTorizoDroolPreInstruction(
+    internal static void RunBombTorizoDroolFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -582,7 +582,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Bounces Golden Torizo's orb off walls and the floor, slowing horizontal motion until floor impact.</summary>
-    internal static void RunGoldenTorizoChozoOrbPreInstruction(
+    internal static void RunGoldenTorizoChozoOrbFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -611,7 +611,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Counts down the egg's hatch timer while bouncing it off terrain with horizontal drag and gravity.</summary>
-    internal static void RunGoldenTorizoEggPreInstruction(
+    internal static void RunGoldenTorizoEggFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -654,8 +654,8 @@ internal sealed class TorizoAttacks
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
-            projectile.PreInstruction =
-                EnemyProjectilePreInstruction.GoldenTorizoEggDrop;
+            projectile.FrameBehavior =
+                EnemyProjectileFrameBehavior.GoldenTorizoEggDrop;
             projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(0));
             return;
         }
@@ -679,7 +679,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Keeps the held super missile beside Golden Torizo's hand, clearing it if its owner is gone.</summary>
-    internal void RunGoldenTorizoSuperMissilePreInstruction(RoomEnemyProjectileSlot projectile)
+    internal void RunGoldenTorizoSuperMissileFrameBehavior(RoomEnemyProjectileSlot projectile)
     {
         TorizoEnemyState? state = GoldenTorizo;
         if (state is null)
@@ -735,7 +735,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Selects wall or floor impact artwork when the eye beam strikes terrain.</summary>
-    internal static void RunGoldenTorizoEyeBeamPreInstruction(
+    internal static void RunGoldenTorizoEyeBeamFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -811,7 +811,7 @@ internal sealed class TorizoAttacks
     /// Ports pre-instruction <c>$86:A8EF</c>: a rising or still-airborne piece accelerates by
     /// <see cref="FirstSlotFallAcceleration"/>.
     /// </summary>
-    internal void RunBombTorizoStatueBreakingPreInstruction(
+    internal void RunBombTorizoStatueBreakingFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -829,8 +829,8 @@ internal sealed class TorizoAttacks
             return;
         }
 
-        projectile.PreInstruction =
-            EnemyProjectilePreInstruction.Stationary;
+        projectile.FrameBehavior =
+            EnemyProjectileFrameBehavior.Stationary;
     }
     /// <summary>
     /// Whether a falling projectile has run away: its raw 8.8 speed is at least sixteen pixels per frame and below

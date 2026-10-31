@@ -113,7 +113,7 @@ internal sealed class IntroJapaneseSubtitles
         /// <summary>Current native subtitle instruction-list stage.</summary>
         private SubtitleStage stage = stage;
         /// <summary>One-frame transfer or wait-loop countdown before the next list action.</summary>
-        private WrappingCountdown instructionTimer = WrappingCountdown.Start(1);
+        private WrappingCountdown frameHold = WrappingCountdown.Start(1);
 
         /// <summary>
         /// <c>Process_Mode7Objects_InstList</c> ($8B:9537): the pre-instruction, then the
@@ -126,20 +126,20 @@ internal sealed class IntroJapaneseSubtitles
                 // $8B:B585 and siblings: show the second subtitle, hold the input wait it
                 // will start, and switch to the done-input list on this same frame.
                 stage = SubtitleStage.StartInputWait;
-                instructionTimer = WrappingCountdown.Start(1);
+                frameHold = WrappingCountdown.Start(1);
                 owner.Timer = WrappingCountdown.Start(SecondSubtitleHoldFrames);
             }
-            if (!(instructionTimer = instructionTimer.Decrement().Remaining).IsZero)
+            if (!(frameHold = frameHold.Decrement().Remaining).IsZero)
                 return false;
             switch (stage)
             {
                 case SubtitleStage.LoadFirstSubtitle:
                     stage = SubtitleStage.FinishFirstSubtitle;
-                    instructionTimer = WrappingCountdown.Start(1);
+                    frameHold = WrappingCountdown.Start(1);
                     return false;
                 case SubtitleStage.AwaitSecondSubtitleInput:
                     // $8B:D39D: one-frame transfer record, then goto itself.
-                    instructionTimer = WrappingCountdown.Start(1);
+                    frameHold = WrappingCountdown.Start(1);
                     return false;
                 case SubtitleStage.FinishFirstSubtitle:
                     return true;

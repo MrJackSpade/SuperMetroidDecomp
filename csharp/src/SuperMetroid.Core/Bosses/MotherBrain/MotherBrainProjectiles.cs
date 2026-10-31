@@ -60,11 +60,11 @@ internal sealed class MotherBrainProjectiles
                     "Mother Brain's small purple breath ran without its encounter state."))
                     .SmallPurpleBreathActive = false;
                 break;
-            case MotherBrainEffectCue.SetPreInstruction setPreInstruction:
-                projectile.PreInstruction = setPreInstruction.PreInstruction;
+            case MotherBrainEffectCue.SetFrameBehavior setFrameBehavior:
+                projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
                 break;
-            case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.ClearPreInstruction }:
-                projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+            case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.ClearFrameBehavior }:
+                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
                 break;
             case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.Delete }:
                 projectile.Clear();
@@ -87,8 +87,8 @@ internal sealed class MotherBrainProjectiles
                 case MotherBrainTurretCue.UsePaletteZero:
                     projectile.Graphics = default;
                     return;
-                case MotherBrainTurretCue.ClearPreInstruction:
-                    projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+                case MotherBrainTurretCue.ClearFrameBehavior:
+                    projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
                     return;
                 case MotherBrainTurretCue.Delete:
                     projectile.Clear();
@@ -109,73 +109,73 @@ internal sealed class MotherBrainProjectiles
                     throw new InvalidOperationException($"Undefined {nameof(MotherBrainGlassCue)} {cue}.");
             }
         });
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunMotherBrainTurretPreInstruction(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.MotherBrainTurretAiming);
+            RunMotherBrainTurretFrameBehavior(context.Projectile, context.Camera);
+        }, EnemyProjectileFrameBehavior.MotherBrainTurretAiming);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunMotherBrainTurretBulletPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.MotherBrainTurretBulletFlight);
+            RunMotherBrainTurretBulletFrameBehavior(context.Projectile, context.Level);
+        }, EnemyProjectileFrameBehavior.MotherBrainTurretBulletFlight);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunMotherBrainGlassShardPreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainGlassShardFlight);
+            RunMotherBrainGlassShardFrameBehavior(context.Projectile);
+        }, EnemyProjectileFrameBehavior.MotherBrainGlassShardFlight);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunMotherBrainTopTubePreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainTubeFall);
+            RunMotherBrainTopTubeFrameBehavior(context.Projectile);
+        }, EnemyProjectileFrameBehavior.MotherBrainTubeFall);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunMotherBrainAttachedDroolPreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainDroolHanging);
+            RunMotherBrainAttachedDroolFrameBehavior(context.Projectile);
+        }, EnemyProjectileFrameBehavior.MotherBrainDroolHanging);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunMotherBrainFallingDroolPreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainDroolFall);
+            RunMotherBrainFallingDroolFrameBehavior(context.Projectile);
+        }, EnemyProjectileFrameBehavior.MotherBrainDroolFall);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunMotherBrainOnionRingPreInstruction(
+            RunMotherBrainOnionRingFrameBehavior(
                 context.Projectile,
                 context.Samus,
                 context.Camera.X);
-        }, EnemyProjectilePreInstruction.MotherBrainOnionRingFlight);
+        }, EnemyProjectileFrameBehavior.MotherBrainOnionRingFlight);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunMotherBrainBombPreInstruction(context.Projectile, context.SamusBombs);
-        }, EnemyProjectilePreInstruction.MotherBrainBombBounce);
+            RunMotherBrainBombFrameBehavior(context.Projectile, context.SamusBombs);
+        }, EnemyProjectileFrameBehavior.MotherBrainBombBounce);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunMotherBrainRainbowChargingPreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainRainbowBeamCharge);
+            RunMotherBrainRainbowChargingFrameBehavior(context.Projectile);
+        }, EnemyProjectileFrameBehavior.MotherBrainRainbowBeamCharge);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunMotherBrainRainbowExplosionPreInstruction(context.Projectile, context.Samus);
-        }, EnemyProjectilePreInstruction.MotherBrainRainbowImpactTracking);
+            RunMotherBrainRainbowExplosionFrameBehavior(context.Projectile, context.Samus);
+        }, EnemyProjectileFrameBehavior.MotherBrainRainbowImpactTracking);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunMotherBrainDeathExplosion(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainDeathExplosionTracking);
+        }, EnemyProjectileFrameBehavior.MotherBrainDeathExplosionTracking);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunMotherBrainDoorFragment(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainDeathDoorFragmentFall);
+        }, EnemyProjectileFrameBehavior.MotherBrainDeathDoorFragmentFall);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             PinMotherBrainEscapeSubtitle(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainDeathSubtitleScreenPin);
+        }, EnemyProjectileFrameBehavior.MotherBrainDeathSubtitleScreenPin);
 
         table.AddCue<MotherBrainEffectCue>((context, cue) => ApplyMotherBrainEffectCue(context.Projectile, cue));
         // A touched onion ring runs its typed impact program, the list its definition names.
@@ -200,7 +200,7 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>Ports pre-instruction <c>$86:C4C8-C604</c>.</summary>
-    internal void RunMotherBrainBombPreInstruction(
+    internal void RunMotherBrainBombFrameBehavior(
         RoomEnemyProjectileSlot bomb,
         SamusBombProjectileSystem? samusBombs)
     {
@@ -375,7 +375,7 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>Runs pre-instruction $86:CBE7 for the four falling ceiling-tube actors.</summary>
-    internal void RunMotherBrainTopTubePreInstruction(RoomEnemyProjectileSlot projectile)
+    internal void RunMotherBrainTopTubeFrameBehavior(RoomEnemyProjectileSlot projectile)
     {
         MotherBrainTopTubeState tube = projectile.StateOf<MotherBrainTopTubeState>();
         if (tube.DustPending)
@@ -450,7 +450,7 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>Ports glass-shard pre-instruction <c>$86:CE9B</c>.</summary>
-    internal void RunMotherBrainGlassShardPreInstruction(RoomEnemyProjectileSlot shard)
+    internal void RunMotherBrainGlassShardFrameBehavior(RoomEnemyProjectileSlot shard)
     {
         shard.Position = shard.Position.Advance(shard.Velocity.ToSixteenSixteen());
 
@@ -554,7 +554,7 @@ internal sealed class MotherBrainProjectiles
         CoordinateAxis.Difference(beam.Position.X.Whole, 238) >= 0;
 
     /// <summary>Exact six-position mouth attachment table at <c>$86:C86E-C885</c>.</summary>
-    internal void RunMotherBrainAttachedDroolPreInstruction(
+    internal void RunMotherBrainAttachedDroolFrameBehavior(
         RoomEnemyProjectileSlot drool)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
@@ -570,7 +570,7 @@ internal sealed class MotherBrainProjectiles
     /// Ports <c>$86:C886-C8AF</c>. The native actor uses signed 8.8 velocity, adds twelve
     /// units of gravity per frame, and switches to its four-map splash at world Y $D7.
     /// </summary>
-    internal static void RunMotherBrainFallingDroolPreInstruction(
+    internal static void RunMotherBrainFallingDroolFrameBehavior(
         RoomEnemyProjectileSlot drool)
     {
         drool.Velocity = drool.Velocity.WithY(SignedEightEight.Wrapped(drool.Velocity.Y.RawValue + 12));
@@ -586,7 +586,7 @@ internal sealed class MotherBrainProjectiles
     /// Ports <c>$86:C335-C431</c>. A live Baby slot is tested before Samus and the room,
     /// matching the private projectile's cross-enemy collision order during phase three.
     /// </summary>
-    internal void RunMotherBrainOnionRingPreInstruction(
+    internal void RunMotherBrainOnionRingFrameBehavior(
         RoomEnemyProjectileSlot ring,
         SamusState? samus,
         int cameraX)
@@ -704,8 +704,8 @@ internal sealed class MotherBrainProjectiles
         _motherBrainEncounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
     }
 
-    /// <summary>Ports <c>PreInstruction_EnemyProjectile_MotherBrainsTurrets</c>.</summary>
-    internal void RunMotherBrainTurretPreInstruction(
+    /// <summary>Ports <c>FrameBehavior_EnemyProjectile_MotherBrainsTurrets</c>.</summary>
+    internal void RunMotherBrainTurretFrameBehavior(
         RoomEnemyProjectileSlot turret,
         Position16<RoomPixels> camera)
     {
@@ -830,7 +830,7 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>Ports the bullet property flicker, 8.8 movement, and point collision.</summary>
-    internal static void RunMotherBrainTurretBulletPreInstruction(
+    internal static void RunMotherBrainTurretBulletFrameBehavior(
         RoomEnemyProjectileSlot bullet,
         RoomLevelData level)
     {
@@ -844,7 +844,7 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>Pins the charging effect to the head while the beam winds up.</summary>
-    internal void RunMotherBrainRainbowChargingPreInstruction(
+    internal void RunMotherBrainRainbowChargingFrameBehavior(
         RoomEnemyProjectileSlot projectile)
     {
         RoomEnemySlot head = _motherBrainEncounter.MotherBrain?.Head ?? throw new InvalidOperationException(
@@ -853,7 +853,7 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>Advances the rainbow impact effect through its timed lifetime.</summary>
-    internal static void RunMotherBrainRainbowExplosionPreInstruction(
+    internal static void RunMotherBrainRainbowExplosionFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         SamusState? samus)
     {

@@ -45,7 +45,7 @@ internal static class FrozenMetroidShellVerification
         enemies.SpriteObjects.DrawRoomSpriteObjectsAsOam(actual, Position16<RoomPixels>.Zero);
         Require(shell.SpritemapPointer == 0xbda6 && actual.NextByteOffset == 0,
             "The reproduction must begin on the native empty shell frame.");
-        ushort retainedTimer = shell.InstructionTimer;
+        ushort retainedTimer = shell.FrameHold;
         ushort expectedPointer = RoomSpriteObjectVisualDefinitionsConstants.Spritemap(AssertIs<AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.ShowStep>(shellSteps[0], "first shell step").Frame);
         Require(((enemies.TileArtwork ?? throw new InvalidOperationException("Verification requires installed enemy artwork.")).Spritemaps ?? throw new InvalidOperationException("Verification requires enemies.TileArtwork.Spritemaps.")).TryGetDisplay(0xb4, expectedPointer, out var parts),
             "Installed frozen shell artwork must exist.");
@@ -60,7 +60,7 @@ internal static class FrozenMetroidShellVerification
             enemies.SpriteObjects.StepRoomSpriteObjects();
             Require(shell.SpritemapPointer == expectedPointer,
                 $"Frozen shell retained ${shell.SpritemapPointer:X4}, expected ${expectedPointer:X4}.");
-            Require(shell.InstructionTimer == retainedTimer && shell.DisableFlags == 1,
+            Require(shell.FrameHold == retainedTimer && shell.DisableFlags == 1,
                 "Freezing must preserve the native animation timer while disabling advancement.");
             actual.BeginFrame();
             enemies.SpriteObjects.DrawRoomSpriteObjectsAsOam(actual, Position16<RoomPixels>.Zero);

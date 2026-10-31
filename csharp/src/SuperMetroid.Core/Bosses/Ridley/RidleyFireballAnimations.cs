@@ -26,7 +26,7 @@ internal static class RidleyFireballAnimations
     {
         [P.Fireball] =
         [
-            Cue(C.ClearPreInstruction),
+            Cue(C.ClearFrameBehavior),
             Show(new(K.Launch, 0), LaunchDuration),
             Cue(C.BeginFlight),
             Show(new(K.Launch, 1), LaunchDuration),
@@ -49,7 +49,7 @@ internal static class RidleyFireballAnimations
     /// </summary>
     private static AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>[] Afterburn(K kind, C? spawn)
     {
-        var steps = new List<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>> { Cue(C.ClearPreInstruction) };
+        var steps = new List<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>> { Cue(C.ClearFrameBehavior) };
         for (int phase = 0; phase < AfterburnPoseCount; phase++)
         {
             steps.Add(Show(new(kind, phase), AfterburnDuration));

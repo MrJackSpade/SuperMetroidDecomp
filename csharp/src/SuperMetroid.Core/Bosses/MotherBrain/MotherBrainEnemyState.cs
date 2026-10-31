@@ -91,7 +91,7 @@ public sealed class MotherBrainEnemyState
     internal AnimationProgramCursor<MotherBrainHeadProgram>? BrainCursor { get; set; }
 
     /// <summary>
-    /// <c>MotherBrainBody.brainInstructionTimer</c> ($7E:8000). It counts draws up from one
+    /// <c>MotherBrainBody.brainFrameHold</c> ($7E:8000). It counts draws up from one
     /// and the program advances once it exceeds the frame's duration, so each frame shows for
     /// its duration plus one draw.
     /// </summary>

@@ -7,5 +7,5 @@ internal readonly record struct ShaktoolSegmentDefinition(
     RotationAngle InitialOrbitAngle,
     ShaktoolProgram InitialProgram,
     int Layer,
-    ShaktoolPreInstruction PreInstruction,
+    ShaktoolFrameBehavior FrameBehavior,
     int AngularVelocity);

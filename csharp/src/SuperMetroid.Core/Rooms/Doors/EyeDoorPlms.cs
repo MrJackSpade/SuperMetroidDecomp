@@ -367,24 +367,24 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
     }
 
     /// <summary>Wakes opened components or consumes a pending missile hit before instruction dispatch.</summary>
-    internal void RunEyeDoorPreInstruction(PlmSlot slot, EyeDoorPreInstruction preInstruction)
+    internal void RunEyeDoorFrameBehavior(PlmSlot slot, EyeDoorFrameBehavior frameBehavior)
     {
         EyeDoorPlmState eyeDoor = slot.Family as EyeDoorPlmState
             ?? throw new InvalidOperationException("An eye door's wake ran without its component state.");
         SharedGameState system = _system ??
             throw new InvalidOperationException("A live eye door has no persistence owner.");
-        switch (preInstruction)
+        switch (frameBehavior)
         {
-            case EyeDoorPreInstruction.WakeWhenDoorBitSet:
+            case EyeDoorFrameBehavior.WakeWhenDoorBitSet:
                 if (slot.Argument is DoorBitArgument { Persists: true } wakingEye &&
                     system.HasOpenedDoorBit(wakingEye.DoorBit))
                 {
-                    slot.PreInstruction = PlmPreInstructions.Inert;
+                    slot.FrameBehavior = PlmFrameBehaviors.Inert;
                     slot.WakeAtLink();
                 }
                 return;
 
-            case EyeDoorPreInstruction.MissileHit:
+            case EyeDoorFrameBehavior.MissileHit:
                 if (!eyeDoor.HasPendingHit)
                     return;
 
@@ -408,7 +408,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
                 return;
 
             default:
-                throw new InvalidOperationException($"Undefined EyeDoorPreInstruction {preInstruction}.");
+                throw new InvalidOperationException($"Undefined EyeDoorFrameBehavior {frameBehavior}.");
         }
     }
 

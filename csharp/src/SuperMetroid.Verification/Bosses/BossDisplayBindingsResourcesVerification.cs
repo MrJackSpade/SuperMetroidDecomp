@@ -97,7 +97,7 @@ internal static class BossDisplayBindingsResourcesVerification
             AssertBossDisplayMechanics(baseline, changed, "boss instruction frame " + frame);
             int index = frame / duration % poseCount;
             AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(AssertIs<AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>.ShowStep>(steps[index], "pose step").Frame), changed.Actor.SpritemapPointer, "exact physical sequence ignores visual remapping");
-            AssertEqual((ushort)(duration - frame % duration), changed.Actor.InstructionTimer.RawValue, "exact native hold/goto clock");
+            AssertEqual((ushort)(duration - frame % duration), changed.Actor.FrameHold.RawValue, "exact native hold/goto clock");
             bool fresh = frame % duration == 0;
             AssertEqual(fresh, changed.Actor.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), "exact new-frame schedule");
             if (fresh) transitions++;
@@ -120,7 +120,7 @@ internal static class BossDisplayBindingsResourcesVerification
         fixture.Enemies.PhantoonBehavior.Combat.Phantoon = state;
         fixture.SetFrame(0, false);
         state.PartProgram(fixture.Actor) = AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.Tentacles);
-        fixture.Actor.InstructionTimer = WrappingCountdown.Start(1);
+        fixture.Actor.FrameHold = WrappingCountdown.Start(1);
         return fixture;
     }
 }

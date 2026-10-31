@@ -4,7 +4,7 @@
 internal enum ChozoStatueCueKind
 {
     /// <summary>Clears the pre-instruction (<c>Instruction_CommonAA3_SetEnemy0FB2ToRTS</c>, $AA:8074).</summary>
-    ClearPreInstruction,
+    ClearFrameBehavior,
     /// <summary>Plays the footstep sound (<c>Instruction_Chozo_PlayChozoFootstepsSFX</c>, $AA:E587).</summary>
     PlayFootstepSound,
     /// <summary>Plays the grab sound (<c>Instruction_Chozo_PlayChozoGrabsSamusSFX</c>, $AA:E57F).</summary>

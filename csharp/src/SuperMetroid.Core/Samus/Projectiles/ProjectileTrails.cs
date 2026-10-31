@@ -69,12 +69,12 @@ internal sealed class ProjectileTrails
         // The search tests only the left timer. A right stream can still be alive in malformed or debug-edited state and
         // is overwritten when the left side is free; retain that asymmetric allocation rather than being "safer".
         SamusProjectileTrailSlot? trail = _slotTable.TrailsInUpdateOrder.FirstOrDefault(
-            candidate => candidate.Left.InstructionTimer.IsZero);
+            candidate => candidate.Left.FrameHold.IsZero);
         if (trail is null)
             return;
 
-        trail.Left.InstructionTimer = WrappingCountdown.Start(1);
-        trail.Right.InstructionTimer = WrappingCountdown.Start(1);
+        trail.Left.FrameHold = WrappingCountdown.Start(1);
+        trail.Right.FrameHold = WrappingCountdown.Start(1);
         trail.Left.Cursor = new ProjectileTrailCursor(left, 0);
         trail.Right.Cursor = new ProjectileTrailCursor(right, 0);
         trail.Left.Position = trail.Left.Position.WithX(AddOffset(projectile.Position.X.Whole, placement.Left.X))
@@ -105,13 +105,13 @@ internal sealed class ProjectileTrails
         HorizontalDirection direction)
     {
         SamusProjectileTrailSide side = direction == HorizontalDirection.Left ? pair.Left : pair.Right;
-        if (side.InstructionTimer.IsZero)
+        if (side.FrameHold.IsZero)
             return;
 
         if (!timeIsFrozen)
         {
-            side.InstructionTimer = side.InstructionTimer.Decrement().Remaining;
-            if (side.InstructionTimer.IsZero)
+            side.FrameHold = side.FrameHold.Decrement().Remaining;
+            if (side.FrameHold.IsZero)
             {
                 ProjectileTrailCursor cursor = side.Cursor ?? throw new InvalidOperationException(
                     "A trail side with a running timer has started a program.");
@@ -121,12 +121,12 @@ internal sealed class ProjectileTrails
                     if (step is ProjectileTrailStep.End)
                     {
                         // The end leaves the timer zero and the cursor on itself.
-                        side.InstructionTimer = WrappingCountdown.FromRaw(0);
+                        side.FrameHold = WrappingCountdown.FromRaw(0);
                         return;
                     }
                     if (step is ProjectileTrailStep.Pose pose)
                     {
-                        side.InstructionTimer = WrappingCountdown.FromRaw(pose.Duration);
+                        side.FrameHold = WrappingCountdown.FromRaw(pose.Duration);
                         side.ShownPose = pose.Frame;
                         side.Cursor = cursor.Next();
                         break;
@@ -169,7 +169,7 @@ internal sealed class ProjectileTrails
     {
         SamusProjectileTrailSide side = direction == HorizontalDirection.Left ? pair.Left : pair.Right;
         // A finished side, including one that ended in this frame's advance, shows nothing.
-        if (side.InstructionTimer.IsZero)
+        if (side.FrameHold.IsZero)
             return;
 
         // `$90:B6F4/$B703` require both complete 16-bit camera-relative coordinates to have

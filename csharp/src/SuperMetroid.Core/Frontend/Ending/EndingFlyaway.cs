@@ -100,7 +100,7 @@ internal sealed class EndingFlyaway
                 pod.GeneralTimer = EndingAnimalEscapeDefinitions.GeneralTimer;
                 // Native cinematic dispatch precedes actors, so a newly spawned pod
                 // moves and selects its first animation frame on this same call.
-                _stage.StepEndingSpritePreInstruction(sprites[^1]);
+                _stage.StepEndingSpriteFrameBehavior(sprites[^1]);
                 pod.Step();
             }
         }

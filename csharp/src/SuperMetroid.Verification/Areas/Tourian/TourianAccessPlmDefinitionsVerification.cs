@@ -40,7 +40,7 @@ internal static class TourianAccessPlmDefinitionsVerification
             AssertEqual(12 * width + 6, slot.BlockIndex, "Tourian access fixed block coordinate");
             AssertTrue(slot.Animation is TourianAccessPlmAnimation animation && animation.Program == definition.Program,
                 "Tourian access starts its typed program");
-            AssertEqual(1, slot.InstructionTimer, "Tourian access starts on timer one");
+            AssertEqual(1, slot.FrameHold, "Tourian access starts on timer one");
         }
     }
 

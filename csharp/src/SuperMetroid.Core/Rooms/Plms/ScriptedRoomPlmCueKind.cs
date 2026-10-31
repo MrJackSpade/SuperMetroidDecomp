@@ -4,7 +4,7 @@
 internal enum ScriptedRoomPlmCueKind
 {
     /// <summary>Restores the inert pre-instruction.</summary>
-    ClearPreInstruction,
+    ClearFrameBehavior,
     /// <summary>Sets the animals-escaped event.</summary>
     SetAnimalsEscapedEvent,
     /// <summary>Moves the PLM four blocks right.</summary>

@@ -40,7 +40,7 @@ internal static class ImportedSpritemapsVerification
         RoomEnemyProjectileSlot projectile, EnemyProjectileSpritemapCatalog artwork,
         HashSet<ushort> executedOperands, ushort? expectedOperand = null)
     {
-        if (!projectile.IsActive || projectile.InstructionTimer.IsZero) return;
+        if (!projectile.IsActive || projectile.FrameHold.IsZero) return;
         ushort operand = expectedOperand ?? throw new InvalidOperationException("An executed typed frame names its native operand.");
         ushort nativePointer = LittleEndianBytes.Word(ExecutedProjectileFrameRomByte(rom, 0x860000 | operand), ExecutedProjectileFrameRomByte(rom, 0x860000 | unchecked((ushort)(operand + 1))));
         executedOperands.Add(operand);

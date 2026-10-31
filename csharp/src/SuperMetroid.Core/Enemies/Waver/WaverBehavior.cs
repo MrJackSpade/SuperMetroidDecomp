@@ -132,7 +132,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.InstalledAnimation = requested;
         state.Program = AnimationProgramCursor<WaverProgram>.Start(requested);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

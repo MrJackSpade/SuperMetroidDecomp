@@ -37,8 +37,8 @@ internal static class FrozenGateGlitchVerification
         bool EnemyCollision,
         ushort FinalX,
         bool GateWoke,
-        ushort GatePreInstruction,
-        ushort GateInstructionList);
+        ushort GateFrameBehavior,
+        ushort GateAnimationScript);
 
     /// <summary>Compares one successful frozen-gate clip and three adjacent controls with native CPU results.</summary>
     internal static void VerifyFrozenEnemyGateGlitch()
@@ -96,8 +96,8 @@ internal static class FrozenGateGlitchVerification
         }
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
-        AssertEqual(PlmPreInstructionNativeWords.DownwardGate.Word(DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow),
-            gate.PreInstruction, "Caterpillar gate enters proximity-aware sleep");
+        AssertEqual(PlmFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggeredOrSamusBelow),
+            gate.FrameBehavior, "Caterpillar gate enters proximity-aware sleep");
         Enum sleepingProgram = (gate.Animation ?? throw new InvalidOperationException("The gate runs no typed program.")).RunningProgram;
 
         SamusState samus = runtime.Player.IntroducedSamus;
@@ -141,7 +141,7 @@ internal static class FrozenGateGlitchVerification
         // callback plus the same advancing instruction list. Compare the observable wake
         // result above; retain the raw CPU words in the fixture for disassembly auditing.
         AssertEqual(expected.GateWoke,
-            gate.PreInstruction == PlmPreInstructionNativeWords.DownwardGate.Word(DownwardGatePreInstruction.Inert),
+            gate.FrameBehavior == PlmFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.Inert),
             $"{expected.Distance}-pixel case selects the translated moving-gate phase");
     }
 

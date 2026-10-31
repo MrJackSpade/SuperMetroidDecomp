@@ -264,8 +264,8 @@ internal static class ChainsawFiringVerification
         AssertTrue(chargedFault.Message.Contains("$90:0A0A", StringComparison.Ordinal) &&
             chargedFault.Message.Contains("$7E:0A0A", StringComparison.Ordinal),
             "charged Chainsaw diagnostic identifies dispatcher and WRAM mirror");
-        AssertEqual(SamusProjectilePreInstruction.ChargedChainsawOverrun,
-            chargedProjectiles.Slots[0].PreInstruction,
+        AssertEqual(SamusProjectileFrameBehavior.ChargedChainsawOverrun,
+            chargedProjectiles.Slots[0].FrameBehavior,
             "charged Chainsaw retains its native unstable callback identity");
         AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: true), chargedProjectiles.Slots[0].Type,
             "charged Chainsaw is fully allocated before unstable callback execution");

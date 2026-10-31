@@ -370,9 +370,9 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     owner.Direction = SamusProjectileDirection.Right;
     owner.Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
     owner.Cursor = SamusProjectileProgramAddresses.CursorAt(0x9f3b);
-    owner.InstructionTimer = WrappingCountdown.Start(15);
+    owner.FrameHold = WrappingCountdown.Start(15);
     owner.SpritemapPointer = 0xae0f;
-    owner.PreInstruction = SamusProjectilePreInstruction.SuperMissile;
+    owner.FrameBehavior = SamusProjectileFrameBehavior.SuperMissile;
 
     SamusProjectileSlot link = shots.Slots[1];
     link.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
@@ -380,9 +380,9 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     link.Direction = SamusProjectileDirection.Right;
     link.Position = link.Position.WithWhole(new(0x01af, 0x0196));
     link.Cursor = SamusProjectileProgramAddresses.CursorAt(0x9f7b);
-    link.InstructionTimer = WrappingCountdown.Start(1);
+    link.FrameHold = WrappingCountdown.Start(1);
     link.SpritemapPointer = 0;
-    link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
+    link.FrameBehavior = SamusProjectileFrameBehavior.SuperMissileLink;
 
     int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
         shots,
@@ -447,7 +447,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     // need not render their entry payloads to prove list selection and timing.
     ushort[] rightList = [8, 0xe54b, 7, 0xe557, 8, 0xe54b, 7, 0xe563, 0x80ed, 0xe477];
     ushort[] leftList = [8, 0xe527, 7, 0xe533, 8, 0xe527, 7, 0xe53f, 0x80ed, 0xe48b];
-    SeedRipperInstructionLists(bus, rightList, leftList);
+    SeedRipperAnimationScripts(bus, rightList, leftList);
 
     // The native Ripper table, which the import decodes from these bytes, makes Power Beam and
     // missiles ineffective, freezes on Ice, and gives Super Missiles multiplier two.
@@ -514,7 +514,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ripper.FrozenTimer = WrappingCountdown.Start(400);
         ushort initialX = ripper.Position.X.Whole;
         EnemyFrameId? initialFrame = ripper.Frame;
-        WrappingCountdown initialInstructionTimer = ripper.InstructionTimer;
+        WrappingCountdown initialFrameHold = ripper.FrameHold;
         for (int frame = 1; frame <= 12; frame++)
         {
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
@@ -524,7 +524,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             AssertEqual(400, ripper.FrozenTimer.RawValue, "X-ray holds Ice freeze timer independently");
             AssertEqual(initialX, ripper.Position.X.Whole, "X-ray holds enemy movement");
             AssertEqual(initialFrame, ripper.Frame, "X-ray holds the enemy's animation frame");
-            AssertEqual(initialInstructionTimer, ripper.InstructionTimer, "X-ray holds the enemy's animation timer");
+            AssertEqual(initialFrameHold, ripper.FrameHold, "X-ray holds the enemy's animation timer");
         }
         ripper.Properties = ripper.Properties.With(EnemyProperties.IgnoreSamusCollision);
         ripper.InvincibilityTimer = WrappingCountdown.Start(10);
@@ -626,7 +626,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         projectile.Position = projectile.Position.WithWhole(target.Position.Whole);
         projectile.Radius = new(4, 4);
         projectile.Cursor = ProjectileFixtureCursors.Active;
-        projectile.InstructionTimer = WrappingCountdown.Start(1);
+        projectile.FrameHold = WrappingCountdown.Start(1);
     }
 
     SamusProjectileSlot shot = projectiles.Slots[0];
@@ -708,7 +708,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     SeedEnemyDefinitionByte(bus, definitionPointer, 57, 2);
 
     // Parameter one equals two, selecting main function $F850. This focused population
-    // omits ProcessInstructions because only the independently executing main AI owns the
+    // omits RunsAnimationScript because only the independently executing main AI owns the
     // persistent platform transfer.
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 0,
         SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Decode(definitionPointer, 0x0080, 0x0080, 0, 0x0800, 0, 2, 0));
@@ -775,7 +775,7 @@ internal static void VerifyCeresDoorBossBranch()
         } } }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus) } };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay) { Samus = samus });
     RoomEnemySlot door = enemies.SlotTable.Slots[0];
-    door.InstructionTimer = WrappingCountdown.Start(1);
+    door.FrameHold = WrappingCountdown.Start(1);
 
     for (int frame = 0; frame < 4; frame++)
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
@@ -794,7 +794,7 @@ internal static void VerifyCeresDoorBossBranch()
     }
     AssertTrue(door.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
         $"defeated Ceres boss advances door bytecode to intangible setup " +
-        $"(timer=${door.InstructionTimer.RawValue:X4}, " +
+        $"(timer=${door.FrameHold.RawValue:X4}, " +
         $"properties=${SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(door.Properties):X4}, bossReads={areaBossReads})");
     Console.WriteLine("  Ceres door: area-boss branch opens the physical Ridley-room actor.");
 }
@@ -1094,7 +1094,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     bool observedFlashRidleyPalette = false;
     int nativeExplosionFrames = NativeProjectileLifetime(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")), 0x93867b) + 1;
-    SeedUnchargedNoWavePreInstruction(bus);
+    SeedUnchargedNoWaveFrameBehavior(bus);
     for (int hit = 0; hit < 100; hit++)
     {
         // Hold the independently read native initial frame for each isolated shot.
@@ -1379,7 +1379,7 @@ static void WriteZebesEscapeWarning(TestAddressSpace bus)
 }
 
 /// <summary>Seeds Ripper's literal four-frame right- and left-facing bank-$A2 instruction lists.</summary>
-static void SeedRipperInstructionLists(TestAddressSpace bus, ushort[] rightList, ushort[] leftList)
+static void SeedRipperAnimationScripts(TestAddressSpace bus, ushort[] rightList, ushort[] leftList)
 {
     WriteTestWords(bus, 0xa2e477, rightList);
     WriteTestWords(bus, 0xa2e48b, leftList);
@@ -1426,8 +1426,8 @@ static void SeedCeresElevatorPlatformTransfers(TestAddressSpace bus, byte[] ligh
 }
 
 /// <summary>Seeds the uncharged beam pre-instruction table's first entry with the no-wave pre-instruction.</summary>
-static void SeedUnchargedNoWavePreInstruction(TestAddressSpace bus) =>
-    WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable, SamusBeamPreInstructionCodes.NoWave);
+static void SeedUnchargedNoWaveFrameBehavior(TestAddressSpace bus) =>
+    WriteTestWord(bus, SamusBeamFrameBehaviorCodes.UnchargedTable, SamusBeamFrameBehaviorCodes.NoWave);
 
 /// <summary>
 /// Zeroes the Ceres escape typewriter's cartridge source (up to $A6:C4CB) after its presentation

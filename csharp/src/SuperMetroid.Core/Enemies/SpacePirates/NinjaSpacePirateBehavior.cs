@@ -564,7 +564,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         projectile.StartAnimation(new SpacePirateProjectileAnimation(throwsRight
             ? SpacePirateProjectileProgram.ClawRight
             : SpacePirateProjectileProgram.ClawLeft));
-        projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+        projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         projectile.State = new NinjaPirateClawState(NinjaPirateClawLaunchSpeed);
         state.SpawnedClawCount++;
     }
@@ -632,7 +632,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 state.ActiveProgram = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
                     ? NinjaSpacePirateProgram.ActiveFacingRight
                     : NinjaSpacePirateProgram.ActiveFacingLeft;
-                slot.InstructionTimer = WrappingCountdown.Start(1);
+                slot.FrameHold = WrappingCountdown.Start(1);
                 // The native instruction returns the selected list, not its next word.
                 // Re-entering that list runs its function cue and restores decision AI
                 // after the idle animation explicitly installed the no-op function.
@@ -658,18 +658,18 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateProgram program)
     {
         state.Program = AnimationProgramCursor<NinjaSpacePirateProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>Binds both claw throws to the outbound-and-return flight in their direction.</summary>
     internal static void AddNinjaSpacePirateProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(
+        table.AddFrameBehavior(
             context => FlyNinjaPirateClaw(context.Projectile, context.Camera, HorizontalDirection.Left),
-            EnemyProjectilePreInstruction.PirateClawThrownLeft);
-        table.AddPreInstruction(
+            EnemyProjectileFrameBehavior.PirateClawThrownLeft);
+        table.AddFrameBehavior(
             context => FlyNinjaPirateClaw(context.Projectile, context.Camera, HorizontalDirection.Right),
-            EnemyProjectilePreInstruction.PirateClawThrownRight);
+            EnemyProjectileFrameBehavior.PirateClawThrownRight);
     }
 
     /// <summary>Ports NinjaSpacePirate's main AI.</summary>

@@ -144,8 +144,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         wingState.RequestedAnimation = DragonPhases.WithFacing(
             wingState.RequestedAnimation,
             facingLeft);
-        InstallDragonInstructionList(body, bodyState);
-        InstallDragonInstructionList(wing, wingState);
+        InstallDragonAnimationScript(body, bodyState);
+        InstallDragonAnimationScript(wing, wingState);
     }
 
     /// <summary>Ports Dragon function $A2:E6AD.</summary>
@@ -171,7 +171,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Dragon function $A2:E6F1.</summary>
     internal void RunDragonAttacking(RoomEnemySlot body, DragonEnemyState bodyState)
     {
-        InstallDragonInstructionList(body, bodyState);
+        InstallDragonAnimationScript(body, bodyState);
         if (!bodyState.AnimationFinished)
             return;
 
@@ -205,7 +205,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         bodyState.FunctionTimer = WrappingCountdown.Start(DragonRiseOrSinkFrames);
         bodyState.Function = DragonEnemyFunction.Sinking;
-        InstallDragonInstructionList(body, bodyState);
+        InstallDragonAnimationScript(body, bodyState);
     }
 
     /// <summary>Ports Dragon function $A2:E749.</summary>
@@ -268,7 +268,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Installs a newly requested animation list once and resets its instruction and loop timers.</summary>
-    internal static void InstallDragonInstructionList(
+    internal static void InstallDragonAnimationScript(
         RoomEnemySlot slot,
         DragonEnemyState state)
     {
@@ -278,7 +278,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ReinstallRequested = false;
         state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(
             state.RequestedAnimation));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
@@ -319,10 +319,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Connects Dragon fireballs to their per-frame gravity and camera-boundary pre-instruction.</summary>
     internal static void AddDragonProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunDragonFireballPreInstruction(context.Projectile, context.Camera.Y);
-        }, EnemyProjectilePreInstruction.DragonFireballArc);
+            RunDragonFireballFrameBehavior(context.Projectile, context.Camera.Y);
+        }, EnemyProjectileFrameBehavior.DragonFireballArc);
     }
 
     /// <summary>Ports Dragon's main AI.</summary>
@@ -407,7 +407,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports projectile pre-instruction $86:B535.</summary>
-    internal static void RunDragonFireballPreInstruction(
+    internal static void RunDragonFireballFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         int cameraY)
     {

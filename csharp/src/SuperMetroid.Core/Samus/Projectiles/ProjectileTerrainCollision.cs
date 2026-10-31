@@ -252,7 +252,7 @@ internal sealed class ProjectileTerrainCollision
         if (slot.Type.IsFamily(SamusProjectileFamily.Missile) ||
             slot.Type.IsFamily(SamusProjectileFamily.SuperMissile))
         {
-            // Missiles take the point test in RunMissilePreInstruction; the native missile
+            // Missiles take the point test in RunMissileFrameBehavior; the native missile
             // branch ($1E set) has no caller in this port.
             throw new InvalidOperationException("Missile reached the beam square-slope shot reaction.");
         }
@@ -544,9 +544,9 @@ internal sealed class ProjectileTerrainCollision
 
         slot.Type = slot.Type.AsFamily(SamusProjectileFamily.BeamExplosion);
         slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileProgram.BeamExplosion);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Damage = 8;
-        slot.PreInstruction = SamusProjectilePreInstruction.None;
+        slot.FrameBehavior = SamusProjectileFrameBehavior.None;
     }
 
     /// <summary>Converts a missile impact to its family-specific explosion and requests Super Missile quake and impact audio.</summary>
@@ -573,9 +573,9 @@ internal sealed class ProjectileTerrainCollision
         slot.Type = slot.Type.AsFamily(SamusProjectileFamily.MissileExplosion);
         slot.Cursor = SamusProjectilePrograms.Start(
             wasSuperMissile ? SamusProjectileProgram.SuperMissileExplosion : SamusProjectileProgram.MissileExplosion);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Damage = 8;
-        slot.PreInstruction = SamusProjectilePreInstruction.None;
+        slot.FrameBehavior = SamusProjectileFrameBehavior.None;
 
         if (wasSuperMissile)
         {

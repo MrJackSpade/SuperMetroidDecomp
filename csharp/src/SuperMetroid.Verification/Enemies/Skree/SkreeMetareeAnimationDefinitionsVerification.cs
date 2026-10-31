@@ -52,13 +52,13 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
             var metareeSlot = NewSkreeMetareeAnimationSlot();
             var metareeState = new MetareeEnemyState
             {
-                RequestedInstructionListIndex = phase,
-                InstalledInstructionListIndex = DifferentSkreeMetareePhase(phase),
+                RequestedAnimationScriptIndex = phase,
+                InstalledAnimationScriptIndex = DifferentSkreeMetareePhase(phase),
             };
             MetareeBehavior.InstallRequestedMetareeInstruction(metareeSlot, metareeState);
             AssertSkreeMetareeHandoff(
                 metareeSlot,
-                metareeState.InstalledInstructionListIndex,
+                metareeState.InstalledAnimationScriptIndex,
                 phase,
                 metareeState.Program,
                 SkreeMetareePrograms.MetareeProgram(phase),
@@ -99,7 +99,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         MetareeBehavior.RunMetareeIdle(slot, (state), samus);
         AssertSkreeMetareeHandoff(
                 slot,
-                state.InstalledInstructionListIndex,
+                state.InstalledAnimationScriptIndex,
                 SkreeMetareeAnimationPhase.PreparingAttack,
                 state.Program,
                 SkreeMetareePrograms.MetareeProgram(SkreeMetareeAnimationPhase.PreparingAttack),
@@ -109,7 +109,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         enemies.MetareeBehavior.RunMetareePreparation(slot, state);
         AssertSkreeMetareeHandoff(
                 slot,
-                state.InstalledInstructionListIndex,
+                state.InstalledAnimationScriptIndex,
                 SkreeMetareeAnimationPhase.Diving,
                 state.Program,
                 SkreeMetareePrograms.MetareeProgram(SkreeMetareeAnimationPhase.Diving),
@@ -162,7 +162,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     /// <summary>Seeds nondefault instruction and timer values so installation must visibly replace them.</summary>
     private static RoomEnemySlot NewSkreeMetareeAnimationSlot() => new(0, EnemySlotFixtures.Registry)
     {
-        InstructionTimer = WrappingCountdown.Start(0x2222),
+        FrameHold = WrappingCountdown.Start(0x2222),
         Timer = WrappingCountdown.Start(0x3333),
     };
 
@@ -184,7 +184,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     {
         AssertEqual(expectedPhase, installed, $"{context} installed phase");
         AssertEqual(AnimationProgramCursor<SkreeMetareeProgram>.Start(expectedProgram), program, $"{context} animation");
-        AssertEqual(1, slot.InstructionTimer.RawValue, $"{context} instruction timer");
+        AssertEqual(1, slot.FrameHold.RawValue, $"{context} instruction timer");
         AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");
     }
 

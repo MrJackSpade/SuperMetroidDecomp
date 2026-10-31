@@ -29,8 +29,8 @@ internal static class ChozoStatueNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, NativeCueShape<ChozoStatueCue>> Instructions = new()
     {
-        [0x806b] = NativeCueShape<ChozoStatueCue>.Of<ChozoStatueCue.SetPreInstruction>("E"),
-        [0x8074] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.ClearPreInstruction)),
+        [0x806b] = NativeCueShape<ChozoStatueCue>.Of<ChozoStatueCue.SetFrameBehavior>("E"),
+        [0x8074] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.ClearFrameBehavior)),
         [0xe429] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.StartLoweringAcid)),
         [0xe436] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.SetLoweredAcidPosition)),
         [0xe43d] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.UnlockSamus)),

@@ -1236,7 +1236,7 @@ internal static class LookupStream4Verification
             state.Step(screen);
             var subtitle = new ShownEndingText(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCell);
             AssertTrue(screen.ResultPageText.Contains(subtitle), "Actual ending state shows the subtitle picture at its cell");
-            state.InstructionTimer = WrappingCountdown.Start(1);
+            state.FrameHold = WrappingCountdown.Start(1);
             state.Step(screen);
             AssertTrue(!screen.ResultPageText.Contains(subtitle), "Actual ending state clears the subtitle at its hold boundary");
             AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
@@ -1653,7 +1653,7 @@ internal static class LookupStream4Verification
             RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.CharacterZeroIn(SpriteColouring.InFixtureSet(3)));
             AssertTrue(spawned is not null, "room sprite native case allocates real slot");
             AssertEqual(entry, (spawned ?? throw new InvalidOperationException("Verification requires spawned.")).InstructionPointer, "room sprite actual initial program");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | entry)), spawned.InstructionTimer, "room sprite actual initial native duration");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | entry)), spawned.FrameHold, "room sprite actual initial native duration");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | (entry + 2))), spawned.SpritemapPointer, "room sprite actual initial native visual");
             AssertEqual(kind, spawned.Kind, "room sprite selected kind preserved");
             AssertEqual((ushort)0x1234, spawned.Position.X.Whole, "room sprite spawn X preserved");
@@ -2163,13 +2163,13 @@ internal static class LookupStream4Verification
         var electricity = electricitySystem.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
         for (int frame = 0; frame < 160; frame++)
         {
-            electricity.InstructionTimer = WrappingCountdown.Start(1);
+            electricity.FrameHold = WrappingCountdown.Start(1);
             electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
             AssertTrue(electricity.IsActive, "stream4 electricity active throughout twenty cycles");
-            AssertEqual((ushort)1, electricity.InstructionTimer.RawValue, "stream4 electricity one-frame timing");
+            AssertEqual((ushort)1, electricity.FrameHold.RawValue, "stream4 electricity one-frame timing");
             AssertEqual((ushort)(0xe689 + 4 * (frame % 8)), electricity.PresentationOperandAddress, "stream4 electricity installed presentation operand identity");
         }
-        electricity.InstructionTimer = WrappingCountdown.Start(1);
+        electricity.FrameHold = WrappingCountdown.Start(1);
         electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
         AssertTrue(!electricity.IsActive, "stream4 electricity deletes after twenty complete cycles");
         AssertEqual(0, electricityGuard.ForbiddenReadAttempts, "stream4 electricity no mechanics ROM reads");
@@ -3273,10 +3273,10 @@ internal static class LookupStream4Verification
                 int cursor = 0xbf5d + phase * 8;
                 int row = (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 2)) - 0xe1f1) / 30;
                 // The expressive loop's palette command for this phase is step 1 + 2 * phase, its pose the next step.
-                var state = new RidleyEnemyState { BabyProgram = new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 1 + 2 * phase), BabyInstructionTimer = 1, BabyVerticalVelocity = 1 };
+                var state = new RidleyEnemyState { BabyProgram = new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 1 + 2 * phase), BabyFrameHold = 1, BabyVerticalVelocity = 1 };
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 6)), advance(state), "Actual palette instruction selects matching native pose");
                 AssertEqual(new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 3 + 2 * phase), state.BabyProgram, "Palette instruction runs on to its pose");
-                AssertEqual(1, state.BabyInstructionTimer, "The new pose starts its elapsed count at one");
+                AssertEqual(1, state.BabyFrameHold, "The new pose starts its elapsed count at one");
                 for (int color = 0; color < 15; color++)
                     AssertEqual((ushort)(Native(row, color) ^ (variation == 0 && row == 2 && color == 0 ? 1 : 0)), cgram.Colors[177 + color], "Actual pose-selected palette preserves independent edits");
             }

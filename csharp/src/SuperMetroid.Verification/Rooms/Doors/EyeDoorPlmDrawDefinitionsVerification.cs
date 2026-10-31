@@ -169,11 +169,11 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         int eyeBlock = eyeY * width + eyeX;
         for (int frame = 0; frame < 1024 &&
              plms.EyeDoorSnapshots.Single(door => door.Component == EyeDoorComponent.Eye)
-                 .PreInstruction != DoorsNativeWords.EyeDoorPreInstructions.Word(EyeDoorPreInstruction.MissileHit); frame++)
+                 .FrameBehavior != DoorsNativeWords.EyeDoorFrameBehaviors.Word(EyeDoorFrameBehavior.MissileHit); frame++)
             plms.Step(level);
-        AssertEqual(DoorsNativeWords.EyeDoorPreInstructions.Word(EyeDoorPreInstruction.MissileHit),
+        AssertEqual(DoorsNativeWords.EyeDoorFrameBehaviors.Word(EyeDoorFrameBehavior.MissileHit),
             plms.EyeDoorSnapshots.Single(door => door.Component == EyeDoorComponent.Eye)
-                .PreInstruction,
+                .FrameBehavior,
             $"{orientation} retail eye-door program arms its missile pre-instruction");
         AssertTrue(plms.TryNotifyColoredDoorHit(eyeBlock,
                 SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),

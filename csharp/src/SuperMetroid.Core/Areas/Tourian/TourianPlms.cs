@@ -33,7 +33,7 @@ internal sealed class TourianPlms
     /// </summary>
     internal static void SetupMetroidsClearedSlot(PlmSlot slot)
     {
-        slot.PreInstruction = TourianPreInstructions.MetroidsClearedFor((slot.Argument as MetroidRoomArgument
+        slot.FrameBehavior = TourianFrameBehaviors.MetroidsClearedFor((slot.Argument as MetroidRoomArgument
             ?? throw new InvalidDataException($"Metroids-cleared PLM at block {slot.BlockIndex} was placed without its entry.")).Entry);
         slot.StartAnimation(new RoomPlmSharedAnimation(RoomPlmSharedProgram.Sleep));
     }
@@ -72,7 +72,7 @@ internal sealed class TourianPlms
         slot.LoopTimer = WrappingCountdown.Start(0);
         DoorPlms.SetupDoorTransitionDeactivatedSlot(level, slot);
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.OldTourianWallWait));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         return true;
     }
 
@@ -93,7 +93,7 @@ internal sealed class TourianPlms
         // $84:B90B-$B914 advances past the sleep and arms timer one; unlike other wakes it
         // leaves the loop timer alone.
         (slot.Animation ?? throw new InvalidOperationException("The old Tourian escape wall waits without its program.")).WakePastSleep();
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         (_enemies ?? throw new InvalidOperationException(
             "Old Tourian escape-shaft wall has no enemy-projectile owner.")).SpawnOldTourianEscapeShaftWallExplosion();
     }
@@ -107,7 +107,7 @@ internal sealed class TourianPlms
         slot.Header = definition.Header;
         slot.BlockIndex = level.GetBlockIndex(new(6, 12));
         slot.StartAnimation(new TourianAccessPlmAnimation(definition.Program));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         return true;
     }
 }

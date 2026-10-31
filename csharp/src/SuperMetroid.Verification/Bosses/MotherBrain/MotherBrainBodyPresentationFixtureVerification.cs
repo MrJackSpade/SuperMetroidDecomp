@@ -47,7 +47,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             Inner.Enemies.BossArtworkBinding.BodySheets = Sheets;
             ClearBg2();
             Inner.Enemies.Drawing.Enqueue(0, Body);
-            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.ProcessInstructions);
+            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.RunsAnimationScript);
         }
 
         /// <summary>Selects a body frame and optionally marks it as a new instruction frame.</summary>

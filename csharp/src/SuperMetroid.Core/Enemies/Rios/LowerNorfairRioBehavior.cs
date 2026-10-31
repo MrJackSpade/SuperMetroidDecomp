@@ -96,7 +96,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                     // its list installer on every rejected frame. The helper itself prevents
                     // an unchanged $C61A list from restarting.
                     state.AnimationSignal = false;
-                    InstallLowerNorfairRioInstructionList(
+                    InstallLowerNorfairRioAnimationScript(
                         slot,
                         state,
                         LowerNorfairRioProgram.Idle);
@@ -108,7 +108,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                     new SignedEightEight(RioLaunchDefinitions.LowerNorfairYVelocity));
                 if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
                     NegateLowerNorfairRioXVelocity(state);
-                InstallLowerNorfairRioInstructionList(
+                InstallLowerNorfairRioAnimationScript(
                     slot,
                     state,
                     LowerNorfairRioProgram.PrepareToSwoop);
@@ -119,7 +119,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 if (!state.AnimationSignal)
                     return;
                 state.AnimationSignal = false;
-                InstallLowerNorfairRioInstructionList(
+                InstallLowerNorfairRioAnimationScript(
                     slot,
                     state,
                     LowerNorfairRioProgram.Descending);
@@ -151,7 +151,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y)))
                 {
-                    InstallLowerNorfairRioInstructionList(
+                    InstallLowerNorfairRioAnimationScript(
                         slot,
                         state,
                         LowerNorfairRioProgram.Cooldown);
@@ -163,7 +163,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 if (state.AnimationSignal)
                 {
                     state.AnimationSignal = false;
-                    InstallLowerNorfairRioInstructionList(
+                    InstallLowerNorfairRioAnimationScript(
                         slot,
                         state,
                         LowerNorfairRioProgram.AscendingPart2);
@@ -174,7 +174,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 if (!state.AnimationSignal)
                     return;
                 state.AnimationSignal = false;
-                InstallLowerNorfairRioInstructionList(
+                InstallLowerNorfairRioAnimationScript(
                     slot,
                     state,
                     LowerNorfairRioProgram.Cooldown);
@@ -239,7 +239,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         LowerNorfairRioEnemyState state)
     {
         state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(-1));
-        InstallLowerNorfairRioInstructionList(
+        InstallLowerNorfairRioAnimationScript(
             slot,
             state,
             LowerNorfairRioProgram.AscendingPart1);
@@ -272,11 +272,11 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             WordWrap.Unsigned(state.Velocity.Y.RawValue - LowerNorfairRioGravity)));
 
     /// <summary>Restarts a different Rio animation list while leaving an unchanged list's timer intact.</summary>
-    private static void InstallLowerNorfairRioInstructionList(
+    private static void InstallLowerNorfairRioAnimationScript(
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state,
-        LowerNorfairRioProgram instructionList) =>
-        EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, instructionList, installed =>
+        LowerNorfairRioProgram animationScript) =>
+        EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, animationScript, installed =>
         {
             state.InstalledProgram = installed;
             state.Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(installed);

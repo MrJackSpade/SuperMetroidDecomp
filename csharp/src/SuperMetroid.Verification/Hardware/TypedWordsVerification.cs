@@ -147,7 +147,7 @@ internal static void VerifyTypedNativeWords()
     [
         (ushort)RoomPlmInstruction.Sleep,
         (ushort)RoomPlmInstruction.Delete,
-        (ushort)RoomPlmInstruction.InstallPreInstruction,
+        (ushort)RoomPlmInstruction.InstallFrameBehavior,
         (ushort)RoomPlmInstruction.Goto,
         (ushort)RoomPlmInstruction.DecrementTimerAndGoto,
         (ushort)RoomPlmInstruction.SetEightBitTimer,
@@ -335,12 +335,12 @@ internal static void VerifyTypedNativeWords()
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus),
         "enemy visibility, collision, plasma, and platform flags round trip");
     enemyProperties = enemyProperties.With(EnemyProperties.Deleted | EnemyProperties.ProcessOffScreen |
-        EnemyProperties.ProcessInstructions);
+        EnemyProperties.RunsAnimationScript);
     AssertTrue(enemyProperties.HasAll(EnemyProperties.Deleted | EnemyProperties.ProcessOffScreen |
-            EnemyProperties.ProcessInstructions),
+            EnemyProperties.RunsAnimationScript),
         "enemy deletion and processing flags round trip");
     enemyProperties = enemyProperties.Without(EnemyProperties.Invisible | EnemyProperties.Deleted |
-        EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions);
+        EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript);
     AssertEqual(EnemyProperties.IgnoreSamusCollision | EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus,
         enemyProperties, "enemy flag operations clear only the named flags");
     AssertEqual(enemyProperties, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(

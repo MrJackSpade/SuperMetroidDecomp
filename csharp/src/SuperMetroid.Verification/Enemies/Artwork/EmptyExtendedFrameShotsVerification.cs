@@ -37,7 +37,7 @@ internal static class EmptyExtendedFrameShotsVerification
         // Native update 37306: the pirate at ($1F4,$A0) on $804F, the charged beam at ($1F2,$A3).
         pirate.Position = pirate.Position.WithWhole(new(0x01f4, 0x00a0));
         pirate.SpritemapPointer = CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.Frame;
-        pirate.InstructionTimer = WrappingCountdown.Start(0x7fff);
+        pirate.FrameHold = WrappingCountdown.Start(0x7fff);
         int health = pirate.Health;
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(pirate.Position.Whole);
 
@@ -45,7 +45,7 @@ internal static class EmptyExtendedFrameShotsVerification
         shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true); shot.Damage = 60; shot.Direction = SamusProjectileDirection.Left;
         shot.Position = shot.Position.WithWhole(new(0x01f2, 0x00a3));
         shot.Radius = new(8, 8);
-        shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);
+        shot.Cursor = ProjectileFixtureCursors.Active; shot.FrameHold = WrappingCountdown.Start(1);
         int hits = runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyEnemy: pirate);
 

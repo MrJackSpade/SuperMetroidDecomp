@@ -308,12 +308,12 @@ internal sealed class NoobTubeBehavior
     /// <summary>Connects the crack, shard and bubble movers to the projectile engine.</summary>
     internal void AddNoobTubeProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context => FlickerNoobTubeCrack(context.Projectile), EnemyProjectilePreInstruction.NoobTubeCrackFlickering);
-        table.AddPreInstruction(context => DropNoobTubeCrack(context.Projectile), EnemyProjectilePreInstruction.NoobTubeCrackFalling);
-        table.AddPreInstruction(context => FlyNoobTubeShard(context.Projectile, context.Camera.Y), EnemyProjectilePreInstruction.NoobTubeShardFlying);
-        table.AddPreInstruction(context => DropNoobTubeShard(context.Projectile, context.Camera.Y), EnemyProjectilePreInstruction.NoobTubeShardFalling);
-        table.AddPreInstruction(context => DropNoobTubeBubble(context.Projectile), EnemyProjectilePreInstruction.NoobTubeBubbleFalling);
-        table.AddPreInstruction(context => MoveNoobTubeBubbleVertically(context.Projectile), EnemyProjectilePreInstruction.NoobTubeBubbleFlying);
+        table.AddFrameBehavior(context => FlickerNoobTubeCrack(context.Projectile), EnemyProjectileFrameBehavior.NoobTubeCrackFlickering);
+        table.AddFrameBehavior(context => DropNoobTubeCrack(context.Projectile), EnemyProjectileFrameBehavior.NoobTubeCrackFalling);
+        table.AddFrameBehavior(context => FlyNoobTubeShard(context.Projectile, context.Camera.Y), EnemyProjectileFrameBehavior.NoobTubeShardFlying);
+        table.AddFrameBehavior(context => DropNoobTubeShard(context.Projectile, context.Camera.Y), EnemyProjectileFrameBehavior.NoobTubeShardFalling);
+        table.AddFrameBehavior(context => DropNoobTubeBubble(context.Projectile), EnemyProjectileFrameBehavior.NoobTubeBubbleFalling);
+        table.AddFrameBehavior(context => MoveNoobTubeBubbleVertically(context.Projectile), EnemyProjectileFrameBehavior.NoobTubeBubbleFlying);
     }
 
     /// <summary>Carries out the cues of the crack, shard and bubble programs.</summary>
@@ -344,8 +344,8 @@ internal sealed class NoobTubeBehavior
             case NoobTubeProjectileCueKind.AssignBubbleFallingAngle:
                 projectile.StateOf<NoobTubeDebrisState>().SwayPhase = SharedRandomState.UpperByte(_room.Random.Generate());
                 break;
-            case NoobTubeProjectileCueKind.SetPreInstruction:
-                projectile.PreInstruction = cue.PreInstruction;
+            case NoobTubeProjectileCueKind.SetFrameBehavior:
+                projectile.FrameBehavior = cue.FrameBehavior;
                 break;
             case NoobTubeProjectileCueKind.Delete:
                 projectile.Clear();

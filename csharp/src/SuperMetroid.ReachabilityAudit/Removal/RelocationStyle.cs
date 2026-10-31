@@ -19,7 +19,7 @@ internal sealed record RelocationStyle(string MembersWord, string ExtensionsWord
 {
     /// <summary>File-name suffixes that name definition catalogs.</summary>
     private static readonly string[] CatalogSuffixes =
-        ["Addresses", "Catalog", "CodePointers", "Codes", "Constants", "Definitions", "Definition", "Flags", "InstructionLists",
+        ["Addresses", "Catalog", "CodePointers", "Codes", "Constants", "Definitions", "Definition", "Flags", "AnimationScripts",
          "Layout", "Masks", "Pointers", "RomData", "Tables", "Values", "Words"];
 
     /// <summary>Development-only project adapters for shipped code only tools reach.</summary>

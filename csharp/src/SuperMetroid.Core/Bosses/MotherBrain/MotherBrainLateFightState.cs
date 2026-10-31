@@ -114,7 +114,7 @@ internal sealed class MotherBrainLateFightState
         // `$A9:C447` restarts the separate brain program and its timer. Unlike ordinary
         // enemy programs it has no loop-counter write here.
         HeadProgram = program;
-        HeadInstructionListRequestSerial++;
+        HeadAnimationScriptRequestSerial++;
     }
 
     /// <summary>Sets the NTSC neck angle and opposed raise/lower indices for retreat after the attack.</summary>
@@ -252,5 +252,5 @@ internal sealed class MotherBrainLateFightState
         WordWrap.Signed(value - threshold) >= 0;
 
     /// <summary>How many head instruction lists the phases have requested; a change marks a new request.</summary>
-    internal uint HeadInstructionListRequestSerial { get; private set; }
+    internal uint HeadAnimationScriptRequestSerial { get; private set; }
 }

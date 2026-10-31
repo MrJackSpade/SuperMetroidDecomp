@@ -48,8 +48,8 @@ internal abstract record TorizoCue
     internal sealed record SetFunction(TorizoFunction Function) : TorizoCue;
 
     /// <summary>Installs the body's pre-instruction (<c>Instruction_CommonAA_Enemy0FB2_InY</c>, $AA:806B).</summary>
-    /// <param name="PreInstruction">The pre-instruction a <see cref="SetPreInstruction"/> cue installs.</param>
-    internal sealed record SetPreInstruction(TorizoPreInstruction PreInstruction) : TorizoCue;
+    /// <param name="FrameBehavior">The pre-instruction a <see cref="SetFrameBehavior"/> cue installs.</param>
+    internal sealed record SetFrameBehavior(TorizoFrameBehavior FrameBehavior) : TorizoCue;
 
     /// <summary>Shows a piece of artwork under the body's poses (the cartridge's common <c>$814B</c> copy).</summary>
     /// <param name="Swap">The artwork a <see cref="ShowArtwork"/> cue shows.</param>

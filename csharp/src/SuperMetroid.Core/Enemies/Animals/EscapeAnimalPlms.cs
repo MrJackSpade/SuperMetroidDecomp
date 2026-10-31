@@ -57,7 +57,7 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
         slot.Header = PlmHeaderId.CrateriaMainstreetEscapePassage;
         slot.LoopTimer = WrappingCountdown.Start(0);
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.CrateriaPassage));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         return true;
     }
 
@@ -73,7 +73,7 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
 
         slot.BlockIndex = blockIndex;
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.EscapeAnimalReaction));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         // The reaction keeps the wall's collision type and shows the reaction block; until its list runs, the block
         // is deactivated, staying solid only when it was.

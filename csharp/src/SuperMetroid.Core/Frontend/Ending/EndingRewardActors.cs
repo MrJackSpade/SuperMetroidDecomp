@@ -13,16 +13,16 @@ internal static class EndingRewardActors
     /// </summary>
     public static EndingRewardActorDefinition Get(EndingRewardActor definition) => definition switch
     {
-        EndingRewardActor.SuitlessUpper => new(EndingRewardInitialization.Suitless, CinematicSpritePreInstruction.RewardSuitlessUpperNoOp, CinematicSpriteProgram.HairRelease),
-        EndingRewardActor.SuitlessLower => new(EndingRewardInitialization.Suitless, CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.HairReleaseLegs),
-        EndingRewardActor.SuitedBody => new(EndingRewardInitialization.SuitedBody, CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.GestureBody),
-        EndingRewardActor.SuitedArm => new(EndingRewardInitialization.SuitedBody, CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.GestureArm),
-        EndingRewardActor.HelmetedHead => new(EndingRewardInitialization.HelmetedHead, CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.GestureHelmet),
-        EndingRewardActor.HelmetlessHead => new(EndingRewardInitialization.HelmetlessHead, CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.GestureHead),
-        EndingRewardActor.JumpSuitlessBody => new(EndingRewardInitialization.Suitless, CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.SuitlessJump),
-        EndingRewardActor.JumpSuitedBody => new(EndingRewardInitialization.SuitedBody, CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.SuitedJump),
-        EndingRewardActor.JumpHelmetedHead => new(EndingRewardInitialization.HelmetedHead, CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.HelmetJump),
-        EndingRewardActor.JumpHelmetlessHead => new(EndingRewardInitialization.HelmetlessHead, CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.HeadJump),
+        EndingRewardActor.SuitlessUpper => new(EndingRewardInitialization.Suitless, CinematicSpriteFrameBehavior.RewardSuitlessUpperNoOp, CinematicSpriteProgram.HairRelease),
+        EndingRewardActor.SuitlessLower => new(EndingRewardInitialization.Suitless, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.HairReleaseLegs),
+        EndingRewardActor.SuitedBody => new(EndingRewardInitialization.SuitedBody, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.GestureBody),
+        EndingRewardActor.SuitedArm => new(EndingRewardInitialization.SuitedBody, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.GestureArm),
+        EndingRewardActor.HelmetedHead => new(EndingRewardInitialization.HelmetedHead, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.GestureHelmet),
+        EndingRewardActor.HelmetlessHead => new(EndingRewardInitialization.HelmetlessHead, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.GestureHead),
+        EndingRewardActor.JumpSuitlessBody => new(EndingRewardInitialization.Suitless, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.SuitlessJump),
+        EndingRewardActor.JumpSuitedBody => new(EndingRewardInitialization.SuitedBody, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.SuitedJump),
+        EndingRewardActor.JumpHelmetedHead => new(EndingRewardInitialization.HelmetedHead, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.HelmetJump),
+        EndingRewardActor.JumpHelmetlessHead => new(EndingRewardInitialization.HelmetlessHead, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.HeadJump),
         _ => throw new InvalidOperationException($"Undefined {nameof(EndingRewardActor)} {definition}."),
     };
 

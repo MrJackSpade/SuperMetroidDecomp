@@ -146,7 +146,7 @@ public static class GameOverPresentationExtractor
         const int FrameRecordBytes = 6;
         const int CryCallbackBytes = 2;
         int pointer = GameOverBabyAnimationDefinitions.FirstPointer;
-        foreach (GameOverBabyInstruction instruction in GameOverBabyAnimation.All)
+        foreach (GameOverBabyScriptStep instruction in GameOverBabyAnimation.All)
         {
             int address = GameOverSourceDefinitions.SpriteBank | pointer;
             int duration = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);

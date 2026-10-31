@@ -34,7 +34,7 @@ internal static class PaletteFxProgramLayoutAccess
     }
 
     /// <summary>Heat program selection by address.</summary>
-    extension(PaletteFxHeatInstructionListDefinitions)
+    extension(PaletteFxHeatAnimationScriptDefinitions)
     {
         /// <summary>The bank-$8D record <paramref name="suit"/>'s program shows at <paramref name="phase"/>.</summary>
         internal static ushort Resolve(PaletteFxHeatSuit suit, ushort phase) =>

@@ -24,9 +24,9 @@ internal sealed class PlmSlot
     /// <summary>The typed program the slot runs (#1296), or null for a slot a family step drives or a free slot.</summary>
     internal PlmAnimation? Animation { get; private set; }
     /// <summary>Countdown until the slot's next instruction-list step.</summary>
-    public WrappingCountdown InstructionTimer { get; set; }
+    public WrappingCountdown FrameHold { get; set; }
     /// <summary>The pre-instruction run before the timer/list pass.</summary>
-    internal IPlmPreInstruction PreInstruction { get; set; } = PlmPreInstructions.Inert;
+    internal IPlmFrameBehavior FrameBehavior { get; set; } = PlmFrameBehaviors.Inert;
     /// <summary>What the slot's PLM was placed with, or the state its setup or opening left there; null for none.</summary>
     public PlmRoomArgument? Argument { get; set; }
     /// <summary>The hits a Draygon cannon or Mother Brain's glass has taken.</summary>
@@ -63,8 +63,8 @@ internal sealed class PlmSlot
         BlockIndex = 0;
         RestoreTerrain = PlmSlotDefinitions.ClearedRestoreTerrain;
         Animation = null;
-        InstructionTimer = WrappingCountdown.Start(0);
-        PreInstruction = PlmPreInstructions.Inert;
+        FrameHold = WrappingCountdown.Start(0);
+        FrameBehavior = PlmFrameBehaviors.Inert;
         Argument = null;
         HitCounter = 0;
         LoopTimer = WrappingCountdown.Start(0);
@@ -97,13 +97,13 @@ internal sealed class PlmSlot
     internal void WakeAtLink()
     {
         (Animation ?? throw new InvalidOperationException("A PLM woke at its link without a typed program.")).WakeAtLink();
-        InstructionTimer = WrappingCountdown.Start(1);
+        FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>A pre-instruction's wake past the sleep the slot rests on: the typed program steps over its hold, on the next pass.</summary>
     internal void WakePastSleep()
     {
         (Animation ?? throw new InvalidOperationException("A PLM woke past its sleep without a typed program.")).WakePastSleep();
-        InstructionTimer = WrappingCountdown.Start(1);
+        FrameHold = WrappingCountdown.Start(1);
     }
 }

@@ -45,7 +45,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 slot.Properties, $"Shaktool production properties {index}");
             AssertEqual(0, state.OwnerSlotIndex,
                 $"Shaktool production owner {index}");
-            AssertEqual(definition.PreInstruction, state.PreInstruction,
+            AssertEqual(definition.FrameBehavior, state.FrameBehavior,
                 $"Shaktool production callback {index}");
             AssertEqual(definition.AngularVelocity, state.AngularVelocity,
                 $"Shaktool production angular velocity {index}");
@@ -55,20 +55,20 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool production initial list {index}");
             AssertEqual(definition.Layer, slot.Layer,
                 $"Shaktool production layer {index}");
-            AssertEqual((ushort)1, slot.InstructionTimer.RawValue,
+            AssertEqual((ushort)1, slot.FrameHold.RawValue,
                 $"Shaktool production instruction timer {index}");
         }
 
         foreach (ShaktoolSegmentState? state in enemies.ShaktoolSegments.Take(7))
-            (state ?? throw new InvalidOperationException("Verification requires state.")).PreInstruction = ShaktoolPreInstruction.Idle;
+            (state ?? throw new InvalidOperationException("Verification requires state.")).FrameBehavior = ShaktoolFrameBehavior.Idle;
         AssertEqual(null, enemies.ShaktoolBehavior.ApplyShaktoolCue(
                 enemies.SlotTable.Slots[0], enemies.ShaktoolSegments[0] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[0]."),
                 new ShaktoolCue(ShaktoolCueKind.ResetFunctions)),
             "Shaktool production reset cue runs on");
         for (int index = 0; index < definitions.Length; index++)
         {
-            AssertEqual(definitions[index].PreInstruction,
-                (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index].")).PreInstruction,
+            AssertEqual(definitions[index].FrameBehavior,
+                (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index].")).FrameBehavior,
                 $"Shaktool production reset callback {index}");
         }
 
@@ -113,7 +113,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
         for (int index = 0; index < 7; index++)
         {
             ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(ShaktoolSegmentDefinitions.NativeCallbackAddress + 2 * index);
-            AssertEqual(ShaktoolNativeWords.DecodePreInstruction(word, "Shaktool segment callback"), ShaktoolSegments.ForIndex(index).PreInstruction,
+            AssertEqual(ShaktoolNativeWords.DecodeFrameBehavior(word, "Shaktool segment callback"), ShaktoolSegments.ForIndex(index).FrameBehavior,
                 $"Shaktool callback selection {index}");
         }
     }

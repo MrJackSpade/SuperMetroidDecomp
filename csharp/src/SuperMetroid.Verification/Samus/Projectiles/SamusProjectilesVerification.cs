@@ -222,12 +222,12 @@ internal static void VerifySamusPowerBeamProjectiles()
         AssertEqual(10, combinedProjectiles.Firing.ProjectileInvincibilityTimer.RawValue,
             $"beam combination {beamType} publishes native invincibility timer");
 
-        SamusProjectilePreInstruction expectedPreInstruction = (beamType & 1) == 0
-            ? SamusProjectilePreInstruction.NoWaveBeam
+        SamusProjectileFrameBehavior expectedFrameBehavior = (beamType & 1) == 0
+            ? SamusProjectileFrameBehavior.NoWaveBeam
             : beamType < 4
-                ? SamusProjectilePreInstruction.WaveBeamThreeFrameTrail
-                : SamusProjectilePreInstruction.WaveBeamFourFrameTrail;
-        AssertEqual(expectedPreInstruction, combinedSlot.PreInstruction,
+                ? SamusProjectileFrameBehavior.WaveBeamThreeFrameTrail
+                : SamusProjectileFrameBehavior.WaveBeamFourFrameTrail;
+        AssertEqual(expectedFrameBehavior, combinedSlot.FrameBehavior,
             $"beam combination {beamType} selects native pre-instruction family");
     }
 
@@ -622,9 +622,9 @@ internal static void VerifySamusPowerBeamProjectiles()
             $"charged beam combination {beamType} indexes charged sound");
         AssertEqual(
             (beamType & 1) == 0
-                ? SamusProjectilePreInstruction.NoWaveBeam
-                : SamusProjectilePreInstruction.WaveBeamFourFrameTrail,
-            combinedChargedSlot.PreInstruction,
+                ? SamusProjectileFrameBehavior.NoWaveBeam
+                : SamusProjectileFrameBehavior.WaveBeamFourFrameTrail,
+            combinedChargedSlot.FrameBehavior,
             $"charged beam combination {beamType} selects native wave dispatch");
     }
 
@@ -650,7 +650,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0, beforeHyper.FiredSlot(hyperProjectiles), "Hyper Beam allocates ordinary slot zero");
     AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true), hyperSlot.Type, "Hyper Beam is a charged Plasma beam");
     AssertEqual(1000, hyperSlot.Damage, "Hyper Beam overwrites ROM-table damage with 1000");
-    AssertEqual(SamusProjectilePreInstruction.HyperBeam, hyperSlot.PreInstruction,
+    AssertEqual(SamusProjectileFrameBehavior.HyperBeam, hyperSlot.FrameBehavior,
         "Hyper Beam selects trail-free Wave movement");
     AssertEqual(0, hyperSlot.TrailTimer.RawValue, "Hyper Beam does not arm a projectile trail");
     AssertEqual(21, hyperBombs.CooldownTimer.RawValue, "Hyper Beam installs literal cooldown 21");
@@ -759,7 +759,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         chargeProjectiles.DrawTrails(frame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
     });
     AssertEqual(1, trailOam.LastFinalizedSpriteCount, "charged power's left stream emits one raw OBJ");
-    AssertEqual(0, chargedTrail.Right.InstructionTimer.RawValue,
+    AssertEqual(0, chargedTrail.Right.FrameHold.RawValue,
         "charged power's empty right stream terminates without drawing");
     OamEntry firstTrailObj = trailOam.GetEntry(0);
     AssertEqual(0x038, firstTrailObj.TileNumber, "charged trail reads first `$2C38` tile");
@@ -776,7 +776,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // Time freeze bypasses DEC and command parsing but not OAM emission. The same record and
     // instruction pointer must remain visible and unchanged for an arbitrary frozen frame.
     ushort frozenTrailPointer = checked((ushort)chargedTrail.Left.InstructionPointer);
-    ushort frozenTrailTimer = chargedTrail.Left.InstructionTimer.RawValue;
+    ushort frozenTrailTimer = chargedTrail.Left.FrameHold.RawValue;
     trailOam = SpriteFrameBuffer.DrawnOam(frame =>
     {
         chargeProjectiles.AdvanceTrails(true);
@@ -784,7 +784,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     });
     AssertEqual(frozenTrailPointer, chargedTrail.Left.InstructionPointer,
         "frozen trail retains instruction pointer");
-    AssertEqual(frozenTrailTimer, chargedTrail.Left.InstructionTimer.RawValue,
+    AssertEqual(frozenTrailTimer, chargedTrail.Left.FrameHold.RawValue,
         "frozen trail retains instruction timer");
     AssertEqual(1, trailOam.LastFinalizedSpriteCount, "frozen active trail still draws");
 
@@ -823,7 +823,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         ushort commandAddress = unchecked((ushort)(list + 6 * 4));
         AssertEqual(ProjectileTrailNative.InstructionAddress(command), ProjectileTrailProgramDefinitions.Read(SamusSourceDefinitions.MovementBank.Value | commandAddress),
             "the compiled ice list holds its fall command after six poses");
-        executingSide.InstructionTimer = WrappingCountdown.Start(1);
+        executingSide.FrameHold = WrappingCountdown.Start(1);
         executingSide.InstructionPointer = commandAddress;
         trailOam = SpriteFrameBuffer.DrawnOam(frame =>
         {
@@ -870,8 +870,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(!waveReportedExplosion, "wave beam never converts on a type-eight wall");
     AssertTrue(waveWallProjectiles.Slots[0].Position.X.Whole > 112,
         "wave beam advances completely through the solid column");
-    AssertEqual(SamusProjectilePreInstruction.WaveBeamThreeFrameTrail,
-        waveWallProjectiles.Slots[0].PreInstruction,
+    AssertEqual(SamusProjectileFrameBehavior.WaveBeamThreeFrameTrail,
+        waveWallProjectiles.Slots[0].FrameBehavior,
         "power+wave remains in its native pass-through pre-instruction");
 
     WritePoseDefinition(
@@ -1033,7 +1033,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "missile producer installs literal projectile invincibility timer twenty");
     AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.Missile), missile.Type, "missile is an ordinary missile");
     AssertEqual(0x0064, missile.Damage, "missile reads damage from `$93:8641`");
-    AssertEqual(SamusProjectilePreInstruction.Missile, missile.PreInstruction,
+    AssertEqual(SamusProjectileFrameBehavior.Missile, missile.FrameBehavior,
         "missile selects `$90:AF68` pre-instruction family");
     AssertEqual(SamusMissileIgnition.Ignited, missile.MissileIgnition,
         "first alpha pass ignites the missile");
@@ -1073,9 +1073,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(1, missileOam.LastFinalizedSpriteCount, "missile left trail emits one small OBJ");
     AssertEqual(0x048, missileOam.GetEntry(0).TileNumber,
         "missile trail starts at retail tile `$2A48`");
-    AssertEqual(4, missileTrail.Left.InstructionTimer.RawValue,
+    AssertEqual(4, missileTrail.Left.FrameHold.RawValue,
         "missile trail retains its four-frame record duration");
-    AssertEqual(0, missileTrail.Right.InstructionTimer.RawValue,
+    AssertEqual(0, missileTrail.Right.FrameHold.RawValue,
         "missile's empty right trail stream terminates immediately");
 
     bool missileExploded = false;
@@ -1511,11 +1511,11 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(SamusMissileIgnition.Ignited, super.MissileIgnition, "super owner has ignited");
     AssertEqual(1, super.SuperMissileLinkSlot,
         "super owner names slot one as its link");
-    AssertEqual(SamusProjectilePreInstruction.SuperMissile, super.PreInstruction,
+    AssertEqual(SamusProjectileFrameBehavior.SuperMissile, super.FrameBehavior,
         "super owner selects `$90:AFE5`");
     AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), superLink.Type, "super link is a Super Missile");
     AssertEqual(0x012c, superLink.Damage, "super link carries native damage sentinel");
-    AssertEqual(SamusProjectilePreInstruction.SuperMissileLink, superLink.PreInstruction,
+    AssertEqual(SamusProjectileFrameBehavior.SuperMissileLink, superLink.FrameBehavior,
         "super link selects stationary `$90:B075`");
     AssertEqual(super.Position.X.Whole, superLink.Position.X.Whole,
         "slow horizontal link follows owner center after ignition movement");
@@ -1776,11 +1776,11 @@ static void PoisonRetiredBeamRoutingTables(TestAddressSpace bus)
     }
     for (int beamType = 0; beamType < 12; beamType++)
     {
-        WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable + beamType * 2,
-            (beamType & 1) == 0 ? SamusBeamPreInstructionCodes.NoWave : beamType < 4
-                ? SamusBeamPreInstructionCodes.WaveThreeFrameTrail : SamusBeamPreInstructionCodes.WaveFourFrameTrail);
-        WriteTestWord(bus, SamusBeamPreInstructionCodes.ChargedTable + beamType * 2,
-            (beamType & 1) == 0 ? SamusBeamPreInstructionCodes.NoWave : SamusBeamPreInstructionCodes.WaveFourFrameTrail);
+        WriteTestWord(bus, SamusBeamFrameBehaviorCodes.UnchargedTable + beamType * 2,
+            (beamType & 1) == 0 ? SamusBeamFrameBehaviorCodes.NoWave : beamType < 4
+                ? SamusBeamFrameBehaviorCodes.WaveThreeFrameTrail : SamusBeamFrameBehaviorCodes.WaveFourFrameTrail);
+        WriteTestWord(bus, SamusBeamFrameBehaviorCodes.ChargedTable + beamType * 2,
+            (beamType & 1) == 0 ? SamusBeamFrameBehaviorCodes.NoWave : SamusBeamFrameBehaviorCodes.WaveFourFrameTrail);
     }
 }
 

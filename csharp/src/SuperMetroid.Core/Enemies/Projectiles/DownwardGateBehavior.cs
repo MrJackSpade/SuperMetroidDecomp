@@ -134,11 +134,11 @@ internal sealed class DownwardGateBehavior
             case DownwardGateProjectileCue.SetYVelocity setYVelocity:
                 projectile.Velocity = projectile.Velocity.WithY(setYVelocity.YVelocity);
                 break;
-            case DownwardGateProjectileCue.SetPreInstruction setPreInstruction:
-                projectile.PreInstruction = setPreInstruction.PreInstruction;
+            case DownwardGateProjectileCue.SetFrameBehavior setFrameBehavior:
+                projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
                 break;
-            case DownwardGateProjectileCue.Command { Kind: DownwardGateProjectileCueKind.ClearPreInstruction }:
-                projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+            case DownwardGateProjectileCue.Command { Kind: DownwardGateProjectileCueKind.ClearFrameBehavior }:
+                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
                 break;
             case DownwardGateProjectileCue.Command { Kind: DownwardGateProjectileCueKind.Delete }:
                 projectile.Clear();
@@ -152,9 +152,9 @@ internal sealed class DownwardGateBehavior
     internal static void AddDownwardGateProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddCue<DownwardGateProjectileCue>((context, cue) => ApplyDownwardGateCue(context.Projectile, cue));
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunDownwardGateProjectileMovement(context.Projectile);
-        }, EnemyProjectilePreInstruction.DownwardGateDescent);
+        }, EnemyProjectileFrameBehavior.DownwardGateDescent);
     }
 }

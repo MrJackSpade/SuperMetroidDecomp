@@ -52,7 +52,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         // Rio_Init writes the list directly rather than calling Rio_6. The installed animation must
         // therefore remain none until the first behavioral transition installs a new list.
         state.Program = AnimationProgramCursor<RioProgram>.Start(RioProgram.Idle);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
@@ -85,7 +85,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     new SignedEightEight(RioLaunchDefinitions.RioYVelocity));
                 if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
                     state.Velocity = state.Velocity.WithX(SignedEightEight.Wrapped(-state.Velocity.X.SignedRawValue));
-                InstallRioInstructionList(
+                InstallRioAnimationScript(
                     slot,
                     state,
                     RioProgram.SwoopingPart1);
@@ -101,7 +101,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!state.AnimationFinished)
                     return;
                 state.AnimationFinished = false;
-                InstallRioInstructionList(
+                InstallRioAnimationScript(
                     slot,
                     state,
                     RioProgram.PostSwoopIdle);
@@ -138,7 +138,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 else if (state.AnimationFinished)
                 {
                     state.AnimationFinished = false;
-                    InstallRioInstructionList(
+                    InstallRioAnimationScript(
                         slot,
                         state,
                         RioProgram.SwoopingPart2);
@@ -159,7 +159,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y)))
                 {
-                    InstallRioInstructionList(
+                    InstallRioAnimationScript(
                         slot,
                         state,
                         RioProgram.SwoopCooldown);
@@ -223,7 +223,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Rio_6: install an animation only when it actually changes.</summary>
-    private static void InstallRioInstructionList(
+    private static void InstallRioAnimationScript(
         RoomEnemySlot slot,
         RioEnemyState state,
         RioProgram program) =>

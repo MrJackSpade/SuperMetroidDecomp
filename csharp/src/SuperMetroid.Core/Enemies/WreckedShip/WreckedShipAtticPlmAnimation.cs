@@ -18,9 +18,9 @@ internal sealed class WreckedShipAtticPlmAnimation()
     /// <inheritdoc/>
     private protected override WreckedShipAtticProgram? Publish(WreckedShipAtticCue cue, PlmSlot slot, PlmStepContext context)
     {
-        if (cue != WreckedShipAtticCue.InstallInertPreInstruction)
+        if (cue != WreckedShipAtticCue.InstallInertFrameBehavior)
             throw new InvalidOperationException($"Undefined {nameof(WreckedShipAtticCue)} {cue}.");
-        slot.PreInstruction = WreckedShipAtticPreInstructions.NoOpCallback;
+        slot.FrameBehavior = WreckedShipAtticFrameBehaviors.NoOpCallback;
         return null;
     }
 }

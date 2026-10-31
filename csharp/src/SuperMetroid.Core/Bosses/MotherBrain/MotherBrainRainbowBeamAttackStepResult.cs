@@ -14,7 +14,7 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     MotherBrainRainbowExplosionRequest? Explosion,
     bool ChargeSoundQueued,
     bool BodyWalkRequested,
-    bool HeadInstructionListRequested,
+    bool HeadAnimationScriptRequested,
     bool BodyPostureRequested,
     MotherBrainSpritePage? SpritePage,
     bool BabySpawnRequested,

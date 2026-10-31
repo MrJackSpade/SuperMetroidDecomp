@@ -14,7 +14,7 @@ internal enum NoobTubeCue
     /// <summary>Installs the accepted-input wake pre-instruction.</summary>
     ArmInputWake,
     /// <summary>Clears the pre-instruction.</summary>
-    ClearPreInstruction,
+    ClearFrameBehavior,
     /// <summary>Locks Samus for the break sequence.</summary>
     LockSamus,
     /// <summary>Spawns the crack projectile.</summary>

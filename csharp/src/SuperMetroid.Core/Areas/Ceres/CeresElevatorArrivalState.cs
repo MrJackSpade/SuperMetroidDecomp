@@ -82,7 +82,7 @@ public sealed class CeresElevatorArrivalState
                     pad.Start(CeresElevatorArrivalProgram.Delete);
                 }
             }
-            ProcessInstructionList(pad);
+            ProcessAnimationScript(pad);
         }
 
         if (platform.Active)
@@ -91,7 +91,7 @@ public sealed class CeresElevatorArrivalState
             {
                 platform.Start(CeresElevatorArrivalProgram.Delete);
             }
-            ProcessInstructionList(platform);
+            ProcessAnimationScript(platform);
         }
 
         return IsComplete;
@@ -127,10 +127,10 @@ public sealed class CeresElevatorArrivalState
     }
 
     /// <summary>Runs a projectile's typed program (#641) when its frame expires: a new pose, or the delete.</summary>
-    private static void ProcessInstructionList(CeresElevatorProjectile projectile)
+    private static void ProcessAnimationScript(CeresElevatorProjectile projectile)
     {
-        CountdownStep frameStep = projectile.InstructionTimer.Decrement();
-        projectile.InstructionTimer = frameStep.Remaining;
+        CountdownStep frameStep = projectile.FrameHold.Decrement();
+        projectile.FrameHold = frameStep.Remaining;
         if (!frameStep.IsZero)
             return;
 
@@ -143,7 +143,7 @@ public sealed class CeresElevatorArrivalState
         switch (advance)
         {
             case AnimationProgramAdvance<CeresElevatorArrivalPose>.Show shown:
-                projectile.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
+                projectile.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 projectile.Pose = shown.Frame;
                 return;
             case AnimationProgramAdvance<CeresElevatorArrivalPose>.Stop:
@@ -205,11 +205,11 @@ public sealed class CeresElevatorArrivalState
         /// <summary>Starts <paramref name="program"/> on the next update.</summary>
         internal void Start(CeresElevatorArrivalProgram program)
         {
-            InstructionTimer = WrappingCountdown.Start(1);
+            FrameHold = WrappingCountdown.Start(1);
             Program = AnimationProgramCursor<CeresElevatorArrivalProgram>.Start(program);
         }
         /// <summary>Frames until this projectile's next instruction pass.</summary>
-        public WrappingCountdown InstructionTimer { get; set; } = WrappingCountdown.Start(1);
+        public WrappingCountdown FrameHold { get; set; } = WrappingCountdown.Start(1);
         /// <summary>The pose the projectile shows, none before its first frame.</summary>
         internal CeresElevatorArrivalPose? Pose { get; set; }
     }

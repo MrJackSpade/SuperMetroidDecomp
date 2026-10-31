@@ -94,14 +94,14 @@ internal enum NativeEnemyProjectileInstruction : ushort
     /// <summary><c>Instruction_EnemyProjectile_Sleep</c> at $86:8159. Sleep forever while pre-instruction movement remains active.</summary>
         Sleep = 0x8159,
 
-    /// <summary><c>Instruction_EnemyProjectile_PreInstructionInY</c> at $86:8161. Install the operand as pre-instruction.</summary>
-        PreInstructionInY = 0x8161,
+    /// <summary><c>Instruction_EnemyProjectile_FrameBehaviorInY</c> at $86:8161. Install the operand as pre-instruction.</summary>
+        FrameBehaviorInY = 0x8161,
 
     /// <summary><c>Instruction_EnemyProjectile_CalculateDirectionTowardsSamus</c> at $86:82A5.</summary>
         CalculateDirectionTowardsSamus = 0x82a5,
 
-    /// <summary><c>Instruction_EnemyProjectile_ClearPreInstruction</c> at $86:816A. Clear pre-instruction to $8170 RTS.</summary>
-        ClearPreInstruction = 0x816a,
+    /// <summary><c>Instruction_EnemyProjectile_ClearFrameBehavior</c> at $86:816A. Clear pre-instruction to $8170 RTS.</summary>
+        ClearFrameBehavior = 0x816a,
 
     /// <summary>Instruction <c>$86:E533</c>, which consumes one signed Y-velocity word.</summary>
         DownwardGateSetYVelocityInstruction = 0xe533,
@@ -148,8 +148,8 @@ internal enum NativeEnemyProjectileInstruction : ushort
     /// <summary><c>Instruction_MoveRandomlyWithinXRadius_YRadius</c> at $86:81DF. Randomly offset the actor inside authored X/Y radii.</summary>
         MoveRandomlyWithinXRadius_YRadius = 0x81df,
 
-    /// <summary><c>Instruction_PreInstructionInY_ExecuteY</c> at $86:A050. Pirate laser: install operand as pre-instruction and run it.</summary>
-        PreInstructionInY_ExecuteY = 0xa050,
+    /// <summary><c>Instruction_FrameBehaviorInY_ExecuteY</c> at $86:A050. Pirate laser: install operand as pre-instruction and run it.</summary>
+        FrameBehaviorInY_ExecuteY = 0xa050,
 
     /// <summary><c>Instruction_EnemyProjectile_Torizo_ResetPosition</c> at $86:A3BE. Restore X/Y saved by the sonic-boom collision pre-instruction.</summary>
         Torizo_ResetPosition = 0xa3be,
@@ -215,7 +215,7 @@ internal enum NativeEnemyProjectileInstruction : ushort
         KagoBugUsePaletteZeroInstruction = 0xd1c7,
 
     /// <summary>
-    /// <c>PreInstruction_EnemyProjectile_KagoBug_SpawnDrop</c> used as an instruction
+    /// <c>FrameBehavior_EnemyProjectile_KagoBug_SpawnDrop</c> used as an instruction
     /// callback at $86:D1CE.
     /// </summary>
         KagoBugSpawnDropInstruction = 0xd1ce,

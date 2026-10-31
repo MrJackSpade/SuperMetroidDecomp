@@ -29,7 +29,7 @@ internal static class BullMovementDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d885 + speed * 2)), state.MaxSpeed, "Bull compiled speed");
             AssertEqual(BullEnemyFunction.MovementDelay, state.Function, "Bull initial function");
             AssertEqual(16, state.ActivationTimer.RawValue, "Bull native activation delay");
-            AssertEqual(1, slot.InstructionTimer.RawValue, "Bull instruction timer");
+            AssertEqual(1, slot.FrameHold.RawValue, "Bull instruction timer");
             AssertEqual(0, slot.Timer.RawValue, "Bull loop timer");
             AssertEqual(AnimationProgramCursor<BullProgram>.Start(BullProgram.Normal), state.Program, "Bull initial animation");
         }

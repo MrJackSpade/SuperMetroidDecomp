@@ -12,5 +12,5 @@ internal enum DebuggerStateVersion
     /// session rather than beside the game, and the room, its state and the game state named in the header instead of
     /// addressed or numbered.
     /// </summary>
-    Current = 9,
+    Current = 10,
 }

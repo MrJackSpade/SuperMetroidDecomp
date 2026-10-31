@@ -80,13 +80,13 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
             RunForcedTick(projectile);
             ushort operand = unchecked((ushort)(testCase.List + 2));
             AssertEqual(operand, projectile.PresentationOperandAddress, $"{testCase.Kind} shows its native pose operand");
-            AssertEqual(ReadFakeKraidProjectileInstructionWord(rom, testCase.List), projectile.InstructionTimer.RawValue,
+            AssertEqual(ReadFakeKraidProjectileInstructionWord(rom, testCase.List), projectile.FrameHold.RawValue,
                 $"{testCase.Kind} pose lasts the native duration");
 
             RunForcedTick(projectile);
             AssertEqual((ushort)NativeEnemyProjectileInstruction.Sleep, ReadFakeKraidProjectileInstructionWord(rom, unchecked((ushort)(testCase.List + 4))),
                 $"{testCase.Kind} native list sleeps after its pose");
-            AssertEqual((ushort)0, projectile.InstructionTimer.RawValue,
+            AssertEqual((ushort)0, projectile.FrameHold.RawValue,
                 $"{testCase.Kind} held pose leaves the timer stopped, as the native sleep does");
             AssertEqual(operand, projectile.PresentationOperandAddress, $"{testCase.Kind} held pose keeps showing");
 
@@ -108,7 +108,7 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
 
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
         {
-            projectile.InstructionTimer = WrappingCountdown.Start(1);
+            projectile.FrameHold = WrappingCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), Position16<RoomPixels>.Zero);
         }
     }

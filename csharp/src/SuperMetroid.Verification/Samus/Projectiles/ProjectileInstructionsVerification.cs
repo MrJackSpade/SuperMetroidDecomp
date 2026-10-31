@@ -110,10 +110,10 @@ internal static class ProjectileInstructionsVerification
             trailSlot.Cursor = SamusProjectileProgramAddresses.CursorAt(entry);
             foreach (ushort timer in new ushort[] { 0, 1, 2, ushort.MaxValue })
             {
-                trailSlot.InstructionTimer = WrappingCountdown.FromRaw(timer);
+                trailSlot.FrameHold = WrappingCountdown.FromRaw(timer);
                 trailSlot.AnimationFrame = 0xbeef;
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x930000 | (entry - 2)), trailFrame(trailSlot), "Trail owner consumes the previous list word regardless of timer or cached frame");
-                AssertEqual(timer, trailSlot.InstructionTimer.RawValue, "Trail frame lookup leaves timer unchanged");
+                AssertEqual(timer, trailSlot.FrameHold.RawValue, "Trail frame lookup leaves timer unchanged");
                 AssertEqual(0xbeef, trailSlot.AnimationFrame, "Trail lookup must not substitute or alter the cached frame");
             }
         }
@@ -123,8 +123,8 @@ internal static class ProjectileInstructionsVerification
         int frames = 0;
         foreach (ushort entry in entries)
         {
-            var slot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(entry), InstructionTimer = WrappingCountdown.Start(1), Damage = 30 };
-            var bomb = new SamusBombProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(entry), InstructionTimer = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
+            var slot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(entry), FrameHold = WrappingCountdown.Start(1), Damage = 30 };
+            var bomb = new SamusBombProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(entry), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
             ushort timer = 1, pointer = entry, sprite = 0, x = 0, y = 0, trail = 0;
             for (int frame = 0; frame < 64; frame++)
             {
@@ -153,8 +153,8 @@ internal static class ProjectileInstructionsVerification
                     AssertTrue(bomb.Type.IsNone, "Delete clears bomb occupancy");
                     break;
                 }
-                AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y, trail), new VerifyLookupStream1ProjectileProgramsCase(slot.InstructionTimer.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, slot.AnimationFrame), "Exact projectile frame matches ROM interpreter");
-                AssertEqual(new LookupStream1VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y), new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.InstructionTimer.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y), "Exact bomb frame matches ROM interpreter");
+                AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y, trail), new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, slot.AnimationFrame), "Exact projectile frame matches ROM interpreter");
+                AssertEqual(new LookupStream1VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y), new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.FrameHold.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y), "Exact bomb frame matches ROM interpreter");
             }
         }
         Console.WriteLine($"Projectile instructions: 1816 native words, loud non-catalog rejection, {entries.Length} frame/control entries and {frames} frames per owner match independent ROM execution with mechanics reads forbidden.");

@@ -48,7 +48,7 @@ internal static class DoorEntryEnemySoundVerification
         // The real spit opcode (library two $4C) executes during the entry frame's enemy pass.
         // The spit cue, four poses into the right spit animation.
         state.Program = new AnimationProgramCursor<KiHunterProgram>(KiHunterProgram.SpitRight, 4);
-        body.InstructionTimer = WrappingCountdown.Start(1);
+        body.FrameHold = WrappingCountdown.Start(1);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;

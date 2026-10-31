@@ -765,8 +765,8 @@ internal sealed class PhantoonPatterns
                 flame.Velocity = flame.Velocity.WithX(new SignedEightEight(0));
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
                 flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualFalling0));
-                flame.PreInstruction =
-                    EnemyProjectilePreInstruction.PhantoonCasualFlameFall;
+                flame.FrameBehavior =
+                    EnemyProjectileFrameBehavior.PhantoonCasualFlameFall;
 
                 // $86:985F changes the spawn definition's $8028 properties to $2028.
                 // The falling flame therefore cannot hurt Samus and cannot be shot until
@@ -781,8 +781,8 @@ internal sealed class PhantoonPatterns
                     AngleStep = index >= 8 ? -PhantoonFlameMotionDefinitions.RageAngleStep : PhantoonFlameMotionDefinitions.RageAngleStep,
                 };
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
-                flame.PreInstruction =
-                    EnemyProjectilePreInstruction.PhantoonRageFlameOrbit;
+                flame.FrameBehavior =
+                    EnemyProjectileFrameBehavior.PhantoonRageFlameOrbit;
                 break;
 
             case PhantoonFlameSpawnType.Rain:
@@ -793,8 +793,8 @@ internal sealed class PhantoonPatterns
                     throw new InvalidDataException($"Phantoon spiral direction {index} exceeds seven.");
                 flame.State = new PhantoonOrbitingFlameState(new ByteAngle(PhantoonFlameSpawns.SpiralAngle(index)));
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 16)));
-                flame.PreInstruction =
-                    EnemyProjectilePreInstruction.PhantoonSpiralFlameOrbit;
+                flame.FrameBehavior =
+                    EnemyProjectileFrameBehavior.PhantoonSpiralFlameOrbit;
                 break;
 
             default:
@@ -815,8 +815,8 @@ internal sealed class PhantoonPatterns
         flame.State = new PhantoonRainFlameState(fallDelay);
         flame.Position = flame.Position.WithWholeX(PhantoonFlameSpawns.RainX(column));
         flame.Position = flame.Position.WithWholeY(40);
-        flame.PreInstruction =
-            EnemyProjectilePreInstruction.PhantoonFlameRainFall;
+        flame.FrameBehavior =
+            EnemyProjectileFrameBehavior.PhantoonFlameRainFall;
         return true;
     }
 

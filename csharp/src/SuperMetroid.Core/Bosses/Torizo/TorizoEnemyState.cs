@@ -84,7 +84,7 @@ public sealed class TorizoEnemyState
     public TorizoFunction Function { get; internal set; }
 
     /// <summary>Native <c>toriz_var_F</c> active-state pre-instruction pointer.</summary>
-    public TorizoPreInstruction PreInstruction { get; internal set; }
+    public TorizoFrameBehavior FrameBehavior { get; internal set; }
 
     /// <summary>Host lifecycle latch set when $AA:C6C6 observes the $D6EA hand-trigger PLM gone and resumes Bomb Torizo's awakening instruction list.</summary>
     public bool AwakeningReleased { get; internal set; }

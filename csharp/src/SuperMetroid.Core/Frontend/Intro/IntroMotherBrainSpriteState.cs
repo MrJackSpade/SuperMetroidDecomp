@@ -30,7 +30,7 @@ internal sealed class IntroMotherBrainSpriteState
     private bool pageTwoInstructionStarted;
     /// <summary>Whether the page-two program's pre-instruction has replaced hit flashing.</summary>
     private bool CrossfadingToPageTwo =>
-        actor.ListPreInstruction == CinematicSpritePreInstruction.IntroMotherBrainCrossFading;
+        actor.ListFrameBehavior == CinematicSpriteFrameBehavior.IntroMotherBrainCrossFading;
 
     /// <summary>Fixed cinematic screen origin from definition $8B:CE55.</summary>
     public static Position16<ScreenPixels> Position => IntroMotherBrainDefinitions.MotherBrainOrigin;
@@ -60,7 +60,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>
     /// Runs the actor pre-instruction that precedes its instruction-list timer decrement.
     /// </summary>
-    public void RunPreInstruction(
+    public void RunFrameBehavior(
         ScreenPalette colours,
         ScreenColours introPalette,
         int cinematicFrameCounter,

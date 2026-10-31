@@ -25,7 +25,7 @@ internal static class FxDefinitionMigrationVerification
             "rightward treadmill header decodes");
         AssertEqual(0xb4b6, FxNativeWords.SpecialAirReactionSetups.Word(SpecialAirReactionSetup.SandFallsFast), "fast sandfall setup word");
         AssertEqual(0xe440, FxNativeWords.PaletteFxSetups.Word(PaletteFxSetup.Norfair), "Norfair palette setup word");
-        AssertEqual(0xe379, FxNativeWords.PaletteFxPreInstructions.Word(PaletteFxPreInstruction.Heat), "heat pre-instruction word");
+        AssertEqual(0xe379, FxNativeWords.PaletteFxFrameBehaviors.Word(PaletteFxFrameBehavior.Heat), "heat pre-instruction word");
 
         // QuicksandRomData and ConveyorBlockRomData's displacements, now in sixteenths of a pixel.
         AssertEqual(0x12000, QuicksandDefinitions.SubmergingSinkDisplacement.RawValue, "submerging sand sink");

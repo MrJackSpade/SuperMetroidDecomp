@@ -108,7 +108,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
         for (int call = 0; call < callCount; call++)
         {
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             EnemyInstructionRunner.Process(arguments);
         }
     }

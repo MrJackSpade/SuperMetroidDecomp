@@ -92,7 +92,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Geruta, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         var state = new NorfairRioEnemyState { Program = AnimationProgramCursor<NorfairRioProgram>.Start(entry) };
         slot.SetSpeciesState(state);
         return new NewNorfairRioInstructionSystemResult(enemies, slot, state);
@@ -105,7 +105,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
     {
         for (int call = 0; call < count; call++)
         {
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             EnemyInstructionRunner.Process(arguments);
         }
     }

@@ -149,7 +149,7 @@ internal static class MotherBrainEffectBehaviorVerification
                 }
                 handBeamEnemies.Projectiles.ProcessEnemyProjectileInstructions(handBeam, handBeamTarget, Position16<RoomPixels>.Zero);
                 AssertEqual(referenceOperand, handBeam.PresentationOperandAddress, $"hand-beam frame {frame} selects the native visual operand");
-                AssertEqual((ushort)referenceTimer, handBeam.InstructionTimer.RawValue, $"hand-beam frame {frame} keeps the native remaining duration");
+                AssertEqual((ushort)referenceTimer, handBeam.FrameHold.RawValue, $"hand-beam frame {frame} keeps the native remaining duration");
                 observedOperands.Add(handBeam.PresentationOperandAddress);
             }
             AssertEqual(MotherBrainHandBeamVisualDefinitions.ProjectileFrameCount,
@@ -183,7 +183,7 @@ internal static class MotherBrainEffectBehaviorVerification
 
             // The ring's own movement routine handles its Samus hits; its definition's touch list is reached through the
             // common contact path, opened and kept alive here as the definitions check does.
-            ring.PreInstruction = EnemyProjectilePreInstruction.MotherBrainOnionRingFlight;
+            ring.FrameBehavior = EnemyProjectileFrameBehavior.MotherBrainOnionRingFlight;
             ring.Graphics = SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack));
             ring.CanDamageSamus = true;
             ring.PersistsOnSamusContact = true;
@@ -195,7 +195,7 @@ internal static class MotherBrainEffectBehaviorVerification
                 Process(rom, ringEnemies, ring, samus);
             AssertTrue(ring.IsActive, "onion-ring impact survives all six five-frame stages");
             AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.Emptied, ring.Graphics, "onion-ring impact clears its graphics to the common colours");
-            AssertEqual(EnemyProjectilePreInstruction.Stationary, ring.PreInstruction, "onion-ring impact clears its movement");
+            AssertEqual(EnemyProjectileFrameBehavior.Stationary, ring.FrameBehavior, "onion-ring impact clears its movement");
             Process(rom, ringEnemies, ring, samus);
             AssertTrue(!ring.IsActive, "onion-ring impact deletes on the frame after its 30-frame lifetime");
         }
@@ -216,17 +216,17 @@ internal static class MotherBrainEffectBehaviorVerification
 
             for (int frame = 0; frame < 50; frame++)
                 Process(rom, droolEnemies, drool, samus);
-            AssertEqual(EnemyProjectilePreInstruction.MotherBrainDroolHanging, drool.PreInstruction,
+            AssertEqual(EnemyProjectileFrameBehavior.MotherBrainDroolHanging, drool.FrameBehavior,
                 $"{expectedKind} remains attached for five ten-frame stages");
             Process(rom, droolEnemies, drool, samus);
-            AssertEqual(EnemyProjectilePreInstruction.MotherBrainDroolFall, drool.PreInstruction,
+            AssertEqual(EnemyProjectileFrameBehavior.MotherBrainDroolFall, drool.FrameBehavior,
                 $"{expectedKind} switches to falling after its fifth attached stage");
             AssertEqual(unchecked((ushort)(attachedY + 12)), drool.Position.Y.Whole, $"{expectedKind} release drops the drool twelve pixels");
             AssertTrue(drool.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.Drool },
                 $"{expectedKind} release frame holds at its program's sleep");
 
             drool.Position = drool.Position.WithWholeY(215);
-            MotherBrainProjectiles.RunMotherBrainFallingDroolPreInstruction(drool);
+            MotherBrainProjectiles.RunMotherBrainFallingDroolFrameBehavior(drool);
             AssertTrue(drool.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.DroolHitFloor },
                 $"{expectedKind} floor impact starts the splash program");
             AssertLifetime(droolEnemies, drool, 40, $"{expectedKind} splash survives all four ten-frame stages");

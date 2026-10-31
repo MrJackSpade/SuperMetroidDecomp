@@ -37,9 +37,9 @@ internal static class CoreVocabularyAnalyzerTests
         Expect("interface ICartridgeSource { }", "'ICartridgeSource' names the hardware ('Cartridge')");
         Expect("class Mode7Floor { }", "'Mode7Floor' names the hardware ('Mode7')");
         // #1481: routine labels name the CPU's return and jump instructions, and an address spelled into a name is the hardware.
-        Expect("enum PreInstruction { RTS_86A3B0 }", "'RTS_86A3B0' names the hardware ('86A3B0')");
-        Expect("enum PreInstruction { Return_86A3B0 }", "'Return_86A3B0' names the hardware ('86A3B0')");
-        Expect("enum PreInstruction { Rts }", "'Rts' names the hardware ('Rts')");
+        Expect("enum FrameBehavior { RTS_86A3B0 }", "'RTS_86A3B0' names the hardware ('86A3B0')");
+        Expect("enum FrameBehavior { Return_86A3B0 }", "'Return_86A3B0' names the hardware ('86A3B0')");
+        Expect("enum FrameBehavior { Rts }", "'Rts' names the hardware ('Rts')");
         Expect("class P { void JslTarget() { } }", "'JslTarget' names the hardware ('Jsl')");
         Expect("class P { int Instr_A0B3; }", "'Instr_A0B3' names the hardware ('A0B3')");
         // Hexadecimal-looking words without a digit, and short or long digit runs, are ordinary words and numbers.

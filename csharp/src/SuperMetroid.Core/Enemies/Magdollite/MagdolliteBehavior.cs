@@ -105,7 +105,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DesiredProgram = samusIsLeft
             ? MagdolliteProgram.LeftIdle
             : MagdolliteProgram.RightIdle;
-        InstallMagdolliteInstructionList(slot, state);
+        InstallMagdolliteAnimationScript(slot, state);
         state.Function = MagdolliteEnemyFunction.HeadWaiting;
     }
 
@@ -119,7 +119,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BodyReachedApex = false;
         state.BodyWakeRequested = true;
         state.DesiredProgram = MagdolliteRise.Phase(0).BodyProgram;
-        InstallMagdolliteInstructionList(slot, state);
+        InstallMagdolliteAnimationScript(slot, state);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 32);
         state.Function = MagdolliteEnemyFunction.BodyDormant;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
@@ -134,7 +134,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InstalledProgram = null;
         state.AttackTimer = WrappingCountdown.Start(0);
         state.DesiredProgram = MagdolliteProgram.PillarCap;
-        InstallMagdolliteInstructionList(slot, state);
+        InstallMagdolliteAnimationScript(slot, state);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 32);
         state.Function = MagdolliteEnemyFunction.OverlayWaitingForAttack;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
@@ -203,7 +203,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DesiredProgram = samusIsRight
             ? MagdolliteProgram.RightIdle
             : MagdolliteProgram.LeftIdle;
-        InstallMagdolliteInstructionList(head, state);
+        InstallMagdolliteAnimationScript(head, state);
 
         (_, _, RoomEnemySlot overlay) = RequireMagdolliteComposite(head);
         MagdolliteEnemyState overlayState = overlay.RequireSpeciesState<MagdolliteEnemyState>();
@@ -218,7 +218,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DesiredProgram = samusIsRight
             ? MagdolliteProgram.RightSubmerge
             : MagdolliteProgram.LeftSubmerge;
-        InstallMagdolliteInstructionList(head, state);
+        InstallMagdolliteAnimationScript(head, state);
         state.Function = MagdolliteEnemyFunction.HeadWaitingForAttackAnimation;
     }
 
@@ -250,7 +250,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DesiredProgram = samusIsRight
             ? MagdolliteProgram.RightEmerge
             : MagdolliteProgram.LeftEmerge;
-        InstallMagdolliteInstructionList(head, state);
+        InstallMagdolliteAnimationScript(head, state);
         state.Function = MagdolliteEnemyFunction.HeadWaitingForReturnAnimation;
     }
 
@@ -268,7 +268,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DesiredProgram = samusIsRight
             ? MagdolliteProgram.RightIdle
             : MagdolliteProgram.LeftIdle;
-        InstallMagdolliteInstructionList(head, state);
+        InstallMagdolliteAnimationScript(head, state);
         state.Function = MagdolliteEnemyFunction.HeadWaiting;
     }
 
@@ -327,7 +327,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 8);
         state.DesiredProgram = MagdolliteRise
             .Phase(state.BodyPhase).BodyProgram;
-        InstallMagdolliteInstructionList(body, state);
+        InstallMagdolliteAnimationScript(body, state);
     }
 
     /// <summary>Retraces the body's growth phases and releases the head's landing latch at its origin.</summary>
@@ -357,7 +357,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 8);
         state.DesiredProgram = MagdolliteRise
             .Phase(state.BodyPhase).BodyProgram;
-        InstallMagdolliteInstructionList(body, state);
+        InstallMagdolliteAnimationScript(body, state);
     }
 
     /// <summary>Begins following the rising body when the head enters its attack animation.</summary>
@@ -383,7 +383,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             (_, RoomEnemySlot body, _) = RequireMagdolliteComposite(overlay);
             MagdolliteEnemyState bodyState = body.RequireSpeciesState<MagdolliteEnemyState>();
             state.DesiredProgram = MagdolliteProgram.PillarCap;
-            InstallMagdolliteInstructionList(overlay, state);
+            InstallMagdolliteAnimationScript(overlay, state);
             bodyState.Function = MagdolliteEnemyFunction.BodyFalling;
             state.Function = MagdolliteEnemyFunction.OverlayTrackingFallingBody;
             bodyState.BodyReachedApex = false;
@@ -409,7 +409,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? MagdolliteProgram.RightThrow
                 : MagdolliteProgram.LeftThrow;
             state.ThrowsRight = samusIsRight;
-            InstallMagdolliteInstructionList(overlay, state);
+            InstallMagdolliteAnimationScript(overlay, state);
             state.Function = MagdolliteEnemyFunction.OverlayWaitingForThrowAnimation;
             state.ThrowOrigin = overlay.Position.Whole;
         }
@@ -471,7 +471,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restarts the animation only when the desired program differs from the installed one.</summary>
-    private static void InstallMagdolliteInstructionList(
+    private static void InstallMagdolliteAnimationScript(
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
     {
@@ -479,7 +479,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.Program = AnimationProgramCursor<MagdolliteProgram>.Start(state.DesiredProgram);
         state.InstalledProgram = state.DesiredProgram;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
@@ -687,10 +687,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Connects thrown-lava movement, its typed programs' cues and its shot program to the projectile engine.</summary>
     internal void AddMagdolliteProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
-            RunMagdolliteLavaPreInstruction(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.MagdolliteLavaFlight);
+            RunMagdolliteLavaFrameBehavior(context.Projectile, context.Camera);
+        }, EnemyProjectileFrameBehavior.MagdolliteLavaFlight);
 
         table.AddCue<MagdolliteLavaCue>((context, cue) => ApplyMagdolliteLavaCue(context.Projectile, cue));
         table.AddShotAnimation(RoomEnemyProjectileKind.LavaThrownByMagdollite, () => new MagdolliteLavaAnimation(MagdolliteLavaProgram.Shot));
@@ -782,13 +782,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = new(
             SignedEightEight.FromSignedRaw(throwsRight ? MagdolliteLavaHorizontalSpeed : -MagdolliteLavaHorizontalSpeed),
             new SignedEightEight(0));
-        projectile.PreInstruction =
-            EnemyProjectilePreInstruction.MagdolliteLavaFlight;
+        projectile.FrameBehavior =
+            EnemyProjectileFrameBehavior.MagdolliteLavaFlight;
         projectile.InstallAnimation(new MagdolliteLavaAnimation(throwsRight ? MagdolliteLavaProgram.Right : MagdolliteLavaProgram.Left));
     }
 
     /// <summary>Ports $86:E049-$E09B: the lava flies sideways at its speed until it leaves the view.</summary>
-    internal static void RunMagdolliteLavaPreInstruction(
+    internal static void RunMagdolliteLavaFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {

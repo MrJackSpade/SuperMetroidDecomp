@@ -25,7 +25,7 @@ internal sealed class MotherBrainGlassPlmAnimation()
             case MotherBrainGlassPlmCue.Command { Kind: MotherBrainGlassPlmCueKind.SkipIfGlassDestroyed }:
                 return glass.IsGlassDestroyed() ? MotherBrainGlassPlmProgram.NoGlass : null;
             case MotherBrainGlassPlmCue.Command { Kind: MotherBrainGlassPlmCueKind.ArmHitWake }:
-                slot.PreInstruction = MotherBrainGlassPreInstructions.Hit;
+                slot.FrameBehavior = MotherBrainGlassFrameBehaviors.Hit;
                 return null;
             case MotherBrainGlassPlmCue.RepeatUntilHits repeatUntilHits:
                 return slot.HitCounter < repeatUntilHits.Hits ? Cursor.Program : null;

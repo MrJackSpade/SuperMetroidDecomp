@@ -55,6 +55,6 @@ internal sealed class TorizoBody
     internal static void StartTorizoBodyProgram(RoomEnemySlot torizo, TorizoEnemyState state, AnimationProgramCursor<TorizoBodyProgram> cursor)
     {
         state.BodyProgram = cursor;
-        torizo.InstructionTimer = WrappingCountdown.Start(1);
+        torizo.FrameHold = WrappingCountdown.Start(1);
     }
 }

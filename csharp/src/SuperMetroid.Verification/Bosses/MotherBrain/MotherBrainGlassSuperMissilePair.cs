@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 /// <param name="List">The list.</param>
 /// <param name="Radius">The radius.</param>
 /// <param name="Pre">The pre.</param>
-internal readonly record struct MotherBrainGlassSuperMissilePair(ushort List, ushort Radius, SamusProjectilePreInstruction Pre);
+internal readonly record struct MotherBrainGlassSuperMissilePair(ushort List, ushort Radius, SamusProjectileFrameBehavior Pre);

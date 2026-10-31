@@ -23,7 +23,7 @@ internal sealed class IntroScientistCutsceneState
             definition.Position,
             definition.Colouring,
             definition.Program);
-        baby.InstallPreInstruction(definition.PreInstruction);
+        baby.InstallFrameBehavior(definition.FrameBehavior);
         Background = delivery ? new(32, 8) : new(0, WordWrap.Unsigned(-24));
     }
 
@@ -103,7 +103,7 @@ internal sealed class IntroScientistCutsceneState
                 // The examination loop ends by selecting page five.
                 PageFiveRequested = true;
                 return;
-            case CinematicSpriteCueKind.SetPreInstruction:
+            case CinematicSpriteCueKind.SetFrameBehavior:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
             case CinematicSpriteCueKind.FadeExplosionPalette:

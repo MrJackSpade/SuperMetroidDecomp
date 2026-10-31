@@ -9,7 +9,7 @@ public static class DemoInputRomData
     {
         /// <summary>$91:83BF, <c>RTS_9183BF</c>: performs no initialization or per-update pre-instruction work.</summary>
         public const ushort NoOp = 0x83bf;
-        /// <summary>$91:8447, <c>Instruction_DemoInputObject_ClearPreInstruction.return</c>: the no-op RTS installed when the demo pre-instruction is cleared.</summary>
-        public const ushort ClearedPreInstruction = 0x8447;
+        /// <summary>$91:8447, <c>Instruction_DemoInputObject_ClearFrameBehavior.return</c>: the no-op RTS installed when the demo pre-instruction is cleared.</summary>
+        public const ushort ClearedFrameBehavior = 0x8447;
     }
 }

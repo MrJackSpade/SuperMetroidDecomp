@@ -49,7 +49,7 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
                 SetLink(ColoredDoorProgram.Hit);
                 return null;
             case ColoredDoorCue.ArmWake:
-                slot.PreInstruction = ColoredDoorPreInstructions.Of(ColoredDoorPlmProgramDefinitions.Wakes[Color]);
+                slot.FrameBehavior = ColoredDoorFrameBehaviors.Of(ColoredDoorPlmProgramDefinitions.Wakes[Color]);
                 return null;
             case ColoredDoorCue.CountHit:
                 return doors.CountColoredDoorHit(slot) ? ColoredDoorProgram.Open : null;

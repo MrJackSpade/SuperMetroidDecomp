@@ -86,7 +86,7 @@ internal sealed class CeresRidleyFlight
             MovementMinimum = new Position16<RoomPixels>(40, WordWrap.Unsigned(-32)),
             MovementMaximum = new Position16<RoomPixels>(224, 176),
             BabyProgram = AnimationProgramCursor<CeresBabyProgram>.Start(CeresBabyProgram.Initial),
-            BabyInstructionTimer = 1,
+            BabyFrameHold = 1,
             BabyFunction = CeresBabyFunction.CarriedInArms,
             BabyCurrentPose = null,
             BabyPosition = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole + CeresRidleyBabyScene.CeresBabyArmsAnchor),
@@ -558,7 +558,7 @@ internal sealed class CeresRidleyFlight
     internal static void StartRidleyProgram(RidleyEnemyState state, RoomEnemySlot slot, RidleyBodyProgram program)
     {
         state.BodyProgram = AnimationProgramCursor<RidleyBodyProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
@@ -613,7 +613,7 @@ internal sealed class CeresRidleyFlight
             EnemyDefinitionId.CeresDoor,
             Position: position,
             Properties:
-                EnemyProperties.ProcessInstructions |
+                EnemyProperties.RunsAnimationScript |
                 EnemyProperties.ProcessOffScreen,
             ExtraProperties: EnemyExtraProperties.None,
             SpawnSettings: new CeresDoorSpawnSettings(variant));

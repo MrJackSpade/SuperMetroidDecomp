@@ -28,7 +28,7 @@ internal static class MotherBrainTurretAnimations
     private static Step[] BulletImpact() =>
     [
         Step.Publish(MotherBrainTurretCue.UsePaletteZero),
-        Step.Publish(MotherBrainTurretCue.ClearPreInstruction),
+        Step.Publish(MotherBrainTurretCue.ClearFrameBehavior),
         .. Enumerable.Range(0, ImpactPhaseCount).Select(phase =>
             Step.Show(new(MotherBrainTurretProgram.BulletImpact, phase), phase == ImpactPhaseCount - 1 ? 32 : 8)),
         Step.Publish(MotherBrainTurretCue.Delete),

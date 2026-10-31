@@ -43,7 +43,7 @@ internal sealed class BlockReactionPlms
         slot.StartAnimation(new BlockReactionPlmAnimation(behavior.GrappleReactionIndex == 1
             ? BlockReactionPlmProgram.RespawningBreakableGrappleBlock
             : BlockReactionPlmProgram.PermanentBreakableGrappleBlock));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
 
         // The setup saves the complete original block but clears only its behaviour. It deliberately leaves the
         // Grapple-block collision intact until the first PLM pass later in this same gameplay frame draws the intact
@@ -79,7 +79,7 @@ internal sealed class BlockReactionPlms
         // bomb-block parent; multi-block restorations then add extension blocks around this parent.
         slot.RestoreTerrain = new RoomTerrainBlock(RoomPlmVisualBlockDefinitions.CollisionBombParent, block.CollisionType);
         slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.CollisionBomb(behavior.NormalReactionIndex)));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         level.SetTerrain(blockIndex, new RoomTerrainBlock(RoomPlmVisualBlockDefinitions.CollisionBombParent, RoomCollisionType.Air));
         return true;
     }
@@ -118,7 +118,7 @@ internal sealed class BlockReactionPlms
         RoomTerrainBlock restore = block.Terrain.WithBlock(RoomPlmVisualBlockDefinitions.ContactCrumbleParent.Block);
         slot.RestoreTerrain = restore;
         slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.ContactCrumble(behavior.NormalReactionIndex)));
-        slot.InstructionTimer = WrappingCountdown.Start(4);
+        slot.FrameHold = WrappingCountdown.Start(4);
         level.SetTerrain(blockIndex, restore.WithCollision(RoomCollisionType.SolidBlock));
         return true;
     }
@@ -170,7 +170,7 @@ internal sealed class BlockReactionPlms
         slot.BlockIndex = blockIndex;
         slot.RestoreTerrain = block.Terrain.WithBlock(RoomPlmVisualBlockDefinitions.SpeedBoosterParent.Block);
         slot.StartAnimation(new SpeedBoosterBlockPlmAnimation(definition.Program));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         level.SetTerrain(blockIndex, slot.RestoreTerrain.WithCollision(RoomCollisionType.Air));
         return true;
     }
@@ -205,7 +205,7 @@ internal sealed class BlockReactionPlms
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.BlockIndex = blockIndex;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
 
         if (!behavior.IsNormalReactionIndex(8))
         {
@@ -279,7 +279,7 @@ internal sealed class BlockReactionPlms
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.BlockIndex = blockIndex;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.RestoreTerrain = PlmSlotDefinitions.ClearedRestoreTerrain;
 
         if (areaDependent)
@@ -414,7 +414,7 @@ internal sealed class BlockReactionPlms
         slot.BlockIndex = blockIndex;
         slot.RestoreTerrain = PlmSlotDefinitions.ClearedRestoreTerrain;
         program.StartOn(slot);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         return true;
     }
 }

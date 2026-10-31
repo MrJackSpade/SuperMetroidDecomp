@@ -26,7 +26,7 @@ public enum EnemyProperties
     BlocksPlasmaBeam = 1 << 12,
 
     /// <summary>Enables execution of the enemy's timed instruction-list stream.</summary>
-    ProcessInstructions = 1 << 13,
+    RunsAnimationScript = 1 << 13,
 
     /// <summary>
     /// Enemy death keeps the slot occupied by the respawn placeholder, and the death-projectile instruction stream later

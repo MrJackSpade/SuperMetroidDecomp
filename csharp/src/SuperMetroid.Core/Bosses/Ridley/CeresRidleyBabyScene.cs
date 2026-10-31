@@ -230,9 +230,9 @@ internal sealed class CeresRidleyBabyScene
     /// </summary>
     internal EnemyFrameId? AdvanceCeresBabyDrawInstruction(RidleyEnemyState state)
     {
-        if (state.BabyPoseDuration != 0 && state.BabyPoseDuration != state.BabyInstructionTimer)
+        if (state.BabyPoseDuration != 0 && state.BabyPoseDuration != state.BabyFrameHold)
         {
-            state.BabyInstructionTimer++;
+            state.BabyFrameHold++;
             return CeresBabyFrame(state.BabyCurrentPose);
         }
 
@@ -244,7 +244,7 @@ internal sealed class CeresRidleyBabyScene
         if (advance is not AnimationProgramAdvance<CeresBabyPose>.Show shown)
             throw new InvalidOperationException($"The Ceres Baby's program ended a draw update with {advance}.");
         state.BabyPoseDuration = shown.Duration;
-        state.BabyInstructionTimer = 1;
+        state.BabyFrameHold = 1;
         state.BabyCurrentPose = shown.Frame;
         return CeresBabyFrame(state.BabyCurrentPose);
     }

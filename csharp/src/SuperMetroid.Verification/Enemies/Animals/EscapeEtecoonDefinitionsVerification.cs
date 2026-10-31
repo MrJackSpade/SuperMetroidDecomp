@@ -18,7 +18,7 @@ internal static class EscapeEtecoonDefinitionsVerification
     {
         const int xTable = 0xb3e718;
         const int yTable = 0xb3e71e;
-        const int preInstructionTable = 0xb3e724;
+        const int frameBehaviorTable = 0xb3e724;
         const int instructionTable = 0xb3e72a;
         const int speedTable = 0xb3e730;
 
@@ -31,8 +31,8 @@ internal static class EscapeEtecoonDefinitionsVerification
                 $"escape Etecoon role {role} X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yTable + parameter)), initialization.Position.Y,
                 $"escape Etecoon role {role} Y");
-            AssertEqual(AnimalsNativeWords.EscapeEtecoonPreInstructions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord((preInstructionTable + parameter)), "escape Etecoon pre-instruction"),
-                initialization.PreInstruction,
+            AssertEqual(AnimalsNativeWords.EscapeEtecoonFrameBehaviors.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord((frameBehaviorTable + parameter)), "escape Etecoon pre-instruction"),
+                initialization.FrameBehavior,
                 $"escape Etecoon role {role} pre-instruction");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + parameter)),
                 NativeEnemyProgramOracle.EntryOf(EscapeEtecoonNativeListAddresses.Entries, initialization.Program),
@@ -67,7 +67,7 @@ internal static class EscapeEtecoonDefinitionsVerification
                 $"production escape Etecoon selector {parameter} X");
             AssertEqual(expected.Position.Y, slot.Position.Y.Whole,
                 $"production escape Etecoon selector {parameter} Y");
-            AssertEqual(expected.PreInstruction, state.PreInstruction,
+            AssertEqual(expected.FrameBehavior, state.FrameBehavior,
                 $"production escape Etecoon selector {parameter} pre-instruction");
             AssertEqual(AnimationProgramCursor<EscapeEtecoonProgram>.Start(expected.Program), state.Program,
                 $"production escape Etecoon selector {parameter} program");
@@ -119,7 +119,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         RunForcedEscapeEtecoonUpdates(etecoon, 40, shown);
         AssertTrue(unchecked((short)(etecoon.Position.X.Whole - xBeforeGratitude)) < 0,
             "escape Etecoon gratitude program applies its repeated left displacement");
-        AssertEqual(EscapeEtecoonPreInstruction.EscapeRight, state.PreInstruction,
+        AssertEqual(EscapeEtecoonFrameBehavior.EscapeRight, state.FrameBehavior,
             "escape Etecoon gratitude program hands off to rightward escape");
 
         var poses = Enumerable.Range(0, EscapeEtecoonFrameDefinitionsConstants.PoseCount)
@@ -160,7 +160,7 @@ internal static class EscapeEtecoonDefinitionsVerification
             [etecoon, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
         for (int step = 0; step < steps; step++)
         {
-            etecoon.InstructionTimer = WrappingCountdown.Start(1);
+            etecoon.FrameHold = WrappingCountdown.Start(1);
             EnemyInstructionRunner.Process(arguments);
             shown.Add(etecoon.SpritemapPointer);
         }
@@ -193,11 +193,11 @@ internal static class EscapeEtecoonDefinitionsVerification
         RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
         EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
             throw new InvalidDataException("Escape Etecoon test lost typed state.");
-        AssertTrue(state.PreInstruction is not null, "an initialized escape Etecoon has a pre-instruction");
+        AssertTrue(state.FrameBehavior is not null, "an initialized escape Etecoon has a pre-instruction");
         state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0x0380), default);
 
         etecoon.Clear();
-        AssertEqual<EscapeEtecoonPreInstruction?>(null, state.PreInstruction, "a kill empties the pre-instruction");
+        AssertEqual<EscapeEtecoonFrameBehavior?>(null, state.FrameBehavior, "a kill empties the pre-instruction");
         AssertEqual(default(EightEightVector<RoomPixels>), state.Velocity, "a kill empties the velocity");
         Console.WriteLine("  Escape Etecoon owned state: the cleared record matches.");
     }

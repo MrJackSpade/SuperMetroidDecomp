@@ -87,7 +87,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
             (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Program =
                 AnimationProgramCursor<NinjaSpacePirateProgram>.Start(program);
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             RunFrames(enemies, slot, samus, 140);
         }
 
@@ -198,7 +198,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
             (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Program =
                 AnimationProgramCursor<NinjaSpacePirateProgram>.Start(program);
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             RunFrames(enemies, slot, samus, 40);
             NinjaSpacePirateEnemyState state = (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0]."));
             AssertEqual(1, (state ?? throw new InvalidOperationException("Verification requires state.")).SpawnedClawCount,
@@ -216,7 +216,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
             (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Program =
                 AnimationProgramCursor<NinjaSpacePirateProgram>.Start(program);
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             RunFrames(enemies, slot, samus, 3);
             AssertEqual(function, (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0].")).Function,
                 $"ninja Pirate dive program {program} function");

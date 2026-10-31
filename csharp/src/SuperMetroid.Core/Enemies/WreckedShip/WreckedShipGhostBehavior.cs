@@ -58,10 +58,10 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         // Native ORs property bits $2000, $0400, and $0100. In this host those mean
         // instruction processing, exclusion from Samus interaction, and invisibility.
         slot.Properties = slot.Properties.With(
-            EnemyProperties.ProcessInstructions |
+            EnemyProperties.RunsAnimationScript |
             EnemyProperties.IgnoreSamusCollision |
             EnemyProperties.Invisible);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
         var state = new WreckedShipGhostEnemyState

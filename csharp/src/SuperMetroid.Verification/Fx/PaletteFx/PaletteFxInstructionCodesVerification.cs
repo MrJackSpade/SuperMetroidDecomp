@@ -35,7 +35,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertPaletteFxCatalog(nameof(PaletteFxInstruction), CatalogWords(PaletteFxInstructionCodesType()), expectedCount: 19);
         // The setups' and pre-instructions' values are arbitrary (#1415): their routine words are the native view's.
         AssertPaletteFxCatalog(nameof(PaletteFxSetup), NativeWords(FxNativeWords.PaletteFxSetups), expectedCount: 4);
-        AssertPaletteFxCatalog(nameof(PaletteFxPreInstruction), NativeWords(FxNativeWords.PaletteFxPreInstructions), expectedCount: 9);
+        AssertPaletteFxCatalog(nameof(PaletteFxFrameBehavior), NativeWords(FxNativeWords.PaletteFxFrameBehaviors), expectedCount: 9);
         AssertPaletteFxCatalog(nameof(PaletteFxHeatData), CatalogWords(typeof(PaletteFxHeatData)), expectedCount: 2, requireMappedPointers: false);
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -52,7 +52,7 @@ internal static class PaletteFxInstructionCodesVerification
         [
             CatalogWords(PaletteFxInstructionCodesType()),
             NativeWords(FxNativeWords.PaletteFxSetups),
-            NativeWords(FxNativeWords.PaletteFxPreInstructions),
+            NativeWords(FxNativeWords.PaletteFxFrameBehaviors),
         ];
         foreach (ushort[] catalog in catalogs)
             ReadPaletteFxCatalogPointerTargets(bus, catalog);
@@ -70,7 +70,7 @@ internal static class PaletteFxInstructionCodesVerification
         Suite(nameof(VerifyUnusedCinematicFadePaletteFxColorDefinitions), () => VerifyUnusedCinematicFadePaletteFxColorDefinitions(bus));
         Suite(nameof(VerifySamusLoadingSuitPaletteFxColorDefinitions), () => VerifySamusLoadingSuitPaletteFxColorDefinitions());
         Suite(nameof(VerifyPostCreditsIconGlarePaletteFxColorDefinitions), () => VerifyPostCreditsIconGlarePaletteFxColorDefinitions(bus));
-        Suite(nameof(VerifyPaletteFxHeatInstructionListDefinitions), () => VerifyPaletteFxHeatInstructionListDefinitions(bus));
+        Suite(nameof(VerifyPaletteFxHeatAnimationScriptDefinitions), () => VerifyPaletteFxHeatAnimationScriptDefinitions(bus));
         Suite(nameof(VerifyWreckedShipGreenLightPaletteFxColorDefinitions), () => VerifyWreckedShipGreenLightPaletteFxColorDefinitions(bus));
         Suite(nameof(VerifyTourianStatueGreyPaletteFxColorDefinitions), () => VerifyTourianStatueGreyPaletteFxColorDefinitions(bus));
         Suite(nameof(VerifyRedBrinstarGlowPaletteFxColorDefinitions), () => VerifyRedBrinstarGlowPaletteFxColorDefinitions(bus));
@@ -824,7 +824,7 @@ internal static class PaletteFxInstructionCodesVerification
 
 
     /// <summary>Checks each suit's heat source table from the native LDA operand and its compiled instruction list.</summary>
-    internal static void VerifyPaletteFxHeatInstructionListDefinitions(
+    internal static void VerifyPaletteFxHeatAnimationScriptDefinitions(
         ISnesAddressSpace bus)
     {
         // Native LDA operands select each original table, independently of production
@@ -841,21 +841,21 @@ internal static class PaletteFxInstructionCodesVerification
             for (ushort phase = 0; phase < 16; phase++)
             {
                 ushort expected = ReadVerificationWord(bus, table + 2 * phase);
-                AssertEqual(expected, PaletteFxHeatInstructionListDefinitions.Resolve(suit, phase),
+                AssertEqual(expected, PaletteFxHeatAnimationScriptDefinitions.Resolve(suit, phase),
                     "Every original heat selector word");
                 AssertEqual((ushort)(table + 2 * phase),
-                    PaletteFxHeatInstructionListDefinitions.NativeSourceAddress(suit, phase),
+                    PaletteFxHeatAnimationScriptDefinitions.NativeSourceAddress(suit, phase),
                     "Verification source alias preserves original pointer location");
                 AssertEqual((ushort)PaletteFxInstruction.Wait, ReadVerificationWord(bus, 0x8d0000 | (expected + 32)),
                     "Native frame contains duration, fifteen color words, then Done");
             }
             foreach (ushort phase in new ushort[] { 16, 17, ushort.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(
-                    () => PaletteFxHeatInstructionListDefinitions.Resolve(suit, phase), "Reject invalid heat phase");
+                    () => PaletteFxHeatAnimationScriptDefinitions.Resolve(suit, phase), "Reject invalid heat phase");
         }
         foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(
-                () => PaletteFxHeatInstructionListDefinitions.Resolve((PaletteFxHeatSuit)invalid, 0), "Reject unknown suit");
+                () => PaletteFxHeatAnimationScriptDefinitions.Resolve((PaletteFxHeatSuit)invalid, 0), "Reject unknown suit");
         ushort gravityMask = ReadVerificationWord(bus, 0x8de3c2);
         ushort variaMask = ReadVerificationWord(bus, 0x8de3cc);
         // Every equipment word Samus's items can record: each word whose set bits are all item bits.
@@ -870,7 +870,7 @@ internal static class PaletteFxInstructionCodesVerification
             int table = 0x8d0000 | ReadVerificationWord(bus, operand);
             for (ushort phase = 0; phase < 16; phase++)
                 AssertEqual(ReadVerificationWord(bus, table + 2 * phase),
-                    PaletteFxHeatInstructionListDefinitionsConstants.ResolveForEquippedItems(SamusEquipmentWordCodec.FromEquipmentWord(equipment), phase),
+                    PaletteFxHeatAnimationScriptDefinitionsConstants.ResolveForEquippedItems(SamusEquipmentWordCodec.FromEquipmentWord(equipment), phase),
                     "Every recordable equipment word preserves native Gravity-before-Varia selection at every phase");
         }
     }

@@ -49,7 +49,7 @@ internal static class IntroBabyActorDefinitionsVerification
         {
             IntroBabyActorDefinition actual = actors[index].Actor;
             int definitionAddress = IntroBabyActorDefinitions.NativeBank | actors[index].DefinitionPointer;
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 2)), actual.PreInstruction.NativeAddress,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 2)), actual.FrameBehavior.NativeAddress,
                 $"intro baby actor {index} pre-instruction callback");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Program),
                 $"intro baby actor {index} instruction list");
@@ -91,7 +91,7 @@ internal static class IntroBabyActorDefinitionsVerification
             reference.Step((ushort)frame, introCrossfadeTimer: 0x007f);
             AssertEqual(nativeDemo.Cursor, demo.Cursor,
                 $"SR388 demo list cursor at frame {frame} matches ROM-backed controller");
-            AssertEqual(nativeDemo.InstructionTimer.RawValue, demo.InstructionTimer.RawValue,
+            AssertEqual(nativeDemo.FrameHold.RawValue, demo.FrameHold.RawValue,
                 $"SR388 demo countdown at frame {frame} matches ROM-backed controller");
             AssertEqual(nativeDemo.Held, demo.Held,
                 $"SR388 held input at frame {frame} matches ROM-backed controller");

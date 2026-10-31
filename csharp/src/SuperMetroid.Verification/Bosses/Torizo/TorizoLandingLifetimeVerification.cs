@@ -30,10 +30,10 @@ internal static class TorizoLandingLifetimeVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BombTorizo);
         var body=runtime.Enemies.SlotTable.Slots.First(e=>e.DefinitionId==EnemyDefinitionId.BombTorizo);
         var state= runtime.Enemies.BombTorizoBehavior.Access.TorizoState ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BombTorizoBehavior._torizoState.");
-        state.Function=TorizoFunction.Active;state.PreInstruction=TorizoPreInstruction.Jump;state.ReturnCursor=AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.FacingLeftFalling2);
+        state.Function=TorizoFunction.Active;state.FrameBehavior=TorizoFrameBehavior.Jump;state.ReturnCursor=AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.FacingLeftFalling2);
         state.Velocity=new EightEightVector<RoomPixels>(0,0x400);state.JumpAcceleration=new EightEightVector<RoomPixels>(0,40);
         body.Health=body.Definition.Health;state.Posture=TorizoPostureFlags.None;state.Behavior=0;
-        body.Properties=SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0x2000);state.BodyProgram=AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.FacingLeftFalling1);body.InstructionTimer=WrappingCountdown.Start(5);
+        body.Properties=SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0x2000);state.BodyProgram=AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.FacingLeftFalling1);body.FrameHold=WrappingCountdown.Start(5);
         body.Position = body.Position.WithWhole(new(128, (ushort)(190-body.Radius.Y)));
         var terrain=new RoomTerrainBlock[256];for(int i=12*16;i<13*16;i++)terrain[i]=RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         // A flat floor across row 12 of the room's own blocks, which its block sheet pictures.
@@ -52,7 +52,7 @@ internal static class TorizoLandingLifetimeVerification
             var result=game.Step(0);
             // Every rendered earthquake type displaces BG1 or BG2, so only an unapplied frame leaves the default delta.
             var shake=runtime.Enemies.Earthquake.LastRoomShake;bool shakeApplied=shake!=default;if(shakeApplied)shaken++;
-            if(frame%8==0 || frame>=30)Console.WriteLine($"frame={frame} actor={body.Position.X.Whole},{body.Position.Y.Whole} hp={body.Health} pre={(int)state.PreInstruction:X4} timer={runtime.Enemies.Earthquake.EarthquakeTimer.RawValue} shake={shake}");
+            if(frame%8==0 || frame>=30)Console.WriteLine($"frame={frame} actor={body.Position.X.Whole},{body.Position.Y.Whole} hp={body.Health} pre={(int)state.FrameBehavior:X4} timer={runtime.Enemies.Earthquake.EarthquakeTimer.RawValue} shake={shake}");
             if(shakeApplied!=(frame<32))throw new InvalidDataException("Full frontend landing-shake lifetime differs from 32 native frames.");
         }
         Console.WriteLine($"shaken={shaken}");

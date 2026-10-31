@@ -37,9 +37,9 @@ internal abstract record TorizoProjectileCue
     /// <param name="Spread">The random scatter a <see cref="Scatter"/> cue applies.</param>
     internal sealed record Scatter(EnemyProjectileScatter Spread) : TorizoProjectileCue;
 
-    /// <summary>Installs a movement routine (<c>Instruction_EnemyProjectile_PreInstructionInY</c>, $86:8161).</summary>
-    /// <param name="PreInstruction">The movement routine a <see cref="SetPreInstruction"/> cue installs.</param>
-    internal sealed record SetPreInstruction(EnemyProjectilePreInstruction PreInstruction) : TorizoProjectileCue;
+    /// <summary>Installs a movement routine (<c>Instruction_EnemyProjectile_FrameBehaviorInY</c>, $86:8161).</summary>
+    /// <param name="FrameBehavior">The movement routine a <see cref="SetFrameBehavior"/> cue installs.</param>
+    internal sealed record SetFrameBehavior(EnemyProjectileFrameBehavior FrameBehavior) : TorizoProjectileCue;
 
     /// <summary>Sets the projectile's collision radius (<c>Instruction_EnemyProjectile_XYRadiusInY</c>, $86:8298).</summary>
     /// <param name="Radius">The collision radius a <see cref="SetRadius"/> cue sets.</param>

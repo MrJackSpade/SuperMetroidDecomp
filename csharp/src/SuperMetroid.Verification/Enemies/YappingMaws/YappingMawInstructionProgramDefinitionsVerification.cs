@@ -177,7 +177,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         var state = new YappingMawEnemyState(slot) { Program = AnimationProgramCursor<YappingMawProgram>.Start(entry) };
         slot.SetSpeciesState(state);
         return new NewInitializedYappingMawResult(enemies, slot, state);
@@ -190,7 +190,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     {
         for (int call = 0; call < count; call++)
         {
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             EnemyInstructionRunner.Process(arguments);
         }
     }

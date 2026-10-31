@@ -148,7 +148,7 @@ internal static class TorizoAnimationsVerification
                                 _ => throw new InvalidOperationException($"{at}: {cue} carries no value."),
                             })),
                             TorizoOperand.Function => TorizoNativeWords.Functions.Word(AssertIs<TorizoCue.SetFunction>(cue, $"{at}: cue").Function),
-                            TorizoOperand.PreInstruction => TorizoNativeWords.PreInstructions.Word(AssertIs<TorizoCue.SetPreInstruction>(cue, $"{at}: cue").PreInstruction),
+                            TorizoOperand.FrameBehavior => TorizoNativeWords.FrameBehaviors.Word(AssertIs<TorizoCue.SetFrameBehavior>(cue, $"{at}: cue").FrameBehavior),
                             TorizoOperand.Target => Entry(cue switch
                             {
                                 TorizoCue.Branch branch => branch.Target,

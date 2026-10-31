@@ -32,7 +32,7 @@ internal static class RoomSpriteObjectDefinitionsVerification
                 if (!native.IsActive)
                     break;
                 AssertEqual(native.Pointer, slot.InstructionPointer, $"room sprite object {kind} record after {update} updates");
-                AssertEqual(native.Timer, slot.InstructionTimer, $"room sprite object {kind} timer after {update} updates");
+                AssertEqual(native.Timer, slot.FrameHold, $"room sprite object {kind} timer after {update} updates");
                 AssertEqual(native.Spritemap, slot.SpritemapPointer, $"room sprite object {kind} spritemap after {update} updates");
                 native.Step();
                 enemies.SpriteObjects.StepRoomSpriteObjects();

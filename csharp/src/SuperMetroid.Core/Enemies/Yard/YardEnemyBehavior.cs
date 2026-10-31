@@ -103,7 +103,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
 
         YardDirectionDefinition definition = YardDirections.ForDirection(direction);
         state.Program = AnimationProgramCursor<YardProgram>.Start(definition.CrawlingProgram);
@@ -202,7 +202,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.Program = AnimationProgramCursor<YardProgram>.Start(hiding);
                 slot.Frame = EnemyFrameId.Empty;
-                slot.InstructionTimer = WrappingCountdown.Start(1);
+                slot.FrameHold = WrappingCountdown.Start(1);
                 slot.Timer = WrappingCountdown.Start(0);
                 state.Behavior = YardBehavior.Hiding;
                 return;
@@ -375,7 +375,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         YardProgram program)
     {
         state.Program = AnimationProgramCursor<YardProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         state.TurnTransitionDisabled = true;
         state.TurnTransitionDisableCounter = 0;
     }
@@ -476,7 +476,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovementFunction = YardMovementFunction.InstructionPending;
         state.Program = AnimationProgramCursor<YardProgram>.Start(state.HidingProgram ??
             throw new InvalidDataException("A landing Yard has no hiding animation to resume."));
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
@@ -489,7 +489,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             YardDirections.ForAirborneFacing(state.AirborneFacingDirection);
         state.Program = AnimationProgramCursor<YardProgram>.Start(definition.VisibleProgram);
         state.HidingProgram = definition.HidingProgram;
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

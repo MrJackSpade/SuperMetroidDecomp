@@ -46,14 +46,14 @@ internal sealed class GreyDoorPlmAnimation(GreyDoorVariant variant, GreyDoorProg
                 SetLink(GreyDoorProgram.Activate);
                 return null;
             case GreyDoorCue.ArmCondition:
-                slot.PreInstruction = GreyDoorPreInstructions.Of(GreyDoorPlmProgramDefinitions.UnlockChecks[
+                slot.FrameBehavior = GreyDoorFrameBehaviors.Of(GreyDoorPlmProgramDefinitions.UnlockChecks[
                     ((slot.Family as GreyDoorPlmState) ?? throw new InvalidOperationException("A grey cap's program ran without its door state.")).Condition]);
                 return null;
             case GreyDoorCue.LinkHit:
                 SetLink(GreyDoorProgram.Hit);
                 return null;
             case GreyDoorCue.ArmShotWake:
-                slot.PreInstruction = GreyDoorPreInstructions.Of(GreyDoorPreInstruction.WakeWhenShot);
+                slot.FrameBehavior = GreyDoorFrameBehaviors.Of(GreyDoorFrameBehavior.WakeWhenShot);
                 return null;
             case GreyDoorCue.CountHit:
                 return context.Plms.GreyDoors.CountGreyDoorHit(slot) ? GreyDoorProgram.Open : null;

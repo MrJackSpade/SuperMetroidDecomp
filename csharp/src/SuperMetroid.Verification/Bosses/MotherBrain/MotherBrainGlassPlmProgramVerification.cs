@@ -75,7 +75,7 @@ internal static class MotherBrainGlassPlmProgramVerification
         AssertTrue(eventSet && !plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.MotherBrainGlass),
             $"all glass stages end by setting the event and deleting the PLM; " +
             $"program={plms.MotherBrainGlassAnimation?.RunningProgram}, " +
-            $"timer={plms.MotherBrainGlassInstructionTimer}");
+            $"timer={plms.MotherBrainGlassFrameHold}");
         AssertEqual(40, emitted,
             "five authored shatter stages emit four shards twice each");
         AssertEqual(18, plms.MotherBrainGlassRoomArgument,

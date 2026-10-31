@@ -43,11 +43,11 @@ internal static class RoomPlmProgramsVerification
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), SpeedBoosterEscapePlmProgramDefinitions.Programs,
             SpeedBoosterEscapeEntries, draw => throw new InvalidOperationException($"The lavaquake program never draws; got {draw}."),
-            (IImportCartridgeSource cartridge, ushort cursor, out SpeedBoosterEscapePreInstruction cue, out int length) =>
+            (IImportCartridgeSource cartridge, ushort cursor, out SpeedBoosterEscapeFrameBehavior cue, out int length) =>
             {
-                bool installs = InstructionAt<RoomPlmInstruction>(cartridge, cursor) == RoomPlmInstruction.InstallPreInstruction;
+                bool installs = InstructionAt<RoomPlmInstruction>(cartridge, cursor) == RoomPlmInstruction.InstallFrameBehavior;
                 cue = installs
-                    ? PlmPreInstructionNativeWords.SpeedBoosterEscape.Decode(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "lavaquake pre-instruction")
+                    ? PlmFrameBehaviorNativeWords.SpeedBoosterEscape.Decode(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "lavaquake pre-instruction")
                     : default;
                 length = 4;
                 return installs;
@@ -95,18 +95,18 @@ internal static class RoomPlmProgramsVerification
                 cue = new ScriptedRoomPlmCue.QueueSoundLibrary2Maximum6(Sound: SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)));
                 length = 3;
                 return true;
-            case RoomPlmInstruction.InstallPreInstruction:
+            case RoomPlmInstruction.InstallFrameBehavior:
                 ushort routine = cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
-                ScriptedRoomPlmPreInstruction installed =
-                    routine == PlmPreInstructionNativeRoutines.Of(SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomPreInstructions.Controller) ? ScriptedRoomPlmPreInstruction.ShaktoolRoomController
-                    : routine == PlmPreInstructionNativeRoutines.Of(SuperMetroid.Core.Areas.Tourian.TourianPreInstructions.OldTourianEscapeShaftWallWaitForSamus) ? ScriptedRoomPlmPreInstruction.OldTourianWallWaitForSamus
-                    : routine == PlmPreInstructionNativeRoutines.Of(SuperMetroid.Core.Enemies.Chozo.ChozoStatuePreInstructions.WaitForLowerNorfairHand) ? ScriptedRoomPlmPreInstruction.LowerNorfairChozoHandWait
+                ScriptedRoomPlmFrameBehavior installed =
+                    routine == PlmFrameBehaviorNativeRoutines.Of(SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomFrameBehaviors.Controller) ? ScriptedRoomPlmFrameBehavior.ShaktoolRoomController
+                    : routine == PlmFrameBehaviorNativeRoutines.Of(SuperMetroid.Core.Areas.Tourian.TourianFrameBehaviors.OldTourianEscapeShaftWallWaitForSamus) ? ScriptedRoomPlmFrameBehavior.OldTourianWallWaitForSamus
+                    : routine == PlmFrameBehaviorNativeRoutines.Of(SuperMetroid.Core.Enemies.Chozo.ChozoStatueFrameBehaviors.WaitForLowerNorfairHand) ? ScriptedRoomPlmFrameBehavior.LowerNorfairChozoHandWait
                     : throw new InvalidDataException($"Scripted room list installs untranslated pre-instruction ${routine:X4}.");
-                cue = new ScriptedRoomPlmCue.InstallPreInstruction(PreInstruction: installed);
+                cue = new ScriptedRoomPlmCue.InstallFrameBehavior(FrameBehavior: installed);
                 length = 4;
                 return true;
-            case RoomPlmInstruction.ClearPreInstruction:
-                cue = new ScriptedRoomPlmCue.Command(ScriptedRoomPlmCueKind.ClearPreInstruction);
+            case RoomPlmInstruction.ClearFrameBehavior:
+                cue = new ScriptedRoomPlmCue.Command(ScriptedRoomPlmCueKind.ClearFrameBehavior);
                 return true;
             case RoomPlmInstruction.SetAnimalsEscapedEvent:
                 cue = new ScriptedRoomPlmCue.Command(ScriptedRoomPlmCueKind.SetAnimalsEscapedEvent);
@@ -130,7 +130,7 @@ internal static class RoomPlmProgramsVerification
             case RoomPlmInstruction.RevertSlopesToSpikes:
                 cue = new ScriptedRoomPlmCue.Command(ScriptedRoomPlmCueKind.RevertSlopesToSpikes);
                 return true;
-            case RoomPlmInstruction.SetGreyDoorPreInstruction:
+            case RoomPlmInstruction.SetGreyDoorFrameBehavior:
             case RoomPlmInstruction.Sleep:
             case RoomPlmInstruction.Delete:
             case RoomPlmInstruction.LinkInstruction:
@@ -204,11 +204,11 @@ internal static class RoomPlmProgramsVerification
                 cue = new(BlockReactionPlmCueKind.RestoreRespawningGrappleBehavior, null);
                 length = 2;
                 return true;
-            case RoomPlmInstruction.SetGreyDoorPreInstruction:
+            case RoomPlmInstruction.SetGreyDoorFrameBehavior:
             case RoomPlmInstruction.Sleep:
             case RoomPlmInstruction.Delete:
-            case RoomPlmInstruction.InstallPreInstruction:
-            case RoomPlmInstruction.ClearPreInstruction:
+            case RoomPlmInstruction.InstallFrameBehavior:
+            case RoomPlmInstruction.ClearFrameBehavior:
             case RoomPlmInstruction.LinkInstruction:
             case RoomPlmInstruction.GotoIfDoorBitSet:
             case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:
@@ -351,16 +351,16 @@ internal static class RoomPlmProgramsVerification
         (bool known, cue, length) = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
         {
             RoomPlmInstruction.ClearDownwardGateTrigger => new DownwardGateCueAtCase(true, DownwardGateCue.ClearTrigger, 2),
-            RoomPlmInstruction.InstallPreInstruction => new DownwardGateCueAtCase(true,
-                PlmPreInstructionNativeWords.DownwardGate.Decode(operand, "downward gate pre-instruction") == DownwardGatePreInstruction.WakeIfTriggered
+            RoomPlmInstruction.InstallFrameBehavior => new DownwardGateCueAtCase(true,
+                PlmFrameBehaviorNativeWords.DownwardGate.Decode(operand, "downward gate pre-instruction") == DownwardGateFrameBehavior.WakeIfTriggered
                 ? DownwardGateCue.ArmWakeIfTriggered : DownwardGateCue.ArmWakeIfTriggeredOrSamusBelow, 4),
             RoomPlmInstruction.SpawnDownwardGateProjectile => new DownwardGateCueAtCase(true, DownwardGateCue.SpawnMovingGate, 4),
             RoomPlmInstruction.WakeDownwardGateProjectile => new DownwardGateCueAtCase(true, DownwardGateCue.WakeGateProjectile, 4),
             RoomPlmInstruction.QueueSoundLibrary3Maximum6 => new DownwardGateCueAtCase(true, DownwardGateCue.QueueMovementSound, 3),
-            RoomPlmInstruction.SetGreyDoorPreInstruction or
+            RoomPlmInstruction.SetGreyDoorFrameBehavior or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or
-                RoomPlmInstruction.ClearPreInstruction or
+                RoomPlmInstruction.ClearFrameBehavior or
                 RoomPlmInstruction.LinkInstruction or
                 RoomPlmInstruction.GotoIfDoorBitSet or
                 RoomPlmInstruction.IncrementDoorHitCounterAndGoto or
@@ -413,7 +413,7 @@ internal static class RoomPlmProgramsVerification
         if (!known)
             return false;
         if (cue == DownwardGateCue.ArmWakeIfTriggeredOrSamusBelow)
-            AssertEqual(PlmPreInstructionNativeWords.DownwardGate.Word(DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow), operand, "downward gate closed wake");
+            AssertEqual(PlmFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggeredOrSamusBelow), operand, "downward gate closed wake");
         if (cue == DownwardGateCue.SpawnMovingGate)
             AssertEqual(EnemyProjectileNativeWords.Kinds.Word(RoomEnemyProjectileKind.DownwardGateMoving), operand, "downward gate moving projectile");
         if (cue == DownwardGateCue.QueueMovementSound)
@@ -445,9 +445,9 @@ internal static class RoomPlmProgramsVerification
             draw => throw new InvalidOperationException($"The attic program never draws; got {draw}."),
             (IImportCartridgeSource cartridge, ushort cursor, out WreckedShipAtticCue cue, out int length) =>
             {
-                cue = WreckedShipAtticCue.InstallInertPreInstruction;
+                cue = WreckedShipAtticCue.InstallInertFrameBehavior;
                 length = 4;
-                if (InstructionAt<RoomPlmInstruction>(cartridge, cursor) != RoomPlmInstruction.InstallPreInstruction)
+                if (InstructionAt<RoomPlmInstruction>(cartridge, cursor) != RoomPlmInstruction.InstallFrameBehavior)
                     return false;
                 AssertEqual(WreckedShipAtticPlmRomData.NoOpCallback, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "attic pre-instruction");
                 return true;
@@ -485,11 +485,11 @@ internal static class RoomPlmProgramsVerification
         {
             RoomPlmInstruction.QueueSoundLibrary3Maximum6 => new BlueDoorCueAtCase(true, DoorSoundCue(QueuedLibrary3Sound(cartridge, cursor), BlueDoorCue.QueueOpenSound, BlueDoorCue.QueueCloseSound), 3),
             RoomPlmInstruction.SetPlmBtsFromByte => new BlueDoorCueAtCase(true, BlueDoorCue.RestoreBlueBehavior, 3),
-            RoomPlmInstruction.SetGreyDoorPreInstruction or
+            RoomPlmInstruction.SetGreyDoorFrameBehavior or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or
-                RoomPlmInstruction.InstallPreInstruction or
-                RoomPlmInstruction.ClearPreInstruction or
+                RoomPlmInstruction.InstallFrameBehavior or
+                RoomPlmInstruction.ClearFrameBehavior or
                 RoomPlmInstruction.LinkInstruction or
                 RoomPlmInstruction.GotoIfDoorBitSet or
                 RoomPlmInstruction.IncrementDoorHitCounterAndGoto or
@@ -603,8 +603,8 @@ internal static class RoomPlmProgramsVerification
                 cue = ColoredDoorCue.LinkHit;
                 length = 4;
                 return true;
-            case RoomPlmInstruction.InstallPreInstruction:
-                AssertEqual(DoorsNativeWords.ColoredDoorPreInstructions.Word(ColoredDoorPlmProgramDefinitions.Wakes[color]), Word(2), $"{color} {orientation} door shot wake");
+            case RoomPlmInstruction.InstallFrameBehavior:
+                AssertEqual(DoorsNativeWords.ColoredDoorFrameBehaviors.Word(ColoredDoorPlmProgramDefinitions.Wakes[color]), Word(2), $"{color} {orientation} door shot wake");
                 cue = ColoredDoorCue.ArmWake;
                 length = 4;
                 return true;
@@ -621,10 +621,10 @@ internal static class RoomPlmProgramsVerification
                     : DoorSoundCue(sound, ColoredDoorCue.QueueOpenSound, ColoredDoorCue.QueueCloseSound);
                 length = 3;
                 return true;
-            case RoomPlmInstruction.SetGreyDoorPreInstruction:
+            case RoomPlmInstruction.SetGreyDoorFrameBehavior:
             case RoomPlmInstruction.Sleep:
             case RoomPlmInstruction.Delete:
-            case RoomPlmInstruction.ClearPreInstruction:
+            case RoomPlmInstruction.ClearFrameBehavior:
             case RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
             case RoomPlmInstruction.GotoIfSamusNear:
             case RoomPlmInstruction.Goto:
@@ -725,12 +725,12 @@ internal static class RoomPlmProgramsVerification
                 cue = target == EntryOf(GreyDoorProgram.Activate) ? GreyDoorCue.LinkActivate : GreyDoorCue.LinkHit;
                 length = 4;
                 return true;
-            case RoomPlmInstruction.SetGreyDoorPreInstruction:
+            case RoomPlmInstruction.SetGreyDoorFrameBehavior:
                 cue = GreyDoorCue.ArmCondition;
                 length = 2;
                 return true;
-            case RoomPlmInstruction.InstallPreInstruction:
-                AssertEqual(DoorsNativeWords.GreyDoorPreInstructions.Word(GreyDoorPreInstruction.WakeWhenShot), Word(2), $"grey {variant} shot wake");
+            case RoomPlmInstruction.InstallFrameBehavior:
+                AssertEqual(DoorsNativeWords.GreyDoorFrameBehaviors.Word(GreyDoorFrameBehavior.WakeWhenShot), Word(2), $"grey {variant} shot wake");
                 cue = GreyDoorCue.ArmShotWake;
                 length = 4;
                 return true;
@@ -751,7 +751,7 @@ internal static class RoomPlmProgramsVerification
                 return true;
             case RoomPlmInstruction.Sleep:
             case RoomPlmInstruction.Delete:
-            case RoomPlmInstruction.ClearPreInstruction:
+            case RoomPlmInstruction.ClearFrameBehavior:
             case RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
             case RoomPlmInstruction.GotoIfSamusNear:
             case RoomPlmInstruction.Goto:
@@ -889,11 +889,11 @@ internal static class RoomPlmProgramsVerification
                 };
                 length = 4;
                 return true;
-            case RoomPlmInstruction.InstallPreInstruction:
-                cue = DoorsNativeWords.EyeDoorPreInstructions.Decode(Word(2), "eye-door pre-instruction") switch
+            case RoomPlmInstruction.InstallFrameBehavior:
+                cue = DoorsNativeWords.EyeDoorFrameBehaviors.Decode(Word(2), "eye-door pre-instruction") switch
                 {
-                    EyeDoorPreInstruction.MissileHit => EyeDoorPlmCue.ArmMissileWake,
-                    EyeDoorPreInstruction.WakeWhenDoorBitSet => EyeDoorPlmCue.ArmDoorBitWake,
+                    EyeDoorFrameBehavior.MissileHit => EyeDoorPlmCue.ArmMissileWake,
+                    EyeDoorFrameBehavior.WakeWhenDoorBitSet => EyeDoorPlmCue.ArmDoorBitWake,
                     var wake => throw new InvalidDataException($"{at}: wake {wake}."),
                 };
                 length = 4;
@@ -921,8 +921,8 @@ internal static class RoomPlmProgramsVerification
                 cue = EyeDoorPlmCue.SpawnSmoke;
                 length = 2;
                 return true;
-            case RoomPlmInstruction.ClearPreInstruction:
-                cue = EyeDoorPlmCue.ClearPreInstruction;
+            case RoomPlmInstruction.ClearFrameBehavior:
+                cue = EyeDoorPlmCue.ClearFrameBehavior;
                 length = 2;
                 return true;
             case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:
@@ -948,7 +948,7 @@ internal static class RoomPlmProgramsVerification
                 cue = EyeDoorPlmCue.BecomeBlueDoor;
                 length = 4;
                 return true;
-            case RoomPlmInstruction.SetGreyDoorPreInstruction:
+            case RoomPlmInstruction.SetGreyDoorFrameBehavior:
             case RoomPlmInstruction.Sleep:
             case RoomPlmInstruction.Delete:
             case RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
@@ -1038,12 +1038,12 @@ internal static class RoomPlmProgramsVerification
     {
         (bool known, cue, length) = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
         {
-            RoomPlmInstruction.InstallPreInstruction => new SamusEaterCueAtCase(true, SamusEaterCue.HoldSamus, 4),
+            RoomPlmInstruction.InstallFrameBehavior => new SamusEaterCueAtCase(true, SamusEaterCue.HoldSamus, 4),
             RoomPlmInstruction.QueueSoundLibrary2Maximum6 => new SamusEaterCueAtCase(true, SamusEaterCue.QueueChewSound, 3),
             RoomPlmInstruction.SamusEaterDamage => new SamusEaterCueAtCase(true, SamusEaterCue.DamageSamus, 2),
             RoomPlmInstruction.SamusEaterReleaseImmunity => new SamusEaterCueAtCase(true, SamusEaterCue.ReleaseSamus, 2),
-            RoomPlmInstruction.ClearPreInstruction => new SamusEaterCueAtCase(true, SamusEaterCue.ClearPreInstruction, 2),
-            RoomPlmInstruction.SetGreyDoorPreInstruction or
+            RoomPlmInstruction.ClearFrameBehavior => new SamusEaterCueAtCase(true, SamusEaterCue.ClearFrameBehavior, 2),
+            RoomPlmInstruction.SetGreyDoorFrameBehavior or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or
                 RoomPlmInstruction.LinkInstruction or
@@ -1099,7 +1099,7 @@ internal static class RoomPlmProgramsVerification
         if (!known)
             return false;
         if (cue == SamusEaterCue.HoldSamus)
-            AssertEqual(SamusEaterPlmDefinitionsConstants.HoldPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "plant hold pre-instruction");
+            AssertEqual(SamusEaterPlmDefinitionsConstants.HoldFrameBehavior, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "plant hold pre-instruction");
         if (cue == SamusEaterCue.QueueChewSound)
         {
             AssertEqual(SamusEaterPlmDefinitions.ChewSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "plant chew sound");
@@ -1118,10 +1118,10 @@ internal static class RoomPlmProgramsVerification
         {
             RoomPlmInstruction.GotoIfEventSet => new NoobTubeCueAtCase(true, NoobTubeCue.SkipIfBroken, 6),
             RoomPlmInstruction.LinkInstruction => new NoobTubeCueAtCase(true, Entry(Operand(2)) == NoobTubeProgram.WaitForInput ? NoobTubeCue.LinkInputWait : NoobTubeCue.LinkBreak, 4),
-            RoomPlmInstruction.InstallPreInstruction =>
-                new NoobTubeCueAtCase(true, PlmPreInstructionNativeWords.NoobTube.Decode(Operand(2), "n00b tube pre-instruction") == NoobTubePlmPreInstruction.WakeOnPowerBomb
+            RoomPlmInstruction.InstallFrameBehavior =>
+                new NoobTubeCueAtCase(true, PlmFrameBehaviorNativeWords.NoobTube.Decode(Operand(2), "n00b tube pre-instruction") == NoobTubePlmFrameBehavior.WakeOnPowerBomb
                     ? NoobTubeCue.ArmPowerBombWake : NoobTubeCue.ArmInputWake, 4),
-            RoomPlmInstruction.ClearPreInstruction => new NoobTubeCueAtCase(true, NoobTubeCue.ClearPreInstruction, 2),
+            RoomPlmInstruction.ClearFrameBehavior => new NoobTubeCueAtCase(true, NoobTubeCue.ClearFrameBehavior, 2),
             RoomPlmInstruction.LockSamus => new NoobTubeCueAtCase(true, NoobTubeCue.LockSamus, 2),
             RoomPlmInstruction.SpawnNoobTubeCrack => new NoobTubeCueAtCase(true, NoobTubeCue.SpawnCrack, 2),
             RoomPlmInstruction.QueueSoundLibrary2Maximum6 => new NoobTubeCueAtCase(true, NoobTubeCue.QueueBreakSound, 3),
@@ -1130,7 +1130,7 @@ internal static class RoomPlmProgramsVerification
             RoomPlmInstruction.SetEvent => new NoobTubeCueAtCase(true, NoobTubeCue.SetBrokenEvent, 4),
             RoomPlmInstruction.EnableNoobTubeWaterPhysics => new NoobTubeCueAtCase(true, NoobTubeCue.EnableWaterPhysics, 2),
             RoomPlmInstruction.UnlockSamus => new NoobTubeCueAtCase(true, NoobTubeCue.UnlockSamus, 2),
-            RoomPlmInstruction.SetGreyDoorPreInstruction or
+            RoomPlmInstruction.SetGreyDoorFrameBehavior or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or
                 RoomPlmInstruction.GotoIfDoorBitSet or
@@ -1188,7 +1188,7 @@ internal static class RoomPlmProgramsVerification
                 AssertEqual(NoobTubeProgram.Break, Entry(Operand(2)), "n00b tube break link");
                 break;
             case NoobTubeCue.ArmInputWake:
-                AssertEqual(PlmPreInstructionNativeWords.NoobTube.Word(NoobTubePlmPreInstruction.WakeOnAcceptedInput), Operand(2), "n00b tube input wake");
+                AssertEqual(PlmFrameBehaviorNativeWords.NoobTube.Word(NoobTubePlmFrameBehavior.WakeOnAcceptedInput), Operand(2), "n00b tube input wake");
                 break;
             case NoobTubeCue.QueueBreakSound:
                 AssertEqual(NoobTubePlmDefinitions.BreakSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "n00b tube break sound");
@@ -1199,7 +1199,7 @@ internal static class RoomPlmProgramsVerification
                 break;
             case NoobTubeCue.LinkInputWait:
             case NoobTubeCue.ArmPowerBombWake:
-            case NoobTubeCue.ClearPreInstruction:
+            case NoobTubeCue.ClearFrameBehavior:
             case NoobTubeCue.LockSamus:
             case NoobTubeCue.SpawnCrack:
             case NoobTubeCue.SpawnShardsAndBubbles:

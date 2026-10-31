@@ -24,33 +24,33 @@ public sealed class AttractDemoInput
 
     /// <summary>Steps application-owned inputs; no address space is required.</summary>
     public void StepStock(SuperMetroidGameState gameState, SamusMovementType movementType) =>
-        Script.Step((_, preInstruction) => ApplyPreInstruction(preInstruction, gameState, movementType),
+        Script.Step((_, frameBehavior) => ApplyFrameBehavior(frameBehavior, gameState, movementType),
             cue => throw new InvalidOperationException($"Title demonstrations call no {cue} routine."));
 
     /// <summary>Redirects stock demo input at leave and movement branches using the cartridge's actual type-$1A comparison.</summary>
-    private void ApplyPreInstruction(DemoInputPreInstruction preInstruction, SuperMetroidGameState gameState, SamusMovementType movementType)
+    private void ApplyFrameBehavior(DemoInputFrameBehavior frameBehavior, SuperMetroidGameState gameState, SamusMovementType movementType)
     {
-        switch (preInstruction)
+        switch (frameBehavior)
         {
-            case DemoInputPreInstruction.ReturnOnly:
+            case DemoInputFrameBehavior.ReturnOnly:
                 break;
-            case DemoInputPreInstruction.AttractCheckLeave:
+            case DemoInputFrameBehavior.AttractCheckLeave:
                 if (gameState == SuperMetroidGameState.TransitionFromDemoB)
-                    Script.Redirect(preInstruction, DemoInputProgram.AttractDelete);
+                    Script.Redirect(frameBehavior, DemoInputProgram.AttractDelete);
                 break;
-            case DemoInputPreInstruction.AttractShinespark:
+            case DemoInputFrameBehavior.AttractShinespark:
                 // The routine's name does not match its type-$1A comparison. Retain
                 // the actual cartridge branch rather than correcting that oddity.
                 if (movementType != SamusMovementType.DraygonHeld)
-                    Script.Redirect(DemoInputPreInstruction.AttractCheckLeave,
+                    Script.Redirect(DemoInputFrameBehavior.AttractCheckLeave,
                         DemoInputProgram.AttractDiagonalShinesparkContinuation);
                 break;
-            case DemoInputPreInstruction.None:
-            case DemoInputPreInstruction.IntroBabyRunningLeft:
-            case DemoInputPreInstruction.IntroBabyStopAndLook:
-                throw new InvalidOperationException($"A title demonstration's input object cannot hold the {preInstruction} pre-instruction.");
+            case DemoInputFrameBehavior.None:
+            case DemoInputFrameBehavior.IntroBabyRunningLeft:
+            case DemoInputFrameBehavior.IntroBabyStopAndLook:
+                throw new InvalidOperationException($"A title demonstration's input object cannot hold the {frameBehavior} pre-instruction.");
             default:
-                throw new InvalidOperationException($"Undefined {nameof(DemoInputPreInstruction)} {preInstruction}.");
+                throw new InvalidOperationException($"Undefined {nameof(DemoInputFrameBehavior)} {frameBehavior}.");
         }
     }
 }

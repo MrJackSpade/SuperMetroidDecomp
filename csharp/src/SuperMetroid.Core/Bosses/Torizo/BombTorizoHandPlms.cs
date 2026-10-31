@@ -68,7 +68,7 @@ internal sealed class BombTorizoHandPlms
     /// <summary>
     /// Runs pre-instruction <c>$84:D33B</c> before the ordinary PLM timer pass.
     /// </summary>
-    internal void RunBombTorizoHandPreInstruction(PlmSlot slot)
+    internal void RunBombTorizoHandFrameBehavior(PlmSlot slot)
     {
         IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException(
@@ -79,7 +79,7 @@ internal sealed class BombTorizoHandPlms
         // The sleeping opcode leaves Y pointing at itself. D33B adds two to skip that word,
         // restores the instruction timer to one, and replaces its pre-instruction with RTS.
         slot.WakePastSleep();
-        slot.PreInstruction = PlmPreInstructions.Inert;
+        slot.FrameBehavior = PlmFrameBehaviors.Inert;
     }
     /// <summary><c>$84:D357</c>: spawns statue fragment <paramref name="fragment"/> at the hand's block.</summary>
     internal void SpawnFragment(PlmSlot slot, int fragment) =>
@@ -104,6 +104,6 @@ internal sealed class BombTorizoHandPlms
         if (slot.Header != PlmHeaderId.BombTorizoHand)
             return;
         slot.Header = 0;
-        slot.PreInstruction = PlmPreInstructions.Inert;
+        slot.FrameBehavior = PlmFrameBehaviors.Inert;
     }
 }

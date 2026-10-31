@@ -30,7 +30,7 @@ internal static class SkulteraBehaviorVerification
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.SetSpawnParameter1(EnemyDefinitionId.Skultera, startsLeft ? SkulteraNativeValues.StartsLeftParameter : (ushort)0);
             // The room spawn primes the instruction timer before the species initializer runs.
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             SkulteraBehavior.InitializeSkultera(slot);
             SkulteraEnemyState state = enemies.SkulteraStates[0] ?? throw new InvalidOperationException("Skultera has no state.");
             AssertEqual(AnimationProgramCursor<SkulteraProgram>.Start(swim), state.Program, $"Skultera starts {swim}");

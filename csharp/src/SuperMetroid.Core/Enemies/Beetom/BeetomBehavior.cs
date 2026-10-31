@@ -98,7 +98,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The source label's branch name is reversed. A negative Samus-minus-enemy delta
         // selects the left-facing list; nonnegative selects the right-facing list.
-        SetBeetomInstructionList(
+        SetBeetomAnimationScript(
             slot,
             state,
             CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
@@ -245,7 +245,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void StartBeetomCrawling(RoomEnemySlot slot, BeetomEnemyState state, HorizontalDirection direction)
     {
         state.Function = direction == HorizontalDirection.Left ? BeetomEnemyFunction.CrawlingLeft : BeetomEnemyFunction.CrawlingRight;
-        SetBeetomInstructionList(
+        SetBeetomAnimationScript(
             slot,
             state,
             direction == HorizontalDirection.Left
@@ -271,7 +271,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new ArgumentOutOfRangeException(nameof(length), length, "Unknown Beetom hop."),
         };
         state.Falling = false;
-        SetBeetomInstructionList(
+        SetBeetomAnimationScript(
             slot,
             state,
             direction == HorizontalDirection.Left
@@ -287,7 +287,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FacingRight = !left;
         state.Function = state.FacingRight ? BeetomEnemyFunction.LungeRight : BeetomEnemyFunction.LungeLeft;
         state.Falling = false;
-        SetBeetomInstructionList(
+        SetBeetomAnimationScript(
             slot,
             state,
             left
@@ -298,7 +298,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the attached blood-drain instruction list for the current facing.</summary>
     internal static void StartBeetomDrain(RoomEnemySlot slot, BeetomEnemyState state, HorizontalDirection side)
     {
-        SetBeetomInstructionList(
+        SetBeetomAnimationScript(
             slot,
             state,
             side == HorizontalDirection.Left
@@ -310,7 +310,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Switches back to crawl artwork before dropping toward the floor.</summary>
     private static void StartBeetomDrop(RoomEnemySlot slot, BeetomEnemyState state)
     {
-        SetBeetomInstructionList(
+        SetBeetomAnimationScript(
             slot,
             state,
             state.FacingRight
@@ -538,13 +538,13 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Installs a Beetom animation and primes its instruction timer.</summary>
-    private static void SetBeetomInstructionList(
+    private static void SetBeetomAnimationScript(
         RoomEnemySlot slot,
         BeetomEnemyState state,
         BeetomProgram program)
     {
         state.Program = AnimationProgramCursor<BeetomProgram>.Start(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 

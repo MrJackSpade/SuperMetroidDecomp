@@ -42,7 +42,7 @@ internal static class RidleyShotHealthStageVerification
         ridley.SpritemapPointer = 0xe983;
         ridley.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0x3800);
         ridley.InvincibilityTimer = WrappingCountdown.Start(0);
-        ridley.InstructionTimer = WrappingCountdown.Start(0x7fff);
+        ridley.FrameHold = WrappingCountdown.Start(0x7fff);
         ridley.Health = 9340;
         state.FightMode = RidleyFightMode.PowerBombDodge;
         state.HealthStage = 0;
@@ -53,7 +53,7 @@ internal static class RidleyShotHealthStageVerification
             shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(0x00c5, 0x0164));
             shot.Radius = new(8, 8);
-            shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);
+            shot.Cursor = ProjectileFixtureCursors.Active; shot.FrameHold = WrappingCountdown.Start(1);
         }
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyEnemy: ridley);

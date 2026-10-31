@@ -127,7 +127,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         for (int step = 0; step < steps; step++)
         {
             MotherBrainRinkaDoorSpawnExpected before = new MotherBrainRinkaDoorSpawnExpected(segment.Position.X.Whole, segment.Position.Y.Whole);
-            segment.InstructionTimer = WrappingCountdown.Start(1);
+            segment.FrameHold = WrappingCountdown.Start(1);
             EnemyInstructionRunner.Process(arguments);
             moved |= segment.Position.X.Whole != before.X || segment.Position.Y.Whole != before.Y;
         }

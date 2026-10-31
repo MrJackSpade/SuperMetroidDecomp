@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 internal static class ShaktoolRoomPlmNativeProgram
 {
     /// <summary>$84:B8D6 installs the callback, then sleeps.</summary>
-    public const ushort InstructionList = 0xb8d6;
+    public const ushort AnimationScript = 0xb8d6;
     /// <summary>
     /// <c>$84:B8D6-B8DB InstList_PLM_ShaktoolsRoom</c> is the complete
     /// three-word resident controller. Its scroll/event rules live in the
@@ -16,13 +16,13 @@ internal static class ShaktoolRoomPlmNativeProgram
     {
         value = address switch
         {
-            InstructionList => (ushort)RoomPlmInstruction.InstallPreInstruction,
-            InstructionList + 2 => PreInstruction,
-            InstructionList + 4 => (ushort)RoomPlmInstruction.Sleep,
+            AnimationScript => (ushort)RoomPlmInstruction.InstallFrameBehavior,
+            AnimationScript + 2 => FrameBehavior,
+            AnimationScript + 4 => (ushort)RoomPlmInstruction.Sleep,
             _ => 0,
         };
-        return address is InstructionList or InstructionList + 2 or InstructionList + 4;
+        return address is AnimationScript or AnimationScript + 2 or AnimationScript + 4;
     }
-    /// <summary>$84:B8B0 PreInstruction_PLM_ShaktoolsRoom.</summary>
-    public const ushort PreInstruction = 0xb8b0;
+    /// <summary>$84:B8B0 FrameBehavior_PLM_ShaktoolsRoom.</summary>
+    public const ushort FrameBehavior = 0xb8b0;
 }

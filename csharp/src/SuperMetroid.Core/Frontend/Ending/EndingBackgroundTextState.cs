@@ -19,7 +19,7 @@ internal sealed class EndingBackgroundTextState
     /// <summary>Selects the Japanese subtitle row during the percentage hold.</summary>
     private readonly bool japaneseText;
     /// <summary>Remaining calls until the next installed character or hold transition.</summary>
-    internal WrappingCountdown InstructionTimer { get; set; } = WrappingCountdown.Start(1);
+    internal WrappingCountdown FrameHold { get; set; } = WrappingCountdown.Start(1);
     /// <summary>Scene-selected text page the staging page is shown on.</summary>
     private readonly EndingTextScreen destinationTilemap;
     /// <summary>Compiled installed typewriter characters, omitted from serialized debugger state.</summary>
@@ -80,11 +80,11 @@ internal sealed class EndingBackgroundTextState
     /// <summary>Runs the initial delay, four-frame character cadence, optional percentage hold, and completion handoff.</summary>
     private void StepInstalled(EndingScreen screen)
     {
-        if (Completed || !(InstructionTimer = InstructionTimer.Decrement().Remaining).IsZero) return;
+        if (Completed || !(FrameHold = FrameHold.Decrement().Remaining).IsZero) return;
         if (InstalledInitialMarkerPending)
         {
             InstalledInitialMarkerPending = false;
-            InstructionTimer = WrappingCountdown.Start(EndingTypewriterDefinitions.InitialDelayFrames);
+            FrameHold = WrappingCountdown.Start(EndingTypewriterDefinitions.InitialDelayFrames);
             return;
         }
         if (InstalledCharacterIndex < InstalledProgram.Length)
@@ -94,7 +94,7 @@ internal sealed class EndingBackgroundTextState
             if (character.Character != ' ')
                 page.Write(EndingPictureNames.Glyph(character.Style, character.Character), new Position16<TilemapCells>(
                     character.Column, character.Row));
-            InstructionTimer = WrappingCountdown.Start(EndingTypewriterDefinitions.CharacterDelayFrames);
+            FrameHold = WrappingCountdown.Start(EndingTypewriterDefinitions.CharacterDelayFrames);
             Upload(screen);
             return;
         }
@@ -104,7 +104,7 @@ internal sealed class EndingBackgroundTextState
             if (japaneseText)
                 page.Write(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCell);
             installedHoldStarted = true;
-            InstructionTimer = WrappingCountdown.Start(EndingTypewriterDefinitions.PercentageHoldFrames);
+            FrameHold = WrappingCountdown.Start(EndingTypewriterDefinitions.PercentageHoldFrames);
             Upload(screen);
             return;
         }

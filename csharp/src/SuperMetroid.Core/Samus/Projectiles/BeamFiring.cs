@@ -279,7 +279,7 @@ internal sealed class BeamFiring
         SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, direction);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
 
         // $90:B8ED checks Charge equipment and both input-edge latches before
         // selecting ordinary cooldown. Only uncharged auto-fire without those
@@ -313,7 +313,7 @@ internal sealed class BeamFiring
             // infer it from Wave bits: the table is the dispatcher, including overreads.
             SamusBeamCallbackDefinition callback =
                 SamusBeamCallbacks.Resolve(charged, beamType);
-            slot.PreInstruction = callback.Translated ?? throw new NotSupportedException(
+            slot.FrameBehavior = callback.Translated ?? throw new NotSupportedException(
                 $"Beam callback {callback.Callback} is not translated.");
             InitializePowerBeamVelocity(samus.ProjectileInheritance, slot);
         }
@@ -370,7 +370,7 @@ internal sealed class BeamFiring
         SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.Direction.ToAimIndex());
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Damage = 1000;
 
         // Hyper uses WaveBeam_CheckColl at this same producer seam. It publishes door and
@@ -382,7 +382,7 @@ internal sealed class BeamFiring
             roomPlms,
             waveBeam: true,
             sharedProjectiles.PowerBombExplosion);
-        slot.PreInstruction = SamusProjectilePreInstruction.HyperBeam;
+        slot.FrameBehavior = SamusProjectileFrameBehavior.HyperBeam;
         InitializePowerBeamVelocity(samus.ProjectileInheritance, slot);
 
         // These are literal stores at `$90:BD29-$BD52`. `$8014` is not an ordinary four-call
@@ -464,10 +464,10 @@ internal sealed class BeamFiring
         SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.Direction.ToAimIndex());
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
-        slot.PreInstruction = isSuperMissile
-            ? SamusProjectilePreInstruction.SuperMissile
-            : SamusProjectilePreInstruction.Missile;
+        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.FrameBehavior = isSuperMissile
+            ? SamusProjectileFrameBehavior.SuperMissile
+            : SamusProjectileFrameBehavior.Missile;
 
         // Retail constants embedded beside the bank-$90 producer: missile sound library-one
         // effect three and ten-frame shared cooldown. A Select press made while Item Cancel

@@ -50,8 +50,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Kago's population word already carries the other authored property bits. Native
         // init ORs only $2000 so the common instruction interpreter animates the shell.
-        slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
+        slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Slow);
         state.Function = KagoEnemyFunction.InstallNoOp;
@@ -89,7 +89,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.UsesFastAnimation = true;
             state.Program = AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Fast);
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
         }
 
         state.HitCounter = state.HitCounter.Decrement().Remaining;
@@ -125,20 +125,20 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Connects the bug's idle, rising, falling, jump, landing, and drop handlers to projectile dispatch.</summary>
     internal void AddKagoProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunKagoBugIdle(context.Projectile);
-        }, EnemyProjectilePreInstruction.KagoBugWaiting);
+        }, EnemyProjectileFrameBehavior.KagoBugWaiting);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunKagoBugJumping(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.KagoBugJump);
+        }, EnemyProjectileFrameBehavior.KagoBugJump);
 
-        table.AddPreInstruction(context =>
+        table.AddFrameBehavior(context =>
         {
             RunKagoBugFalling(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.KagoBugFall);
+        }, EnemyProjectileFrameBehavior.KagoBugFall);
 
         table.AddCue<KagoBugProjectileCue>((context, cue) => ApplyKagoBugCue(context.Projectile, cue));
         // A shot bug runs its typed shot program, the list its definition names.
@@ -227,8 +227,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             IdleFrames = initialIdleFrames,
             SoundDelay = initialIdleFrames + 4,
         };
-        projectile.PreInstruction =
-            EnemyProjectilePreInstruction.KagoBugWaiting;
+        projectile.FrameBehavior =
+            EnemyProjectileFrameBehavior.KagoBugWaiting;
         projectile.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
         return true;
     }
@@ -273,7 +273,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileProgram.JumpStart));
-        projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+        projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
     }
 
     /// <summary>Ports airborne rising pre-instruction <c>$86:D0EC</c>.</summary>
@@ -319,7 +319,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
-            projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
+            projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
             projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileProgram.Landed));
             return;
         }
@@ -330,8 +330,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Switches an airborne bug to the falling list when rising ends or a wall interrupts it.</summary>
     private static void BeginKagoBugFall(RoomEnemyProjectileSlot projectile)
     {
-        projectile.PreInstruction =
-            EnemyProjectilePreInstruction.KagoBugFall;
+        projectile.FrameBehavior =
+            EnemyProjectileFrameBehavior.KagoBugFall;
         projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileProgram.Falling));
     }
 
@@ -363,16 +363,16 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(jumpLeft
             ? WordWrap.Unsigned(-KagoBugHorizontalSpeed)
             : KagoBugHorizontalSpeed));
-        projectile.PreInstruction =
-            EnemyProjectilePreInstruction.KagoBugJump;
+        projectile.FrameBehavior =
+            EnemyProjectileFrameBehavior.KagoBugJump;
     }
 
     /// <summary>Ports landed-list instruction <c>$86:D1B6</c>.</summary>
     internal void StartKagoBugIdle(RoomEnemyProjectileSlot projectile)
     {
         projectile.StateOf<KagoBugState>().IdleFrames = (ReadKagoRandomNumber() & 31) + 1;
-        projectile.PreInstruction =
-            EnemyProjectilePreInstruction.KagoBugWaiting;
+        projectile.FrameBehavior =
+            EnemyProjectileFrameBehavior.KagoBugWaiting;
     }
 
     /// <summary>Ports shot-list drop instruction <c>$86:D1CE</c>.</summary>

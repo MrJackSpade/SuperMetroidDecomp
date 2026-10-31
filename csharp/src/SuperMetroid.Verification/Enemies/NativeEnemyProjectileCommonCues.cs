@@ -13,9 +13,9 @@ internal static class NativeEnemyProjectileCommonCues
     private static readonly Dictionary<ushort, NativeCueCommand<EnemyProjectileCommonCue>> Commands = new()
     {
         [(ushort)NativeEnemyProjectileInstruction.Delete] = NativeCueCommand<EnemyProjectileCommonCue>.Exactly(new EnemyProjectileCommonCue.Command(EnemyProjectileCommonCueKind.Delete)),
-        [(ushort)NativeEnemyProjectileInstruction.PreInstructionInY] = NativeCueCommand<EnemyProjectileCommonCue>.Of<EnemyProjectileCommonCue.SetPreInstruction>(2, (operands, cue, at) =>
-            AssertEqual(cue.PreInstruction, EnemyProjectilePreInstructionAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction")),
-        [(ushort)NativeEnemyProjectileInstruction.ClearPreInstruction] = NativeCueCommand<EnemyProjectileCommonCue>.Exactly(new EnemyProjectileCommonCue.Command(EnemyProjectileCommonCueKind.ClearPreInstruction)),
+        [(ushort)NativeEnemyProjectileInstruction.FrameBehaviorInY] = NativeCueCommand<EnemyProjectileCommonCue>.Of<EnemyProjectileCommonCue.SetFrameBehavior>(2, (operands, cue, at) =>
+            AssertEqual(cue.FrameBehavior, EnemyProjectileFrameBehaviorAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction")),
+        [(ushort)NativeEnemyProjectileInstruction.ClearFrameBehavior] = NativeCueCommand<EnemyProjectileCommonCue>.Exactly(new EnemyProjectileCommonCue.Command(EnemyProjectileCommonCueKind.ClearFrameBehavior)),
         [(ushort)NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = NativeCueCommand<EnemyProjectileCommonCue>.Of<EnemyProjectileCommonCue.Scatter>(4, (operands, cue, at) =>
         {
             // The scatter's operands pack each axis's range in the low byte and its center in the high byte.

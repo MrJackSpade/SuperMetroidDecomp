@@ -95,7 +95,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.FrameHold = WrappingCountdown.Start(1);
             // Start at the chasing loop's random-cry cue, after its twenty pulse poses.
             enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
             {
@@ -103,12 +103,12 @@ internal static class MetroidBehaviorDefinitionsVerification
                     MetroidAnimations.Programs.Steps(MetroidProgram.ChasingSamus).ToList().FindIndex(step => step is AnimationProgramStep<MetroidProgram, MetroidFrame, MetroidCue>.CueStep)),
             });
 
-            EnemyInstructionInterpreter.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, 0);
+            EnemyInstructionInterpreter.RunsAnimationScript(slot, null, null, Position16<RoomPixels>.Zero, 0);
 
             AssertEqual((SoundEffectId?)MetroidReactions.RandomCrySoundEffect(random),
                 enemies.Audio.PublishedSoundFrom(EnemySoundSource.Metroid),
                 $"production Metroid random cry {random}");
-            AssertEqual(16, slot.InstructionTimer.RawValue,
+            AssertEqual(16, slot.FrameHold.RawValue,
                 $"production Metroid script timer {random}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa3e9d1), slot.SpritemapPointer,
                 $"production Metroid script spritemap {random}");

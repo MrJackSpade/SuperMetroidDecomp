@@ -555,12 +555,12 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(0, loaded.ProcessingPosition,
             "Wrecked Ship attic actor takes the first free slot in processing order");
         AssertTrue(loaded.Animation is WreckedShipAtticPlmAnimation, "Wrecked Ship attic actor starts its typed program");
-        AssertEqual(PlmPreInstructionDefinitions.SpawnDefault, loaded.PreInstruction,
+        AssertEqual(PlmFrameBehaviorDefinitions.SpawnDefault, loaded.FrameBehavior,
             "Wrecked Ship attic callback is not installed before its first handler pass");
 
         plms.Step(level);
         RoomPlmSlotSnapshot sleeping = plms.PopulationSlots.Single();
-        AssertEqual(WreckedShipAtticPlmRomData.NoOpCallback, sleeping.PreInstruction,
+        AssertEqual(WreckedShipAtticPlmRomData.NoOpCallback, sleeping.FrameBehavior,
             "Wrecked Ship attic list installs exact BAFA pre-instruction");
         AssertTrue(sleeping.Animation is WreckedShipAtticPlmAnimation { Cursor.Position: 1 },
             "Wrecked Ship attic actor sleeps permanently on its program's sleep");
@@ -802,8 +802,8 @@ internal static class RoomPlmPopulationVerification
         RoomTerrainBlock closedGateMiddleWord = RoomTerrainBlock.Of(0x2e8, BlockMirroring.Vertical, RoomCollisionType.SolidBlock);
 
         SeedPlmProgramWords(bus, 0xc8ca, 0xb3c1);
-        SeedPlmProgramWords(bus, 0xc8cc, RoomPlmInstructionListsTooling.MotherBrainEscapeRoomGateClosed);
-        SeedPlmProgramWords(bus, 0xc8ce, RoomPlmInstructionListsConstants.MotherBrainEscapeRoomGateClosing);
+        SeedPlmProgramWords(bus, 0xc8cc, RoomPlmAnimationScriptsTooling.MotherBrainEscapeRoomGateClosed);
+        SeedPlmProgramWords(bus, 0xc8ce, RoomPlmAnimationScriptsConstants.MotherBrainEscapeRoomGateClosing);
         SeedPlmProgramWords(bus, 0xc8d0, 0xb3c1);
         SeedRoomPlmPopulation(bus, population,
         [
@@ -1021,7 +1021,7 @@ internal static class RoomPlmPopulationVerification
             : null;
         for (int index = 0; index < 3; index++)
         {
-            ushort address = checked((ushort)(ShaktoolRoomPlmNativeProgram.InstructionList + index * 2));
+            ushort address = checked((ushort)(ShaktoolRoomPlmNativeProgram.AnimationScript + index * 2));
             AssertTrue(ShaktoolRoomPlmNativeProgram.TryReadInstructionWord(address, out ushort compiled),
                 $"Shaktool room list word ${address:X4} is compiled");
             if (rom is not null)
@@ -1034,7 +1034,7 @@ internal static class RoomPlmPopulationVerification
             SeedPlmProgramWords(bus, address, 0xdead);
         }
         AssertTrue(!ShaktoolRoomPlmNativeProgram.TryReadInstructionWord(
-                checked(ShaktoolRoomPlmNativeProgram.InstructionList + 6), out _),
+                checked(ShaktoolRoomPlmNativeProgram.AnimationScript + 6), out _),
             "Shaktool room list owner excludes adjacent setup code");
 
         const ushort emptyPopulation = 0x9780;
@@ -1057,7 +1057,7 @@ internal static class RoomPlmPopulationVerification
 
         plms.Step(level, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
         RoomPlmSlotSnapshot sleeping = plms.PopulationSlots.Single();
-        AssertEqual(ShaktoolRoomPlmNativeProgram.PreInstruction, sleeping.PreInstruction,
+        AssertEqual(ShaktoolRoomPlmNativeProgram.FrameBehavior, sleeping.FrameBehavior,
             "compiled list installs Shaktool room pre-instruction");
         AssertTrue(PlmProgramStartOracle.IsRunning(PlmProgramStart.Typed(ScriptedRoomPlmProgram.ShaktoolRoomController), sleeping),
             "the controller runs its typed program, resting on its closing sleep");

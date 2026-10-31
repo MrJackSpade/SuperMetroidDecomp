@@ -16,13 +16,13 @@ internal static class ChozoStatueAnimations
     {
         [P.LowerNorfairInitial] =
         [
-            Cue(new ChozoStatueCue.SetPreInstruction(PreInstruction: ChozoStatuePreInstruction.WaitForLowerNorfairHandTrigger)),
+            Cue(new ChozoStatueCue.SetFrameBehavior(FrameBehavior: ChozoStatueFrameBehavior.WaitForLowerNorfairHandTrigger)),
             Show(17, 1),
             Hold,
         ],
         [P.LowerNorfairActivated] =
         [
-            Cue(new ChozoStatueCue.Command(K.ClearPreInstruction)),
+            Cue(new ChozoStatueCue.Command(K.ClearFrameBehavior)),
             Cue(new ChozoStatueCue.Move(CarryRecord: 16)),
             Show(17, 32),
             Cue(new ChozoStatueCue.Move(CarryRecord: 17)),
@@ -50,7 +50,7 @@ internal static class ChozoStatueAnimations
             Show(24, 6),
             Show(23, 8),
             RepeatWhileCounting(P.LowerNorfairActivatedLoop),
-            Cue(new ChozoStatueCue.Command(K.ClearPreInstruction)),
+            Cue(new ChozoStatueCue.Command(K.ClearFrameBehavior)),
             Cue(new ChozoStatueCue.Move(CarryRecord: 19)),
             Show(20, 128),
             Cue(new ChozoStatueCue.Move(CarryRecord: 18)),
@@ -65,13 +65,13 @@ internal static class ChozoStatueAnimations
         ],
         [P.WreckedShipInitial] =
         [
-            Cue(new ChozoStatueCue.SetPreInstruction(PreInstruction: ChozoStatuePreInstruction.WaitForWreckedShipHandTrigger)),
+            Cue(new ChozoStatueCue.SetFrameBehavior(FrameBehavior: ChozoStatueFrameBehavior.WaitForWreckedShipHandTrigger)),
             Show(0, 1),
             Hold,
         ],
         [P.WreckedShipActivated] =
         [
-            Cue(new ChozoStatueCue.Command(K.ClearPreInstruction)),
+            Cue(new ChozoStatueCue.Command(K.ClearFrameBehavior)),
             Cue(new ChozoStatueCue.Move(CarryRecord: 0)),
             Show(0, 32),
             Cue(new ChozoStatueCue.Move(CarryRecord: 1)),
@@ -98,7 +98,7 @@ internal static class ChozoStatueAnimations
             Show(15, 6),
             Show(14, 8),
             RepeatWhileCounting(P.WreckedShipActivatedLoop),
-            Cue(new ChozoStatueCue.SetPreInstruction(PreInstruction: ChozoStatuePreInstruction.Walking)),
+            Cue(new ChozoStatueCue.SetFrameBehavior(FrameBehavior: ChozoStatueFrameBehavior.Walking)),
             SetCounter(16),
             FallInto(P.WreckedShipActivatedLoop2),
         ],
@@ -143,7 +143,7 @@ internal static class ChozoStatueAnimations
             Cue(new ChozoStatueCue.Move(CarryRecord: 6)),
             Cue(new ChozoStatueCue.Footstep(Offset: new(0, 0))),
             Show(6, 6),
-            Cue(new ChozoStatueCue.Command(K.ClearPreInstruction)),
+            Cue(new ChozoStatueCue.Command(K.ClearFrameBehavior)),
             Cue(new ChozoStatueCue.Move(CarryRecord: 3)),
             Show(3, 128),
             Cue(new ChozoStatueCue.Move(CarryRecord: 2)),

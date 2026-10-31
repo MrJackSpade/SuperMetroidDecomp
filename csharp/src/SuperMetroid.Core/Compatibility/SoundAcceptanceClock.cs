@@ -10,8 +10,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <typeparam name="TSound">The sound a library is asked for; the clock only compares requests.</typeparam>
 /// <remarks>
-/// Advanced once per update, after the update's sound requests, by the session's audio event source; its steps also
-/// schedule the sound backend's sequencer. Evidence: the sound program's timer service and request read (<c>$1621</c>),
+/// Created once per game session by its composition root (<c>FrontendSession</c>), which injects it into the session's
+/// audio advance, so its requests, acknowledgements and request-check phase live as long as the session; an offline clip
+/// renderer owns one of its own. Advanced once per update, after the update's sound requests, by the audio event source
+/// it is injected into; its steps also schedule the sound backend's sequencer. Evidence: the sound program's timer service and request read (<c>$1621</c>),
 /// confirmed against the emulated sound program and the SMV recordings' acknowledgement traces.
 /// </remarks>
 [CompatibilityService("when each sound library accepts a request, and the acknowledgement the game reads back")]

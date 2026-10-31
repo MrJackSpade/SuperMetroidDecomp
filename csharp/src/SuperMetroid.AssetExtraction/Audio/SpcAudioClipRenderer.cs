@@ -1,5 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 namespace SuperMetroid.AssetExtraction.Audio;
@@ -20,7 +21,7 @@ internal sealed class SpcAudioClipRenderer
     internal const int NativeSampleRate = ManagedSnesDsp.NativeStereoFramesPerVideoFrame * 60;
 
     /// <summary>The sound acceptance clock that turns the queued requests into each frame's events.</summary>
-    private readonly AudioEventSource eventSource = new();
+    private readonly AudioEventSource eventSource = new(new SoundAcceptanceClock<SoundEffectId>());
     /// <summary>The emulated driver and DSP the events drive.</summary>
     private readonly ManagedSpcAudioBackend backend;
     /// <summary>Requests applied at the next frame's start, in order.</summary>

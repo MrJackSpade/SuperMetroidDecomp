@@ -9,8 +9,12 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 internal sealed class AudioEventSource
 {
+    /// <summary>Turns updates' requests into events on <paramref name="clock"/>, which its owner created with the state's lifetime.</summary>
+    /// <param name="clock">The clock that decides when each library accepts and acknowledges a request: the game session's, or an offline renderer's own.</param>
+    internal AudioEventSource(SoundAcceptanceClock<SoundEffectId> clock) => this.clock = Ensure.NotNull(clock);
+
     /// <summary>The clock that decides when each library accepts and acknowledges a request.</summary>
-    private readonly SoundAcceptanceClock<SoundEffectId> clock = new();
+    private readonly SoundAcceptanceClock<SoundEffectId> clock;
 
     /// <summary>The acknowledgements published by the most recent update, for the next one.</summary>
     internal SoundAcknowledgements<SoundEffectId> Acknowledgements { get; private set; }

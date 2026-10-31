@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Audio;
 internal sealed class SynthesizingAudioSession(ExtractedAudioAssetCatalog assets)
 {
     /// <summary>The port model producing each update's events and acknowledgements.</summary>
-    private readonly AudioEventSource events = new();
+    private readonly AudioEventSource events = new(new SoundAcceptanceClock<SoundEffectId>());
 
     /// <summary>The emulated driver rendering the events.</summary>
     private readonly ManagedSpcAudioBackend backend = new(assets);

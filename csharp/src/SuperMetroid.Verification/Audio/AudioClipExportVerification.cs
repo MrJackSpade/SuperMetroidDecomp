@@ -156,7 +156,7 @@ internal static class AudioClipExportVerification
         byte voices,
         long frames)
     {
-        var events = new AudioEventSource();
+        var events = new AudioEventSource(new SoundAcceptanceClock<SoundEffectId>());
         var backend = new ManagedSpcAudioBackend(catalog);
         backend.Player.dsp.OutputVoices = voices;
         var observer = new StartObserver(backend.Player, started);

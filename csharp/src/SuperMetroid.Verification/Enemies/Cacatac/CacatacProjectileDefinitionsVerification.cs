@@ -27,16 +27,17 @@ internal static class CacatacProjectileDefinitionsVerification
             foreach (RoomEnemyProjectileSlot projectile in enemies.Projectiles.EnemyProjectiles)
                 projectile.Clear();
 
-            ushort raw = (ushort)direction;
+            ushort raw = CacatacNativeWords.SpikeDirections.Word(direction);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + raw);
+            bool diagonal = raw >= CacatacNativeWords.SpikeDirections.Word(CacatacSpikeDirection.UpLeft);
             AssertEqual(native, CacatacProjectileNativeListAddresses.Entry(CacatacSpikes.Program(direction)),
                 $"compiled Cacatac spike instruction {direction}");
 
             CacatacSpikeSpeedPair speeds = CacatacSpikes.SpeedPair(direction);
-            ushort expectedNegative = direction >= CacatacSpikeDirection.UpLeft
+            ushort expectedNegative = diagonal
                 ? (ushort)0xfe80
                 : (ushort)0xfe00;
-            ushort expectedPositive = direction >= CacatacSpikeDirection.UpLeft
+            ushort expectedPositive = diagonal
                 ? (ushort)0x0180
                 : (ushort)0x0200;
             AssertEqual(expectedNegative, speeds.Negative.RawValue, $"compiled Cacatac negative speed {direction}");
@@ -75,12 +76,8 @@ internal static class CacatacProjectileDefinitionsVerification
             AssertEqual(source.Position.Y.Fraction, actual.Position.Y.Fraction, $"spawned Cacatac Y fraction {direction}");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => CacatacSpikes.Program((CacatacSpikeDirection)1),
-            "Cacatac odd spike selector");
-        AssertThrows<InvalidDataException>(
-            () => CacatacSpikes.Program((CacatacSpikeDirection)20),
-            "Cacatac spike selector beyond authored table");
+        AssertEqual(false, CacatacNativeWords.SpikeDirections.TryDecode(1, out _), "Cacatac odd spike selector");
+        AssertEqual(false, CacatacNativeWords.SpikeDirections.TryDecode(20, out _), "Cacatac spike selector beyond authored table");
 
         Console.WriteLine(
             "Cacatac spike definitions: ten native selectors, speed pairs and production spawns pass with selector reads forbidden.");

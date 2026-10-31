@@ -21,7 +21,7 @@ internal static class CacatacAnimationsVerification
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'V' => (ushort)cue.Direction,
+                    'V' => CacatacNativeWords.SpikeDirections.Word(cue.Direction),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             });

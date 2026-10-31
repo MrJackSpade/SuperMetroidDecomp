@@ -1,29 +1,26 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
-/// <summary>
-/// Even byte offsets used by both bank-$A2's spike spawn command and bank-$86's ten-entry
-/// instruction/movement tables. Values are not flags and must remain even.
-/// </summary>
+/// <summary>The direction a Cacatac spike flies, and for the sideways spikes which way the spike faces.</summary>
 public enum CacatacSpikeDirection
 {
-    /// <summary>Selector $00: moves left two pixels per projectile update with the upward-facing horizontal spike program at $86:D92E.</summary>
-    LeftFacingUp = 0,
-    /// <summary>Selector $02: moves straight up two pixels per projectile update with the upward spike program at $86:D93A.</summary>
-    Up = 2,
-    /// <summary>Selector $04: moves right two pixels per projectile update with the upward-facing horizontal spike program at $86:D946.</summary>
-    RightFacingUp = 4,
-    /// <summary>Selector $06: moves left two pixels per projectile update with the downward-facing horizontal spike program at $86:D94C.</summary>
-    LeftFacingDown = 6,
-    /// <summary>Selector $08: moves straight down two pixels per projectile update with the downward spike program at $86:D958.</summary>
-    Down = 8,
-    /// <summary>Selector $0A: moves right two pixels per projectile update with the downward-facing horizontal spike program at $86:D964, natively named <c>InstList_EnemyProjectile_CacatacSpike_Down_FacingRight</c>.</summary>
-    RightFacingDown = 10,
-    /// <summary>Selector $0C: moves up and left by 1.5 pixels on each axis per projectile update, using the diagonal spike program at $86:D934.</summary>
-    UpLeft = 12,
-    /// <summary>Selector $0E: moves up and right by 1.5 pixels on each axis per projectile update, using the diagonal spike program at $86:D940.</summary>
-    UpRight = 14,
-    /// <summary>Selector $10: moves down and left by 1.5 pixels on each axis per projectile update, using the diagonal spike program at $86:D952.</summary>
-    DownLeft = 16,
-    /// <summary>Selector $12: moves down and right by 1.5 pixels on each axis per projectile update, using the diagonal spike program at $86:D95E.</summary>
-    DownRight = 18,
+    /// <summary>Moves left two pixels per projectile update, an upward-facing horizontal spike.</summary>
+    LeftFacingUp,
+    /// <summary>Moves straight up two pixels per projectile update.</summary>
+    Up,
+    /// <summary>Moves right two pixels per projectile update, an upward-facing horizontal spike.</summary>
+    RightFacingUp,
+    /// <summary>Moves left two pixels per projectile update, a downward-facing horizontal spike.</summary>
+    LeftFacingDown,
+    /// <summary>Moves straight down two pixels per projectile update.</summary>
+    Down,
+    /// <summary>Moves right two pixels per projectile update, a downward-facing horizontal spike.</summary>
+    RightFacingDown,
+    /// <summary>Moves up and left by 1.5 pixels on each axis per projectile update.</summary>
+    UpLeft,
+    /// <summary>Moves up and right by 1.5 pixels on each axis per projectile update.</summary>
+    UpRight,
+    /// <summary>Moves down and left by 1.5 pixels on each axis per projectile update.</summary>
+    DownLeft,
+    /// <summary>Moves down and right by 1.5 pixels on each axis per projectile update.</summary>
+    DownRight,
 }

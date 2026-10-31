@@ -20,7 +20,7 @@ internal sealed class SamusPoseTransitionPhase
     private readonly ControllerInputState _controller1;
     /// <summary>Gates movement and animation branches during gameplay time freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Provides accepted-NMI cadence for movement and animation behavior.</summary>
+    /// <summary>Provides frame-counter cadence for movement and animation behavior.</summary>
     private readonly FrameClock _clock;
     /// <summary>Supplies player options such as configured movement controls.</summary>
     private readonly GameplayOptions _options;

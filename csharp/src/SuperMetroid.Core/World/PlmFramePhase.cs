@@ -51,8 +51,8 @@ internal sealed class PlmFramePhase
 
     }
     /// <summary>
-    /// Executes the explicit <c>PLM_Handler</c> call made by the door coroutine at
-    /// <c>$82:E53C</c>, after its final scrolling IRQ and before the following NMI.
+    /// Runs the PLMs once for the door transition, on the door scroll's final update and
+    /// before the following frame boundary.
     /// </summary>
     /// <remarks>
     /// The ordinary frame dispatcher intentionally suppresses PLMs while the shared

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 public sealed class RoomFxSession
 {
-    /// <summary>The Fireflea FX state. It is session-lived like the cartridge's WRAM, so a room load does not reset it.</summary>
+    /// <summary>The Fireflea FX state. It lives for the session, so a room load does not reset it.</summary>
     public FirefleaFxState Fireflea { get; } = new();
 
     /// <summary>The room's fixed colour. It is session-lived, so it keeps the last writer's colour across rooms.</summary>

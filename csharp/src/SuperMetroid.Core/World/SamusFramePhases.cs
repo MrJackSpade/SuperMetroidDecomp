@@ -32,7 +32,7 @@ internal sealed class SamusFramePhases
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Supplies elapsed gameplay frames to the Shinespark movement handler.</summary>
     private readonly GameTimeState _gameTime;
-    /// <summary>Provides accepted-NMI cadence for movement and animation behavior.</summary>
+    /// <summary>Provides frame-counter cadence for movement and animation behavior.</summary>
     private readonly FrameClock _clock;
     /// <summary>Supplies player options such as configured movement controls.</summary>
     private readonly GameplayOptions _options;
@@ -67,7 +67,7 @@ internal sealed class SamusFramePhases
 
     /// <summary>
     /// Runs <c>Update_Beam_Tiles_and_Palette</c> at <c>$90:AC8D</c> for the live beam word supplied by pause teardown.
-    /// State `$11` performs this restore under forced blank so the first resumed gameplay frame uses the newly
+    /// Unpausing performs this restore while the screen is dark, so the first resumed gameplay frame uses the newly
     /// equipped combination.
     /// </summary>
     internal void UpdateGameplayBeamTilesAndPalette(SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams) =>
@@ -400,7 +400,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             SamusAerialPoseTransitions.DropPendingTransitionShot(samus);
             samus.ProjectileInheritance.ClearMovement();
 
-            // `$0CD0` is one shared WRAM word, not independent projectile/movement
+            // The counter is one shared value, not independent projectile/movement
             // state. Samus's spin/wall-jump contact-damage handlers run in beta and
             // must see the counter that `$90:B80D` just updated during alpha.
             samus.ProjectileFlareCounter = room.Projectiles.Charge.FlareCounter;
@@ -1165,7 +1165,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     private void RunAlphaHead(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera,
         FixedPosition<RoomPixels>? cameraPointAtFrameStart, ISamusRoomPlms plms, RoomScope room)
     {
-        // X-ray's HDMA object is not part of the Samus handler. Advance its explicit
+        // X-ray's per-line effect object is not part of the Samus handler. Advance its explicit
         // setup/beam/deactivation state before alpha so state five can restore the
         // ordinary pose and handler pair before this frame samples pose input. The
         // revealed-block BG2 copies/window table remain a separate renderer boundary.
@@ -1206,7 +1206,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // affects the next beta, not the animation already owned this frame.
         // Suit command $15 installs an empty beta, not just locked pose input:
         // the suspended movement pointer and all of its timers survive, so command
-        // $0B can resume it after the HDMA transformation (including Blue Suit).
+        // $0B can resume it after the suit's light-beam transformation (including Blue Suit).
         // The empty beta also skips periodic damage and the energy checks.
         frame.SampleMovementType(SamusPoseMetadata.ReadMovementType(samus));
 
@@ -1221,8 +1221,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         frame.SampleDeathOwnership(samus.DeathSequence.IsActive);
         SamusControlMode mode = new(samus.Control.Mode.Alpha, DispatchedBetaHandler(frame, samus));
         // Sound queues are global persistent engines on hardware, but this typed host
-        // publication is scoped to one frame's Samus handler. It opened before the HDMA
-        // pass, ahead of `$91:F046`'s landing sounds during collision.
+        // publication is scoped to one frame's Samus handler. It opened before the per-line
+        // effect pass, ahead of the landing sounds during collision.
         frame.BeginControl(mode, samus.Xray.OwnsSamusControl && !frame.DeathOwnsSamus, SamusPoseMetadata.ReadMovementType(samus));
         if (frame.XrayOwnsPoseInput)
         {
@@ -1333,7 +1333,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         }
 
         // Normal gameplay advances animation during frame-handler beta, before the
-        // pose-transition handler, draw handler, and next-NMI tile selection.
+        // pose-transition handler, draw handler, and next frame's tile selection.
         // Animation sees the same held-input word as movement. Ordinary Dash uses B
         // both to accumulate `$0B42.$0B44` and to intercept the running delay-list
         // command at `$90:852C`; passing a reconstructed input later would skew art.

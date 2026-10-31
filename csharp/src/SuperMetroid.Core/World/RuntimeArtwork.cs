@@ -148,7 +148,7 @@ internal sealed class RuntimeArtwork
     [field: NonSerialized]
     public SuperMetroid.Core.Samus.Artwork.ProjectileSheets? ProjectileSheets { get; private set; }
 
-    /// <summary>Beam palettes bound since the last accepted NMI, which that NMI publishes.</summary>
+    /// <summary>Beam palettes bound since the last frame boundary, which the next one publishes.</summary>
     [NonSerialized] private InstalledBeamPalettes? pendingBeamPalette;
 
     /// <summary>Current beam palettes.</summary>
@@ -180,7 +180,7 @@ internal sealed class RuntimeArtwork
     }
 
     /// <summary>
-    /// Loads newly bound beam palettes for the equipped beams at an accepted NMI. The characters need no
+    /// Loads newly bound beam palettes for the equipped beams at a frame boundary. The characters need no
     /// publication: the projectile sheets are pre-composed for every beam combination.
     /// </summary>
     internal void PublishReboundBeamPalette()

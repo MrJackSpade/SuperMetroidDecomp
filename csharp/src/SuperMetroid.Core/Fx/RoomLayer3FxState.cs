@@ -25,7 +25,7 @@ public sealed class RoomLayer3FxState
     /// <summary>The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</summary>
     private readonly RoomFxSession _session;
 
-    /// <summary>The Fireflea FX state. It is session-lived like the cartridge's WRAM, so a room load does not reset it.</summary>
+    /// <summary>The Fireflea FX state. It lives for the session, so a room load does not reset it.</summary>
     public FirefleaFxState Fireflea => _session.Fireflea;
 
     /// <summary>The room's fixed colour. It is session-lived, so it keeps the last writer's colour across rooms.</summary>
@@ -89,17 +89,17 @@ public sealed class RoomLayer3FxState
     /// <summary>Selected lava or acid BG2 wave displacement frame.</summary>
     private int lavaAcidBg2WavePhase;
     /// <summary>
-    /// Set after the first liquid BG3 HDMA pass installs its pre-instruction. Later passes
+    /// Set after the first liquid BG3 per-line effect pass installs its pre-instruction. Later passes
     /// run it before main-loop RNG; water uses this latch despite its older lava/acid name.
     /// </summary>
     internal bool LavaAcidBg3PreInstructionInstalled { get; set; }
     /// <summary>
-    /// Records direct deletion of liquid scroll HDMA objects at $A9:8C0C, which stops
+    /// Records direct deletion of liquid scroll per-line effect objects at $A9:8C0C, which stops
     /// their per-frame updates until the next room load.
     /// </summary>
     internal bool LiquidMotionStopped { get; set; }
 
-    /// <summary>HDMA-object variable two of the lava/acid BG3 object: the ambient sound timer.</summary>
+    /// <summary>per-line effect object variable two of the lava/acid BG3 object: the ambient sound timer.</summary>
     private WrappingCountdown lavaSoundTimer;
     /// <summary>Current liquid rise or fall state selected by the FX record.</summary>
     private LiquidRisePhase liquidRisePhase;
@@ -233,14 +233,14 @@ public sealed class RoomLayer3FxState
 
         if (RoomFxTypes.UsesWater(Type))
         {
-            // Both spawned HDMA objects execute their phase initializer on the first
+            // Both spawned per-line effect objects execute their phase initializer on the first
             // handler pass. A one-frame timer reproduces that first-call rotation.
             waterBg3WaveTimer = WrappingCountdown.Start(1);
             waterBg2WaveTimer = WrappingCountdown.Start(1);
         }
         else if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            // `$88:B4CE` seeds timer B to one, so the first HDMA-object pass rotates A
+            // `$88:B4CE` seeds timer B to one, so the first per-line effect object pass rotates A
             // from zero to $1E and then reloads either four or six. Expressing the already-
             // resolved waveform phase as zero produces the same first visible table.
             lavaAcidBg2WaveTimer = WrappingCountdown.FromRaw(UsesLavaAcidVerticalWave
@@ -259,8 +259,8 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
-    /// True for the liquids whose BG3 HDMA pre-instruction moves the surface: lava and
-    /// acid ($88:B3B0) and water ($88:C48E). That motion belongs to the HDMA pass.
+    /// True for the liquids whose BG3 per-line effect step moves the surface: lava and
+    /// acid ($88:B3B0) and water ($88:C48E). That motion belongs to the per-line effect pass.
     /// </summary>
     public bool MovesLiquidBeforeMainLoop =>
         Type is RoomFxType.Lava or RoomFxType.Acid || RoomFxTypes.UsesWater(Type);
@@ -268,7 +268,7 @@ public sealed class RoomLayer3FxState
     /// <summary>
     /// Runs liquid motion and shared-state writes from $88:B3B0 and $88:C48E before
     /// main-loop RNG generation. $88:C3E9 and $88:D85E install the callback on the
-    /// first HDMA pass; lava/acid's $88:B44A-B44E then swaps the shared RNG bytes on
+    /// first per-line effect pass; lava/acid's $88:B44A-B44E then swaps the shared RNG bytes on
     /// subsequent unfrozen passes, even off screen. Rising/tidal motion also runs during
     /// door fades and pause entry. Visual/VRAM updates remain in <see cref="Step"/>,
     /// which must not advance that motion twice.
@@ -341,7 +341,7 @@ public sealed class RoomLayer3FxState
         if (!IsRenderable || frame.TimeIsFrozen)
             return;
 
-        // The shared bank-$87 handler runs independently of the bank-$88 HDMA
+        // The shared animated-tiles handler runs independently of the per-line effect
         // pre-instruction. In particular, lava/acid need this transfer before their BG3
         // tilemap can name anything other than stale standard-HUD characters.
         animatedTiles.Step(frames);
@@ -388,7 +388,7 @@ public sealed class RoomLayer3FxState
     /// <summary>
     /// Seeds camera-dependent liquid registers during a room transition without advancing
     /// a wave clock. Destination rendering can therefore show the correct surface on its
-    /// first accepted NMI instead of waiting for the first gameplay handler call.
+    /// first frame boundary instead of waiting for the first gameplay handler call.
     /// </summary>
     public void PrimeViewport(Position16<RoomPixels> camera)
     {
@@ -399,7 +399,7 @@ public sealed class RoomLayer3FxState
         Scroll = camera.AsBg3Scroll().WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
     }
 
-    /// <summary>Captures values visible alongside the current accepted NMI's OAM upload.</summary>
+    /// <summary>Captures values visible alongside the current frame boundary's sprite frame.</summary>
     public RoomLayer3FxRenderSnapshot? CaptureForDisplay() => IsRenderable
         ? new RoomLayer3FxRenderSnapshot(
             Type,
@@ -417,7 +417,7 @@ public sealed class RoomLayer3FxState
 
 
     /// <summary>
-    /// Applies shared liquid WRAM writes made by room PLMs and enemy instructions. These are
+    /// Applies shared liquid writes made by room PLMs and enemy instructions. These are
     /// intentionally not a rendering shortcut: bank $84 writes the same fields loaded by
     /// <c>$89:AB82</c>. The translated bank-$88 liquid handler consumes those shared words
     /// on its next ordinary effect pass, just as the cartridge does.
@@ -441,7 +441,7 @@ public sealed class RoomLayer3FxState
 
     /// <summary>
     /// $89:AB02 LoadFxEntry reloads motion, blending and three colors, but does not restart
-    /// HDMA, animated tiles, or the liquid's current motion phase as a room load would.
+    /// per-line effects, animated tiles, or the liquid's current motion phase as a room load would.
     /// </summary>
     internal LayerBlendingConfiguration ApplyEntry(BackgroundColourSets colours,
         RoomFxRecordDefinition definition)
@@ -466,7 +466,7 @@ public sealed class RoomLayer3FxState
 
     /// <summary>
     /// Applies <c>Instruction_PLM_EnableWaterPhysics</c> at <c>$84:D525</c> to the
-    /// cartridge-owned liquid-options word. Bank $84 uses <c>TRB</c> on WRAM $197E, so
+    /// liquid-options word. The PLM clears only its own bit, so
     /// this mutation must live on the room-FX owner that republishes the word to Samus;
     /// changing only Samus's projected copy would be undone by the next FX frame.
     /// </summary>
@@ -504,7 +504,7 @@ public sealed class RoomLayer3FxState
         if ((LiquidOptions & RoomLiquidOptions.SurfaceDrift) != RoomLiquidOptions.None)
             waterDrift += WaterDriftVelocity;
 
-        // FX $26 spawns only the BG3 water object. Its second HDMA object moves
+        // FX $26 spawns only the BG3 water object. Its second per-line effect object moves
         // the statue vertically instead of installing the ordinary BG2 X wave.
         if (Type != RoomFxType.Water || (LiquidOptions & RoomLiquidOptions.Bg2Wave) == RoomLiquidOptions.None)
             return;
@@ -628,8 +628,8 @@ public sealed class RoomLayer3FxState
     /// <param name="randomNumber">Current RNG word, sampled without advancing it; its low two bits add zero through three updates to the next earthquake-sound delay.</param>
     /// <param name="earthquakeSoundDelay">
     /// The frame the save file found at power-on adds to the next delay. <c>QueueSound_Lib2_Max6</c> restores the carry
-    /// with <c>PLP</c>, so <c>ADC .baseTimer</c> at $88:B245 adds it. Both callers' HDMA objects are the first their FX
-    /// spawns after the door's <c>Delete_HDMAObjects</c>, so they run in slot zero, which inherits the main loop's
+    /// with <c>PLP</c>, so <c>ADC .baseTimer</c> at $88:B245 adds it. Both callers' per-line effect objects are the first their FX
+    /// spawns after the door deletes the per-line effect objects, so they run in slot zero, which inherits the main loop's
     /// power-on carry (<see cref="PowerOnEarthquakeSoundDelay"/>); a later slot would see the clear carry from
     /// <c>CPX #$0C</c>.
     /// </param>
@@ -656,7 +656,7 @@ public sealed class RoomLayer3FxState
         EarthquakeSoundSequenceIndex++;
     }
 
-    /// <summary>The statue HDMA pre-instructions call the same $88:B21D earthquake sound owner.</summary>
+    /// <summary>The statue per-line effect steps call the same $88:B21D earthquake sound owner.</summary>
     internal void PublishStatueEarthquakeSound(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay) =>
         HandleEarthquakeSoundEffect(randomNumber, earthquakeSoundDelay);
 
@@ -795,9 +795,9 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
-    /// Deletes the liquid's scroll HDMA objects, as zeroing their channel words does: no
+    /// Deletes the liquid's scroll per-line effect objects, as zeroing their channel words does: no
     /// later pass moves the liquid, queues its ambient sound or (for lava/acid) swaps the
-    /// RNG bytes. Effects without HDMA-owned liquid motion are unaffected.
+    /// RNG bytes. Effects without per-line liquid motion are unaffected.
     /// </summary>
     public void StopLiquidMotion() => LiquidMotionStopped = true;
 

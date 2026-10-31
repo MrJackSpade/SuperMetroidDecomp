@@ -11,7 +11,7 @@ internal sealed class GameplayDisplayState
 {
 
     /// <summary>
-    /// Native WRAM <c>$1982</c>. Room/HDMA setup owns this word; the current Landing Site
+    /// The room's default layer blending. Room and per-line effect setup own it; the current Landing Site
     /// shell starts at bank-$88's cleared-FX default two.
     /// </summary>
     public LayerBlendingConfiguration LayerBlendingDefaultConfig { get; set; } =
@@ -25,7 +25,7 @@ internal sealed class GameplayDisplayState
     public TurningFloorTransform? ActiveTurningFloor { get; set; }
 
     /// <summary>
-    /// The scene the most recent accepted (or forced-blank) frame shows. A lag frame leaves it unchanged. Door setup
+    /// The scene the most recent shown (or loading) frame shows. An update without a frame boundary leaves it unchanged. Door setup
     /// that shows the elevator shaft's floor before the room becomes visible updates it through
     /// <see cref="PublishDoorElevatorFloor"/>.
     /// </summary>

@@ -83,7 +83,7 @@ internal sealed class RoomFxAnimatedTilesState
 
     /// <summary>
     /// Executes one <c>AnimtilesHandler</c> pass (#1406). When the timer expires the next frame is shown for its duration,
-    /// selected in <paramref name="frames"/> at this update, as the cartridge's copy at this update's NMI shows it; the loop
+    /// selected in <paramref name="frames"/> at this update, as this update's frame boundary shows it; the loop
     /// returns from the last frame to the first.
     /// </summary>
     public void Step(ArtworkFrameSelections frames)

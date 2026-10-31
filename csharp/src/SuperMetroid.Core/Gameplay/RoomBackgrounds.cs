@@ -15,12 +15,12 @@ namespace SuperMetroid.Core.Gameplay;
 /// </summary>
 /// <param name="Bg1">The room's level plane on BG1.</param>
 /// <param name="Bg2">The room's layer-2 plane on BG2, or null when BG2 shows a loaded tilemap.</param>
-/// <param name="Bg3">The room effect plane on BG3 (#1348), as its cells' pictures (#1403); null until the accepted NMI that latched it resolves them. The HUD is its own layer (#1466).</param>
+/// <param name="Bg3">The room effect plane on BG3 (#1348), as its cells' pictures (#1403); null until the frame boundary that latched it resolves them. The HUD is its own layer (#1466).</param>
 /// <param name="DoorSource">The source room's BG1 screen during a door's opening scroll, or null.</param>
 /// <param name="Bg1Overlay">Words a room actor wrote over BG1, or null.</param>
 /// <param name="Sky">
 /// The scrolling sky on BG2 when the room has no layer-2 plane, drawn from its image (#1347, #1403); null without a sky,
-/// and until the accepted NMI that latched the room resolves its pictures.
+/// and until the frame boundary that latched the room resolves its pictures.
 /// </param>
 /// <param name="Bg2Overlay">Words a room actor wrote over BG2, or null (#1348).</param>
 /// <param name="Floor">The turning floor a Ceres room shows, or null outside Ceres (#1349, #1467).</param>
@@ -37,5 +37,5 @@ public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLaye
 {
     /// <summary>The BG3 plane the frame shows (#1403).</summary>
     /// <exception cref="InvalidOperationException">The plane's pictures are not yet resolved.</exception>
-    public Layer3Cells ShownBg3 => Bg3 ?? throw new InvalidOperationException("BG3 is shown once the accepted NMI that latched it resolves its pictures.");
+    public Layer3Cells ShownBg3 => Bg3 ?? throw new InvalidOperationException("BG3 is shown once the frame boundary that latched it resolves its pictures.");
 }

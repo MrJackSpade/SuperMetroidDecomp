@@ -13,17 +13,17 @@ namespace SuperMetroid.Core.Fx;
 /// circular row streaming is not modeled; the bands are published with <see cref="Publish"/>.
 /// </remarks>
 /// <param name="variant">The land or ocean chunk table the room main selects.</param>
-/// <param name="hasBands">Whether the sky FX or setup spawned the band HDMA object.</param>
+/// <param name="hasBands">Whether the sky FX or setup spawned the band per-line effect object.</param>
 [RoomLifetime]
 public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBands = true)
 {
-    /// <summary>Only the sky FX/setup spawns the horizontal HDMA object; the room-main callback alone does not.</summary>
+    /// <summary>Only the sky FX/setup spawns the horizontal per-line effect object; the room-main callback alone does not.</summary>
     public bool HasBands { get; } = hasBands;
 
     /// <summary>The land or ocean chunk table the sky's rows follow.</summary>
     public ScrollingSkyChunkTable Variant { get; } = variant;
 
-    /// <summary>23 native 16.16 HDMA data slots; the last slot is stationary.</summary>
+    /// <summary>23 native 16.16 per-line data slots; the last slot is stationary.</summary>
     private readonly uint[] _fixedHorizontalScrolls =
         new uint[ScrollingSkyBandDefinitions.DataSlotCount];
 
@@ -36,7 +36,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
         callback is RoomMainCallback.ScrollingSkyLand or
             RoomMainCallback.ScrollingSkyLandZebesTimebombSet;
 
-    /// <summary>Identifies the scrolling-sky room mains; HDMA setup is a separate decision.</summary>
+    /// <summary>Identifies the scrolling-sky room mains; spawning the bands is a separate decision.</summary>
     public static bool IsScrollingSkyRoomMain(RoomMainCallback callback) =>
         IsLandRoomMain(callback) || callback == RoomMainCallback.ScrollingSkyOcean;
 
@@ -55,7 +55,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     /// <summary>Whether the indirect table has not been terminated by a frozen frame.</summary>
     public bool BandsShown { get; private set; } = hasBands;
 
-    /// <summary>Integer HDMA data words, indexed like the 23 four-byte slots at $7E:9F80.</summary>
+    /// <summary>Integer per-line data words, indexed like the 23 four-byte slots at $7E:9F80.</summary>
     public ushort GetDataSlotPosition(int slot)
     {
         if ((uint)slot >= _fixedHorizontalScrolls.Length)
@@ -68,7 +68,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     {
         if (timeIsFrozen)
         {
-            // $88:AFA8 writes a zero first HDMA entry, terminating the table. The
+            // The sky's setup writes a zero first entry, terminating the table. The
             // pre-instruction wrapper likewise skips fixed-point advancement.
             BandsShown = false;
             return;
@@ -81,7 +81,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
 
     /// <summary>
     /// The sky layer the frame shows, positioned from <paramref name="layer1YPosition"/>; null when the room spawned no
-    /// band HDMA object, whose BG2 is the room's own background.
+    /// band per-line effect object, whose BG2 is the room's own background.
     /// </summary>
     /// <param name="layer1YPosition">The camera's layer-one Y the bands are positioned from.</param>
     public ScrollingSkyLayer? Publish(int layer1YPosition)

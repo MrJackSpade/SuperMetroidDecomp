@@ -894,7 +894,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         Room.EnsureLoaded();
         DeathsAndDrops.BindSamus(frame.Samus);
         ScrollCap.BeginFrame(frame.SamusPreviousPositionCheckpoint);
-        // Standalone audits do not own the runtime NMI clock. In that case the enemy-frame
+        // Standalone audits do not own the runtime's frame clock. In that case the enemy-frame
         // counter begins at zero and advances at the same end-of-frame point, which gives
         // Mama Turtle's even-frame shell jitter the same initial phase as retail room load.
         FrameContext.BeginFrame(frame.TimeIsFrozen, frame.SamusProjectiles, frame.SamusColours, frame.FrameCounter);

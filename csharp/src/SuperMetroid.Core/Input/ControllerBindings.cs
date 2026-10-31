@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
-/// The seven configurable action words stored at WRAM <c>$09B2-$09BE</c> and mirrored in
+/// The seven configurable action bindings, mirrored in
 /// every SRAM slot. Directional input and Start are hardware controls rather than actions,
 /// so they deliberately do not appear in this type.
 /// </summary>
@@ -26,7 +26,7 @@ public readonly record struct ControllerBindings(
     /// seven immediate/store pairs: Shoot=X/$09B2, Jump=A/$09B4, Dash=B/$09B6,
     /// ItemSelect=Select/$09BA, ItemCancel=Y/$09B8, AimUp=R/$09BE, and
     /// AimDown=L/$09BC. The constructor and action indexer use menu row order
-    /// 0..6, which differs from WRAM address order for the final four fields.
+    /// 0..6, which differs from the bindings' storage order for the final four fields.
     /// These are named action-to-button cases. The existing constructor and bounded
     /// action indexer already express that mapping without a stored lookup table.
     /// </remarks>

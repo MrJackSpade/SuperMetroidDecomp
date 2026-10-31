@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The scrolling sky's bands as a frame shows them (#1347): 23 bands that each shift horizontally by their own offset. The cartridge draws the bands with an indirect HDMA table of BG2HOFS words (<c>$88:ADC2</c>); this is
+/// The scrolling sky's bands as a frame shows them (#1347): 23 bands that each shift horizontally by their own offset. The cartridge draws the bands with an indirect per-line table of BG2HOFS words (<c>$88:ADC2</c>); this is
 /// that table's source, published as layer state, from which the display describes the screen's bands (#1468).
 /// </summary>
 /// <param name="VerticalScroll">The layer-one Y the bands are positioned from; the sky's BG2 vertical scroll, wrapping at 16 bits.</param>

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.World;
 /// fraction words (<c>$090F</c>/<c>$0913</c>) (#1266).
 /// </param>
 /// <param name="InheritedLayer1Position">
-/// The layer-1 position an earlier gameplay owner left in WRAM; the first room's camera takes its fraction words.
+/// The layer-1 position an earlier gameplay owner left behind; the first room's camera takes its fractions.
 /// </param>
 /// <param name="DoorGates">
 /// The outgoing room's door-transition gates, which door-transition code owns for the whole transition; the

@@ -45,16 +45,16 @@ internal sealed class GameplayOptions
     public bool MoonwalkEnabled { get; set; }
 
     /// <summary>
-    /// WRAM <c>$09EA</c>. Native projectile-data teardown clears the selected HUD icon
+    /// The Icon Cancel option. Projectile-data teardown clears the selected HUD icon
     /// when this word is nonzero; retaining it beside Moonwalk keeps both special-options
     /// words available to their actual gameplay owners.
     /// </summary>
     public bool IconCancelEnabled { get; set; }
 
     /// <summary>
-    /// Live copies of WRAM <c>$09B2-$09BE</c>. The host supplies physical controller bits;
-    /// accepted gameplay NMIs translate them once at the same conceptual seam where native
-    /// routines compare input with these configurable action words.
+    /// The live controller bindings. The host supplies physical controller buttons; each
+    /// gameplay frame boundary translates them once, at the same point where gameplay
+    /// compares input with these configurable actions.
     /// </summary>
     public ControllerBindings ControllerBindings { get; set; } = ControllerBindings.Default;
 }

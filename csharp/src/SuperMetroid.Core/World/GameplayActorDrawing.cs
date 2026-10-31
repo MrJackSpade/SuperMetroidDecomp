@@ -29,7 +29,7 @@ internal sealed class GameplayActorDrawing
     private readonly GameplayDisplayState _display;
     /// <summary>Determines whether time-dependent enemy projectile drawing is suspended.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Provides accepted-NMI cadence for blinking and drawing branches.</summary>
+    /// <summary>Provides frame-counter cadence for blinking and drawing branches.</summary>
     private readonly FrameClock _clock;
 
     /// <summary>Receives Samus's whole-frame draws in the same order as the OAM sprites around them.</summary>
@@ -211,8 +211,8 @@ internal sealed class GameplayActorDrawing
 
             // `$90:EB86` replaces the ordinary `$90:EB52` display handler while an
             // elevator owns a front-facing body. It still arrives after `$90:C5C4`, so
-            // the arm-cannon cover state above advances every frame. Odd NMIs return
-            // immediately. Even NMIs call the fatal/no-animation body renderer, which
+            // the arm-cannon cover state above advances every frame. Odd frames return
+            // immediately. Even frames call the fatal/no-animation body renderer, which
             // deliberately bypasses ordinary invincibility flicker and every auxiliary
             // Samus layer: atmosphere, charge flare, cannon OBJ, speed/shinespark
             // echoes, and grapple graphics. Projectile drawing remains in the shared
@@ -240,7 +240,7 @@ internal sealed class GameplayActorDrawing
                 // omits charging flare/audio, atmosphere, both arm-cannon priority
                 // paths, ordinary departing speed echoes, and grapple graphics. It
                 // draws the live body first, then crash slot one before slot zero on
-                // odd NMIs. The shared projectile/trail tail below still follows.
+                // odd frames. The shared projectile/trail tail below still follows.
                 _player.Samus.Presentation.Draw(_player.Samus, 
                     _sprites,
                     _room.Camera.PixelPosition,

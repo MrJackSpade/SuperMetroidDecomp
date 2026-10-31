@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Assets;
 [EncodingOwner("RGB5 colour word of the installed palette documents")]
 public readonly record struct RgbColor
 {
-    /// <summary>Bytes in one encoded color word, as stored in ROM, WRAM and CGRAM.</summary>
+    /// <summary>Bytes in one encoded color word, as installed artwork stores it.</summary>
     public const int ByteCount = sizeof(ushort);
 
     /// <summary>The largest value of one five-bit channel.</summary>

@@ -120,9 +120,8 @@ internal sealed class ActiveRoomState
     internal SamusBombProjectileSystem? BombProjectiles => View(c => c.BombProjectiles, s => s.BombProjectiles);
 
     /// <summary>
-    /// The layer-one position an earlier gameplay owner left in WRAM. Only its fraction words
-    /// <c>$090F</c>/<c>$0913</c> matter: no load path writes them, so this runtime's first
-    /// camera starts from them.
+    /// The layer-one position an earlier gameplay owner left behind. Only its fractions
+    /// matter: no load path writes them, so this runtime's first camera starts from them.
     /// </summary>
     internal FixedPosition<RoomPixels> InheritedLayer1Position { get; set; }
 }

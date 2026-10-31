@@ -50,7 +50,7 @@ public sealed class DemoInputState
     public ControllerButton PublishedPreviousNewlyPressed { get; private set; }
 
     /// <summary>
-    /// Clears every demo-input WRAM word exactly as <c>$91:8370</c> does.
+    /// Clears every demo-input value, as ending a demo's input does.
     /// </summary>
     public void Clear()
     {

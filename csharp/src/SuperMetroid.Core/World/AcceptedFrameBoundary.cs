@@ -21,8 +21,8 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The NMI: controller latching, frame-counter advance, accepted and forced-blank transfers, hardware-wait NMIs,
-/// and the display captures published at the NMI.
+/// The frame boundary at the start of each update: the previous update's frame becomes visible, the controllers are
+/// latched and the frame counters advance; the display captures are published here.
 /// </summary>
 internal sealed class AcceptedFrameBoundary
 {
@@ -30,11 +30,11 @@ internal sealed class AcceptedFrameBoundary
     private readonly AcceptedFrameInput _input;
     /// <summary>Publishes rebound beam art after accepted VRAM transfers.</summary>
     private readonly RuntimeArtwork _artwork;
-    /// <summary>Captures the BG1 and BG2 scroll registers visible with the accepted NMI.</summary>
+    /// <summary>Captures the BG1 and BG2 scroll registers visible with the frame boundary.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Retains the accepted-NMI display latch.</summary>
+    /// <summary>Retains the frame-boundary display latch.</summary>
     private readonly GameplayDisplayState _display;
-    /// <summary>Sprite frame made visible at each accepted NMI.</summary>
+    /// <summary>Sprite frame made visible at each frame boundary.</summary>
     private readonly SpriteFrameBuffer _displayedSprites;
     /// <summary>The session's shown sprite looks, which the Ceres Ridley arena's blocks show (#1466).</summary>
     private readonly EnemySession _enemySession;
@@ -46,13 +46,13 @@ internal sealed class AcceptedFrameBoundary
     private IEnemyDisplaySources? Displays => _room.Enemies?.DisplaySources;
     /// <summary>The main-screen layers latched with the accepted frame.</summary>
     private readonly GameplayScreenLayers _screenLayers;
-    /// <summary>Sprite frame the main loop finalized for the next NMI.</summary>
+    /// <summary>Sprite frame the update finalized for the next frame boundary.</summary>
     private readonly SpriteFrameBuffer _sprites;
-    /// <summary>Supplies Samus graphics DMA for accepted NMI transfers.</summary>
+    /// <summary>Supplies Samus graphics DMA for frame boundary transfers.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Supplies the room's fixed colour.</summary>
     private readonly RoomFxSession _roomFx;
-    /// <summary>The HUD whose images each NMI latches.</summary>
+    /// <summary>The HUD whose images each frame boundary latches.</summary>
     private readonly HudState _hud;
     /// <summary>The pictures of the HUD's images in the room's BG3 sheet, looked up once per sheet (#1466).</summary>
     private HudPictures? _hudPictures;
@@ -64,7 +64,7 @@ internal sealed class AcceptedFrameBoundary
     /// <summary>Supplies the frozen X-ray reveal map the publication latches.</summary>
     private readonly XrayReveal _xray;
 
-    /// <summary>Connects controller, PPU, sprite, video-queue, and frame-clock owners to the NMI boundary.</summary>
+    /// <summary>Connects the controller, display, sprite and frame-clock owners to the frame boundary.</summary>
     internal AcceptedFrameBoundary(AcceptedFrameBoundaryDependencies dependencies)
     {
         _input = dependencies.Input;
@@ -88,18 +88,18 @@ internal sealed class AcceptedFrameBoundary
     /// pass has published its per-frame audio requests.
     /// </summary>
     /// <remarks>
-    /// Door transitions and other frontend coroutines can run accepted NMIs without
+    /// Door transitions and other frontend sequences can run frame boundaries without
     /// running enemy, projectile, or PLM owners. Consumers must distinguish those waits
     /// from a fresh gameplay publication; otherwise the last request is re-enqueued on
-    /// every transition NMI and the native sound-queue drain can never finish.
+    /// every transition update and the door's sound-queue drain can never finish.
     /// </remarks>
     public ulong CompletedGameplayAudioPublication { get; internal set; }
 
     /// <summary>
-    /// Runs the accepted NMI portion currently translated from <c>$80:9583</c>: publication, the controller latch, then
-    /// the frame counters. The port has no lagged NMIs; hardware lag is eliminated.
+    /// Runs the frame boundary: publication, the controller latch, then the frame counters. Every update shows exactly
+    /// one frame.
     /// </summary>
-    /// <param name="controller1Input">Host-provided raw SNES controller word.</param>
+    /// <param name="controller1Input">The host's controller buttons.</param>
     public void BeginAcceptedFrame(ControllerButton controller1Input)
     {
         PublishAcceptedFrameTransfers();
@@ -107,11 +107,10 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// Applies queued graphics while a loading dispatch holds forced blank with NMI
-    /// disabled. Native loaders write these directly; no NMI runs, so neither the
-    /// controller latch nor any NMI counter changes.
+    /// Publishes the display while a loading update keeps the screen dark. No frame is shown, so neither the
+    /// controller latch nor any frame counter changes.
     /// </summary>
-    internal void PublishForcedBlankTransfers() => PublishAcceptedFrameTransfers();
+    internal void PublishWhileLoading() => PublishAcceptedFrameTransfers();
 
     /// <summary>The OAM, Samus, video-queue and register publication of $80:959E..$80:95DE.</summary>
     private void PublishAcceptedFrameTransfers()
@@ -150,16 +149,16 @@ internal sealed class AcceptedFrameBoundary
             scene,
             CaptureBossBackgrounds(),
             CaptureFixedColors(),
-            // The reveal and the room's planes are drawn once this NMI's uploads have bound (WithBlockPictures).
+            // The reveal and the room's planes are drawn once this frame boundary's uploads have bound (WithBlockPictures).
             null,
             CaptureRoomBackgrounds(),
             _room.Scope is null ? null : CaptureLayer3Plane(),
-            // The HUD's images as gameplay last placed them, which this NMI shows as the cartridge's NMI uploads its rows.
+            // The HUD's images as gameplay last placed them, which this frame boundary shows.
             _hud.Shown());
         // The planes' blocks show the pictures named by what gameplay has shown so far (#1392, #1466).
         if (_display.Latched.Rooms is { } rooms)
             _display.Latched = WithBlockPictures(_display.Latched, rooms, reveal);
-        // A rebound snapshot may retain old CGRAM; apply current content only at this accepted NMI.
+        // A rebound snapshot may retain old CGRAM; apply current content only at this frame boundary.
         _artwork.PublishReboundBeamPalette();
     }
 
@@ -211,7 +210,7 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// The room backgrounds this NMI displays (#1346): BG1 from the level plane through the BG1 offset, BG2 from the
+    /// The room backgrounds this frame boundary displays (#1346): BG1 from the level plane through the BG1 offset, BG2 from the
     /// layer-2 plane when that layer streams (otherwise BG2 shows the tilemap its owner loaded), the source screen of a
     /// door's opening scroll, and the room's BG1 overlay. The planes are shared until gameplay changes level data.
     /// </summary>
@@ -222,7 +221,7 @@ internal sealed class AcceptedFrameBoundary
             return null;
         RoomLevelData level = scope.LevelData;
         Layer2ScrollModes layer2 = _backgroundScroll.Layer2Scroll;
-        // Each plane's pictures are resolved once this NMI's uploads have bound (WithBlockPictures).
+        // Each plane's pictures are resolved once this frame boundary's uploads have bound (WithBlockPictures).
         return new RoomBackgrounds(
             new RoomBackgroundLayer(level.ForegroundPlane.Cells, _backgroundScroll.Bg1Offset.AsBgPlaneOffset(), null),
             layer2.Horizontal.Streams || layer2.Vertical.Streams
@@ -230,7 +229,7 @@ internal sealed class AcceptedFrameBoundary
                 : null,
             null,
             _room.DoorSourceBackground,
-            // What actors wrote over BG1 and BG2 is drawn once this NMI's uploads have bound (WithBlockPictures).
+            // What actors wrote over BG1 and BG2 is drawn once this frame boundary's uploads have bound (WithBlockPictures).
             null,
             Floor: scope.Floor?.Publish(),
             BlockArtwork: RoomScope.BlockArtworkOf(_room.ActiveRoom));
@@ -252,12 +251,12 @@ internal sealed class AcceptedFrameBoundary
         // The room's pictures are named by what gameplay showed over its load, the frames its animations selected and, in
         // the Ceres Ridley arena, the looks shown on the sprites' artwork (#1466).
         var appearance = new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession);
-        // The planes the latch shows are the level data's, which nothing changes before this NMI's pictures resolve.
+        // The planes the latch shows are the level data's, which nothing changes before this frame boundary's pictures resolve.
         RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
             rooms.Bg2 is null ? null : scope.LevelData.BackgroundPlane, rooms.BlockArtwork, appearance,
             reveal?.OfType<RevealedBlock>().Select(block => block.Definition) ?? []);
         // A sky room's BG2 shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
-        // sky's band HDMA; without it, BG2 shows the room's own background.
+        // sky's bands; without them, BG2 shows the room's own background.
         SkyPictures? sky = null;
         if (scope.ScrollingSky is { HasBands: true } scrollingSky)
         {
@@ -297,7 +296,7 @@ internal sealed class AcceptedFrameBoundary
                 Bg1Overlay = bg1Overlay,
                 // The room effect's page draws from the BG3 sheet's pictures, as the effects' animations select them; the
                 // plane holds nothing else (#1466).
-                Bg3 = new Layer3Cells(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's NMI latches its BG3 plane."),
+                Bg3 = new Layer3Cells(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's frame boundary latches its BG3 plane."),
                     appearance)),
             },
             // The HUD's images draw from the same sheet, on the HUD's own layer (#1466).
@@ -306,7 +305,7 @@ internal sealed class AcceptedFrameBoundary
         };
     }
 
-    /// <summary>The BG3 plane this NMI displays (#1348): the room effect's page; the HUD is its own layer (#1466).</summary>
+    /// <summary>The BG3 plane this frame boundary displays (#1348): the room effect's page; the HUD is its own layer (#1466).</summary>
     internal Layer3Plane CaptureLayer3Plane() => _room.Layer3Fx?.EffectPlane ?? Layer3Plane.Cleared;
 
     /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's BG3 sheet.</summary>

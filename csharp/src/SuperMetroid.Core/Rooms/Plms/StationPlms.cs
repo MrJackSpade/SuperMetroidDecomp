@@ -84,7 +84,7 @@ internal sealed class StationPlms : IPlmFamilySource
         _stationActivationEvents;
 
     /// <summary>
-    /// Sets WRAM <c>$1E75</c>'s room-entry lockout used when loading directly onto a save
+    /// Sets the room-entry lockout used when loading directly onto a save
     /// station. Ordinary destination-room construction clears it by creating a fresh PLM
     /// owner; an SRAM load explicitly sets it after the station population is installed.
     /// </summary>

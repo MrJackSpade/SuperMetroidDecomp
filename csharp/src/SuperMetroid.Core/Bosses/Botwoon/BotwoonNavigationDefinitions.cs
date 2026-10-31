@@ -20,10 +20,7 @@ internal static class BotwoonNavigationDefinitions
     /// <summary>The head-position history ring's X/Y samples.</summary>
     internal const int HistoryEntries = 256;
 
-    /// <summary>Bytes per history sample in native WRAM; native cursors and spacings are entry indices times this.</summary>
-    internal const int HistoryEntryBytes = 4;
-
-    /// <summary>Wraps a history-ring index, as the native <c>AND #$03FF</c> does to its byte offset.</summary>
+    /// <summary>Wraps a history-ring index around the ring's <see cref="HistoryEntries"/> entries.</summary>
     internal static int WrapHistoryIndex(int index) => index & (HistoryEntries - 1);
 
     /// <summary>Path descriptors authored for each source hole and visibility.</summary>
@@ -51,8 +48,8 @@ internal static class BotwoonNavigationDefinitions
     internal static int HoleCount => Holes.Length;
 
     /// <summary>
-    /// The authored step each packed movement nibble code stands for, in code order: the stream separator/terminator
-    /// <see cref="sbyte.MinValue"/>, then -16, -1, 0 and 1.
+    /// How many steps before an authored path's end a backward walk starts. The walk begins on the path's
+    /// second-to-last step, so it never takes the last one, as the original game's backward walks do.
     /// </summary>
-    internal static readonly sbyte[] MovementSteps = [sbyte.MinValue, -16, -1, 0, 1];
+    internal const int BackwardStartStepsBeforeEnd = 2;
 }

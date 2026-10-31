@@ -5,8 +5,8 @@ public enum BotwoonMovementFunction
 {
     /// <summary><c>$B3:9BB7 Function_Botwoon_Movement_DirectlyTowardTargetHole</c>: computes a clamped target vector and moves until the inside-hole transition is observed.</summary>
     MoveTowardHole = 1,
-    /// <summary><c>$B3:E250 Function_Botwoon_Movement_StartMovingAccordingToMovementData</c>: loads the chosen descriptor's pointer, direction, and target hole, then follows its first samples on the same call.</summary>
+    /// <summary><c>$B3:E250 Function_Botwoon_Movement_StartMovingAccordingToMovementData</c>: loads the chosen path, the way it is walked and the target hole, then takes its first steps on the same call.</summary>
     LoadAuthoredPath,
-    /// <summary><c>$B3:E28C Function_Botwoon_Movement_MoveAccordingToMovementData</c>: consumes speed-count signed X/Y byte pairs in the selected direction until a $80 terminator marks completion.</summary>
+    /// <summary><c>$B3:E28C Function_Botwoon_Movement_MoveAccordingToMovementData</c>: takes speed-count path steps in the chosen direction until walking off the path's end marks completion.</summary>
     FollowAuthoredPath,
 }

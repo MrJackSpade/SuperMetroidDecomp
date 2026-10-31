@@ -18,8 +18,8 @@ public sealed class BotwoonEnemyState
     public BotwoonEnemyFunction? Function { get; internal set; }
 
     /// <summary>
-    /// The independent bank-$B3 movement callback, choosing direct hole movement or descriptor-driven signed path
-    /// samples; none once a kill has emptied the record.
+    /// The independent bank-$B3 movement callback, choosing direct hole movement or an authored path;
+    /// none once a kill has emptied the record.
     /// </summary>
     public BotwoonMovementFunction? MovementFunction { get; internal set; }
 
@@ -54,7 +54,7 @@ public sealed class BotwoonEnemyState
     public WrappingCountdown LargeExplosionTimer { get; internal set; }
     /// <summary>Small wall-explosion countdown, active from update 64 and reloaded to four after signed underflow to emit a pair of effects.</summary>
     public WrappingCountdown SmallExplosionTimer { get; internal set; }
-    /// <summary>Health-selected movement magnitude 2, 3, or 4: pixels per direct-vector update or signed path samples consumed per authored-path update.</summary>
+    /// <summary>Health-selected movement magnitude 2, 3, or 4: pixels per direct-vector update or path steps taken per authored-path update.</summary>
     public int Speed { get; internal set; }
     /// <summary>The hole, zero through three, that direct movement targets and the next path choice starts from.</summary>
     public int TargetHoleIndex { get; internal set; }
@@ -67,11 +67,15 @@ public sealed class BotwoonEnemyState
     /// half of the table or, from inside a hole, the hidden half.
     /// </summary>
     public int PathChoice { get; internal set; }
-    /// <summary>The next movement sample of the current path, advanced or reversed by one sample per step.</summary>
-    public int PathSampleIndex { get; internal set; }
-    /// <summary>Signed descriptor direction: negative walks the samples backward and negates accumulated displacements; nonnegative walks forward.</summary>
-    [PackedFields("signed path descriptor word; only its sign is read, choosing backward or forward sample order")]
-    public int PathDirection { get; internal set; }
+    /// <summary>The authored path being walked, an index into <see cref="BotwoonPathDefinitions.Paths"/>.</summary>
+    public int PathIndex { get; internal set; }
+    /// <summary>
+    /// The next step of <see cref="PathIndex"/> to take. A forward walk ends when it passes the last step and a backward
+    /// walk when it passes the first, so it ranges from one before the first step to one after the last.
+    /// </summary>
+    public int PathStep { get; internal set; }
+    /// <summary>Which way <see cref="PathIndex"/> is walked: a backward walk takes the steps in reverse order, each reversed.</summary>
+    public BotwoonPathTraversal PathTraversal { get; internal set; }
     /// <summary>The head animation the AI last installed; reinstalling the same program does not restart it.</summary>
     internal BotwoonHeadProgram HeadProgram { get; set; } = BotwoonHeadProgram.Hidden;
     /// <summary>The next step of the head animation's timeline.</summary>

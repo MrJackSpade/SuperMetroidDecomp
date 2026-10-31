@@ -47,7 +47,7 @@ internal sealed class DraygonSwoops
     {
         int yPosition = 384;
         EightEightVector<RoomPixels> speed = default;
-        int byteOffset = 0;
+        int frameCount = 0;
         Array.Clear(state.SwoopYPositions);
 
         while (true)
@@ -58,13 +58,12 @@ internal sealed class DraygonSwoops
                 break;
 
             yPosition = candidate;
-            if (byteOffset >= 2048)
-                throw new InvalidDataException("Draygon swoop Y table exceeded its $800-byte surface.");
-            state.SwoopYPositions[byteOffset / 4] = (ushort)candidate;
-            byteOffset += 4;
+            if (frameCount >= DraygonEnemyState.SwoopPathCapacity)
+                throw new InvalidDataException($"Draygon swoop path exceeded its {DraygonEnemyState.SwoopPathCapacity} heights.");
+            state.SwoopYPositions[frameCount] = candidate;
+            frameCount++;
         }
 
-        int frameCount = byteOffset / 4;
         if (frameCount == 0)
             throw new InvalidDataException("Draygon generated an empty swoop path.");
         state.SwoopPathEntryCount = frameCount;
@@ -76,8 +75,7 @@ internal sealed class DraygonSwoops
         int distance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
             state.LeftSideReset.X - samus.Position.X.Whole)));
         SetDraygonSwoopVelocity(state, distance, frameCount);
-        state.SwoopOffset = byteOffset;
-        state.SwoopEndOffset = byteOffset;
+        state.SwoopEntry = frameCount;
     }
 
     /// <summary>Ports the descending half at <c>$A5:88B1</c> (right) and <c>$A5:8A00</c> (left).</summary>
@@ -90,15 +88,13 @@ internal sealed class DraygonSwoops
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         _movement.SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemySlot body = state.Body;
-        int pathIndex = state.SwoopOffset / 4;
-        if ((uint)pathIndex >= state.SwoopYPositions.Length)
-            throw new InvalidDataException($"Draygon descent path index {pathIndex} is outside WRAM.");
-        if (state.SwoopOffset == DraygonBehavior.DraygonSwoopApexArmsByteOffset)
+        int entry = state.SwoopEntry;
+        if (entry == DraygonBehavior.DraygonSwoopApexArmsEntry)
             _parts.StartDraygonProgram(state.Arms, side.ArmsNearApex);
 
-        body.Position = body.Position.WithWholeY(state.SwoopYPositions[pathIndex]);
-        state.SwoopOffset = state.SwoopOffset - 4;
-        if (state.SwoopOffset == 0)
+        body.Position = body.Position.WithWholeY(state.SwoopYPositions[entry]);
+        state.SwoopEntry = entry - 1;
+        if (state.SwoopEntry == 0)
         {
             state.Function = side.Apex;
             return;
@@ -114,7 +110,7 @@ internal sealed class DraygonSwoops
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         RoomEnemySlot body = state.Body;
-        int frameCount = state.SwoopEndOffset / 4;
+        int frameCount = state.SwoopPathEntryCount;
         if (frameCount == 0)
             throw new InvalidDataException("Draygon lost the swoop duration at the apex.");
         int distance = unchecked((ushort)(672 - body.Position.X.Whole));
@@ -137,15 +133,13 @@ internal sealed class DraygonSwoops
         if (side.Direction != HorizontalDirection.Right)
             _movement.SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemySlot body = state.Body;
-        int pathIndex = state.SwoopOffset / 4;
-        if ((uint)pathIndex >= state.SwoopYPositions.Length)
-            throw new InvalidDataException($"Draygon ascent path index {pathIndex} is outside WRAM.");
-        if (state.SwoopOffset == DraygonBehavior.DraygonSwoopApexArmsByteOffset)
+        int entry = state.SwoopEntry;
+        if (entry == DraygonBehavior.DraygonSwoopApexArmsEntry)
             _parts.StartDraygonProgram(state.Arms, side.ArmsIdle);
 
-        body.Position = body.Position.WithWholeY(state.SwoopYPositions[pathIndex]);
-        state.SwoopOffset = state.SwoopOffset + 4;
-        if (state.SwoopOffset != state.SwoopEndOffset)
+        body.Position = body.Position.WithWholeY(state.SwoopYPositions[entry]);
+        state.SwoopEntry = entry + 1;
+        if (state.SwoopEntry != state.SwoopPathEntryCount)
         {
             DraygonMovement.MoveDraygonHorizontally(state, side.Direction == HorizontalDirection.Right);
             return;
@@ -153,7 +147,7 @@ internal sealed class DraygonSwoops
 
         if (side.Direction == HorizontalDirection.Right)
         {
-            state.SwoopOffset = 0;
+            state.SwoopEntry = 0;
             int random = _room.Random.Read();
             state.Function = (random & 1) != 0
                 ? DraygonAiFunction.SwoopLeftSetup
@@ -165,7 +159,7 @@ internal sealed class DraygonSwoops
         body.Position = body.Position.WithWholeX(state.LeftSideReset.X);
         if ((choice & 1) != 0)
         {
-            state.SwoopOffset = 0;
+            state.SwoopEntry = 0;
             body.Position = body.Position.WithWholeY(state.LeftSideReset.Y);
             state.Function = DraygonAiFunction.SwoopRightSetup;
         }
@@ -184,8 +178,8 @@ internal sealed class DraygonSwoops
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         if (samus is null)
             throw new InvalidOperationException("Draygon cannot aim a swoop without Samus.");
-        int frameCount = state.SwoopEndOffset / 4;
-        if (frameCount == 0 || frameCount != state.SwoopPathEntryCount)
+        int frameCount = state.SwoopPathEntryCount;
+        if (frameCount == 0)
             throw new InvalidDataException("Draygon lost the generated swoop duration.");
 
         int distance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
@@ -194,7 +188,7 @@ internal sealed class DraygonSwoops
         state.Function = DraygonAiFunction.SwoopLeftDescending;
         _parts.StartDraygonProgram(state.Body, DraygonProgram.BodyFacingLeftReset);
         state.FacingRight = false;
-        state.SwoopOffset = state.SwoopEndOffset;
+        state.SwoopEntry = state.SwoopPathEntryCount;
     }
 
     /// <summary>Ports the mirrored velocity calculation at <c>$A5:8A50</c>.</summary>
@@ -205,7 +199,7 @@ internal sealed class DraygonSwoops
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         RoomEnemySlot body = state.Body;
-        int frameCount = state.SwoopEndOffset / 4;
+        int frameCount = state.SwoopPathEntryCount;
         if (frameCount == 0)
             throw new InvalidDataException("Draygon lost the swoop duration at the left apex.");
 
@@ -245,7 +239,7 @@ internal sealed class DraygonSwoops
 
         body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         state.Function = DraygonAiFunction.SwoopRightSetup;
-        state.SwoopOffset = 0;
+        state.SwoopEntry = 0;
         body.Position = body.Position.WithWhole(state.LeftSideReset);
     }
 }

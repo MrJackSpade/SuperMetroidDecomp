@@ -11,7 +11,7 @@ internal static class BotwoonHealthPaletteDefinitions
     /// <summary>Each Botwoon health-band image occupies one sixteen-color sprite palette.</summary>
     public const int ColorsPerPalette = 16;
 
-    /// <summary>Terminal native byte offset after all eight threshold words are consumed.</summary>
+    /// <summary>The palette phase once Botwoon has passed all eight health thresholds.</summary>
     public const int CompletePhase = 8;
 
     /// <summary>The health between successive thresholds: threshold(i) = 375 * (8 - i).</summary>

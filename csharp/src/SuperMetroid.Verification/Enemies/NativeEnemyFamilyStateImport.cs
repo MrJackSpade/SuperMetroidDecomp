@@ -141,8 +141,11 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<DraygonEnemyState>() is { } draygonRecord)
         {
             draygonRecord.Function = (DraygonAiFunction)words.A;
-            draygonRecord.SwoopOffset = words.B;
-            draygonRecord.SwoopEndOffset = words.C;
+            if (DraygonNativeWords.HoldsFunctionTimer(draygonRecord.Function))
+                draygonRecord.FunctionTimer = WrappingCountdown.FromRaw(words.B);
+            else
+                draygonRecord.SwoopEntry = words.B / DraygonNativeWords.SwoopEntryBytes;
+            draygonRecord.SwoopPathEntryCount = words.C / DraygonNativeWords.SwoopEntryBytes;
             draygonRecord.SwoopVelocity = SixteenSixteen.Compose(words.D, words.E);
         }
         if (slot.SpeciesState<DraygonEyeState>() is { } draygonEyeRecord)

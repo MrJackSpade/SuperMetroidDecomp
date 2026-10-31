@@ -9,10 +9,22 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks Draygon intro latency and movement definitions against ROM and the full Evir trajectory.</summary>
+/// <summary>Checks Draygon intro start delays and the traced path against ROM and the full Evir trajectory.</summary>
+/// <remarks>
+/// The cartridge keeps each Evir's delay as a negative byte distance into a path of four-byte records; the game holds
+/// delays in updates and the path as typed steps. This oracle owns that translation.
+/// </remarks>
 internal static class DraygonIntroDanceDefinitionsVerification
 {
-    /// <summary>Runs latency, movement, and complete production trajectory comparisons.</summary>
+    /// <summary>The cartridge record of path step <paramref name="step"/>: its X and Y bytes.</summary>
+    private static NativeIntroRecord ReadRecord(SuperMetroidAddressSpace rom, int step)
+    {
+        int address = DraygonIntroDanceDefinitionsConstants.NativeMovementStreamAddress +
+            step * DraygonIntroDanceDefinitionsConstants.NativeMovementRecordBytes;
+        return new(rom.ReadCartridgeByte(address), rom.ReadCartridgeByte(address + 1));
+    }
+
+    /// <summary>Runs delay, path, and complete production trajectory comparisons.</summary>
     internal static void VerifyDraygonIntroDanceDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDraygonIntroLatencyDefinitions), () => VerifyDraygonIntroLatencyDefinitions(rom));
@@ -20,78 +32,60 @@ internal static class DraygonIntroDanceDefinitionsVerification
         Suite(nameof(VerifyCompleteDraygonIntroTrajectory), () => VerifyCompleteDraygonIntroTrajectory(rom));
 
         Console.WriteLine(
-            "Draygon intro dance definitions: all four latency words and all 1,104 " +
-            "reachable movement records match the pinned ROM; the complete 1,232-frame " +
-            "production trajectory passes with migrated ROM reads forbidden.");
+            "Draygon intro dance definitions: all four start delays and all 1,104 " +
+            "reachable path steps match the pinned ROM; the complete 1,232-frame " +
+            "production trajectory passes.");
     }
 
-    /// <summary>Compares all four Evir slot delays with native words and checks slot bounds.</summary>
+    /// <summary>Compares all four Evir start delays with the native byte latencies and checks slot bounds.</summary>
     internal static void VerifyDraygonIntroLatencyDefinitions(SuperMetroidAddressSpace rom)
     {
         const int source = DraygonIntroDanceDefinitionsConstants.NativeMovementLatencyAddress;
         for (int slotIndex = 28; slotIndex <= 31; slotIndex++)
         {
             int address = source + (slotIndex - 28) * 2;
-            short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-            AssertEqual(expected,
-                DraygonIntroDance.MovementLatencyForSlot(slotIndex),
-                $"Draygon intro Evir slot {slotIndex} latency");
+            short native = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
+            AssertEqual(native % DraygonIntroDanceDefinitionsConstants.NativeMovementRecordBytes, 0,
+                $"Draygon intro Evir slot {slotIndex} latency is whole records");
+            AssertEqual(-native / DraygonIntroDanceDefinitionsConstants.NativeMovementRecordBytes,
+                DraygonIntroDance.StartDelayForSlot(slotIndex),
+                $"Draygon intro Evir slot {slotIndex} start delay");
         }
         AssertThrows<ArgumentOutOfRangeException>(
-            () => DraygonIntroDance.MovementLatencyForSlot(27),
+            () => DraygonIntroDance.StartDelayForSlot(27),
             "Draygon intro Evir slot before native range");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => DraygonIntroDance.MovementLatencyForSlot(32),
+            () => DraygonIntroDance.StartDelayForSlot(32),
             "Draygon intro Evir slot after native range");
-        Console.WriteLine("Evir latency algorithm: all four signed native delays and slot bounds match.");
+        Console.WriteLine("Evir start delays: all four native latencies and slot bounds match.");
     }
 
-    /// <summary>Compares reachable motion deltas and rejection of unaligned or out-of-range stream indices.</summary>
+    /// <summary>Compares every step of the traced path, deletes included, and rejects steps outside it.</summary>
     internal static void VerifyDraygonIntroMovementDefinitions(SuperMetroidAddressSpace rom)
     {
-        Suite(nameof(VerifyDraygonIntroDeleteSelection), () => VerifyDraygonIntroDeleteSelection(rom));
-        const int source = DraygonIntroDanceDefinitionsConstants.NativeMovementStreamAddress;
-        for (ushort offset = 0;
-             offset <= DraygonIntroDanceDefinitions.LastMovementStreamOffset;
-             offset += DraygonIntroDanceDefinitions.StreamIndexAdvance)
+        int deletes = 0;
+        for (int step = 0; step < DraygonIntroDanceDefinitions.TracedPath.Length; step++)
         {
-            byte nativeX = rom.ReadCartridgeByte(source + offset);
-            byte nativeY = rom.ReadCartridgeByte(source + offset + 1);
-            DraygonIntroMovement actual =
-                DraygonIntroDance.ResolveMovement(offset);
-
-            bool expectedDelete = nativeX == 0x80 && nativeY == 0x80;
-            AssertEqual(expectedDelete ? (short)0 : unchecked((sbyte)nativeX), actual.Delta.X,
-                $"Draygon intro movement ${offset:X4} X delta");
-            AssertEqual(expectedDelete ? (short)0 : unchecked((sbyte)nativeY), actual.Delta.Y,
-                $"Draygon intro movement ${offset:X4} Y delta");
+            NativeIntroRecord native = ReadRecord(rom, step);
+            DraygonIntroMovement actual = DraygonIntroDance.Movement(step);
+            bool expectedDelete = native.X == DraygonIntroDanceDefinitionsConstants.NativeDeleteByte &&
+                native.Y == DraygonIntroDanceDefinitionsConstants.NativeDeleteByte;
+            AssertEqual(expectedDelete, actual.DeletesSprite, $"Draygon intro step {step} delete");
+            AssertEqual(expectedDelete ? (short)0 : unchecked((sbyte)native.X), actual.Delta.X,
+                $"Draygon intro step {step} X delta");
+            AssertEqual(expectedDelete ? (short)0 : unchecked((sbyte)native.Y), actual.Delta.Y,
+                $"Draygon intro step {step} Y delta");
+            if (expectedDelete)
+                deletes++;
         }
+        AssertEqual(2, deletes, "Draygon intro path has two native delete records");
 
-        AssertThrows<InvalidDataException>(
-            () => DraygonIntroDance.ResolveMovement(1),
-            "Draygon intro rejects a non-native unaligned restored stream index");
-        AssertThrows<InvalidDataException>(
-            () => DraygonIntroDance.ResolveMovement(
-                unchecked(DraygonIntroDanceDefinitions.LastMovementStreamOffset + 4)),
-            "Draygon intro rejects a restored stream index beyond the compiled route");
-    }
-
-    /// <summary>Checks that the two native sentinel records delete sprites at the authored aligned offsets.</summary>
-    private static void VerifyDraygonIntroDeleteSelection(SuperMetroidAddressSpace rom)
-    {
-        int commands = 0;
-        for (int offset = 0; offset <= 0x113c; offset += 4)
-        {
-            bool expected = rom.ReadCartridgeByte(0xa5ce07 + offset) == 0x80 &&
-                rom.ReadCartridgeByte(0xa5ce08 + offset) == 0x80;
-            DraygonIntroMovement actual = DraygonIntroDance.ResolveMovement((ushort)offset);
-            AssertEqual(expected, actual.DeletesSprite, "Draygon original intro delete command selection");
-            if (expected) commands++;
-        }
-        AssertEqual(2, commands, "Draygon aligned intro has two native delete commands");
-        foreach (ushort offset in new ushort[] { 1, 0x0fb9, 0x0fba, 0x0fbb, 0x0fbd, 0x1140, 0xffff })
-            AssertThrows<InvalidDataException>(() => DraygonIntroDance.ResolveMovement(offset),
-                "Draygon command selection preserves alignment and outer bounds");
+        // The last Evir's delay and the dance's duration reach exactly the path's last step.
+        AssertEqual(DraygonIntroDanceDefinitions.DurationFrames - 1 - DraygonIntroDance.StartDelayForSlot(31),
+            DraygonIntroDanceDefinitions.TracedPath.Length - 1, "Draygon intro path ends at the last reachable step");
+        foreach (int step in new[] { -1, DraygonIntroDanceDefinitions.TracedPath.Length, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => DraygonIntroDance.Movement(step),
+                "Draygon intro rejects a step outside the traced path");
     }
 
     /// <summary>Compares every Evir slot's position and lifetime across the full intro, including the fight handoff.</summary>
@@ -118,23 +112,21 @@ internal static class DraygonIntroDanceDefinitionsVerification
             expectedActive[slotIndex - 28] = true;
         }
 
-        ushort expectedStreamIndex = 0;
+        const int latencySource = DraygonIntroDanceDefinitionsConstants.NativeMovementLatencyAddress;
+        int expectedStreamOffset = 0;
         for (int frame = 0; frame < DraygonIntroDanceDefinitions.DurationFrames; frame++)
         {
             for (int slotIndex = 31; slotIndex >= 28; slotIndex--)
             {
                 int actor = slotIndex - 28;
-                ushort streamIndex = unchecked((ushort)(
-                    expectedStreamIndex +
-                    DraygonIntroDance.MovementLatencyForSlot(slotIndex)));
-                if (unchecked((short)streamIndex) < 0 || !expectedActive[actor])
+                short latency = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(latencySource + actor * 2));
+                int streamOffset = expectedStreamOffset + latency;
+                if (streamOffset < 0 || !expectedActive[actor])
                     continue;
 
-                byte xDelta = rom.ReadCartridgeByte(
-                    DraygonIntroDanceDefinitions.NativeMovementStreamAddress + streamIndex);
-                byte yDelta = rom.ReadCartridgeByte(
-                    DraygonIntroDanceDefinitions.NativeMovementStreamAddress + streamIndex + 1);
-                if (xDelta == 0x80 && yDelta == 0x80)
+                NativeIntroRecord record = ReadRecord(rom, streamOffset / DraygonIntroDanceDefinitionsConstants.NativeMovementRecordBytes);
+                if (record.X == DraygonIntroDanceDefinitionsConstants.NativeDeleteByte &&
+                    record.Y == DraygonIntroDanceDefinitionsConstants.NativeDeleteByte)
                 {
                     expectedActive[actor] = false;
                     expectedX[actor] = 0;
@@ -142,18 +134,14 @@ internal static class DraygonIntroDanceDefinitionsVerification
                     continue;
                 }
 
-                expectedX[actor] = unchecked((ushort)(
-                    expectedX[actor] + unchecked((sbyte)xDelta)));
-                expectedY[actor] = unchecked((ushort)(
-                    expectedY[actor] + unchecked((sbyte)yDelta)));
+                expectedX[actor] = unchecked((ushort)(expectedX[actor] + unchecked((sbyte)record.X)));
+                expectedY[actor] = unchecked((ushort)(expectedY[actor] + unchecked((sbyte)record.Y)));
             }
 
             run(state, null, 1);
-            expectedStreamIndex = unchecked((ushort)(
-                expectedStreamIndex + DraygonIntroDanceDefinitions.StreamIndexAdvance));
+            expectedStreamOffset += DraygonIntroDanceDefinitionsConstants.NativeMovementRecordBytes;
 
-            AssertEqual(expectedStreamIndex, state.FightIntroDanceIndex,
-                $"Draygon intro frame {frame} stream index");
+            AssertEqual(frame + 1, state.IntroDanceStep, $"Draygon intro frame {frame} dance step");
             for (int slotIndex = 28; slotIndex <= 31; slotIndex++)
             {
                 int actor = slotIndex - 28;
@@ -175,23 +163,22 @@ internal static class DraygonIntroDanceDefinitionsVerification
         AssertEqual((ushort)0, state.FunctionTimer.RawValue,
             "Draygon intro clears the function timer at the native handoff");
 
-        // A restored index can be corrupt while the owner is still inside its native
-        // duration. Exercise the production dispatcher so this cannot regress into an
-        // arbitrary bank-$A5 read hidden behind a catalog-only unit test.
+        // A restored dance step can be corrupt while the owner is still inside its native duration. Exercise the
+        // production dispatcher so this cannot regress into reading past the traced path.
         var malformedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<DraygonEnemyState, SamusState?, byte> malformedRun = (danceState, danceSamus, frameCounterLow) =>
             malformedEnemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounterLow);
         var malformedState = new DraygonEnemyState(malformedEnemies.SlotTable.Slots[0])
         {
-            // Slot 31 subtracts $0200, selecting invalid offset one immediately.
-            FightIntroDanceIndex = 0x0201,
+            // Slot 31 waits the shortest, so it reaches one step past the path's end first.
+            IntroDanceStep = DraygonIntroDanceDefinitions.TracedPath.Length + DraygonIntroDance.StartDelayForSlot(31),
         };
         RoomSpriteObjectSlot malformedSprite = malformedEnemies.RoomSpriteObjects[31];
         malformedSprite.Kind = RoomSpriteObjectKind.DraygonIntroEvir;
         malformedSprite.Cursor = AnimationProgramCursor<RoomSpriteObjectProgram>.Start(RoomSpriteObjectProgram.EvirFacingLeft);
         AssertThrows<InvalidDataException>(
             () => malformedRun(malformedState, null, 1),
-            "Production Draygon intro rejects malformed restored movement without a ROM fallback");
+            "Production Draygon intro rejects a restored step past the traced path");
     }
 
 
@@ -203,4 +190,9 @@ internal static class DraygonIntroDanceDefinitionsVerification
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         return 0;
     }
+
+    /// <summary>The two movement bytes of one cartridge intro path record.</summary>
+    /// <param name="X">The signed X movement byte.</param>
+    /// <param name="Y">The signed Y movement byte.</param>
+    private readonly record struct NativeIntroRecord(byte X, byte Y);
 }

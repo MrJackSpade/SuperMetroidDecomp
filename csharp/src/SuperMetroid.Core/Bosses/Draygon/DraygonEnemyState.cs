@@ -65,11 +65,11 @@ public sealed class DraygonEnemyState
     public EightEightVector<RoomPixels> SwoopAcceleration { get; internal set; }
 
     /// <summary>
-    /// Byte position of the intro dance in its movement stream: zero when the encounter starts and advanced by four on
-    /// each of the dance's 1,232 updates, so it stays within 0..4,928. Each Evir reads it offset by its own negative
-    /// latency and waits while that sum is negative.
+    /// How many updates the intro dance has run: zero when the encounter starts and one more after each of the dance's
+    /// 1,232 updates. Each Evir takes the traced path's step this far past its own start delay, and waits while it has
+    /// not reached the delay.
     /// </summary>
-    public int FightIntroDanceIndex { get; internal set; }
+    public int IntroDanceStep { get; internal set; }
 
     /// <summary>
     /// Signed pixel offset written by the tail-whip instruction $A5:9E0A and added to the body's
@@ -84,13 +84,16 @@ public sealed class DraygonEnemyState
     /// </summary>
     public Position16<BackgroundPixels> BodyLayerPlacement { get; internal set; }
 
-    /// <summary>
-    /// The native table at $7E:9002 is written every four bytes and addressed by a byte
-    /// offset. This dense view stores those meaningful words at <c>offset / 4</c>.
-    /// </summary>
-    public ushort[] SwoopYPositions { get; } = new ushort[513];
+    /// <summary>The most heights a swoop path may hold; building a longer one fails.</summary>
+    internal const int SwoopPathCapacity = 512;
 
-    /// <summary>Number of generated descent samples, excluding the terminal reset-Y word.</summary>
+    /// <summary>
+    /// The swoop path: the body's height at each entry, from the swoop's lowest point up toward the reset height,
+    /// followed by the height the body started the swoop at.
+    /// </summary>
+    public int[] SwoopYPositions { get; } = new int[SwoopPathCapacity + 1];
+
+    /// <summary>How many heights the swoop path was built with, not counting the starting height after them.</summary>
     public int SwoopPathEntryCount { get; internal set; }
 
     /// <summary>Native long facing word: zero left, one right.</summary>
@@ -183,9 +186,6 @@ public sealed class DraygonEnemyState
     /// <summary>Number of physical object-$3B intro Evirs admitted to the shared pool.</summary>
     public int IntroEvirsSpawned { get; internal set; }
 
-    /// <summary>Number of times the opening dance routine advanced its four actors.</summary>
-    public int IntroDanceFrames { get; internal set; }
-
     /// <summary>Number of exact 64-frame turret-selection RNG draws observed.</summary>
     public int TurretCadenceChecks { get; internal set; }
 
@@ -195,66 +195,32 @@ public sealed class DraygonEnemyState
     /// </summary>
     internal HashSet<DraygonWallCannon> DisabledCannons { get; } = [];
 
-    /// <summary>The word holding the function timer or the swoop path cursor, according to <see cref="Function"/>.</summary>
-    private int _timerOrSwoopOffsetWord;
-
-    /// <summary>The swoop path's end cursor.</summary>
-    private int _swoopEndOffsetWord;
-
-    /// <summary>The horizontal velocity's whole pixels.</summary>
-    private int _velocityWholeWord;
-
-    /// <summary>The horizontal velocity's fraction in 65536ths of a pixel.</summary>
-    private int _velocityFractionWord;
-
     /// <summary>Bank-$A5 body-function address; body main AI dispatches this before copying coordinates to the three parts.</summary>
     public DraygonAiFunction Function { get; internal set; }
 
-    /// <summary>
-    /// Intro elapsed-frame count or burial-wait countdown according to <see cref="Function"/>. The cartridge keeps it in
-    /// the word that holds <see cref="SwoopOffset"/> during swoops.
-    /// </summary>
-    public WrappingCountdown FunctionTimer
-    {
-        get => WrappingCountdown.FromRaw(checked((ushort)_timerOrSwoopOffsetWord));
-        internal set => _timerOrSwoopOffsetWord = value.RawValue;
-    }
+    /// <summary>The intro's elapsed-frame count or the burial-wait countdown, according to <see cref="Function"/>.</summary>
+    public WrappingCountdown FunctionTimer { get; internal set; }
 
     /// <summary>
-    /// The swoop path cursor, a byte offset advanced or retreated by four per entry, kept in the word that holds
-    /// <see cref="FunctionTimer"/> outside swoops.
+    /// The swoop path entry whose height the body takes next: it counts down from <see cref="SwoopPathEntryCount"/>
+    /// to zero on the descent and back up on the ascent.
     /// </summary>
-    internal int SwoopOffset
+    internal int SwoopEntry
     {
-        get => _timerOrSwoopOffsetWord;
-        set => _timerOrSwoopOffsetWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-
-    /// <summary>The swoop path's end cursor, the byte offset one past its last entry.</summary>
-    internal int SwoopEndOffset
-    {
-        get => _swoopEndOffsetWord;
-        set => _swoopEndOffsetWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        get;
+        set => field = Ensure.BetweenInclusive(0, SwoopPathCapacity, value);
     }
 
     /// <summary>The unsigned 16.16 horizontal speed the swoop and goop passes add to or subtract from the body's X.</summary>
-    internal uint SwoopVelocity
-    {
-        get => SixteenSixteen.Compose(checked((ushort)_velocityWholeWord), checked((ushort)_velocityFractionWord));
-        set
-        {
-            _velocityWholeWord = unchecked((ushort)SixteenSixteen.WholeOf(value));
-            _velocityFractionWord = unchecked((ushort)value);
-        }
-    }
+    internal uint SwoopVelocity { get; set; }
 
     /// <summary>Empties the values the cartridge keeps in the body's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = DraygonAiFunction.None;
-        _timerOrSwoopOffsetWord = 0;
-        _swoopEndOffsetWord = 0;
-        _velocityWholeWord = 0;
-        _velocityFractionWord = 0;
+        FunctionTimer = WrappingCountdown.Start(0);
+        SwoopEntry = 0;
+        SwoopPathEntryCount = 0;
+        SwoopVelocity = 0;
     }
 }

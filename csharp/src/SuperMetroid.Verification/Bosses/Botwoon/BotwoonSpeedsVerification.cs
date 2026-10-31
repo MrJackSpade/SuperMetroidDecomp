@@ -53,7 +53,8 @@ internal static class BotwoonSpeedsVerification
         {
             int address = BotwoonSpeedDefinitions.MovementReferenceAddress + phase * 4 + 2;
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(expected, BotwoonSpeeds.ForHealthPhase(phase).SegmentSpacingBytes,
+            // The cartridge spaces segments by a byte distance into its four-byte history entries.
+            AssertEqual(expected, BotwoonSpeedDefinitions.HistoryEntryBytes * BotwoonSpeeds.ForHealthPhase(phase).SegmentSpacingEntries,
                 $"Botwoon native body spacing phase {phase}");
         }
         AssertThrows<InvalidDataException>(() => BotwoonSpeeds.ForHealthPhase(3), "Botwoon spacing invalid phase");

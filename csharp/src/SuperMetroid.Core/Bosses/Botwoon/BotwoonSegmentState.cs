@@ -21,4 +21,10 @@ internal sealed class BotwoonSegmentState(BotwoonSegmentProgram pose) : EnemyPro
 
     /// <summary>The count at which a dying segment falls.</summary>
     internal const int FallAt = 256;
+
+    /// <summary>The count a dying segment in the first projectile slot starts at.</summary>
+    internal const int FirstDeathDelay = 96;
+
+    /// <summary>How much higher each later projectile slot starts its dying segment's count, so later slots fall sooner.</summary>
+    internal const int DeathDelayPerSlot = 8;
 }

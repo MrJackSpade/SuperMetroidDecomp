@@ -111,11 +111,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // SpawnEprojWithGfx is called with arguments 24,22,...,0. The shared allocator
-        // searches native slots $22 down to $00, so retaining both orderings is essential:
-        // death delay is based on projectile slot while body spacing is based on argument.
-        for (int argument = 24; argument >= 0; argument -= 2)
-            SpawnBotwoonBodySegment(head, state, argument);
+        // Segments spawn from the one behind the head down to the tail. The projectile allocator hands out slots in
+        // its own order, so a segment's death delay follows its projectile slot while its body spacing follows its
+        // segment index; both orders are kept.
+        for (int segmentIndex = state.BodySegments.Length - 1; segmentIndex >= 0; segmentIndex--)
+            SpawnBotwoonBodySegment(head, state, segmentIndex);
 
         state.Function = BotwoonEnemyFunction.InitialDelay;
         state.MovementFunction = BotwoonMovementFunction.MoveTowardHole;
@@ -381,48 +381,42 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SegmentSpacingEntries = speed.SegmentSpacingEntries;
     }
 
-    /// <summary>Loads a path pointer, direction, and destination hole from the chosen descriptor.</summary>
+    /// <summary>Loads the chosen path, the way it is walked, its first step and the destination hole.</summary>
     private static void LoadBotwoonPathDescriptor(BotwoonEnemyState state)
     {
         BotwoonPathDescriptorDefinition descriptor =
             BotwoonNavigation.PathForChoice(state.PathChoice);
-        state.PathSampleIndex = descriptor.FirstSampleIndex;
-        state.PathDirection = descriptor.Direction;
+        state.PathIndex = descriptor.Path;
+        state.PathTraversal = descriptor.Traversal;
+        state.PathStep = descriptor.FirstStep;
         state.TargetHoleIndex = descriptor.TargetHoleIndex;
-        // A reverse stream starts at its closing separator; the first sample read is two before it.
-        if (state.PathDirection < 0)
-            state.PathSampleIndex -= 2;
         state.PathComplete = false;
         state.MovementFunction = BotwoonMovementFunction.FollowAuthoredPath;
     }
 
-    /// <summary>Consumes path samples according to current speed until a terminal sentinel is reached.</summary>
+    /// <summary>
+    /// Takes as many path steps as the current speed allows. Walking off either end of the path completes it; the
+    /// steps already taken on that update are then discarded, so the head does not move on its final update.
+    /// </summary>
     private static void FollowBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)
     {
+        bool backward = state.PathTraversal == BotwoonPathTraversal.Backward;
         Offset16<RoomPixels> total = Offset16<RoomPixels>.Zero;
-        int step = state.PathDirection < 0 ? -1 : 1;
-        for (int sample = 0; sample < state.Speed; sample++)
+        for (int taken = 0; taken < state.Speed; taken++)
         {
-            Offset16<RoomPixels> movement =
-                BotwoonNavigation.MovementSample(state.PathSampleIndex);
-            if (movement.X == sbyte.MinValue)
+            if (!BotwoonNavigation.HasStep(state.PathIndex, state.PathStep))
             {
                 state.PathComplete = true;
                 return;
             }
-            if (movement.Y == sbyte.MinValue)
-            {
-                state.PathComplete = true;
-                return;
-            }
-            total += movement;
-            state.PathSampleIndex += step;
+            total += BotwoonNavigation.Step(state.PathIndex, state.PathStep);
+            state.PathStep += backward ? -1 : 1;
         }
 
-        head.Position += state.PathDirection < 0 ? -total : total;
+        head.Position += backward ? -total : total;
     }
 
-    /// <summary>Writes the head's whole-pixel position into the 1024-byte history ring.</summary>
+    /// <summary>Writes the head's whole-pixel position into the head-position history ring.</summary>
     private static void RecordBotwoonHeadPosition(RoomEnemySlot head, BotwoonEnemyState state)
     {
         state.History[state.RingIndex] = head.Position.Whole;
@@ -432,9 +426,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void PositionBotwoonBody(BotwoonEnemyState state)
     {
         int historyIndex = BotwoonNavigationDefinitions.WrapHistoryIndex(state.RingIndex - state.SegmentSpacingEntries);
-        for (int argument = 24; argument >= 0; argument -= 2)
+        for (int segmentIndex = state.BodySegments.Length - 1; segmentIndex >= 0; segmentIndex--)
         {
-            int segmentIndex = argument >> 1;
             RoomEnemyProjectileSlot segment = state.Segment(segmentIndex);
 
             ToggleBotwoonSegmentAtHole(state, segmentIndex, historyIndex);
@@ -465,31 +458,23 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SavedHoleRingIndex = null;
     }
 
-    /// <summary>Faces each body sprite toward the preceding segment or head.</summary>
+    /// <summary>
+    /// Faces each body sprite toward the segment ahead of it, or the head: a segment inside the wall is hidden, the
+    /// tail segment (index zero) shows the tail cap and every other segment a body link.
+    /// </summary>
     private static void OrientBotwoonBody(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        for (int argument = 24; argument >= 0; argument -= 2)
+        int lastSegment = state.BodySegments.Length - 1;
+        for (int segmentIndex = lastSegment; segmentIndex >= 0; segmentIndex--)
         {
-            int segmentIndex = argument >> 1;
             RoomEnemyProjectileSlot segment = state.Segment(segmentIndex);
-            int extraAngle = state.SegmentInsideHole[segmentIndex] ? 256 : 0;
-            Offset16<RoomPixels> toLeader;
-            if (argument == 24)
-            {
-                toLeader = head.Position.Whole - segment.Position.Whole;
-            }
-            else
-            {
-                RoomEnemyProjectileSlot previous = state.Segment(segmentIndex + 1);
-                toLeader = previous.Position.Whole - segment.Position.Whole;
-                if (argument == 0)
-                    extraAngle += 512;
-            }
-
-            // The bearing word plus at most 768 keeps the selector's sixteen-bit wrap; the
-            // selector itself is at most 4094.
-            int angle = unchecked((ushort)(extraAngle + EnemyMath.CalculateBearing(toLeader).RawValue));
-            segment.StateOf<BotwoonSegmentState>().Pose = BotwoonSegmentProgram.FromSelector(2 * (angle >> 5));
+            RoomEnemyProjectileSlot? leader = segmentIndex == lastSegment ? null : state.Segment(segmentIndex + 1);
+            Offset16<RoomPixels> toLeader = (leader?.Position.Whole ?? head.Position.Whole) - segment.Position.Whole;
+            BotwoonSegmentProgramKind kind = state.SegmentInsideHole[segmentIndex] ? BotwoonSegmentProgramKind.Hidden
+                : segmentIndex == 0 ? BotwoonSegmentProgramKind.Tail
+                : BotwoonSegmentProgramKind.Body;
+            segment.StateOf<BotwoonSegmentState>().Pose =
+                BotwoonSegmentProgram.Toward(kind, EnemyMath.CalculateBearing(toLeader));
         }
     }
 
@@ -920,10 +905,13 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             });
     }
     /// <summary>Ports <c>EprojInit_BotwoonsBody</c> at <c>$86:EA31</c>.</summary>
+    /// <param name="head">Botwoon's head, whose position and graphics the segment starts with.</param>
+    /// <param name="state">Botwoon's state, which records the segment.</param>
+    /// <param name="segmentIndex">The segment's place in the body, zero (the tail) through twelve (behind the head).</param>
     internal void SpawnBotwoonBodySegment(
         RoomEnemySlot head,
         BotwoonEnemyState state,
-        int spawnArgument)
+        int segmentIndex)
     {
         RoomEnemyProjectileSlot? segment = _projectiles.AllocateEnemyProjectile();
         if (segment is null)
@@ -939,14 +927,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         segment.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
         segment.Velocity = segment.Velocity.WithY(new SignedEightEight(0));
 
-        // ai_var_A is the live spawn argument. Every nonzero segment begins with orientation
-        // $10; argument zero is the tail cap and begins at $30.
-        int orientation = spawnArgument != 0 ? 16 : 48;
-        BotwoonSegmentProgram pose = BotwoonSegmentProgram.FromSelector(orientation);
+        // Every segment, the tail cap included, starts hidden inside the wall.
+        BotwoonSegmentProgram pose = BotwoonSegmentProgram.Hidden;
         segment.StartAnimation(BotwoonProjectileAnimation.ForSegment(pose));
         segment.State = new BotwoonSegmentState(pose);
 
-        int segmentIndex = spawnArgument >> 1;
         state.BodySegments[segmentIndex] = segment;
         state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.Main;
         state.SegmentInsideHole[segmentIndex] = true;
@@ -978,9 +963,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BotwoonBodyFunction.BeginDying:
-                // The delay is based on native projectile index, not body order. Botwoon
-                // normally owns indexes $0A..$22 because allocation descended from $22.
-                segment.StateOf<BotwoonSegmentState>().DeathDelay = 4 * (segment.SlotIndex * 2) + 96;
+                // The delay follows the segment's projectile slot, not its place in the body.
+                segment.StateOf<BotwoonSegmentState>().DeathDelay =
+                    BotwoonSegmentState.FirstDeathDelay + BotwoonSegmentState.DeathDelayPerSlot * segment.SlotIndex;
                 state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.DyingDelay;
                 goto case BotwoonBodyFunction.DyingDelay;
 
@@ -1057,9 +1042,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         segment.CollisionOption = EnemyProjectileCollisionOption.NoCollision;
         LastBotwoonSoundEffect = BotwoonSoundDefinitions.Explosion;
 
-        // Native projectile index $0A is the last allocated body point and owns the
-        // synchronization flag. Mapping by retained spawn argument is equivalent while also
-        // remaining correct in an isolated audit that preoccupies lower projectile slots.
+        // The tail segment owns the synchronization flag.
         if (ReferenceEquals(state.BodySegments[0], segment))
             state.LastBodySegmentLanded = true;
     }

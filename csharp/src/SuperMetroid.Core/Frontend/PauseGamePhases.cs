@@ -13,9 +13,9 @@ internal sealed class PauseGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.Pausing"/>.</summary>
     internal void DispatchPausing(ControllerButton controllerInput)
     {
-        // `$82:8CEF` owns the force-blank setup frame: pause tiles, base maps,
-        // palette, inventory labels, and PPU bases are installed before state $0E.
-        // Keep accepting NMI so the controller's previous sample remains truthful.
+        // The pause preparation runs on a blank display: pause tiles, base maps,
+        // colours and inventory labels are installed before the pause fades in.
+        // The frame still begins, so the controller's previous sample remains truthful.
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         // The pause hook returns directly into `$82:8D16`, which sends the three
         // cartridge stop sequences before any pause graphics are initialized.
@@ -85,8 +85,8 @@ internal sealed class PauseGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.UnpausingB"/>.</summary>
     internal void DispatchUnpausingB(ControllerButton controllerInput)
     {
-        // Native state $11 restores gameplay PPU state, BG2, beam tiles, palette,
-        // hooks, HDMA, and animtiles under forced blank. Pause graphics live in a
+        // Unpausing restores gameplay's layers, beam tiles, colours,
+        // hooks, per-line effects and animated tiles on a blank display. Pause graphics live in a
         // separate PPU image here, so discarding it restores the untouched runtime
         // image without a host-authored reconstruction.
         SamusState resumedSamus = session.GameplayRuntime.Player.Samus ??
@@ -94,7 +94,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
                 "Pause teardown requires live Samus equipment state.");
         // EquipmentScreenCategory_ButtonResponse mutates the live equipped word,
         // but projectile character data and CGRAM are cached PPU resources. State
-        // `$11` reruns `$90:AC8D` before its accepted NMI; omitting that handoff
+        // Unpausing reapplies the beam's tiles and colours before its frame; omitting that handoff
         // made the new damage/type word immediate while art stayed stale until the
         // next room load happened to invoke the same routine.
         session.GameplayRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(resumedSamus.EquippedBeams);

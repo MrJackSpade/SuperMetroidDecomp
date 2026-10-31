@@ -5,12 +5,12 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>
 /// The one place hosts compose a game session, from the services they supply through narrow interfaces. Lifetimes: the
 /// installed <see cref="IInstalledSessionContent"/> is immutable, host-owned and shared; the game (its saves, audio,
-/// display, menus and lag policies) lives until the host restarts or replaces it with a restored state; a gameplay
+/// display, menus and compatibility services) lives until the host restarts or replaces it with a restored state; a gameplay
 /// runtime lives inside it from a game or demo start to title, game over or soft reset (<see cref="GameplayRuntimeFactory"/>).
 /// </summary>
 public static class GameSessionComposer
 {
-    /// <summary>Creates a lag-free game with its installed content bound before the first frame.</summary>
+    /// <summary>Creates a game running on its own timing, with its installed content bound before the first frame.</summary>
     /// <param name="saves">The battery-backed saves the session owns.</param>
     /// <param name="gameOptions">The options the game reads.</param>
     /// <param name="content">The installed content.</param>

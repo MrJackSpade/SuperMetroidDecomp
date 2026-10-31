@@ -42,7 +42,7 @@ internal sealed class FrontendSession
 
     /// <summary>Shared fade clock for frontend transitions between rendered phases.</summary>
     internal readonly ScreenFadeTimer screenFade = new();
-    /// <summary>Accepted menu NMI counters used by frontend animation and input timing.</summary>
+    /// <summary>The menu's retained layer-1 position, handed to and from each gameplay runtime.</summary>
     internal readonly MenuLayer1Retention menuLayer1 = new();
 
     /// <summary>The session's accepted-frame counters <c>$05B5/$05B6</c>: every runtime it creates counts on them.</summary>
@@ -211,9 +211,9 @@ internal sealed class FrontendSession
     internal event Action? SaveRamChanged;
     /// <summary>Raises the game's save-RAM-changed event after translated code changed save RAM.</summary>
     internal void RaiseSaveRamChanged() => SaveRamChanged?.Invoke();
-    /// <summary>Current value of the native game-state word at WRAM $0998.</summary>
+    /// <summary>The phase the game is in.</summary>
     public SuperMetroidGameState GameState { get; internal set; } = SuperMetroidGameState.Reset;
-    /// <summary>The hardware-timing policies fixed at construction; production uses the lag-free defaults.</summary>
+    /// <summary>The compatibility services fixed at construction; production uses the game's own timing.</summary>
     internal SuperMetroidGameHostServices HostServices { get; }
     /// <summary>How far room loading has progressed; see <see cref="IRoomLoadProgress"/>.</summary>
     internal IRoomLoadProgress RoomLoadProgress => HostServices.RoomLoadProgress;
@@ -249,7 +249,7 @@ internal sealed class FrontendSession
             foreach (MusicRequest request in scope.Enemies.Audio.ConsumeInitializationMusicDelayed8())
                 audio.QueueMusicDelayed8(request);
 
-        // The message-box selector is an NMI-only owner, not part of the gameplay
+        // The message-box save choice runs outside gameplay, not part of the gameplay
         // publication generation below. It has explicit consume semantics so its one-shot
         // request remains audible without making stale enemy/PLM lists eligible again.
         if (runtime?.MessageBoxes.ConsumeMessageBoxSelectionSoundRequest() == true)
@@ -262,15 +262,15 @@ internal sealed class FrontendSession
         if (runtime?.Room.Scope?.Plms.Stations.ConsumeSavingSoundRequest() is { } saving)
             audio.QueueSound(saving);
         // Suit setup resumes from the message close boundary, outside normal gameplay
-        // publication generations. Consume once so HDMA-only frames cannot repeat it.
+        // publication generations. Consume once so updates without gameplay cannot repeat it.
         if (runtime?.SuitPickup.ConsumeTransformationSoundRequest() == true)
             audio.QueueSound(Library2Sound.SuitAcquired, maximumQueued: SoundQueueLimit.Max6,
                 soundSuppressed: runtime.SuitPickup.TransformationSoundSuppressed);
 
-        // Frontend states sometimes accept NMIs without running the state-eight owner list.
+        // Frontend states sometimes run updates without running gameplay.
         // In particular, the door coroutine waits for all unread sound-ring entries to
-        // drain. NMI identity cannot guard this handoff: re-reading the last enemy or PLM
-        // publication during each wait NMI perpetually refills that ring. Consume only a
+        // drain. The update count cannot guard this handoff: re-reading the last enemy or PLM
+        // publication during each waiting update perpetually refills that ring. Consume only a
         // newly completed gameplay publication instead.
         if (runtime is null ||
             runtime.FrameBoundary.CompletedGameplayAudioPublication ==
@@ -581,7 +581,7 @@ internal sealed class FrontendSession
     internal AttractDemoSchedule Demo { get; } = new();
     /// <summary>Unlocks the fourth demo set only after a valid completed-game save exists.</summary>
     internal int AvailableDemoSetCount() => bootDemoSetCount;
-    /// <summary>The NMI waits the current loading dispatch still owes.</summary>
+    /// <summary>The waiting updates the current game load still owes.</summary>
     internal GameLoadingWait GameLoading { get; } = new();
     /// <summary>
     /// The loading state state six branches on (<c>SRAMMirror_LoadingGameState</c>): a save continued
@@ -591,15 +591,15 @@ internal sealed class FrontendSession
     /// <summary>Selects the branch state six loads by.</summary>
     internal void RouteLoading(SaveLoadingGameState route) => StateSixLoadingRoute = route;
     /// <summary>
-    /// True when the next update is an NMI continuation inside the loading dispatch rather
-    /// than a new main-loop dispatch, so the main loop's RNG call is absent.
+    /// True when the next update continues the load's wait rather
+    /// than starting a new update of the loading phase, so the per-update random advance is absent.
     /// </summary>
     internal bool ResumesGameLoadingWait => GameLoading.Resumes;
     /// <summary>The downward elevator's wait before destination loading resumes.</summary>
     internal DownwardsElevatorWait DownwardsElevator { get; } = new();
     /// <summary>The session's random-number word, which the frontend and every gameplay runtime share.</summary>
     internal SharedRandom Random { get; }
-    /// <summary>A soft reset clears bank $7E, discarding every gameplay owner; the menu owners keep the RNG and NMI counters.</summary>
+    /// <summary>A soft reset discards every gameplay owner; the menu owners keep the random generator and the frame clock.</summary>
     internal void DiscardRuntime() => runtime = null;
     /// <summary>Transfers the layer-one position back to the frontend before dropping gameplay state.</summary>
     internal void ReleaseRuntime()

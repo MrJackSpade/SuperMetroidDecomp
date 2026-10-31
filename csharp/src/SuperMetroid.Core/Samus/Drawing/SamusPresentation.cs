@@ -183,7 +183,7 @@ internal sealed class SamusPresentation
         if (samus.Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
             samus.Kinematics.YDirection != SamusVerticalDirection.Down &&
             samus.AnimationFrame == 1 &&
-            samus.AnimationFrameTimer.RawValue == 1)
+            samus.AnimationFrameTimer.IsAt(1))
         {
             samus.AnimationFrameTimer = WrappingCountdown.Start(4);
         }

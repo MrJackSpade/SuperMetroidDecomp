@@ -308,7 +308,7 @@ internal sealed class MotherBrainRainbowAndDeath
         state.LowerNeckMovementIndex = sequence.State.LowerNeckMovementIndex;
         state.UpperNeckMovementIndex = sequence.State.UpperNeckMovementIndex;
         if (sequence.ThirdPhaseFight.Phase3NeckPhase == MotherBrainPhase3NeckPhase.HyperBeamRecoil &&
-            sequence.ThirdPhaseFight.Phase3NeckFunctionTimer.RawValue == 10)
+            sequence.ThirdPhaseFight.Phase3NeckFunctionTimer.IsAt(10))
         {
             // `$C395` loads `$32` during the one-shot setup call, immediately before the
             // fallthrough decrements neck timer `$0B` to `$0A`. The physical draw hook owns

@@ -207,7 +207,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         // one/underflow. The engine sound is requested before the reload, exactly as it is in
         // GunshipTop_Main; this periodic producer continues while the ship is idling/bobbing.
         CountdownStep bottomTimer = WrappingCountdown.FromRaw(checked((ushort)Part(bottom).EngineSoundTimer)).Decrement();
-        Part(bottom).EngineSoundTimer = bottomTimer.Value;
+        Part(bottom).EngineSoundTimer = bottomTimer.Remaining.RemainingFrames;
         if (bottomTimer.IsZeroOrNegative)
         {
             _audio.QueueEnemySound(Library2Sound.GunshipHover, priority: SoundRequestPriority.Normal);
@@ -411,7 +411,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     internal void StepGunshipBob(RoomEnemySlot top)
     {
         CountdownStep bobTimer = WrappingCountdown.FromRaw(checked((ushort)Part(top).BobTimer)).Decrement();
-        Part(top).BobTimer = bobTimer.Value;
+        Part(top).BobTimer = bobTimer.Remaining.RemainingFrames;
         if (!bobTimer.IsZeroOrNegative)
             return;
 
@@ -468,7 +468,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private static bool TickGunshipFunctionTimer(RoomEnemySlot top)
     {
         CountdownStep functionTimer = WrappingCountdown.FromRaw(checked((ushort)Part(top).FunctionTimer)).Decrement();
-        Part(top).FunctionTimer = functionTimer.Value;
+        Part(top).FunctionTimer = functionTimer.Remaining.RemainingFrames;
         return functionTimer.IsZeroOrNegative;
     }
 

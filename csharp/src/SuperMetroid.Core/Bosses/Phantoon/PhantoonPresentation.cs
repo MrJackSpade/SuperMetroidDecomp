@@ -122,7 +122,7 @@ internal sealed class PhantoonPresentation
     internal static bool TickPhantoonFunctionTimer(PhantoonPartState body)
     {
         CountdownStep step = WrappingCounter.Decrement(checked((ushort)body.FunctionTimer));
-        body.FunctionTimer = step.Value;
+        body.FunctionTimer = step.Remaining.RemainingFrames;
         return step.IsZeroOrNegative;
     }
 

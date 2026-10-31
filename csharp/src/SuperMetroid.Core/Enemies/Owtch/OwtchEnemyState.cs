@@ -44,7 +44,7 @@ public sealed class OwtchEnemyState
     internal bool RiseOnePixel()
     {
         CountdownStep step = WrappingCounter.Decrement(checked((ushort)BurialDepth));
-        BurialDepth = step.Value;
+        BurialDepth = step.Remaining.RemainingFrames;
         return step.IsZero;
     }
 

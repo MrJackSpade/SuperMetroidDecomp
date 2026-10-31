@@ -18,9 +18,9 @@ internal static class EnemyProgramAnimation
     internal static bool Expire(RoomEnemySlot slot)
     {
         Ensure.NotNull(slot);
-        int oldTimer = slot.InstructionTimer.RawValue;
-        slot.InstructionTimer = slot.InstructionTimer.Decrement().Remaining;
-        if (oldTimer == 1)
+        CountdownStep frameStep = slot.InstructionTimer.Decrement();
+        slot.InstructionTimer = frameStep.Remaining;
+        if (frameStep.IsZero)
             return true;
         slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
         return false;

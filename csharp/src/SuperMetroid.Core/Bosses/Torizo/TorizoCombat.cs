@@ -122,7 +122,7 @@ internal sealed class TorizoCombat
     internal void ApplyBombTorizoHurt(RoomEnemySlot torizo)
     {
         _body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
-        if ((torizo.FlashTimer.RawValue & 1) == 0)
+        if (!torizo.FlashTimer.IsInAlternatePhase(1))
         {
             if (torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo)
                 LoadGoldenTorizoHealthPalette(torizo.Health);

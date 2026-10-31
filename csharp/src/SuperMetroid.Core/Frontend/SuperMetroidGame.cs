@@ -379,7 +379,7 @@ public sealed class SuperMetroidGame
             new GamePhase(SuperMetroidGameState.MadeItToCeresElevator,
                 DispatchRandomStep.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchMadeItToCeresElevator(controllerInput, gameplayAudio),
-                name: () => Session.ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator ? $"Ceres elevator departure ({Session.ceresDeparture.HoldFramesRemaining.RawValue})" : Session.Runtime?.Room.CeresElevatorArrival is { IsComplete: false } ? "Ceres elevator arrival" : "Ceres controls unlocked"),
+                name: () => Session.ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator ? $"Ceres elevator departure ({Session.ceresDeparture.HoldFramesRemaining.RemainingFrames})" : Session.Runtime?.Room.CeresElevatorArrival is { IsComplete: false } ? "Ceres elevator arrival" : "Ceres controls unlocked"),
             new GamePhase(SuperMetroidGameState.BlackoutFromCeres,
                 DispatchRandomStep.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchBlackoutFromCeres(controllerInput, gameplayAudio),
@@ -490,7 +490,7 @@ public sealed class SuperMetroidGame
             $"room={GameplayActiveRoom?.Name}; roomState={GameplayActiveRoomState?.Name}; door={GameplayActiveDoor?.Name}";
         if (Session.Runtime?.Player.Samus is not { } samus)
             return location + "; Samus=not initialized";
-        return location + $"; pose={samus.Pose}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer.RawValue}; " +
+        return location + $"; pose={samus.Pose}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer.RemainingFrames}; " +
             $"animatedPose={samus.AnimatedPose}; position={samus.Position.X.Whole},{samus.Position.Y.Whole}; " +
             $"input=${Session.Runtime.Controller1.Current:X}; newlyPressed=${Session.Runtime.Controller1.NewlyPressed:X}; inputLocked={samus.Control.AlphaLocked}; " +
             $"drainedPhase={samus.Drained.Phase}; drainedHandler={samus.Drained.GetUpHandler}; " +

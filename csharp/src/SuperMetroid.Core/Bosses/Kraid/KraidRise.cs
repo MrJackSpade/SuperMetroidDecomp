@@ -360,7 +360,7 @@ internal sealed class KraidRise
             case KraidAiFunction.RaiseRocksEvery16Frames:
                 RestrictSamusToKraidFirstScreen(samus);
                 CountdownStep slowRockStep = WrappingCountdown.FromRaw(checked((ushort)state.Parts[body.SlotIndex].RisingRockTimer)).Decrement();
-                state.Parts[body.SlotIndex].RisingRockTimer = slowRockStep.Remaining.RawValue;
+                state.Parts[body.SlotIndex].RisingRockTimer = slowRockStep.Remaining.RemainingFrames;
                 if (slowRockStep.IsZero)
                 {
                     state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseRocksEvery8Frames;
@@ -375,7 +375,7 @@ internal sealed class KraidRise
             case KraidAiFunction.RaiseRocksEvery8Frames:
                 RestrictSamusToKraidFirstScreen(samus);
                 CountdownStep fastRockStep = WrappingCountdown.FromRaw(checked((ushort)state.Parts[body.SlotIndex].RisingRockTimer)).Decrement();
-                state.Parts[body.SlotIndex].RisingRockTimer = fastRockStep.Remaining.RawValue;
+                state.Parts[body.SlotIndex].RisingRockTimer = fastRockStep.Remaining.RemainingFrames;
                 if (fastRockStep.IsZero)
                 {
                     state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseBody;
@@ -389,7 +389,7 @@ internal sealed class KraidRise
 
             case KraidAiFunction.RaiseBody:
                 RestrictSamusToKraidFirstScreen(samus);
-                if ((_earthquake.EarthquakeTimer.RawValue & 5) == 0)
+                if (_earthquake.EarthquakeTimer.CyclePhase(1, 8) is 0 or 2)
                     RequestKraidRisingRock(body, state);
                 body.Position = body.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole +
                     ((body.Position.Y.Whole & 2) == 0 ? -1 : 1))));

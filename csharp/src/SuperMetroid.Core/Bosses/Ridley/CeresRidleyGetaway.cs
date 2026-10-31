@@ -239,7 +239,7 @@ internal sealed class CeresRidleyGetaway
     /// </summary>
     internal void TickCeresRidleySelfDestruct(RidleyEnemyState state)
     {
-        switch (state.FunctionTimer.RawValue)
+        switch (state.FunctionTimer.RemainingFrames)
         {
             case 0:
                 // $A6:C062 copies four already-live colors before the warning graphics
@@ -331,7 +331,7 @@ internal sealed class CeresRidleyGetaway
 
             default:
                 throw new InvalidDataException(
-                    $"Ceres self-destruct phase ${state.FunctionTimer.RawValue:X4} is not a native even dispatcher value.");
+                    $"Ceres self-destruct phase {state.FunctionTimer} is not a native even dispatcher value.");
         }
     }
 

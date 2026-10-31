@@ -177,7 +177,7 @@ public sealed class SamusCrystalFlashState
         RaiseTimer = WrappingCountdown.Start(9);
         DrainingAmmo = CrystalFlashAmmoKind.Missiles;
         AmmoDecrementTimer = WrappingCountdown.Start(10);
-        samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer.RawValue);
+        samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer.RemainingFrames);
         RaisedPosition = Position16<RoomPixels>.Zero;
         CrystalPaletteTimer = WrappingCountdown.Start(1);
         SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
@@ -187,7 +187,7 @@ public sealed class SamusCrystalFlashState
         // latter is also Speed Booster's palette timer, so preserve the live aliased value
         // rather than silently inventing the usual zero initialization.
         samus.HorizontalSpeed.CyclePaletteStep = 0;
-        BodyPaletteRecordOffset = samus.HorizontalSpeed.SpecialPaletteTimer.RawValue;
+        BodyPaletteRecordOffset = samus.HorizontalSpeed.SpecialPaletteTimer.RemainingFrames;
         BubbleEffectRequested = false;
         ActivationSoundRequested = false;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
@@ -298,7 +298,7 @@ public sealed class SamusCrystalFlashState
         SamusEnergyRestoration.Restore(samus, 50);
         CountdownStep ammoTimer = AmmoDecrementTimer.Decrement();
         AmmoDecrementTimer = ammoTimer.Remaining;
-        samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer.RawValue);
+        samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer.RemainingFrames);
         bool timerExpired = ammoTimer.IsZeroOrNegative;
         if (!timerExpired)
             return;
@@ -306,7 +306,7 @@ public sealed class SamusCrystalFlashState
         if (DrainingAmmo != CrystalFlashAmmoKind.PowerBombs)
         {
             AmmoDecrementTimer = WrappingCountdown.Start(10);
-            samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer.RawValue);
+            samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer.RemainingFrames);
             DrainingAmmo = DrainingAmmo == CrystalFlashAmmoKind.Missiles
                 ? CrystalFlashAmmoKind.SuperMissiles
                 : CrystalFlashAmmoKind.PowerBombs;

@@ -242,7 +242,7 @@ internal sealed class BeamFiring
         {
             // Consistent state cannot arrive here. Match the producer's defensive rollback
             // so a debugger mutation does not leave the count permanently above five.
-            _slotTable.ProjectileCounter = WrappingCounter.Decrement(_slotTable.ProjectileCounter).Value;
+            _slotTable.ProjectileCounter = WrappingCounter.DecrementWord(_slotTable.ProjectileCounter);
             return new BeamShot(null, null);
         }
 
@@ -255,7 +255,7 @@ internal sealed class BeamFiring
 
         if (SamusProjectileDirectionCodec.TryFromAimIndex(direction) is not { } aim)
         {
-            _slotTable.ProjectileCounter = WrappingCounter.Decrement(_slotTable.ProjectileCounter).Value;
+            _slotTable.ProjectileCounter = WrappingCounter.DecrementWord(_slotTable.ProjectileCounter);
             return new BeamShot(null, null);
         }
 
@@ -340,7 +340,7 @@ internal sealed class BeamFiring
         int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
         {
-            _slotTable.ProjectileCounter = WrappingCounter.Decrement(_slotTable.ProjectileCounter).Value;
+            _slotTable.ProjectileCounter = WrappingCounter.DecrementWord(_slotTable.ProjectileCounter);
             return new BeamShot(null, null);
         }
 
@@ -349,7 +349,7 @@ internal sealed class BeamFiring
         int direction = SamusPoseMetadata.ReadShotDirection(samus);
         if (SamusProjectileDirectionCodec.TryFromAimIndex(direction) is not { } aim)
         {
-            _slotTable.ProjectileCounter = WrappingCounter.Decrement(_slotTable.ProjectileCounter).Value;
+            _slotTable.ProjectileCounter = WrappingCounter.DecrementWord(_slotTable.ProjectileCounter);
             return new BeamShot(null, null);
         }
         slot.Direction = aim;

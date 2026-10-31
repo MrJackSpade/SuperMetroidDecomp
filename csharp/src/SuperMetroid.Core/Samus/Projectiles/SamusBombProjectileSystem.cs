@@ -615,7 +615,7 @@ public sealed class SamusBombProjectileSystem
         else if (!slot.BombTimer.IsZero)
         {
             slot.BombTimer = slot.BombTimer.Decrement().Remaining;
-            if (slot.BombTimer.RawValue == 15)
+            if (slot.BombTimer.IsAt(15))
             {
                 // The slow and fast lists have identical four-frame layouts and differ by
                 // $1C bytes. Adding to the live next-instruction pointer preserves phase.
@@ -1090,7 +1090,7 @@ public sealed class SamusBombProjectileSystem
             SamusProjectileFamily typeFamily = slot.Type.Family;
             if (typeFamily is not (
                     SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb) ||
-                slot.BombTimer.RawValue != 8)
+                !slot.BombTimer.IsAt(8))
                 continue;
 
             // CMP SamusX,bombX: equal is straight; Samus left of the bomb launches left;

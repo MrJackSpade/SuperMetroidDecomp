@@ -145,9 +145,9 @@ internal sealed class BeamCombos
             _animation.ClearProjectile(slot);
             return outward ? null : Library1Sound.IceSpecialAttackEnd;
         }
-        int oldTimer = slot.TrailTimer.RawValue;
-        slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
-        if (oldTimer == 1)
+        CountdownStep trailStep = slot.TrailTimer.Decrement();
+        slot.TrailTimer = trailStep.Remaining;
+        if (trailStep.IsZero)
         {
             slot.TrailTimer = WrappingCountdown.Start(4);
             _trails.SpawnTrail(slot);
@@ -258,9 +258,9 @@ internal sealed class BeamCombos
             if (!falling) _animation.ClearProjectile(_slotTable.Slots[partner]);
             return null;
         }
-        int previousTimer = slot.TrailTimer.RawValue;
-        slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
-        if (previousTimer == 1)
+        CountdownStep trailStep = slot.TrailTimer.Decrement();
+        slot.TrailTimer = trailStep.Remaining;
+        if (trailStep.IsZero)
         {
             slot.TrailTimer = WrappingCountdown.Start(4);
             _trails.SpawnTrail(slot);
@@ -366,9 +366,9 @@ internal sealed class BeamCombos
             return BeamComboDefinitions.WaveRemovalSound;
         }
         int oldXSpeed = slot.Velocity.X.SignedRawValue;
-        int oldTimer = slot.TrailTimer.RawValue;
-        slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
-        if (oldTimer == 1)
+        CountdownStep trailStep = slot.TrailTimer.Decrement();
+        slot.TrailTimer = trailStep.Remaining;
+        if (trailStep.IsZero)
         {
             slot.TrailTimer = WrappingCountdown.Start(4);
             _trails.SpawnTrail(slot);

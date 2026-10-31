@@ -233,7 +233,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case RinkaEnemyFunction.AimDelay:
                 state.DelayTimer = state.DelayTimer.Decrement().Remaining;
-                if (!EnemyMath.IsNegative16(state.DelayTimer.RawValue))
+                if (!state.DelayTimer.IsNegative)
                     return;
                 if (samus is null)
                     throw new InvalidOperationException("Rinka homing requires the active Samus actor.");
@@ -263,7 +263,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case RinkaEnemyFunction.DeathRespawnDelay:
                 state.DelayTimer = state.DelayTimer.Decrement().Remaining;
-                if (!EnemyMath.IsNegative16(state.DelayTimer.RawValue))
+                if (!state.DelayTimer.IsNegative)
                     return;
                 slot.Health = RinkaHealth;
                 ReinitializeRinka(slot, state);

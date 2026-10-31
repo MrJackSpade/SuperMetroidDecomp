@@ -337,7 +337,7 @@ internal sealed class KraidLimbs
         if (phaseTimer.IsZero)
             return;
         CountdownStep step = phaseTimer.Decrement();
-        _access.Part(foot).FunctionTimer = step.Remaining.RawValue;
+        _access.Part(foot).FunctionTimer = step.Remaining.RemainingFrames;
         if (step.IsZero)
         {
             _access.Part(foot).Function = part.NextFunction;

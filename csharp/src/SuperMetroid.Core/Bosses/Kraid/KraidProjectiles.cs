@@ -441,7 +441,7 @@ internal sealed class KraidProjectiles
         lint.Position = lint.Position.WithWholeX(unchecked((ushort)(
             _access.Part(lint).LintXOffset + _slotTable.Slots[0].Position.X.Whole - _access.Part(lint).LintTravel)));
         CountdownStep charge = WrappingCountdown.FromRaw(checked((ushort)_access.Part(lint).FunctionTimer)).Decrement();
-        _access.Part(lint).FunctionTimer = charge.Remaining.RawValue;
+        _access.Part(lint).FunctionTimer = charge.Remaining.RemainingFrames;
         if (charge.IsZero)
         {
             _access.Part(lint).Function = KraidAiFunction.LintFire;

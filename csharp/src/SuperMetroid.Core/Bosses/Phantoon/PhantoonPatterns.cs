@@ -76,7 +76,7 @@ internal sealed class PhantoonPatterns
         StepPhantoonCasualFlameSchedule(state);
 
         CountdownStep figureEight = WrappingCounter.Decrement(checked((ushort)state.Parts[state.Eye.SlotIndex].ClosedTimer));
-        state.Parts[state.Eye.SlotIndex].ClosedTimer = figureEight.Value;
+        state.Parts[state.Eye.SlotIndex].ClosedTimer = figureEight.Remaining.RemainingFrames;
         // Native DEC/BEQ/BPL admits both zero and negative expiration. Waiting
         // for underflow adds a movement/flame frame before the eye-opening handoff.
         if (!figureEight.IsZeroOrNegative)
@@ -226,7 +226,7 @@ internal sealed class PhantoonPatterns
     {
         RoomEnemySlot mouth = state.Mouth;
         CountdownStep holdStep = WrappingCounter.Decrement(checked((ushort)state.Parts[mouth.SlotIndex].CasualFlameHold));
-        state.Parts[mouth.SlotIndex].CasualFlameHold = holdStep.Value;
+        state.Parts[mouth.SlotIndex].CasualFlameHold = holdStep.Remaining.RemainingFrames;
         if (!holdStep.IsZeroOrNegative)
             return;
 
@@ -476,7 +476,7 @@ internal sealed class PhantoonPatterns
         StepPhantoonFigureEight(body, state.Parts[body.SlotIndex], state.Parts[eye.SlotIndex]);
         StepPhantoonCasualFlameSchedule(state);
         CountdownStep closedStep = WrappingCounter.Decrement(checked((ushort)state.Parts[eye.SlotIndex].ClosedTimer));
-        state.Parts[eye.SlotIndex].ClosedTimer = closedStep.Value;
+        state.Parts[eye.SlotIndex].ClosedTimer = closedStep.Remaining.RemainingFrames;
         // $A7:D836 DEC/BEQ/BPL: reaching zero expires the timer, as does underflow.
         if (!closedStep.IsZeroOrNegative)
             return;

@@ -151,8 +151,8 @@ internal sealed class KraidHead
         if (headTimer.IsZero)
             return 0;
         CountdownStep step = headTimer.Decrement();
-        state.Parts[body.SlotIndex].HeadTimer = step.Remaining.RawValue;
-        return step.IsZero ? ExecuteKraidHeadInstruction(body, state) : headTimer.RawValue;
+        state.Parts[body.SlotIndex].HeadTimer = step.Remaining.RemainingFrames;
+        return step.IsZero ? ExecuteKraidHeadInstruction(body, state) : checked((ushort)headTimer.RemainingFrames);
     }
 
     /// <summary>

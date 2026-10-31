@@ -19,7 +19,7 @@ public static class SamusPowerBombFuse
         if (fuse.IsZero)
             return new(WrappingCountdown.FromRaw(SamusPowerBombFuseData.ExplosionStartedSentinel), FastAnimation: false,
                 SpawnExplosion: true, DeleteProjectile: false);
-        return new(fuse.Remaining, FastAnimation: fuse.Remaining.RawValue == SamusPowerBombFuseData.FastAnimationTimer,
+        return new(fuse.Remaining, FastAnimation: fuse.Remaining.IsAt(SamusPowerBombFuseData.FastAnimationTimer),
             SpawnExplosion: false, DeleteProjectile: false);
     }
 

@@ -217,7 +217,7 @@ internal sealed class CeresRidleyBabyScene
             // index is the low two bits of the earthquake timer, but the table contains
             // words and the assembly omits an ASL. Preserve that retail byte-index read:
             // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
-            int quakeXOffset = CeresDoorQuake.XOffset(_earthquake.EarthquakeTimer.RawValue);
+            int quakeXOffset = CeresDoorQuake.XOffset(_earthquake.EarthquakeTimer.RemainingFrames);
             _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame,
                 new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))),
                 new EncounterSpriteColouring(CeresDoorColourDefinitions.Inactive));

@@ -467,7 +467,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SpriteColouring colouring = SelectYappingMawFrozenColouring(
             state.OriginalColouring,
-            slot.FrozenTimer.RawValue);
+            slot.FrozenTimer.RemainingFrames);
         foreach (RoomEnemyProjectileSlot? body in state.BodyProjectiles)
         {
             if (body is not null)

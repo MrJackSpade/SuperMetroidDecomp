@@ -31,7 +31,7 @@ public sealed class RoomMainCarryover
     public int Fraction => Held;
 
     /// <summary>Leaves a countdown.</summary>
-    public void LeaveCountdown(WrappingCountdown countdown) => Held = countdown.RawValue;
+    public void LeaveCountdown(WrappingCountdown countdown) => Held = countdown.RemainingFrames;
 
     /// <summary>Leaves the fraction of a position.</summary>
     /// <param name="fraction">The fraction, 0 through 65535.</param>

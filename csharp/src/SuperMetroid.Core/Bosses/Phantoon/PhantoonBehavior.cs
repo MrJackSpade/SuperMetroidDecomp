@@ -299,7 +299,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ApplyPhantoonHurt(RoomEnemySlot body, PhantoonEnemyState state)
     {
         PhantoonPartState tentacles = state.Parts[state.Tentacles.SlotIndex];
-        bool restoreHealthPalette = body.FlashTimer.RawValue == 8 ||
+        bool restoreHealthPalette = body.FlashTimer.IsAt(8) ||
             (body.FrameCounter & 2) == 0 && tentacles.HurtFlashShown;
         if (restoreHealthPalette)
         {

@@ -123,7 +123,7 @@ public sealed class SamusAtmosphericEffectsState
             {
                 // Negative timers suppress both drawing and motion. Exactly `$8000` is a
                 // delayed-start marker: reload the current frame's ROM duration and draw it.
-                if (slot.AnimationTimer.RawValue != DelayedStartMarker)
+                if (!slot.AnimationTimer.IsAt(DelayedStartMarker))
                     continue;
                 slot.AnimationTimer =
                     WrappingCountdown.FromRaw(SamusAtmosphericAnimations.FrameTimer(type, frameBeforeTimer));

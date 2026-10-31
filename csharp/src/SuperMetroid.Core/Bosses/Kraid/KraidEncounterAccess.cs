@@ -76,7 +76,7 @@ internal sealed class KraidEncounterAccess
         if (functionTimer.IsZero)
             return;
         CountdownStep step = functionTimer.Decrement();
-        part.FunctionTimer = step.Remaining.RawValue;
+        part.FunctionTimer = step.Remaining.RemainingFrames;
         if (step.IsZero)
             part.Function = part.NextFunction;
     }

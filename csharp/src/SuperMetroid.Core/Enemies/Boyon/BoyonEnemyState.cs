@@ -88,7 +88,7 @@ public sealed class BoyonEnemyState
     internal bool RetreatSpeedTableIndex()
     {
         CountdownStep step = WrappingCounter.Decrement(checked((ushort)SpeedTableIndex));
-        SpeedTableIndex = step.Value;
+        SpeedTableIndex = step.Remaining.RemainingFrames;
         return step.IsNegative;
     }
 

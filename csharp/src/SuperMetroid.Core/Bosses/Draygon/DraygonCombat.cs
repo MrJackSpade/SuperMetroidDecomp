@@ -104,7 +104,7 @@ internal sealed class DraygonCombat
         DraygonEnemyState state,
         SamusState? samus)
     {
-        bool whiteFrame = (body.FlashTimer.RawValue & 2) != 0;
+        bool whiteFrame = body.FlashTimer.IsInAlternatePhase(2);
         (_bossArtwork.Artwork?.DraygonColors ?? throw new InvalidOperationException(
             "Draygon damage requires installed color artwork."))
             .ApplyHurt(_presentation.Colours, whiteFrame, RequireHealthPaletteBand(state));

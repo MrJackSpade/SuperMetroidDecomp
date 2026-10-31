@@ -742,7 +742,7 @@ false);
         if (PaletteType is not (SamusSpecialPaletteType.SpeedBoosterShine or SamusSpecialPaletteType.Shinesparking))
             return false;
 
-        if (PaletteType == SamusSpecialPaletteType.SpeedBoosterShine && ShineTimer.RawValue == 170)
+        if (PaletteType == SamusSpecialPaletteType.SpeedBoosterShine && ShineTimer.IsAt(170))
         {
             StoredShineWarningSoundRequested = true;
             StoredShineWarningSoundSuppressed = _audioPowerBomb?.IsActive == true;

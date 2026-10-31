@@ -52,7 +52,7 @@ internal sealed class EndingShootingStars
                 continue;
             }
             star.Timer = star.Timer.Decrement().Remaining;
-            if ((short)star.Timer.RawValue <= 0)
+            if (star.Timer.IsZeroOrNegative)
             {
                 star.Timer = WrappingCountdown.FromRaw(definition.Period);
                 star.AnimationFrame++;

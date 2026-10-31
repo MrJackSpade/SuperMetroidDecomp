@@ -1,28 +1,33 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// Result of one native 65C816 word decrement. The flags describe the wrapped result, not
-/// the pre-decrement value, matching the processor's DEC/BEQ/BMI/BPL branch sequence.
+/// The outcome of taking one frame away from a <see cref="WrappingCountdown"/>: the countdown left, and the expiry tests
+/// its owner chooses between. The tests describe the countdown after the step, so a countdown stepped from zero has
+/// wrapped to 65535 and reads as negative, not as zero.
+/// <para>
+/// <b>Frame point.</b> Made by the owner's step, once per call of the owner's update; the owner stores
+/// <see cref="Remaining"/> and tests the step in the same call.
+/// </para>
+/// <para>
+/// <b>Evidence.</b> The original game tests each timer, right after decrementing it, by zero or by sign; the full-movie
+/// replays (the Ridley full movie and the 13% SMV) match the recording on every update with each owner's test taken
+/// from here.
+/// </para>
 /// </summary>
+/// <param name="Remaining">The countdown left after the step; a countdown stepped from zero has wrapped to 65535.</param>
 [CompatibilityService("the outcome of one countdown step, tested the way each timer's expiry was originally tested (reached zero, went negative, or either)")]
 [EncodingOwner("wrapping countdown decrement result")]
-public readonly record struct CountdownStep(ushort Value)
+public readonly record struct CountdownStep(WrappingCountdown Remaining)
 {
-    /// <summary>
-    /// The decremented word as countdown storage. A wrapped result (<c>$FFFF</c> from a cleared
-    /// counter) is kept exactly, so a later read observes the same word the cartridge would.
-    /// </summary>
-    public WrappingCountdown Remaining => WrappingCountdown.FromRaw(Value);
+    /// <summary>Whether the step left no frames: the expiry of a timer that ends on reaching zero.</summary>
+    public bool IsZero => Remaining.IsZero;
 
-    /// <summary>Whether DEC produced <c>$0000</c> and set the processor zero flag (DEC then BEQ/BNE).</summary>
-    public bool IsZero => Value == 0;
+    /// <summary>Whether the step ran the countdown past zero: the expiry of a timer that ends on running past zero.</summary>
+    public bool IsNegative => Remaining.IsNegative;
 
-    /// <summary>Whether DEC produced a word with bit 15 set and set the negative flag (DEC then BMI).</summary>
-    public bool IsNegative => (Value & 0x8000) != 0;
-
-    /// <summary>Whether the result would take a BPL branch (DEC then BPL).</summary>
+    /// <summary>Whether the countdown has not yet run past zero: a timer that ends on running past zero is still waiting.</summary>
     public bool IsNonNegative => !IsNegative;
 
-    /// <summary>Common native expiry predicate implemented as DEC, BEQ, BMI.</summary>
-    public bool IsZeroOrNegative => IsZero || IsNegative;
+    /// <summary>Whether the step left no frames or ran past zero: the expiry of a timer that ends on either.</summary>
+    public bool IsZeroOrNegative => Remaining.IsZeroOrNegative;
 }

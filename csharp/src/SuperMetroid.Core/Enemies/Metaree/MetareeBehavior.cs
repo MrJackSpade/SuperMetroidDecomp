@@ -188,7 +188,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (state.BurrowTimer.RawValue == MetareeParticleFrameNtsc)
+        if (state.BurrowTimer.IsAt(MetareeParticleFrameNtsc))
             _projectiles.SpawnMetalParticleBurst(slot, MetareeParticleDefinitions.Burst);
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
     }

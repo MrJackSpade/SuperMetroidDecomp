@@ -70,7 +70,7 @@ internal sealed class IntroDiscoverySprite
     private WrappingCountdown InstructionLoopCountdown
     {
         get => WrappingCountdown.FromRaw(GeneralTimer);
-        set => GeneralTimer = value.RawValue;
+        set => GeneralTimer = value.RemainingFrames;
     }
 
     /// <summary>The pre-instruction the actor runs, or none.</summary>
@@ -144,7 +144,7 @@ internal sealed class IntroDiscoverySprite
                 return null;
             });
         Program = cursor;
-        if (counter.RawValue != timerBefore)
+        if (!counter.IsAt(timerBefore))
             InstructionLoopCountdown = counter;
         switch (advance)
         {

@@ -184,7 +184,7 @@ internal sealed class CrocomireMelting
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.MeltShakeCounter = death.MeltShakeCounter.Decrement().Remaining;
         state.Body.Position = state.Body.Position.WithWholeX(unchecked((ushort)(
-            death.BodyXBeforeMelting + ((death.MeltShakeCounter.RawValue & 2) != 0 ? 4 : 0))));
+            death.BodyXBeforeMelting + (death.MeltShakeCounter.IsInAlternatePhase(2) ? 4 : 0))));
 
         EraseNextCrocomireMeltingColumn();
 

@@ -4,11 +4,11 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks Crocomire's shared record words and that kills empty the body's and the tongue's records.</summary>
+/// <summary>Checks Crocomire's record values and that kills empty the body's and the tongue's records.</summary>
 internal static class CrocomireRecordStateVerification
 {
     /// <summary>
-    /// Confirms that the phases reusing one record word see each other's writes, as the cartridge's do, that a body kill
+    /// Confirms that the values the cartridge keeps in one record word are held apart (#1476), that a body kill
     /// empties every body value, and that a tongue kill empties the tongue's offset.
     /// </summary>
     internal static void VerifyCrocomireRecordState()
@@ -22,9 +22,13 @@ internal static class CrocomireRecordStateVerification
         tongue.SetSpeciesState(tongueState, tongueState.ClearWithRecord);
 
         state.StepCounter = 5;
-        AssertEqual(5, state.RumbleStep, "the queued steps and the rumble step are one record word");
+        AssertEqual(0, state.RumbleStep, "the queued steps leave the rumble step alone");
         state.ReactionTimer = 10;
-        AssertEqual(10, state.VerticalSpeed, "the reaction timer and the vertical speed are one record word");
+        AssertEqual(0, state.VerticalSpeed, "the reaction timer leaves the vertical speed alone");
+        state.VerticalAcceleration = 300;
+        state.VerticalSpeed = 200;
+        state.VerticalSubpixel = 7;
+        state.SkeletonVelocity = SignedSixteenSixteen.FromParts(2, 9);
 
         state.DeathSequenceIndex = CrocomireDeathPhase.FirstHopSink;
         state.FightFlags = CrocomireFightFlags.Engaged;
@@ -36,14 +40,18 @@ internal static class CrocomireRecordStateVerification
         AssertEqual((CrocomireFightFlags)0, state.FightFlags, "a body kill empties the fight flags");
         AssertEqual(0, state.HitCount, "a body kill empties the hit count");
         AssertEqual((CrocomireFightFunction)0, state.FightFunction, "a body kill empties the fight function");
-        AssertEqual(0, state.StepCounter, "a body kill empties the steps word");
-        AssertEqual(0, state.VerticalSpeed, "a body kill empties the speed word");
-        AssertEqual(0, state.ProjectileCounter, "a body kill empties the projectile word");
+        AssertEqual(0, state.StepCounter, "a body kill empties the steps");
+        AssertEqual(0, state.ReactionTimer, "a body kill empties the reaction timer");
+        AssertEqual(0, state.VerticalAcceleration, "a body kill empties the acceleration");
+        AssertEqual(0, state.VerticalSpeed, "a body kill empties the speed");
+        AssertEqual(0, state.VerticalSubpixel, "a body kill empties the subpixel");
+        AssertEqual(0, state.ProjectileCounter, "a body kill empties the projectile counter");
+        AssertEqual(SignedSixteenSixteen.Zero, state.SkeletonVelocity, "a body kill empties the skeleton speed");
         AssertEqual(23, tongueState.BodyXOffset, "a body kill leaves the tongue's record");
 
         tongue.Clear();
         AssertEqual(0, tongueState.BodyXOffset, "a tongue kill empties its offset");
-        Console.WriteLine("Crocomire record state: shared words carry between phases, and kills empty each record.");
+        Console.WriteLine("Crocomire record state: each phase's values are held apart, and kills empty each record.");
     }
 
     /// <summary>Runs the focused Crocomire record-state check.</summary>

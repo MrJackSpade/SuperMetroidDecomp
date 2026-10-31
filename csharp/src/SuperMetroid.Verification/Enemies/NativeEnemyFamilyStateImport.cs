@@ -174,13 +174,8 @@ internal static class NativeEnemyFamilyStateImport
             crocomireRecord.FightFlags = CrocomireNativeWords.FightFlags(words.B);
             crocomireRecord.HitCount = CrocomireNativeWords.HitCount(words.B);
             crocomireRecord.FightFunction = (CrocomireFightFunction)words.C;
-            // Word D is the rumble's table cursor while the wall rumbles, and another phase's count or delay otherwise.
-            if (crocomireRecord.DeathSequenceIndex == CrocomireDeathPhase.RumbleHiddenWall)
-                crocomireRecord.RumbleStep = CrocomireNativeWords.RumbleStep(words.D);
-            else
-                crocomireRecord.DeathPhaseDelay = WrappingCountdown.FromRaw(words.D);
-            crocomireRecord.VerticalSpeed = words.E;
-            crocomireRecord.ProjectileCounter = words.F;
+            // The cartridge keeps several of the body's values in each of words D, E and F; the phase says which.
+            CrocomireNativeWords.ImportSharedWords(crocomireRecord, words.D, words.E, words.F);
         }
         if (slot.SpeciesState<CrocomireTongueState>() is { } crocomireTongueRecord)
             crocomireTongueRecord.BodyXOffset = words.A;

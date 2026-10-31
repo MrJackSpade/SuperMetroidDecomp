@@ -115,8 +115,8 @@ internal static class CrocomireStateQuantitiesVerification
         state.DeathSequenceIndex = CrocomireDeathPhase.FirstHopSink;
         state.VerticalAcceleration = acceleration;
         state.VerticalSpeed = speed;
-        // The whole subposition word, whose high byte is the vertical subpixel; combat names it the projectile counter.
-        state.ProjectileCounter = subposition;
+        // The subposition word's high byte is the vertical subpixel; the low byte is the cartridge's alone.
+        state.VerticalSubpixel = LittleEndianBytes.HighByte(subposition);
         body.Position = body.Position.WithWholeY(y);
         for (int frame = 0; frame < 400; frame++)
         {
@@ -140,8 +140,8 @@ internal static class CrocomireStateQuantitiesVerification
         state.DeathSequenceIndex = CrocomireDeathPhase.FirstHopRise;
         state.VerticalAcceleration = acceleration;
         state.VerticalSpeed = speed;
-        // The whole subposition word, whose high byte is the vertical subpixel; combat names it the projectile counter.
-        state.ProjectileCounter = subposition;
+        // The subposition word's high byte is the vertical subpixel; the low byte is the cartridge's alone.
+        state.VerticalSubpixel = LittleEndianBytes.HighByte(subposition);
         body.Position = body.Position.WithWholeY(y);
         for (int frame = 0; frame < 400; frame++)
         {
@@ -157,13 +157,13 @@ internal static class CrocomireStateQuantitiesVerification
         throw new InvalidOperationException($"Verification failed: {name} did not clear the surface.");
     }
 
-    /// <summary>Compares the three motion words and the body's Y with the native reference.</summary>
+    /// <summary>Compares the acceleration, speed, subpixel and the body's Y with the native reference.</summary>
     private static void AssertMotionWords(CrocomireEnemyState state, ushort acceleration, ushort speed,
         ushort subposition, ushort y, string at)
     {
         AssertEqual(acceleration, state.VerticalAcceleration, $"{at}: acceleration word");
         AssertEqual(speed, state.VerticalSpeed, $"{at}: speed word");
-        AssertEqual(subposition, state.ProjectileCounter, $"{at}: subposition word");
+        AssertEqual((int)LittleEndianBytes.HighByte(subposition), state.VerticalSubpixel, $"{at}: subpixel");
         AssertEqual(y, state.Body.Position.Y.Whole, $"{at}: Y");
     }
 

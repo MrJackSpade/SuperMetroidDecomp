@@ -26,15 +26,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>The words each physical slot keeps across Ripper occupants for the current room.</summary>
-    internal readonly RipperExtensionWords[] Extensions = NewExtensions();
-
-    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
-    private static RipperExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new RipperExtensionWords())];
-
     /// <summary>Ports <c>InitAI_GRipper</c> at $A2:E1D3.</summary>
-    internal void InitializeGRipper(RoomEnemySlot slot)
+    internal static void InitializeGRipper(RoomEnemySlot slot)
     {
         var state = CreateRipperState(slot);
 
@@ -88,7 +81,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>InitAI_Ripper2</c> at $A2:E318.</summary>
-    internal void InitializeRipper2(RoomEnemySlot slot)
+    internal static void InitializeRipper2(RoomEnemySlot slot)
     {
         RipperEnemyState state = CreateRipperState(slot);
         state.Speeds = EnemyLinearSpeeds.Row(slot.SpawnSettings<RipperSpawnSettings>().SpeedIndex);
@@ -117,18 +110,16 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>Ripper_Init</c> at $A2:E49F.</summary>
-    internal void InitializeRipper(RoomEnemySlot slot)
+    internal static void InitializeRipper(RoomEnemySlot slot)
     {
-        // Population parameter two is the initial facing/direction selector. A nonzero word
-        // chooses the positive table pair and the right-facing list; zero chooses the
-        // negative pair and left-facing list. Unlike a reversal, initialization keeps the
-        // population's instruction timer.
+        // The spawn's direction chooses the positive speed and the right-facing list, or the negative speed and the
+        // left-facing list. Unlike a reversal, initialization keeps the population's instruction timer.
         bool movingRight = slot.SpawnSettings<RipperSpawnSettings>().Direction == HorizontalDirection.Right;
-        Extensions[slot.SlotIndex].Program = AnimationProgramCursor<RipperProgram>.Start(
+        RipperEnemyState state = CreateRipperState(slot);
+        state.Program = AnimationProgramCursor<RipperProgram>.Start(
             movingRight ? RipperProgram.RipperMovingRight : RipperProgram.RipperMovingLeft);
 
         // The state retains the speed row because the reversal routine reuses it.
-        RipperEnemyState state = CreateRipperState(slot);
         state.Speeds = EnemyLinearSpeeds.Row(slot.SpawnSettings<RipperSpawnSettings>().SpeedIndex);
         LoadRipperVelocity(state, movingRight);
     }
@@ -172,10 +163,10 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             : EnemyFrameId.RipperSharedFrozenRight;
     }
 
-    /// <summary>Binds a Ripper-family slot to its per-room words and retains its AI state.</summary>
-    private RipperEnemyState CreateRipperState(RoomEnemySlot slot)
+    /// <summary>Starts a Ripper-family enemy's state on its slot.</summary>
+    private static RipperEnemyState CreateRipperState(RoomEnemySlot slot)
     {
-        var state = new RipperEnemyState(Extensions[slot.SlotIndex]);
+        var state = new RipperEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         return state;
     }
@@ -191,7 +182,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Flips a GRipper or Ripper II speed pair and restarts the corresponding loop.</summary>
-    internal void ReverseRipperVariant(
+    internal static void ReverseRipperVariant(
         RoomEnemySlot slot,
         RipperProgram positiveProgram,
         RipperProgram negativeProgram)
@@ -203,21 +194,22 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Installs a flying loop from its first step on the next enemy frame.</summary>
-    private void SetRipperProgram(RoomEnemySlot slot, RipperProgram program)
+    private static void SetRipperProgram(RoomEnemySlot slot, RipperProgram program)
     {
-        Extensions[slot.SlotIndex].Program = AnimationProgramCursor<RipperProgram>.Start(program);
+        slot.RequireSpeciesState<RipperEnemyState>().Program = AnimationProgramCursor<RipperProgram>.Start(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Advances Ripper's typed animation.</summary>
-    internal void AdvanceRipperTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceRipperTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        AnimationProgramCursor<RipperProgram> cursor = Extensions[slot.SlotIndex].Program;
+        RipperEnemyState state = slot.RequireSpeciesState<RipperEnemyState>();
+        AnimationProgramCursor<RipperProgram> cursor = state.Program;
         EnemyProgramAnimation.Run(slot, RipperAnimations.Programs, ref cursor, RipperFrameDefinitions.ShownFrames.Of);
-        Extensions[slot.SlotIndex].Program = cursor;
+        state.Program = cursor;
     }
 
     /// <summary>Preserves the direction-specific frozen map after common bomb reactions.</summary>

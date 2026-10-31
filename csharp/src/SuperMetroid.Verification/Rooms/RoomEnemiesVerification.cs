@@ -551,10 +551,10 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         Console.WriteLine("X-Plasma timer prerequisite: invincibility expires while movement/flash/Ice remain frozen.");
         return;
     }
-    AssertEqual(AnimationProgramCursor<RipperProgram>.Start(RipperProgram.RipperMovingRight),
-        enemies.RipperBehavior.Extensions[ripper.SlotIndex].Program, "Ripper init right animation");
     RipperEnemyState ripperState = ripper.SpeciesState<RipperEnemyState>()
         ?? throw new InvalidOperationException("The initialized Ripper has no state.");
+    AssertEqual(AnimationProgramCursor<RipperProgram>.Start(RipperProgram.RipperMovingRight),
+        ripperState.Program, "Ripper init right animation");
     AssertEqual(1, ripperState.XVelocity.WholeWord, "Ripper init signed whole X velocity");
     AssertEqual(0, ripperState.XVelocity.Fraction, "Ripper init X subvelocity");
 

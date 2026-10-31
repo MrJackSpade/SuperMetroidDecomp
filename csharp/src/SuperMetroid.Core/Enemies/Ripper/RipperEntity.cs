@@ -10,9 +10,9 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => RipperPartDefinitions.Parts[Slot.DefinitionId] switch
     {
-        RipperPart.GRipper => species.InitializeGRipper,
-        RipperPart.Ripper2 => species.InitializeRipper2,
-        RipperPart.Ripper => species.InitializeRipper,
+        RipperPart.GRipper => RipperBehavior.InitializeGRipper,
+        RipperPart.Ripper2 => RipperBehavior.InitializeRipper2,
+        RipperPart.Ripper => RipperBehavior.InitializeRipper,
         _ => throw new InvalidOperationException($"Ripper entity bound to {Slot.DefinitionId}."),
     };
 
@@ -26,7 +26,7 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceRipperTypedAnimation;
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => RipperBehavior.AdvanceRipperTypedAnimation;
 
     /// <summary>The grapple Ripper's and second Ripper's shared shot callback, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>

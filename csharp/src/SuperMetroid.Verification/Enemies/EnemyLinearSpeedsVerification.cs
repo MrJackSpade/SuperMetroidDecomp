@@ -53,7 +53,7 @@ internal static class EnemyLinearSpeedsVerification
             stoke(slot);
             var s = enemies.StokeStates[0] ?? throw new InvalidOperationException("Verification requires s.");
             AssertEqual(expected, new EnemyLinearSpeedRow(s.RightVelocity, s.LeftVelocity), "Stoke native speed setup");
-            var ripperState = new RipperEnemyState(new RipperExtensionWords()) { Speeds = EnemyLinearSpeeds.Row(index) };
+            var ripperState = new RipperEnemyState() { Speeds = EnemyLinearSpeeds.Row(index) };
             ripper(ripperState, true);
             AssertEqual(expected.Positive, ripperState.XVelocity, "Ripper right speed");
             ripper(ripperState, false);

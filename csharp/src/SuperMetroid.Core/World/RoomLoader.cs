@@ -1019,7 +1019,8 @@ internal sealed class RoomLoader
         if (enemies.Ceres.RidleyPresent)
         {
             _hud.DisableMinimapForBoss();
-            if (enemies.RoomStatus.BossId == RidleyMapDefinitions.NorfairBossId)
+            // Only Norfair's Ridley marks his arena explored.
+            if (enemies.RoomStatus.Boss == AreaBoss.Ridley)
                 for (int row = 0; row < RidleyMapDefinitions.ArenaScreenRows; row++)
                     _system.MarkExploredMapTile(room.AreaIndex, room.MapPosition + new Offset16<MapTiles>(0, checked((short)(row + 1))));
         }

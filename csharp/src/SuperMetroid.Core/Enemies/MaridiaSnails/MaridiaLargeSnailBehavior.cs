@@ -254,9 +254,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 if (!_terrain.MoveEnemyVertically(
                         level,
                         slot,
-                        EnemyMath.ReadQuadraticEnemySpeed(
-                            checked((ushort)EightEight.WholeOf(state.YSpeedTableIndex)),
-                            negative: false)))
+                        EnemyQuadraticSpeeds.Row(checked((ushort)EightEight.WholeOf(state.YSpeedTableIndex))).Positive))
                 {
                     return;
                 }
@@ -284,7 +282,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 _terrain.MoveEnemyVertically(
                     level,
                     slot,
-                    EnemyMath.ReadQuadraticEnemySpeed(tableIndex, negative: true));
+                    EnemyQuadraticSpeeds.Row(tableIndex).Negative);
                 return;
 
             default:
@@ -300,8 +298,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         MaridiaLargeSnailEnemyState state,
         RoomLevelData level)
     {
-        int byteOffset = state.MovingLeft ? (ushort)132 : (ushort)128;
-        SignedSixteenSixteen speed = EnemyMath.ReadLinearEnemySpeed(byteOffset);
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(EnemyLinearSpeedDefinitions.OnePixelPerFrameRow);
+        SignedSixteenSixteen speed = state.MovingLeft ? speeds.Negative : speeds.Positive;
         bool temporarilyReachTowardSamus = state.SamusInPushingRange &&
             state.MovingLeft == state.SamusIsLeft;
         if (temporarilyReachTowardSamus)

@@ -69,7 +69,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Cacatac parameter two ${slot.Spawn.Population.Parameter2:X4} selects travel-distance " +
                 $"index {distanceIndex}, outside its six-word table.");
         }
-        if (speedIndex >= EnemyLinearSpeedDefinitions.RecordCount)
+        if (speedIndex >= EnemyLinearSpeedDefinitions.RowCount)
         {
             throw new InvalidDataException(
                 $"Cacatac parameter two ${slot.Spawn.Population.Parameter2:X4} selects linear-speed " +
@@ -81,13 +81,11 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var travel = new Offset16<RoomPixels>(checked((short)CacatacPatrol.TravelDistance((byte)distanceIndex)), 0);
         Position16<RoomPixels> spawn = slot.Position.Whole;
-        int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
-        var right = EnemyLinearSpeeds.Read(speedRecord);
-        var left = EnemyLinearSpeeds.Read(speedRecord + 4);
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(speedIndex);
         var state = new CacatacEnemyState
         {
-            RightVelocity = right,
-            LeftVelocity = left,
+            RightVelocity = speeds.Positive,
+            LeftVelocity = speeds.Negative,
             Direction = direction,
             Function = direction switch
             {

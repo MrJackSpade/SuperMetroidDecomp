@@ -43,11 +43,9 @@ internal static class AtomicMovementDefinitionsVerification
             AssertEqual(AnimationProgramCursor<AtomicProgram>.Start(program), state.Program,
                 $"Atomic initializer animation {selector}");
 
-            ushort speedOffset = (ushort)(slot.Spawn.Population.Parameter2 * 8);
-            SignedSixteenSixteen positive = EnemyLinearSpeeds.Read(speedOffset);
-            SignedSixteenSixteen negative = EnemyLinearSpeeds.Read((ushort)(speedOffset + 4));
-            AssertEqual(positive, state.Speed, $"Atomic positive speed {selector}");
-            AssertEqual(negative, state.NegativeSpeed, $"Atomic negative speed {selector}");
+            EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.Spawn.Population.Parameter2);
+            AssertEqual(speeds.Positive, state.Speed, $"Atomic positive speed {selector}");
+            AssertEqual(speeds.Negative, state.NegativeSpeed, $"Atomic negative speed {selector}");
 
             slot.InstructionTimer = WrappingCountdown.Start(1);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(AtomicAnimations.Programs, program, AtomicFrameToolingDefinitions.Spritemap),

@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Stateless enemy arithmetic shared by the bank-$A0 species routines: cartridge angles, eight-bit velocity
-/// steps, the linear and quadratic speed tables, and eight-bit sine/cosine products.
+/// steps and eight-bit sine/cosine products.
 /// </summary>
 internal static class EnemyMath
 {
@@ -92,24 +92,6 @@ internal static class EnemyMath
         int secondCoordinate,
         int limit) =>
         WrappedMagnitude(unchecked((ushort)(firstCoordinate - secondCoordinate))) < limit;
-
-    /// <summary>
-    /// Reads one signed 16.16 entry from <c>CommonEnemySpeeds_LinearlyIncreasing</c>.
-    /// <paramref name="byteOffset"/> is the native byte index, including the four-byte
-    /// positive/negative half selector used by several enemy parameter formats.
-    /// </summary>
-    internal static SignedSixteenSixteen ReadLinearEnemySpeed(int byteOffset) =>
-        EnemyLinearSpeeds.Read(byteOffset);
-
-    /// <summary>
-    /// Reads one signed 16.16 entry from <c>CommonEnemySpeeds_QuadraticallyIncreasing</c>.
-    /// The logical table index is multiplied by the native eight-byte record size; the
-    /// negative half uses the separately stored, bug-compatible ROM negation rather than
-    /// negating the positive host integer.
-    /// </summary>
-    internal static int ReadQuadraticEnemySpeed(int tableIndex, bool negative) =>
-        EnemyQuadraticSpeeds.ReadDisplacement(
-            tableIndex * EnemyQuadraticSpeedDefinitions.RecordSize + (negative ? 4 : 0));
 
     /// <summary>
     /// Ports the integer result of <c>EightBitSineMultiplication</c> at $A0:B0DA. The SNES

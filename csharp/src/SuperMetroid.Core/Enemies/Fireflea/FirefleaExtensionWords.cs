@@ -13,6 +13,9 @@ internal sealed class FirefleaExtensionWords
     /// <summary>Lower vertical travel extent; only its Y is meaningful.</summary>
     internal Position16<RoomPixels> MaximumYExtent { get; set; }
 
-    /// <summary>Byte offset of the current signed speed-table entry, toggled when a vertical extent is crossed.</summary>
-    internal int SpeedTableIndex { get; set; }
+    /// <summary>The row of the shared linear speed table.</summary>
+    internal int SpeedRow { get; set; }
+
+    /// <summary>Which of the row's speeds is current, reversed when a vertical extent is crossed.</summary>
+    internal EnemySpeedSign SpeedSign { get; set; }
 }

@@ -214,8 +214,8 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         // The native routine integrates two adjacent quadratic samples per frame, first
         // index velocity+1 and then velocity. This is why the table index changes by two
         // while the visual arc still advances at gameplay-frame rate.
-        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex + 1, half: QuadraticSpeedHalf.Negative);
-        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex, half: QuadraticSpeedHalf.Negative);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex + 1, sign: EnemySpeedSign.Negative);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex, sign: EnemySpeedSign.Negative);
         MovePolypRockHorizontally(projectile);
     }
 
@@ -227,35 +227,29 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         if (rock.SpeedIndex >= PolypRockTerminalSpeedIndex)
             rock.SpeedIndex = PolypRockTerminalSpeedIndex;
 
-        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex - 1, half: QuadraticSpeedHalf.Positive);
-        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex, half: QuadraticSpeedHalf.Positive);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex - 1, sign: EnemySpeedSign.Positive);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex, sign: EnemySpeedSign.Positive);
         MovePolypRockHorizontally(projectile);
     }
 
     /// <summary>
-    /// Adds one positive or cartridge-stored negative 16.16 record from $A0:CBC7.
+    /// Adds one quadratic row's speed in the direction <paramref name="sign"/> names, the fraction first and then the
+    /// whole pixels.
     /// </summary>
     internal static void AddPolypRockQuadraticStep(
         RoomEnemyProjectileSlot projectile,
         int tableIndex,
-        QuadraticSpeedHalf half)
+        EnemySpeedSign sign)
     {
-        if (tableIndex >= EnemyQuadraticSpeedDefinitions.RecordCount)
-        {
-            throw new InvalidDataException(
-                $"Polyp rock quadratic speed index ${tableIndex:X4} exceeds $005E.");
-        }
-
-        int record = tableIndex * EnemyQuadraticSpeedDefinitions.RecordSize +
-            (half == QuadraticSpeedHalf.Negative ? 4 : 0);
-        int fraction = EnemyQuadraticSpeeds.ReadWord(record);
+        int speed = EnemyQuadraticSpeeds.Row(tableIndex).Toward(sign);
+        int fraction = SixteenSixteen.FractionOf(speed);
         // Both fractions are words, so their sum fits an int; a sum past the word carries into the whole pixel.
         int fractionalSum = projectile.Position.Y.Fraction + fraction;
         projectile.Position = projectile.Position.WithFractionY(unchecked((ushort)fractionalSum));
         if (fractionalSum > ushort.MaxValue)
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 1)));
 
-        int whole = EnemyQuadraticSpeeds.ReadWord(record + 2);
+        int whole = unchecked((ushort)SixteenSixteen.WholeOf(speed));
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + whole)));
     }
 

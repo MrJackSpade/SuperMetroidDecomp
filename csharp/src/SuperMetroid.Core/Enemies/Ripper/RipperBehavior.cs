@@ -40,7 +40,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The population entry names the patrol speed record and the starting direction.
         GRipperSpawnSettings settings = slot.Spawn.Population.SpawnSettingsOf<GRipperSpawnSettings>();
-        state.SpeedTableByteOffset = settings.SpeedIndex * 8;
+        state.Speeds = EnemyLinearSpeeds.Row(settings.SpeedIndex);
         LoadRipperVelocity(state, settings.Direction switch
         {
             GRipperStartDirection.Left => false,
@@ -91,7 +91,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeRipper2(RoomEnemySlot slot)
     {
         RipperEnemyState state = CreateRipperState(slot);
-        state.SpeedTableByteOffset = unchecked((ushort)(slot.Spawn.Population.Parameter1 * 8));
+        state.Speeds = EnemyLinearSpeeds.Row(slot.Spawn.Population.Parameter1);
 
         // Ripper II's list labels appear inverted relative to the displayed shared maps.
         // Keep the native list names instead of normalizing them: init1 zero uses the
@@ -127,12 +127,9 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         Extensions[slot.SlotIndex].Program = AnimationProgramCursor<RipperProgram>.Start(
             movingRight ? RipperProgram.RipperMovingRight : RipperProgram.RipperMovingLeft);
 
-        // Each logical speed occupies eight bytes in the common table:
-        //   +0 signed pixel velocity, +2 subpixel velocity,
-        //   +4 negated pixel velocity, +6 negated subpixel velocity.
-        // The state retains the byte offset because the reversal routine reuses it.
+        // The state retains the speed row because the reversal routine reuses it.
         RipperEnemyState state = CreateRipperState(slot);
-        state.SpeedTableByteOffset = unchecked((ushort)(slot.Spawn.Population.Parameter1 * 8));
+        state.Speeds = EnemyLinearSpeeds.Row(slot.Spawn.Population.Parameter1);
         LoadRipperVelocity(state, movingRight);
     }
 
@@ -155,14 +152,11 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         SetRipperProgram(slot, nowMovingRight ? RipperProgram.RipperMovingRight : RipperProgram.RipperMovingLeft);
     }
 
-    /// <summary>Loads a Ripper-family enemy's velocity from its shared eight-byte speed record.</summary>
-    /// <param name="state">The enemy's state, whose speed record is read.</param>
-    /// <param name="movingRight">Whether the record's positive half is loaded rather than its negative half.</param>
-    internal static void LoadRipperVelocity(RipperEnemyState state, bool movingRight)
-    {
-        SignedSixteenSixteen speed = EnemyLinearSpeeds.Read(state.SpeedTableByteOffset + (movingRight ? 0 : 4));
-        state.XVelocity = speed;
-    }
+    /// <summary>Loads a Ripper-family enemy's velocity from its linear-speed row.</summary>
+    /// <param name="state">The enemy's state, whose speed row is read.</param>
+    /// <param name="movingRight">Whether the row's positive speed is loaded rather than its negative speed.</param>
+    internal static void LoadRipperVelocity(RipperEnemyState state, bool movingRight) =>
+        state.XVelocity = movingRight ? state.Speeds.Positive : state.Speeds.Negative;
 
     /// <summary>
     /// Ports the common post-shot tail at $A2:E3AD. Normal shot AI owns health, death,

@@ -105,7 +105,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 // $A0:9FC4 always selects explosion variant zero. The shared death
                 // routine preserves the actor's position/drop identity and any respawn
                 // marker; directly deleting the enemy loses the complete visual tail.
-                _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 0);
+                _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.Small);
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 

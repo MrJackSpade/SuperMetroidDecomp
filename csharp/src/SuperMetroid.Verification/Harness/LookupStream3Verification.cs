@@ -2149,12 +2149,15 @@ internal static class LookupStream3Verification
         }
         for (ushort animation = 0; animation < 5; animation++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86efd5 + 2 * animation)),
-                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosions.Program(animation)), "stream 3 death variant dispatch");
+                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosions.Program(
+                    SuperMetroid.AssetExtraction.CartridgeTables.EnemyDeathExplosionWords.Selectors.Decode(animation, "death explosion"))),
+                "stream 3 death variant dispatch");
         foreach (ushort invalid in new ushort[] { 6, 7, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => EnemyPickups.Animation((EnemyPickupKind)invalid),
                 "stream 3 invalid pickup kind");
         foreach (ushort invalid in new ushort[] { 5, 6, ushort.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EnemyDeathExplosions.Program(invalid),
+            AssertThrows<InvalidDataException>(
+                () => SuperMetroid.AssetExtraction.CartridgeTables.EnemyDeathExplosionWords.Selectors.Decode(invalid, "death explosion"),
                 "stream 3 invalid death variant");
     }
 

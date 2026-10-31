@@ -72,13 +72,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<PlatformProgram>.Start(PlatformPrograms.SelectProgram(
             isKamer, axis: Axis.Horizontal, state.XMovement));
 
-        // The low byte is a common-linear-speed magnitude. Multiplication by eight is the
-        // native byte offset across {right whole/fraction, left whole/fraction}.
-        int speedTableOffset = unchecked((ushort)(slot.Spawn.Population.Parameter2Settings.First * 8));
-        SignedSixteenSixteen right = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
-        state.RightSpeed = right;
-        SignedSixteenSixteen left = EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
-        state.LeftSpeed = left;
+        // The low byte names the linear-speed row the platform moves at.
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.Spawn.Population.Parameter2Settings.First);
+        state.RightSpeed = speeds.Positive;
+        state.LeftSpeed = speeds.Negative;
 
         state.YMovement = PlatformVerticalMovement.Rising;
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
@@ -219,9 +216,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SetPlatformVerticallyMovingInstruction(slot, state);
         IncrementAndClampPlatformYSpeed(state);
-        int displacement = EnemyMath.ReadQuadraticEnemySpeed(
-            state.YSpeedTableIndex,
-            negative: true);
+        int displacement = EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Negative;
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return;
 
@@ -252,9 +247,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(xDelta)), 0);
 
         int preVerticalY = slot.Position.Y.Whole;
-        int displacement = EnemyMath.ReadQuadraticEnemySpeed(
-            state.YSpeedTableIndex,
-            negative: false);
+        int displacement = EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Positive;
         if (_terrain.MoveEnemyVertically(level, slot, displacement))
         {
             state.YSpeedTableIndex = 0;

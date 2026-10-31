@@ -23,7 +23,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
     /// </summary>
     internal static void VerifyEnemyDeathProjectileBehavior()
     {
-        for (ushort animation = 0; animation < 5; animation++)
+        foreach (EnemyDeathExplosion animation in Enum.GetValues<EnemyDeathExplosion>())
         {
             EnemyDropFixture variant = CreateEnemyDropFixture(CreateDropTestSamus(), randomValues: []);
             RoomEnemySlot enemy = variant.System.SlotTable.Slots[0];
@@ -41,7 +41,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
         RoomEnemySlot killed = fixture.System.SlotTable.Slots[0];
         killed.Bind((EnemyDefinitionId)enemyHeader, killed.Definition);
         killed.Position = killed.Position.WithWhole(new(320, 120));
-        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed, deathAnimation: 0);
+        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed, deathAnimation: EnemyDeathExplosion.Small);
         RoomEnemyProjectileSlot dying = fixture.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         int updates = 0;
         while (ProgramOf(dying) == EnemyDeathProjectileProgram.SmallExplosion)

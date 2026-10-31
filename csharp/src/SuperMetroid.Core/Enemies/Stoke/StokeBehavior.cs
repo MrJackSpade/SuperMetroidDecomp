@@ -69,22 +69,19 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Stoke</c> at <c>$A2:89AD</c>.</summary>
     internal static void InitializeStoke(RoomEnemySlot slot)
     {
-        if (slot.Spawn.Population.Parameter2 >= EnemyLinearSpeedDefinitions.RecordCount)
+        if (slot.Spawn.Population.Parameter2 >= EnemyLinearSpeedDefinitions.RowCount)
         {
             throw new InvalidDataException(
                 $"Stoke speed parameter ${slot.Spawn.Population.Parameter2:X4} exceeds the NTSC common " +
-                $"speed table's ${EnemyLinearSpeedDefinitions.RecordCount - 1:X2} maximum index.");
+                $"speed table's ${EnemyLinearSpeedDefinitions.RowCount - 1:X2} maximum index.");
         }
 
-        // The parameter is an entry number. ASL three times converts it to the byte offset
-        // of {positive whole, positive fraction, negative whole, negative fraction}.
-        int speedOffset = slot.Spawn.Population.Parameter2 * EnemyLinearSpeedDefinitions.RecordSize;
-        var right = EnemyLinearSpeeds.Read(speedOffset);
-        var left = EnemyLinearSpeeds.Read(speedOffset + 4);
+        // The parameter names the row of the shared linear speed table Stoke patrols at.
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.Spawn.Population.Parameter2);
         var state = new StokeEnemyState
         {
-            RightVelocity = right,
-            LeftVelocity = left,
+            RightVelocity = speeds.Positive,
+            LeftVelocity = speeds.Negative,
             Function = StokeAiFunction.Moving,
             Direction = Directions.Decode(slot.Spawn.Population.Parameter1),
         };

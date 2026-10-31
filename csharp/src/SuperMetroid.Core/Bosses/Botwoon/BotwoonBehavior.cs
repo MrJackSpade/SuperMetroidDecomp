@@ -717,9 +717,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accelerates the defeated head down to Y=200, then hides it and waits for body landing.</summary>
     private void RunBotwoonHeadFall(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        int displacement = EnemyMath.ReadQuadraticEnemySpeed(
-            checked((ushort)(state.DeathFallAccumulator / BotwoonDeathFallUnitsPerStep)),
-            negative: false);
+        int displacement = EnemyQuadraticSpeeds.Row(checked((ushort)(state.DeathFallAccumulator / BotwoonDeathFallUnitsPerStep))).Positive;
         head.Position = head.Position.AdvanceY(SignedSixteenSixteen.FromRaw(displacement));
         if (unchecked((short)(head.Position.Y.Whole - 200)) < 0)
         {
@@ -1040,9 +1038,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         BotwoonEnemyState state,
         int randomEnemyCounter)
     {
-        int displacement = EnemyMath.ReadQuadraticEnemySpeed(
-            unchecked((ushort)(EightEight.WholeOf(segment.Velocity.Y.RawValue))),
-            negative: false);
+        int displacement = EnemyQuadraticSpeeds.Row(unchecked((ushort)(EightEight.WholeOf(segment.Velocity.Y.RawValue)))).Positive;
         segment.Position = segment.Position.AdvanceY(SignedSixteenSixteen.FromRaw(displacement));
         if (unchecked((short)(segment.Position.Y.Whole - 200)) < 0)
         {

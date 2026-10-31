@@ -67,7 +67,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-        state.LinearSpeedTableOffset = slot.Spawn.Population.Parameter2Settings.Second * EnemyLinearSpeedDefinitions.RecordSize;
+        state.FlightSpeeds = EnemyLinearSpeeds.Row(slot.Spawn.Population.Parameter2Settings.Second);
         state.FormationCounter = 0;
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -87,11 +87,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             ? PipeBugProgram.GeegaFlyingLeft
             : PipeBugProgram.GeegaFlyingRight);
 
-        // Parameter two is a logical entry index. Each common linear-speed record is eight
-        // bytes: positive fraction/whole followed by its separately authored negative pair.
-        int speedOffset = unchecked((ushort)(slot.Spawn.Population.Parameter2 * 8));
-        state.PositiveVelocity = ReadPipeBugLinearVelocity(speedOffset);
-        state.NegativeVelocity = ReadPipeBugLinearVelocity(unchecked((ushort)(speedOffset + 4)));
+        // Parameter two names the linear-speed row the bug flies at.
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.Spawn.Population.Parameter2);
+        state.PositiveVelocity = speeds.Positive;
+        state.NegativeVelocity = speeds.Negative;
         state.Function = PipeBugEnemyFunction.YellowWaitForSamus;
         state.ArcCompleted = false;
     }
@@ -170,11 +169,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairFlyLeft:
-                AddPipeBugLinearVelocity(slot, axis: Axis.Horizontal, state.LinearSpeedTableOffset + 4);
+                AddPipeBugLinearVelocity(slot, axis: Axis.Horizontal, state.FlightSpeeds.Negative);
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairFlyRight:
-                AddPipeBugLinearVelocity(slot, axis: Axis.Horizontal, state.LinearSpeedTableOffset);
+                AddPipeBugLinearVelocity(slot, axis: Axis.Horizontal, state.FlightSpeeds.Positive);
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
 
@@ -354,7 +353,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
-        AddPipeBugLinearVelocity(slot, axis: Axis.Vertical, byteOffset: 132);
+        AddPipeBugLinearVelocity(slot, axis: Axis.Vertical, OnePixelPerFrame.Negative);
         if (unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) >= 0)
             return;
 
@@ -373,12 +372,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         int signedOffset)
     {
         state.CountFormationTick();
-        // Negative offsets move upward with table entry 66; positive offsets move downward
-        // with entry 64. The native routine clamps exactly at emergenceY +/- 16/32.
+        // Negative offsets move upward and positive offsets downward, one pixel per frame. The
+        // native routine clamps exactly at emergenceY +/- 16/32.
         AddPipeBugLinearVelocity(
             slot,
             axis: Axis.Vertical,
-            byteOffset: signedOffset < 0 ? 132 : 128);
+            signedOffset < 0 ? OnePixelPerFrame.Negative : OnePixelPerFrame.Positive);
         Position16<RoomPixels> target = state.RiseEnd + new Offset16<RoomPixels>(0, checked((short)signedOffset));
         int distancePastTarget = (slot.Position.Whole - target).Y;
         bool reached = signedOffset < 0
@@ -551,14 +550,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.ArcCounter--;
                 AddPipeBugDisplacement(slot, axis: Axis.Vertical,
-                    EnemyMath.ReadQuadraticEnemySpeed(checked((ushort)state.ArcCounter), negative: false));
+                    EnemyQuadraticSpeeds.Row(checked((ushort)state.ArcCounter)).Positive);
             }
             return;
         }
 
         state.ArcCounter++;
         AddPipeBugDisplacement(slot, axis: Axis.Vertical,
-            EnemyMath.ReadQuadraticEnemySpeed(checked((ushort)state.ArcCounter), negative: true));
+            EnemyQuadraticSpeeds.Row(checked((ushort)state.ArcCounter)).Negative);
         bool returnedToSpawnY = direction == HorizontalDirection.Left
             ? unchecked((short)(slot.Position.Y.Whole - state.SpawnPosition.Y)) < 0
             : unchecked((short)(state.SpawnPosition.Y - slot.Position.Y.Whole)) >= 0;
@@ -606,21 +605,16 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.AdvanceX(movingLeft ? state.NegativeVelocity : state.PositiveVelocity);
     }
 
-    /// <summary>Reads a native linear-speed entry and adds it to one axis, carrying the fraction into the whole.</summary>
+    /// <summary>The linear-speed row a Norfair bug rises and staggers at.</summary>
+    private static EnemyLinearSpeedRow OnePixelPerFrame => EnemyLinearSpeeds.Row(EnemyLinearSpeedDefinitions.OnePixelPerFrameRow);
+
+    /// <summary>Adds a linear-speed velocity to one axis, carrying the fraction into the whole.</summary>
     private static void AddPipeBugLinearVelocity(
         RoomEnemySlot slot,
         Axis axis,
-        int byteOffset)
+        SignedSixteenSixteen velocity)
     {
-        SignedSixteenSixteen velocity = ReadPipeBugLinearVelocity(unchecked((ushort)byteOffset));
         slot.Position = axis == Axis.Horizontal ? slot.Position.AdvanceX(velocity) : slot.Position.AdvanceY(velocity);
-    }
-
-    /// <summary>The signed 16.16 entry of the common linear speed table at <paramref name="byteOffset"/>.</summary>
-    private static SignedSixteenSixteen ReadPipeBugLinearVelocity(int byteOffset)
-    {
-        SignedSixteenSixteen speed = EnemyMath.ReadLinearEnemySpeed(byteOffset);
-        return speed;
     }
 
     /// <summary>Adds a wrapped signed 16.16 displacement to one position axis.</summary>

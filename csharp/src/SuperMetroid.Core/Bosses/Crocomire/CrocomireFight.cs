@@ -65,7 +65,7 @@ internal sealed class CrocomireFight
     /// <summary>Ports <c>InitAI_Crocomire</c> at $A4:8A5A.</summary>
     internal void InitializeCrocomire(RoomEnemySlot slot)
     {
-        _roomStatus.BossId = 6;
+        _roomStatus.Boss = AreaBoss.Crocomire;
         var state = new CrocomireEnemyState(slot);
         slot.SetSpeciesState(state, state.ClearWithRecord);
         _access.Crocomire = state;

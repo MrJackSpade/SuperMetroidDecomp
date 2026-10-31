@@ -177,7 +177,7 @@ internal sealed class AcceptedFrameBoundary
             LatchedScrollingSky.Capture(_room.ScrollingSky),
             room?.Definition,
             // Before the first room no boss is loaded.
-            _room.Enemies?.RoomStatus.BossId ?? 0);
+            _room.Enemies?.RoomStatus.Boss);
     }
 
     /// <summary>
@@ -331,7 +331,7 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     private ImmutableArray<RevealedBlock?>? CaptureXrayReveal(GameplayLatchedScene scene) =>
         // Where X-ray preserves the backgrounds ($91:D143) its setup copies no blocks: the tiles are another room's.
-        _player.Samus?.Xray.IsActive == true && scene.Room is { } room && XrayBlockRevealRules.RevealsBlocks(room, scene.BossId)
+        _player.Samus?.Xray.IsActive == true && scene.Room is { } room && XrayBlockRevealRules.RevealsBlocks(room, scene.Boss)
             ? ImmutableArray.Create(_xray.RevealedBlocks)
             : null;
 }

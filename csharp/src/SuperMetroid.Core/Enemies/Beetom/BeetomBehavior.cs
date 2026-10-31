@@ -388,7 +388,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!state.Falling)
         {
-            if (_terrain.MoveEnemyVertically(level, slot, EnemyMath.ReadQuadraticEnemySpeed(state.YSpeedTableIndex, negative: true)))
+            if (_terrain.MoveEnemyVertically(level, slot, EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Negative))
             {
                 state.Function = BeetomEnemyFunction.StartDropping;
                 return;
@@ -398,7 +398,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (_terrain.MoveEnemyVertically(level, slot, EnemyMath.ReadQuadraticEnemySpeed(state.YSpeedTableIndex, negative: false)))
+        if (_terrain.MoveEnemyVertically(level, slot, EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Positive))
         {
             state.Function = BeetomEnemyFunction.DecideAction;
             return;
@@ -454,7 +454,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves opposite the pre-escape facing until a floor or wall selects its next action.</summary>
     private void RunFlungBeetom(RoomEnemySlot slot, BeetomEnemyState state, RoomLevelData level)
     {
-        if (_terrain.MoveEnemyVertically(level, slot, EnemyMath.ReadQuadraticEnemySpeed(state.YSpeedTableIndex, negative: false)))
+        if (_terrain.MoveEnemyVertically(level, slot, EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Positive))
             state.Function = BeetomEnemyFunction.DecideAction;
         else
             state.StepFallingSpeed(1);
@@ -468,7 +468,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = BeetomEnemyFunction.StartDropping;
     }
 
-    /// <summary>Accumulates the native unaligned quadratic-speed words until a jump height is reached.</summary>
+    /// <summary>Sums the quadratic table's coarse speeds until a jump height is reached.</summary>
     internal static int CalculateInitialBeetomYSpeedIndex(int targetHeight, int tableIndexDelta)
     {
         int tableIndex = 0;
@@ -476,10 +476,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int iteration = 0; iteration < ushort.MaxValue; iteration++)
         {
             tableIndex = unchecked((ushort)(tableIndex + tableIndexDelta));
-            // The ROM reads at table+1, intentionally combining bytes from adjacent fixed-
-            // point fields. An aligned host read changes every resulting jump arc.
+            // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every arc.
             accumulatedHeight = unchecked((ushort)(accumulatedHeight +
-                EnemyQuadraticSpeeds.ReadWord(tableIndex * 8 + 1)));
+                EnemyQuadraticSpeeds.Row(tableIndex).CoarseToward(EnemySpeedSign.Positive)));
             if (unchecked((short)(accumulatedHeight - targetHeight)) >= 0)
                 return tableIndex;
         }

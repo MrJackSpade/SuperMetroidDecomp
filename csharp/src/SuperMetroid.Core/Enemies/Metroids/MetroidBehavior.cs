@@ -521,9 +521,9 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             // EnemyShot_Metroid.
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
 
-            int frozenVulnerability = EnemyCollision.ReadProjectileVulnerability(enemy, c.ProjectileType);
-            int frozenDamage = (c.ProjectileDamage >> 1) * EnemyVulnerabilityEntries.Multiplier(frozenVulnerability);
-            if (!EnemyVulnerabilityEntries.IsSentinel(frozenVulnerability) && frozenDamage != 0)
+            EnemyWeaponVulnerability frozenVulnerability = EnemyCollision.ReadProjectileVulnerability(enemy, c.ProjectileType);
+            int frozenDamage = (c.ProjectileDamage >> 1) * frozenVulnerability.Multiplier;
+            if (!frozenVulnerability.FreezesWithoutDamage && frozenDamage != 0)
             {
                 enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames + 8);
                 enemy.AiStates |= EnemyAiStates.Hurt;
@@ -538,7 +538,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // $A3:EF74 spawns the five drops.
                 Position16<RoomPixels> dropOrigin = enemy.Position.Whole;
                 FinishMetroidDeath(enemy, c.Samus);
-                _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 4);
+                _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.Big);
                 RequestMetroidDrops(dropOrigin);
             }
             return true;

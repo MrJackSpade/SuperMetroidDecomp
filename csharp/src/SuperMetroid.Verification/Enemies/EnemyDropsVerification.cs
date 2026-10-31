@@ -27,8 +27,8 @@ using SuperMetroid.AssetExtraction.Samus;
 /// <summary>Exercises native enemy drop selection, pickup effects, collision timing, and death conversion.</summary>
 internal static class EnemyDropsVerification
 {
-    /// <summary>First native enemy drop-chance record used by the synthetic definition header.</summary>
-    internal static readonly EnemyDropTable NativeDropChances = new(0);
+    /// <summary>The first authored drop-chance table's chances, which the synthetic definition header selects.</summary>
+    internal static readonly EnemyDropChances NativeDropChances = new(60, 60, 60, 5, 60, 10);
 
     /// <summary>
     /// Verifies the complete bank-$86 temporary-pickup path: selection, resource effects,
@@ -217,7 +217,7 @@ internal static class EnemyDropsVerification
         EnemyDropFixture bias = CreateEnemyDropFixture(
             biasSamus,
             randomValues: [200, 200, 200]);
-        var biasDropChances = new EnemyDropTable(1);
+        var biasDropChances = new EnemyDropChances(30, 80, 85, 40, 10, 10);
 
         RoomEnemyProjectileSlot belowThirty =
             (bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(10, 10), biasDropChances) ?? throw new InvalidOperationException("Verification requires bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(10, 10), biasDropChancePoi...."));
@@ -356,9 +356,8 @@ internal static class EnemyDropsVerification
         enemy.Colouring = SpriteColouring.InFixtureSet(6);
         enemy.Properties = new EnemyPropertyWord(EnemyProperties.RespawnIfKilled);
 
-        // Variant nine proves the common routine applies the native >=5 clamp before it
-        // indexes the five-pointer death-animation table.
-        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 9);
+        // A Fireflea with health nine proves health above four selects the small explosion.
+        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosions.ForFirefleaHealth(9));
         AssertEqual(EnemyDefinitionId.Respawn, enemy.DefinitionId,
             "respawning death leaves native DAFF placeholder in physical enemy slot");
         AssertEqual((byte)0xa3, enemy.NativeHeader.Bank,
@@ -378,9 +377,9 @@ internal static class EnemyDropsVerification
         AssertEqual(KilledEnemy.Of(enemy, respawns: true), explosion.KilledEnemy,
             "respawning slot zero is retained as the killed enemy, marked to respawn");
         AssertEqual(
-            EnemyDeathExplosions.Program(0),
+            EnemyDeathExplosions.Program(EnemyDeathExplosion.Small),
             ProgramOf(explosion),
-            "out-of-range death variant clamps to native table entry zero");
+            "a Fireflea health above four starts the small explosion");
         AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.Emptied, explosion.Graphics,
             "enemy-death initializer replaces the dying actor's room graphics with the cleared word's common colours");
 
@@ -450,10 +449,16 @@ internal static class EnemyDropsVerification
 
     /// <summary>
     /// Points the synthetic bank-$A0 enemy definition at <paramref name="enemyHeader"/> (its
-    /// drop-chance pointer field, definition byte 58) at the native first drop-chance record.
+    /// drop-chance pointer field, definition byte 58) at the native first drop-chance table,
+    /// and seeds that table's six chances, which the import decodes.
     /// </summary>
-    internal static void SeedEnemyDropChancePointer(TestAddressSpace bus, ushort enemyHeader) =>
-        WriteTestWord(bus, 0xa00000 | enemyHeader | 58, EnemyDropChanceDefinitionsConstants.Pointer(NativeDropChances));
+    internal static void SeedEnemyDropChancePointer(TestAddressSpace bus, ushort enemyHeader)
+    {
+        WriteTestWord(bus, 0xa00000 | enemyHeader | 58, SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.FirstDropChances);
+        NativeDropChances.Deconstruct(out int small, out int big, out int missile, out int nothing, out int super, out int powerBomb);
+        bus.WriteBytes(SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.TableBank | SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.FirstDropChances,
+            [(byte)small, (byte)big, (byte)missile, (byte)nothing, (byte)super, (byte)powerBomb]);
+    }
 
     /// <summary>Seeds the bank-$B4 vulnerability byte the contact-death fixture enemy consults.</summary>
     private static void SeedContactDeathVulnerability(TestAddressSpace bus) =>

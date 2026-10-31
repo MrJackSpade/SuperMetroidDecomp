@@ -50,6 +50,6 @@ internal sealed class GameplayDisplayState
     private static GameplayDisplayLatch InitialLatch => new(
         default, default, null, null, null, null, 0,
         new GameplayLatchedScene(default,
-            LayerBlendingConfiguration.Unconfigured, null, null, 0),
+            LayerBlendingConfiguration.Unconfigured, null, null, null),
         default, default, null, null);
 }

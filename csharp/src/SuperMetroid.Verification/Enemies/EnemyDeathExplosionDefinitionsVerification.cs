@@ -4,6 +4,7 @@ using SuperMetroid.Verification.Enemies.Deaths;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies;
@@ -21,8 +22,9 @@ internal static class EnemyDeathExplosionDefinitionsVerification
         for (ushort animation = 0; animation < 5; animation++)
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86efd5 + animation * 2));
+            EnemyDeathExplosion explosion = EnemyDeathExplosionWords.Selectors.Decode(animation, "death explosion");
             AssertEqual(expected,
-                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosions.Program(animation)),
+                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosions.Program(explosion)),
                 $"enemy death explosion program {animation}");
 
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -30,32 +32,32 @@ internal static class EnemyDeathExplosionDefinitionsVerification
             enemy.Bind(EnemyDefinitionId.Sciser, enemy.Definition);
             enemy.Position = enemy.Position.WithWhole(new(unchecked((ushort)(0xfff0 + animation)), unchecked((ushort)(0x0100 + animation))));
 
-            enemies.DeathsAndDrops.StartGenericEnemyDeath(enemy, animation);
-            RoomEnemyProjectileSlot explosion =
+            enemies.DeathsAndDrops.StartGenericEnemyDeath(enemy, explosion);
+            RoomEnemyProjectileSlot dying =
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
-            AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
+            AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, dying.Kind,
                 $"production enemy death explosion kind {animation}");
-            AssertEqual(EnemyDeathExplosions.Program(animation), ProgramOf(explosion),
+            AssertEqual(EnemyDeathExplosions.Program(explosion), ProgramOf(dying),
                 $"production enemy death explosion program {animation}");
-            AssertEqual(unchecked((ushort)(0xfff0 + animation)), explosion.Position.X.Whole,
+            AssertEqual(unchecked((ushort)(0xfff0 + animation)), dying.Position.X.Whole,
                 $"production enemy death explosion X {animation}");
-            AssertEqual(unchecked((ushort)(0x0100 + animation)), explosion.Position.Y.Whole,
+            AssertEqual(unchecked((ushort)(0x0100 + animation)), dying.Position.Y.Whole,
                 $"production enemy death explosion Y {animation}");
         }
 
         var clamped = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot clampedEnemy = clamped.SlotTable.Slots[0];
         clampedEnemy.Bind(EnemyDefinitionId.Sciser, clampedEnemy.Definition);
-        clamped.DeathsAndDrops.StartGenericEnemyDeath(clampedEnemy, 5);
+        clamped.DeathsAndDrops.StartGenericEnemyDeath(clampedEnemy, EnemyDeathExplosions.ForFirefleaHealth(5));
         AssertEqual(EnemyDeathProjectileProgram.SmallExplosion,
             ProgramOf(clamped.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive)),
-            "production enemy death out-of-range animation clamps to small explosion");
+            "a Fireflea health above four starts the small explosion");
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => EnemyDeathExplosions.Program(5),
-            "enemy death animation past table");
+        AssertThrows<InvalidDataException>(
+            () => EnemyDeathExplosionWords.Selectors.Decode(5, "death explosion"),
+            "enemy death selector past the table");
         Console.WriteLine(
-            "Enemy death explosion definitions: five native selectors, five real variants and the generic clamp path pass with the pointer table forbidden.");
+            "Enemy death explosion definitions: five native selectors, five real explosions and the Fireflea health rule pass with the pointer table forbidden.");
     }
 
     /// <summary>Rejects live reads of the migrated explosion selector table.</summary>

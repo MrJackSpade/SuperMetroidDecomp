@@ -36,7 +36,7 @@ internal static class GrappleEnemyDeathVerification
         enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
         {
             GrappleAi = GrappleAiRoutine.Kill,
-            DeathAnimation = 4,
+            DeathExplosion = EnemyDeathExplosion.Big,
         });
         enemy.Position = enemy.Position.WithWhole(new(100, 100));
         enemy.Radius = new(8, 8);

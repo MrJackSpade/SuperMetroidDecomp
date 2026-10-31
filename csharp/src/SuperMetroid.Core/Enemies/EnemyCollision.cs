@@ -586,10 +586,8 @@ internal sealed class EnemyCollision
         SamusBombProjectileSlot bomb,
         bool runGenericDeath = true)
     {
-        EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
-        int vulnerability = EnemyVulnerabilityEntries.Read(
-            table, EnemyVulnerabilityDefinitions.BombOffset);
-        int damage = (bomb.Damage >> 1) * EnemyVulnerabilityEntries.Multiplier(vulnerability);
+        EnemyWeaponVulnerability vulnerability = enemy.Definition.Vulnerabilities.Ordnance.Bomb;
+        int damage = (bomb.Damage >> 1) * vulnerability.Multiplier;
 
         // A zero multiplier still consumes the collision and leaves direction bit $10 on
         // the bomb. Native emits a dud sprite/sound here; those presentation queues are not
@@ -649,13 +647,10 @@ internal sealed class EnemyCollision
                 continue;
             }
 
-            // The radius actor is family `$0300` (power bomb), not the ordinary bomb
-            // family `$0500`. Using `$0500` silently indexed byte 14 and made every enemy
-            // whose bomb and power-bomb vulnerabilities differ behave incorrectly.
-            int vulnerability = EnemyVulnerabilityEntries.Read(
-                enemy.Definition.Vulnerability,
-                FamilyVulnerabilityOffset(SamusProjectileFamily.PowerBomb));
-            if (EnemyVulnerabilityEntries.Multiplier(vulnerability) == 0)
+            // The radius actor takes the Power Bomb response, not the ordinary bomb's: every
+            // enemy whose bomb and Power Bomb vulnerabilities differ depends on it.
+            EnemyWeaponVulnerability vulnerability = enemy.Definition.Vulnerabilities.Ordnance.PowerBomb;
+            if (vulnerability.Multiplier == 0)
                 continue;
 
             int xDistance = Math.Abs(unchecked((short)(explosionCenter.X - enemy.Position.X.Whole)));
@@ -683,29 +678,21 @@ internal sealed class EnemyCollision
                 continue;
             }
 
-            // `$FF` reaches the reaction dispatcher because the outer admission check masks
-            // bit seven, then common AI explicitly returns without damage. It still receives
-            // property $0800 afterward, an observable quirk preserved below.
-            if (!EnemyVulnerabilityEntries.IsSentinel(vulnerability))
+            // The common reaction damages the enemy; the process-off-screen property follows.
+            int damage = 100 * vulnerability.Multiplier;
+            enemy.InvincibilityTimer = WrappingCountdown.Start(48);
+            enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames + 8);
+            enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
+            enemy.Health = damage >= enemy.Health
+                ? 0
+                : enemy.Health - damage;
+            if (enemy.Health == 0 && reaction?.ExemptFromGenericDeath != true)
             {
-                int damage = 100 * EnemyVulnerabilityEntries.Multiplier(vulnerability);
-                if (damage != 0)
-                {
-                    enemy.InvincibilityTimer = WrappingCountdown.Start(48);
-                    enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames + 8);
-                    enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
-                    enemy.Health = damage >= enemy.Health
-                        ? 0
-                        : enemy.Health - damage;
-                    if (enemy.Health == 0 && reaction?.ExemptFromGenericDeath != true)
-                    {
-                        reaction?.BeforeGenericDeath?.Invoke(enemy, samus);
-                        if (reaction?.ReplacesGenericDeath is { } replaceDeath)
-                            replaceDeath(enemy, samus);
-                        else
-                            _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 0);
-                    }
-                }
+                reaction?.BeforeGenericDeath?.Invoke(enemy, samus);
+                if (reaction?.ReplacesGenericDeath is { } replaceDeath)
+                    replaceDeath(enemy, samus);
+                else
+                    _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.Small);
             }
 
             reaction?.AfterCommon?.Invoke(enemy, samus);
@@ -719,51 +706,39 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>
-    /// Selects the exact multiplier used by `$A0:A6DE` for an ordinary shot. Beam entries
-    /// occupy bytes 0..15; charged shots replace their multiplier with byte 19's low nibble.
-    /// Missile, Super Missile, bomb, and Power Bomb families use bytes 12..15 directly.
+    /// Selects the exact multiplier used by `$A0:A6DE` for an ordinary shot: the beam combination's response, with a
+    /// charged shot taking the charged-beam multiplier unless the beam freezes; missile, Super Missile, bomb and Power
+    /// Bomb families take their own responses.
     /// </summary>
     internal static NormalShotVulnerability ReadNormalShotVulnerability(
         RoomEnemySlot enemy,
         SamusProjectileType projectileType)
     {
-        EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
+        EnemyVulnerabilities vulnerabilities = enemy.Definition.Vulnerabilities;
         SamusProjectileFamily family = projectileType.Family;
         if (family != SamusProjectileFamily.Beam)
         {
-            int byteOffset = FamilyVulnerabilityOffset(family);
-            int familyEntry = EnemyVulnerabilityEntries.Read(table, byteOffset);
             return new NormalShotVulnerability(
-                Multiplier: EnemyVulnerabilityEntries.Multiplier(familyEntry),
+                Multiplier: FamilyVulnerability(vulnerabilities, family).Multiplier,
                 FreezeImmediately: false,
                 PreventsLethalFreeze: false);
         }
 
-        int beamEntry = EnemyVulnerabilityEntries.Read(
-            table, projectileType.BeamCombination.TableIndex);
-        if (EnemyVulnerabilityEntries.IsSentinel(beamEntry))
+        EnemyWeaponVulnerability beam = vulnerabilities.ForBeam(projectileType.BeamCombination);
+        if (beam.FreezesWithoutDamage)
         {
             return new NormalShotVulnerability(
                 Multiplier: 0,
                 FreezeImmediately: true,
-                PreventsLethalFreeze: EnemyVulnerabilityEntries.PreventsLethalFreeze(beamEntry));
+                PreventsLethalFreeze: beam.PreventsLethalFreeze);
         }
 
-        int multiplier = EnemyVulnerabilityEntries.Multiplier(beamEntry);
-        if (projectileType.IsChargedBeam)
-        {
-            // Charged-beam vulnerability is a dedicated byte, not another beam-combination
-            // row. `$FF` and low-nibble zero both take the dud-shot branch; high bits other
-            // than that sentinel do not contribute to the damage multiplier.
-            int chargedEntry = EnemyVulnerabilityEntries.Read(
-                table, EnemyVulnerabilityDefinitions.ChargedBeamOffset);
-            multiplier = EnemyVulnerabilityEntries.IsSentinel(chargedEntry) ? 0 : EnemyVulnerabilityEntries.LowNibbleMultiplier(chargedEntry);
-        }
-
+        // A charged shot takes the charged-beam multiplier instead; zero takes the dud-shot branch.
+        int multiplier = projectileType.IsChargedBeam ? vulnerabilities.ChargedBeam.Multiplier : beam.Multiplier;
         return new NormalShotVulnerability(
             multiplier,
             FreezeImmediately: false,
-            PreventsLethalFreeze: EnemyVulnerabilityEntries.PreventsLethalFreeze(beamEntry));
+            PreventsLethalFreeze: beam.PreventsLethalFreeze);
     }
 
     /// <summary>
@@ -785,27 +760,26 @@ internal sealed class EnemyCollision
         enemy.InvincibilityTimer = WrappingCountdown.Start(10);
     }
 
-    /// <summary>Selects the enemy's beam-combination or weapon-family vulnerability byte.</summary>
-    internal static byte ReadProjectileVulnerability(
+    /// <summary>Selects the enemy's response to the projectile's beam combination or weapon family.</summary>
+    internal static EnemyWeaponVulnerability ReadProjectileVulnerability(
         RoomEnemySlot enemy,
         SamusProjectileType projectileType)
     {
-        EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
+        EnemyVulnerabilities vulnerabilities = enemy.Definition.Vulnerabilities;
         SamusProjectileFamily family = projectileType.Family;
-        int byteOffset = family == SamusProjectileFamily.Beam
-            ? projectileType.BeamCombination.TableIndex
-            : FamilyVulnerabilityOffset(family);
-        return EnemyVulnerabilityEntries.Read(table, byteOffset);
+        return family == SamusProjectileFamily.Beam
+            ? vulnerabilities.ForBeam(projectileType.BeamCombination)
+            : FamilyVulnerability(vulnerabilities, family);
     }
 
-    /// <summary>The vulnerability byte a missile, Super Missile, bomb or Power Bomb family reads.</summary>
-    /// <exception cref="InvalidDataException">The family has no vulnerability byte of its own.</exception>
-    private static int FamilyVulnerabilityOffset(SamusProjectileFamily family) => family switch
+    /// <summary>The response a missile, Super Missile, bomb or Power Bomb family takes.</summary>
+    /// <exception cref="InvalidDataException">The family has no response of its own.</exception>
+    private static EnemyWeaponVulnerability FamilyVulnerability(EnemyVulnerabilities vulnerabilities, SamusProjectileFamily family) => family switch
     {
-        SamusProjectileFamily.Missile => EnemyVulnerabilityDefinitions.MissileOffset,
-        SamusProjectileFamily.SuperMissile => EnemyVulnerabilityDefinitions.SuperMissileOffset,
-        SamusProjectileFamily.Bomb => EnemyVulnerabilityDefinitions.BombOffset,
-        SamusProjectileFamily.PowerBomb => EnemyVulnerabilityDefinitions.PowerBombOffset,
+        SamusProjectileFamily.Missile => vulnerabilities.Ordnance.Missile,
+        SamusProjectileFamily.SuperMissile => vulnerabilities.Ordnance.SuperMissile,
+        SamusProjectileFamily.Bomb => vulnerabilities.Ordnance.Bomb,
+        SamusProjectileFamily.PowerBomb => vulnerabilities.Ordnance.PowerBomb,
         SamusProjectileFamily.Beam or SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion =>
             throw new InvalidDataException($"Projectile family {family} has no translated vulnerability field."),
         _ => throw new InvalidDataException($"Projectile family {family} has no translated vulnerability field."),
@@ -912,7 +886,8 @@ internal sealed class EnemyCollision
     {
         SamusContactDamageIndex contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
         int baseDamage;
-        int vulnerabilityOffset;
+        EnemyContactVulnerability contact = enemy.Definition.Vulnerabilities.Contact;
+        EnemyWeaponVulnerability vulnerability;
         switch (contactDamageIndex)
         {
             case SamusContactDamageIndex.None:
@@ -923,15 +898,15 @@ internal sealed class EnemyCollision
                 return;
             case SamusContactDamageIndex.SpeedBooster:
                 baseDamage = 500;
-                vulnerabilityOffset = EnemyVulnerabilityDefinitions.SpeedBoosterOffset;
+                vulnerability = contact.SpeedBooster;
                 break;
             case SamusContactDamageIndex.Shinespark:
                 baseDamage = 300;
-                vulnerabilityOffset = EnemyVulnerabilityDefinitions.ShinesparkOffset;
+                vulnerability = contact.Shinespark;
                 break;
             case SamusContactDamageIndex.ScrewAttack:
                 baseDamage = 2000;
-                vulnerabilityOffset = EnemyVulnerabilityDefinitions.ScrewAttackOffset;
+                vulnerability = contact.ScrewAttack;
                 break;
             case SamusContactDamageIndex.PseudoScrew:
                 // The cartridge consumes charge before checking vulnerability. Even immune
@@ -941,15 +916,12 @@ internal sealed class EnemyCollision
                 projectiles.Firing.ConsumePseudoScrewCharge(_frameContext.SamusColours
                     ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires Samus's colours."), samus);
                 baseDamage = 200;
-                vulnerabilityOffset = EnemyVulnerabilityDefinitions.PseudoScrewOffset;
+                vulnerability = contact.PseudoScrew;
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SamusContactDamageIndex)} {contactDamageIndex}.");
         }
-        EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
-        int vulnerability = EnemyVulnerabilityEntries.Read(
-            table, vulnerabilityOffset);
-        int damage = (baseDamage >> 1) * EnemyVulnerabilityEntries.Multiplier(vulnerability);
+        int damage = (baseDamage >> 1) * vulnerability.Multiplier;
         if (damage == 0)
             return;
 
@@ -973,7 +945,7 @@ internal sealed class EnemyCollision
         if (deathAnimation == TouchDeathAnimation.Skip)
             return;
 
-        _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 1);
+        _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.SamusContact);
     }
 
     /// <summary>Uses the native strict radius test, excluding contact where either axis is only tangent.</summary>

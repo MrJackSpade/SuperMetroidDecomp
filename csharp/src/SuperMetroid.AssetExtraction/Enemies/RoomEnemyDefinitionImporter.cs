@@ -39,15 +39,14 @@ public static class RoomEnemyDefinitionImporter
             Health: Word(4),
             Damage: Word(6),
             Radius: new Extent16<RoomPixels>(Word(8), Word(10)),
-            HurtAiTime: Byte(13),
+            HurtFlashFrames: HurtFlashFrames(Byte(13)),
             HurtSoundEffect: SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library2, Word(14)),
-            BossId: Word(16),
+            Boss: AreaBossWords.Decode(Word(16)),
             InitializationAi: EnemyInteractionCallbacks.AiRoutine(bank, Word(18)),
-            PartCount: Word(20),
             MainAi: EnemyInteractionCallbacks.AiRoutine(bank, Word(24)),
             GrappleAi: SamusIdentityWords.GrappleAiRoutines.Decode(Word(26), "grapple AI routine"),
             HurtAi: EnemyInteractionCallbacks.HurtRoutine(Word(28)),
-            DeathAnimation: Word(34),
+            DeathExplosion: EnemyDeathExplosionWords.Selectors.Decode(Word(34), "enemy death explosion"),
             PowerBombReaction: EnemyInteractionCallbacks.TryDecode(bank, Word(40)),
             PowerBombReactionBody: EnemyInteractionCallbacks.Body(Word(40),
                 EnemyInteractionCallbacks.IsLiteralNoOpPowerBomb(bank, Word(40))),
@@ -58,9 +57,15 @@ public static class RoomEnemyDefinitionImporter
             ShotBody: EnemyInteractionCallbacks.Body(Word(50), EnemyInteractionCallbacks.IsLiteralNoOpShot(bank, Word(50))),
             NoOpCallbackBody: EnemyInteractionCallbacks.NoOpCallbackBody(bank),
             Layer: Byte(57),
-            DropChances: EnemyHeaderTables.DropChances(Word(58)),
-            Vulnerability: EnemyHeaderTables.Vulnerability(Word(60)));
+            DropChances: EnemyHeaderTables.DropChances(cartridge, Word(58)),
+            Vulnerability: EnemyHeaderTables.Vulnerability(cartridge, Word(60)));
     }
+
+    /// <summary>The standard hurt flash a zero +$0D byte selects.</summary>
+    private const int StandardHurtFlashFrames = 4;
+
+    /// <summary>The hurt flash a header's +$0D byte names: its frames, or the standard flash for zero.</summary>
+    private static int HurtFlashFrames(int headerByte) => headerByte == 0 ? StandardHurtFlashFrames : headerByte;
 
     /// <summary>
     /// The hopper variant a header's +$2A word holds. Headers whose behaviour reads no variant keep leftover prototype

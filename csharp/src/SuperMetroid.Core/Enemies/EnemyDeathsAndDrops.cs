@@ -92,7 +92,7 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     internal void StartGenericEnemyDeath(
         RoomEnemySlot enemy,
-        int deathAnimation)
+        EnemyDeathExplosion deathAnimation)
     {
         RecordRespawnScratch(enemy);
         // $A0:A3AF installs the dropped-grapple function before clearing the enemy.
@@ -103,9 +103,6 @@ internal sealed class EnemyDeathsAndDrops
                 throw new InvalidOperationException("Grapple enemy death requires the live Samus owner.");
             SamusForEnemyDrops.Grapple.Phase = GrapplePhase.Dropped;
         }
-        if (deathAnimation >= 5)
-            deathAnimation = 0;
-
         bool respawns = enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled);
         RoomEnemySpawnSnapshot survivingSpawn = enemy.Spawn;
         RoomEnemyProjectileSlot? explosion = _projectiles.AllocateEnemyProjectile();
@@ -149,23 +146,18 @@ internal sealed class EnemyDeathsAndDrops
         enemy.Bind(EnemyDefinitionId.Respawn, _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.Respawn));
     }
 
-    /// <summary>Chooses header death art, upgrading a small explosion for Super Missile kills.</summary>
-    internal static int SelectNormalShotDeathAnimation(
+    /// <summary>Chooses the definition's death explosion, raising the smaller ones for Super Missile kills.</summary>
+    internal static EnemyDeathExplosion SelectNormalShotDeathAnimation(
         RoomEnemySlot enemy,
         SamusProjectileType projectileType,
         ShotDeathAnimationRule rule = ShotDeathAnimationRule.ByProjectile)
     {
         if (rule == ShotDeathAnimationRule.PirateBigExplosion)
-            return 4;
+            return EnemyDeathExplosion.Big;
 
-        if (projectileType.Family != SamusProjectileFamily.SuperMissile)
-            return enemy.Definition.DeathAnimation;
-
-        // A Super Missile raises headers zero, one and two to explosion two and keeps three
-        // and four: $A0:A67B loads Y = 2, and the signed `< 3` branch at $A0:A698 keeps it.
-        return enemy.Definition.DeathAnimation < 3
-            ? 2
-            : enemy.Definition.DeathAnimation;
+        return projectileType.Family == SamusProjectileFamily.SuperMissile
+            ? EnemyDeathExplosions.RaisedBySuperMissile(enemy.Definition.DeathExplosion)
+            : enemy.Definition.DeathExplosion;
     }
 
     /// <summary>
@@ -238,7 +230,7 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     internal RoomEnemyProjectileSlot? SpawnEnemyDropFromChanceTable(
         Position16<RoomPixels> position,
-        EnemyDropTable? dropChances)
+        EnemyDropChances? dropChances)
     {
         _room.EnsureLoaded();
         RoomEnemyProjectileSlot? pickup = _projectiles.AllocateEnemyProjectile();
@@ -250,7 +242,7 @@ internal sealed class EnemyDeathsAndDrops
             RoomEnemyProjectileKind.EnemyDeathPickup,
             graphics: default);
         pickup.Position = pickup.Position.WithWhole(position);
-        pickup.DropChancesOverride = dropChances is { } table ? EnemyDropTables.At(table) : null;
+        pickup.DropChancesOverride = dropChances;
         pickup.KilledEnemy = KilledEnemy.None;
         InitializeDirectEnemyPickup(pickup);
         return pickup;
@@ -325,9 +317,6 @@ internal sealed class EnemyDeathsAndDrops
         if (ResolveEnemyDropChances(projectile) is not { } table)
             return EnemyPickupKind.NoDrop;
 
-        Span<byte> chances = stackalloc byte[EnemyDropChanceDefinitions.RecordSize];
-        table.CopyTo(chances);
-
         int random;
         do
         {
@@ -350,35 +339,35 @@ internal sealed class EnemyDeathsAndDrops
         int enabledMask;
         if (_room.Session.CriticalEnergyDropBias)
         {
-            pooledMinorWeight = unchecked((byte)(chances[0] + chances[1]));
+            pooledMinorWeight = unchecked((byte)(table.SmallEnergy + table.BigEnergy));
             enabledMask = EnemyDropMasks.Energy;
         }
         else
         {
-            pooledMinorWeight = chances[3];
+            pooledMinorWeight = table.Nothing;
             enabledMask = EnemyDropMasks.Nothing;
             if (samus.Health != samus.MaxHealth ||
                 samus.ReserveEnergy != samus.MaxReserveEnergy)
             {
                 pooledMinorWeight = unchecked((byte)(
-                    pooledMinorWeight + chances[0] + chances[1]));
+                    pooledMinorWeight + table.SmallEnergy + table.BigEnergy));
                 enabledMask |= EnemyDropMasks.Energy;
             }
             if (samus.Missiles != samus.MaxMissiles)
             {
-                pooledMinorWeight = unchecked((byte)(pooledMinorWeight + chances[2]));
+                pooledMinorWeight = unchecked((byte)(pooledMinorWeight + table.Missile));
                 enabledMask |= EnemyDropMasks.Missile;
             }
             if (samus.SuperMissiles != samus.MaxSuperMissiles)
             {
                 majorAdjustedBudget = unchecked((byte)(
-                    majorAdjustedBudget - chances[4]));
+                    majorAdjustedBudget - table.SuperMissile));
                 enabledMask |= EnemyDropMasks.SuperMissile;
             }
             if (samus.PowerBombs != samus.MaxPowerBombs)
             {
                 majorAdjustedBudget = unchecked((byte)(
-                    majorAdjustedBudget - chances[5]));
+                    majorAdjustedBudget - table.PowerBomb));
                 enabledMask |= EnemyDropMasks.PowerBomb;
             }
         }
@@ -396,7 +385,7 @@ internal sealed class EnemyDeathsAndDrops
                 // The SNES multiply result is sixteen bits and division truncates toward
                 // zero. Inputs are bytes, so ordinary integer arithmetic is identical.
                 accumulated = unchecked((ushort)(accumulated +
-                    majorAdjustedBudget * chances[accumulatorIndex] / pooledMinorWeight));
+                    majorAdjustedBudget * table.Of(EnemyDropTables.ForProbabilityColumn(accumulatorIndex)) / pooledMinorWeight));
                 if (accumulated >= random)
                     return EnemyDropTables.ForProbabilityColumn(accumulatorIndex);
             }
@@ -416,7 +405,7 @@ internal sealed class EnemyDeathsAndDrops
             if (!enabled)
                 continue;
 
-            accumulated = unchecked((ushort)(accumulated + chances[accumulatorIndex]));
+            accumulated = unchecked((ushort)(accumulated + table.Of(EnemyDropTables.ForProbabilityColumn(accumulatorIndex))));
             if (accumulated >= random)
                 return EnemyDropTables.ForProbabilityColumn(accumulatorIndex);
         }
@@ -435,10 +424,9 @@ internal sealed class EnemyDeathsAndDrops
     {
         if (projectile.DropChancesOverride is { } chances)
             return chances;
-        EnemyDropTable? table = projectile.DropDefinitionId == EnemyDefinitionId.None
+        return projectile.DropDefinitionId == EnemyDefinitionId.None
             ? null
             : _room.LoadedDefinitions.ReadEnemyDefinition(projectile.DropDefinitionId).DropChances;
-        return table is { } selected ? EnemyDropTables.At(selected) : null;
     }
 
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>

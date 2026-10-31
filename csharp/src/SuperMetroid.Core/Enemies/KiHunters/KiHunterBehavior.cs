@@ -500,7 +500,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.WingArcAngle = state.WingArcAngle.AddRaw(ReadKiHunterQuadraticAngleDelta(
             state.DetachedSpeedIndex,
-            half: QuadraticSpeedHalf.Negative));
+            sign: EnemySpeedSign.Negative));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         ByteAngle byteAngle = state.WingArcAngle.ToByteAngle();
         wings.Position = wings.Position.WithWhole(state.OrbitCenter + EnemyMath.CircleOffset(byteAngle, radius) - state.OrbitOffset);
@@ -521,7 +521,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.WingArcAngle = state.WingArcAngle.AddRaw(ReadKiHunterQuadraticAngleDelta(
             state.DetachedSpeedIndex,
-            half: QuadraticSpeedHalf.Positive));
+            sign: EnemySpeedSign.Positive));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         ByteAngle byteAngle = state.WingArcAngle.ToByteAngle();
         int desiredY = unchecked((ushort)(
@@ -622,7 +622,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.DetachedSpeedReset += DetachedSpeedStep;
             int index = EightEight.WholeOf(state.DetachedSpeedReset);
-            state.AccumulateDetachedSpeed(EnemyQuadraticSpeeds.ReadWord(index * 8 + 1));
+            state.AccumulateDetachedSpeed(EnemyQuadraticSpeeds.Row(index).CoarseToward(EnemySpeedSign.Positive));
         }
         while (unchecked((short)(state.DetachedSpeedAccumulator - KiHunterMotionDefinitions.DetachedSpeedThreshold)) < 0);
     }
@@ -649,15 +649,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.OrbitCenter = wings.Position.Whole;
     }
 
-    /// <summary>Reads the unaligned quadratic-table word used by one half of detached-wing orbit motion.</summary>
-    internal static ushort ReadKiHunterQuadraticAngleDelta(int speedIndex, QuadraticSpeedHalf half)
-    {
-        int index = EightEight.WholeOf(speedIndex);
-        // These deliberately unaligned reads are literal: F7DB reads at record +5 and
-        // F8AD at record +1, combining adjacent bytes instead of consuming a normal 16.16
-        // table component. Replacing this with ReadQuadraticEnemySpeed changes the orbit.
-        return EnemyQuadraticSpeeds.ReadWord(index * 8 + (half == QuadraticSpeedHalf.Negative ? 5 : 1));
-    }
+    /// <summary>The detached wing's orbit angle step: a quadratic row's coarse speed in the direction it turns.</summary>
+    internal static ushort ReadKiHunterQuadraticAngleDelta(int speedIndex, EnemySpeedSign sign) =>
+        // The orbit steps by the coarse speed, in 256ths of a pixel; stepping by the full speed changes the orbit.
+        unchecked((ushort)EnemyQuadraticSpeeds.Row(EightEight.WholeOf(speedIndex)).CoarseToward(sign));
 
     /// <summary>Slows a detached wing by one speed step, landing on the slowest index when the step would go below zero.</summary>
     private static void DecrementKiHunterDetachedSpeedIndex(KiHunterEnemyState state)

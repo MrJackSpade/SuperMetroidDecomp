@@ -165,14 +165,13 @@ internal sealed class KraidCombat
                 scratch.Bottom = unchecked((ushort)KraidMouthHitBound.After(shot.Type.Family.TableRow,
                     shot.Type.BeamCombination.TableIndex, MouthHit(shot)));
                 scratch.Top = unchecked((ushort)KraidContactDefinitions.ShotUpperBoundAfterHit);
-                // A vulnerability entry's multiplier is its low nibble for charged beams and its low seven bits otherwise.
+                // Every beam takes Kraid's charged-beam multiplier; the other families take their own.
                 int multiplier = type.Family switch
                 {
-                    SamusProjectileFamily.Beam => EnemyVulnerabilityEntries.Read(
-                        body.Definition.Vulnerability, EnemyVulnerabilityDefinitions.ChargedBeamOffset) & 15,
+                    SamusProjectileFamily.Beam => body.Definition.Vulnerabilities.ChargedBeam.Multiplier,
                     SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile or
                     SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb =>
-                        EnemyCollision.ReadProjectileVulnerability(body, type) & 127,
+                        EnemyCollision.ReadProjectileVulnerability(body, type).Multiplier,
                     SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion => 0,
                     _ => throw new InvalidOperationException($"Undefined SamusProjectileFamily {type.Family}."),
                 };

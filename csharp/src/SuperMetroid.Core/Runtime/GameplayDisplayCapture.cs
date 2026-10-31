@@ -263,7 +263,7 @@ public static class GameplayDisplayCapture
         GameplayLatchedScene scene = latched.Scene;
         RoomHeaderDefinition xrayRoom = scene.Room ?? throw new InvalidOperationException("X-ray has no room.");
         var scrolls = latched.Scrolls;
-        var mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.BossId);
+        var mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.Boss);
         bool reveal = mode == XrayRoomBlendMode.RevealBlocks;
         // The reveal shows once an accepted NMI has latched it; until then BG2 shows what the room shows (#1403).
         XrayRevealPlane? shownReveal = reveal ? latched.XrayReveal : null;

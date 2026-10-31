@@ -11,15 +11,14 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         Health: 0x4e20,
         Damage: 0x00c8,
         Radius: new(0x0014, 0x0010),
-        HurtAiTime: 0x00,
+        HurtFlashFrames: 4,
         HurtSoundEffect: null,
-        BossId: 0x0000,
+        Boss: null,
         InitializationAi: EnemyAiRoutine.SpeciesRoutine,
-        PartCount: 0x0005,
         MainAi: EnemyAiRoutine.SpeciesRoutine,
         GrappleAi: GrappleAiRoutine.Cancel,
         HurtAi: EnemyAiRoutine.CommonNoOp,
-        DeathAnimation: 0x0004,
+        DeathExplosion: EnemyDeathExplosion.Big,
         PowerBombReaction: null,
         PowerBombReactionBody: EnemyCallbackBody.None,
         VariantIndex: 0x0000,
@@ -29,8 +28,8 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         ShotBody: EnemyCallbackBody.Routine,
         NoOpCallbackBody: EnemyCallbackBody.ImmediateReturn,
         Layer: 0x05,
-        DropChances: new(76),
-        Vulnerability: new(31));
+        DropChances: new EnemyDropChances(80, 80, 80, 5, 5, 5),
+        Vulnerability: EnemyVulnerabilityDefinitions.Invulnerable);
 
     /// <summary>Compiled baby turtle enemy definition.</summary>
     private static readonly RoomEnemyDefinition Baby = new(
@@ -39,15 +38,14 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         Health: 0x4e20,
         Damage: 0x0000,
         Radius: new(0x0008, 0x0005),
-        HurtAiTime: 0x00,
+        HurtFlashFrames: 4,
         HurtSoundEffect: null,
-        BossId: 0x0000,
+        Boss: null,
         InitializationAi: EnemyAiRoutine.SpeciesRoutine,
-        PartCount: 0x0001,
         MainAi: EnemyAiRoutine.SpeciesRoutine,
         GrappleAi: GrappleAiRoutine.Cancel,
         HurtAi: EnemyAiRoutine.CommonNoOp,
-        DeathAnimation: 0x0000,
+        DeathExplosion: EnemyDeathExplosion.Small,
         PowerBombReaction: null,
         PowerBombReactionBody: EnemyCallbackBody.None,
         VariantIndex: 0x0000,
@@ -57,8 +55,8 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         ShotBody: EnemyCallbackBody.Routine,
         NoOpCallbackBody: EnemyCallbackBody.ImmediateReturn,
         Layer: 0x05,
-        DropChances: new(76),
-        Vulnerability: new(31));
+        DropChances: new EnemyDropChances(80, 80, 80, 5, 5, 5),
+        Vulnerability: EnemyVulnerabilityDefinitions.Invulnerable);
 
     /// <summary>Resolves a compiled family header by its native bank-$A0 pointer.</summary>
     internal static bool TryGet(EnemyDefinitionId pointer, out RoomEnemyDefinition definition)

@@ -50,20 +50,21 @@ internal static class EnemyGameplayAcceptanceVerification
             "vulnerability selection, linked population initialization and editable-art isolation pass.");
     }
 
-    /// <summary>Resolves vulnerability and drop records referenced by every primary and auxiliary enemy header.</summary>
+    /// <summary>Resolves the vulnerabilities and drop chances of every primary and auxiliary enemy header.</summary>
     private static void VerifyEnemyDefinitionReferenceClosure()
     {
-        Span<byte> drop = stackalloc byte[EnemyDropChanceDefinitions.RecordSize];
         foreach (EnemyDefinitionId pointer in RoomEnemyDefinitionCatalog.Pointers.Concat(RoomEnemyAuxiliaryDefinitionCatalog.Pointers))
         {
             RoomEnemyDefinition definition = RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer, out var auxiliary)
                 ? auxiliary : RoomEnemyHeaders.Get(pointer);
-            for (int field = 0; field < EnemyVulnerabilityDefinitions.RecordSize; field++)
-                _ = EnemyVulnerabilityEntries.Read(definition.Vulnerability, field);
-            if (definition.DropChances is { } table)
-                EnemyDropTables.Copy(table, drop);
+            AssertTrue(definition.Vulnerabilities is not null, $"{pointer} resolves its vulnerabilities");
+            if (definition.DropChances is { } chances)
+            {
+                AssertEqual(byte.MaxValue, chances.SmallEnergy + chances.BigEnergy + chances.Missile + chances.Nothing +
+                    chances.SuperMissile + chances.PowerBomb, $"{pointer}'s drop chances sum to 255");
+            }
         }
-        Console.WriteLine("Enemy reference closure: all 153 headers resolve compiled vulnerabilities and drops.");
+        Console.WriteLine("Enemy reference closure: all headers resolve compiled vulnerabilities and drop chances.");
     }
 
     /// <summary>Loads a retail KiHunter body-wing population without cartridge memory and checks a PNG edit affects the OBJ characters but no enemy slot or quota.</summary>
@@ -152,7 +153,7 @@ internal static class EnemyGameplayAcceptanceVerification
                 $"enemy artwork cannot change slot {index} {property.Name}");
         AssertEqual(baseline.PopulationLoader.DeathQuota, changed.PopulationLoader.DeathQuota, "enemy artwork cannot change death quota");
         AssertEqual(baseline.SlotTable.FindFreeSlot()?.SlotIndex, changed.SlotTable.FindFreeSlot()?.SlotIndex, "enemy artwork cannot change slot allocation");
-        AssertEqual(baseline.RoomStatus.BossId, changed.RoomStatus.BossId, "enemy artwork cannot change boss selection");
+        AssertEqual(baseline.RoomStatus.Boss, changed.RoomStatus.Boss, "enemy artwork cannot change boss selection");
         Console.WriteLine($"Enemy population binding: {population.Records.Length} linked slots at {population.Name} " +
             "initialize with RAM-only memory; PNG edits change the OBJ characters, not any slot field or quota.");
 

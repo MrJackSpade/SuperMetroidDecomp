@@ -38,8 +38,6 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>Bytes per native whole/fraction quadratic-speed record.</summary>
-    private const int QuadraticSpeedRecordSize = 8;
     /// <summary>Upper bound applied to the airborne speed-table index.</summary>
     private const ushort MaximumPuyoYSpeedTableIndex = 16384;
 
@@ -170,14 +168,12 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int guard = 0; guard <= ushort.MaxValue; guard++)
         {
             timeAccumulator = unchecked((ushort)(timeAccumulator + xSpeed));
-            int speedRow = UnsignedEightEight.Whole(timeAccumulator) * QuadraticSpeedRecordSize;
+            EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeeds.Row(UnsignedEightEight.Whole(timeAccumulator));
 
-            // The cartridge intentionally reads a word at table+1: the high byte of the
-            // fractional speed followed by the low byte of the whole speed. Accumulating
-            // that misaligned value produces an 8.8 distance estimate used only to find
-            // the initial curve index.
+            // Summing each row's coarse speed, in 256ths of a pixel, gives the 8.8 distance estimate used only to
+            // find the initial curve row.
             distanceAccumulator = unchecked((ushort)(distanceAccumulator +
-                EnemyQuadraticSpeeds.ReadWord(speedRow + 1)));
+                speedRow.CoarseToward(EnemySpeedSign.Positive)));
             if (!EnemyMath.IsNegative16(unchecked((ushort)(swappedJumpHeight - distanceAccumulator))))
                 continue;
 
@@ -314,9 +310,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private void MovePuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
         int cappedIndex = Math.Min(state.YSpeedTableIndex, MaximumPuyoYSpeedTableIndex);
-        int speedRow = EightEight.WholeOf(cappedIndex) * QuadraticSpeedRecordSize;
-        int verticalOffset = state.Falling ? 0 : 4;
-        int verticalDisplacement = EnemyQuadraticSpeeds.ReadDisplacement(speedRow + verticalOffset);
+        EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(cappedIndex));
+        int verticalDisplacement = speedRow.Toward(state.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
         bool verticalCollision = _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
         if (verticalCollision)
         {

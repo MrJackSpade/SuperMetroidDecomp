@@ -348,8 +348,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports $A8:A63E: adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
-        state.Extension += SignedSixteenSixteen.FromRaw(EnemyMath.ReadQuadraticEnemySpeed(
-            checked((ushort)state.QuadraticSpeedRecord), state.QuadraticSpeedNegative));
+        state.Extension += SignedSixteenSixteen.FromRaw(EnemyQuadraticSpeeds.Row(checked((ushort)state.QuadraticSpeedRecord)).Toward(state.QuadraticSpeedNegative ? EnemySpeedSign.Negative : EnemySpeedSign.Positive));
         state.QuadraticSpeedRecord++;
     }
 

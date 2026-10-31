@@ -71,14 +71,13 @@ public sealed class KzanEnemyState
     }
 
     /// <summary>
-    /// Byte offset into <c>CommonEnemySpeeds_LinearlyIncreasing</c>. Kzan advances by eight bytes per falling frame
-    /// because each logical speed owns positive and negative pairs. Backed by <c>$7E:7804,x</c>, initialized from
-    /// population parameter 1's low byte times eight (0 through 2040), and capped at 512 after each falling update.
+    /// The row of the shared linear speed table the fall moves at. Initialized from population parameter 1's low byte
+    /// (0 through 255), it advances one row per falling update and is capped at row 64.
     /// </summary>
-    public int FallingYSpeedTableIndex
+    public int FallingSpeedRow
     {
-        get => _words.FallingYSpeedTableIndex;
-        internal set => _words.FallingYSpeedTableIndex = value;
+        get => _words.FallingSpeedRow;
+        internal set => _words.FallingSpeedRow = value;
     }
 
     /// <summary>Post-landing wait in actor updates, backed by <c>$7E:7806,x</c>; loaded with 64 on landing and decremented to zero before upward motion begins.</summary>

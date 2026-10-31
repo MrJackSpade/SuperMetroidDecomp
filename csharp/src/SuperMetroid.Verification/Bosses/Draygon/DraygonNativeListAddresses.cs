@@ -99,11 +99,16 @@ internal static class DraygonNativeListAddresses
     /// <summary>Whether the native entries ascend, so the typed declaration order is the authored order.</summary>
     internal static bool EntriesAscend => Entries.Zip(Entries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends);
 
+    /// <summary>
+    /// Whether a native callback only selects the screen split that draws the HUD. The port's display draws the HUD
+    /// without it, so these callbacks have no typed step.
+    /// </summary>
+    internal static bool SelectsHudSplit(ushort callback) => callback is 0x9895 or 0x9c8a;
+
     /// <summary>The cue a native callback with <paramref name="operands"/> must become.</summary>
     internal static DraygonCue CueOf(ushort callback, ushort[] operands) => callback switch
     {
         0x94dd => new DraygonCue.StartPartPrograms(Program(operands[0]), Program(operands[1]), Program(operands[2]), Program(operands[3])),
-        0x9895 or 0x9c8a => DraygonCue.BeginHudDraw.Instance,
         0xc47b => new DraygonCue.SetEyeFunction(DraygonNativeWords.EyeFunctions.Decode(operands[0], "Draygon eye function")),
         0x9736 => new DraygonCue.SetOwnEyeFunction(DraygonNativeWords.EyeFunctions.Decode(operands[0], "Draygon eye function")),
         0x9e0a => new DraygonCue.DisplaceBodyGraphics(new(unchecked((short)operands[0]), unchecked((short)operands[1]))),

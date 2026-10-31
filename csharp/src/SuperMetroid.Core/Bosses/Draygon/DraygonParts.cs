@@ -40,7 +40,7 @@ internal sealed class DraygonParts
 
 
     /// <summary>Builds the component from the encounter's collaborators.</summary>
-    internal DraygonParts(DraygonBehaviorDependencies dependencies)
+    internal DraygonParts(DraygonPartsDependencies dependencies)
     {
         _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;

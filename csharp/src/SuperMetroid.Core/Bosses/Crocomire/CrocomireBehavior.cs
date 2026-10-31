@@ -50,7 +50,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _bossArtwork = dependencies.Presentation.Artwork;
         _room = dependencies.Room;
-        Access = new CrocomireEncounterAccess(dependencies.FrameResults, _room, dependencies.Projectiles, dependencies.Audio);
+        Access = dependencies.Access;
         BodyLayer = new CrocomireBodyLayer(dependencies.SpriteObjects, dependencies.Presentation.Surfaces, Access);
         Fight = new CrocomireFight(new CrocomireFightDependencies { Room = _room, Terrain = dependencies.Terrain, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, Collision = dependencies.Collision, ZebetiteBehavior = dependencies.ZebetiteBehavior, RoomStatus = dependencies.RoomStatus, BodyLayer = BodyLayer, Access = Access , BossArtwork = _bossArtwork });
         Combat = new CrocomireCombat(dependencies.Projectiles, dependencies.Presentation.Surfaces, dependencies.FrameContext, dependencies.Collision, dependencies.DeathsAndDrops, Access, _bossArtwork);

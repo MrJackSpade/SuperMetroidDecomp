@@ -294,7 +294,7 @@ internal sealed class MotherBrainHead
                 SpawnMotherBrainPurpleBreathBig(state);
                 return null;
             case MotherBrainHeadCue.PlaySound playSound:
-                _audio.QueueEnemySound(playSound.Sound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(playSound.Effect, priority: SoundRequestPriority.Normal);
                 return null;
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.DisableNeckMovement }:
                 state.NeckMovementEnabled = false;

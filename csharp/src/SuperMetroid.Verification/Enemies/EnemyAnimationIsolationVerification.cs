@@ -51,7 +51,7 @@ internal static class EnemyAnimationIsolationVerification
                 edited.Enemies.BoyonStates[0] ?? throw new InvalidOperationException("Verification requires the edited Boyon state."), $"Boyon frame {frame}");
             heights.Add(stock.Actor.Position.Y.Whole);
             nativeFrames.Add(stock.Actor.SpritemapPointer);
-            if (stock.Enemies.Audio.PublishedSoundFrom(EnemySoundSource.Boyon) is not null) bounceSounds++;
+            if (stock.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == EnemySoundEffectDefinitions.BoyonBounceSound)) bounceSounds++;
             var before = stock.Draw(); var after = edited.Draw();
             AssertEditedAnimationDraw(edited, after, frame);
             if (!before.LowTable.SequenceEqual(after.LowTable) || !before.HighTable.SequenceEqual(after.HighTable)) differentDraws++;

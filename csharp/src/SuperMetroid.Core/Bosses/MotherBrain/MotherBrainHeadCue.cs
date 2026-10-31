@@ -9,8 +9,8 @@ internal abstract record MotherBrainHeadCue
     }
 
     /// <summary>Requests a sound: a roar, an attack cry or the onion rings.</summary>
-    /// <param name="Sound">The sound requested.</param>
-    internal sealed record PlaySound(SoundEffectId Sound) : MotherBrainHeadCue;
+    /// <param name="Effect">The sound requested.</param>
+    internal sealed record PlaySound(SoundEffectId Effect) : MotherBrainHeadCue;
 
     /// <summary>Lobs a bomb with its afterburn count.</summary>
     /// <param name="Afterburns">The afterburn count the bomb lobs with.</param>

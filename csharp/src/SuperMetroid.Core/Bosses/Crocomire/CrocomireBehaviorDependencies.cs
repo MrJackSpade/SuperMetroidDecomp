@@ -11,8 +11,6 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 [RoomLifetime]
 internal sealed record CrocomireBehaviorDependencies
 {
-    /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    public required BossFrameResultBuilder FrameResults { get; init; }
 
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }
@@ -47,6 +45,7 @@ internal sealed record CrocomireBehaviorDependencies
     /// <summary>Room status.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }
 
-    /// <summary>The enemy update's sound and music requests.</summary>
-    public required EnemyAudioQueue Audio { get; init; }
+    /// <summary>Crocomire's state lookups, frame results and sound and music requests.</summary>
+    public required CrocomireEncounterAccess Access { get; init; }
+
 }

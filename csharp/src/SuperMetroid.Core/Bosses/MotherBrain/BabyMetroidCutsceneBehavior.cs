@@ -191,7 +191,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (baby.Program != state.BabyAppliedProgram)
             SetBabyMetroidCutsceneProgram(state, slot, baby.Program);
         CopyBabyMetroidActorToPhysicalSlot(slot, baby);
-        ApplyBabyMetroidFrameEffects(state, step);
+        ApplyBabyMetroidFrameEffects(step);
     }
 
     /// <summary>Copies cutscene position, property, palette, tile, and health state into the live enemy record.</summary>
@@ -209,9 +209,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Applies one step's music, sounds, dust, palette, attack-tile, and recovery-light requests to room systems.</summary>
-    internal void ApplyBabyMetroidFrameEffects(
-        MotherBrainEnemyState state,
-        BabyMetroidCutsceneStepResult step)
+    internal void ApplyBabyMetroidFrameEffects(BabyMetroidCutsceneStepResult step)
     {
         if (step.FatalBlowStarted)
         {

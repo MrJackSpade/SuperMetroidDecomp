@@ -625,7 +625,7 @@ internal sealed class MotherBrainProjectiles
                 RoomEnemySlot babySlot = state.BabyMetroidSlot ?? throw new InvalidDataException(
                     "A Mother Brain onion ring hit the Baby without its physical slot.");
                 babySlot.Health = baby.Health;
-                ExplodeMotherBrainOnionRing(ring, state, ring.Position.Whole);
+                ExplodeMotherBrainOnionRing(ring, ring.Position.Whole);
                 return;
             }
         }
@@ -648,7 +648,7 @@ internal sealed class MotherBrainProjectiles
             samus.KnockbackXDirection = unchecked((short)(samus.Position.X.Whole - ringPosition.X)) >= 0
                 ? KnockbackHorizontalDirection.Right
                 : KnockbackHorizontalDirection.Left;
-            ExplodeMotherBrainOnionRing(ring, state, ringPosition);
+            ExplodeMotherBrainOnionRing(ring, ringPosition);
             return;
         }
 
@@ -660,7 +660,7 @@ internal sealed class MotherBrainProjectiles
         {
             _earthquake.EarthquakeTimer = WrappingCountdown.Start(10);
             _earthquake.EarthquakeType = 5;
-            ExplodeMotherBrainOnionRing(ring, state, ring.Position.Whole);
+            ExplodeMotherBrainOnionRing(ring, ring.Position.Whole);
         }
     }
 
@@ -694,7 +694,6 @@ internal sealed class MotherBrainProjectiles
     /// <summary>Ends a ring on contact and spawns its explosion effect.</summary>
     private void ExplodeMotherBrainOnionRing(
         RoomEnemyProjectileSlot ring,
-        MotherBrainEnemyState state,
         Position16<RoomPixels> position)
     {
         // `$C410` clears the source before allocating parameter-three room dust. If the

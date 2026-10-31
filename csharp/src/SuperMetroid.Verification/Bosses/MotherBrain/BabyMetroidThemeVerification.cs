@@ -23,7 +23,7 @@ internal static class BabyMetroidThemeVerification
         baby.Health = 0;
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         var samus = new SamusState(InstalledFixtures.AnimationContinuation);
-        Action<MotherBrainEnemyState, BabyMetroidCutsceneStepResult> apply = enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects;
+        Action<BabyMetroidCutsceneStepResult> apply = enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects;
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);
         var beginMotherBrain = new Action(state.BeginFrame);
         var collect = new Action(enemies.PublishEnemyAudioRequests);
@@ -32,7 +32,7 @@ internal static class BabyMetroidThemeVerification
             begin();
             beginMotherBrain();
             var step = baby.Step(samus, sequence, HeadOf(sequence));
-            apply(state, step);
+            apply(step);
             collect();
             // #1410: the requests are asserted by kind and identity instead of by their queue words ($0000, $FF48, $0005).
             MusicRequest[] expected = frame switch

@@ -36,7 +36,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
             BabyFadeShade: null, AttackPage: null, RecoveryLightsFrame: null);
 
         runtime.Enemies.Audio.BeginFrame();
-        runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects((state), step);
+        runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(step);
         AssertEqual((SoundEffectId?)MotherBrainSoundDefinitions.Explosion, runtime.Enemies.Audio.PublishedSoundFrom(EnemySoundSource.MotherBrainCue),
             "the explosion requests library-three $13 from Mother Brain's cue source");
         AssertEqual(SoundRequestPriority.Low, runtime.Enemies.Audio.SoundRequests[^1].Priority, "the explosion competes at low priority");

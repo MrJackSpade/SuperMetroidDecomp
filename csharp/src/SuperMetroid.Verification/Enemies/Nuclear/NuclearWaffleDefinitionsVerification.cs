@@ -117,7 +117,7 @@ internal static class NuclearWaffleDefinitionsVerification
         for (int update = 0; update <= finishingUpdate; update++)
         {
             if (update == 96)
-                enemies.NuclearWaffleBehavior.BeginEnemyFrame(new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation) });
+                enemies.Audio.BeginFrame();
             enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(slot, Frame());
             AssertEqual(SignedSixteenSixteen.FromRaw(startAngle * oneUnit + (update + 1) * (oneUnit + oneUnit / 2)), state.SweepAngle,
                 $"Nuclear Waffle sweep angle after sweep update {update}");

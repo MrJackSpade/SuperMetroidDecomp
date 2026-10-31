@@ -36,7 +36,7 @@ internal static class PcmFrameResampler
                 int right = source[rightFrame * 2 + channel];
                 int interpolated = left + unchecked((int)(((long)(right - left) * fraction) /
                     destinationFrames));
-                destination[destinationFrame * 2 + channel] = unchecked((short)interpolated);
+                destination[destinationFrame * 2 + channel] = unchecked((short)interpolated); // cartridge-encoding: allow(HostPcmSample) - the host's signed 16-bit PCM output sample
             }
         }
     }

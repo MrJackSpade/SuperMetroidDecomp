@@ -478,7 +478,7 @@ public static class StockAttractDemoScenes
     };
 
     /// <summary>Seventeen staged actors stand on identified flat native floor cells. Their selected room-screen floor rows convert to pixels, then subtract the actual immutable pose radius. This does not use editable room artwork or infer the six other placements.</summary>
-    private static short GroundedY(int floorRow, Demonstration demonstration)
+    private static int GroundedY(int floorRow, Demonstration demonstration)
     {
         SamusPoseId pose = SamusSetupFor(demonstration) switch
         {
@@ -490,7 +490,7 @@ public static class StockAttractDemoScenes
                 throw new InvalidOperationException("This demonstration does not use a grounded staging pose."),
             _ => throw new InvalidOperationException($"Undefined AttractDemoSamusSetup {SamusSetupFor(demonstration)}."),
         };
-        return (short)(floorRow * 16 - SamusPoseCollisionRadii.ReadVerticalRadius(pose));
+        return CoordinateAxis.AsSigned(floorRow * 16 - SamusPoseCollisionRadii.ReadVerticalRadius(pose));
     }
 
     /// <summary>Landing Site entries select their sky, the charge-beam-room demonstration selects its scroll correction, and the two boss scenarios select their explicit room setup. All other staged rooms use the native no-op callback.</summary>
@@ -585,8 +585,8 @@ public static class StockAttractDemoScenes
     private static Position16<RoomPixels> CameraAtScreen(Position16<RoomScreens> screen) => screen.ToRoomPixels();
 
     /// <summary>Ammo counts are a number of five-round upgrades.</summary>
-    private static ushort AmmoForPacks(int packs) => (ushort)(packs * 5);
+    private static int AmmoForPacks(int packs) => WordWrap.Unsigned(packs * 5);
 
     /// <summary>Energy capacities consist of 99 base energy plus 100 per tank.</summary>
-    private static ushort HealthForEnergyTanks(int tanks) => (ushort)(99 + tanks * 100);
+    private static int HealthForEnergyTanks(int tanks) => WordWrap.Unsigned(99 + tanks * 100);
 }

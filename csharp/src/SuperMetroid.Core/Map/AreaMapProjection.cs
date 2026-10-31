@@ -19,7 +19,7 @@ public static class AreaMapProjection
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
-            var cell = new Position16<MapTiles>(unchecked((ushort)x), unchecked((ushort)y));
+            var cell = new Position16<MapTiles>(CoordinateAxis.Wrap(x), CoordinateAxis.Wrap(y));
             bool explored = system.IsMapTileExplored(map.Area, cell);
             cells[y * AreaMapLayout.WidthInTiles + x] = explored ? ShownMapCell.Explored(map.Cell(cell))
                 : AreaMapVisibility.IsVisible(explored, downloaded, map.IsRevealedByMapStation(cell), map.IsDiscoverable(cell), revealMode)

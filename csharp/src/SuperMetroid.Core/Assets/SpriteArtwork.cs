@@ -57,13 +57,13 @@ public sealed class SpriteArtwork
     /// <summary>Palette index (zero is transparent) of one pixel of one character.</summary>
     /// <param name="character">Character index within the sheet.</param>
     /// <param name="pixel">Pixel inside the character, each coordinate 0..7 from the top-left.</param>
-    public byte ColorIndex(int character, Position16<CharacterPixels> pixel)
+    public int ColorIndex(int character, Position16<CharacterPixels> pixel)
     {
         // Planes 0/1 interleave in bytes 0..15 and planes 2/3 repeat that layout in bytes 16..31;
         // the leftmost pixel is bit 7.
         int row = character * CharacterByteCount + pixel.Y * 2;
         int mask = 1 << (7 - pixel.X);
-        return (byte)(
+        return (
             ((characters[row] & mask) != 0 ? 1 : 0)
             | ((characters[row + 1] & mask) != 0 ? 2 : 0)
             | ((characters[row + 16] & mask) != 0 ? 4 : 0)

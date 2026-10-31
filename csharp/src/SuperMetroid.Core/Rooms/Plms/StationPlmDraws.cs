@@ -131,14 +131,14 @@ internal static class StationPlmDraws
         }
 
         /// <inheritdoc/>
-        public sbyte NextX(int run)
+        public int NextX(int run)
         {
             CheckRun(run);
-            return run == 0 ? checked((sbyte)FirstRunX) : (sbyte)0;
+            return run == 0 ? Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, FirstRunX) : 0;
         }
 
         /// <inheritdoc/>
-        public sbyte NextY(int run)
+        public int NextY(int run)
         {
             CheckRun(run);
             return RunY(run);
@@ -158,7 +158,7 @@ internal static class StationPlmDraws
         private protected virtual int FirstRunX => 0;
 
         /// <summary>The vertical offset after <paramref name="run"/>.</summary>
-        private protected virtual sbyte RunY(int run) => 0;
+        private protected virtual int RunY(int run) => 0;
 
         /// <summary>The terrain at <paramref name="cell"/> of <paramref name="run"/>, both in range.</summary>
         private protected abstract RoomTerrainBlock Block(int run, int cell);
@@ -205,7 +205,7 @@ internal static class StationPlmDraws
         public override int RunCount => 2;
 
         /// <inheritdoc/>
-        private protected override sbyte RunY(int run) => run == 0 ? (sbyte)-1 : (sbyte)0;
+        private protected override int RunY(int run) => run == 0 ? -1 : 0;
 
         /// <inheritdoc/>
         private protected override RoomTerrainBlock Block(int run, int cell) =>
@@ -226,7 +226,7 @@ internal static class StationPlmDraws
         private protected override int BlocksPerRun => 2;
 
         /// <inheritdoc/>
-        private protected override sbyte RunY(int run) => run < 5 ? (sbyte)(-run - 1) : (sbyte)0;
+        private protected override int RunY(int run) => run < 5 ? WordWrap.SignedLowByte(-run - 1) : 0;
 
         /// <inheritdoc/>
         private protected override RoomTerrainBlock Block(int run, int cell)

@@ -13,5 +13,5 @@ public sealed record MapCoordinateJsonDocument(int X, int Y)
 
     /// <summary>The persisted map cell.</summary>
     [JsonIgnore]
-    public Position16<MapTiles> Cell => new(checked((ushort)X), checked((ushort)Y));
+    public Position16<MapTiles> Cell => new(X, Y);
 }

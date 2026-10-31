@@ -36,9 +36,9 @@ internal sealed class StationPlms : IPlmFamilySource
         _sounds = sounds;
     }
     /// <summary>Frames spent extending or retracting the station access arm.</summary>
-    private const ushort StationAccessMovementFrames = 6;
+    private const int StationAccessMovementFrames = 6;
     /// <summary>Native hold before a fully extended arm publishes station activation.</summary>
-    private const ushort StationAccessExtendedHoldFrames = 96;
+    private const int StationAccessExtendedHoldFrames = 96;
     /// <summary>Messages and frontend actions produced in the current PLM handler pass.</summary>
     private readonly List<StationActivationEvent> _stationActivationEvents = [];
     /// <summary>Blocks repeated save confirmation during the current room entry.</summary>
@@ -118,7 +118,7 @@ internal sealed class StationPlms : IPlmFamilySource
         IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException("Confirmed save station has no live Samus owner.");
         // Rounds Samus to the nearest block boundary.
-        samus.Position = samus.Position.WithWholeX(unchecked((ushort)(((samus.Position.X.Whole + 8) >> 4) << 4)));
+        samus.Position = samus.Position.WithWrappedWholeX(((samus.Position.X.Whole + 8) >> 4) << 4);
         samus.FaceForward();
         samus.Control.LockHandlers();
 
@@ -705,7 +705,7 @@ internal sealed class StationPlms : IPlmFamilySource
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
         IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException("Save-station collision requires the room's Samus owner.");
-        int probeX = unchecked((ushort)(samus.Position.X.Whole - SaveStationTriggerGeometry.HorizontalProbeOffset));
+        int probeX = CoordinateAxis.Wrap(samus.Position.X.Whole - SaveStationTriggerGeometry.HorizontalProbeOffset);
         return (probeX >> SaveStationTriggerGeometry.BlockCoordinateShift) == blockIndex % roomWidthInBlocks;
     }
 

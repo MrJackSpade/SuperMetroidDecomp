@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresDoorQuake
 {
     /// <summary>Returns the signed offset selected by the earthquake timer's low two bits.</summary>
-    internal static sbyte XOffset(int earthquakeTimer)
+    internal static int XOffset(int earthquakeTimer)
     {
         int phase = earthquakeTimer & 3;
         int word = phase < sizeof(ushort) ? 0 : Impulse;
-        return unchecked((sbyte)(word >> (8 * (phase & 1))));
+        return WordWrap.SignedLowByte(word >> (8 * (phase & 1)));
     }
 }

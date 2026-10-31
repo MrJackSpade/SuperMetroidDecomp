@@ -96,7 +96,7 @@ internal static class RoomPaletteFxSelection
         // The eighth row (beyond the retail areas) selects no object for any bit.
         if (areaIndex >= AreaIds.RetailCount)
             return PaletteFxObject.Nothing;
-        return new AreaFxBit(AreaIds.FromIndex((byte)areaIndex, "Palette-FX area row"), bitIndex) switch
+        return new AreaFxBit(AreaIds.FromIndex(WordWrap.LowByte(areaIndex), "Palette-FX area row"), bitIndex) switch
         {
             (AreaId.Crateria, 0) => PaletteFxObject.CrateriaLightning,
             (AreaId.Crateria, 1) => PaletteFxObject.UpperCrateriaRedFlashing,

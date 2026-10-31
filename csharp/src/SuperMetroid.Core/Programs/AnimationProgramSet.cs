@@ -165,7 +165,7 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
                         cursor = Validate(redirect);
                     break;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.SetCounterStep setCounter:
-                    counter = WrappingCountdown.FromRaw((ushort)setCounter.Count);
+                    counter = WrappingCountdown.FromRaw(WordWrap.Unsigned(setCounter.Count));
                     cursor = cursor with { Position = cursor.Position + 1 };
                     break;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.RepeatWhileCountingStep repeat:

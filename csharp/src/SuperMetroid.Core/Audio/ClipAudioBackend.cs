@@ -300,5 +300,5 @@ public sealed class ClipAudioBackend
     }
 
     /// <summary>Saturates a mixed sample to signed 16 bits.</summary>
-    private static short Clamp16(int value) => (short)Math.Clamp(value, short.MinValue, short.MaxValue);
+    private static short Clamp16(int value) => (short)Math.Clamp(value, short.MinValue, short.MaxValue); // cartridge-encoding: allow(HostPcmSample) - the host's signed 16-bit PCM mix sample
 }

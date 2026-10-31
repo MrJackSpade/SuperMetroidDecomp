@@ -12,7 +12,7 @@ internal static class FirefleaShades
     /// <remarks>Independently checked for #1165 against every original NTSC J/U v1.0
     /// word and pinned bank_88.asm. The six-frame timer and phase wrap are caller-owned;
     /// this exact integer wave requires no sampled floating-point construction.</remarks>
-    internal static byte FlashingShade(int index)
+    internal static int FlashingShade(int index)
     {
         if (index is < 0 or >= FlashCount)
         {
@@ -20,7 +20,7 @@ internal static class FirefleaShades
                 $"Fireflea flashing index {index} is outside the {FlashCount}-entry native cycle.");
         }
 
-        return (byte)(6 - Math.Abs(index - 6));
+        return WordWrap.LowByte(6 - Math.Abs(index - 6));
     }
 
     /// <summary>Returns the capped six-step darkness shade level, plus the level read past the ramp at offset 12.</summary>
@@ -29,7 +29,7 @@ internal static class FirefleaShades
     /// Offset 12 reads past the ramp, not an extrapolated ramp value. The death
     /// counter permits that offset. Reject odd offsets and offsets above 12; retain the
     /// caller's wrapped flash-plus-darkness level addition.</remarks>
-    internal static byte DarknessShade(int byteOffset)
+    internal static int DarknessShade(int byteOffset)
     {
         if ((byteOffset & 1) != 0 || byteOffset is < 0 or > 12)
         {
@@ -37,6 +37,6 @@ internal static class FirefleaShades
                 $"Fireflea darkness byte offset {byteOffset} is outside the retail 0-through-12 even domain.");
         }
 
-        return byteOffset == 12 ? PastRampShadeLevel : (byte)Math.Min(3 * byteOffset, 25);
+        return byteOffset == 12 ? PastRampShadeLevel : WordWrap.LowByte(Math.Min(3 * byteOffset, 25));
     }
 }

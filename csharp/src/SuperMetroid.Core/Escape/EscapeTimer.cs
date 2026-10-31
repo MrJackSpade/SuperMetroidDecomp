@@ -93,7 +93,7 @@ public sealed class EscapeTimer
     public void Clear()
     {
         int centre = EightEight.FromWhole(ClearedPixel);
-        Position = new((ushort)centre, (ushort)centre);
+        Position = new(WordWrap.Unsigned(centre), WordWrap.Unsigned(centre));
         _startupFrames = 0;
         _pendingDuration = 0;
         RemainingCentiseconds = 0;
@@ -162,7 +162,7 @@ public sealed class EscapeTimer
             axesInPosition++;
             nextY = settledY;
         }
-        Position = new((ushort)nextX, (ushort)nextY);
+        Position = new(CoordinateAxis.Wrap(nextX), CoordinateAxis.Wrap(nextY));
 
         if (axesInPosition == 2)
             AdvancePhase();

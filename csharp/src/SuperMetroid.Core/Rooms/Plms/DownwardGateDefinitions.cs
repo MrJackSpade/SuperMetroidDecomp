@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class DownwardGateDefinitions
 {
     /// <summary>Five room blocks are marked solid while the closed gate occupies its column.</summary>
-    public const byte GateHeightInBlocks = 5;
+    public const int GateHeightInBlocks = 5;
     /// <summary>The block behaviour written to every block in the closed gate column.</summary>
     public static readonly RoomBlockBehavior ClosedGateBehavior = new(0x10);
     /// <summary>The sound queued for a rejected non-blue gate trigger shot.</summary>

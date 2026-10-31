@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Areas.Tourian;
 internal static class TourianAccessPlmProgramDefinitions
 {
     /// <summary>The rows the crumble walks down.</summary>
-    internal const byte CrumbleRows = 6;
+    internal const int CrumbleRows = 6;
     /// <summary>How long each crumble image shows.</summary>
-    internal const ushort CrumbleFrameDuration = 4;
+    internal const int CrumbleFrameDuration = 4;
 
     /// <summary>Every Tourian access program.</summary>
     internal static AnimationProgramSet<TourianAccessProgram, TourianAccessDraw, TourianAccessCue> Programs { get; } = new(

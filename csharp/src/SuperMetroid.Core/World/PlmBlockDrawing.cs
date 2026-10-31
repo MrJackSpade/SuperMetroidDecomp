@@ -144,7 +144,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
         {
             for (int run = 0; run < compiled.RunCount; run++)
                 for (int block = 0; block < compiled.BlocksPerRun; block++)
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(compiled.Vertical ? 0 : block)), checked((short)(compiled.Vertical ? block : run))), compiled.BlockAt(run, block), ShotBlockVisuals?.GetAppearance(draw, run, block));
+                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(compiled.Vertical ? 0 : block, compiled.Vertical ? block : run), compiled.BlockAt(run, block), ShotBlockVisuals?.GetAppearance(draw, run, block));
             return;
         }
         if (draw == SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw)
@@ -167,13 +167,13 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
         {
             for (int run = 0; run < crocomireDraw.RunCount; run++)
                 for (int block = 0; block < crocomireDraw.BlocksPerRun; block++)
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(crocomireDraw.Wall ? run : block)), checked((short)(crocomireDraw.Wall ? block : 0))), crocomireDraw.BlockAt(run, block), CrocomireVisuals?.GetAppearance(draw, run, block));
+                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(crocomireDraw.Wall ? run : block, crocomireDraw.Wall ? block : 0), crocomireDraw.BlockAt(run, block), CrocomireVisuals?.GetAppearance(draw, run, block));
             return;
         }
         if (MotherBrainFakeDeathDraws.TryDescribeBackground(draw, out var backgroundFakeDeath))
         {
             for (int column = 0; column < 13; column++)
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)column), 0), backgroundFakeDeath.BlockAt(column), MotherBrainFakeDeathVisuals?.GetAppearance(draw, 0, column));
+                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(column, 0), backgroundFakeDeath.BlockAt(column), MotherBrainFakeDeathVisuals?.GetAppearance(draw, 0, column));
             return;
         }
         if (MotherBrainFakeDeathDraws.TryDescribeRegular(draw, out var regularFakeDeath))
@@ -182,8 +182,8 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                 for (int block = 0; block < regularFakeDeath.Count(run); block++)
                 {
                     bool vertical = regularFakeDeath.Vertical(run);
-                    Position16<RoomBlocks> run0 = origin + new Offset16<RoomBlocks>(checked((short)(run == 0 ? 0 : regularFakeDeath.NextX(run - 1))), 0);
-                    DrawTerrainAt(level, draw, run0 + new Offset16<RoomBlocks>(checked((short)(vertical ? 0 : block)), checked((short)(vertical ? block : 0))), regularFakeDeath.BlockAt(run, block), MotherBrainFakeDeathVisuals?.GetAppearance(draw, run, block));
+                    Position16<RoomBlocks> run0 = origin + new Offset16<RoomBlocks>(run == 0 ? 0 : regularFakeDeath.NextX(run - 1), 0);
+                    DrawTerrainAt(level, draw, run0 + new Offset16<RoomBlocks>(vertical ? 0 : block, vertical ? block : 0), regularFakeDeath.BlockAt(run, block), MotherBrainFakeDeathVisuals?.GetAppearance(draw, run, block));
                 }
             return;
         }
@@ -191,7 +191,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
         {
             for (int run = 0; run < 2; run++)
                 for (int block = 0; block < boundaryFakeDeath.Count(run); block++)
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(run == 0 ? 0 : boundaryFakeDeath.NextX(0))), checked((short)((run == 0 ? 0 : boundaryFakeDeath.NextY(0)) + block))), boundaryFakeDeath.BlockAt(run, block), MotherBrainFakeDeathVisuals?.GetAppearance(draw, run, block));
+                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(run == 0 ? 0 : boundaryFakeDeath.NextX(0), (run == 0 ? 0 : boundaryFakeDeath.NextY(0)) + block), boundaryFakeDeath.BlockAt(run, block), MotherBrainFakeDeathVisuals?.GetAppearance(draw, run, block));
             return;
         }
         if (draw is PlmFrameDraw<TourianAccessDraw> { Frame: var tourian })
@@ -199,14 +199,14 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             TourianAccessDraws.Describe(tourian, out int tourianRows, out RoomTerrainBlock tourianBlock);
             for (int row = 0; row < tourianRows; row++)
                 for (int column = 0; column < 4; column++)
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)column), checked((short)row)), tourianBlock, TourianAccessVisuals?.GetAppearance(draw, row, column));
+                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(column, row), tourianBlock, TourianAccessVisuals?.GetAppearance(draw, row, column));
             return;
         }
         if (SporeSpawnCeilingDraws.TryGetBlock(draw, out RoomTerrainBlock sporeCeilingBlock))
         {
             for (int row = 0; row < 2; row++)
                 for (int column = 0; column < 2; column++)
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)column), checked((short)row)), sporeCeilingBlock, SporeSpawnCeilingVisuals?.GetAppearance(draw, row, column));
+                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(column, row), sporeCeilingBlock, SporeSpawnCeilingVisuals?.GetAppearance(draw, row, column));
             return;
         }
         if (SamusEaterPlmDraws.TryDescribe(draw, out var samusEater))
@@ -215,7 +215,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             for (int run = 0; run < 3; run++)
             {
                 for (int block = 0; block < SamusEaterPlmDraws.Draw.Count(run); block++)
-                    DrawTerrainAt(level, draw, plant + new Offset16<RoomBlocks>(checked((short)block), 0), samusEater.BlockAt(run, block), SamusEaterVisuals?.GetAppearance(draw, run, block));
+                    DrawTerrainAt(level, draw, plant + new Offset16<RoomBlocks>(block, 0), samusEater.BlockAt(run, block), SamusEaterVisuals?.GetAppearance(draw, run, block));
                 plant = origin + new Offset16<RoomBlocks>(SamusEaterPlmDraws.Draw.NextX(run), samusEater.NextY(run));
             }
             return;
@@ -223,14 +223,14 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
         if (draw == BotwoonWallPlmDrawDefinitions.Clear)
         {
             for (int row = 0; row < BotwoonWallPlmDrawDefinitions.BlockCount; row++)
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(0, checked((short)row)), BotwoonWallPlmDraws.BlockAt(row), BotwoonWallVisuals?.GetAppearance(draw, 0, row));
+                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(0, row), BotwoonWallPlmDraws.BlockAt(row), BotwoonWallVisuals?.GetAppearance(draw, 0, row));
             return;
         }
         if (LinkedRestorePlmFamily.TryDescribeAny(draw, out var linkedRestore))
         {
             for (int run = 0; run < linkedRestore.RunCount; run++)
                 for (int block = 0; block < 2; block++)
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(linkedRestore.Vertical ? 0 : block)), checked((short)(linkedRestore.Vertical ? block : run))), linkedRestore.BlockAt(run, block), LinkedRestoreVisuals?.GetAppearance(draw, run, block));
+                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(linkedRestore.Vertical ? 0 : block, linkedRestore.Vertical ? block : run), linkedRestore.BlockAt(run, block), LinkedRestoreVisuals?.GetAppearance(draw, run, block));
             return;
         }
         if (BlueDoorCaps.TryDescribe(draw, out var blueDoor))
@@ -238,7 +238,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             for (int cell = 0; cell < 4; cell++)
             {
                 RoomTerrainBlock physical = blueDoor.BlockAt(cell);
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(blueDoor.Vertical ? 0 : cell)), checked((short)(blueDoor.Vertical ? cell : 0))), physical, BlueDoorVisuals?.GetAppearance(draw, cell));
+                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(blueDoor.Vertical ? 0 : cell, blueDoor.Vertical ? cell : 0), physical, BlueDoorVisuals?.GetAppearance(draw, cell));
             }
             return;
         }
@@ -247,20 +247,20 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             for (int cell = 0; cell < 4; cell++)
             {
                 RoomTerrainBlock physical = coloredDoor.BlockAt(cell);
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(coloredDoor.Vertical ? 0 : cell)), checked((short)(coloredDoor.Vertical ? cell : 0))), physical, ColoredDoorVisuals?.GetAppearance(draw, cell));
+                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(coloredDoor.Vertical ? 0 : cell, coloredDoor.Vertical ? cell : 0), physical, ColoredDoorVisuals?.GetAppearance(draw, cell));
             }
             return;
         }
         if (GreyDoorCaps.TryDescribe(draw, out var greyDoor))
         {
             for (int cell = 0; cell < 4; cell++)
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(greyDoor.Vertical ? 0 : cell)), checked((short)(greyDoor.Vertical ? cell : 0))), greyDoor.BlockAt(cell), GreyDoorVisuals?.GetAppearance(draw, cell) ?? greyDoor.BlockAt(cell).Appearance);
+                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(greyDoor.Vertical ? 0 : cell, greyDoor.Vertical ? cell : 0), greyDoor.BlockAt(cell), GreyDoorVisuals?.GetAppearance(draw, cell) ?? greyDoor.BlockAt(cell).Appearance);
             return;
         }
         if (EyeDoorDraws.TryDescribe(draw, out var eyeDoor))
         {
             for (int cell = 0; cell < eyeDoor.BlockCount; cell++)
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(eyeDoor.Vertical ? 0 : cell)), checked((short)(eyeDoor.Vertical ? cell : 0))), eyeDoor.BlockAt(cell), EyeDoorVisuals?.GetAppearance(draw, cell) ?? eyeDoor.BlockAt(cell).Appearance);
+                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(eyeDoor.Vertical ? 0 : cell, eyeDoor.Vertical ? cell : 0), eyeDoor.BlockAt(cell), EyeDoorVisuals?.GetAppearance(draw, cell) ?? eyeDoor.BlockAt(cell).Appearance);
             return;
         }
         if (MotherBrainGlassDraws.TryDescribe(draw, out var motherBrainGlass))
@@ -274,7 +274,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                     RoomTerrainBlock physical = motherBrainGlass.BlockAt(run, cell);
                     RoomBlockAppearance visual = MotherBrainGlassVisuals?.GetAppearance(draw, run, cell)
                         ?? physical.Appearance;
-                    DrawTerrainAt(level, draw, glass + new Offset16<RoomBlocks>(checked((short)(vertical ? 0 : cell)), checked((short)(vertical ? cell : 0))), physical, visual);
+                    DrawTerrainAt(level, draw, glass + new Offset16<RoomBlocks>(vertical ? 0 : cell, vertical ? cell : 0), physical, visual);
                 }
                 glass = origin + new Offset16<RoomBlocks>(motherBrainGlass.NextX(run), motherBrainGlass.NextY(run));
             }
@@ -290,7 +290,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                     RoomTerrainBlock physical = noobTube.BlockAt(run, cell);
                     RoomBlockAppearance visual = NoobTubeVisuals?.GetAppearance(draw, run, cell)
                         ?? physical.Appearance;
-                    DrawTerrainAt(level, draw, tube + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, visual);
+                    DrawTerrainAt(level, draw, tube + new Offset16<RoomBlocks>(cell, 0), physical, visual);
                 }
                 tube = origin + new Offset16<RoomBlocks>(0, noobTube.NextY(run));
             }
@@ -306,7 +306,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                     RoomTerrainBlock physical = station.BlockAt(run, cell);
                     RoomBlockAppearance visual = StationVisuals?.GetAppearance(draw, run, cell)
                         ?? physical.Appearance;
-                    DrawTerrainAt(level, draw, stationCursor + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, visual);
+                    DrawTerrainAt(level, draw, stationCursor + new Offset16<RoomBlocks>(cell, 0), physical, visual);
                 }
                 stationCursor = origin + new Offset16<RoomBlocks>(station.NextX(run), station.NextY(run));
             }
@@ -322,7 +322,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                     RoomTerrainBlock physical = elevator.BlockAt(run, cell);
                     RoomBlockAppearance visual = ElevatorPlatformVisuals?.GetAppearance(draw, run, cell)
                         ?? physical.Appearance;
-                    DrawTerrainAt(level, draw, elevatorCursor + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, visual);
+                    DrawTerrainAt(level, draw, elevatorCursor + new Offset16<RoomBlocks>(cell, 0), physical, visual);
                 }
                 elevatorCursor = origin + new Offset16<RoomBlocks>(elevator.NextX(run), elevator.NextY(run));
             }
@@ -338,7 +338,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                     RoomTerrainBlock physical = gate.BlockAt(run, word);
                     RoomBlockAppearance visual = DownwardGateVisuals?.GetAppearance(draw, run, word)
                         ?? physical.Appearance;
-                    DrawTerrainAt(level, draw, gateCursor + new Offset16<RoomBlocks>(checked((short)(gate.Column ? 0 : word)), checked((short)(gate.Column ? word : 0))), physical, visual);
+                    DrawTerrainAt(level, draw, gateCursor + new Offset16<RoomBlocks>(gate.Column ? 0 : word, gate.Column ? word : 0), physical, visual);
                 }
                 gateCursor = origin + new Offset16<RoomBlocks>(gate.NextX(run), 0);
             }
@@ -351,7 +351,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                 RoomTerrainBlock physical = escapeGate.BlockAt(row);
                 RoomBlockAppearance visual = EscapeGateVisuals?.GetAppearance(draw, row)
                     ?? physical.Appearance;
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(0, checked((short)row)), physical, visual);
+                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(0, row), physical, visual);
             }
             return;
         }
@@ -363,7 +363,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                     RoomTerrainBlock physical = bombTorizoHand.BlockAt(run, word);
                     RoomBlockAppearance visual = BombTorizoHandVisuals?.GetAppearance(draw, run, word)
                         ?? physical.Appearance;
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(checked((short)(bombTorizoHand.OriginX(run) + word)), bombTorizoHand.OriginY(run)), physical, visual);
+                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(bombTorizoHand.OriginX(run) + word, bombTorizoHand.OriginY(run)), physical, visual);
                 }
             return;
         }
@@ -377,7 +377,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                     RoomTerrainBlock physical = draygonCannon.BlockAt(run, cell);
                     RoomBlockAppearance visual = DraygonCannonVisuals?.GetAppearance(draw, run, cell)
                         ?? physical.Appearance;
-                    DrawTerrainAt(level, draw, cannon + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, visual);
+                    DrawTerrainAt(level, draw, cannon + new Offset16<RoomBlocks>(cell, 0), physical, visual);
                 }
                 cannon = origin + new Offset16<RoomBlocks>(draygonCannon.NextX(run), draygonCannon.NextY(run));
             }
@@ -393,7 +393,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
                     RoomTerrainBlock physical = chozoStatue.BlockAt(run, cell);
                     RoomBlockAppearance visual = ChozoStatueVisuals?.GetAppearance(draw, run, cell)
                         ?? physical.Appearance;
-                    DrawTerrainAt(level, draw, chozo + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, visual);
+                    DrawTerrainAt(level, draw, chozo + new Offset16<RoomBlocks>(cell, 0), physical, visual);
                 }
                 chozo = origin + new Offset16<RoomBlocks>(chozoStatue.NextX(run), chozoStatue.NextY(run));
             }
@@ -426,7 +426,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             bool vertical = run.Direction == PlmRunDirection.Vertical;
             for (int offset = 0; offset < run.Count; offset++)
             {
-                Position16<RoomBlocks> block = entry + new Offset16<RoomBlocks>(checked((short)(vertical ? 0 : offset)), checked((short)(vertical ? offset : 0)));
+                Position16<RoomBlocks> block = entry + new Offset16<RoomBlocks>(vertical ? 0 : offset, vertical ? offset : 0);
                 DrawTerrainAt(level, definition.Draw, block, run.Blocks.Span[offset]);
             }
 
@@ -462,7 +462,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
     {
         for (int block = 0; block < draw.BlockCount; block++)
         {
-            DrawTerrainAt(level, PlmDraw.Of(draw.Frame), origin + new Offset16<RoomBlocks>(checked((short)block), 0), draw.BlockAt(block),
+            DrawTerrainAt(level, PlmDraw.Of(draw.Frame), origin + new Offset16<RoomBlocks>(block, 0), draw.BlockAt(block),
                 visuals?.GetAppearance(PlmDraw.Of(draw.Frame), 0, block));
         }
     }

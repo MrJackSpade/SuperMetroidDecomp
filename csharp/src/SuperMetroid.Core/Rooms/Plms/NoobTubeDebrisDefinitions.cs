@@ -23,16 +23,16 @@ public static class NoobTubeDebrisDefinitions
     /// Twice the column a reflecting shard flicker mirrors about: on even frames the shard shows at this span less its
     /// own column.
     /// </summary>
-    public const ushort ShardMirrorSpan = 256;
+    public const int ShardMirrorSpan = 256;
 
     /// <summary>Offsets from the spawning PLM block origin for the six released-air bubbles.</summary>
     public static ReadOnlySpan<Offset16<RoomPixels>> BubbleOffsets => BubbleOffsetValues;
 
     /// <summary>Whole-pixel X offset from the spawning PLM block origin to the tube crack.</summary>
-    public const ushort CrackXOffset = 96;
+    public const int CrackXOffset = 96;
 
     /// <summary>Whole-pixel Y offset from the spawning PLM block origin to the tube crack.</summary>
-    public const ushort CrackYOffset = 48;
+    public const int CrackYOffset = 48;
 
     /// <summary>The bubbles' initial vertical speed: five pixels upward per update.</summary>
     public static SignedEightEight BubbleInitialYVelocity { get; } = SignedEightEight.FromSignedRaw(-1280);
@@ -44,8 +44,8 @@ public static class NoobTubeDebrisDefinitions
     public static SignedEightEight ShardFallYVelocity { get; } = SignedEightEight.FromSignedRaw(192);
 
     /// <summary>The whole-pixel X a hidden actor is moved to: 4608 pixels left of the room, far off screen.</summary>
-    private const short HiddenX = -4608;
+    private const int HiddenX = -4608;
 
     /// <summary>The stored whole-pixel X of a hidden actor (<see cref="HiddenX"/> in the position's wrapping word).</summary>
-    public static ushort HiddenXPosition { get; } = unchecked((ushort)HiddenX);
+    public static int HiddenXPosition { get; } = WordWrap.Unsigned(HiddenX);
 }

@@ -358,7 +358,7 @@ public sealed class RoomPaletteFxSystem
         switch (advance)
         {
             case AnimationProgramAdvance<PaletteFxFrame>.Show shown:
-                slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
+                slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 WritePaletteRecord(owners, colors, slot, shown.Frame);
                 return;
             case AnimationProgramAdvance<PaletteFxFrame>.Stop:

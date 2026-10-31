@@ -68,8 +68,8 @@ public sealed class BackgroundScrollState
         // BG2 offset words are the negated staged layer-one origin. This is not a typo:
         // layer 2's own position is combined with these words later.
         Bg2Offset = new Offset16<BackgroundPixels>(
-            unchecked((short)-stagedLayer1.X),
-            unchecked((short)-stagedLayer1.Y));
+            CoordinateAxis.AsSigned(-stagedLayer1.X),
+            CoordinateAxis.AsSigned(-stagedLayer1.Y));
     }
 
     /// <summary>
@@ -115,13 +115,13 @@ public sealed class BackgroundScrollState
         if (TryCalculateLayer2Position(Layer1Position.X, Layer2Scroll.Horizontal, out int layer2X))
         {
             Layer2Position = Layer2Position.WithX(layer2X);
-            Bg2Scroll = Bg2Scroll.WithX(unchecked((ushort)(layer2X + Bg2Offset.X)));
+            Bg2Scroll = Bg2Scroll.WithX(CoordinateAxis.Wrap(layer2X + Bg2Offset.X));
         }
 
         if (TryCalculateLayer2Position(Layer1Position.Y, Layer2Scroll.Vertical, out int layer2Y))
         {
             Layer2Position = Layer2Position.WithY(layer2Y);
-            Bg2Scroll = Bg2Scroll.WithY(unchecked((ushort)(layer2Y + Bg2Offset.Y)));
+            Bg2Scroll = Bg2Scroll.WithY(CoordinateAxis.Wrap(layer2Y + Bg2Offset.Y));
         }
     }
 
@@ -159,7 +159,7 @@ public sealed class BackgroundScrollState
         // its high product byte, and factor*high contributes its low product word. Together
         // they equal floor(position * factor / 256), modulo 16 bits.
         uint factor = (uint)scroll.Factor;
-        result = unchecked((ushort)EightEight.WholeOf(checked((uint)layer1Position) * factor));
+        result = CoordinateAxis.Wrap(EightEight.WholeOf(checked((uint)layer1Position) * factor));
         return true;
     }
 

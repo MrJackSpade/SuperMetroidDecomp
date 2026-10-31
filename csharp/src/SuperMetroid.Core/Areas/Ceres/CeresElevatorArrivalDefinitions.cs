@@ -22,19 +22,19 @@ internal static class CeresElevatorArrivalDefinitions
     internal static SpriteGraphics StartingGraphics { get; } = SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.Common);
 
     /// <summary>$86:A316 seeds the moving pad's pre-instruction delay to sixty frames.</summary>
-    internal const ushort MovingPadWaitFrames = 60;
+    internal const int MovingPadWaitFrames = 60;
 
     /// <summary>$86:A2FE places the moving pad twenty-eight pixels below Samus.</summary>
-    internal const ushort MovingPadYOffset = 28;
+    internal const int MovingPadYOffset = 28;
 
     /// <summary>$86:A31B places the stationary platform at world Y=97.</summary>
-    internal const ushort StationaryPlatformY = 97;
+    internal const int StationaryPlatformY = 97;
 
     /// <summary>$86:A34D clamps Samus to world Y=72 at the end of the descent.</summary>
-    internal const ushort LandingSamusY = 72;
+    internal const int LandingSamusY = 72;
 
     /// <summary>$86:A345 compares the incremented Samus Y against 73 before clamping.</summary>
-    internal const ushort LandingThresholdY = 73;
+    internal const int LandingThresholdY = 73;
 
     /// <summary>The composition each arrival pose shows.</summary>
     internal static readonly IReadOnlyDictionary<CeresElevatorArrivalPose, EnemyProjectileFrameId> Frames =

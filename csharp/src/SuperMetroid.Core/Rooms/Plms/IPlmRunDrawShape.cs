@@ -15,8 +15,8 @@ internal interface IPlmRunDrawShape
     RoomTerrainBlock BlockAt(int run, int cell);
 
     /// <summary>The horizontal block step after run <paramref name="run"/>.</summary>
-    sbyte NextX(int run);
+    int NextX(int run);
 
     /// <summary>The vertical block step after run <paramref name="run"/>.</summary>
-    sbyte NextY(int run);
+    int NextY(int run);
 }

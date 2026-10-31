@@ -95,8 +95,8 @@ internal sealed class EnemyDrawList
                 // with the station instead of remaining pinned to host screen space.
                 if (!slot.ShakeTimer.IsZero)
                 {
-                    origin = origin.WithX(unchecked((ushort)(origin.X +
-                        ((slot.FrameCounter & 2) != 0 ? -1 : 1))));
+                    origin = origin.WithX(CoordinateAxis.Wrap(origin.X +
+                        ((slot.FrameCounter & 2) != 0 ? -1 : 1)));
                     slot.ShakeTimer = slot.ShakeTimer.Decrement().Remaining;
                 }
                 SpriteColouring drawColouring =SelectCommonEnemyDrawColouring(slot);

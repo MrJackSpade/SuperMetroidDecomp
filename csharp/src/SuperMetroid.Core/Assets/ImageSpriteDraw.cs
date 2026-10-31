@@ -48,14 +48,14 @@ public sealed record ImageSpriteDraw : SpriteDraw
     {
         get
         {
-            int originX = unchecked((short)Origin.X), originY = unchecked((short)Origin.Y);
+            int originX = CoordinateAxis.AsSigned(Origin.X), originY = CoordinateAxis.AsSigned(Origin.Y);
             int x = (Mirror & SpriteMirror.Horizontal) != SpriteMirror.None ? originX + Image.Origin.X - Image.Size.X : originX - Image.Origin.X;
             int y = (Mirror & SpriteMirror.Vertical) != SpriteMirror.None ? originY + Image.Origin.Y - Image.Size.Y : originY - Image.Origin.Y;
-            return new(checked((short)x), checked((short)y));
+            return new(x, y);
         }
     }
 
     /// <summary>Names the draw for debugger watches: source, image and signed origin.</summary>
     public override string ToString() =>
-        $"{Source.Kind}#{Source.Instance} {Image.Sheet.Name} at ({unchecked((short)Origin.X)}, {unchecked((short)Origin.Y)})";
+        $"{Source.Kind}#{Source.Instance} {Image.Sheet.Name} at ({CoordinateAxis.AsSigned(Origin.X)}, {CoordinateAxis.AsSigned(Origin.Y)})";
 }

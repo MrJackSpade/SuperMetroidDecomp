@@ -95,7 +95,7 @@ internal sealed class SpeedBoosterEscapePlms
         }
 
         // BMI at $84:B80D treats any $8000-$FFFF target as disabled and deletes the actor.
-        if (unchecked((short)fx.TargetSurface.Y) < 0)
+        if (CoordinateAxis.AsSigned(fx.TargetSurface.Y) < 0)
         {
             slot.Clear();
             return;

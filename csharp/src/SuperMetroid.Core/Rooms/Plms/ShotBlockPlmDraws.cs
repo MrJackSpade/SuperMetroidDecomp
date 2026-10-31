@@ -115,7 +115,7 @@ internal static class ShotBlockPlmDraws
             var blocks = new RoomTerrainBlock[draw.BlocksPerRun];
             for (int block = 0; block < blocks.Length; block++) blocks[block] = draw.BlockAt(run, block);
             runs[run] = new(draw.Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, blocks,
-                new(0, (sbyte)(run + 1 < runs.Length ? 1 : 0)));
+                new(0, WordWrap.SignedLowByte(run + 1 < runs.Length ? 1 : 0)));
         }
         return new(PlmDraw.Of(draw), runs);
     }

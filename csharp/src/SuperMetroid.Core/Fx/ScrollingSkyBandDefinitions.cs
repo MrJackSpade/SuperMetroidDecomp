@@ -10,8 +10,8 @@ public static class ScrollingSkyBandDefinitions
     public const int DataSlotCount = 23;
 
     /// <summary>The world row below the last band.</summary>
-    public const ushort WorldEndPosition = 1280;
+    public const int WorldEndPosition = 1280;
 
     /// <summary>First gameplay scanline below the 32-pixel HUD.</summary>
-    public const ushort GameplayFirstScanline = 32;
+    public const int GameplayFirstScanline = 32;
 }

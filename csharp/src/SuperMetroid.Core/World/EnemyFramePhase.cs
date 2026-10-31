@@ -129,12 +129,12 @@ internal sealed class EnemyFramePhase
             }
             if (result.LayerOneXOverride is int layerOneX)
             {
-                int shitroidCameraX = checked((ushort)layerOneX);
+                int shitroidCameraX = Ensure.BetweenInclusive(0, ushort.MaxValue, layerOneX);
                 // `$A9:EFE6` writes layer1_x_pos during EnemyMain, before the ordinary
                 // scrolling routine later in this frame. Do not route it through entry
                 // placement, which would clear subposition and ideal-camera state.
-                _room.Camera.SetLayerOneXFromEnemyAi(checked((ushort)shitroidCameraX));
-                _backgroundScroll.Layer1Position = _backgroundScroll.Layer1Position.WithX(checked((ushort)shitroidCameraX));
+                _room.Camera.SetLayerOneXFromEnemyAi(Ensure.BetweenInclusive(0, ushort.MaxValue, shitroidCameraX));
+                _backgroundScroll.Layer1Position = _backgroundScroll.Layer1Position.WithX(shitroidCameraX);
             }
             // The landing tube stops the liquid surface's motion; the next frame shows it still.
             if (result.StopLiquidMotion)

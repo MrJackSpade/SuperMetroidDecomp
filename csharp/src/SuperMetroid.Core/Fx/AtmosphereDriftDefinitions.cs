@@ -5,16 +5,16 @@ namespace SuperMetroid.Core.Fx;
 public static class AtmosphereDriftDefinitions
 {
     /// <summary>Rain falls six pixels a frame.</summary>
-    public const ushort RainVerticalVelocity = 1536;
+    public const int RainVerticalVelocity = 1536;
 
     /// <summary>Spores rise a quarter pixel a frame.</summary>
-    public const ushort SporesVerticalVelocity = 64;
+    public const int SporesVerticalVelocity = 64;
 
     /// <summary>Fog rises a quarter pixel a frame.</summary>
-    public const ushort FogVerticalVelocity = 64;
+    public const int FogVerticalVelocity = 64;
 
     /// <summary>Fog drifts right five sixteenths of a pixel a frame.</summary>
-    public const ushort FogHorizontalVelocity = 80;
+    public const int FogHorizontalVelocity = 80;
 
     /// <summary>
     /// The spores add to the background, the sprites drawn in blending palettes and the backdrop; the foreground

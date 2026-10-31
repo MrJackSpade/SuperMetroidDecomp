@@ -6,15 +6,15 @@ namespace SuperMetroid.Core.Gameplay;
 internal static class TesterInventoryDefinitions
 {
     /// <summary>Sets both current and maximum health when the host test inventory is granted.</summary>
-    internal const ushort Energy = 1499;
+    internal const int Energy = 1499;
     /// <summary>Sets both current and maximum reserve energy in the host test inventory.</summary>
-    internal const ushort Reserves = 400;
+    internal const int Reserves = 400;
     /// <summary>Sets both current and maximum missile ammunition in the host test inventory.</summary>
-    internal const ushort Missiles = 230;
+    internal const int Missiles = 230;
     /// <summary>Sets both current and maximum super-missile ammunition in the host test inventory.</summary>
-    internal const ushort SuperMissiles = 50;
+    internal const int SuperMissiles = 50;
     /// <summary>Sets both current and maximum power-bomb ammunition in the host test inventory.</summary>
-    internal const ushort PowerBombs = 50;
+    internal const int PowerBombs = 50;
     /// <summary>Marks the test option's item set as both collected and equipped.</summary>
     internal const SamusEquipmentFlags Equipment = SamusEquipmentFlags.VariaSuit |
         SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack |

@@ -296,7 +296,7 @@ internal sealed class GameplayActorDrawing
                 _player.Samus.LiquidPhysics.AtmosphericEffects.UpdateAndDraw(
                     _sprites,
                     _room.Camera.PixelPosition,
-                    checked((ushort)_player.Samus.LiquidPhysics.FxYPosition),
+                    Ensure.BetweenInclusive(0, ushort.MaxValue, _player.Samus.LiquidPhysics.FxYPosition),
                     _player.Samus.Presentation.BodyFrames.Sheets);
 
                 // Drawing modes one and two differ only in OAM priority: one appends the
@@ -412,10 +412,10 @@ internal sealed class GameplayActorDrawing
             // changes the camera between AI and drawing (especially during a grab). The
             // placement is Draygon's own published body position (#1354), not BG2's registers.
             draygon.BodyLayerPlacement = new Position16<BackgroundPixels>(
-                unchecked((ushort)(draygon.BodyGraphicsDisplacement.X + _room.Camera.PixelPosition.X -
-                    draygon.Body.Position.X.Whole - DraygonBackgroundData.HorizontalOrigin)),
-                unchecked((ushort)(draygon.BodyGraphicsDisplacement.Y + _room.Camera.PixelPosition.Y -
-                    draygon.Body.Position.Y.Whole - DraygonBackgroundData.VerticalOrigin)));
+                CoordinateAxis.Wrap(draygon.BodyGraphicsDisplacement.X + _room.Camera.PixelPosition.X -
+                    draygon.Body.Position.X.Whole - DraygonBackgroundData.HorizontalOrigin),
+                CoordinateAxis.Wrap(draygon.BodyGraphicsDisplacement.Y + _room.Camera.PixelPosition.Y -
+                    draygon.Body.Position.Y.Whole - DraygonBackgroundData.VerticalOrigin));
         }
 
         if (!deathOwnsSamus && room.Enemies.IsLoaded)

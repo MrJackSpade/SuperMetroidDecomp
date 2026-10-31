@@ -6,25 +6,25 @@ namespace SuperMetroid.Core.Fx;
 public static class RoomEarthquakeDefinitions
 {
     /// <summary>First earthquake type that also shakes enemy positions.</summary>
-    public const ushort FirstEnemyShakingType = 18;
+    public const int FirstEnemyShakingType = 18;
 
     /// <summary>First earthquake type whose displacement is not shown.</summary>
-    public const ushort FirstNonRenderedType = 36;
+    public const int FirstNonRenderedType = 36;
 
     /// <summary>Timer steps the shake shows on one side of the origin before it switches to the other.</summary>
-    public const ushort StepsPerShakeSide = 2;
+    public const int StepsPerShakeSide = 2;
 
     /// <summary>Updates for which an enemy retains one applied shake displacement.</summary>
-    public const ushort EnemyShakeDuration = 2;
+    public const int EnemyShakeDuration = 2;
 
     /// <summary>Room-shake type written every active lava/acid rise frame.</summary>
-    public const ushort RisingLiquidType = 21;
+    public const int RisingLiquidType = 21;
 
     /// <summary>
     /// Bits set in the global earthquake timer every active lava/acid rise frame.
     /// The rise sets them, so existing low bits are preserved.
     /// </summary>
-    public const ushort RisingLiquidTimerBits = 32;
+    public const int RisingLiquidTimerBits = 32;
 
     /// <summary>
     /// Base delays between rising lava's or acid's repeated rumble sounds, in emission order. The live RNG low two

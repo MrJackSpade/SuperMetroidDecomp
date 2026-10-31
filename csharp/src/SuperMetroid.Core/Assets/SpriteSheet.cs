@@ -42,10 +42,10 @@ public sealed class SpriteSheet
         content.Append("pixels", System.Runtime.InteropServices.MemoryMarshal.AsBytes(Image.Pixels));
         // Each ink field is identified as its own plane, as the image was installed.
         ReadOnlySpan<SpriteImageInk> inks = Image.Inks;
-        content.Append("palette indices", inks.SelectToArray(ink => (byte)ink.PaletteIndex));
+        content.Append("palette indices", inks.SelectToArray(ink => WordWrap.LowByte(ink.PaletteIndex)));
         content.Append("standard colours", System.Runtime.InteropServices.MemoryMarshal.AsBytes(Image.StandardColours));
-        content.Append("priorities", inks.SelectToArray(ink => (byte)ink.Priority));
-        content.Append("part groups", inks.SelectToArray(ink => (byte)ink.PartGroup.Code));
+        content.Append("priorities", inks.SelectToArray(ink => WordWrap.LowByte(ink.Priority)));
+        content.Append("part groups", inks.SelectToArray(ink => WordWrap.LowByte(ink.PartGroup.Code)));
         foreach ((string name, SpriteSheetFrame frame) in frames.OrderBy(pair => pair.Key, StringComparer.Ordinal))
         {
             content.AppendName("frame", name);

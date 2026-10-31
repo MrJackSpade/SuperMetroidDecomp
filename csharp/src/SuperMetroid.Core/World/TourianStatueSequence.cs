@@ -108,7 +108,7 @@ public sealed class TourianStatueSequence
     /// the first quarter-pixel step already reads -1. The descent stops at its authored distance, so the offset stays
     /// between minus that distance and zero.
     /// </summary>
-    public int VerticalOffset => unchecked((short)SixteenSixteen.WholeOf(-Descent));
+    public int VerticalOffset => CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(-Descent));
     /// <summary>BG2 offset latched at the same frame boundary as the displayed sprite frame.</summary>
     public int DisplayedVerticalOffset { get; private set; }
     /// <summary>Captures the current BG2 position for presentation with the corresponding sprite frame.</summary>

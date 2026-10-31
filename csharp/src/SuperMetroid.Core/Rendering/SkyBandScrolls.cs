@@ -20,7 +20,7 @@ public static class SkyBandScrolls
         int line = ScreenGeometry.GameplayHudHeightPixels;
         while (line < ScreenGeometry.ScreenHeightPixels)
         {
-            int worldY = unchecked((ushort)(sky.FirstGameplayRow + line - ScreenGeometry.GameplayHudHeightPixels));
+            int worldY = CoordinateAxis.Wrap(sky.FirstGameplayRow + line - ScreenGeometry.GameplayHudHeightPixels);
             bands.Add(new(line, Shifted(sky.OffsetAt(worldY), shift)));
             line += ScrollingSkyLayer.NextBandRow(worldY) - worldY;
         }
@@ -28,5 +28,5 @@ public static class SkyBandScrolls
     }
 
     /// <summary><paramref name="offset"/> moved by <paramref name="shift"/>, wrapping as a sixteen-bit scroll.</summary>
-    private static int Shifted(int offset, int shift) => unchecked((ushort)(offset + shift));
+    private static int Shifted(int offset, int shift) => CoordinateAxis.Wrap(offset + shift);
 }

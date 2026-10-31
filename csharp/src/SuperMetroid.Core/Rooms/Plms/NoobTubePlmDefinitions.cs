@@ -25,10 +25,10 @@ public static class NoobTubePlmDefinitions
     public static readonly SoundEffectId BreakSound = Library2Sound.GlassTubeShatter;
 
     /// <summary>The kind of earthquake the break starts.</summary>
-    public const ushort EarthquakeType = 11;
+    public const int EarthquakeType = 11;
 
     /// <summary>How long the break's earthquake lasts, in frames.</summary>
-    public const ushort EarthquakeTimer = 64;
+    public const int EarthquakeTimer = 64;
 
     /// <summary>Glass shards the break spawns (parameters 0, 2, .. 18).</summary>
     public const int ShardCount = 10;

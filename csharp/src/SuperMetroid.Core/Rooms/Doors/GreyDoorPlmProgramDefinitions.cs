@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class GreyDoorPlmProgramDefinitions
 {
     /// <summary>The hits a grey cap takes before it opens.</summary>
-    internal const byte HitThreshold = 1;
+    internal const int HitThreshold = 1;
     /// <summary>How long each closing image shows.</summary>
     private const int ClosingFrameDuration = 2;
     /// <summary>How long Bomb Torizo's door holds open once Samus has Bombs, before it closes.</summary>

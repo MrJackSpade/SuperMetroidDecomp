@@ -12,11 +12,11 @@ internal static class ColoredDoorPlmProgramDefinitions
     /// <summary>The library-3 sound each hit on a red cap queues.</summary>
     internal static readonly SoundEffectId RedHitSound = Library3Sound.MissileDoorHit;
     /// <summary>The hits a red cap takes before it opens.</summary>
-    internal const byte RedHitThreshold = 5;
+    internal const int RedHitThreshold = 5;
     /// <summary>The hits a yellow or green cap takes before it opens.</summary>
-    internal const byte HitThreshold = 1;
+    internal const int HitThreshold = 1;
     /// <summary>The hit counter a Super Missile seeds on a red cap: the next count passes any threshold.</summary>
-    internal const byte RedSuperMissileHitCounter = 119;
+    internal const int RedSuperMissileHitCounter = 119;
     /// <summary>How long each closing image shows.</summary>
     private const int ClosingFrameDuration = 2;
     /// <summary>How long the blue image of a hit flash shows.</summary>

@@ -14,6 +14,6 @@ internal static class CeresDoorRumble
             throw new ArgumentOutOfRangeException(nameof(index));
         int pair = index / 2;
         int side = index % 2;
-        return new Offset16<RoomPixels>((short)(ColumnSpacing * (2 * side + pair - 2)), VerticalPlacements[index]);
+        return new Offset16<RoomPixels>(CoordinateAxis.AsSigned(ColumnSpacing * (2 * side + pair - 2)), VerticalPlacements[index]);
     }
 }

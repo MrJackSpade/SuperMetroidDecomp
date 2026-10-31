@@ -106,10 +106,10 @@ internal static class DownwardGatePlmDraws
         /// <summary>The gate column writes down its column; trigger runs write along their row.</summary>
         internal PlmRunDirection Direction => Column ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal;
         /// <summary>Moves left between the two left-trigger runs; other runs stay in their column.</summary>
-        internal sbyte NextX(int run)
+        internal int NextX(int run)
         {
             if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
-            return !Column && !Right && run == 0 ? (sbyte)-1 : (sbyte)0;
+            return !Column && !Right && run == 0 ? -1 : 0;
         }
         /// <summary>Calculates the stationary/moving top tile, filled shootable rows, or color-specific trigger tile.</summary>
         internal RoomTerrainBlock BlockAt(int run, int cell)

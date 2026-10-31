@@ -83,8 +83,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
                 // `$A6:F63E` subtracts the two unsigned position words, interprets the
                 // wrapped result as signed, then takes its absolute value independently
                 // on each axis. If either distance is at least 48 pixels, the door branches.
-                int xDistance = Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)));
-                int yDistance = Math.Abs(unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)));
+                int xDistance = CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole);
+                int yDistance = CoordinateAxis.Distance(slot.Position.Y.Whole, samus.Position.Y.Whole);
                 return xDistance >= 48 || yDistance >= 48 ? cue.Target : null;
             }
             case CeresDoorCueKind.GoToIfAreaBossAlive:
@@ -126,9 +126,9 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initial countdown whose underflow ends the 49-update destruction sequence.</summary>
-    private const ushort CeresDoorRumbleDuration = 48;
+    private const int CeresDoorRumbleDuration = 48;
     /// <summary>Reload value for the interval between destruction effects.</summary>
-    private const ushort CeresDoorRumbleInterval = 4;
+    private const int CeresDoorRumbleInterval = 4;
     /// <summary>Room graphics animation selected for the smoke outcome.</summary>
     private const MiscDustAnimation CeresDoorSmokeAnimation = MiscDustAnimation.SmallExplosion;
     /// <summary>Room graphics animation selected for the explosion outcome.</summary>
@@ -240,12 +240,12 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
 
         Func<int> readRandomNumber = _room.Random.Read;
         // One random word in 32 (its low twelve bits below 128) picks the stronger quake.
-        int lowTwelveBits = unchecked((ushort)(readRandomNumber() % 4096));
+        int lowTwelveBits = WordWrap.Unsigned(readRandomNumber() % 4096);
         if (lowTwelveBits < 128)
         {
             // Rarely select the stronger sibling quake six entries after the base type.
             _earthquake.EarthquakeTimer = WrappingCountdown.Start(4);
-            _earthquake.EarthquakeType = unchecked((ushort)(baseEarthquakeType + 6));
+            _earthquake.EarthquakeType = WordWrap.Unsigned(baseEarthquakeType + 6);
             return;
         }
 
@@ -257,7 +257,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunCeresDoorRumbleAndExplosions(RoomEnemySlot slot)
     {
         CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
-        CountdownStep rumble = WrappingCounter.Decrement(checked((ushort)state.RumbleCallsLeft));
+        CountdownStep rumble = WrappingCounter.Decrement(Ensure.BetweenInclusive(0, ushort.MaxValue, state.RumbleCallsLeft));
         state.RumbleCallsLeft = rumble.Remaining.RemainingFrames;
         if (rumble.IsNegative)
         {
@@ -271,20 +271,20 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        CountdownStep interval = WrappingCounter.Decrement(checked((ushort)state.ExplosionIntervalLeft));
+        CountdownStep interval = WrappingCounter.Decrement(Ensure.BetweenInclusive(0, ushort.MaxValue, state.ExplosionIntervalLeft));
         state.ExplosionIntervalLeft = interval.Remaining.RemainingFrames;
         if (!interval.IsNegative)
             return;
 
         state.ExplosionIntervalLeft = CeresDoorRumbleInterval;
-        CountdownStep burst = WrappingCounter.Decrement(checked((ushort)state.ExplosionPositionIndex));
+        CountdownStep burst = WrappingCounter.Decrement(Ensure.BetweenInclusive(0, ushort.MaxValue, state.ExplosionPositionIndex));
         state.ExplosionPositionIndex = burst.IsNegative ? CeresDoorRumbleGeometryDefinitions.Count - 1 : burst.Remaining.RemainingFrames;
 
         Offset16<RoomPixels> burstOffset = CeresDoorRumble.Offset(state.ExplosionPositionIndex);
         int xOffset = burstOffset.X;
         int yOffset = burstOffset.Y;
         Position16<RoomPixels> explosion = new(
-            unchecked((ushort)(slot.Position.X.Whole + xOffset)), unchecked((ushort)(slot.Position.Y.Whole + yOffset)));
+            CoordinateAxis.Wrap(slot.Position.X.Whole + xOffset), CoordinateAxis.Wrap(slot.Position.Y.Whole + yOffset));
 
         // GenerateRandomNumber is called exactly once per explosion. Values below $4000
         // select animation $0C; all other values select animation three (smoke).

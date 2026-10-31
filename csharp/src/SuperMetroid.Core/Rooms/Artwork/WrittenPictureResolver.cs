@@ -92,7 +92,7 @@ public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
         for (int column = 0; column < columns; column++)
         {
             laid[written.Cell + row * RowCells + column] = new BgTilePicture(frame,
-                new Position16<ImagePixels>((ushort)(column * TilePixels), (ushort)(row * TilePixels)));
+                new Position16<ImagePixels>(CoordinateAxis.Wrap(column * TilePixels), CoordinateAxis.Wrap(row * TilePixels)));
         }
     }
 }

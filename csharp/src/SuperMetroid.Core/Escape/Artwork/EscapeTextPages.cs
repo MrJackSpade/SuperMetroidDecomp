@@ -13,8 +13,8 @@ public static class EscapeTextPages
         ? page * PageBytes : throw new ArgumentOutOfRangeException(nameof(page));
 
     /// <summary>Four full $200-byte pages followed by the final $100-byte page.</summary>
-    public static ushort PageByteCount(int page) => (uint)page < PageCount
-        ? (ushort)Math.Min(PageBytes, ByteCount - page * PageBytes) : throw new ArgumentOutOfRangeException(nameof(page));
+    public static int PageByteCount(int page) => (uint)page < PageCount
+        ? WordWrap.Unsigned(Math.Min(PageBytes, ByteCount - page * PageBytes)) : throw new ArgumentOutOfRangeException(nameof(page));
 
     /// <summary>The OBJ character text page <paramref name="page"/> begins at, from the same native transfer list.</summary>
     public static int PageFirstCharacter(int page) => (uint)page < PageCount

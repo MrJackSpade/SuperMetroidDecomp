@@ -96,7 +96,7 @@ public static class GameplayDisplayCapture
             // The statues' descent supplies BG2's vertical scroll per line after the
             // ordinary scroll. It replaces, rather than adds to, the quake-adjusted
             // scroll. Type 13 also gives the statue OBJ zero quake displacement.
-            bg2Scroll = bg2Scroll.WithY(unchecked((ushort)(scrolls.Layer1Position.Y + latched.TourianStatueVerticalOffset)));
+            bg2Scroll = bg2Scroll.WithY(CoordinateAxis.Wrap(scrolls.Layer1Position.Y + latched.TourianStatueVerticalOffset));
         RoomLayer3FxRenderSnapshot? fx = latched.RoomLayer3Fx;
         LatchedScrollingSky? sky = scene.ScrollingSky;
         ScrollBands? skyX = SkyHorizontalScrolls(live, shake);
@@ -195,7 +195,7 @@ public static class GameplayDisplayCapture
     }
 
     /// <summary>Adds signed quake displacement to a 16-bit PPU scroll register with native wrapping.</summary>
-    private static ushort Add(int scroll, int shake) => unchecked((ushort)(scroll + shake));
+    private static int Add(int scroll, int shake) => CoordinateAxis.Wrap(scroll + shake);
 
     /// <summary>Normal Fireflea blending ($88:80B0), before and after X-ray owns the window.</summary>
     private static GameplayBlendLayer CaptureFirefleaDarkness(RgbColor fixedColor, LayeredScene basis)
@@ -220,8 +220,8 @@ public static class GameplayDisplayCapture
         AffineTransform transform = perspective.Transform with
         {
             Scroll = new Offset16<FloorPixels>(
-                unchecked((short)(perspective.Transform.Scroll.X + shake.Bg1.X)),
-                unchecked((short)(perspective.Transform.Scroll.Y + shake.Bg1.Y))),
+                CoordinateAxis.AsSigned(perspective.Transform.Scroll.X + shake.Bg1.X),
+                CoordinateAxis.AsSigned(perspective.Transform.Scroll.Y + shake.Bg1.Y)),
         };
         TurningRoomLowerBand? floor = perspective.Below == BelowPerspectiveFloor.Layer2
             ? new(GameplayRenderDefinitions.CeresFloorFirstLine, scrolls.Bg2Scroll + shake.Bg2,
@@ -273,7 +273,7 @@ public static class GameplayDisplayCapture
             view = view with
             {
                 // The reveal map is drawn on BG2 at BG1's fine scroll within one 16-pixel block.
-                BackgroundScroll = new Position16<BackgroundPixels>((ushort)(scrolls.Bg1Scroll.X & 15), (ushort)(scrolls.Bg1Scroll.Y & 15)),
+                BackgroundScroll = new Position16<BackgroundPixels>(CoordinateAxis.Wrap(scrolls.Bg1Scroll.X & 15), CoordinateAxis.Wrap(scrolls.Bg1Scroll.Y & 15)),
                 BackgroundMapSize = new Extent16<TilemapCells>(64, 32),
             };
         }

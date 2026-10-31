@@ -31,6 +31,6 @@ public static class CrateriaLightningPaletteFxColorDefinitions
     /// <summary>The live and unused-dark programs in cartridge definition order.</summary>
     public static IReadOnlyList<CrateriaLightningPaletteFxColorDefinition> All { get; } = [Surface, Dark];
     /// <summary>$8D:EC59/$ED84 restart the neutral record when Samus is above Y=$0380.</summary>
-    public const ushort VerticalSwitchSamusY = 0x0380;
+    public const int VerticalSwitchSamusY = 0x0380;
 
 }

@@ -14,9 +14,9 @@ internal static class EyeDoorPlmProgramDefinitions
     /// <summary>The hit sound's request priority.</summary>
     internal static readonly SoundRequestPriority HitSoundPriority = SoundRequestPriority.Normal;
     /// <summary>The hits the eye takes before the door opens.</summary>
-    internal const byte HitThreshold = 3;
+    internal const int HitThreshold = 3;
     /// <summary>The hit counter a Super Missile seeds: the next count passes the threshold.</summary>
-    internal const byte SuperMissileHitCounter = 119;
+    internal const int SuperMissileHitCounter = 119;
     /// <summary>How many times the opening eye flashes to the blue cap.</summary>
     private const int OpeningFlashes = 10;
     /// <summary>How long a left-facing component shows each pulse pose.</summary>
@@ -24,15 +24,15 @@ internal static class EyeDoorPlmProgramDefinitions
     /// <summary>How long a right-facing component shows each pulse pose.</summary>
     private const int RightPulseDuration = 6;
     /// <summary>The blocks across that wake the eye or keep it watching.</summary>
-    private const byte EyeWakeColumns = 6;
+    private const int EyeWakeColumns = 6;
     /// <summary>The blocks up or down that wake the eye, keep it watching, or close it.</summary>
-    private const byte EyeWakeRows = 4;
+    private const int EyeWakeRows = 4;
     /// <summary>The blocks across that count as right in front of the eye.</summary>
-    private const byte EyeInFrontColumns = 1;
+    private const int EyeInFrontColumns = 1;
     /// <summary>The blocks across that make a component pulse.</summary>
-    private const byte ComponentWakeColumns = 6;
+    private const int ComponentWakeColumns = 6;
     /// <summary>The blocks up or down that make a component pulse.</summary>
-    private const byte ComponentWakeRows = 16;
+    private const int ComponentWakeRows = 16;
 
     /// <summary>Each facing's program set: the right-facing components pulse faster.</summary>
     internal static IReadOnlyDictionary<EyeDoorOrientation, AnimationProgramSet<EyeDoorPlmProgram, EyeDoorPlmFrame, EyeDoorPlmCue>> Sets { get; } =

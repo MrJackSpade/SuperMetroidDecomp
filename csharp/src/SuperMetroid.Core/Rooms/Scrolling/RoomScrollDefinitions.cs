@@ -11,7 +11,7 @@ public static class RoomScrollDefinitions
     /// mirrored the explored maps into that image, so every such read has always returned zero; the 100% movie also
     /// reads index $03FE (update 101214) and matches the cartridge with it.
     /// </summary>
-    internal const byte ExploredMapOverreadByte = 0;
+    internal const int ExploredMapOverreadByte = 0;
 
     /// <summary>Retail explicit allocations in the cartridge's order, including native trailing storage beyond logical screen cells.</summary>
     private static readonly RoomScrollDefinition[] Definitions =

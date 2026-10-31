@@ -30,7 +30,7 @@ internal sealed class EscapeExplosionsBehavior
         // Preserve the cartridge's unchanged-X branch, not the upstream C port's bugfix.
         if (choice < 8)
         {
-            inheritedX = (ushort)choice;
+            inheritedX = WordWrap.Unsigned(choice);
             if (ZebesEscapeExplosions.ForIndex(choice).SoundEffect is SoundEffectId sound)
                 _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
         }

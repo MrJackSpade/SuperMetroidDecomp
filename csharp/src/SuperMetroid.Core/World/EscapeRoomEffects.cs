@@ -101,11 +101,11 @@ internal sealed class EscapeRoomEffects
         {
             int random = _system.NextRandom();
             Position16<RoomPixels> explosion = new(
-                unchecked((ushort)(_room.Camera.PixelPosition.X + (byte)random)),
-                unchecked((ushort)(_room.Camera.PixelPosition.Y + SharedRandomState.UpperByte(random))));
+                CoordinateAxis.Wrap(_room.Camera.PixelPosition.X + SharedRandomState.LowerByte(random)),
+                CoordinateAxis.Wrap(_room.Camera.PixelPosition.Y + SharedRandomState.UpperByte(random)));
             int blockIndex = _room.LevelData.Size.RowMajorIndex(explosion.ToRoomBlock());
             if (!nonblank || _room.LevelData.GetPlmCollisionBlockByIndex(blockIndex).Terrain.Appearance.Block != ZebesEscapeDefinitions.BlankTile)
-                enemies.PlmSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), nonblank ? unchecked((ushort)(blockIndex * 2)) : (ushort)0);
+                enemies.PlmSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), nonblank ? CoordinateAxis.Wrap(blockIndex * 2) : 0);
         }
         if (nonblank) enemies.Earthquake.KeepShaking();
     }

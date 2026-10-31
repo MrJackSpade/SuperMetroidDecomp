@@ -19,13 +19,13 @@ internal static class SamusEaterPlmDefinitions
     public static readonly SoundEffectId ChewSound = Library2Sound.PlantChewing;
 
     /// <summary>The invincibility bit the hold ORs into Samus's invincibility timer each frame.</summary>
-    public const ushort HeldInvincibilityBit = 0x10;
+    public const int HeldInvincibilityBit = 0x10;
 
     /// <summary>The immunity the release gives Samus, in frames.</summary>
-    public const ushort ReleaseInvincibilityFrames = 48;
+    public const int ReleaseInvincibilityFrames = 48;
 
     /// <summary>The periodic damage each chew deals.</summary>
-    public const ushort ChewDamage = 2;
+    public const int ChewDamage = 2;
 
     /// <summary>The plant each supported header places; every other header is not a Samus Eater.</summary>
     public static IReadOnlyDictionary<PlmHeaderId, SamusEaterPlmDefinition> ByHeader { get; } =

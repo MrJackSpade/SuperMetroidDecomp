@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal sealed class DoorOpeningScrollState
 {
     /// <summary>Pixels the camera and layer two move per scroll update.</summary>
-    private const short LayerStepPixels = 4;
+    private const int LayerStepPixels = 4;
 
     /// <summary>Captures the directional setup positions, Samus's step, and the exact destination positions.</summary>
     private DoorOpeningScrollState(DoorOpeningScrollSetup setup)
@@ -117,7 +117,7 @@ internal sealed class DoorOpeningScrollState
     /// </summary>
     internal static FixedPosition<RoomPixels> RebaseSamus(DoorDefinition door, FixedPosition<RoomPixels> setup)
     {
-        var withinScreen = new Offset16<RoomPixels>((byte)setup.X.Whole, (byte)setup.Y.Whole);
+        var withinScreen = new Offset16<RoomPixels>(WordWrap.LowByte(setup.X.Whole), WordWrap.LowByte(setup.Y.Whole));
         return setup.WithWhole(GetSetupCamera(door) + withinScreen);
     }
 

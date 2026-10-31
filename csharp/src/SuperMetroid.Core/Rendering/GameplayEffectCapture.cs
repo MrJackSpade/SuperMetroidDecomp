@@ -151,7 +151,7 @@ public static class GameplayEffectCapture
             throw new InvalidDataException("Water has an incompatible layer-blending configuration.");
         if (fx.LayerBlendConfiguration != required) throw new InvalidDataException("Room FX has an incompatible layer-blending configuration.");
         bool liquid = fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid;
-        if (liquid && unchecked((short)fx.Surface.Y) < 0) return null;
+        if (liquid && CoordinateAxis.AsSigned(fx.Surface.Y) < 0) return null;
         bool atmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
         // Below a water surface the plane moves sideways with the water waveform, one sample a line counted from the line
         // below the surface and drawn back by the wave's phase (#1468).
@@ -222,7 +222,7 @@ public static class GameplayEffectCapture
         int verticalRadius = radius * PowerBombExplosionDefinitions.OvalHeightParts / PowerBombExplosionDefinitions.OvalWidthParts;
         ScreenWindow window = verticalRadius == 0 ? ScreenWindow.Closed
             : ScreenWindow.Of(WindowOval.Ellipse(explosion.Position.RelativeToCamera(layer1),
-                new Extent16<ScreenPixels>(checked((ushort)radius), checked((ushort)verticalRadius))),
+                new Extent16<ScreenPixels>(radius, verticalRadius)),
                 firstVisibleScanline);
         return new(window, explosion.FixedColor);
     }

@@ -23,7 +23,7 @@ public static class LoadStations
         int preceding = 0;
         for (int index = 0; index < area; index++) preceding += Count(AreaIds.At(index));
         LoadStationDefinition entry = areaIndex == AreaId.Ceres
-            ? new(RoomHeaderDefinitions.CeresElev, CeresDoorDefinitions.FallingTile0, Position16<RoomPixels>.Zero, new(0, (short)(stationIndex == 0 ? 72 : 64)))
+            ? new(RoomHeaderDefinitions.CeresElev, CeresDoorDefinitions.FallingTile0, Position16<RoomPixels>.Zero, new(0, WordWrap.Signed(stationIndex == 0 ? 72 : 64)))
             : Placement(areaIndex, stationIndex);
         return new LoadStationEntry(entry.Room, entry.Door, entry.CameraPosition, entry.SamusOffset);
     }

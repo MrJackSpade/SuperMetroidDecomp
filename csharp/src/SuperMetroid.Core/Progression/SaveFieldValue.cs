@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Progression;
 /// runtime owners that still keep these values in sixteen bits, convert through <see cref="Encode"/>, which rejects a
 /// value outside the range instead of wrapping it.
 /// </summary>
+[EncodingOwner("sixteen-bit save field words")]
 public static class SaveFieldValue
 {
     /// <summary>The largest value one SRAM slot field holds.</summary>

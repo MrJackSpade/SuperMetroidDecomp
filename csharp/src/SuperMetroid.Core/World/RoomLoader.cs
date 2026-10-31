@@ -197,13 +197,13 @@ internal sealed class RoomLoader
         }
 
         AreaId requestedArea = AreaIds.FromIndex(
-            unchecked((byte)slot.Area),
+            WordWrap.LowByte(slot.Area),
             $"Save slot {slot.Slot}");
-        int stationIndex = unchecked((byte)slot.SaveStation);
+        int stationIndex = WordWrap.LowByte(slot.SaveStation);
 
         LoadStationEntry station = LoadStations.Get(
             requestedArea,
-            checked((byte)stationIndex));
+            Ensure.BetweenInclusive(0, byte.MaxValue, stationIndex));
         DoorDefinition door = station.Door ?? throw new InvalidDataException("The load station has no door.");
         if (door.DestinationRoom != station.Room)
         {
@@ -477,9 +477,9 @@ internal sealed class RoomLoader
         _room.Camera.PublishDoorSamusPosition(position.Whole);
         _player.Samus.Position = DoorOpeningScrollState.AdvanceSamus(door, position);
         DoorDirection direction = door.Orientation.Direction;
-        int delta = direction is DoorDirection.Right or DoorDirection.Down ? (short)4 : (short)-4;
+        int delta = direction is DoorDirection.Right or DoorDirection.Down ? 4 : -4;
         bool vertical = direction.IsVertical();
-        Offset16<RoomPixels> firstStep = vertical ? new(0, checked((short)delta)) : new(checked((short)delta), 0);
+        Offset16<RoomPixels> firstStep = vertical ? new(0, delta) : new(delta, 0);
         PublishDoorCameraPosition(DoorOpeningScrollState.GetSetupCamera(door) + firstStep);
         _room.Camera.PublishDoorSamusTravelAxis(vertical, _player.Samus.Position.Whole);
         _doorFrameCounting.BeginScroll();
@@ -630,10 +630,10 @@ internal sealed class RoomLoader
         switch (state.Direction)
         {
             case DoorDirection.Right:
-                _player.Samus.Position = _player.Samus.Position.WithWholeX(unchecked((ushort)(_player.Samus.Position.X.Whole | (7))));
+                _player.Samus.Position = _player.Samus.Position.WithWrappedWholeX(_player.Samus.Position.X.Whole | (7));
                 break;
             case DoorDirection.Left:
-                _player.Samus.Position = _player.Samus.Position.WithWholeX(unchecked((ushort)(_player.Samus.Position.X.Whole & ~7)));
+                _player.Samus.Position = _player.Samus.Position.WithWrappedWholeX(_player.Samus.Position.X.Whole & ~7);
                 break;
             case DoorDirection.Down:
             case DoorDirection.Up:
@@ -1027,7 +1027,7 @@ internal sealed class RoomLoader
             // Only Norfair's Ridley marks his arena explored.
             if (enemies.RoomStatus.Boss == AreaBoss.Ridley)
                 for (int row = 0; row < RidleyMapDefinitions.ArenaScreenRows; row++)
-                    _system.MarkExploredMapTile(room.AreaIndex, room.MapPosition + new Offset16<MapTiles>(0, checked((short)(row + 1))));
+                    _system.MarkExploredMapTile(room.AreaIndex, room.MapPosition + new Offset16<MapTiles>(0, row + 1));
         }
         _escapeEffects.SetupEscapeRoomEffects(room.State.SetupCallback, enemies, scope.EscapeDiagonalQuake);
         // Gate setup runs while the room PLM population is constructed, but Enemies.Load
@@ -1131,8 +1131,8 @@ internal sealed class RoomLoader
 
         // LoadMoreThings applies this eight-pixel doorway alignment only horizontally.
         if (!direction.IsVertical())
-            finalX = direction == DoorDirection.Right ? (ushort)(finalX | 7) : unchecked((ushort)(finalX & ~7));
-        samus = samus.WithWhole(new Position16<RoomPixels>(checked((ushort)finalX), NudgeOffScreenLeftEdge(samus.Y.Whole)));
+            finalX = direction == DoorDirection.Right ? CoordinateAxis.Wrap(finalX | 7) : CoordinateAxis.Wrap(finalX & ~7);
+        samus = samus.WithWhole(new Position16<RoomPixels>(finalX, NudgeOffScreenLeftEdge(samus.Y.Whole)));
         // `$80:ADC8` adds $20 to door_destination_y_pos after using the unmodified value
         // for Samus's setup origin. The scroll's completion later snaps an upward transition's
         // camera to that adjusted destination; the other three directions retain theirs.
@@ -1255,10 +1255,10 @@ internal sealed class RoomLoader
     /// The doorway nudge of <c>$82:E6A2</c> and <c>LoadMoreThings</c>: a coordinate in its screen's second block moves
     /// to eight pixels past that block.
     /// </summary>
-    private static ushort NudgeOffScreenLeftEdge(int pixel) =>
-        BlockInScreen(pixel) == 1 ? unchecked((ushort)((pixel | 15) + 8)) : checked((ushort)pixel);
+    private static int NudgeOffScreenLeftEdge(int pixel) =>
+        BlockInScreen(pixel) == 1 ? CoordinateAxis.Wrap((pixel | 15) + 8) : Ensure.BetweenInclusive(0, ushort.MaxValue, pixel);
 
     /// <summary>The doorway nudge's other edge: a coordinate in its screen's fifteenth block moves to eight pixels before it.</summary>
-    private static ushort NudgeOffScreenRightEdge(int pixel) =>
-        BlockInScreen(pixel) == 14 ? unchecked((ushort)((pixel & ~15) - 8)) : checked((ushort)pixel);
+    private static int NudgeOffScreenRightEdge(int pixel) =>
+        BlockInScreen(pixel) == 14 ? CoordinateAxis.Wrap((pixel & ~15) - 8) : Ensure.BetweenInclusive(0, ushort.MaxValue, pixel);
 }

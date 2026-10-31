@@ -9,8 +9,9 @@ internal static class EnemyAngleDivisionVerification
     /// <summary>Compares zero-divisor behavior and 225 native enemy-angle samples.</summary>
     internal static void VerifyEnemyAngleDivision()
     {
-        AssertEqual(ushort.MaxValue, UnsignedDivision.Quotient(0, 0), "Hardware zero-over-zero quotient");
-        AssertEqual(ushort.MaxValue, UnsignedDivision.Quotient(1234, 0), "Hardware divide-by-zero quotient");
+        AssertEqual((int)ushort.MaxValue, AimAngleSlope.Of(0, 0), "a zero long side gives the steepest slope");
+        AssertEqual((int)ushort.MaxValue, AimAngleSlope.Of(5, 512), "a long side of a multiple of 256 pixels comes to zero");
+        AssertEqual(256 * 3 / 44, AimAngleSlope.Of(3, 300), "a long side past 255 pixels counts only its remainder");
         string[] rows = File.ReadAllLines("csharp/test-fixtures/movement-release/enemy-angle-402.csv").Skip(1).ToArray();
         AssertEqual(225, rows.Length, "Complete original-CPU enemy angle matrix");
         foreach (string row in rows)

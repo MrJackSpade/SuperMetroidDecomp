@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
@@ -11,7 +12,7 @@ internal static class PoseCollisionDefinitionsVerification
     /// <summary>Checks every byte-valued pose's vertical radius and live horizontal-radius refresh against native data.</summary>
     internal static void VerifyPoseCollisionDefinitions(SuperMetroidAddressSpace rom)
     {
-        var samus = new SamusState();
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             ushort expected = rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value +

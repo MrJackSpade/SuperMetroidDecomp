@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -20,7 +21,7 @@ internal static class BombJumpWallVerification
         var words = new RoomTerrainBlock[16 * 16];
         for (int row = 0; row < 10; row++) words[row * 16 + 4] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]));
-        var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose, Position = new(new(59, 0), new(80, 0))};
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.MorphBallGroundRightPose, Position = new(new(59, 0), new(80, 0))};
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0xF000);
@@ -51,7 +52,7 @@ internal static class BombJumpWallVerification
         var words = new RoomTerrainBlock[32 * 16];
         words[3 * 32 + 23] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]));
-        var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundLeftPose, Position = new(new(371, 0), new(71, 0))};
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.MorphBallGroundLeftPose, Position = new(new(371, 0), new(71, 0))};
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(-1);
@@ -69,7 +70,7 @@ internal static class BombJumpWallVerification
 
         // The native rising helper restores pose input below one whole pixel/frame,
         // using the speed BEFORE this frame's gravity subtraction, not at the apex.
-        var hurt = new SamusState { Pose = SamusPoseId.KnockbackRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 120)) };
+        var hurt = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.KnockbackRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 120)) };
         SamusPoseMetadata.RefreshCollisionRadii(hurt);
         SamusPresentation.InitializeAnimation(hurt);
         SamusPoseMetadata.PublishBombJumpDirection(hurt, SamusBombJumpDirection.Straight);

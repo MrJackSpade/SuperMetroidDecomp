@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -8,8 +7,8 @@ internal static class SamusProjectileListEntries
 {
 
     /// <summary>Reads the word just before every list and lays the lists out.</summary>
-    internal static InstalledProjectileListPositions Read(IImportCartridgeSource cartridge) => new(SamusProjectileListEntryDefinitions.Entries.ToDictionary(
+    internal static SamusProjectileListLayout Read(IImportCartridgeSource cartridge) => new(SamusProjectileListEntryDefinitions.Entries.ToDictionary(
         entry => entry.Key,
-        entry => new SamusProjectileListPosition(entry.Value, cartridge.ReadCartridgeWord(
+        entry => new SamusProjectileListLayout.ListPosition(entry.Value, cartridge.ReadCartridgeWord(
             SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(entry.Value - sizeof(ushort)))))));
 }

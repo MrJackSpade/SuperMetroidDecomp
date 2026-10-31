@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
@@ -18,7 +19,7 @@ internal static class PausePaletteSoundVerification
         if (!File.Exists(rom)) throw new FileNotFoundException("Pause palette integration requires the private ROM.", rom);
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(rom);
         var audio = new AudioQueues();
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation), System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
         var assets = ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory);
         var session = AudioSessionAccess.CreateSynthesizing(assets);
         short[] pcm = new short[AudioSession.PcmSamplesPerFrame];

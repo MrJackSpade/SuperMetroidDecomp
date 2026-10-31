@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.PipeBugs;
@@ -112,7 +113,7 @@ internal static class PipeBugBehaviorVerification
             {
                 Camera = Position16<RoomPixels>.Zero,
                 TimeIsFrozen = false,
-                Samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(samusPosition) },
+                Samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(samusPosition) },
             },
             new FrameCounters(0));
     }

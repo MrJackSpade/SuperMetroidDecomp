@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Samus.Poses.MakeSamusFaceForwardVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
@@ -14,7 +15,7 @@ internal static class SparkCrashAlignmentVerification
     {
         foreach (SamusPoseId pose in new SamusPoseId[] { SamusPoseId.ShinesparkDiagonalRightPose, SamusPoseId.ShinesparkDiagonalLeftPose })
         {
-            var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(700, 35)) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(700, 35)) };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x1234);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Shinespark.FinishCrash(samus, 5, null);

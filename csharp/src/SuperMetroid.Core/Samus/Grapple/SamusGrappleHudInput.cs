@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 internal static class SamusGrappleHudInput
 {
     /// <summary>Admits a selected Grapple input only for native movement handlers that can fire it in the current pose transition.</summary>
-    public static bool IsSelectedAndAdmitted(SamusState samus, InstalledSamusOverreads? overreads)
+    public static bool IsSelectedAndAdmitted(SamusState samus, PostureAdmissionBeyondTransitions<SamusPoseId> postureAdmission)
     {
         if (samus.Control.AlphaLocked || SamusPoseMetadata.IsForwardFacingPose(samus.Pose) ||
             samus.SelectedHudItem != HudItem.Grapple)
@@ -20,7 +20,7 @@ internal static class SamusGrappleHudInput
             SamusHudHandler.Standard or SamusHudHandler.Grapple => true,
             SamusHudHandler.DraygonHeld => SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.DraygonHeld,
             SamusHudHandler.Turning => samus.PendingTransitionShot is not null,
-            SamusHudHandler.Transition => SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose, grappleActive: false, overreads),
+            SamusHudHandler.Transition => SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose, grappleActive: false, postureAdmission),
             SamusHudHandler.MorphBall or SamusHudHandler.Jump => false,
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusHudHandler)} {handler}."),
         };

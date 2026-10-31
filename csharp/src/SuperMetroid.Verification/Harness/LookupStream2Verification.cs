@@ -1281,7 +1281,7 @@ internal static class LookupStream2Verification
                 slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)(member + 4));
                 slot.Timer = WrappingCountdown.FromRaw((ushort)(member + 8));
             }
-            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
             enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.SlotTable.Slots[0], (enemies.PipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PipeBugStates[0].")), samus);
             for (int member = 0; member < 5; member++)
             {
@@ -1366,7 +1366,7 @@ internal static class LookupStream2Verification
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
             }
-            var nativeSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads }; var authoredSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };
+            var nativeSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads); var authoredSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
             nativeWords.Clear();
             foreach (var system in new[] { nativeSystem, authoredSystem })
             {
@@ -1477,7 +1477,7 @@ internal static class LookupStream2Verification
                     throw new InvalidOperationException($"{trailingType} leaves no trail."),
                 _ => throw new InvalidOperationException($"Undefined projectile family {trailingType.Family}."),
             };
-            var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };
+            var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
             var projectile = new SamusProjectileSlot(0)
             {
                 Type = trailingType,
@@ -2044,7 +2044,7 @@ internal static class LookupStream2Verification
             ushort pointer = (ushort)(0x86db + direction * 12);
             AssertTrue(!remaining.Contains(pointer), "Stock compass selector is absent from stored residuals");
             var shot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1) };
-            var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = stock } };
+            var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
             string key = ProjectileFrameBindingFormat.FrameNameAt(pointer);
@@ -2088,7 +2088,7 @@ internal static class LookupStream2Verification
             }
             AssertTrue(!remaining.Contains(pointer), "Calculated Wave/Ice selector is absent from stored residuals");
             var shot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1) };
-            var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = stock } };
+            var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             string key = ProjectileFrameBindingFormat.FrameNameAt(pointer);

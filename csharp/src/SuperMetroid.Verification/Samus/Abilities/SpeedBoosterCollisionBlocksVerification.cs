@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
@@ -180,7 +181,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
     /// <summary>Positions Samus for the fixture contact and selects either stage-four boost or the inactive counter.</summary>
     internal static SamusState CreateSpeedBoosterCollisionSamus(bool active)
     {
-        var samus = new SamusState
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(40, 54)),

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -160,7 +161,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 {
                     Camera = Position16<RoomPixels>.Zero,
                     TimeIsFrozen = false,
-                    Samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) },
+                    Samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) },
                     Level = level,
                 },
                 new FrameCounters(0));

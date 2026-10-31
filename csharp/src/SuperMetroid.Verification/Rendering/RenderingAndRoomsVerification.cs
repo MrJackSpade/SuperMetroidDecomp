@@ -128,7 +128,7 @@ internal static void VerifyHudState()
     AssertEqual(0x2d09, hud.TileWords[0x8c / 2], "HUD health tens digit from ROM table");
     AssertEqual(0x2d09, hud.TileWords[0x8e / 2], "HUD health ones digit from ROM table");
 
-    var damagedSamus = new SamusState { Health = 94, MaxHealth = 99 };
+    var damagedSamus = new SamusState(InstalledFixtures.AnimationContinuation) { Health = 94, MaxHealth = 99 };
     hud.UpdateGameplayCounters(damagedSamus);
     AssertEqual(0x2d09, hud.TileWords[0x8c / 2], "live HUD damage tens digit");
     AssertEqual(0x2d04, hud.TileWords[0x8e / 2], "live HUD damage ones digit");

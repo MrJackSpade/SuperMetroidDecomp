@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
@@ -39,7 +40,7 @@ internal static class RidleyClawOffsetsVerification
         Func<RoomEnemySlot, RidleyEnemyState, SamusState, Extent16<RoomPixels>, bool> overlaps = NorfairRidleyCombat.RidleyClawOverlapsSamus;
         var slot = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
         var state = new RidleyEnemyState();
-        var samus = new SamusState();
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
         static int Decay(short offset) => offset < 0 ? Math.Min(0, offset + 4) : Math.Max(0, offset - 4);
         foreach (RidleyFacing facing in Enum.GetValues<RidleyFacing>())
         for (int feet = 0; feet < 3; feet++)

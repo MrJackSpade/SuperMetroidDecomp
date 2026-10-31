@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Samus;
@@ -32,7 +33,7 @@ internal static class BeetomOwnedStateVerification
         enemies.VerificationServices().SeedRandom = _ => { };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
-        enemies.BeetomBehavior.InitializeBeetom(slot, new SamusState(), 0);
+        enemies.BeetomBehavior.InitializeBeetom(slot, new SamusState(InstalledFixtures.AnimationContinuation), 0);
         BeetomEnemyState state = enemies.BeetomStates[0]
             ?? throw new InvalidOperationException("The initialized Beetom has no state.");
         state.FacingRight = true;

@@ -400,7 +400,7 @@ internal static class LookupStream5Verification
             AssertTrue(!body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Eye opening enables collision");
             state.Parts[tentacles.SlotIndex].SwoopRequested = shot;
             state.Parts[tentacles.SlotIndex].RoundDamage = 37;
-            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
             for (int elapsed = 1; elapsed <= duration; elapsed++)
             {
                 tick(body, state, samus); ticks++;
@@ -1526,7 +1526,7 @@ internal static class LookupStream5Verification
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, ushort direction) in eyeTargets)
         {
-            pointEye(eyeBody, eyeState, new SamusState
+            pointEye(eyeBody, eyeState, new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.Position.X.Whole + x)), unchecked((ushort)(eyeBody.Position.Y.Whole + y)))),
             });

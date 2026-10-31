@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -79,7 +80,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
     {
         for (int movement = 0; movement <= (byte)SamusMovementType.Special; movement++)
         {
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
@@ -103,7 +104,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
     {
         for (ushort frame = 0; frame < 10; frame++)
         {
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
@@ -133,7 +134,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 SamusAtmosphericEffects.ForCrateriaRoom(new RoomIdentity(AreaId.Crateria, room));
             bool wet = policy != CrateriaAtmosphericEffectFlags.None;
 
-            var runner = new SamusState
+            var runner = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
@@ -149,7 +150,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
                 $"production Crateria running policy ${room:X2}");
 
-            var landing = new SamusState
+            var landing = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),

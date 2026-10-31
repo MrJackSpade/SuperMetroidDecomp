@@ -176,7 +176,7 @@ internal static class SuperMetroidRuntimeAccess
         /// <summary>Initializes the ROM-authored standing pose at an explicitly supplied point.</summary>
         internal void InitializeDebugSamus(Position16<RoomPixels> position)
         {
-            self.Player.Samus = new SamusState
+            self.Player.Samus = new SamusState(self.SamusOverreads.AnimationContinuation)
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 AnimationFrame = 0,

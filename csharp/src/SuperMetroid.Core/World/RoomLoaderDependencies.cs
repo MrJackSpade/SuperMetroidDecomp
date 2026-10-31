@@ -101,6 +101,9 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Tester.</summary>
     public required TesterTools Tester { get; init; }
 
+    /// <summary>The installed services reproducing Samus's glitch reads, handed to every Samus and projectile system a load builds.</summary>
+    public required SamusOverreadServices SamusOverreads { get; init; }
+
 
 
 

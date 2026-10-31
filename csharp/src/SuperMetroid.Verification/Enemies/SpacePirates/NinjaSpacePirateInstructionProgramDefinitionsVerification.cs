@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
@@ -238,7 +239,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             slot.Radius = new(8, 16);
             slot.SetSpawnParameter2(EnemyDefinitionId.PirateGreyNinja, 0x0080);
             enemies.NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);
-            return new NinjaSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, slot, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
+            return new NinjaSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, slot, new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
         }
 
         // Advances production enemy instructions for the requested number of updates.

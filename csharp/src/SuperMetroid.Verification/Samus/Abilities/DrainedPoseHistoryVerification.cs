@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
@@ -10,7 +11,7 @@ internal static class DrainedPoseHistoryVerification
     {
         foreach (SamusPoseId source in new[] { SamusPoseId.CrouchingRightPose, SamusPoseId.CrouchingLeftPose })
         {
-            var samus = new SamusState { Pose = source, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = source, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             var history = samus.PoseHistory;
             history.PreviousPose = source;

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus;
@@ -18,7 +19,7 @@ internal static class SamusImpulseDefinitionsVerification
     {
         // Bomb jumps start in morph ball. Since #1258 the medium test samples the current pose's
         // native collision radius, so the liquid threshold is that pose's bottom edge.
-        var bomb = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+        var bomb = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.MorphBallGroundRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         int bombBottom = 128 + SamusPoseCollisionRadii.ReadVerticalRadius(bomb.Pose) - 1;
         int bombCases = 0;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -55,7 +56,7 @@ internal static class SamusImpulseDefinitionsVerification
         for (ushort side = 0; side <= 1; side++)
         foreach (ControllerButton input in new ControllerButton[] { 0, ControllerButton.Left, ControllerButton.Right })
         {
-            var hurt = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+            var hurt = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             SamusPoseMetadata.RefreshCollisionRadii(hurt);
             hurt.EquippedItems = (((equipment & 1) != 0 ? SamusEquipmentFlags.HiJumpBoots : 0) | ((equipment & 2) != 0 ? SamusEquipmentFlags.SpeedBooster : 0) | ((equipment & 4) != 0 ? SamusEquipmentFlags.GravitySuit : 0));
             hurt.LiquidPhysics.FxYPosition = environment is 1 or 3 ? (ushort)0 : ushort.MaxValue;

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -46,7 +47,7 @@ internal static class SuitPickupPeriodicDamageVerification
 
         // Reference ledger: the same producer calls, consumed once by the $90:E9CE port
         // after the transformation.
-        var reference = new SamusState
+        var reference = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             MaxHealth = samus.MaxHealth,
             Health = samus.Health,

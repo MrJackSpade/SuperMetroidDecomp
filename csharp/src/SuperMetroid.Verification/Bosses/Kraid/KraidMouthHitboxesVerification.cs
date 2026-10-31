@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidMouthMappingsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -33,7 +34,7 @@ internal static class KraidMouthHitboxesVerification
         var guarded = NewKraidMouthLowHalfGuard(rom);
         Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool> overlaps = CoreAccess.KraidMouthHitboxOverlapsShot;
         var body = enemies.SlotTable.Slots[0];
-        var shot = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None).Slots[0];
+        var shot = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads).Slots[0];
         body.Position = body.Position.WithWhole(new(256, 256));
         shot.Radius = new(4, 4);
         for (int entry = 0; entry < 8; entry++)

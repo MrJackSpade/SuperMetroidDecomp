@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -22,7 +23,7 @@ internal static class MockballBoostContactVerification
         // publication on the following frame, as the native alpha/beta ordering does.
         foreach (SamusPoseId pose in new[] { SamusPoseId.MorphBallMovingRightPose, SamusPoseId.SpringBallMovingRightPose })
         {
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 57)),
                 EquippedItems = (SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.MorphBall),

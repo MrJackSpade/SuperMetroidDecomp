@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Progression;
 /// </summary>
 /// <remarks>
 /// The progress tables keep the cartridge's allocation sizes and bit layout, because save slots round-trip them exactly
-/// and SpaceTime's progression overwrite (<see cref="WriteProgressionSliceByte"/>) addresses them byte by byte.
+/// and SpaceTime's progression overwrite (<see cref="Overwrite"/>) replaces their leading entries in that stored form.
 /// </remarks>
 public sealed class SharedGameState
 {
@@ -137,46 +137,37 @@ public sealed class SharedGameState
             : throw new ArgumentOutOfRangeException(nameof(value), value, "The loaded-item count is a save field.");
     }
 
-    /// <summary>Whether <paramref name="offset"/> from the event bitset lies in the persistent-progress slice.</summary>
-    internal static bool ProgressionSliceHolds(int offset) => offset is >= 0 and < ProgressionSliceLayout.ByteCount;
-
     /// <summary>
-    /// Stores one raw byte at <paramref name="offset"/> from the event bitset into the persistent-progress slice
-    /// (<c>$7E:D820-$D91B</c>), in the native layout. SpaceTime's malformed palette copy overwrites progression this way
-    /// (#1318, #1330); every written bit survives. The padding after the opened-door bits is not state (owner decision
-    /// on #1330), so a store there changes nothing.
+    /// Applies SpaceTime's progression overwrite (#1318, #1330, #1474): each table's leading entries the overwrite names
+    /// are replaced, in their stored form, and the saved loading state when the overwrite reaches it. Every written bit
+    /// survives.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> lies outside the slice.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte, 0 through 255.</exception>
-    internal void WriteProgressionSliceByte(int offset, int value)
+    /// <exception cref="ArgumentException">The overwrite names more entries than a table holds.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An entry is not 0 through 255, or the loading state is not a save field.</exception>
+    internal void Overwrite(ProgressionOverwrite overwrite)
     {
-        if (!ProgressionSliceHolds(offset))
-            throw new ArgumentOutOfRangeException(nameof(offset), offset, "The offset lies outside the progression slice.");
-        Ensure.BetweenInclusive(0, byte.MaxValue, value);
-        if (offset < ProgressionSliceLayout.BossBitsOffset)
-            _events[offset - ProgressionSliceLayout.EventsOffset] = (byte)value;
-        else if (offset < ProgressionSliceLayout.RoomChozoBitsOffset)
-            _bossBitsByArea[offset - ProgressionSliceLayout.BossBitsOffset] = BossBitsCodec.FromSaveByte((byte)value);
-        else if (offset < ProgressionSliceLayout.CollectedItemBitsOffset)
-            RoomChozoBits[offset - ProgressionSliceLayout.RoomChozoBitsOffset] = (byte)value;
-        else if (offset < ProgressionSliceLayout.OpenedDoorBitsOffset)
-            _collectedItemBits[offset - ProgressionSliceLayout.CollectedItemBitsOffset] = (byte)value;
-        else if (offset < ProgressionSliceLayout.PaddingOffset)
-            _openedDoorBits[offset - ProgressionSliceLayout.OpenedDoorBitsOffset] = (byte)value;
-        else if (offset < ProgressionSliceLayout.UsedSaveStationsOffset)
-            return;
-        else if (offset < ProgressionSliceLayout.MapStationsOffset)
-            _usedSaveStationsAndElevators[offset - ProgressionSliceLayout.UsedSaveStationsOffset] = (byte)value;
-        else if (offset < ProgressionSliceLayout.LoadingGameStateOffset)
-            _mapStations[offset - ProgressionSliceLayout.MapStationsOffset] = (byte)value;
-        else
-        {
-            // The slice stores the loading state as a little-endian word; a byte write replaces one of its two bytes.
-            Span<byte> word = stackalloc byte[sizeof(ushort)];
-            BinaryPrimitives.WriteUInt16LittleEndian(word, SaveFieldValue.Encode(SavedLoadingGameState, nameof(SavedLoadingGameState)));
-            word[offset == ProgressionSliceLayout.LoadingGameStateOffset ? 0 : 1] = (byte)value;
-            SavedLoadingGameState = BinaryPrimitives.ReadUInt16LittleEndian(word);
-        }
+        Ensure.NotNull(overwrite);
+        ReplaceLeading(_events, overwrite.Events, nameof(overwrite.Events));
+        if (overwrite.AreaBosses.Count > _bossBitsByArea.Length)
+            throw new ArgumentException($"The overwrite names {overwrite.AreaBosses.Count} areas' bosses, not at most {AreaCount}.", nameof(overwrite));
+        for (int area = 0; area < overwrite.AreaBosses.Count; area++)
+            _bossBitsByArea[area] = BossBitsCodec.FromSaveByte((byte)Ensure.BetweenInclusive(0, byte.MaxValue, overwrite.AreaBosses[area]));
+        ReplaceLeading(RoomChozoBits, overwrite.ChozoOrbs, nameof(overwrite.ChozoOrbs));
+        ReplaceLeading(_collectedItemBits, overwrite.CollectedItems, nameof(overwrite.CollectedItems));
+        ReplaceLeading(_openedDoorBits, overwrite.OpenedDoors, nameof(overwrite.OpenedDoors));
+        ReplaceLeading(_usedSaveStationsAndElevators, overwrite.UsedStations, nameof(overwrite.UsedStations));
+        ReplaceLeading(_mapStations, overwrite.MapStations, nameof(overwrite.MapStations));
+        if (overwrite.SavedLoadingGameState is { } loadingState)
+            SavedLoadingGameState = loadingState;
+    }
+
+    /// <summary>Replaces <paramref name="table"/>'s leading entries with <paramref name="leading"/>, each 0 through 255.</summary>
+    private static void ReplaceLeading(byte[] table, IReadOnlyList<int> leading, string name)
+    {
+        if (leading.Count > table.Length)
+            throw new ArgumentException($"The overwrite names {leading.Count} {name} entries, not at most {table.Length}.", name);
+        for (int index = 0; index < leading.Count; index++)
+            table[index] = (byte)Ensure.BetweenInclusive(0, byte.MaxValue, leading[index]);
     }
 
     /// <summary>The session's shared random-number generator.</summary>

@@ -60,7 +60,7 @@ internal static class PauseEquipmentLabelsVerification
             PauseEquipmentLabelPresentation.Write(output, editedDocument);
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
 
-        var liveSamus = new SamusState { CollectedBeams = SamusBeamFlags.Charge,
+        var liveSamus = new SamusState(InstalledFixtures.AnimationContinuation) { CollectedBeams = SamusBeamFlags.Charge,
             EquippedBeams = SamusBeamFlags.Charge };
         var live = new PauseMenuState(new PauseMenuEntry { Samus = liveSamus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         byte[] before = EquipmentPage(live);
@@ -74,7 +74,7 @@ internal static class PauseEquipmentLabelsVerification
 
         // Exercise the retail nine-word Boots-to-Plasma copy after an asset-identity
         // change. The first four Varia words must remain the contiguous source tail.
-        var glitchSamus = new SamusState { CollectedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), EquippedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster),
+        var glitchSamus = new SamusState(InstalledFixtures.AnimationContinuation) { CollectedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), EquippedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster),
             CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)4 };
         var glitch = new PauseMenuState(new PauseMenuEntry { Samus = glitchSamus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EquipmentPage(glitch);

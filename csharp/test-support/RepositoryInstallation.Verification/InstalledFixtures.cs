@@ -26,11 +26,15 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <summary>Installation fixtures only the verifiers use; the developer tools link only the shared part.</summary>
 internal static class InstalledFixtures
 {
-    /// <summary>The installation's cartridge bytes Samus's glitch paths read, loaded once.</summary>
-    private static readonly Lazy<InstalledSamusOverreads> samusOverreads = new(() => RepositoryInstallation.Installation.LoadSamusOverreads());
+    /// <summary>The installation's services reproducing Samus's glitch reads, loaded once.</summary>
+    private static readonly Lazy<SamusOverreadServices> samusOverreads = new(() => RepositoryInstallation.Installation.LoadSamusOverreads());
 
-    /// <summary>The installation's cartridge bytes Samus's glitch paths read.</summary>
-    internal static InstalledSamusOverreads SamusOverreads => samusOverreads.Value;
+    /// <summary>The installation's services reproducing Samus's glitch reads.</summary>
+    internal static SamusOverreadServices SamusOverreads => samusOverreads.Value;
+
+    /// <summary>The installation's continuation of a Samus animation frame past its pose's program, which every Samus takes.</summary>
+    internal static SuperMetroid.Core.Compatibility.LaidOutProgramContinuation<SuperMetroid.Core.Samus.Poses.SamusPoseId> AnimationContinuation =>
+        SamusOverreads.AnimationContinuation;
 
     /// <summary>The installation's starting and common sprite colours, loaded once.</summary>
     private static readonly Lazy<GameplayBasePalette> gameplayBasePalettes = new(() => RepositoryInstallation.Installation.LoadGameplayBasePalettes());
@@ -149,7 +153,7 @@ internal static class InstalledFixtures
 
     /// <summary>Creates a Samus projectile system with installed frame bindings.</summary>
     internal static SamusProjectileSystem CreateProjectileSystem() =>
-        new(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = Projectiles.FrameBindings }, Overreads = SamusOverreads };
+        new(new BeamChargeState(), SamusProjectileResidue.None, SamusOverreads) { Animation = { FrameBindings = Projectiles.FrameBindings } };
 
     /// <summary>Creates a bomb system with installed frame bindings and explosion colors.</summary>
     internal static SamusBombProjectileSystem CreateBombSystem() =>
@@ -173,7 +177,7 @@ internal static class InstalledFixtures
     }
 
     /// <summary>Creates Samus with installation suit, body, beam, visor, and grapple presentation.</summary>
-    internal static SamusState CreateSamus() => BindSamus(new SamusState());
+    internal static SamusState CreateSamus() => BindSamus(new SamusState(AnimationContinuation));
 
     /// <summary>Creates Ceres destruction with installed cinematic art, fixed colors, and palette FX.</summary>
     internal static CeresDestructionCinematicState CreateDestruction(AudioQueues? audio = null, IntroCinematicArtwork? artwork = null) =>
@@ -185,7 +189,7 @@ internal static class InstalledFixtures
         IntroFontAtlas? introFont = null, IntroCinematicArtwork? characterArtwork = null,
         InstalledBeamPalettes? beamPalettes = null, InstalledSamusBodyArtwork? samusBodyArtwork = null)
     {
-        var intro = new IntroCinematicState(audio, introFont ?? Maps.IntroFont,
+        var intro = new IntroCinematicState(SamusOverreads, audio, introFont ?? Maps.IntroFont,
             characterArtwork ?? IntroArtwork, beamPalettes ?? Projectiles.BeamTiles.Palettes, samusBodyArtwork ?? SamusBody)
         {
             Random = new SharedRandom(),

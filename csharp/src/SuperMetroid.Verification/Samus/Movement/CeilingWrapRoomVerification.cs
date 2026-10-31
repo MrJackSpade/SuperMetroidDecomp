@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -60,7 +61,7 @@ internal static class CeilingWrapRoomVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.FrogSpeedway);
         var level = runtime.Room.LoadedLevelData;
-        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(1237, 139)),
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(1237, 139)),
             PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose, EquippedBeams = (SamusBeamFlags)5 };
         samus.Kinematics.Radius = new(5, 21);
         var plms = runtime.Plms;

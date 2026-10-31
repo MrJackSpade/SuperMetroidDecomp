@@ -38,6 +38,8 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     private readonly RoomLoader _roomLoader;
     /// <summary>Seeds demo progression bits without reading or writing a player save.</summary>
     private readonly SharedGameState _system;
+    /// <summary>What a demo Samus's animation frame past her pose's program reads.</summary>
+    private readonly LaidOutProgramContinuation<SamusPoseId> _animationContinuation;
 
     /// <summary>Retains the runtime owners used to initialize and advance attract scenes.</summary>
     internal AttractDemoDriver(AttractDemoDriverDependencies dependencies)
@@ -52,6 +54,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _room = dependencies.Room;
         _roomLoader = dependencies.RoomLoader;
         _system = dependencies.System;
+        _animationContinuation = Ensure.NotNull(dependencies.AnimationContinuation);
     }
     /// <summary>Reflects whether the current session is substituting an attract demo for gameplay.</summary>
     public bool IsAttractDemo => _attractSession.IsAttractDemo;
@@ -96,7 +99,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _system.LoadUsedSaveStationBytes(usedStations);
         _system.LoadExploredMapBytes(new byte[SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea]);
 
-        _player.Samus = new SamusState
+        _player.Samus = new SamusState(_animationContinuation)
         {
             FloorQueueResidue = _enemySession.FloorQueueResidue,
             Position = FixedPosition<RoomPixels>.FromWhole(scene.SamusPosition),

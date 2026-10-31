@@ -50,18 +50,19 @@ internal static class SamusProjectilePrograms
     }
 
     /// <summary>
-    /// The word just before the projectile's next list position, which $93:81D8 reads as the trail's animation frame: the
-    /// animation frame of the record last installed, or for a freshly installed list the word preceding it.
+    /// The animation frame a trail reads from a projectile whose animation stands at <paramref name="cursor"/>: the
+    /// animation frame of the record last installed, or for a freshly installed list the frame <paramref name="starts"/>
+    /// decoded for its program.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The cursor stands at a list's start and no overread catalog is installed.</exception>
-    internal static ushort PrecedingAnimationFrame(AnimationProgramCursor<SamusProjectileProgram> cursor, InstalledSamusOverreads? overreads)
+    internal static int PrecedingAnimationFrame(AnimationProgramCursor<SamusProjectileProgram> cursor,
+        TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> starts)
     {
+        Ensure.NotNull(starts);
         if (cursor.Position == 0)
-            return (overreads ?? throw new InvalidOperationException(
-                $"A trail spawned at the start of {cursor.Program}'s list needs the installed Samus overread catalog.")).ProjectileLists.Prefix(cursor.Program);
+            return starts.FrameAtListStart(cursor.Program);
         var previous = SamusProjectileAnimations.Programs.Steps(cursor.Program)[cursor.Position - 1];
         if (previous is not AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep show)
             throw new InvalidOperationException($"Samus projectile program {cursor.Program} continues past a non-record step.");
-        return checked((ushort)SamusProjectileRecordDefinitions.Get(show.Frame).AnimationFrame);
+        return SamusProjectileRecordDefinitions.Get(show.Frame).AnimationFrame;
     }
 }

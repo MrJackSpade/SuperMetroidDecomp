@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireNativeListAddresses;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
@@ -175,7 +176,7 @@ internal static class CrocomireAnimationsVerification
             "the sleeping body shows its initial frame");
         AssertEqual((ushort)1, state.Body.InstructionTimer.RawValue, "the initial frame lasts one update");
 
-        var samus = new SamusState();
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
         samus.Position = samus.Position.WithWholeX(state.Body.Position.X.Whole);
         Pass(enemies, state, samus);
         AssertEqual(CrocomireFightFunction.WaitingForFirstDamage, state.FightFunction, "Samus within range wakes Crocomire");
@@ -265,7 +266,7 @@ internal static class CrocomireAnimationsVerification
             CompareProjectile(cartridge, spikeSystem, spike, RoomEnemyProjectileKind.CrocomireSpikeWallPieces, shot: false, "spike");
 
         (RoomEnemySystem shotSystem, CrocomireEnemyState shotState) = NewCrocomire();
-        shotSystem.DeathsAndDrops.BindSamus(new SamusState { Health = 99, MaxHealth = 99 });
+        shotSystem.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation) { Health = 99, MaxHealth = 99 });
         shotSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(shotState.Body, 2);
         RoomEnemyProjectileSlot exploding = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);

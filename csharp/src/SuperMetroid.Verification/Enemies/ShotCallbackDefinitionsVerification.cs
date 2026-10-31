@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Enemies.Callbacks;
 using SuperMetroid.Verification.Samus.Projectiles;
 using System.Text.RegularExpressions;
@@ -122,7 +123,7 @@ internal static class ShotCallbackDefinitionsVerification
                 Touch = EnemyInteractionCallbacks.TryDecode(touchBank, touchWord),
                 TouchBody = EnemyInteractionCallbacks.Body(touchWord, EnemyInteractionCallbacks.IsLiteralNoOpTouch(touchBank, touchWord)),
             });
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 Health = 99,
@@ -150,7 +151,7 @@ internal static class ShotCallbackDefinitionsVerification
                 ShotBody = EnemyInteractionCallbacks.Body(shotWord, EnemyInteractionCallbacks.IsLiteralNoOpShot(shotBank, shotWord)),
                 NoOpCallbackBody = EnemyInteractionCallbacks.NoOpCallbackBody(shotBank),
             });
-            var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+            var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
             SamusProjectileSlot projectile = projectiles.Slots[0];
             projectile.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false);
             projectile.Damage = 20;

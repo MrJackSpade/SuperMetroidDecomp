@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -64,13 +65,13 @@ internal static class SamusChargeColorsVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "charge colors change installed content identity");
         var guarded = NewChargeColorReadGuard(rom, forbidden);
-        var samus = new SamusState
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = SamusBeamFlags.Charge,
             Presentation = { ChargeColors = edited.SamusChargeColors },
         };
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
         projectiles.Charge.FlareCounter = 60;
         var cgram = new SamusColourRig();
         ushort[] suits = [0, 1, 0x20];
@@ -560,9 +561,9 @@ internal static class SamusChargeColorsVerification
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => colours.ResolveCharge(false, 0, 0, invalid), "Invalid color rejected");
         var guarded = NewChargeColorReadGuard(rom, forbidden);
-        var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose,
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = SamusBeamFlags.Charge, Presentation = { ChargeColors = colours } };
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
         projectiles.Charge.FlareCounter = 60;
         ushort[] suits = [0, 1, 0x20];
         for (int family = 0; family < 2; family++)

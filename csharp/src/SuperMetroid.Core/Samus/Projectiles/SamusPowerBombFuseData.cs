@@ -9,12 +9,6 @@ public static class SamusPowerBombFuseData
     /// <summary>$90:C157 switches to the fast animation when the decremented fuse reaches fifteen.</summary>
     public const ushort FastAnimationTimer = 15;
     /// <summary>
-    /// The bytes the fuse adds to the live list pointer to switch to the fast animation. The Chainsaw glitch beam runs the
-    /// fuse over its own list, so it applies this offset to a beam list.
-    /// </summary>
-    public const ushort FastAnimationOffset = 28;
-
-    /// <summary>
     /// The fast-animation position each slow bomb and Power Bomb position switches to: the same frame in the fast list.
     /// A bomb's list has one more leading step than its fast list.
     /// </summary>

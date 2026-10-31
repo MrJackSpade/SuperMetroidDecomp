@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Metaree;
 using SuperMetroid.Core.Samus;
@@ -22,7 +23,7 @@ internal static class MetareeDiveSpeedVerification
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
             MetareeBehavior.InitializeMetaree(slot);
             MetareeEnemyState state = enemies.MetareeStates[0] ?? throw new InvalidOperationException("The Metaree has no state.");
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, unchecked((ushort)(0x0080 + samusOffset)))),
             };

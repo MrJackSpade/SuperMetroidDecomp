@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -51,7 +52,7 @@ internal static class WrapShotWidthsVerification
             words[target] = DoorCap; bts[target] = RoomBlockBehaviorValues.BlueDoorFacingRight;
             for (int row = 1; row < 4; row++) { words[target + row * width] = DoorCapExtension; bts[target + row * width] = OneBlockUp; }
             var level = CreateRoom(new(checked((ushort)width), checked((ushort)height)), words, bts);
-            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(originsX[room] + offset), (ushort)originsY[room])),
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(originsX[room] + offset), (ushort)originsY[room])),
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
                 EquippedBeams = (SamusBeamFlags)((ushort)(beam == 0 ? 0 : beam == 1 ? 1 : left ? 5 : 9)) };
             var shots = CreateProjectileFixture();

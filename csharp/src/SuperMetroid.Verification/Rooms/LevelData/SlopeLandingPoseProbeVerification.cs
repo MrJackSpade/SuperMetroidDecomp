@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -32,7 +33,7 @@ internal static class SlopeLandingPoseProbeVerification
 
         SamusState Falling(ushort y, ushort ySubposition)
         {
-            var samus = new SamusState { Pose = SamusPoseId.NeutralJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x69, y)) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.NeutralJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x69, y)) };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(ySubposition);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             return samus;

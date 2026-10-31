@@ -38,6 +38,8 @@ internal sealed class GameplayActorDrawing
     private readonly SamusFrameState _player;
     /// <summary>Provides the camera and Ceres arrival actors for this draw pass.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>The colours Gravity copies on the Speed Booster steps past its cycle.</summary>
+    private readonly SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> _speedBoosterOverrunColours;
 
     /// <summary>Binds the shared runtime owners whose state determines each actor drawing pass.</summary>
     internal GameplayActorDrawing(GameplayActorDrawingDependencies dependencies)
@@ -51,6 +53,7 @@ internal sealed class GameplayActorDrawing
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
         _room = dependencies.Room;
+        _speedBoosterOverrunColours = Ensure.NotNull(dependencies.SpeedBoosterOverrunColours);
     }
 
     /// <summary>What Samus's projectile, bomb, flare and trail draws show: the sheet of the beam last loaded.</summary>
@@ -135,8 +138,8 @@ internal sealed class GameplayActorDrawing
                     _player.Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(_player.Colours, new SpeedBoosterPaletteFrame { MovementType = SamusPoseMetadata.ReadMovementType(_player.Samus), AnimationFrame = _player.Samus.AnimationFrame, EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterPalette = _player.Samus.Shinespark.PaletteType != SamusSpecialPaletteType.None ||
                         _player.Samus.CrystalFlash.SpecialPaletteKind ==
                             SamusSpecialPaletteType.CrystalFlash ||
-                        _player.Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) }, suitColors: _artwork.MapPresentation?.SamusSuitColors, cycleColors: _artwork.MapPresentation?.SamusFullBodyCycleColors,
-                        overreads: _artwork.SamusOverreads);
+                        _player.Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) }, _speedBoosterOverrunColours,
+                        suitColors: _artwork.MapPresentation?.SamusSuitColors, cycleColors: _artwork.MapPresentation?.SamusFullBodyCycleColors);
             }
             // Palette handlers one and six run at the same `$91:D6F7` dispatch point. They
             // execute only when charge handling returned carry clear.

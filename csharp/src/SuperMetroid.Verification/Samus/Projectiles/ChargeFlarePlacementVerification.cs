@@ -43,7 +43,7 @@ internal static class ChargeFlarePlacementVerification
             (entry.Value ?? throw new InvalidOperationException("Verification requires entry.Value."))["x"] = entry.Value.Required("x").GetValue<int>() + 7;
         var edited = Load(document);
         Suite(nameof(VerifyRuntimeFlarePlacement), () => VerifyRuntimeFlarePlacement(stock, edited));
-        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
         var sprites = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
         var drawMetadata = new FlareMetadataDraw(system.Animation.DrawFlareComponentWithMetadata);
         var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, TurningFloorTransform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
@@ -61,7 +61,7 @@ internal static class ChargeFlarePlacementVerification
         {
             // Exercise all original low-nibble operands at the renderer's metadata
             // boundary; compiled pose rules cannot be overridden by fake ROM bytes.
-            var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
             int record = SamusSourceDefinitions.PoseDefinitions.Value + (int)pose * 8;
             bool running = bus.ReadCartridgeByte(record + 1) == (byte)SamusMovementType.Running;
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;
@@ -83,7 +83,7 @@ internal static class ChargeFlarePlacementVerification
             AssertEqual(native.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Flare placement preserves OAM admission");
             cases++;
         }
-        var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+        var subject = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
         PrepareRetailSamusFixture(subject);
         byte[] beforeSamus = GraphDigest(subject), beforeSystem = GraphDigest(system);
         OamBuffer original = SpriteFrameBuffer.DrawnOam(frame => draw(frame, subject, Position16<RoomPixels>.Zero, 0, null,
@@ -100,7 +100,7 @@ internal static class ChargeFlarePlacementVerification
         AssertTrue(beforeSamus.SequenceEqual(GraphDigest(subject)) && beforeSystem.SequenceEqual(GraphDigest(system)), "Flare art edit changes neither Samus physics nor any projectile/timer state");
         foreach (bool hyper in new[] { false, true })
         {
-            var originalSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None); var editedSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+            var originalSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads); var editedSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
             foreach (var target in new[] { originalSystem, editedSystem })
             {
                 target.Charge.FlareCounter = 30;

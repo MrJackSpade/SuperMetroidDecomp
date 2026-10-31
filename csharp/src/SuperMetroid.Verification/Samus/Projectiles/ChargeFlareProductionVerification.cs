@@ -39,7 +39,7 @@ internal static class ChargeFlareProductionVerification
         })
         foreach (bool hyper in new[] { false, true })
         {
-            var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)), HyperBeamEnabled = hyper };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)), HyperBeamEnabled = hyper };
             samus.Presentation.BodyFrames.BindBodyFixture(body);
             SamusProjectileSystem native = Create(), compiled = Create();
             for (int tick = 0; tick < 160 && native.Charge.FlareCounter != 0; tick++)
@@ -59,7 +59,7 @@ internal static class ChargeFlareProductionVerification
         {
             var invalidSelector = Create();
             Array.Fill(invalidSelector.Charge.FlareFrames, outOfTableFrame);
-            var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+            var subject = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             subject.Presentation.BodyFrames.BindBodyFixture(body);
             OamBuffer outOfTableOam = invalidSelector.ChargeFlareOam(subject, new(0, 0), placement);
             AssertEqual(0, outOfTableOam.LastFinalizedSpriteCount,
@@ -67,7 +67,7 @@ internal static class ChargeFlareProductionVerification
         }
 
         var random = new SharedRandom();
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes, random: random);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, InstalledFixtures.SamusOverreads, initialPaletteArt: roomAssets.InitialPalettes, random: random);
         runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.ChargeFlarePlacement = placement;
@@ -126,7 +126,7 @@ internal static class ChargeFlareProductionVerification
         }
         static SamusProjectileSystem Create()
         {
-            var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+            var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
             system.Charge.FlareCounter = 30;
             var frames = system.Charge.FlareFrames;
             Array.Fill(frames, (ushort)3);

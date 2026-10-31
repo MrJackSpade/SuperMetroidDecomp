@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.CompiledEnemyVisualSelectorsVerification;
@@ -34,7 +35,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
                  })
         {
             (enemies, slot, state) = Create(parameter2);
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(BlueBrinstarFaceBlockNativeValues.MorphBallItem),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(slot.Position.X.Whole + samusX)), slot.Position.Y.Whole)),

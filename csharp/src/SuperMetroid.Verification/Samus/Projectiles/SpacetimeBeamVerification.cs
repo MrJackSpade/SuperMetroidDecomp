@@ -25,6 +25,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -40,19 +42,14 @@ internal static class SpacetimeBeamVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        VerifySpacetimeCopySourceAgainstRetailRom(bus);
-        AssertThrows<ArgumentOutOfRangeException>(() => InstalledFixtures.SamusOverreads.SpacetimeCopySourceByte(-1),
-            "adjacent instruction before bounded source is not admitted");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => InstalledFixtures.SamusOverreads.SpacetimeCopySourceByte(SamusOverreadDefinitions.SpacetimeCopySourceByteCount),
-            "word carry must return to the mutable-memory owner");
+        VerifySpacetimeOverwritesAgainstRetailRom(bus);
         var gameplayBus = NewSpacetimeMutableOnlyBus(bus);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
 
         // Exercise the production pause input that creates Charge + Ice + Spazer + Plasma
         // without Wave; accepting the raw word only in the projectile test would miss the
         // technique's actual player-accessible setup.
-        var samus = new SamusState
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             CollectedItems = SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = SamusEquipmentFlags.HiJumpBoots,
@@ -104,7 +101,6 @@ internal static class SpacetimeBeamVerification
 
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
-        projectiles.Overreads = InstalledFixtures.SamusOverreads;
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
         SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Level = level, Progression = system }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), shared);
         AssertEqual(0, slotsBeforeHeld.FiredSlot(projectiles),
@@ -142,7 +138,7 @@ internal static class SpacetimeBeamVerification
         AssertTrue(saved.OpenedDoorBytes.SequenceEqual(OwnedBytes(SharedGameState.DoorBitByteCount, system.GetOpenedDoorByteRaw)),
             "save retains corrupted door bytes");
 
-        var restarted = new SamusState();
+        var restarted = new SamusState(InstalledFixtures.AnimationContinuation);
         FrontendSession.RestoreSpacetimeRestartInventory(restarted, saved);
         AssertEqual((ushort)0x100e, restarted.EquippedBeams.ToEquipmentWord(),
             "Ceres restart retains the SpaceTime equipment word");
@@ -162,16 +158,86 @@ internal static class SpacetimeBeamVerification
             "equipment retention and SRAM persistence match the retail probe.");
     }
 
-    /// <summary>Checks each installed copy-source byte against the supported ROM before replaying the beam.</summary>
-    private static void VerifySpacetimeCopySourceAgainstRetailRom(
+    /// <summary>
+    /// Runs the original copy over the supported ROM for every animation position a SpaceTime shot can hold and every
+    /// slot, and requires the installed service's overwrite, applied to progression filled with a sentinel, to leave
+    /// exactly the bytes the copy writes into the persistent-progress slice and the sentinel everywhere else. The eight
+    /// padding bytes after the opened-door bits are not state (owner decision on #1330) and are not compared.
+    /// </summary>
+    private static void VerifySpacetimeOverwritesAgainstRetailRom(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        AssertEqual(SpacetimeBeamCopyDefinitionsConstants.LastSourceAddress - SuperMetroid.AssetExtraction.Samus.SamusOverreadSourceDefinitions.SpacetimeCopySource + 1,
-            SamusOverreadDefinitions.SpacetimeCopySourceByteCount, "bounded native copy source size");
-        for (int offset = 0; offset < SamusOverreadDefinitions.SpacetimeCopySourceByteCount; offset++)
-            AssertEqual(bus.ReadCartridgeByte(SuperMetroid.AssetExtraction.Samus.SamusOverreadSourceDefinitions.SpacetimeCopySource + offset),
-                InstalledFixtures.SamusOverreads.SpacetimeCopySourceByte(offset),
-                "installed SpaceTime copy source agrees with supported cartridge");
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        var service = InstalledFixtures.SamusOverreads.SpaceTimeOverwrite;
+        int reaching = 0;
+        int situations = 0;
+        foreach (SamusProjectileProgram program in SamusOverreadDecoding.SpaceTimeShotPrograms())
+        for (int position = 0; position < SamusProjectileAnimations.Programs.Steps(program).Count; position++)
+        for (int slot = 0; slot < SamusProjectileSystem.SlotCount; slot++)
+        {
+            var cursor = new AnimationProgramCursor<SamusProjectileProgram>(program, position);
+            byte?[] native = SpacetimeCopyOracle.ProgressionSlice(cartridge, SamusProjectileProgramAddresses.Address(cursor), slot);
+            SharedGameState state = SentinelProgression();
+            if (service.For(cursor, slot) is { } overwrite)
+            {
+                state.Overwrite(overwrite);
+                reaching++;
+            }
+            byte[] actual = ProgressionSlice(state);
+            for (int offset = 0; offset < SpacetimeCopyOracle.ProgressionSliceByteCount; offset++)
+            {
+                if (offset is >= PaddingStart and < PaddingStart + PaddingByteCount)
+                    continue;
+                AssertEqual(native[offset] ?? ProgressionSentinel, actual[offset],
+                    $"SpaceTime from {cursor} in slot {slot} leaves progression byte {offset} as the original copy does");
+            }
+            situations++;
+        }
+        AssertTrue(reaching > 0, "Some SpaceTime animation positions copy into progression");
+        AssertThrows<ArgumentOutOfRangeException>(() => service.For(new AnimationProgramCursor<SamusProjectileProgram>(
+            SamusProjectileProgram.PowerUpFacingRight, 0), 0), "A position no SpaceTime shot holds is rejected");
+        Console.WriteLine($"SpaceTime overwrite: {situations} positions and slots match the original copy, {reaching} of them reaching progression.");
+    }
+
+    /// <summary>The byte every progression table starts with in the overwrite comparison.</summary>
+    private const byte ProgressionSentinel = 0xa5;
+
+    /// <summary>Where the padding after the opened-door bits starts in the persistent-progress slice.</summary>
+    private const int PaddingStart = 208;
+
+    /// <summary>The padding bytes after the opened-door bits.</summary>
+    private const int PaddingByteCount = 8;
+
+    /// <summary>Progression with every table byte, and both loading-state bytes, set to the sentinel.</summary>
+    private static SharedGameState SentinelProgression()
+    {
+        var state = new SharedGameState();
+        state.LoadEventBytes(Enumerable.Repeat(ProgressionSentinel, SharedGameState.EventByteCount).ToArray());
+        state.LoadBossBytes(Enumerable.Repeat(ProgressionSentinel, SharedGameState.AreaCount).ToArray());
+        state.LoadRoomChozoBytes(Enumerable.Repeat(ProgressionSentinel, SharedGameState.RoomChozoBitByteCount).ToArray());
+        state.LoadCollectedItemBytes(Enumerable.Repeat(ProgressionSentinel, SharedGameState.ItemBitByteCount).ToArray());
+        state.LoadOpenedDoorBytes(Enumerable.Repeat(ProgressionSentinel, SharedGameState.DoorBitByteCount).ToArray());
+        state.LoadUsedSaveStationBytes(Enumerable.Repeat(ProgressionSentinel, SharedGameState.UsedSaveStationByteCount).ToArray());
+        state.LoadMapStationBytes(Enumerable.Repeat(ProgressionSentinel, SharedGameState.MapStationByteCount).ToArray());
+        state.LoadSavedLoadingGameState(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(
+            (byte[])[ProgressionSentinel, ProgressionSentinel]));
+        return state;
+    }
+
+    /// <summary>The persistent-progress slice <paramref name="state"/> holds, in the original layout, the padding as the sentinel.</summary>
+    private static byte[] ProgressionSlice(SharedGameState state)
+    {
+        var loading = new byte[sizeof(ushort)];
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(loading, checked((ushort)state.SavedLoadingGameState));
+        return [.. OwnedBytes(SharedGameState.EventByteCount, state.GetEventByteRaw),
+            .. OwnedBytes(SharedGameState.AreaCount, state.GetBossBitsRaw),
+            .. OwnedBytes(SharedGameState.RoomChozoBitByteCount, state.GetRoomChozoByteRaw),
+            .. OwnedBytes(SharedGameState.ItemBitByteCount, state.GetCollectedItemByteRaw),
+            .. OwnedBytes(SharedGameState.DoorBitByteCount, state.GetOpenedDoorByteRaw),
+            .. Enumerable.Repeat(ProgressionSentinel, PaddingByteCount),
+            .. OwnedBytes(SharedGameState.UsedSaveStationByteCount, state.GetUsedSaveStationByteRaw),
+            .. OwnedBytes(SharedGameState.MapStationByteCount, state.GetMapStationByteRaw),
+            .. loading];
     }
 
     /// <summary>The <paramref name="count"/> bytes <paramref name="read"/> returns, in index order.</summary>

@@ -142,7 +142,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
         RoomFxType fxType,
         SamusLiquidDamageRate expected)
     {
-        var samus = new SamusState
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Health = 99,

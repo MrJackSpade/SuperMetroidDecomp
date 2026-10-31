@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
@@ -25,7 +26,7 @@ internal static class SamusHudSelectionVerification
         const ControllerButton select = ControllerButton.Select;
         const ControllerButton cancel = ControllerButton.Y;
 
-        var samus = new SamusState();
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
         AssertTrue(!SelectionChanged(samus, select, select),
             "Select with no available HUD item wraps to Nothing");
         AssertEqual(HudItem.Beam, samus.SelectedHudItem,

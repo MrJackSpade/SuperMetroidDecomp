@@ -33,14 +33,14 @@ internal static class SamusHudDefinitionsVerification
         {
             if (pose < (int)SamusHudDefinitions.NonFiringTransitionStart)
                 AssertEqual(rom.ReadCartridgeByte(SamusCartridgeTablesConstants.HudTransitionFlags + pose -
-                        (int)SamusHudDefinitions.FirstTransitionPose),
-                    SamusHudObservations.PostureObservation((SamusPoseId)pose, InstalledFixtures.SamusOverreads),
-                    "Complete bounded posture-index observation");
+                        (int)SamusHudDefinitions.FirstTransitionPose) == 0,
+                    SamusHudObservations.PostureAdmitsWeapons((SamusPoseId)pose, InstalledFixtures.SamusOverreads.PostureAdmission),
+                    "Complete bounded posture-index admission: the byte read is zero");
             AssertEqual(Transition((SamusPoseId)pose, active),
-                SamusHudInput.PostureTransitionAdmitsWeapons((SamusPoseId)pose, active, InstalledFixtures.SamusOverreads),
+                SamusHudInput.PostureTransitionAdmitsWeapons((SamusPoseId)pose, active, InstalledFixtures.SamusOverreads.PostureAdmission),
                 "Every posture pose and active-Grapple branch");
         }
-        var samus = new SamusState();
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
         Action<SamusState, ushort> setTurn = (state, turn) =>
             state.PendingTransitionShot = turn == 0 ? null : new SamusTransitionShot(turn & byte.MaxValue);
         for (byte movement = 0; movement < 28; movement++)
@@ -59,7 +59,7 @@ internal static class SamusHudDefinitionsVerification
                 bool expected = !locked && pose is not (0 or 0x9b) && selected == 4 &&
                     (handler is 0xdd3d or 0xdd6f or 0xddd8 || handler == 0xdd74 && turn != 0 ||
                         handler == 0xdd8c && Transition((SamusPoseId)pose, false));
-                AssertEqual(expected, SamusGrappleHudInput.IsSelectedAndAdmitted(samus, InstalledFixtures.SamusOverreads), "Actual Grapple HUD admission");
+                AssertEqual(expected, SamusGrappleHudInput.IsSelectedAndAdmitted(samus, InstalledFixtures.SamusOverreads.PostureAdmission), "Actual Grapple HUD admission");
             }
         }
         // Exercise the other consumer, the real beam producer. Earn a partial charge
@@ -71,8 +71,8 @@ internal static class SamusHudDefinitionsVerification
             SamusPoseId pose = (SamusPoseId)poseIndex;
             byte movement = rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + (int)pose * 8 + 1);
             metadataPose = SamusPoseId.FacingRightNormalPose;
-            samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), EquippedBeams = SamusBeamFlags.Charge };
-            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+            samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), EquippedBeams = SamusBeamFlags.Charge };
+            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
             var bombs = new SamusBombProjectileSystem();
             for (int frame = 0; frame < 10; frame++)
                 shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = 0 }, new(0, 0), bombs);
@@ -90,8 +90,8 @@ internal static class SamusHudDefinitionsVerification
             AssertTrue(shots.Slots.All(slot => !slot.IsActive), "Held partial charge does not emit shot");
         }
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusHudObservations.PostureObservation(
-                SamusHudDefinitions.NonFiringTransitionStart, InstalledFixtures.SamusOverreads),
+            () => SamusHudObservations.PostureAdmitsWeapons(
+                SamusHudDefinitions.NonFiringTransitionStart, InstalledFixtures.SamusOverreads.PostureAdmission),
             "posture observation rejects the native prefiltered range");
         Console.WriteLine("Samus HUD definitions: 28 handler words, all 219 bounded posture-index observations, 512 transition cases, 3036 native-pose Grapple admission cases and 506 real charge-preservation cases pass with policy reads forbidden.");
     }

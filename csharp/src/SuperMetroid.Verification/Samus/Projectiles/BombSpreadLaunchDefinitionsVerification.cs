@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -20,7 +21,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
         Action<SamusBombProjectileSystem,SamusState> spawn=(system,player)=>system.SpawnBombSpread(player);
         var guarded=NewBombSpreadLaunchReadGuard(rom);
         var bombs=new SamusBombProjectileSystem();
-        var samus=new SamusState();
+        var samus=new SamusState(InstalledFixtures.AnimationContinuation);
         for(int hold=0;hold<=ushort.MaxValue;hold++)
         {
             samus.BombSpreadChargeTimeoutCounter=(ushort)hold;

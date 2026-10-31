@@ -17,7 +17,7 @@ internal static class ProjectileSpriteLocations
     internal static ushort[] RecordSprites(ISnesAddressSpace bus)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        InstalledProjectileListPositions lists = SamusProjectileListEntries.Read(cartridge);
+        SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
         return [.. Enumerable.Range(0, SamusProjectileRecordDefinitions.Records.Length).Select(record => RomDataReader.ReadWordFixedBank(cartridge,
             SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(lists.RecordPosition(record) + 2))))];
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -34,7 +35,7 @@ internal static class DraygonStateQuantitiesVerification
     private static void VerifyAttachedGoopCountdown()
     {
         (RoomEnemySystem enemies, _) = NewDraygon();
-        var samus = new SamusState { XSpeedDivisor = 1 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { XSpeedDivisor = 1 };
         RoomEnemyProjectileSlot goop = AttachedGoop(enemies, lifetime: 2);
         enemies.DraygonBehavior.Goop.RunAttachedDraygonGoop(goop, samus);
         AssertTrue(goop.IsActive, "an attached goop with lifetime two holds for its first update");
@@ -97,7 +98,7 @@ internal static class DraygonStateQuantitiesVerification
         Position16<RoomPixels> center = state.SpiralCenter.Whole;
         state.Function = DraygonAiFunction.FlailWithSamus;
 
-        enemies.DraygonBehavior.Grab.CarrySamusInDraygonSpiral(state, new SamusState());
+        enemies.DraygonBehavior.Grab.CarrySamusInDraygonSpiral(state, new SamusState(InstalledFixtures.AnimationContinuation));
 
         Position16<RoomPixels> expectedBody = center + new Offset16<RoomPixels>(
             unchecked((short)EnemyMath.ReadEightBitCosineProduct(new ByteAngle(angle), radiusWhole)),
@@ -145,7 +146,7 @@ internal static class DraygonStateQuantitiesVerification
         const ushort resetX = 65456, resetY = 128;
         state.LeftSideReset = new Position16<RoomPixels>(resetX, resetY);
         state.SwoopAcceleration = new EightEightVector<RoomPixels>(0, 40);
-        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(200, 400)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(200, 400)) };
 
         DraygonSwoops.BuildDraygonSwoopYPositions(state, samus);
 

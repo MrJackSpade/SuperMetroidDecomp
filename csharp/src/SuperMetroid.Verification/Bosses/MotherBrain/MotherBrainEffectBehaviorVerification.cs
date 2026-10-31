@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Enemies.Projectiles.MiscDustProjectileBehaviorVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -29,7 +30,7 @@ internal static class MotherBrainEffectBehaviorVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         CartridgeReadGuard guard = ForbiddingSharedLists(rom);
-        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(16384, 16384)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(16384, 16384)) };
 
         RoomEnemySystem bombEnemies = CreateRoomEnemySystem();
         RoomEnemyProjectileSlot bomb = bombEnemies.Projectiles.EnemyProjectiles[^1];
@@ -122,7 +123,7 @@ internal static class MotherBrainEffectBehaviorVerification
             RoomEnemySystem handBeamEnemies = CreateRoomEnemySystem();
             var handBeamState = new MotherBrainEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(112, 144)) });
             handBeamEnemies.MotherBrainEncounter.MotherBrain = handBeamState;
-            var handBeamTarget = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
+            var handBeamTarget = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
             handBeamEnemies.MotherBrainBehavior.Body.SpawnMotherBrainHandBeamCharging(handBeamState, handBeamTarget);
             RoomEnemyProjectileSlot handBeam = handBeamEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainHandBeamCharging);
@@ -186,7 +187,7 @@ internal static class MotherBrainEffectBehaviorVerification
             ring.Graphics = SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack));
             ring.CanDamageSamus = true;
             ring.PersistsOnSamusContact = true;
-            var touching = new SamusState { Position = ring.Position, Health = ushort.MaxValue };
+            var touching = new SamusState(InstalledFixtures.AnimationContinuation) { Position = ring.Position, Health = ushort.MaxValue };
             AssertTrue(ringEnemies.Projectiles.ResolveEnemyProjectileSamusCollision(ring, touching).HasValue, "Samus touches the onion ring");
             AssertTrue(ring.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.OnionRingHit },
                 "the touched onion ring starts its typed impact program");

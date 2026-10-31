@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Samus.Projectiles.SamusProjectilesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -30,7 +31,7 @@ internal static class BeamSpeedRowsVerification
         {
             // Mechanics now use compiled native rows, not editable presentation data.
             var bus = new BeamSpeedRowAddressSpace(retail);
-            var samus = new SamusState { Pose = AimPose(direction), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = AimPose(direction), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 EquippedBeams = (SamusBeamFlags)combination };
             var projectiles = CreateProjectileFixture();
             projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), CreateBombFixture());
@@ -76,7 +77,7 @@ internal static class BeamSpeedRowsVerification
         for (byte direction = 0; direction < 10; direction++)
         {
             var bus = new BeamSpeedRowAddressSpace(retail);
-            var samus = new SamusState { Pose = AimPose(direction), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = AimPose(direction), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 SelectedHudItem = HudItems.Decode(weapon), Missiles = 10, SuperMissiles = 10 };
             var projectiles = CreateProjectileFixture();
             var bombs = CreateBombFixture();

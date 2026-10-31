@@ -872,7 +872,7 @@ internal static class LookupStream1Verification
             AssertTrue(stock.TryDrainedYOffset(frame, out int offset), "Entire native drained byte window admitted");
             AssertEqual(native[frame], offset, "Installed native byte including command slots");
             if (frame is 12 or 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31) continue;
-            var samus = new SamusState { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             samus.Presentation.BodyFrames.BindBodyFixture(stockArt);
             samus.Presentation.Draw(samus, new SpriteFrameBuffer(), new(0, 0));
             AssertEqual(unchecked((ushort)(128 + native[frame])), samus.Presentation.SpritemapPosition.Y,
@@ -937,7 +937,7 @@ internal static class LookupStream1Verification
             int count = pose is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose ? 1 : 2;
             for (ushort frame = 0; frame < count; frame++)
             {
-                var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+                var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
                 samus.Presentation.BodyFrames.BindBodyFixture(stockArt);
                 samus.Presentation.Draw(samus, new SpriteFrameBuffer(), new(0, 0));
                 AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.Presentation.SpritemapPosition.Y,
@@ -1011,7 +1011,7 @@ internal static class LookupStream1Verification
         Check(stock, landing, posture);
         for (int index = 0; index < 16; index++)
         {
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Pose = (SamusPoseId)(0xa4 + index / 4), AnimationFrame = (ushort)(index % 4),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
@@ -1263,16 +1263,19 @@ internal static class LookupStream1Verification
     {
         for (int pose = 0; pose < 256; pose++)
         {
+            // The admission's answer is whether the byte it reads for the pose is zero; the decoded service must agree with
+            // the cartridge's flags and the code stored around them for every pose.
             if (pose < 0xDB)
-                AssertEqual(LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35), SamusHudObservations.PostureObservation((SamusPoseId)pose, InstalledFixtures.SamusOverreads),
-                    $"HUD exact bounded posture observation {pose:X2}");
+                AssertEqual(LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35) == 0,
+                    SamusHudObservations.PostureAdmitsWeapons((SamusPoseId)pose, InstalledFixtures.SamusOverreads.PostureAdmission),
+                    $"HUD exact bounded posture admission {pose:X2}");
             else
-                AssertThrows<ArgumentOutOfRangeException>(() => SamusHudObservations.PostureObservation((SamusPoseId)pose, InstalledFixtures.SamusOverreads),
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusHudObservations.PostureAdmitsWeapons((SamusPoseId)pose, InstalledFixtures.SamusOverreads.PostureAdmission),
                     "HUD rejects prefiltered posture observation");
             foreach (bool grapple in new[] { false, true })
             {
                 bool expected = pose >= 0xF1 || (pose < 0xDB && (LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35) == 0 || grapple));
-                AssertEqual(expected, SamusHudInput.PostureTransitionAdmitsWeapons((SamusPoseId)pose, grapple, InstalledFixtures.SamusOverreads),
+                AssertEqual(expected, SamusHudInput.PostureTransitionAdmitsWeapons((SamusPoseId)pose, grapple, InstalledFixtures.SamusOverreads.PostureAdmission),
                     $"HUD actual admission {pose:X2}, Grapple={grapple}");
             }
         }
@@ -1408,7 +1411,7 @@ internal static class LookupStream1Verification
         }
         var compositions = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         var body = CreateSamusIdentityFixture();
-        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
         var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, TurningFloorTransform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
         ProjectileDrawArtwork flareObjects = InstalledFixtures.ProjectileArtwork();
         var shiftedDocument = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(json, options);
@@ -1421,7 +1424,7 @@ internal static class LookupStream1Verification
             SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose
         })
         {
-            var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             samus.Presentation.BodyFrames.BindBodyFixture(body);
             int direction = LookupStream1FlarePlacementRomByte(rom, 0x91b629 + (int)pose * 8 + 3);
             bool running = pose is SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingLeftNormalPose;
@@ -1578,6 +1581,23 @@ internal static class LookupStream1Verification
         foreach (int invalid in new[] { int.MinValue, 0x90c486, 0x90c4b5, int.MaxValue })
             AssertThrows<InvalidDataException>(() => ChargeFlareAnimations.ReadByte(invalid - SamusSourceDefinitions.ChargeFlarePrograms.Value),
                 "stream1 flare byte domain");
+
+        // A frame wrapping below the programs reads the table naming them: the three program words, which hold each
+        // program's place in the bank. The installed delays must be those bytes, read through the production lookup.
+        var below = InstalledFixtures.SamusOverreads.ChargeFlareDelays;
+        int[] programStarts = [ChargeFlareAnimationDefinitions.MainFlare, ChargeFlareAnimationDefinitions.SlowSparks, ChargeFlareAnimationDefinitions.FastSparks];
+        for (int distance = 1; distance <= ChargeFlareAnimationDefinitions.ProgramTableByteCount; distance++)
+        {
+            int tableByte = ChargeFlareAnimationDefinitions.ProgramTableByteCount - distance;
+            ushort programWord = (ushort)(SamusSourceDefinitions.ChargeFlarePrograms.Offset + programStarts[tableByte / sizeof(ushort)]);
+            byte expected = tableByte % sizeof(ushort) == 0 ? LittleEndianBytes.LowByte(programWord) : LittleEndianBytes.HighByte(programWord);
+            AssertEqual(LookupStream1CadenceProgramsRomByte(rom, SamusSourceDefinitions.ChargeFlarePrograms.Value - distance), expected,
+                "stream1 flare program table names each program's place");
+            AssertEqual((int)expected, below.DelayBelow(distance), "stream1 installed flare delay below the programs");
+            AssertEqual(expected, ChargeFlareAnimations.ReadDelay(0, -distance, below), "stream1 main flare reads the table below its program");
+        }
+        AssertThrows<InvalidDataException>(() => ChargeFlareAnimations.ReadDelay(0, -(ChargeFlareAnimationDefinitions.ProgramTableByteCount + 1), below),
+            "stream1 flare read below the program table is rejected");
     }
 
     /// <summary>Reads native charge-flare and animation cadence instructions.</summary>
@@ -2502,7 +2522,7 @@ internal static class LookupStream1Verification
             if (edited)
                 foreach (ushort pointer in expected) document.Frames[ProjectileFrameBindingFormat.FrameNameAt(pointer)] = ProjectileSpriteDefinitions.Name(0xa117);
             var bindings = InstalledProjectileFrameBindings.Load(new MemoryStream(InstalledProjectileFrameBindings.Write(document)));
-            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = bindings } };
+            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = bindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
             foreach (ushort pointer in expected)
             {
@@ -2583,7 +2603,7 @@ internal static class LookupStream1Verification
         int actualTicks = 0, loops = 0, deletions = 0;
         foreach (var program in programs)
         {
-            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = bindings } };
+            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = bindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
             var slot = new SamusProjectileSlot(0) { InstructionTimer = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(program.Start), Damage = 30 };
             var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(program.Start), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
@@ -2628,7 +2648,7 @@ internal static class LookupStream1Verification
                     new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.InstructionTimer.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y),
                     "Every scheduled bomb exposure/physical envelope matches native");
                 slot.AnimationFrame = 0xbeef;
-                AssertEqual(trail, ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads), "Actual trail consumer reads prior record, not next phase or cached frame");
+                AssertEqual(trail, ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.TrailStarts), "Actual trail consumer reads prior record, not next phase or cached frame");
                 slot.AnimationFrame = trail;
                 if (looped) { loops++; finished = true; break; }
             }
@@ -2715,7 +2735,7 @@ internal static class LookupStream1Verification
             int count = pose == SamusPoseId.NormalLandingRightPose ? 2 : pose == SamusPoseId.SpinLandingRightPose ? 3 : pose is SamusPoseId.StandingAimUpRightPose or SamusPoseId.NormalJumpAimUpRightPose or SamusPoseId.NormalJumpAimUpLeftPose or SamusPoseId.NormalJumpAimDownRightPose or SamusPoseId.NormalJumpAimDownLeftPose or SamusPoseId.FallingAimUpRightPose or SamusPoseId.FallingAimUpLeftPose or SamusPoseId.FallingAimDownRightPose or SamusPoseId.FallingAimDownLeftPose ? 2 : 1;
             for (ushort frame = 0; frame < count; frame++)
             {
-                var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile };
+                var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile };
                 samus.Presentation.BodyFrames.BindBodyFixture(body);
                 var cannon = new SamusArmCannonState { Artwork = stock };
                 cannon.Update(samus); cannon.Update(samus);

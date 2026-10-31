@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Doors;
@@ -88,7 +89,7 @@ internal static class EnemyProjectileDefinitionsVerification
             projectile.Radius = new(1, 1);
             projectile.CanDamageSamus = true;
             projectile.PersistsOnSamusContact = true;
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0100)),
                 Health = ushort.MaxValue,
@@ -129,7 +130,7 @@ internal static class EnemyProjectileDefinitionsVerification
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;
             projectile.CollisionOption = EnemyProjectileCollisionOption.RunShotList;
-            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
             SamusProjectileSlot shot = shots.Slots[0];
             shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false);
             shot.Damage = 1;

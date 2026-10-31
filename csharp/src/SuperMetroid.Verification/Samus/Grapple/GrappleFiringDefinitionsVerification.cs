@@ -35,7 +35,7 @@ internal static class GrappleFiringDefinitionsVerification
         Func<SamusState, SamusGrappleState, Position16<RoomPixels>, GrappleAnchorKind, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         SamusPoseId sourcePose = SamusPoseId.FacingRightNormalPose;
         var bus = NewGrappleFiringReadGuard(rom, () => sourcePose);
-        var samus = PrepareRetailSamusFixture(new SamusState { Pose = SamusPoseId.FacingRightNormalPose });
+        var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose });
         var grapple = samus.Grapple;
         var stockFlare = grapple.FlarePlacement;
         var editedFlare = ChargeFlarePlacements.Load(new MemoryStream(

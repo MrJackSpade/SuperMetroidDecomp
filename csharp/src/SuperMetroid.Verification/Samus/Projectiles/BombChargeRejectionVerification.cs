@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -22,7 +23,7 @@ internal static class BombChargeRejectionVerification
         foreach (bool powerBombSelected in new[] { false, true })
         foreach (bool freshShoot in new[] { false, true })
         {
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (SamusEquipmentFlags.MorphBall | (bombsEquipped ? SamusEquipmentFlags.Bombs : 0)),
@@ -57,7 +58,7 @@ internal static class BombChargeRejectionVerification
         foreach (ushort charge in new ushort[] { 0, 1, 59, 60 })
         foreach (ushort selection in new ushort[] { 0, 3 })
         {
-            var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose,
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
                 SelectedHudItem = HudItems.Decode(selection), PowerBombs = 2, ProjectileFlareCounter = charge,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)) };

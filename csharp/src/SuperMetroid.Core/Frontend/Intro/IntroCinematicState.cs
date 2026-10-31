@@ -148,7 +148,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Tracks the current physical button edges alongside scripted demo input.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Runs ordinary beam projectiles during gameplay-style flashbacks.</summary>
-    internal readonly SamusProjectileSystem flashbackProjectiles = new(new BeamChargeState(), SamusProjectileResidue.None);
+    internal readonly SamusProjectileSystem flashbackProjectiles;
+    /// <summary>The installed services reproducing Samus's glitch reads, handed to the flashbacks' Samus and projectiles.</summary>
+    private readonly SamusOverreadServices samusOverreads;
     /// <summary>Runs the shared bomb owner, including projectile cooldown, in flashbacks.</summary>
     private readonly SamusBombProjectileSystem flashbackBombProjectiles = new();
     /// <summary>The installed intro colours, by owner, that transitions back from gameplay flashbacks restore.</summary>
@@ -225,6 +227,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private int timer = 8;
 
     /// <summary>Creates the opening cinematic and performs its initial native graphics and music setup.</summary>
+    /// <param name="samusOverreads">The installed services reproducing Samus's glitch reads, for the flashbacks' Samus and projectiles.</param>
     /// <param name="audio">Optional cartridge audio state that owns queued music and sound effects.</param>
     /// <param name="introFont">The installed opening-cinematic font atlas.</param>
     /// <param name="characterArtwork">The installed opening-cinematic BG and OBJ artwork.</param>
@@ -232,7 +235,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <param name="samusBodyArtwork">Optional installed Samus body artwork used by gameplay flashbacks.</param>
     /// <param name="japaneseText">The options menu's Japanese text setting (native <c>AltText</c>).</param>
     public IntroCinematicState(
-
+        SamusOverreadServices samusOverreads,
         AudioQueues? audio = null,
         IntroFontAtlas? introFont = null,
         IntroCinematicArtwork? characterArtwork = null,
@@ -240,6 +243,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         InstalledSamusBodyArtwork? samusBodyArtwork = null,
         bool japaneseText = false)
     {
+        this.samusOverreads = Ensure.NotNull(samusOverreads);
+        flashbackProjectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, samusOverreads);
 
         subtitles = new IntroJapaneseSubtitles(japaneseText);
         this.audio = audio;
@@ -609,7 +614,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // $8B:AEB8 changes BG1SC to $50. The corresponding 32x32 visual map was already
         // uploaded by the initial $96:FF14 decompression; $8C:BEC3 below is gameplay
         // collision data and must never be expanded as a visual block map.
-        CurrentFlashbackSamus = new SamusState
+        CurrentFlashbackSamus = new SamusState(samusOverreads.AnimationContinuation)
         {
             FloorQueueResidue = FloorQueueResidue,
             Pose = SamusPoseId.FacingLeftNormalPose,
@@ -723,8 +728,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         // $8B:AF7B selects BG1SC=$54 (the second cartridge-authored room page), declares a
         // 32x16 collision room, carries Samus into new egg/baby/demo owners, and reuses the same
         // text-to-gameplay palette crossfade as the Mother Brain scene.
-        CurrentBabyDiscovery = new IntroBabyDiscoveryState(Random, audio, CurrentFlashbackSamus
-            ?? throw new InvalidOperationException("Discovery setup requires the preceding flashback Samus state."));
+        CurrentBabyDiscovery = new IntroBabyDiscoveryState(Random, CurrentFlashbackSamus
+            ?? throw new InvalidOperationException("Discovery setup requires the preceding flashback Samus state."), audio);
 
         // The old gameplay objects have reached their delete lists. Releasing the scoped
         // references prevents their projectile/collision handlers from running behind the

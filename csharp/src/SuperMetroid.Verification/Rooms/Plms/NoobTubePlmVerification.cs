@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -57,7 +58,7 @@ internal static class NoobTubePlmVerification
         RoomLevelData level = CreateRoom(new(roomWidth, 16),
             new RoomTerrainBlock[roomWidth * 16],
             new RoomBlockBehavior[roomWidth * 16]);
-        var samus = new SamusState();
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
         samus.Position = samus.Position.WithWholeY(0x0100);
         RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
         samus.LiquidPhysics.ConfigureFor(roomFx);
@@ -94,7 +95,7 @@ internal static class NoobTubePlmVerification
         // Repeated #339: BTS $44 is a resident trigger, not a breakable-block index.
         // Exercise StepFiring (including endpoint collision), rather than bypassing
         // the missing caller dispatch with TryNotifyResidentProjectileHit directly.
-        var grappleSamus = new SamusState
+        var grappleSamus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(blockX * 16 + 8, blockY * 16 + 8)),
         };
@@ -248,7 +249,7 @@ internal static class NoobTubePlmVerification
     {
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x4040));
-        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())) { Level = level, Samus = new SamusState() });
+        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())) { Level = level, Samus = new SamusState(InstalledFixtures.AnimationContinuation) });
 
         foreach (NoobTubeProjectileRequest request in requests)
             enemies.NoobTubeBehavior.SpawnNoobTubeProjectile(request, level.Size.X);

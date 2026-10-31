@@ -41,7 +41,6 @@ internal sealed class RuntimeArtwork
         Ensure.NotNull(projectiles);
         Ensure.NotNull(bombs);
         projectiles.Animation.FrameBindings = ProjectileFrameBindings;
-        projectiles.Overreads = SamusOverreads;
         bombs.FrameBindings = ProjectileFrameBindings;
         bombs.PowerBombExplosion.PresentationColors = MapPresentation?.PowerBombFixedColors;
     }
@@ -131,10 +130,6 @@ internal sealed class RuntimeArtwork
             _player.Samus.Grapple.SwingFrames = GrappleSwingFrames;
         }
     }
-
-    /// <summary>The installed cartridge bytes Samus's glitch paths read; the projectile system binds them.</summary>
-    [field: NonSerialized]
-    public InstalledSamusOverreads? SamusOverreads { get; set; }
 
     /// <summary>The installed pre-coloured sprite sheets drawn families select their frames from.</summary>
     [field: NonSerialized]

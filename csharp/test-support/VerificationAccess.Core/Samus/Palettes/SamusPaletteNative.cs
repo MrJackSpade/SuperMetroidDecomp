@@ -153,8 +153,8 @@ internal static class SamusPaletteNative
                 SuitAtTableByteOffset(suitByteOffset), StepAtByteOffset(phaseByteOffset));
             return source.Overrun switch
             {
-                SpeedBoosterPaletteOverrun.Expansion => 0x68ad,
-                SpeedBoosterPaletteOverrun.GrappleCode => 0xc90a,
+                SpeedBoosterPaletteOverrun.FirstStepPastCycle => 0x68ad,
+                SpeedBoosterPaletteOverrun.SecondStepPastCycle => 0xc90a,
                 null => Address(source.Palette ?? throw new InvalidOperationException("A source without an overrun names a palette.")),
                 _ => throw new ArgumentOutOfRangeException(nameof(suitByteOffset)),
             };

@@ -82,8 +82,8 @@ internal static class MapLandmarksVerification
             room.BindFixtureArtwork(original);
             AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "restored file-select uses current landmark content");
             if (area != AreaId.WreckedShip) continue;
-            var pauseNative = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = area, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = area, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+            var pauseNative = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation), System = system, AreaIndex = area, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation), System = system, AreaIndex = area, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
             var pauseBefore = pauseNative.Render();
             AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause stock boss pixels with ROM coordinates blocked");
             pause.BindFixtureArtwork(edited);

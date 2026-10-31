@@ -96,7 +96,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         new MemoryStream(ProjectileFrameBindingExtractor.Extract(bus)));
     var fixtureSprites = InstalledProjectileSprites.Load(
         new MemoryStream(ProjectileSpriteExtractor.Extract(bus)));
-    SamusProjectileSystem CreateSyntheticProjectiles() => new(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = fixtureFrames } };
+    SamusProjectileSystem CreateSyntheticProjectiles() => new(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = fixtureFrames } };
     SamusBombProjectileSystem CreateSyntheticBombs() => new() { FrameBindings = fixtureFrames };
     ushort NativeWord(int a) => CartridgeImportSource.Require(nativeProjectileRom).ReadCartridgeWord(a);
     ushort NativeDamage(int table, int beam) => NativeWord(0x930000 | NativeWord(table + beam * 2));
@@ -145,7 +145,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         SamusPoseId pose = nativePosesByShotDirection[direction];
         AssertEqual(direction, SamusPoseMetadata.ReadShotDirection(pose),
             $"native projectile fixture pose ${(int)pose:X2} aim");
-        var samus = new SamusState
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = pose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
@@ -194,7 +194,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // reload four. Spazer/plasma remain one slot because their width lives in spritemap art.
     for (ushort beamType = 1; beamType < 12; beamType++)
     {
-        var combinedSamus = new SamusState
+        var combinedSamus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = rightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
@@ -234,7 +234,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // Spazer/plasma art takes `$93:8275` rather than the ordinary power/ice/wave flicker
     // branch. Host slot zero is visible while NMI bit one is clear and suppressed while it
     // is set—the opposite comparison and a different counter bit from entry-zero power.
-    var spazerFlickerSamus = new SamusState
+    var spazerFlickerSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
@@ -267,7 +267,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         new SamusProjectilesVerifySamusPowerBeamProjectilesCase(9, 4), // Plasma+wave also uses the common routine.
     })
     {
-        var cadenceSamus = new SamusState
+        var cadenceSamus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = rightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
@@ -286,7 +286,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             $"wave combination {beamType} reloads native trail cadence");
     }
 
-    var chargeSamus = new SamusState
+    var chargeSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
@@ -341,7 +341,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // Make the release allocation fail through the real shared-cooldown gate. Native
     // FireUnchargedBeam still stops a charge that reached sound-start counter sixteen,
     // even though no replacement firing sequence can be queued.
-    var rejectedReleaseSamus = new SamusState
+    var rejectedReleaseSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
@@ -371,14 +371,14 @@ internal static void VerifySamusPowerBeamProjectiles()
     // spritemap are identical. Rotating Samus's (+8,0) displacement around (120,96) by
     // 90 degrees moves the temporary render center from (128,96) to (120,104): every OBJ
     // entry must therefore shift exactly (-8,+8), while both physical Samus points stay put.
-    var baselineMode7Samus = new SamusState
+    var baselineMode7Samus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = (SamusBeamFlags)0x1000,
     };
     BindSyntheticSamusRendering(bus, baselineMode7Samus);
-    var rotatedMode7Samus = new SamusState
+    var rotatedMode7Samus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
@@ -548,7 +548,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         bus,
         (int)SamusPoseId.NeutralJumpTransitionRightPose,
         [0x08, 0x02, 0xff, 0x02, 0x00, 0x00, 0x13, 0x00]);
-    var bridgeSamus = new SamusState
+    var bridgeSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
@@ -586,7 +586,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // special three-frame reload belongs only to uncharged types one and three.
     for (ushort beamType = 1; beamType < 12; beamType++)
     {
-        var combinedChargeSamus = new SamusState
+        var combinedChargeSamus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = rightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
@@ -631,7 +631,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // Hyper Beam ignores the equipped combination for projectile identity and forces
     // charged-Plasma type `$9018`. Bank `$93` supplies its direction art/radii, after which
     // the producer overwrites damage with literal 1000 and arms the descending flare state.
-    var hyperSamus = new SamusState
+    var hyperSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
@@ -851,7 +851,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // clear after every block reaction. Drive power+wave through the same strict type-eight
     // wall that kills the no-wave fixture below; its center must emerge beyond the column
     // without ever entering the explosion family.
-    var waveWallSamus = new SamusState
+    var waveWallSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
@@ -878,7 +878,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         bus,
         (int)rightPose,
         [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
-    var wallSamus = new SamusState
+    var wallSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
@@ -930,7 +930,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     for (int y = 0; y < height; y++)
         solidShotWords[y * width + 6] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
     RoomLevelData solidShotWall = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(solidShotWords, solidShotBehaviors, new RoomBlockAppearance[solidShotWords.Length]));
-    var solidShotSamus = new SamusState
+    var solidShotSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
@@ -968,7 +968,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     for (int y = 0; y < height; y++)
         waveShotWords[y * width + 6] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableAir);
     RoomLevelData waveShotWall = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(waveShotWords, waveShotBehaviors, new RoomBlockAppearance[waveShotWords.Length]));
-    var waveShotSamus = new SamusState
+    var waveShotSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
@@ -1004,7 +1004,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // different bank-$93 data family and bank-$90 pre-instruction. Fire a rightward missile
     // into the same type-eight column so producer state, first-frame ignition, persistent
     // trail, point collision, and missile-specific explosion are all observed in one route.
-    var missileSamus = new SamusState
+    var missileSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
@@ -1149,7 +1149,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // True when the fresh missile's first alpha pass collided and became an explosion.
     bool FirePointMissile(RoomLevelData terrain, ushort yPosition)
     {
-        var pointSamus = new SamusState
+        var pointSamus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = rightPose,
             // Request muzzle (64,yPosition): default Right adds (11,1), then
@@ -1247,7 +1247,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var coloredDoorPlms = PlmFixtures.Unbound();
     AssertEqual(
         coloredDoorHeaders.Length,
-        PlmFixtures.LoadPopulation(ref coloredDoorPlms, new PlmRoom(coloredDoors, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), 0), RoomPlmPopulationImporter.Read(bus, coloredDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        PlmFixtures.LoadPopulation(ref coloredDoorPlms, new PlmRoom(coloredDoors, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), 0), RoomPlmPopulationImporter.Read(bus, coloredDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation)), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "colored-door setup scans all yellow, green, and red orientations");
     for (int index = 0; index < coloredDoorHeaders.Length; index++)
     {
@@ -1275,7 +1275,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     RoomLevelData residentDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(residentWords, new RoomBlockBehavior[residentWords.Length], new RoomBlockAppearance[residentWords.Length]));
     var residentDoorSystem = new SharedGameState();
     var residentDoorPlms = PlmFixtures.Unbound();
-    AssertEqual(1, PlmFixtures.LoadPopulation(ref residentDoorPlms, new PlmRoom(residentDoorLevel, BgArtworkFixtures.For(new SnesVram()), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+    AssertEqual(1, PlmFixtures.LoadPopulation(ref residentDoorPlms, new PlmRoom(residentDoorLevel, BgArtworkFixtures.For(new SnesVram()), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation)), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "resident colored-door loader allocates red door actor");
     residentDoorPlms.Step(residentDoorLevel);
 
@@ -1313,7 +1313,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     reopenedWords[residentDoorBlock] = RoomTerrainBlock.Of(288, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData reopenedDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reopenedWords, new RoomBlockBehavior[reopenedWords.Length], new RoomBlockAppearance[reopenedWords.Length]));
     var reopenedDoorPlms = PlmFixtures.Unbound();
-    PlmFixtures.LoadPopulation(ref reopenedDoorPlms, new PlmRoom(reopenedDoorLevel, BgArtworkFixtures.For(new SnesVram()), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+    PlmFixtures.LoadPopulation(ref reopenedDoorPlms, new PlmRoom(reopenedDoorLevel, BgArtworkFixtures.For(new SnesVram()), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation)), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
     reopenedDoorPlms.Step(reopenedDoorLevel);
     AssertEqual(0x40, reopenedDoorLevel.GetCollisionBlockByIndex(residentDoorBlock).Behavior.Value,
         "persisted left-facing red door reloads as ordinary left blue cap");
@@ -1339,7 +1339,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     RoomLevelData greyDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(greyDoorWords, new RoomBlockBehavior[greyDoorWords.Length], new RoomBlockAppearance[greyDoorWords.Length]));
     var greyDoorSystem = new SharedGameState();
     var greyDoorPlms = PlmFixtures.Unbound();
-    AssertEqual(1, PlmFixtures.LoadPopulation(ref greyDoorPlms, new PlmRoom(greyDoorLevel, BgArtworkFixtures.For(new SnesVram()), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+    AssertEqual(1, PlmFixtures.LoadPopulation(ref greyDoorPlms, new PlmRoom(greyDoorLevel, BgArtworkFixtures.For(new SnesVram()), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation)), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "grey-door loader allocates enemy-quota actor from population");
     AssertEqual(RoomCollisionType.ShootableBlock,
         greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).CollisionType,
@@ -1387,7 +1387,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     reloadedGreyWords[greyDoorBlock] = RoomTerrainBlock.Of(544, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData reloadedGreyLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reloadedGreyWords, new RoomBlockBehavior[reloadedGreyWords.Length], new RoomBlockAppearance[reloadedGreyWords.Length]));
     var reloadedGreyPlms = PlmFixtures.Unbound();
-    PlmFixtures.LoadPopulation(ref reloadedGreyPlms, new PlmRoom(reloadedGreyLevel, BgArtworkFixtures.For(new SnesVram()), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+    PlmFixtures.LoadPopulation(ref reloadedGreyPlms, new PlmRoom(reloadedGreyLevel, BgArtworkFixtures.For(new SnesVram()), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation)), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
     reloadedGreyPlms.Step(reloadedGreyLevel);
     AssertEqual(0x40, reloadedGreyLevel.GetCollisionBlockByIndex(greyDoorBlock).Behavior.Value,
         "persisted left grey door reloads as ordinary left blue cap");
@@ -1415,7 +1415,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var contactDoorWords = blueDoorWords.ToArray();
     var contactDoorBehaviors = blueDoorBehaviors.ToArray();
     RoomLevelData contactDoor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(contactDoorWords, contactDoorBehaviors, new RoomBlockAppearance[contactDoorWords.Length]));
-    var contactDoorSamus = new SamusState
+    var contactDoorSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x005a, 0x0060)),
@@ -1436,7 +1436,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0x006d, contactDoorProjectiles.Slots[0].Position.X.Whole,
         "fire-time impact anchors its explosion at the native leading edge");
 
-    var blueDoorSamus = new SamusState
+    var blueDoorSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
@@ -1479,7 +1479,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // two-frame exhaust after the initial delay, an invisible linked slot, and a larger quake-
     // producing explosion. Keep those distinctions together so a speed-only implementation
     // cannot satisfy the regression.
-    var superSamus = new SamusState
+    var superSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
@@ -1569,7 +1569,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var pillarWords = new RoomTerrainBlock[64 * 16];
     pillarWords[851] = RoomTerrainBlock.Of(281, BlockMirroring.None, RoomCollisionType.SolidBlock);
     var pillarRoom = CreateRoom(new(64, 16), pillarWords, new RoomBlockBehavior[pillarWords.Length]);
-    var pillarSamus = new SamusState
+    var pillarSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
         SelectedHudItem = HudItem.SuperMissile, SuperMissiles = 3,
@@ -1615,7 +1615,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         integratedSuperBehaviors[index] = new RoomBlockBehavior(10);
     }
     RoomLevelData integratedSuperWall = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedSuperWords, integratedSuperBehaviors, new RoomBlockAppearance[integratedSuperWords.Length]));
-    var integratedSuperSamus = new SamusState
+    var integratedSuperSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
@@ -1659,7 +1659,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         skippedWords[y * width + 7] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     }
     RoomLevelData skippedWall = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(skippedWords, skippedBehaviors, new RoomBlockAppearance[skippedWords.Length]));
-    var skippedSamus = new SamusState
+    var skippedSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = rightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 96)), SelectedHudItem = HudItem.SuperMissile, SuperMissiles = 1,
     };

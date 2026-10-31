@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileInstructionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -107,7 +108,7 @@ internal static class ProjectileRadiiVerification
                     ? replacementSprites[1] : replacementSprites[0]);
         var edited = InstalledProjectileFrameBindings.Load(
             new MemoryStream(InstalledProjectileFrameBindings.Write(editedDocument)));
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
         var bombs = new SamusBombProjectileSystem();
         int bombFrames = 0;
         foreach (int address in addresses)

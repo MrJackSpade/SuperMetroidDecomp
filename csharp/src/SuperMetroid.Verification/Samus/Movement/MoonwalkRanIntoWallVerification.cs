@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
@@ -16,7 +17,7 @@ internal static class MoonwalkRanIntoWallVerification
     /// </summary>
     internal static void VerifyMoonwalkRanIntoWall()
     {
-        var samus = new SamusState { Pose = SamusPoseId.MoonwalkAimUpLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x00eb, 0x00c3)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.MoonwalkAimUpLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x00eb, 0x00c3)) };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         AssertTrue(!SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), "moonwalk pose $75 faces right");

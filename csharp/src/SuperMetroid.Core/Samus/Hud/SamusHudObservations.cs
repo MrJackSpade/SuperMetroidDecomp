@@ -28,27 +28,27 @@ internal static class SamusHudObservations
         };
     }
 
-    /// <summary>$90:DDAA-$DDB5 actual transition flags: crouch/stand admit weapons; morph/unmorph preserve charge unless cancelling Grapple. Other admitted indices preserve only their bounded native instruction observations.</summary>
-    /// <remarks>
-    /// The admission reads a byte per pose. Outside the transition block that byte is the turning, posture, spin, held
-    /// and X-ray handlers' code around the real flags, which <paramref name="overreads"/> holds.
-    /// </remarks>
-    internal static byte PostureObservation(SamusPoseId pose, InstalledSamusOverreads? overreads)
+    /// <summary>
+    /// Whether the posture-transition admission admits weapons for <paramref name="pose"/>: the transition table admits
+    /// crouch and stand transitions and preserves the charge through morph and unmorph art; outside the table the answer
+    /// is the one <paramref name="beyond"/> decoded from what the admission reads there.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The admission reads no flag for the pose.</exception>
+    internal static bool PostureAdmitsWeapons(SamusPoseId pose, PostureAdmissionBeyondTransitions<SamusPoseId> beyond)
     {
+        Ensure.NotNull(beyond);
         if (!SamusPoseNumbering.Precedes(pose, NonFiringTransitionStart))
             throw new ArgumentOutOfRangeException(nameof(pose));
-        if (SamusPoseNumbering.Precedes(pose, FirstTransitionPose))
-            return RequireOverreads(overreads).HudPrecedingPostureByte(SamusPoseNumbering.Number(pose));
         if (!SamusPoseNumbering.InRange(pose, FirstTransitionPose, SamusPoseId.UnusedPose40))
-            return RequireOverreads(overreads).HudFollowingPostureByte(SamusPoseNumbering.Number(pose) - (SamusPoseNumbering.Number(SamusPoseId.UnusedPose40) + 1));
+            return beyond.AdmitsWeapons(pose);
         return pose switch
         {
             SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or
-            SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose => 0,
+            SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose => true,
             SamusPoseId.MorphingTransitionRightPose or SamusPoseId.MorphingTransitionLeftPose or
             SamusPoseId.UnmorphingTransitionRightPose or SamusPoseId.UnmorphingTransitionLeftPose or
             SamusPoseId.UnusedPose39 or SamusPoseId.UnusedPose3A or
-            SamusPoseId.UnusedPose3F or SamusPoseId.UnusedPose40 => 1,
+            SamusPoseId.UnusedPose3F or SamusPoseId.UnusedPose40 => false,
             SamusPoseId.ForwardFacingPowerSuitPose or
                 SamusPoseId.ForwardFacingSuitedPose or
                 SamusPoseId.FacingRightNormalPose or
@@ -296,9 +296,4 @@ internal static class SamusHudObservations
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
     }
-
-    /// <summary>Requires the installed overread catalog for a pose outside the transition block.</summary>
-    private static InstalledSamusOverreads RequireOverreads(InstalledSamusOverreads? overreads) =>
-        overreads ?? throw new InvalidOperationException(
-            "A posture-transition admission outside the transition block needs the installed Samus overread catalog.");
 }

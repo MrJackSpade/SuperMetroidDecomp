@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -24,7 +25,7 @@ internal static class OverlappingEnemyShotsVerification
         enemies.VerificationServices().SeedRandom = _ => { };
         var interactive = (List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies;
         Action<RoomEnemySlot, SamusState, ControllerButton> initialize = enemies.BeetomBehavior.InitializeBeetom;
-        var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) };
         for (int index = 0; index < 3; index++)
         {
             var enemy = enemies.SlotTable.Slots[index];
@@ -39,7 +40,7 @@ internal static class OverlappingEnemyShotsVerification
             enemy.SpritemapPointer = 1;
             interactive.Add(enemy);
         }
-        var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+        var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
         var bombs = new SamusBombProjectileSystem();
         var shot = shots.Slots[0];
         shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);

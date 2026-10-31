@@ -1,18 +1,20 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Extracts the cartridge bytes Samus's glitch paths read as data (owner question 3).</summary>
+/// <summary>
+/// Extracts what Samus's glitch paths read past their data, decoded from the player's cartridge into each read's domain
+/// result (owner question 3, #1474), and loads it as the Samus overread services.
+/// </summary>
 public static class SamusOverreadFiles
 {
-    /// <summary>Writes every overread range as base-64 JSON with a hashed manifest, then validates the result.</summary>
-    /// <param name="bus">Cartridge source for the ranges.</param>
+    /// <summary>Decodes every glitch read, writes the results as JSON with a hashed manifest, then validates the result.</summary>
+    /// <param name="bus">Cartridge source for the reads.</param>
     /// <param name="directory">Destination directory, created if absent; an existing file and manifest are replaced.</param>
     /// <param name="sourceCartridgeSha256">Identity written into the manifest; validation requires the supported cartridge.</param>
     /// <exception cref="InvalidDataException">The written file has an unexpected shape, digest or provenance.</exception>
@@ -22,19 +24,8 @@ public static class SamusOverreadFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         Directory.CreateDirectory(directory);
-        InstalledProjectileListPositions lists = SamusProjectileListEntries.Read(cartridge);
-        var document = new SamusOverreadDocument(
-            SamusOverreadFormat.Version,
-            Range(cartridge, SamusOverreadSourceDefinitions.SpacetimeCopySource, SamusOverreadDefinitions.SpacetimeCopySourceByteCount),
-            SamusOverreadSourceDefinitions.SpacetimeCopySource & ushort.MaxValue,
-            Range(cartridge, SamusOverreadSourceDefinitions.SpeedBoosterGrappleCode,
-                SamusOverreadDefinitions.SpeedBoosterGrappleCodeColorCount * sizeof(ushort)),
-            Range(cartridge, SamusOverreadSourceDefinitions.HudPrecedingPostureBytes, SamusOverreadDefinitions.HudPrecedingPostureByteCount),
-            Range(cartridge, SamusOverreadSourceDefinitions.HudFollowingPostureBytes, SamusOverreadDefinitions.HudFollowingPostureByteCount),
-            TrailOverruns(cartridge, lists),
-            lists.Positions.ToDictionary(position => position.Key.ToString(), position => position.Value),
-            new SamusAnimationWindows(SamusSourceDefinitions.ChargeFlarePrograms.Offset));
-        byte[] bytes = InstalledSamusOverreads.Write(document);
+        SamusOverreadDocument document = SamusOverreadDecoding.Decode(cartridge);
+        byte[] bytes = JsonAssetDocument.WriteValidated(document, SamusOverreadFormat.JsonOptions, json => _ = Read(json));
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.FileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(
@@ -46,7 +37,7 @@ public static class SamusOverreadFiles
     /// <summary>Validates the installed file's provenance and digest, then loads it.</summary>
     /// <param name="directory">Installed overread directory holding the file and its manifest.</param>
     /// <exception cref="InvalidDataException">The manifest, digest, provenance or file shape is invalid.</exception>
-    public static InstalledSamusOverreads Load(string directory)
+    public static SamusOverreadServices Load(string directory)
     {
         Manifest manifest;
         try
@@ -65,54 +56,16 @@ public static class SamusOverreadFiles
         byte[] bytes = File.ReadAllBytes(Path.Combine(directory, SamusOverreadFormat.FileName));
         if (!string.Equals(manifest.FileSha256, Convert.ToHexString(SHA256.HashData(bytes)), StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Installed Samus overread file failed its manifest hash.");
-        return InstalledSamusOverreads.Load(new MemoryStream(bytes, writable: false));
+        return Read(new MemoryStream(bytes, writable: false));
     }
 
     /// <summary>Checks the installed file's provenance, digest and shape.</summary>
     /// <param name="directory">Installed overread directory.</param>
     public static void ValidateStock(string directory) => _ = Load(directory);
 
-    /// <summary>Reads <paramref name="length"/> cartridge bytes from <paramref name="address"/> as base-64 text.</summary>
-    private static string Range(IImportCartridgeSource cartridge, int address, int length)
-    {
-        var bytes = new byte[length];
-        for (int offset = 0; offset < length; offset++)
-            bytes[offset] = cartridge.ReadCartridgeByte(address + offset);
-        return Convert.ToBase64String(bytes);
-    }
-
-    /// <summary>
-    /// Reads what a trail finds past each placement list's records at every frame it can read there, as base-64 entries
-    /// in frame order. Native indexes the list four bytes per frame within bank $9B's sixteen-bit offsets and takes the
-    /// record's four bytes from there; a record below the cartridge half of the bank, or running into the next bank, lies
-    /// in direct-page scratch and draws no trail (#1318).
-    /// </summary>
-    private static Dictionary<string, string> TrailOverruns(IImportCartridgeSource cartridge, InstalledProjectileListPositions layout)
-    {
-        var lists = new Dictionary<string, string>();
-        foreach (ProjectileTrailPlacementList list in Enum.GetValues<ProjectileTrailPlacementList>())
-        {
-            IReadOnlyList<int> frames = ProjectileTrailPlacements.OverrunFrames(list, layout);
-            SnesAddress start = ProjectileTrailPlacementSources.Start(cartridge, list);
-            var bytes = new byte[frames.Count * SamusOverreadDefinitions.TrailOverrunEntryByteCount];
-            for (int index = 0; index < frames.Count; index++)
-            {
-                Span<byte> entry = bytes.AsSpan(index * SamusOverreadDefinitions.TrailOverrunEntryByteCount,
-                    SamusOverreadDefinitions.TrailOverrunEntryByteCount);
-                SnesAddress record = start.AddWithinBank(frames[index] * ProjectileTrailPlacementSources.RecordByteCount);
-                SnesAddress last = record.AddWithinBank(ProjectileTrailPlacementSources.RecordByteCount - 1);
-                if (!record.IsUpperLoRomWindow || last.Offset < record.Offset)
-                {
-                    entry[0] = TrailOverrunEntryFormat.ToByte(TrailOverrunEntryKind.Scratch);
-                    continue;
-                }
-                entry[0] = TrailOverrunEntryFormat.ToByte(TrailOverrunEntryKind.Placement);
-                RomDataReader.ReadFixedBank(cartridge, record, ProjectileTrailPlacementSources.RecordByteCount).CopyTo(entry[1..]);
-            }
-            lists.Add(list.ToString(), Convert.ToBase64String(bytes));
-        }
-        return lists;
-    }
+    /// <summary>Reads and validates an overread document and builds its services.</summary>
+    private static SamusOverreadServices Read(Stream json) =>
+        SamusOverreadServicesReader.Read(JsonAssetDocument.Read<SamusOverreadDocument>(json, SamusOverreadFormat.JsonOptions, "Samus overread"));
 
     /// <summary>Records the schema, cartridge identity and file digest checked on load.</summary>
     private sealed record Manifest(int Version, string SourceCartridgeSha256, string FileSha256);

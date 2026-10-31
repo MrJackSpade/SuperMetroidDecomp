@@ -34,7 +34,7 @@ internal static class ProjectileTrailArtworkVerification
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
             }
-            var nativeSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None); var authoredSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+            var nativeSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads); var authoredSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
             // The cartridge's retained tile words, which the native interpreter keeps beside the port's sides.
             var nativeWords = new Dictionary<SamusProjectileTrailSide, ushort>();
             foreach (var system in new[] { nativeSystem, authoredSystem })
@@ -85,7 +85,7 @@ internal static class ProjectileTrailArtworkVerification
         {
             ushort frame = ProjectileTrailNative.Address(pose);
             ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.MovementBank.Value | (frame + 2));
-            var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+            var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
             var side = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
             side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = WrappingCountdown.Start(3);
             side.Position = side.Position.WithX(coordinate).WithY(coordinate); side.ShownPose = pose;
@@ -111,7 +111,7 @@ internal static class ProjectileTrailArtworkVerification
         var edited = Load(document);
         AssertEqual(catalog.Resolve(first) with { Flip = catalog.Resolve(first).Flip ^ TileFlip.Horizontal }, edited.Resolve(first),
             "Trail flip edit changes only the horizontal flip");
-        var animation = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+        var animation = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
         var trail = animation.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
         trail.InstructionPointer = ProjectileTrailNative.Address(first); trail.InstructionTimer = WrappingCountdown.Start(1); trail.Position = trail.Position.WithX(100).WithY(100);
         OamBuffer frozen = SpriteFrameBuffer.DrawnOam(sprites =>

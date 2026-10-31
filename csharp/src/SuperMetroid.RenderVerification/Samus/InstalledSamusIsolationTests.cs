@@ -120,7 +120,7 @@ internal sealed class InstalledSamusIsolationTests
             Suits = edited ? tests.suits.Edited : tests.suits.Stock;
             Cycles = edited ? tests.cycles.Edited : tests.cycles.Stock;
             Crystal = edited ? tests.crystal.Edited : tests.crystal.Stock;
-            Samus = new() { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 363)),
+            Samus = new(InstalledFixtures.AnimationContinuation) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 363)),
                 EquippedItems = equipment, Health = 99, MaxHealth = 299,
                 Presentation = { SuitColors = Suits, FullBodyCycleColors = Cycles } };
             Samus.Presentation.BodyFrames.BindBodyFixture(Body);

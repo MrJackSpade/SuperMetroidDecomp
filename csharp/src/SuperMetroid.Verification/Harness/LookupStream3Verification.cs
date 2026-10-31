@@ -1359,7 +1359,7 @@ internal static class LookupStream3Verification
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         sequence.State.Phase = MotherBrainBodyFunction.ThirdPhaseDeathStartEscape;
         var bus = new TestAddressSpace();
-        var samus = new SamusState { Health = 99 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Health = 99 };
         var firstPage = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         AssertEqual(0, firstPage.EscapePaletteFxRequests.Count, "stream 3 escape palette effects wait for door graphics");
         var handoff = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
@@ -3062,7 +3062,7 @@ internal static class LookupStream3Verification
         AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
         AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
         var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-        var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
+        var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, introFont: font, characterArtwork: stock,
             beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new SharedRandom() };
         byte[] nativeFont = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
             IntroCinematicSourceDefinitions.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
@@ -3261,7 +3261,7 @@ internal static class LookupStream3Verification
         AssertTrue(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span).AsSpan().SequenceEqual(native), "background edits do not cross-couple pages");
         AssertEqual(hash, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
         var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-        var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
+        var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, introFont: font, characterArtwork: stock,
             beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new SharedRandom() };
         AssertTrue(intro.ShownVram().AsSpan(
             (IntroVramLayout.BackgroundPages.Offset * 2), native.Length).SequenceEqual(native),
@@ -3389,7 +3389,7 @@ BranchesToSharedBody:true),
         AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "portrait edits do not cross-mutate stock");
         AssertEqual(hash, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
         var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-        var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
+        var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, introFont: font, characterArtwork: stock,
             beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new SharedRandom() };
         AssertTrue(intro.ShownVram().AsSpan(
             (IntroVramLayout.PortraitTilemap.Offset * 2), native.Length).SequenceEqual(native),

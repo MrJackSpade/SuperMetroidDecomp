@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
 using SuperMetroid.Core.Enemies;
@@ -18,7 +19,7 @@ internal static class EnemyDropChanceDefinitionsVerification
     internal static void VerifyEnemyDropChanceDefinitions(SuperMetroidAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        var samus = new SamusState
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Health = 99,
             MaxHealth = 99,

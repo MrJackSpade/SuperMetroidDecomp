@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Drawing;
@@ -104,7 +105,7 @@ internal static void VerifySamusCrystalFlash()
     var beamPalettes = BeamPaletteFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.BeamPaletteExtractor.Extract(bus)));
     const ControllerButton chord = (ControllerButton.Down | ControllerButton.L | ControllerButton.R | ControllerButton.X);
-    var samus = new SamusState
+    var samus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0120, 0x0080)),
@@ -315,7 +316,7 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(SamusSpecialPaletteType.None, samus.CrystalFlash.SpecialPaletteKind,
         "Crystal Flash palette handler clears after restoration");
 
-    var left = new SamusState
+    var left = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.FacingLeftNormalPose,
         Health = 50,
@@ -397,7 +398,7 @@ internal static void VerifySamusXray()
         SuperMetroid.AssetExtraction.Samus.SamusVisorColorExtractor.Extract(bus)));
     var xraySuitColors = SamusSuitColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
-    var standing = new SamusState
+    var standing = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
@@ -556,7 +557,7 @@ internal static void VerifySamusXray()
     // Crouched setup selects `$D9`. Releasing while its `$43` turn is still active makes
     // `$91:E2AD` classify movement type `$0E` as standing, choose left `$02`, expand radius
     // 16 -> 21, and move the center five pixels upward: the retail X-ray stand-up glitch.
-    var crouched = new SamusState
+    var crouched = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
@@ -589,7 +590,7 @@ internal static void VerifySamusXray()
     // command five. WRAM retains ordinary pose `$0A` and normal handlers, but `$0A78`
     // becomes one and `$198D/$1C23/$1E79/$1EF1` all lose their enable high bit. Preserve
     // that ownership split rather than cancelling the complete X-Ray setup with its pose.
-    var interrupted = new SamusState
+    var interrupted = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.FacingLeftNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0174, 0x028b)),
@@ -629,7 +630,7 @@ internal static void VerifySamusXray()
     // five-bomb conjunction checks.
     SamusState Rejected(SamusPoseId pose, ushort ySpeed = 0, ushort ySubspeed = 0)
     {
-        var sample = new SamusState { Pose = pose };
+        var sample = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose };
         SamusPoseMetadata.RefreshCollisionRadii(sample);
         SamusPresentation.InitializeAnimation(sample);
         sample.Kinematics.YSpeed = new UnsignedSixteenSixteen(ySpeed, ySubspeed);
@@ -749,7 +750,7 @@ internal static void VerifySamusDeathSequence()
     SeedSamusDeathSequenceCartridge(bus, shades);
     InstalledSamusDeathPalettes artwork = DecodeSamusDeathFixtureArtwork(bus, shades);
     var guardedBus = NewSamusDeathExplosionTimingReadGuard(bus);
-    var samus = new SamusState
+    var samus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x04c0)),
@@ -828,7 +829,7 @@ internal static void VerifySamusDeathSequence()
 
     // Morph Ball begins frame one and uses left pose `$D8`; spin jumping still starts frame
     // five but uniquely requests library-one sound `$32` before pose replacement.
-    var morphedLeft = new SamusState
+    var morphedLeft = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.MorphBallGroundLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 80)),
@@ -847,7 +848,7 @@ internal static void VerifySamusDeathSequence()
         morphedLeft.PoseHistory.PreviousMovement, "death commits left metadata");
     AssertEqual(1, morphedLeft.AnimationFrame, "Morph death begins unmorph frame one");
 
-    var spinning = new SamusState { Pose = SamusPoseId.SpinJumpRightPose };
+    var spinning = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.SpinJumpRightPose };
     SamusPoseMetadata.RefreshCollisionRadii(spinning);
     SamusPresentation.InitializeAnimation(spinning);
     spinning.DeathSequence.Begin(

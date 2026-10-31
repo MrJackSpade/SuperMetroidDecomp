@@ -11,19 +11,19 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>The bank-$93 projectile instruction interpreter and drawing: slot clearing, live projectile and charge-flare OAM, flare animation state and the suit palette the flare restores.</summary>
 internal sealed class ProjectileAnimation
 {
-    /// <summary>The installed cartridge bytes the charge flare reads below its programs.</summary>
-    internal InstalledSamusOverreads? Overreads { get; set; }
-
     /// <summary>Owns charge-flare frame and countdown arrays advanced by the interpreter.</summary>
     private readonly BeamChargeState _charge;
     /// <summary>Owns the active projectile count reduced when a delete instruction clears a slot.</summary>
     private readonly ProjectileSlotTable _slotTable;
+    /// <summary>The delays a flare frame wrapping below the flare's programs reads.</summary>
+    private readonly ChargeFlareDelaysBelowPrograms _flareDelaysBelow;
 
     /// <summary>Binds projectile instructions to live slot ownership and charge-flare state.</summary>
-    internal ProjectileAnimation(BeamChargeState charge, ProjectileSlotTable slotTable)
+    internal ProjectileAnimation(BeamChargeState charge, ProjectileSlotTable slotTable, ChargeFlareDelaysBelowPrograms flareDelaysBelow)
     {
         _charge = charge;
         _slotTable = slotTable;
+        _flareDelaysBelow = Ensure.NotNull(flareDelaysBelow);
     }
     /// <summary>Decodes timed bank-$93 frames, goto, and delete; publishes frame radius and animation metadata when the countdown expires.</summary>
     internal bool RunProjectileInstructionHandler(
@@ -92,19 +92,19 @@ internal sealed class ProjectileAnimation
             return;
 
         int frame = unchecked((ushort)(_charge.FlareFrame(component) + 1));
-        int delay = ChargeFlareAnimations.ReadDelay(component, frame, Overreads?.AnimationWindows);
+        int delay = ChargeFlareAnimations.ReadDelay(component, frame, _flareDelaysBelow);
         if (ChargeFlareAnimations.TryDecodeCommand(delay, out ChargeFlareDelayCommand command))
         {
             switch (command)
             {
                 case ChargeFlareDelayCommand.Restart:
                     frame = 0;
-                    delay = ChargeFlareAnimations.ReadDelay(component, 0, Overreads?.AnimationWindows);
+                    delay = ChargeFlareAnimations.ReadDelay(component, 0, _flareDelaysBelow);
                     break;
                 case ChargeFlareDelayCommand.Rewind:
-                    int rewind = ChargeFlareAnimations.ReadDelay(component, frame + 1, Overreads?.AnimationWindows);
+                    int rewind = ChargeFlareAnimations.ReadDelay(component, frame + 1, _flareDelaysBelow);
                     frame = unchecked((ushort)(frame - rewind));
-                    delay = ChargeFlareAnimations.ReadDelay(component, frame, Overreads?.AnimationWindows);
+                    delay = ChargeFlareAnimations.ReadDelay(component, frame, _flareDelaysBelow);
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(ChargeFlareDelayCommand)} {command}.");

@@ -153,7 +153,7 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
 /// <summary>Checks reserve-energy input lock, one-point transfers, sound cadence, exhaustion, and maximum-health clamp.</summary>
 internal static void VerifyReserveAutoRecovery()
 {
-    var samus = new SamusState
+    var samus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Health = 0,
         MaxHealth = 99,

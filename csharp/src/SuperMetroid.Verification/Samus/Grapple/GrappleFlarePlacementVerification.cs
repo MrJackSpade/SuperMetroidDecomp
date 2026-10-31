@@ -97,7 +97,7 @@ internal static class GrappleFlarePlacementVerification
 
             SamusState Seed(ChargeFlarePlacements? placement)
             {
-                var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
+                var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
                 PrepareRetailSamusFixture(samus);
                 samus.Grapple.FlarePlacement = placement;
                 return samus;

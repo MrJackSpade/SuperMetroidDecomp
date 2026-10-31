@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileProgramOracleVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -27,7 +28,7 @@ internal static class MiscDustProjectileBehaviorVerification
     internal static void VerifyMiscDustProjectileBehavior(SuperMetroidAddressSpace rom)
     {
         CartridgeReadGuard guard = ForbiddingSharedLists(rom);
-        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(16384, 16384)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(16384, 16384)) };
         foreach (MiscDustAnimation animation in Enum.GetValues<MiscDustAnimation>())
         {
             RoomEnemySystem enemies = CreateRoomEnemySystem();

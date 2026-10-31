@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Samus;
@@ -46,7 +47,7 @@ internal static class IntroRinkaDefinitionsVerification
 
         var guarded = NewIntroRinkaDefinitionGuard(retail);
         var system = new IntroRinkaSystem();
-        var samus = new SamusState
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0100)),
         };

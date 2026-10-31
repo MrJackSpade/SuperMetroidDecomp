@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Samus.Poses.PoseCollisionDefinitionsVerification;
@@ -19,7 +20,7 @@ internal static class PoseDispatchDefinitionsVerification
     internal static void VerifyPoseDispatchDefinitions(SuperMetroidAddressSpace rom)
     {
         var forbidden = NewSlopeHeightNoReadBus();
-        var samus = new SamusState();
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
         Action<SamusState, ISnesAddressSpace> commit = (state, memory) => state.CommitPoseHistory();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {

@@ -34,7 +34,7 @@ internal static class GrappleGatesVerification
             SeedRetailGateSpriteMaps(bus, retail);
             SeedEmptyRoomEnemyPopulation(bus, 0x9600);
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
-            enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())) { Level = level, Samus = new SamusState() });
+            enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())) { Level = level, Samus = new SamusState(InstalledFixtures.AnimationContinuation) });
             enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(plms.Gates.TakeDownwardGateProjectileRequests().Single(), level.Size.X);
             enemies.StepEnemyProjectiles(level, null);
             enemies.StepEnemyProjectiles(level, null);
@@ -43,7 +43,7 @@ internal static class GrappleGatesVerification
             AssertTrue(oam.NextByteOffset > 0, "closed gate has visible OAM before grapple impact");
             byte[] expected = oam.LowTable[..oam.NextByteOffset].ToArray();
             int hitIndex = gateIndex + (trigger == DownwardGateTriggerBehavior.GreenLeft ? -1 : 1);
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Position = new(new((ushort)(hitIndex % level.Size.X * 16 + 8), 0), new((ushort)(hitIndex / level.Size.X * 16 + 8), 0)),
             };

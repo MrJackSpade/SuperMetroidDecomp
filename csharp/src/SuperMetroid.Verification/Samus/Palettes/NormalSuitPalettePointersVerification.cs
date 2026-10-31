@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
@@ -38,7 +39,7 @@ internal static class NormalSuitPalettePointersVerification
             AssertEqual(nativePointer, SamusPaletteDefinitions.Common.NormalSuitPalettePointer(offset),
                 $"compiled normal suit pointer selection {selection} matches retail ROM");
 
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 EquippedItems = equipment[selection],
                 MetroidAttachmentPalette = SamusMetroidAttachmentPalette.NormalSuitNext,

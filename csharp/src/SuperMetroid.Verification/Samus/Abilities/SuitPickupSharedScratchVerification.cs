@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus;
@@ -23,7 +24,7 @@ internal static class SuitPickupSharedScratchVerification
     /// </summary>
     internal static void VerifySuitPickupSharedScratch()
     {
-        SamusState samus = PrepareRetailSamusFixture(new SamusState
+        SamusState samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

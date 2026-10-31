@@ -111,7 +111,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         void RunForcedTick(RoomEnemySystem enemies, RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = WrappingCountdown.Start(1);
-            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation), Position16<RoomPixels>.Zero);
             // The shown frame's operand sits just before the instruction the native pointer stands on.
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands,
                 projectile.IsActive ? unchecked((ushort)(NativePointer(projectile) - 2)) : null);

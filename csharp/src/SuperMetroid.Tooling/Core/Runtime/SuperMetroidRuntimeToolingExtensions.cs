@@ -19,13 +19,15 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// palette is bound, and the caller binds whatever catalogs it exercises.
         /// </summary>
         /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime (#633).</param>
+        /// <param name="samusOverreads">The installed services reproducing Samus's glitch reads, which every runtime requires.</param>
         /// <param name="initialPaletteArt">Required installed palette image loaded into CGRAM during construction.</param>
         /// <param name="random">The session's random-number word, or null for a runtime that is a session of its own.</param>
         internal static SuperMetroidRuntime Create(
             SuperMetroid.Core.Gameplay.HostGameplayOverrides overrides,
+            SuperMetroid.Core.Samus.SamusOverreadServices samusOverreads,
             SuperMetroid.Core.Assets.GameplayBasePalette? initialPaletteArt = null,
             SuperMetroid.Core.Progression.SharedRandom? random = null) =>
-            new(overrides, new SuperMetroid.Core.Frontend.GameArtwork { GameplayBasePalettes = initialPaletteArt },
+            new(overrides, new SuperMetroid.Core.Frontend.GameArtwork { GameplayBasePalettes = initialPaletteArt, SamusOverreads = samusOverreads },
                 new SuperMetroid.Core.Gameplay.FrameClock(), new SuperMetroid.Core.Compatibility.FloorUpdateResidue(),
                 random ?? new SuperMetroid.Core.Progression.SharedRandom());
     }

@@ -25,7 +25,7 @@ internal static class SpeedBoosterEchoStopVerification
         renderer.RenderFrame(queue.AdvanceFrame(renderer.Acknowledgements));
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         var libraries = renderer.PlayerForVerification.soundLibraries;
-        var samus = new SamusState { Pose = SamusPoseId.RanIntoWallRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.RanIntoWallRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         var speed = samus.HorizontalSpeed;
@@ -93,7 +93,7 @@ internal static class SpeedBoosterEchoStopVerification
     /// <summary>Checks deferred echo flags across charging, serialization, and quicksand suppression.</summary>
     private static void VerifyEchoFlagOwnership()
     {
-        var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose };
         var speed = samus.HorizontalSpeed;
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);

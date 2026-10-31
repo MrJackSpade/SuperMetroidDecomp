@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoHandVisualsVerification;
@@ -43,7 +44,7 @@ internal static class BombTorizoHandVerification
         var guarded = NewBombTorizoHandProgramReadGuard(bus);
 
         var level = CreateEmptyRoom(new(width, height));
-        var samus = new SamusState();
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
         var plms = PlmFixtures.Unbound();
         var editedVisuals = new RoomPlmBombTorizoHandVisualCatalog(
         [

@@ -107,6 +107,12 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     internal RainbowBeamCameraCheckpoint RainbowBeamCameraCheckpoint { get; } = new();
 
+    /// <summary>
+    /// The compatibility services reproducing what Samus's glitch paths read past their data, from the installed content;
+    /// the runtime hands each to the owner that consults it as it builds that owner and every Samus and room.
+    /// </summary>
+    internal SamusOverreadServices SamusOverreads { get; }
+
     /// <summary>The <see cref="XrayReveal"/> owner of this SuperMetroidRuntime.</summary>
     internal XrayReveal Xray { get; }
 
@@ -131,7 +137,10 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>Creates the frame-steppable runtime, installs host gameplay options, and loads the required initial palette.</summary>
     /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</param>
-    /// <param name="artwork">The installed catalogs; their initial palette is loaded into CGRAM during construction, and <see cref="BindArtwork"/> binds the rest.</param>
+    /// <param name="artwork">
+    /// The installed catalogs; their initial palette is loaded into CGRAM during construction, their Samus overread services
+    /// are handed to the owners that consult them, and <see cref="BindArtwork"/> binds the rest.
+    /// </param>
     /// <param name="clock">The session's frame clock, shared with the frontend that counts while no runtime exists.</param>
     /// <param name="floorQueueResidue">The session's floor update residue, which outlives each runtime as WRAM does.</param>
     /// <param name="random">The session's random-number word, which outlives each runtime and is never copied.</param>
@@ -139,6 +148,8 @@ internal sealed class SuperMetroidRuntime
         FrameClock clock, SuperMetroid.Core.Compatibility.FloorUpdateResidue floorQueueResidue, SharedRandom random)
     {
         Ensure.NotNull(artwork);
+        SamusOverreads = artwork.SamusOverreads ?? throw new InvalidOperationException(
+            "Gameplay requires the installed Samus overread services.");
         System = new SharedGameState(random);
         Display = new GameplayDisplayState();
         var spriteSets = new SpriteColourSets();
@@ -162,15 +173,15 @@ internal sealed class SuperMetroidRuntime
         Xray = new XrayReveal(BackgroundScroll, Room, System);
         FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, ScreenLayers = ScreenLayers, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room);
-        ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
+        ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room, SpeedBoosterOverrunColours = SamusOverreads.SpeedBoosterColours });
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Colours = Colours, Display = Display, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
         EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
         PerLineEffects = new PerLineEffectPhase(Freeze, System);
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, PerLineEffects = PerLineEffects, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new PlmShotBlockVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Colours = Colours, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester});
-        AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System});
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Colours = Colours, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, SamusOverreads = SamusOverreads });
+        AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, AnimationContinuation = SamusOverreads.AnimationContinuation });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Colours = Colours, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
         PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
@@ -251,7 +262,6 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.XrayRevealVisuals, value => Xray.XrayRevealVisuals = value);
 
         Bind(a => a.ProjectileFrameBindings, value => Artwork.ProjectileFrameBindings = value);
-        Bind(a => a.SamusOverreads, value => Artwork.SamusOverreads = value);
         Bind(a => a.SpriteSheets, value => Artwork.SpriteSheets = value);
         Bind(a => a.EnemySheets, value => EnemySession.Sheets = value);
         Bind(a => a.ChargeFlarePlacement, value => Artwork.ChargeFlarePlacement = value);

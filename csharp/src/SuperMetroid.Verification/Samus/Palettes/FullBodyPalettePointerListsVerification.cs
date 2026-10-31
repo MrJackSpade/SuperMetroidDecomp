@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
@@ -69,7 +70,7 @@ internal static class FullBodyPalettePointerListsVerification
             {
                 var speed = new SamusHorizontalSpeedState { CyclePaletteStep = phase };
                 var actual = new SamusColourRig();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(actual.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }, cycleColors: cycleColors),
+                AssertTrue(speed.UpdateSpeedBoosterPalette(actual.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }, InstalledFixtures.SamusOverreads.SpeedBoosterColours, cycleColors: cycleColors),
                     "Screw Attack copies a palette without reading either pointer table");
                 int shade = Math.Min(phase, 6 - phase);
                 AssertPaletteColors(rom, actual, 0x9ca0 + suit * 0x200 + shade * 0x20,
@@ -87,7 +88,7 @@ internal static class FullBodyPalettePointerListsVerification
                     CyclePaletteStep = phase,
                 };
                 var actual = new SamusColourRig();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(actual.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }, cycleColors: cycleColors),
+                AssertTrue(speed.UpdateSpeedBoosterPalette(actual.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }, InstalledFixtures.SamusOverreads.SpeedBoosterColours, cycleColors: cycleColors),
                     "active Speed Booster copies a palette without reading either pointer table");
                 AssertPaletteColors(rom, actual, 0x9b20 + suit * 0x200 + phase * 0x20,
                     $"active Speed Booster suit {suit}, phase {phase}");
@@ -95,7 +96,7 @@ internal static class FullBodyPalettePointerListsVerification
                     "active Speed Booster palette pins its fourth frame");
             }
 
-            var stored = new SamusState { EquippedItems = items };
+            var stored = new SamusState(InstalledFixtures.AnimationContinuation) { EquippedItems = items };
             AssertTrue(stored.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)), "seed stored shine");
             for (int phase = 0; phase < 6; phase++)
             {
@@ -110,7 +111,7 @@ internal static class FullBodyPalettePointerListsVerification
                     stored.Shinespark.PaletteStep, "stored shine cycles six phases");
             }
 
-            var active = new SamusState { EquippedItems = items };
+            var active = new SamusState(InstalledFixtures.AnimationContinuation) { EquippedItems = items };
             AssertTrue(active.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)), "seed active shine");
             active.Shinespark.BeginWindup(active);
             for (int phase = 0; phase < 4; phase++)
@@ -137,7 +138,7 @@ internal static class FullBodyPalettePointerListsVerification
 
         var adjacentScrew = new SamusHorizontalSpeedState { CyclePaletteStep = 6 };
         var adjacentScrewColors = new SamusColourRig();
-        AssertTrue(adjacentScrew.UpdateSpeedBoosterPalette(adjacentScrewColors.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentFlags.ScrewAttack }, cycleColors: cycleColors),
+        AssertTrue(adjacentScrew.UpdateSpeedBoosterPalette(adjacentScrewColors.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentFlags.ScrewAttack }, InstalledFixtures.SamusOverreads.SpeedBoosterColours, cycleColors: cycleColors),
             "non-catalog Screw Attack phase retains native adjacent-data read");
         AssertPaletteColors(rom, adjacentScrewColors, 0x9ea0,
             "Screw Attack step six reads the adjacent Varia list");
@@ -149,7 +150,7 @@ internal static class FullBodyPalettePointerListsVerification
             CyclePaletteStep = 4,
         };
         var adjacentBoostColors = new SamusColourRig();
-        AssertTrue(adjacentBoost.UpdateSpeedBoosterPalette(adjacentBoostColors.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0 }, cycleColors: cycleColors),
+        AssertTrue(adjacentBoost.UpdateSpeedBoosterPalette(adjacentBoostColors.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0 }, InstalledFixtures.SamusOverreads.SpeedBoosterColours, cycleColors: cycleColors),
             "non-catalog Speed Booster phase retains native adjacent-data read");
         AssertPaletteColors(rom, adjacentBoostColors, 0x9d20,
             "Speed Booster step four reads the adjacent Varia list");

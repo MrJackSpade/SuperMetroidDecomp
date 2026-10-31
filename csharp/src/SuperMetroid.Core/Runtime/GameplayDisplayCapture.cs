@@ -194,10 +194,10 @@ public static class GameplayDisplayCapture
         return new(beam, frame.Latched.FixedColors.SuitPickup);
     }
 
-    /// <summary>Adds signed quake displacement to a 16-bit PPU scroll register with native wrapping.</summary>
+    /// <summary>Adds signed quake displacement to a 16-bit layer scroll with sixteen-bit wrapping.</summary>
     private static int Add(int scroll, int shake) => CoordinateAxis.Wrap(scroll + shake);
 
-    /// <summary>Normal Fireflea blending ($88:80B0), before and after X-ray owns the window.</summary>
+    /// <summary>Normal Fireflea blending, before and after X-ray owns the window.</summary>
     private static GameplayBlendLayer CaptureFirefleaDarkness(RgbColor fixedColor, LayeredScene basis)
     {
         if (basis.Layers[0] is not GameplaySceneLayer ordinary)
@@ -245,7 +245,7 @@ public static class GameplayDisplayCapture
             MainScreenLayers = ordinary.View.MainScreenLayers & ~ScreenLayers.Background,
         }, ordinary.Rooms, ordinary.BackgroundLineScrolls);
         if (mode == LayerBlendingConfiguration.PhantoonHidden) return gameplay;
-        // $88:80D9: TM=$15, TS=$02, CGADSUB=$35. Gameplay HUD is the separate
+        // // Fireflea rooms: TM=$15, TS=$02, CGADSUB=$35. Gameplay HUD is the separate
         // band; below it BG2 adds to eligible main sources, never occluding BG1.
         return new GameplayBlendLayer(gameplay, ScreenWindow.Closed, false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
     }

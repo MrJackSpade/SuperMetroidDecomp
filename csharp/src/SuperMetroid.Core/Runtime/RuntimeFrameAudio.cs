@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
-/// How one runtime frame's speed-booster echo and low-health check reach the cartridge audio queue
+/// How one runtime frame's speed-booster echo and low-health check reach the game's audio queue
 /// (#633). Each scenario is named; there is no partially configured audio host.
 /// </summary>
 public sealed class RuntimeFrameAudio : ISamusFrameAudio

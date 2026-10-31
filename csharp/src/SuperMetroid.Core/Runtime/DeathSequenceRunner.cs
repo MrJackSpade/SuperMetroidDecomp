@@ -40,7 +40,7 @@ internal sealed class DeathSequenceRunner
     }
 
     /// <summary>
-    /// Enters `$9B:B3A7` after the outer death game state has completed its music wait.
+    /// Enters the death animation after the outer death game state has completed its music wait.
     /// Fatal-damage detection, blackout, and queued-music polling are deliberately not
     /// fabricated by this narrow runtime seam.
     /// </summary>
@@ -56,7 +56,7 @@ internal sealed class DeathSequenceRunner
             _player.Samus,
             _room.Camera.PixelPosition);
 
-        // The next frame boundary must see pose `$D7/$D8` definitions. Native game state 15
+        // // The next frame boundary must see the death poses' definitions. The death game state
         // draws once before setup and state 16 draws the new pose on its following call;
         // priming here preserves that same first-visible-frame contract in this thin host.
         _player.Samus.Presentation.PrimeGraphics(_player.Samus);
@@ -83,14 +83,14 @@ internal sealed class DeathSequenceRunner
     }
 
     /// <summary>
-    /// Runs one isolated bank-$9B death-animation frame for game states <c>$16-$18</c>.
+    /// Runs one isolated death-animation frame for the death-animation game states.
     /// The selected pose or explosion frame becomes visible through the ordinary frame
     /// boundary, while every gameplay actor remains stopped.
     /// </summary>
     public SamusDeathSequenceStepResult StepDeathSequenceFrame(ControllerButton controllerInput)
     {
         if (_player.Samus is null || _room.Camera is null || !_player.Samus.DeathSequence.IsActive)
-            throw new InvalidOperationException("The bank-$9B death sequence is not active.");
+            throw new InvalidOperationException("The death sequence is not active.");
 
         _frameBoundary.BeginAcceptedFrame(controllerInput);
         _sprites.BeginFrame();

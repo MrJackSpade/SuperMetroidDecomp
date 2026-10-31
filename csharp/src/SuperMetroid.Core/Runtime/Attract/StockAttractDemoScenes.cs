@@ -7,7 +7,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Runtime.Attract;
 
-/// <summary>Executable staging for the native title demonstrations, joined across room, equipment and setup definitions.</summary>
+/// <summary>Executable staging for the title demonstrations, joined across room, equipment and setup definitions.</summary>
 /// <remarks>The exact playlist, initial staging and editorial cutoffs select this recorded demonstration performance. Physical alignment, capacity units, shared abilities and control dispatch calculate independently.</remarks>
 public static class StockAttractDemoScenes
 {
@@ -62,7 +62,7 @@ public static class StockAttractDemoScenes
         CrystalFlash,
     }
 
-    /// <summary>Returns a staged demonstration or its exact native end-of-set sentinel.</summary>
+    /// <summary>Returns a staged demonstration or its exact end-of-set marker.</summary>
     public static AttractDemoScene? Get(int set, int scene)
     {
         if ((uint)set >= DemoSetUnlockDefinitions.SetCount) throw new ArgumentOutOfRangeException(nameof(set));
@@ -477,7 +477,7 @@ public static class StockAttractDemoScenes
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
     };
 
-    /// <summary>Seventeen staged actors stand on identified flat native floor cells. Their selected room-screen floor rows convert to pixels, then subtract the actual immutable pose radius. This does not use editable room artwork or infer the six other placements.</summary>
+    /// <summary>Seventeen staged actors stand on identified flat floor cells. Their selected room-screen floor rows convert to pixels, then subtract the actual immutable pose radius. This does not use editable room artwork or infer the six other placements.</summary>
     private static int GroundedY(int floorRow, Demonstration demonstration)
     {
         SamusPoseId pose = SamusSetupFor(demonstration) switch
@@ -493,7 +493,7 @@ public static class StockAttractDemoScenes
         return CoordinateAxis.AsSigned(floorRow * 16 - SamusPoseCollisionRadii.ReadVerticalRadius(pose));
     }
 
-    /// <summary>Landing Site entries select their sky, the charge-beam-room demonstration selects its scroll correction, and the two boss scenarios select their explicit room setup. All other staged rooms use the native no-op callback.</summary>
+    /// <summary>Landing Site entries select their sky, the charge-beam-room demonstration selects its scroll correction, and the two boss scenarios select their explicit room setup. All other staged rooms use the empty callback.</summary>
     private static AttractDemoRoomSetup RoomSetupFor(Demonstration demonstration) => demonstration switch
     {
         Demonstration.LandingSite or Demonstration.DiagonalShinespark or Demonstration.GauntletEntrance or
@@ -510,7 +510,7 @@ public static class StockAttractDemoScenes
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration), demonstration, "Undefined attract demonstration."),
     };
 
-    /// <summary>Selected actor setup roles for the recorded demonstrations. Shared standing directions dispatch once; the front-facing, morph, fall, spark and low-health performances keep their distinct native callbacks.</summary>
+    /// <summary>Selected actor setup roles for the recorded demonstrations. Shared standing directions dispatch once; the front-facing, morph, fall, spark and low-health performances keep their distinct callbacks.</summary>
     private static AttractDemoSamusSetup SamusSetupFor(Demonstration demonstration) => demonstration switch
     {
         Demonstration.LandingSite => AttractDemoSamusSetup.LandingSite,
@@ -560,7 +560,7 @@ public static class StockAttractDemoScenes
 
     /// <summary>
     /// Equipped-beam selections for each demonstration. These choose composable
-    /// native beam abilities; the selected per-scene loadouts belong to this recorded demonstration.
+    /// beam abilities; the selected per-scene loadouts belong to this recorded demonstration.
     /// </summary>
     private static SuperMetroid.Core.Progression.SamusBeamFlags EquippedBeamsFor(Demonstration demonstration) => demonstration switch
     {

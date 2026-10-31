@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <param name="CeresHaze">The Ceres haze's per-line fixed-colour gradient, when the room spawned one.</param>
 /// <param name="RoomFxPaletteBlends">Installed presentation colors for the haze gradient.</param>
 /// <param name="PowerBomb">Power-bomb window table inputs; its fixed color comes from the frame-boundary latch.</param>
-/// <param name="MessageBox">Bank-$85 message overlay, which runs its own display loop.</param>
+/// <param name="MessageBox">The message box overlay, which runs its own display loop.</param>
 /// <param name="SuitPickupBeam">Suit pickup light-beam window description; its fixed color comes from the frame-boundary latch.</param>
 /// <param name="Xray">X-ray per-line effect object phases and window cone inputs.</param>
 /// <param name="TourianStatuesEnabled">Whether the Tourian statue BG2VOFS per-line effect object is running.</param>

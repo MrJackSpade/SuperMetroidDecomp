@@ -16,7 +16,7 @@ public static class PauseReserveTankExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         for (int index = 0; index < PauseMenuSourceDefinitions.ReserveTankPartialFillCount; index++)
-            if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveTankPartialFills + index * 2) != (ushort)PauseReserveTankParts.PartialMap(index))
+            if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveTankPartialFills + index * 2) != PauseReserveTankVisualWords.Ordinals.Word(PauseReserveTankParts.PartialMap(index)))
                 throw new InvalidDataException("Unexpected native reserve fill binding.");
         var anchors = new Position16<SpritePixels>[PauseReserveTankDefinitions.AnchorCount];
         int y = unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveTankYPosition) - 1));

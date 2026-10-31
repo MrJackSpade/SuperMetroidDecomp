@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
@@ -48,7 +49,7 @@ internal static class PauseReserveFramesVerification
                     int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);
                     DrawImportedSpritemap(rom, expected, pointer, new(24, 95), 0x600);
                 }
-                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), (PauseReserveTankVisual)frame.Id, 0);
+                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), PauseReserveTankVisualWords.Ordinals.Decode(frame.Id, "reserve visual"), 0);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
                     "each authored reserve frame independently selected");
@@ -58,8 +59,10 @@ internal static class PauseReserveFramesVerification
                 "each reserve role remains required");
         }
         foreach (ushort invalid in new ushort[] { 0, 0x1a, 0x1c, 0x1d, 0x1e, 0x28, ushort.MaxValue })
-            AssertThrows<InvalidOperationException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), (PauseReserveTankVisual)invalid, 0), "unsupported reserve identity");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), 0, -1), "anchor error precedes unknown visual");
+            AssertEqual(false, PauseReserveTankVisualWords.Ordinals.TryDecode(invalid, out _), "unsupported native reserve identity");
+        var undefined = (PauseReserveTankVisual)(-1);
+        AssertThrows<InvalidOperationException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), undefined, 0), "unsupported reserve identity");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), undefined, -1), "anchor error precedes unknown visual");
     }
 
     /// <summary>Compares each stock reserve part and independently edited OAM attribute against its native map.</summary>
@@ -71,7 +74,7 @@ internal static class PauseReserveFramesVerification
             AssertEqual((ushort)1, ReadVerificationWord(rom, pointer), "native reserve part count");
             var x = new SnesSpritemapXWord(ReadVerificationWord(rom, pointer + 2));
             var attributes = new SnesObjAttributeWord(ReadVerificationWord(rom, pointer + 5));
-            var stockPart = PauseReserveTankStockPartDefinitions.StockPart((PauseReserveTankVisual)frame.Id);
+            var stockPart = PauseReserveTankStockPartDefinitions.StockPart(PauseReserveTankVisualWords.Ordinals.Decode(frame.Id, "reserve visual"));
             AssertEqual(x.SignedOffset, stockPart.OffsetX, "native reserve X offset");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(pointer + 4)), stockPart.OffsetY, "native reserve Y offset");
             AssertEqual(x.IsLarge ? 16 : 8, stockPart.Size, "native reserve sprite size");
@@ -93,7 +96,7 @@ internal static class PauseReserveFramesVerification
                 AssertEqual(1, edited.StoredFrameCount, "authored part difference remains compiled");
                 var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                 MenuSpriteCompiler.Compile([part], frame.Name).DrawOnScreen(expected, new(24, 95), 0x600);
-                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), (PauseReserveTankVisual)frame.Id, 0);
+                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), PauseReserveTankVisualWords.Ordinals.Decode(frame.Id, "reserve visual"), 0);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
                     "independent authored part field reaches OAM");
@@ -122,7 +125,7 @@ internal static class PauseReserveFramesVerification
             int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);
             DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
             SpriteSheet sheet = MenuSheetFixtures.PauseSprites(presentation);
-            presentation.Draw(actual, sheet, (PauseReserveTankVisual)frame.Id, index);
+            presentation.Draw(actual, sheet, PauseReserveTankVisualWords.Ordinals.Decode(frame.Id, "reserve visual"), index);
             expected.FinalizeFrame(); actual.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual),
                 "native reserve frame selection, OAM attributes, ordering and capacity");

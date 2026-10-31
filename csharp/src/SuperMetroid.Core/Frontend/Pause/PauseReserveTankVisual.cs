@@ -1,26 +1,26 @@
 namespace SuperMetroid.Core.Frontend.Pause;
 
-/// <summary>The ten bank-$82 menu spritemaps the reserve-tank strip draws, valued by their $82:C569 ordinal.</summary>
+/// <summary>The ten pictures the pause screen's reserve-tank strip draws.</summary>
 public enum PauseReserveTankVisual
 {
-    /// <summary>$82:B305 full-tank spritemap ID.</summary>
-    Full = 27,
-    /// <summary>$82:B396 final end-cap spritemap ID.</summary>
-    EndCap = 31,
-    /// <summary>$82:B37D empty-tank spritemap ID.</summary>
-    Empty = 32,
+    /// <summary>A full tank.</summary>
+    Full,
+    /// <summary>The strip's final end cap.</summary>
+    EndCap,
+    /// <summary>An empty tank.</summary>
+    Empty,
     /// <summary>Partial tank, one fill step.</summary>
-    Fill1 = 33,
+    Fill1,
     /// <summary>Partial tank, two fill steps.</summary>
-    Fill2 = 34,
+    Fill2,
     /// <summary>Partial tank, three fill steps.</summary>
-    Fill3 = 35,
+    Fill3,
     /// <summary>Partial tank, four fill steps.</summary>
-    Fill4 = 36,
+    Fill4,
     /// <summary>Partial tank, five fill steps.</summary>
-    Fill5 = 37,
+    Fill5,
     /// <summary>Partial tank, six fill steps.</summary>
-    Fill6 = 38,
+    Fill6,
     /// <summary>Partial tank, seven fill steps; drawn with the full-tank tile.</summary>
-    Fill7 = 39,
+    Fill7,
 }

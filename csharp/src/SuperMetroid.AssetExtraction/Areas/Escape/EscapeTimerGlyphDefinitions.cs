@@ -4,11 +4,11 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 internal static class EscapeTimerGlyphDefinitions
 {
     /// <summary>$B0:C000..C2BF: decimal/separator fill pen1. Narrow approved chosen-paint identity: geometry does not determine its palette-slot number; RGB colors remain independently REQUIRED.</summary>
-    internal const byte DigitFillPen = 1;
+    internal const int DigitFillPen = 1;
     /// <summary>$B0:C2C0..C31F: TIME fill pen2. Narrow approved chosen-paint identity, independently reviewed against native seed and OBJ palette5 routing; RGB colors remain independently REQUIRED.</summary>
-    internal const byte LabelFillPen = 2;
+    internal const int LabelFillPen = 2;
     /// <summary>$B0:C000..C31F: outline pen14. Narrow approved chosen-paint identity; outline width is reviewed original-font design; RGB colors remain independently REQUIRED.</summary>
-    internal const byte OutlinePen = 14;
+    internal const int OutlinePen = 14;
     /// <summary>Native timer glyphs have a one-pixel eight-neighbor outline; selected width remains reviewed original-font design.</summary>
     internal const int ChosenOutlineWidth = 1;
 

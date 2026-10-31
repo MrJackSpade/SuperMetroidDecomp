@@ -20,6 +20,10 @@ public sealed class ManagedSnesDsp
     public const int NativeStereoFramesPerVideoFrame = SoundClockTiming.SamplesPerUpdate;
     /// <summary>Number of independent hardware S-DSP voices.</summary>
     public const int VoiceCount = 8;
+    /// <summary>The register-file address of ENDX, whose bits each voice sets when its sample ends or loops.</summary>
+    private static readonly int endFlagsAddress = SnesDspRegisterLayout.AddressOf(DspGlobalRegister.EndFlags);
+    /// <summary>The register-file address of DIR, the page of the BRR sample directory.</summary>
+    private static readonly int sourceDirectoryAddress = SnesDspRegisterLayout.AddressOf(DspGlobalRegister.SourceDirectory);
 
     /// <summary>Shared 64-KiB audio RAM holding BRR directories and the echo ring.</summary>
     private readonly byte[] apuRam;
@@ -96,7 +100,7 @@ public sealed class ManagedSnesDsp
     public void Reset()
     {
         Array.Clear(registers);
-        registers[(byte)DspGlobalRegister.EndFlags] = byte.MaxValue;
+        registers[endFlagsAddress] = byte.MaxValue;
         foreach (Voice voice in voices)
             voice.Reset();
         mute = true;
@@ -504,7 +508,7 @@ public sealed class ManagedSnesDsp
                 voice.AdsrState = EnvelopeState.Release;
                 voice.Gain = 0;
             }
-            registers[(byte)DspGlobalRegister.EndFlags] |= unchecked((byte)(1 << voiceIndex));
+            registers[endFlagsAddress] |= unchecked((byte)(1 << voiceIndex));
         }
 
         ReadOnlySpan<short> source = sample.Samples.Span;
@@ -516,7 +520,7 @@ public sealed class ManagedSnesDsp
                 if (sample.LoopSampleIndex is int loop)
                 {
                     voice.SampleCursor = loop;
-                    registers[(byte)DspGlobalRegister.EndFlags] |=
+                    registers[endFlagsAddress] |=
                         unchecked((byte)(1 << voiceIndex));
                 }
                 else
@@ -535,7 +539,7 @@ public sealed class ManagedSnesDsp
     /// <summary>Reads a source's loop pointer from the live BRR directory in audio RAM.</summary>
     private ushort ReadLoopAddress(int source)
     {
-        int directory = LittleEndianBytes.Word(0, registers[(byte)DspGlobalRegister.SourceDirectory]) +
+        int directory = LittleEndianBytes.Word(0, registers[sourceDirectoryAddress]) +
             source * DspBrrLayout.DirectoryEntryBytes + DspBrrLayout.LoopPointerOffset;
         return SpcRamWords.Read(apuRam, directory);
     }
@@ -551,7 +555,7 @@ public sealed class ManagedSnesDsp
         if ((voice.PreviousFlags & DspBrrLayout.EndFlag) != 0)
         {
             cursor = ReadLoopAddress(voice.SourceNumber);
-            registers[(byte)DspGlobalRegister.EndFlags] |= unchecked((byte)(1 << index));
+            registers[endFlagsAddress] |= unchecked((byte)(1 << index));
         }
         voice.PreviousFlags = unchecked((byte)(apuRam[cursor] & DspBrrLayout.HeaderFlagsMask));
         voice.ReleasedBrrCursor = SpcDriverWrap.Word(cursor + DspBrrLayout.BlockBytes);

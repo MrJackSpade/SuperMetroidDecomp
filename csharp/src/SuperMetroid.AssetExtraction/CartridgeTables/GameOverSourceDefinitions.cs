@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -5,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the game-over screen's text streams, Baby records and sprite placement (#1416): the
 /// import pipeline's private knowledge of the cartridge, decoded once into the installed game-over presentation.
 /// </summary>
+[EncodingOwner("cartridge addresses of the game-over text streams, Baby records and sprites")]
 internal static class GameOverSourceDefinitions
 {
     /// <summary>Bank $81, holding the text streams whose bank-relative pointers the menu's initialization at $81:9206 loads.</summary>
@@ -15,6 +18,13 @@ internal static class GameOverSourceDefinitions
 
     /// <summary>The bytes between consecutive page rows in a text stream's destination: 32 two-byte tilemap entries.</summary>
     internal const int TextRowBytes = 32 * sizeof(ushort);
+
+    /// <summary>The words that control a text stream instead of naming a tilemap cell.</summary>
+    internal static IReadOnlyDictionary<int, GameOverTextControl> TextControls { get; } = new Dictionary<int, GameOverTextControl>
+    {
+        [0xffff] = GameOverTextControl.End,
+        [0xfffe] = GameOverTextControl.NextLine,
+    };
 
     /// <summary>The $FFFF word after the final Baby record that restarts the stream at its first record ($82:BC27).</summary>
     internal const ushort BabyAnimationEnd = 0xffff;

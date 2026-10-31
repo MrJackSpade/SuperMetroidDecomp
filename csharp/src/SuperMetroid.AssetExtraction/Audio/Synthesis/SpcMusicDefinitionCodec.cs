@@ -10,6 +10,44 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 [EncodingOwner("sound driver music track, phrase and channel program bytecode")]
 internal static class SpcMusicDefinitionCodec
 {
+    /// <summary>
+    /// The effects in opcode order: the driver's effect opcodes are consecutive bytes from
+    /// <see cref="SpcDriverDefinitions.Music.FirstEffect"/>, one per effect.
+    /// </summary>
+    private static readonly SpcMusicEffect[] effectsByOpcode =
+    [
+        SpcMusicEffect.SetInstrument, SpcMusicEffect.SetPan, SpcMusicEffect.FadePan, SpcMusicEffect.EnableVibrato,
+        SpcMusicEffect.DisableVibrato, SpcMusicEffect.SetMasterVolume, SpcMusicEffect.FadeMasterVolume, SpcMusicEffect.SetTempo,
+        SpcMusicEffect.FadeTempo, SpcMusicEffect.SetGlobalTransposition, SpcMusicEffect.SetChannelTransposition,
+        SpcMusicEffect.EnableTremolo, SpcMusicEffect.DisableTremolo, SpcMusicEffect.SetChannelVolume,
+        SpcMusicEffect.FadeChannelVolume, SpcMusicEffect.CallPattern, SpcMusicEffect.FadeVibrato, SpcMusicEffect.PitchEnvelopeTo,
+        SpcMusicEffect.PitchEnvelopeFrom, SpcMusicEffect.DisablePitchEnvelope, SpcMusicEffect.SetFineTune,
+        SpcMusicEffect.EnableEcho, SpcMusicEffect.DisableEcho, SpcMusicEffect.ConfigureEcho, SpcMusicEffect.FadeEchoVolume,
+        SpcMusicEffect.PitchSlide, SpcMusicEffect.SetPercussionBase, SpcMusicEffect.SkipByte, SpcMusicEffect.CutKey,
+        SpcMusicEffect.FastForwardForFrames, SpcMusicEffect.SetFastForward,
+    ];
+
+    /// <summary>The number of effect opcodes, which follow one another from the first.</summary>
+    internal static int EffectCount => effectsByOpcode.Length;
+
+    /// <summary>The effect <paramref name="opcode"/> selects; a byte outside the effect opcodes is invalid data.</summary>
+    internal static SpcMusicEffect DecodeEffect(int opcode)
+    {
+        int index = opcode - SpcDriverDefinitions.Music.FirstEffect;
+        if ((uint)index >= (uint)effectsByOpcode.Length)
+            throw new InvalidDataException($"${opcode:X2} is not an SPC music effect opcode.");
+        return effectsByOpcode[index];
+    }
+
+    /// <summary>The opcode byte of <paramref name="effect"/>.</summary>
+    internal static int EffectOpcode(SpcMusicEffect effect)
+    {
+        int index = Array.IndexOf(effectsByOpcode, effect);
+        if (index < 0)
+            throw new ArgumentOutOfRangeException(nameof(effect), effect, "Not an SPC music effect.");
+        return SpcDriverDefinitions.Music.FirstEffect + index;
+    }
+
     /// <summary>Walks selected track pointers and their referenced phrase and channel programs within uploaded APU RAM.</summary>
     internal static SpcMusicDefinitionBundle DecodeBank(
         int dataIndex,
@@ -131,9 +169,9 @@ internal static class SpcMusicDefinitionCodec
             if (instruction.Opcode >= SpcDriverDefinitions.Music.FirstEffect)
             {
                 int effectIndex = instruction.Opcode - SpcDriverDefinitions.Music.FirstEffect;
-                if ((uint)effectIndex >= SpcMusicTables.EffectCount ||
+                if ((uint)effectIndex >= EffectCount ||
                     instruction.Operation != AudioMusicInstructionOperations.ForEffect(
-                        (SpcMusicEffect)instruction.Opcode) ||
+                        DecodeEffect(instruction.Opcode)) ||
                     instruction.Arguments.Count != SpcMusicTables.EffectByteLength(effectIndex))
                     throw InvalidProgramInstruction(program, instruction);
                 bytes.Add(checked((byte)instruction.Opcode));
@@ -234,7 +272,7 @@ internal static class SpcMusicDefinitionCodec
                 {
                     MusicTrackControl.FastForwardOn => AudioMusicInstructionOperations.FastForwardOn,
                     MusicTrackControl.FastForwardOff => AudioMusicInstructionOperations.FastForwardOff,
-                    _ => throw new InvalidOperationException($"Undefined {nameof(MusicTrackControl)} {(int)control}."),
+                    _ => throw new InvalidOperationException($"Undefined {nameof(MusicTrackControl)} {control}."),
                 }, value, null));
             else
             {
@@ -320,13 +358,13 @@ internal static class SpcMusicDefinitionCodec
             if (command >= SpcDriverDefinitions.Music.FirstEffect)
             {
                 int effectIndex = command - SpcDriverDefinitions.Music.FirstEffect;
-                if ((uint)effectIndex >= SpcMusicTables.EffectCount)
+                if ((uint)effectIndex >= EffectCount)
                     throw new InvalidDataException($"Music program '{id}' uses unknown effect ${command:X2}.");
                 int argumentCount = SpcMusicTables.EffectByteLength(effectIndex);
                 byte[] arguments = new byte[argumentCount];
                 for (int index = 0; index < arguments.Length; index++)
                     arguments[index] = ReadByte(ram, written, ref cursor, id);
-                var effect = (SpcMusicEffect)command;
+                SpcMusicEffect effect = DecodeEffect(command);
                 instructions.Add(new(
                     AudioMusicInstructionOperations.ForEffect(effect),
                     command,

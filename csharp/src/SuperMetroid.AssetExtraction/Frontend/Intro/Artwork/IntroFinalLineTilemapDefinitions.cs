@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 internal static class IntroFinalLineTilemapDefinitions
 {
     /// <summary>The font tile of the Japanese narration layout's blank glyph.</summary>
-    internal const int JapaneseBlankGlyph = 0x029;
+    internal const int JapaneseBlankGlyph = 41;
 
     /// <summary>The colour variant the Japanese narration layout's blank cells show in.</summary>
     internal const int JapaneseBlankColourVariant = 7;

@@ -57,7 +57,8 @@ internal readonly struct SnesDspGlobalControls(ManagedSnesDsp dsp)
     private static byte SignedRegisterByte(int value) => unchecked((byte)checked((sbyte)value));
 
     /// <summary>Writes a typed global register at its exact DSP address; a value outside a register byte is a managed-driver defect.</summary>
-    private void Write(DspGlobalRegister register, int value) => dsp.WriteRegister((byte)register, checked((byte)value));
+    private void Write(DspGlobalRegister register, int value) =>
+        dsp.WriteRegister(checked((byte)SnesDspRegisterLayout.AddressOf(register)), checked((byte)value));
 
     /// <summary>Writes a voice-set register; the mask's bits are one register byte.</summary>
     private void Write(DspGlobalRegister register, DspVoiceMask voices) => Write(register, (byte)voices.Bits);

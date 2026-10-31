@@ -13,5 +13,5 @@ public static class GameOverPageDefinitions
     /// <summary>1024 row-major background tile cells in the complete 32-by-32 game-over page.</summary>
     public const int TilemapCellCount = TilemapWidth * TilemapHeight;
     /// <summary>The menu atlas cell of the blank glyph, shown by every page cell no text element writes.</summary>
-    public const ushort BlankTile = 15;
+    public const int BlankTile = 15;
 }

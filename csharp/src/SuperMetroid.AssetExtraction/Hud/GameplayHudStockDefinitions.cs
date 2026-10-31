@@ -13,13 +13,13 @@ internal static class GameplayHudStockDefinitions
     internal const int Version = 2;
 
     /// <summary>The canonical blank HUD tile used by native icon guards and MANUAL clearing: HUD glyph $0F in colour variant three, in the upper priority tier.</summary>
-    internal static BackgroundTile Blank { get; } = new(0x0f, 3, highPriority: true);
+    internal static BackgroundTile Blank { get; } = new(15, 3, highPriority: true);
 
     /// <summary>The filled energy-tank tile written by <c>$80:9BCF</c>.</summary>
-    internal static BackgroundTile FilledEnergyTank { get; } = new(0x31, 2, highPriority: true);
+    internal static BackgroundTile FilledEnergyTank { get; } = new(49, 2, highPriority: true);
 
     /// <summary>The empty energy-tank tile written by <c>$80:9BCF</c>.</summary>
-    internal static BackgroundTile EmptyEnergyTank { get; } = new(0x30, 5, highPriority: true);
+    internal static BackgroundTile EmptyEnergyTank { get; } = new(48, 5, highPriority: true);
 
     /// <summary>BG palette selector 4 used by $80:9BD3..9C20 to highlight the newly selected HUD item.</summary>
     internal const int SelectedPalette = 4;
@@ -28,16 +28,16 @@ internal static class GameplayHudStockDefinitions
     internal const int DeselectedPalette = 5;
 
     /// <summary>$8C: byte offset of the energy digits' anchor in the HUD tilemap.</summary>
-    internal const int HealthAnchorByteOffset = 0x8c;
+    internal const int HealthAnchorByteOffset = 140;
 
     /// <summary>$94: byte offset of the missile count's anchor in the HUD tilemap.</summary>
-    internal const int MissileAnchorByteOffset = 0x94;
+    internal const int MissileAnchorByteOffset = 148;
 
     /// <summary>$9C: byte offset of the super missile count's anchor in the HUD tilemap.</summary>
-    internal const int SuperMissileAnchorByteOffset = 0x9c;
+    internal const int SuperMissileAnchorByteOffset = 156;
 
     /// <summary>$A2: byte offset of the power bomb count's anchor in the HUD tilemap.</summary>
-    internal const int PowerBombAnchorByteOffset = 0xa2;
+    internal const int PowerBombAnchorByteOffset = 162;
 
     /// <summary>The minimap's upper-left cell: <c>$90:A91B</c> writes its five columns from word 26 of each of the three rows.</summary>
     internal static Position16<TilemapCells> MinimapAnchor { get; } = new(26, 0);

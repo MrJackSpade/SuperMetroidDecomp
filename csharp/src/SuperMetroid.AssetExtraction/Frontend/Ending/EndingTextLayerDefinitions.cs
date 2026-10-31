@@ -25,7 +25,7 @@ internal static class EndingTextLayerDefinitions
     internal const int LogoFirstCharacter = 0;
 
     /// <summary>The font's blank glyph, which every page clears to and which must show nothing.</summary>
-    internal const int BlankGlyphCharacter = 0x07f;
+    internal const int BlankGlyphCharacter = 127;
 
     /// <summary>The post-credits sheet's whole-screen pictures: the waiting backdrop and the logo.</summary>
     internal const int PostCreditsScreens = 2;

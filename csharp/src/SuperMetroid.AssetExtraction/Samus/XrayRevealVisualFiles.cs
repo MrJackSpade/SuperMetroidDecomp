@@ -17,6 +17,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Extracts the blocks the retail X-ray reveal table shows. Rule selection,
 /// copy shape, extensions, and area gating stay in the compiled collision dispatcher.
 /// </summary>
+[EncodingOwner("retail X-ray reveal table words")]
 public static class XrayRevealVisualFiles
 {
     /// <summary>Family-relative version-two stock/override JSON filename for reveal-rule operands, eight item metatiles, and special-room overlay records.</summary>

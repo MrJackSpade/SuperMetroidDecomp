@@ -1,8 +1,10 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Cartridge regions whose bank-local pointers room-PLM visual codecs resolve.</summary>
+[EncodingOwner("cartridge region of the bank-$84 PLM data")]
 internal static class RoomPlmSourceDefinitions
 {
     /// <summary>

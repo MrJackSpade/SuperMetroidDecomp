@@ -22,7 +22,7 @@ internal static class GrappleBeamTilePatterns
     /// <summary>$9A:8800: selected one-pixel Manhattan center spark, independent of collision.</summary>
     private const int InnerRadius = 1;
     /// <summary>$9A:8200-929F: reviewed electric-stroke coverage uses palette ink15; its color changes remain palette-owned.</summary>
-    private const byte Pen = 15;
+    private const int Pen = 15;
     /// <summary>$9A:8200/8400/8600/8800 endpoint frames centered at pixel(4,3): filled diamond, hollow-center diamond, tipped square outline, clipped diamond outline with inner spark.</summary>
     internal static byte[] Point(GrapplePointFrame frame)
     {

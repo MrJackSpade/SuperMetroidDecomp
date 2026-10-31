@@ -4,9 +4,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 internal static class CeresLargeAsteroidCellDefinitions
 {
     /// <summary>Tile$160,upper-left of the left asteroid atlas patch.</summary>
-    internal const int Left = 0x160;
+    internal const int Left = 352;
     /// <summary>Tile$169,upper-left of the right asteroid atlas patch.</summary>
-    internal const int Right = 0x169;
+    internal const int Right = 361;
     /// <summary>Tile$165,upper-left of the lower asteroid atlas patch.</summary>
-    internal const int Lower = 0x165;
+    internal const int Lower = 357;
 }

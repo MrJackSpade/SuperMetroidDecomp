@@ -53,8 +53,8 @@ public static class PauseReserveUiExtractor
                 Cells = arrowCells,
                 EnabledPalette = PauseReserveUiDefinitions.EnabledPalette,
                 DisabledPalette = PauseReserveUiDefinitions.DisabledPalette,
-                SolidColor6 = Rgb(PauseReserveUiDefinitions.SolidColor6),
-                SolidColor11 = Rgb(PauseReserveUiDefinitions.SolidColor11),
+                SolidColor6 = PauseReserveUiDefinitions.SolidColor6,
+                SolidColor11 = PauseReserveUiDefinitions.SolidColor11,
                 Frames = frames,
             },
         });

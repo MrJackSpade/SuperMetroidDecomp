@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -6,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// Where the cartridge stores Kraid's four head tilemaps, by mouth stage: extraction's own knowledge, which the game
 /// never reads.
 /// </summary>
+[EncodingOwner("cartridge addresses of Kraid's head tilemaps")]
 internal static class KraidHeadArtworkDefinitions
 {
     /// <summary>Where each head tilemap is stored, from the closed mouth to the fully open one.</summary>

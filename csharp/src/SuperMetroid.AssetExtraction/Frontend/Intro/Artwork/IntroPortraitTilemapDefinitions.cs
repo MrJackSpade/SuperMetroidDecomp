@@ -4,13 +4,13 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 internal static class IntroPortraitTilemapDefinitions
 {
     /// <summary>$97:88CC: selected portrait atlas block begins at $300; its sixteen-cell row stride comes from the source atlas.</summary>
-    internal const int AtlasOrigin = 0x300;
+    internal const int AtlasOrigin = 768;
     /// <summary>$97:88CC: the main sixteen-column portrait block starts at page column eight, centered in the 32-column BG page.</summary>
     internal const int AtlasSide = 16;
     /// <summary>$97:88CC: chosen portrait top row five.</summary>
     internal const int Top = 5;
     /// <summary>$97:88CC: chosen blank tile $3FE; RGB paint and tile pixels are separate.</summary>
-    internal const int BlankTile = 0x3fe;
+    internal const int BlankTile = 1022;
     /// <summary>The portrait's colour variant three, in the lower priority tier and unmirrored.</summary>
     internal const int Palette = 3;
 

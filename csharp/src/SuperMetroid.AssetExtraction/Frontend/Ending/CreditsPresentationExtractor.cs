@@ -14,6 +14,15 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 [EncodingOwner("cartridge credits instruction words")]
 public static class CreditsPresentationExtractor
 {
+    /// <summary>The bank-$8B instruction word naming each credits row command.</summary>
+    private static readonly Dictionary<int, CreditsInstruction> instructions = new()
+    {
+        [0x9a17] = CreditsInstruction.SetTimer,
+        [0x9a0d] = CreditsInstruction.DecrementTimerAndGoto,
+        [0xf6fe] = CreditsInstruction.EndCredits,
+        [0x99fe] = CreditsInstruction.Delete,
+    };
+
     /// <summary>Interprets the bounded native credits row program, verifies authored blank-row spacing and glyph coverage, and serializes editable UTF-8 line content.</summary>
     /// <param name="bus">Supported-cartridge address space containing the compressed credits tilemap and row instruction program.</param>
     /// <returns>UTF-8 JSON bytes for the versioned credits presentation document.</returns>
@@ -81,8 +90,7 @@ public static class CreditsPresentationExtractor
                 continue;
             }
 
-            var command = (CreditsInstruction)instruction;
-            if (!Enum.IsDefined(command))
+            if (!instructions.TryGetValue(instruction, out CreditsInstruction command))
             {
                 throw new InvalidDataException(
                     $"Native credits instruction $8B:{instruction:X4} at " +

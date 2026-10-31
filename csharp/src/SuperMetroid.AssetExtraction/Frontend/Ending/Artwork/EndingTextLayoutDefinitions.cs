@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 internal static class EndingTextLayoutDefinitions
 {
     /// <summary>$8C:DF6D starts the top row of アイテム発見パーセンテージ at ending-font tile$5B.</summary>
-    internal const int SubtitleFirstTopTile = 0x5b;
+    internal const int SubtitleFirstTopTile = 91;
     /// <summary>$8C:DF6D..DF85 has thirteen consecutive phrase glyphs, centered in the32-cell screen row.</summary>
     internal const int SubtitleGlyphCount = 13;
     /// <summary>$8C:DF77 continues the phrase at tile$80, after the two atlas rows containing copyright digits ($60..$79).</summary>

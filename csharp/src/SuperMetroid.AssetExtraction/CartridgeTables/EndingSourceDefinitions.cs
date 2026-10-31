@@ -1,8 +1,10 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Cartridge regions whose bank-local pointers ending codecs resolve.</summary>
+[EncodingOwner("cartridge regions and addresses of the ending's artwork, credits and palettes")]
 internal static class EndingSourceDefinitions
 {
     /// <summary>

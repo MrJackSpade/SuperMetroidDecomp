@@ -1,22 +1,25 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
-/// <summary>Resident SPC sound-effect bytecode identifiers used by authored channel programs.</summary>
+/// <summary>
+/// Resident SPC sound-effect bytecode instructions used by authored channel programs; <see cref="SpcSoundEffectProgramCodec"/>
+/// owns their opcode bytes.
+/// </summary>
 internal enum SpcSoundEffectOpcode
 {
-    /// <summary>`$F5`: enable a legato pitch slide before the following note packet.</summary>
-    PitchSlideLegato = 0xf5,
-    /// <summary>`$F8`: enable a retriggered pitch slide before the following note packet.</summary>
-    PitchSlide = 0xf8,
-    /// <summary>`$F9`: replace ADSR1/ADSR2; two following bytes retain native reserved data.</summary>
-    SetAdsr = 0xf9,
-    /// <summary>`$FB`: return to the current repeat point forever.</summary>
-    RepeatForever = 0xfb,
-    /// <summary>`$FC`: enable DSP noise for the borrowed voice.</summary>
-    EnableNoise = 0xfc,
-    /// <summary>`$FD`: counted repeat terminator.</summary>
-    EndRepeat = 0xfd,
-    /// <summary>`$FE`: establish a repeat count and repeat point.</summary>
-    BeginRepeat = 0xfe,
-    /// <summary>`$FF`: end the channel and release its borrowed voice.</summary>
-    End = byte.MaxValue,
+    /// <summary>Enable a legato pitch slide before the following note packet.</summary>
+    PitchSlideLegato,
+    /// <summary>Enable a retriggered pitch slide before the following note packet.</summary>
+    PitchSlide,
+    /// <summary>Replace ADSR1/ADSR2; two following bytes retain native reserved data.</summary>
+    SetAdsr,
+    /// <summary>Return to the current repeat point forever.</summary>
+    RepeatForever,
+    /// <summary>Enable DSP noise for the borrowed voice.</summary>
+    EnableNoise,
+    /// <summary>Counted repeat terminator.</summary>
+    EndRepeat,
+    /// <summary>Establish a repeat count and repeat point.</summary>
+    BeginRepeat,
+    /// <summary>End the channel and release its borrowed voice.</summary>
+    End,
 }

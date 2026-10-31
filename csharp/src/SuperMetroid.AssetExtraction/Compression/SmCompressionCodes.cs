@@ -1,6 +1,9 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Compression;
 
 /// <summary>Bit layout and bounds shared by every command in the cartridge format.</summary>
+[EncodingOwner("compressed asset command header bits")]
 public static class SmCompressionCodes
 {
     /// <summary><c>$FF</c>: ends a compressed stream; this value takes precedence over the long-header marker.</summary>
@@ -17,6 +20,8 @@ public static class SmCompressionCodes
     public const byte LongLengthHighMask = 0x03;
     /// <summary>Left shift of three moves a long header's command field from bits 2-4 into normalized bits 5-7.</summary>
     public const int LongCommandShift = 3;
+    /// <summary>Right shift of five moves the normalized command bits 5-7 down to the command number 0-7.</summary>
+    public const int CommandFieldShift = 5;
     /// <summary>Default decompression safety cap of 4 MiB, limiting expansion of malformed asset streams.</summary>
     public const int DefaultMaximumOutputBytes = 4 * 1024 * 1024;
 

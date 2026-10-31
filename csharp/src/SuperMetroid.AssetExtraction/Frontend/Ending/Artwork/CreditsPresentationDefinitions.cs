@@ -13,13 +13,13 @@ public static class CreditsPresentationDefinitions
     /// <summary>Number of BG tile cells in each compiled credit row; text placement must fit within columns zero through 31.</summary>
     public const int TilemapWidth = 32;
     /// <summary>The Font-3 blank tile, used for empty rows and spaces without applying a line's colour variant.</summary>
-    public static BackgroundTile BlankTile { get; } = new(0x07f, 0, highPriority: false);
+    public static BackgroundTile BlankTile { get; } = new(127, 0, highPriority: false);
     /// <summary>Font-3 tile used by the upper half of the credits ampersand.</summary>
-    public const int LargeAmpersandTop = 0x007b;
+    public const int LargeAmpersandTop = 123;
     /// <summary>Font-3 tile used by the lower half of the credits ampersand.</summary>
-    public const int LargeAmpersandBottom = 0x007c;
+    public const int LargeAmpersandBottom = 124;
     /// <summary>Font-3 tile used by the upper half of the credits period.</summary>
-    public const int LargePeriodTop = 0x007d;
+    public const int LargePeriodTop = 125;
     /// <summary>Font-3 tile used by the lower half of the credits period.</summary>
-    public const int LargePeriodBottom = 0x007e;
+    public const int LargePeriodBottom = 126;
 }

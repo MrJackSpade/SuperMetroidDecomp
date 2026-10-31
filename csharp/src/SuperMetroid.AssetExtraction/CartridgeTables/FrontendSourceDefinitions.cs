@@ -1,7 +1,9 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Where the cartridge stores the front-end tables the title and map extractors read.</summary>
+[EncodingOwner("cartridge addresses of the title and map front-end tables")]
 internal static class FrontendSourceDefinitions
 {
     /// <summary><c>$82:C80B</c>, bank-$82 save-point map-coordinate-list pointers per area.</summary>

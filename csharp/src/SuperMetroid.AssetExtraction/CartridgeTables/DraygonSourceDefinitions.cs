@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -5,6 +6,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the Draygon tables extraction reads (#1413): the import pipeline's private knowledge of the
 /// cartridge, decoded once into the installed Draygon colour document.
 /// </summary>
+[EncodingOwner("cartridge addresses of Draygon's colour tables")]
 internal static class DraygonSourceDefinitions
 {
     /// <summary>

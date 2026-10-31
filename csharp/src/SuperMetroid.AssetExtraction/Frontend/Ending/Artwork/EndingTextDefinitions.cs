@@ -19,25 +19,25 @@ public static class EndingTextDefinitions
     /// <summary>Height of the alternate-language subtitle in rows.</summary>
     public const int JapaneseSubtitleRows = 2;
     /// <summary>The blank tile of the small result panel.</summary>
-    public static BackgroundTile ResultBlankTile { get; } = new(0x04f, 0, highPriority: false);
+    public static BackgroundTile ResultBlankTile { get; } = new(79, 0, highPriority: false);
     /// <summary>The blank tile of large copyright glyphs, in colour variant zero and the lower priority tier.</summary>
-    public static BackgroundTile LargeBlankTile { get; } = new(0x07f, 0, highPriority: false);
+    public static BackgroundTile LargeBlankTile { get; } = new(127, 0, highPriority: false);
     /// <summary>The blank tile of installed large text, in the upper priority tier.</summary>
-    public static BackgroundTile InstalledLargeBlankTile { get; } = new(0x07f, 0, highPriority: true);
+    public static BackgroundTile InstalledLargeBlankTile { get; } = new(127, 0, highPriority: true);
     /// <summary>The blank tile of the item-percentage typewriter.</summary>
-    public static BackgroundTile PercentageBlankTile { get; } = new(0x07f, 0, highPriority: true);
+    public static BackgroundTile PercentageBlankTile { get; } = new(127, 0, highPriority: true);
     /// <summary>The colour variant of the item-percentage small alphabet, which is drawn in the upper priority tier.</summary>
     public const int PercentageLetterColourVariant = 7;
     /// <summary>Top-half tile index of copyright digit zero.</summary>
-    public const int CopyrightDigitTopBase = 0x0060;
+    public const int CopyrightDigitTopBase = 96;
     /// <summary>Base tile index of the small result alphabet.</summary>
-    public const int ResultLetterBase = 0x0000;
+    public const int ResultLetterBase = 0;
     /// <summary>Top-half tile index of the first large-letter group.</summary>
-    public const int LargeFirstGroupTopBase = 0x0020;
+    public const int LargeFirstGroupTopBase = 32;
     /// <summary>Top-half tile index of the second large-letter group.</summary>
-    public const int LargeSecondGroupTopBase = 0x0040;
+    public const int LargeSecondGroupTopBase = 64;
     /// <summary>Tile-index delta from a large glyph's top half to its bottom half.</summary>
-    public const int LargeBottomOffset = 0x0010;
+    public const int LargeBottomOffset = 16;
     /// <summary>Alphabet index of the first letter stored in the second large group.</summary>
     public const int LargeSecondGroupFirstLetter = 16;
 
@@ -68,7 +68,7 @@ public static class EndingTextDefinitions
         new(row, CenteredColumn(width), width, style);
 
     /// <summary>Height in tile cells of a small native glyph.</summary>
-        public const byte SmallGlyphHeight = 1;
+        public const int SmallGlyphHeight = 1;
     /// <summary>Height in tile cells of a large native glyph.</summary>
-        public const byte LargeGlyphHeight = 2;
+        public const int LargeGlyphHeight = 2;
 }

@@ -4,25 +4,25 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 internal static class EndingRewardSuitlessStandingCellDefinitions
 {
     /// <summary>Tile$193, small right cap of the arms-straight head.</summary>
-    internal const int HeadRightCap = 0x193;
+    internal const int HeadRightCap = 403;
     /// <summary>Tile$181, large top of the arms-straight head.</summary>
-    internal const int HeadTop = 0x181;
+    internal const int HeadTop = 385;
     /// <summary>Tile$12E, separately packed large right arm.</summary>
-    internal const int RightArm = 0x12e;
+    internal const int RightArm = 302;
     /// <summary>Tile$A4, small right knee edge.</summary>
-    internal const int RightKneeEdge = 0xa4;
+    internal const int RightKneeEdge = 164;
     /// <summary>Tile$10, small left upper-body edge.</summary>
-    internal const int LeftUpperEdge = 0x10;
+    internal const int LeftUpperEdge = 16;
     /// <summary>Tile$D0, small left foot tip.</summary>
-    internal const int LeftFootTip = 0xd0;
+    internal const int LeftFootTip = 208;
     /// <summary>Tile$33, large right upper-body piece.</summary>
-    internal const int RightUpperBody = 0x33;
+    internal const int RightUpperBody = 51;
     /// <summary>Tile$B4, small right shin edge.</summary>
-    internal const int RightShinEdge = 0xb4;
+    internal const int RightShinEdge = 180;
     /// <summary>Tile$D5, small right foot tip.</summary>
-    internal const int RightFootTip = 0xd5;
+    internal const int RightFootTip = 213;
     /// <summary>Tile$C3, large right foot.</summary>
-    internal const int RightFoot = 0xc3;
+    internal const int RightFoot = 195;
     /// <summary>Tile$23, large right shoulder piece.</summary>
-    internal const int RightShoulder = 0x23;
+    internal const int RightShoulder = 35;
 }

@@ -12,16 +12,16 @@ internal static class PauseReserveTankStockPartDefinitions
     /// through sheet tiles 47..4C, level 7 uses the full tile 4E, 4D is empty and 4F is the end cap.</summary>
     private static readonly IReadOnlyDictionary<PauseReserveTankVisual, int> StockTiles = new Dictionary<PauseReserveTankVisual, int>
     {
-        [PauseReserveTankVisual.Full] = 0x4e,
-        [PauseReserveTankVisual.EndCap] = 0x4f,
-        [PauseReserveTankVisual.Empty] = 0x4d,
-        [PauseReserveTankVisual.Fill1] = 0x47,
-        [PauseReserveTankVisual.Fill2] = 0x48,
-        [PauseReserveTankVisual.Fill3] = 0x49,
-        [PauseReserveTankVisual.Fill4] = 0x4a,
-        [PauseReserveTankVisual.Fill5] = 0x4b,
-        [PauseReserveTankVisual.Fill6] = 0x4c,
-        [PauseReserveTankVisual.Fill7] = 0x4e,
+        [PauseReserveTankVisual.Full] = 78,
+        [PauseReserveTankVisual.EndCap] = 79,
+        [PauseReserveTankVisual.Empty] = 77,
+        [PauseReserveTankVisual.Fill1] = 71,
+        [PauseReserveTankVisual.Fill2] = 72,
+        [PauseReserveTankVisual.Fill3] = 73,
+        [PauseReserveTankVisual.Fill4] = 74,
+        [PauseReserveTankVisual.Fill5] = 75,
+        [PauseReserveTankVisual.Fill6] = 76,
+        [PauseReserveTankVisual.Fill7] = 78,
     };
 
     /// <summary>The sheet tile drawn for a reserve-strip spritemap identity; palette is caller-owned.</summary>

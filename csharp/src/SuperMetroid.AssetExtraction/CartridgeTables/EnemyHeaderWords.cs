@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -8,6 +9,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// set record, a spawn and an enemy slot's identity hold, decoded once here. Each entry's comment is the header's label in
 /// the pinned disassembly; zero names the cleared slot.
 /// </summary>
+[EncodingOwner("bank-$A0 enemy header pointer words")]
 internal static class EnemyHeaderWords
 {
     /// <summary>The bank-$A0 pointer of each enemy definition's 64-byte header.</summary>

@@ -1,9 +1,12 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
 /// The resident SPC driver's sound effects, in command order: each library's effects are numbered from one, and an
 /// effect is its instruction stream and the voice-allocation policy its command handler applies.
 /// </summary>
+[EncodingOwner("audio RAM addresses of each sound library's voice-allocation state")]
 internal static class SpcSoundEffectDefinitions
 {
     /// <summary>The first library's effects, from command one.</summary>

@@ -21,7 +21,7 @@ internal static class GoldenTorizoStrideGeometryDefinitions
     /// <summary>The walking frames' body component, which carries the planted foot.</summary>
     internal const int BodyComponent = 2;
     /// <summary>$AA:8FD6-8FE4 and the other body poses: the first of the three 8px floor-strip tiles $160/$161/$162.</summary>
-    internal const int FirstFootTile = 0x160;
+    internal const int FirstFootTile = 352;
     /// <summary>The floor-strip tiles in one foot strip.</summary>
     internal const int FootTiles = 3;
     /// <summary>Width of one floor-strip tile.</summary>

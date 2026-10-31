@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
@@ -5,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// byte offsets into its 32-word rows, and the native spritemaps of its borders. Extraction places the cartridge's text
 /// patches by these offsets once; the installed presentation carries the resulting cells and anchors.
 /// </summary>
+[EncodingOwner("bank-$81 file-select tilemap offsets and border spritemaps")]
 internal static class FileSelectNativeLayout
 {
     /// <summary>Main file-select border spritemap.</summary>

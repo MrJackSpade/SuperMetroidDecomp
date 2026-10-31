@@ -1,8 +1,8 @@
-namespace SuperMetroid.AssetExtraction.Cartridge;
+namespace SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>
-/// Validated decoding, at import, of native words that select a member of a closed enum. Gameplay never decodes a native
-/// word into an identity; only cartridge import and the verification importers use this.
+/// Validated decoding of native words that select a member of a closed enum. Gameplay never decodes a native word into
+/// an identity; only the verification importers use this.
 /// </summary>
 internal static class ClosedEnumWords
 {

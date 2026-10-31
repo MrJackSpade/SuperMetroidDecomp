@@ -14,7 +14,7 @@ internal static class CeresWarningGlyphDefinitions
     /// <summary>Distinct Japanese characters in the native warning font order used to calculate tile selectors.</summary>
     internal const string JapaneseGlyphs = "自爆装置が、作動まただちに脱出して下さい";
     /// <summary>$A6:C4D9: the warning text's characters begin at character $182, where its Latin letters start.</summary>
-    internal const int WarningFirstCharacter = 0x182;
+    internal const int WarningFirstCharacter = 386;
     /// <summary>$A6:C164 selects the Latin atlas beginning with A at the warning's first character.</summary>
     internal const int LatinFirstTile = WarningFirstCharacter;
     /// <summary>$B7:DA00 source loaded at VRAM word $1820; Japanese upper/lower halves start at BG tiles $1A0/$1B0.</summary>

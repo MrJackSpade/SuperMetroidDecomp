@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Video;
 
@@ -6,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// (BG1SC=$51, BG2SC=$49, BG3SC=$5A, BG12NBA=$00, BG34NBA=$04, OBSEL=$03). Room, enemy and
 /// effect catalogs declare their own uses of these planes as aliases of the cells here.
 /// </summary>
+[EncodingOwner("gameplay VRAM allocations")]
 internal static class GameplayVramLayout
 {
     /// <summary>VMADD of <c>Bg1Tilemap</c>, for render packets and the PPU backend.</summary>

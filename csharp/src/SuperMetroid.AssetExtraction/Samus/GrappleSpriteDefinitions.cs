@@ -12,14 +12,14 @@ public static class GrappleSpriteDefinitions
     /// <summary>The rope's four timed frames, each a duration and one appearance.</summary>
     public const int SegmentFrameCount = 4;
     /// <summary>$94:B18D first OBJ tile: four consecutive rope-animation tiles $21-$24.</summary>
-    private const int FirstSegmentTile = 0x21;
+    private const int FirstSegmentTile = 33;
     /// <summary>$94:B18D-$B199 common OBJ palette five for rope segments.</summary>
     private const int SegmentPalette = 5;
     /// <summary>$94:B18D-$B199 common OBJ priority three for rope segments.</summary>
     private const int SegmentPriority = 3;
 
     /// <summary>$94:B13C/B17C, DrawGrappleBeamEnd: the endpoint is character $20 in palette five, priority three.</summary>
-    internal static SpritePart StockEndpoint { get; } = SpritePart.Single(0x20, SegmentPalette, SegmentPriority);
+    internal static SpritePart StockEndpoint { get; } = SpritePart.Single(32, SegmentPalette, SegmentPriority);
 
     /// <summary>The native rope appearance of a timed frame: characters $21-$24 with palette five and priority three.</summary>
     internal static SpritePart StockSegment(int frame) =>

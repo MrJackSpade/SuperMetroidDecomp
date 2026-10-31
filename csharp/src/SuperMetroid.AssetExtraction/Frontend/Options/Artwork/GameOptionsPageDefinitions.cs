@@ -25,23 +25,23 @@ public static class GameOptionsPageDefinitions
     public static Extent16<TilemapCells> ControllerLabelSize => new(ControllerLabelWidth, ControllerLabelHeight);
 
     /// <summary>$82:F665 ButtonTilemaps_A: upper-left A glyph; right half mirrors it.</summary>
-    internal const int AButtonTile = 0x90;
+    internal const int AButtonTile = 144;
     /// <summary>$82:F671 ButtonTilemaps_B: upper-left B glyph; right half is next in atlas.</summary>
-    internal const int BButtonTile = 0x91;
+    internal const int BButtonTile = 145;
     /// <summary>$82:F659 ButtonTilemaps_X: diagonal half; opposite half flips both axes.</summary>
-    internal const int XButtonTile = 0x93;
+    internal const int XButtonTile = 147;
     /// <summary>$82:F689 ButtonTilemaps_Y: upper-left Y glyph; right half mirrors it.</summary>
-    internal const int YButtonTile = 0x94;
+    internal const int YButtonTile = 148;
     /// <summary>$82:F67D ButtonTilemaps_Select: three consecutive tiles per atlas row.</summary>
-    internal const int SelectButtonTile = 0x95;
+    internal const int SelectButtonTile = 149;
     /// <summary>$82:F695/F6A1 ButtonTilemaps_L/R: common shoulder outline corner.</summary>
-    internal const int ShoulderCornerTile = 0x9a;
+    internal const int ShoulderCornerTile = 154;
     /// <summary>$82:F697 ButtonTilemaps_L: central L glyph; lower half follows one atlas row.</summary>
-    internal const int LeftShoulderTile = 0x9b;
+    internal const int LeftShoulderTile = 155;
     /// <summary>$82:F6A3 ButtonTilemaps_R: central R glyph; lower half follows one atlas row.</summary>
-    internal const int RightShoulderTile = 0x9c;
+    internal const int RightShoulderTile = 156;
     /// <summary>$82:F65D and sibling two-column labels pad the third column with tile $0F.</summary>
-    internal const int ButtonPaddingTile = 0x0f;
+    internal const int ButtonPaddingTile = 15;
     /// <summary>$82:F659-F6AC glyph upper/lower halves occupy adjacent 16-character atlas rows.</summary>
     internal const int ButtonAtlasRowStride = 16;
 

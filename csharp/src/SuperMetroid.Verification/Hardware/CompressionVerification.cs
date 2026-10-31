@@ -11,18 +11,21 @@ internal static class CompressionVerification
     /// <summary>Verifies header lengths, payload forms, copy semantics, and a mixed-command decode.</summary>
     internal static void VerifySmCompressionFormat()
     {
-        // All eight three-bit command codes are named members.
+        // All eight three-bit command codes select distinct named members.
         AssertEqual(8, Enum.GetValues<SmCompressionCommand>().Length, "compression command domain size");
+        AssertEqual(8, Enumerable.Range(0, 8).Select(SmCompressionHeader.CommandOfNumber).Distinct().Count(),
+            "compression command numbers select distinct commands");
+        static int CommandNumber(SmCompressionCommand command) =>
+            Enumerable.Range(0, 8).Single(number => SmCompressionHeader.CommandOfNumber(number) == command);
         for (int code = 0; code < 8; code++)
         {
-            var command = (SmCompressionCommand)(code << 5);
-            AssertTrue(Enum.IsDefined(command), $"command {code} is a named member");
+            SmCompressionCommand command = SmCompressionHeader.CommandOfNumber(code);
             // $E0-$FE are the expanded-header marker range and $FF terminates the stream,
             // so command seven has no short form at all.
             if (code != 7)
             {
                 byte shortHeader = unchecked((byte)(
-                    (byte)command | (SmCompressionCodes.MaximumShortLength - 1)));
+                    (code << SmCompressionCodes.CommandFieldShift) | (SmCompressionCodes.MaximumShortLength - 1)));
                 SmCompressionHeader shortDecoded = SmCompressionHeader.Decode(shortHeader);
                 AssertEqual(command, shortDecoded.Command, $"{command} short command field");
                 AssertEqual(SmCompressionCodes.MaximumShortLength, shortDecoded.Length,
@@ -33,7 +36,7 @@ internal static class CompressionVerification
             int encodedLength = longLength - 1;
             byte longHeader = unchecked((byte)(
                 SmCompressionCodes.LongHeaderMarker |
-                ((byte)command >> 5 << 2) |
+                (code << 2) |
                 LittleEndianBytes.HighByte(unchecked((ushort)encodedLength))));
             SmCompressionHeader longDecoded = SmCompressionHeader.Decode(
                 longHeader,
@@ -64,7 +67,7 @@ internal static class CompressionVerification
         })
         {
             SmCompressionHeader header = SmCompressionHeader.Decode(
-                unchecked((byte)(SmCompressionCodes.LongHeaderMarker | ((byte)command >> 5 << 2))), 32);
+                unchecked((byte)(SmCompressionCodes.LongHeaderMarker | (CommandNumber(command) << 2))), 32);
             AssertEqual(command, header.Command, $"{command} long header");
             AssertEqual(payload, header.PayloadByteCount, $"{command} payload bytes");
             if (copy)

@@ -16,11 +16,11 @@ internal static class IntroInitialNarrationTilemapDefinitions
     /// <summary>$95:D089 font: 16 tiles per atlas row; two vertically stacked tiles per uppercase glyph.</summary>
     internal const int GlyphRows = 2;
     /// <summary>$97:8D12: blank tile $2F, in colour variant zero; letter tiles use colour variant four, without priority or reflection.</summary>
-    internal static BackgroundTile Blank => new(0x02f, 0, highPriority: false);
+    internal static BackgroundTile Blank => new(47, 0, highPriority: false);
     /// <summary>$97:8D12: selected BG3 colour variant four, with no priority or mirroring.</summary>
     internal const int LetterPalette = 4;
     /// <summary>$95:D089: uppercase A begins at tile $30, with the second alphabet block following both halves of A-P.</summary>
-    internal const int FirstLetterTile = 0x30;
+    internal const int FirstLetterTile = 48;
     /// <summary>$95:D089: period tile $26 occupies only the lower glyph row.</summary>
-    internal const int PeriodTile = 0x26;
+    internal const int PeriodTile = 38;
 }

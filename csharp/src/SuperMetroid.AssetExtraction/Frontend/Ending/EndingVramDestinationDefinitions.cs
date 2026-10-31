@@ -1,6 +1,9 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>The VRAM words the ending's post-shot uploads land at, from its upload records at <c>$8B:E45A</c>.</summary>
+[EncodingOwner("VRAM words of the ending's post-shot uploads")]
 internal static class EndingVramDestinationDefinitions
 {
     /// <summary>The subtitle's VRAM word, from the first record.</summary>

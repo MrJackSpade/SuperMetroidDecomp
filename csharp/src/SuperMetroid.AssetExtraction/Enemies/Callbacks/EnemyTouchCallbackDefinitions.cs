@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Callbacks;
 
@@ -6,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Callbacks;
 /// Literal no-op touch callback identities found in the complete retail enemy-header and
 /// extended-hitbox inventory. These are callback identities, not generic opcode probes.
 /// </summary>
+[EncodingOwner("cartridge addresses of the enemy touch callbacks")]
 internal static class EnemyTouchCallbackDefinitions
 {
     /// <summary>$A2:804C, bank-A2's common RTL callback.</summary>

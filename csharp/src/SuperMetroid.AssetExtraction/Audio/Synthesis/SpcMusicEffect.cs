@@ -1,68 +1,68 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
-/// <summary>Opcodes in Super Metroid's SPC music-pattern bytecode.</summary>
+/// <summary>The effects of Super Metroid's SPC music-pattern bytecode; <see cref="SpcMusicDefinitionCodec"/> owns their opcode bytes.</summary>
 internal enum SpcMusicEffect
 {
     /// <summary>Selects the channel's instrument sample and envelope by driver instrument index.</summary>
-    SetInstrument = 0xe0,
+    SetInstrument,
     /// <summary>Sets the channel's five-bit pan position and its encoded pan flags immediately.</summary>
-    SetPan = 0xe1,
+    SetPan,
     /// <summary>Moves channel pan toward a following target over the supplied number of ticks.</summary>
-    FadePan = 0xe2,
+    FadePan,
     /// <summary>Starts vibrato after a delay using the following rate and depth bytes.</summary>
-    EnableVibrato = 0xe3,
+    EnableVibrato,
     /// <summary>Clears active and target vibrato depth and cancels its fade.</summary>
-    DisableVibrato = 0xe4,
+    DisableVibrato,
     /// <summary>Replaces the shared music master volume immediately.</summary>
-    SetMasterVolume = 0xe5,
+    SetMasterVolume,
     /// <summary>Fades shared master volume toward a following target byte over the supplied ticks.</summary>
-    FadeMasterVolume = 0xe6,
+    FadeMasterVolume,
     /// <summary>Replaces the shared music tempo immediately.</summary>
-    SetTempo = 0xe7,
+    SetTempo,
     /// <summary>Fades shared tempo toward a following target byte over the supplied ticks.</summary>
-    FadeTempo = 0xe8,
+    FadeTempo,
     /// <summary>Offsets pitches for every channel in the current music sequence.</summary>
-    SetGlobalTransposition = 0xe9,
+    SetGlobalTransposition,
     /// <summary>Offsets pitches for only the channel reading this pattern.</summary>
-    SetChannelTransposition = 0xea,
+    SetChannelTransposition,
     /// <summary>Starts tremolo after a delay using the following rate and depth bytes.</summary>
-    EnableTremolo = 0xeb,
+    EnableTremolo,
     /// <summary>Stops volume modulation by clearing the channel's tremolo depth.</summary>
-    DisableTremolo = 0xec,
+    DisableTremolo,
     /// <summary>Replaces this channel's volume immediately.</summary>
-    SetChannelVolume = 0xed,
+    SetChannelVolume,
     /// <summary>Fades this channel's volume toward a following target byte over the supplied ticks.</summary>
-    FadeChannelVolume = 0xee,
+    FadeChannelVolume,
     /// <summary>Jumps to a pattern pointer for the following repeat count, saving the return cursor.</summary>
-    CallPattern = 0xef,
+    CallPattern,
     /// <summary>Reduces the current vibrato depth over the supplied number of ticks.</summary>
-    FadeVibrato = 0xf0,
+    FadeVibrato,
     /// <summary>Slides each note's pitch toward its envelope target after a delay.</summary>
-    PitchEnvelopeTo = 0xf1,
+    PitchEnvelopeTo,
     /// <summary>Slides each note's pitch from its envelope offset after a delay.</summary>
-    PitchEnvelopeFrom = 0xf2,
+    PitchEnvelopeFrom,
     /// <summary>Stops the channel's pitch-envelope progression.</summary>
-    DisablePitchEnvelope = 0xf3,
+    DisablePitchEnvelope,
     /// <summary>Sets the channel's fine pitch adjustment without transposing note identities.</summary>
-    SetFineTune = 0xf4,
+    SetFineTune,
     /// <summary>Enables echo writes and sets the initial left and right echo levels.</summary>
-    EnableEcho = 0xf5,
+    EnableEcho,
     /// <summary>Mutes both echo levels and disables writes to the echo buffer.</summary>
-    DisableEcho = 0xf6,
+    DisableEcho,
     /// <summary>Sets echo delay, feedback, and eight FIR coefficients from the uploaded driver byte space.</summary>
-    ConfigureEcho = 0xf7,
+    ConfigureEcho,
     /// <summary>Fades left and right echo levels toward separate targets over the supplied ticks.</summary>
-    FadeEchoVolume = 0xf8,
+    FadeEchoVolume,
     /// <summary>Schedules a delayed note slide using the following duration and transposed target pitch.</summary>
-    PitchSlide = 0xf9,
+    PitchSlide,
     /// <summary>Changes the base instrument identity used for subsequent percussion notes.</summary>
-    SetPercussionBase = 0xfa,
+    SetPercussionBase,
     /// <summary>Advances past an additional pattern byte without changing playback state.</summary>
-    SkipByte = 0xfb,
+    SkipByte,
     /// <summary>Schedules a channel key cut after the encoded delay.</summary>
-    CutKey = 0xfc,
+    CutKey,
     /// <summary>Fast-forwards for the encoded frame count plus one and keys off inactive channels.</summary>
-    FastForwardForFrames = 0xfd,
+    FastForwardForFrames,
     /// <summary>Sets the fast-forward count directly and keys off inactive channels.</summary>
-    SetFastForward = 0xfe,
+    SetFastForward,
 }

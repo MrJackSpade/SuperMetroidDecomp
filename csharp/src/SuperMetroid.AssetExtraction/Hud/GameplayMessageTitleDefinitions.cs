@@ -11,14 +11,14 @@ public static class GameplayMessageTitleDefinitions
     /// <summary>Supported gameplay-message title document schema revision.</summary>
     public const int Version = 2;
     /// <summary>Native tile character index of A; B through Z follow contiguously.</summary>
-    public const int FirstLetterTile = 0x0e0;
+    public const int FirstLetterTile = 224;
     /// <summary>The tile that draws each punctuation character a title spells: a space, a hyphen, a period and a question mark.</summary>
     public static FrozenDictionary<char, int> PunctuationTiles { get; } = new Dictionary<char, int>
     {
-        [' '] = 0x04e,
-        ['-'] = 0x0cf,
-        ['.'] = 0x0fa,
-        ['?'] = 0x0fe,
+        [' '] = 78,
+        ['-'] = 207,
+        ['.'] = 250,
+        ['?'] = 254,
     }.ToFrozenDictionary();
     /// <summary>Letters in the contiguous A-Z tile range.</summary>
     public const int LetterCount = 26;
@@ -34,7 +34,7 @@ public static class GameplayMessageTitleDefinitions
     /// <summary>Total cells in the three-row, 32-column message.</summary>
     public const int TilemapWords = GameplayMessageBoxDefinitions.Layout.TilemapWidth * 3;
     /// <summary>The transparent tile shown outside the visible title region.</summary>
-    public static BackgroundTile TransparentTile { get; } = new(0x00e, 0, highPriority: false);
+    public static BackgroundTile TransparentTile { get; } = new(14, 0, highPriority: false);
 
     /// <summary>Fifteen item and status messages with a centered one-row title that the artwork document may replace.</summary>
     internal static readonly GameplayMessageId[] SupportedMessageIds =

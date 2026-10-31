@@ -10,14 +10,14 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 internal static class EscapeTypewriterTileDefinitions
 {
     /// <summary>The tile of the letter A Ceres's warning typewriter types from.</summary>
-    internal static BackgroundTile CeresTileBase { get; } = new(0x182, 5, highPriority: true);
+    internal static BackgroundTile CeresTileBase { get; } = new(386, 5, highPriority: true);
 
     /// <summary>The tile of the letter A the Zebes warning typewriter types from.</summary>
-    internal static BackgroundTile ZebesTileBase { get; } = new(0x210, 1, highPriority: true);
+    internal static BackgroundTile ZebesTileBase { get; } = new(528, 1, highPriority: true);
 
     /// <summary>The letter the tile base draws; later letters draw the characters after it, in alphabet order.</summary>
-    internal const byte FirstLetter = (byte)'A';
+    internal const int FirstLetter = 'A';
 
     /// <summary>The character the exclamation mark is typed as: the glyph after Z.</summary>
-    internal const byte ExclamationGlyph = (byte)'Z' + 1;
+    internal const int ExclamationGlyph = 'Z' + 1;
 }

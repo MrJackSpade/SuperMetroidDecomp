@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -8,6 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The work RAM and VRAM a library-background command list reads and writes as bank $82's interpreter runs it, which
 /// extraction's replay of the list reproduces (#1406).
 /// </summary>
+[EncodingOwner("work RAM and VRAM staging layout of the library-background command lists")]
 internal static class LibraryBackgroundStagingDefinitions
 {
     /// <summary><c>$7E:4000</c>: the tilemap staging decompression and fills write, and transfers read.</summary>

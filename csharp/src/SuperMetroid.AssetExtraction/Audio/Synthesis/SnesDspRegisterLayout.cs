@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
@@ -5,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// These values describe the chip's public register layout; mixer code should name the
 /// register it is handling instead of scattering raw addresses through control flow.
 /// </summary>
+[EncodingOwner("S-DSP register file addresses and field masks")]
 internal static class SnesDspRegisterLayout
 {
     /// <summary>The S-DSP exposes 128 byte-addressed registers.</summary>
@@ -39,9 +42,36 @@ internal static class SnesDspRegisterLayout
     /// <summary>FIR coefficient C0; coefficient i is at this offset in voice block i.</summary>
     internal const byte FirstFirCoefficient = 0x0f;
 
+    /// <summary>Each named global register's address in the register file.</summary>
+    private static readonly Dictionary<DspGlobalRegister, int> globalRegisterAddresses = new()
+    {
+        [DspGlobalRegister.MasterVolumeLeft] = 0x0c,
+        [DspGlobalRegister.MasterVolumeRight] = 0x1c,
+        [DspGlobalRegister.EchoVolumeLeft] = 0x2c,
+        [DspGlobalRegister.EchoVolumeRight] = 0x3c,
+        [DspGlobalRegister.KeyOn] = 0x4c,
+        [DspGlobalRegister.KeyOff] = 0x5c,
+        [DspGlobalRegister.Flags] = 0x6c,
+        [DspGlobalRegister.EndFlags] = 0x7c,
+        [DspGlobalRegister.EchoFeedback] = 0x0d,
+        [DspGlobalRegister.PitchModulation] = 0x2d,
+        [DspGlobalRegister.NoiseEnable] = 0x3d,
+        [DspGlobalRegister.EchoEnable] = 0x4d,
+        [DspGlobalRegister.SourceDirectory] = 0x5d,
+        [DspGlobalRegister.EchoBufferAddress] = 0x6d,
+        [DspGlobalRegister.EchoDelay] = 0x7d,
+    };
+
+    /// <summary>Each address that selects a named global register, by address.</summary>
+    private static readonly Dictionary<int, DspGlobalRegister> globalRegistersByAddress =
+        globalRegisterAddresses.ToDictionary(pair => pair.Value, pair => pair.Key);
+
+    /// <summary>The register-file address of <paramref name="register"/>.</summary>
+    internal static int AddressOf(DspGlobalRegister register) => globalRegisterAddresses[register];
+
     /// <summary>The named global register an address selects, or null for FIR coefficients and unused addresses.</summary>
     internal static DspGlobalRegister? GlobalRegisterAt(int address) =>
-        (uint)address <= byte.MaxValue && Enum.IsDefined((DspGlobalRegister)address) ? (DspGlobalRegister)address : null;
+        globalRegistersByAddress.TryGetValue(address, out DspGlobalRegister register) ? register : null;
 
     /// <summary>Bit masks and shifts for pitch, envelopes, gain, DSP flags, and echo delay.</summary>
     internal static class Fields

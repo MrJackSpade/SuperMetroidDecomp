@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
@@ -8,6 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// Torizo's sand falls. Only the extraction reads it, to rot the staged characters and picture each rot step.
 /// </summary>
 /// <remarks>No tile pixels or cartridge byte decoder are stored here.</remarks>
+[EncodingOwner("bank-$A9 corpse work-memory and staging layout")]
 internal static class CorpseStagingGeometryDefinitions
 {
     /// <summary>

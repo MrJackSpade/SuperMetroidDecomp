@@ -131,7 +131,7 @@ internal sealed class CeresRidleyGetaway
             // special push/fall handler remains responsible for restoring normal input;
             // ending Mode 7 itself does not unlock her in the cartridge.
             state.Function = RidleyAiFunction.CeresActivateSelfDestruct;
-            state.FunctionTimer = WrappingCountdown.Start(0);
+            state.CeresSelfDestructPhase = CeresSelfDestructPhase.Start;
             return;
         }
 
@@ -217,17 +217,16 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Ports the shared Ridley function at $A6:C04E for the Ceres branch. The phase word
-    /// is the actor's native variable F: even values select the exact C062/C08E/C09F/C0BB/
-    /// C0F5/C104/C117 entries. English skips only the language-specific phase eight and
-    /// enters phase ten to type the cartridge's three-line English warning. Japanese enters
-    /// phase eight first, installs its subtitle tilemap, and then uses the same typewriter.
+    /// Ports the shared Ridley function at $A6:C04E for the Ceres branch: the warning runs through its phases
+    /// (<see cref="CeresSelfDestructPhase"/>, the C062/C08E/C09F/C0BB/C0F5/C104/C117 entries) in order. English skips
+    /// only the Japanese subtitle phase and types the cartridge's three-line English warning. Japanese runs the
+    /// subtitle phase first, installs its subtitle tilemap, and then uses the same typewriter.
     /// </summary>
     internal void TickCeresRidleySelfDestruct(RidleyEnemyState state)
     {
-        switch (state.FunctionTimer.RawValue)
+        switch (state.CeresSelfDestructPhase)
         {
-            case 0:
+            case CeresSelfDestructPhase.Start:
                 // $A6:C062 copies four already-live colors before the warning graphics
                 // replace their tiles. These are palette indices, not byte offsets.
                 CopyCeresWarningColors(_presentation.BackgroundSets.Set(RidleyColourDefinitions.CeresWarningFirstSource),
@@ -235,19 +234,19 @@ internal sealed class CeresRidleyGetaway
                 CopyCeresWarningColors(_presentation.BackgroundSets.Set(RidleyColourDefinitions.CeresWarningSecondSource),
                     _presentation.BackgroundSets.Set(RidleyColourDefinitions.CeresWarningSecondDestination));
                 state.CeresEscapePages = CeresEscapePageCursor.Objects;
-                state.FunctionTimer = WrappingCountdown.Start(2);
-                goto case 2;
+                state.CeresSelfDestructPhase = CeresSelfDestructPhase.ShowingObjectPages;
+                goto case CeresSelfDestructPhase.ShowingObjectPages;
 
-            case 2:
+            case CeresSelfDestructPhase.ShowingObjectPages:
                 if (ShowNextCeresEscapePage(state))
                 {
                     state.CeresEscapePages = CeresEscapePageCursor.Backgrounds;
-                    state.FunctionTimer = WrappingCountdown.Start(4);
-                    goto case 4;
+                    state.CeresSelfDestructPhase = CeresSelfDestructPhase.ShowingBackgroundPages;
+                    goto case CeresSelfDestructPhase.ShowingBackgroundPages;
                 }
                 return;
 
-            case 4:
+            case CeresSelfDestructPhase.ShowingBackgroundPages:
                 if (ShowNextCeresEscapePage(state))
                 {
                     // `$A6:C0AA` calls DrawEmergencyText immediately after the final
@@ -259,12 +258,12 @@ internal sealed class CeresRidleyGetaway
                     // static warning tilemap page. The frontend consumes this typed request
                     // through the same bank-$80 queue used by every other music producer.
                     _audio.RequestRidleyMusic(MusicRequest.SelectTrack(7));
-                    state.FunctionTimer = WrappingCountdown.Start(6);
+                    state.CeresSelfDestructPhase = CeresSelfDestructPhase.HoldingTitle;
                     state.CeresEscapeTextDelayTimer = WrappingCountdown.Start(128);
                 }
                 return;
 
-            case 6:
+            case CeresSelfDestructPhase.HoldingTitle:
                 UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
                 CountdownStep delay = state.CeresEscapeTextDelayTimer.Decrement();
                 state.CeresEscapeTextDelayTimer = delay.Remaining;
@@ -275,38 +274,42 @@ internal sealed class CeresRidleyGetaway
                     ? new(presentation.Get(EscapeTypewriterProgramId.Ceres))
                     : null;
 
-                // `$A6:C0E3-$A6:C0F1` advances the even-byte dispatch index twice for
-                // English before executing the common final increment: 6 -> 8 -> 10.
-                // Japanese skips the first increment and reaches phase 8. The previous
-                // translation incorrectly counted the two INC instructions as four phase
-                // entries and jumped English directly to phase 12, suppressing every
-                // character below "EMERGENCY".
-                state.FunctionTimer = WrappingCountdown.FromRaw(_roomStatus.JapaneseText ? (ushort)8 : (ushort)10);
+                // `$A6:C0E3-$A6:C0F1`: English goes straight to typing the warning; Japanese
+                // first runs the subtitle phase. An earlier translation skipped the typing
+                // phase for English, suppressing every character below "EMERGENCY".
+                state.CeresSelfDestructPhase = _roomStatus.JapaneseText
+                    ? CeresSelfDestructPhase.JapaneseSubtitle
+                    : CeresSelfDestructPhase.TypingWarning;
                 return;
 
-            case 8:
+            case CeresSelfDestructPhase.JapaneseSubtitle:
                 UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
                 CountdownStep japaneseDelay = state.CeresEscapeTextDelayTimer.Decrement();
                 state.CeresEscapeTextDelayTimer = japaneseDelay.Remaining;
                 if (japaneseDelay.IsZero)
                 {
-                    state.FunctionTimer = WrappingCountdown.Start(10);
+                    state.CeresSelfDestructPhase = CeresSelfDestructPhase.TypingWarning;
                     DrawCeresJapaneseOverlay();
                 }
+                // The typewriter finishing moves the warning one phase on from wherever the delay left it: the
+                // subtitle phase to typing, or typing to finishing.
                 if (StepCeresEscapeTypewriter(state))
-                    state.FunctionTimer = state.FunctionTimer.AddFrames(2);
+                {
+                    state.CeresSelfDestructPhase = state.CeresSelfDestructPhase == CeresSelfDestructPhase.JapaneseSubtitle
+                        ? CeresSelfDestructPhase.TypingWarning
+                        : CeresSelfDestructPhase.Finishing;
+                }
                 return;
 
-            case 10:
+            case CeresSelfDestructPhase.TypingWarning:
                 UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
                 if (StepCeresEscapeTypewriter(state))
-                    state.FunctionTimer = WrappingCountdown.Start(12);
+                    state.CeresSelfDestructPhase = CeresSelfDestructPhase.Finishing;
                 return;
 
-            case 12:
+            case CeresSelfDestructPhase.Finishing:
                 UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
                 state.Velocity = new EightEightVector<RoomPixels>(0, 0);
-                state.FunctionTimer = WrappingCountdown.Start(0);
                 state.Function = RidleyAiFunction.CeresSelfDestructPaletteOnly;
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
                 // $A6:C131 sets the area-boss bit inside Ridley's AI, so later slots (the
@@ -316,8 +319,7 @@ internal sealed class CeresRidleyGetaway
                 return;
 
             default:
-                throw new InvalidDataException(
-                    $"Ceres self-destruct phase ${state.FunctionTimer.RawValue:X4} is not a native even dispatcher value.");
+                throw new InvalidOperationException($"Undefined {nameof(CeresSelfDestructPhase)} {state.CeresSelfDestructPhase}.");
         }
     }
 

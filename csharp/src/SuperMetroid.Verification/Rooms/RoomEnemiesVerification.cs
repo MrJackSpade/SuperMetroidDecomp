@@ -1230,7 +1230,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         bool finalSprite = record == spriteTransfers.Count - 1;
         AssertEqual(pagesBefore + record + 1, shownPages.Uploads.Count,
             "Ceres sprite pages show one per frame");
-        AssertEqual(finalSprite ? 4 : 2, state.FunctionTimer.RawValue, "Ceres sprite/background phase handoff");
+        AssertEqual(finalSprite ? CeresSelfDestructPhase.ShowingBackgroundPages : CeresSelfDestructPhase.ShowingObjectPages, state.CeresSelfDestructPhase, "Ceres sprite/background phase handoff");
     }
     for (int record = 1; record < backgroundTransfers.Count; record++)
     {
@@ -1239,7 +1239,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(pagesBefore + spriteTransfers.Count, shownPages.Uploads.Count, "Ceres background pages show nothing over the OBJ characters");
         AssertEqual(finalBackground, !ceresOverlay.Pictures.IsEmpty,
             "Ceres writes EMERGENCY over BG1 on the final background frame");
-        AssertEqual(finalBackground ? 6 : 4, state.FunctionTimer.RawValue, "Ceres background/hold phase handoff");
+        AssertEqual(finalBackground ? CeresSelfDestructPhase.HoldingTitle : CeresSelfDestructPhase.ShowingBackgroundPages, state.CeresSelfDestructPhase, "Ceres background/hold phase handoff");
     }
     for (int index = 0; index < spriteTransfers.Count; index++)
     {
@@ -1270,8 +1270,8 @@ internal static void VerifyCeresRidleyRoomEntry()
             ceresWords[0x50cb - 0x5000 + word], $"Ceres EMERGENCY word {word} is shown at BG1 row six");
     AssertEqual(emergency.WordCount, ceresWords.Count(word => word != RoomWrittenOverlay.Unwritten),
         "Ceres EMERGENCY writes only its own words over BG1");
-    AssertEqual(6, state.FunctionTimer.RawValue,
-        "Ceres self-destruct reaches the native 128-frame English hold");
+    AssertEqual(CeresSelfDestructPhase.HoldingTitle, state.CeresSelfDestructPhase,
+        "Ceres self-destruct reaches the 128-frame English title hold");
     AssertEqual(128, state.CeresEscapeTextDelayTimer.RawValue,
         "Ceres English warning hold starts at 128");
 
@@ -1284,8 +1284,8 @@ internal static void VerifyCeresRidleyRoomEntry()
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     AssertTrue(!enemies.LastEnemyFrame.CeresEscapeStarted,
         "Ceres escape does not skip the English warning after its 128-frame title hold");
-    AssertEqual(10, state.FunctionTimer.RawValue,
-        "Ceres English warning enters the native typewriter phase");
+    AssertEqual(CeresSelfDestructPhase.TypingWarning, state.CeresSelfDestructPhase,
+        "Ceres English warning enters the typewriter phase");
 
     int typewriterFrames = 0;
     while (!enemies.LastEnemyFrame.CeresEscapeStarted && typewriterFrames < 512)
@@ -1319,7 +1319,7 @@ internal static void VerifyCeresRidleyRoomEntry()
 
 /// <summary>
 /// Installs the exact USA/Japan-English typewriter program from <c>$A6:C450</c>. Keeping
-/// all three destination commands in the fixture catches the former phase-six-to-twelve
+/// all three destination commands in the fixture catches the former title-hold-to-finish
 /// jump, which rendered only EMERGENCY and never touched any of these tilemap rows.
 /// </summary>
 static void WriteCeresEnglishEscapeWarning(TestAddressSpace bus)

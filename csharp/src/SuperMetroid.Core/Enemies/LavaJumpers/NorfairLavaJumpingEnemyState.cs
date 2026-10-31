@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 public sealed class NorfairLavaJumpingEnemyState
 {
     /// <summary>
-    /// Family-extra variable $00. Instruction $BE8E sets this handshake after the
+    /// Family-extra variable zero. The flip animation's cue sets this handshake after the
     /// jump animation reaches the frame where main AI may begin the final falling phase.
     /// </summary>
     public bool AnimationFinished { get; internal set; }

@@ -3,11 +3,11 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// <summary>Compiled fixed behavior definitions for ordinary Metroids.</summary>
 internal static class MetroidBehaviorDefinitions
 {
-    /// <summary>Library-two cry $50, selected by random slots0/3/$EADC.</summary>
+    /// <summary>Library-two cry 80, selected by random slots 0 and 3.</summary>
     private static readonly SoundEffectId FirstCry = Library2Sound.MetroidDrain;
-    /// <summary>Library-two cry $58, selected by random slots1/4/6/$EADE/$EAE2.</summary>
+    /// <summary>Library-two cry 88, selected by random slots 1, 4 and 6.</summary>
     private static readonly SoundEffectId SecondCry = Library2Sound.ShotMochtroid;
-    /// <summary>Library-two cry $5A, selected by random slots2/5/7/$EAE0/$EAE4.</summary>
+    /// <summary>Library-two cry 90, selected by random slots 2, 5 and 7.</summary>
     private static readonly SoundEffectId ThirdCry = Library2Sound.ShotMetroid;
 
     /// <summary>

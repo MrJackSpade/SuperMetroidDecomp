@@ -30,8 +30,8 @@ internal sealed class NoobTubeBehavior
     }
 
     /// <summary>
-    /// Executes the initializer selected by definitions $D904/$D912/$D920. The request
-    /// retains the executing PLM block because bank $86 reads the global PLM index
+    /// Executes the initializer selected by the tube-crack definitions. The request
+    /// retains the executing PLM block because the projectile spawn reads the global PLM index
     /// while constructing each actor.
     /// </summary>
     public void SpawnNoobTubeProjectile(

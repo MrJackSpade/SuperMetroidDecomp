@@ -10,7 +10,7 @@ internal static class MagdollitePhaseDefinitions
     /// Whether an arm in each enemy slot grows one final phase on reaching <see cref="MaximumRise"/>. The game's
     /// <c>.doneGrowing</c> is reached from the maximum-rise test before Y is loaded from the growth
     /// index, so it compares the rise with the word the slot's offset selects past the threshold table
-    ///, using the Y the enemy main loop left. The
+    /// for that slot, using the Y the enemy main loop left. The
     /// threshold table holds nine words, so every slot but zero reads the bytes that follow it. The rise is
     /// then 108 to 112 pixels, and each of those words gives the same answer for every such rise.
     /// </summary>
@@ -23,7 +23,7 @@ internal static class MagdollitePhaseDefinitions
     ];
 
     /// <summary>
-    /// $A8:AF55/$A8:AF67/$A8:AF79: distance thresholds, body animation lists, and body-to-overlay Y offsets for the
+    /// The distance thresholds, body animation lists, and body-to-overlay Y offsets for the
     /// nine authored phases; the body shows the narrow pillars and the three- to eight-segment stacks in rise order. The zero-distance setup repeats the first visible pillar. Each following sixteen-pixel rise
     /// selects the next pillar-stack program and moves the overlay down one eight-pixel tile relative to the body.
     /// </summary>

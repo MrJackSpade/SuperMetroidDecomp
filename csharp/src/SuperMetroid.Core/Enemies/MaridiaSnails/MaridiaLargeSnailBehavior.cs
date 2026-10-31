@@ -93,7 +93,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>
-    /// Ports <c>MainAI_Oum</c> and functions $CD23-$CFFF. Ordering is exact: proximity and
+    /// Runs the Oum's main behaviour and functions. Ordering is exact: proximity and
     /// previous positions, behavior, Samus carrying, then the input-derived stop flag.
     /// </summary>
     private void RunMaridiaLargeSnailMain(
@@ -417,7 +417,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>
-    /// Exact $A0:ABE7 asymmetric "touching from below" predicate used for Oum carrying and
+    /// Exact asymmetric "touching from below" predicate used for Oum carrying and
     /// its post-contact shove. It is intentionally not interchangeable with radius overlap.
     /// </summary>
     private static bool MaridiaLargeSnailTouchesSamusFromBelow(
@@ -585,8 +585,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                         $"{context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
 
-                // $D388 enters common touch damage and falls directly through $D38C's
-                // asymmetric shove. $D38C frames execute only the shove, which is why the
+                // The damaging touch enters common touch damage and falls directly through the harmless touch's
+                // asymmetric shove. Harmless-touch frames execute only the shove, which is why the
                 // closed shell can carry/push Samus without inflicting the header's 100 HP.
                 if (context.HitboxTouchAi == EnemyReaction.MaridiaLargeSnailDamagingTouch)
                     _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
@@ -603,7 +603,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
         // Oum's 30 frames each have one (0,0) component, but the
         // ordered regions change with roll and attack direction. Keep
-        // those rectangles and callback identities independent of OAM.
+        // those rectangles and callback identities independent of the drawn sprite pieces.
         foreach (EnemyCollisionHitbox hitbox in
                  MaridiaLargeSnailCollisionDefinitions.Frames.Of(enemy.Frame))
         {

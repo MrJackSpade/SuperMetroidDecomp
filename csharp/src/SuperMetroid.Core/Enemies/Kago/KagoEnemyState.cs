@@ -18,7 +18,7 @@ public sealed class KagoEnemyState
     public bool UsesFastAnimation { get; internal set; }
 
     /// <summary>
-    /// Extra enemy word four. The ROM decrements first and dies only when the signed result
+    /// Extra enemy word four. The game decrements first and dies only when the signed result
     /// is negative, so population value ten permits eleven accepted shots.
     /// </summary>
     public WrappingCountdown HitCounter { get; internal set; }

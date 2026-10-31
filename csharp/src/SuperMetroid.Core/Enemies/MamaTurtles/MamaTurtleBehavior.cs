@@ -114,7 +114,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Whole-speed cap for horizontal hover acceleration.</summary>
     private const int MamaTurtleMaximumHoveringSpeed = 3;
 
-    /// <summary>Ports Mama Turtle initialization AI <c>$A2:8D6C</c>.</summary>
+    /// <summary>Initializes the Mama Turtle.</summary>
     internal static void InitializeMamaTurtle(RoomEnemySlot slot)
     {
         var state = new MamaTurtleEnemyState
@@ -124,8 +124,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // The population already supplies $A800, but the initializer explicitly ORs $2000.
-        // Spell that write out because instruction processing is essential to leaving shell.
+        // The population already supplies the animation-script property, but the initializer explicitly sets it again.
+        // Spell that write out because animation processing is essential to leaving shell.
         slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -134,7 +134,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<MamaTurtleProgram>.Start(MamaTurtleProgram.MamaAsleep);
     }
 
-    /// <summary>Ports Baby Turtle initialization AI <c>$A2:8D9D</c>.</summary>
+    /// <summary>Initializes the Baby Turtle.</summary>
     internal static void InitializeBabyTurtle(RoomEnemySlot slot)
     {
         var state = new BabyTurtleEnemyState
@@ -153,7 +153,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             : MamaTurtleProgram.BabyCrawlingRight);
     }
 
-    /// <summary>Ports Mama Turtle main AI <c>$A2:8DD2</c> and its indirect functions.</summary>
+    /// <summary>Runs the Mama Turtle's main behaviour and its indirect functions.</summary>
     private void RunMamaTurtleMain(
         RoomEnemySlot slot,
         MamaTurtleEnemyState state,
@@ -298,8 +298,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             state,
             MamaTurtleProgram.MamaLeaveShellLeft);
 
-        // $8F35 is `STA $0006,x`, not `STA Enemy+$0006,x`. It corrupts low WRAM with $20
-        // in retail and does not alter the enemy. Reproducing unrelated low-WRAM corruption
+        // The original store here writes 32 to an unrelated low memory word rather than to the enemy,
+        // and does not alter the enemy. Reproducing that unrelated write
         // would be harmful; importantly, we do not invent an enemy-field meaning for it.
         state.Function = MamaTurtleAiFunction.Idle;
     }
@@ -339,7 +339,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.FunctionTimer.IsZero)
             return;
 
-        // The two adjacent acceleration records at $8D56 accelerate toward Samus's side by a sixteenth of a pixel per update.
+        // The two adjacent acceleration records accelerate toward Samus's side by a sixteenth of a pixel per update.
         state.XAcceleration = CoordinateAxis.Difference(mama.Position.X.Whole, samus.Position.X.Whole) < 0
             ? SignedSixteenSixteen.FromRaw(SixteenSixteen.FromWhole(1) / 16)
             : SignedSixteenSixteen.FromRaw(-SixteenSixteen.FromWhole(1) / 16);
@@ -405,7 +405,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reverses the hovering turtle's horizontal velocity and acceleration at a wall ($903C-$906B). Each value's
+    /// Reverses the hovering turtle's horizontal velocity and acceleration at a wall. Each value's
     /// fraction is negated and its whole part inverted, which reverses a value exactly unless its fraction is zero,
     /// when the reversed value lands one whole pixel lower. A velocity whose whole part is -1 (moving left by less
     /// than a pixel) lowers the reversed acceleration's whole part by one more pixel.
@@ -475,7 +475,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         MamaTurtleEnemyState comparisonState = _slotTable.Slots[0].SpeciesState<MamaTurtleEnemyState>() ?? state;
         if (WordWrap.Signed(comparisonState.Velocity.Y.WholeWord - MamaTurtleMaximumFallingSpeed) < 0)
         {
-            // The $2000 fraction step carries into the whole word; both are one 16.16 add.
+            // The one-eighth-pixel fraction step carries into the whole word; both are one 16.16 add.
             state.Velocity = state.Velocity.WithY(
                 state.Velocity.Y + SignedSixteenSixteen.FromParts(0, 8192));
         }
@@ -494,7 +494,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = MamaTurtleAiFunction.Idle;
     }
 
-    /// <summary>Ports Baby Turtle main AI <c>$A2:912E</c> and its six live functions.</summary>
+    /// <summary>Runs the Baby Turtle's main behaviour and its six live functions.</summary>
     private void RunBabyTurtleMain(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
@@ -599,7 +599,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain.MoveEnemyVertically(level, baby, SixteenSixteen.FromWhole(state.Velocity.Y));
     }
 
-    /// <summary>Instruction <c>$A2:9381</c>: crawl across the sleeping parent contour.</summary>
+    /// <summary>Animation cue: crawl across the sleeping parent contour.</summary>
     private void ProcessBabyTurtleCrawlInstruction(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
@@ -641,7 +641,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Instruction <c>$A2:9412</c>: turn around at 48 pixels from spawn.</summary>
+    /// <summary>Animation cue: turn around at 48 pixels from spawn.</summary>
     private static MamaTurtleProgram SelectBabyTurtleCrawlLoop(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state)
@@ -657,23 +657,23 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             : MamaTurtleProgram.BabyCrawlingRight;
     }
 
-    /// <summary>Instruction <c>$A2:9447</c>: begin Mama's shell-entry behavior.</summary>
+    /// <summary>Animation cue: begin Mama's shell-entry behavior.</summary>
     private static void StartMamaTurtleEnteringShell(MamaTurtleEnemyState state) =>
         state.Function = MamaTurtleAiFunction.EnteringShell;
 
-    /// <summary>Instructions <c>$9451/$946B</c>: begin rising with selected X direction.</summary>
+    /// <summary>Animation cues: begin rising with selected X direction.</summary>
     private static void StartMamaTurtleRisingToHover(
         MamaTurtleEnemyState state,
         HorizontalDirection direction)
     {
-        // Cartridge comments describe the visual facing, while the stored velocity is the
-        // opposite sign: $9451 writes -1 and $946B writes +1.
+        // The authored cue names describe the visual facing, while the stored velocity is the
+        // opposite sign: the facing-left cue writes -1 and the facing-right cue writes +1.
         state.Function = MamaTurtleAiFunction.RisingToHover;
         state.Velocity = state.Velocity.WithWholeX(direction == HorizontalDirection.Right ? -1 : 1);
         state.FunctionTimer = WrappingCountdown.Start(16);
     }
 
-    /// <summary>Instruction <c>$A2:9485</c>: branch out of hiding only while ridden; otherwise the hiding animation runs on.</summary>
+    /// <summary>Animation cue: branch out of hiding only while ridden; otherwise the hiding animation runs on.</summary>
     private static MamaTurtleProgram? SelectBabyTurtleLeaveShell(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
@@ -688,7 +688,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             : MamaTurtleProgram.BabyLeaveShellRight;
     }
 
-    /// <summary>Instruction <c>$A2:94A1</c>: restore crawling after leaving the shell.</summary>
+    /// <summary>Animation cue: restore crawling after leaving the shell.</summary>
     private static MamaTurtleProgram FinishBabyTurtleLeavingShell(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
@@ -754,7 +754,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         WakeMamaTurtle(state);
     }
 
-    /// <summary>Private tail of Baby shot AI <c>$A2:930F</c>.</summary>
+    /// <summary>Private tail of the Baby Turtle's shot AI.</summary>
     private void ResolveBabyTurtleShotAfterCommon(BabyTurtleEnemyState state) =>
         WakeMamaTurtle(state);
 
@@ -770,7 +770,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot mama,
         SamusState samus)
     {
-        // Four bounds deliberately come from physical slot zero because all four native
+        // Four bounds deliberately come from physical slot zero because all four of the game's
         // loads omit `,x`. The damage callback still runs for the current Mama slot.
         RoomEnemySlot boundsSource = _slotTable.Slots[0];
         int left = CoordinateAxis.Wrap(

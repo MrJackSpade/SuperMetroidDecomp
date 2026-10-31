@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
 /// The state of an ordinary Metroid, with its three parallel extension words. The two sprite-object references
-/// are the managed equivalent of indexes <c>metroid_var_00/01</c>; the drain accumulator is
-/// <c>metroid_var_02</c>. The values the game keeps in the enemy's common record are emptied with it when the
+/// are the managed equivalent of the original's sprite-object indexes; the drain accumulator is
+/// the third parallel word. The values the game keeps in the enemy's common record are emptied with it when the
 /// enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class MetroidEnemyState
@@ -28,12 +28,12 @@ public sealed class MetroidEnemyState
     /// <summary>Variable E; four-frame escape timer and frozen-shake countdown.</summary>
     public WrappingCountdown EscapeTimer { get; internal set; }
 
-    /// <summary>Zero-based movement dispatcher index 0..3 into $A3:EC09, not an AI routine pointer.</summary>
+    /// <summary>Zero-based movement dispatcher index 0..3, not an AI routine pointer.</summary>
     public MetroidAiFunction Function { get; internal set; }
 
-    /// <summary>Live shared-pool electricity sprite object, native selector $32 and reference $7E:7800; the Metroid owner repositions, freezes and terminates it alongside the central body.</summary>
+    /// <summary>Live shared-pool electricity sprite object; the Metroid owner repositions, freezes and terminates it alongside the central body.</summary>
     public RoomSpriteObjectSlot OuterBodyA { get; }
-    /// <summary>Live shared-pool shell sprite object, native selector $34 and reference $7E:7802; distinct from both the electricity layer and central enemy spritemap.</summary>
+    /// <summary>Live shared-pool shell sprite object; distinct from both the electricity layer and central enemy spritemap.</summary>
     public RoomSpriteObjectSlot OuterBodyB { get; }
 
     /// <summary>

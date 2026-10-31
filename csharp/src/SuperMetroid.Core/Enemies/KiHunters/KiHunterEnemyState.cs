@@ -96,7 +96,7 @@ public sealed class KiHunterEnemyState
 
     /// <summary>A body's whole-angle velocity cap: minus two for a leftward swoop or two for a rightward one.</summary>
     public int MaximumAngularVelocity { get; internal set; }
-    /// <summary>Wing $7E:7800,x secondary function pointer, alternating between non-colliding and collision-bearing detached arcs.</summary>
+    /// <summary>The wings' secondary behaviour, alternating between non-colliding and collision-bearing detached arcs.</summary>
     public KiHunterWingFunction WingFunction { get; internal set; }
     /// <summary>
     /// A body's signed 16.16 angular velocity in table units per update: zero when a swoop begins, accelerated each
@@ -118,25 +118,25 @@ public sealed class KiHunterEnemyState
     /// which its initializer never sets. Only the Y axis is stored and meaningful.
     /// </summary>
     public Position16<RoomPixels> LowerPatrol { get; internal set; }
-    /// <summary>Body $7E:7818/$781A,x initial room position retained from body initialization rather than the changing patrol position; collision recovery returns to patrol after rising above its Y.</summary>
+    /// <summary>The body's initial room position retained from body initialization rather than the changing patrol position; collision recovery returns to patrol after rising above its Y.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
-    /// <summary>Body $7E:781E,x gameplay-frame thinking countdown: twelve after landing or twenty-four after acid emission, consumed once the animation selects ground wait.</summary>
+    /// <summary>The body's gameplay-frame thinking countdown: twelve after landing or twenty-four after acid emission, consumed once the animation selects ground wait.</summary>
     public WrappingCountdown WaitTimer { get; internal set; }
-    /// <summary>Body $7E:7820,x swipe-animation latch, cleared on swoop setup and set once the angle passes its facing-specific trigger.</summary>
+    /// <summary>The body's swipe-animation latch, cleared on swoop setup and set once the angle passes its facing-specific trigger.</summary>
     public bool SwoopAnimationChanged { get; internal set; }
-    /// <summary>Body $7E:7822/$7824,x whole-pixel swoop ellipse radii: the absolute horizontal separation from Samus and Samus Y minus body Y when a swoop begins.</summary>
+    /// <summary>The body's whole-pixel swoop ellipse radii: the absolute horizontal separation from Samus and Samus Y minus body Y when a swoop begins.</summary>
     public Extent16<RoomPixels> SwoopRadius { get; internal set; }
-    /// <summary>Body $7E:780C-$7812,x signed 16.16 velocity in pixels per gameplay frame (X fraction/whole at $780C/$780E, Y at $7810/$7812); positive Y is downward and gravity accumulates through the Y fraction.</summary>
+    /// <summary>The body's signed 16.16 velocity in pixels per gameplay frame; positive Y is downward and gravity accumulates through the Y fraction.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
-    /// <summary>Wing $7E:7806/$7808,x signed pixel correction for the non-colliding arc, calculated at angle $E0 and radius $30.</summary>
+    /// <summary>The wings' signed pixel correction for the non-colliding arc, calculated at angle 0xE0 and radius 48.</summary>
     public Offset16<RoomPixels> OrbitOffset { get; internal set; }
-    /// <summary>Wing $7E:7802/$7804,x signed pixel correction for the collision-bearing arc, calculated at angle $A0 and radius $30.</summary>
+    /// <summary>The wings' signed pixel correction for the collision-bearing arc, calculated at angle 0xA0 and radius 48.</summary>
     public Offset16<RoomPixels> FallingArcOffset { get; internal set; }
-    /// <summary>Wing $7E:780A/$780C,x room-pixel anchor used with an arc-specific correction; recaptured whenever the detached arc changes.</summary>
+    /// <summary>The wings' room-pixel anchor used with an arc-specific correction; recaptured whenever the detached arc changes.</summary>
     public Position16<RoomPixels> OrbitCenter { get; internal set; }
-    /// <summary>Wing $7E:7810/$780E,x original room position saved at detachment and restored when the collision-bearing arc deletes the wing.</summary>
+    /// <summary>The wings' original room position saved at detachment and restored when the collision-bearing arc deletes the wing.</summary>
     public Position16<RoomPixels> SavedWingPosition { get; internal set; }
-    /// <summary>Body $7E:7828,x wingless latch, set by spawn parameter-one bit 15 or by health reaching the following wing record's parameter-one threshold.</summary>
+    /// <summary>The body's wingless latch, set by spawn parameter-one bit 15 or by health reaching the following wing record's parameter-one threshold.</summary>
     public bool HasLostWings { get; internal set; }
 
     /// <summary>Adds one quadratic-table word to <see cref="DetachedSpeedAccumulator"/>, wrapping as the game's word does.</summary>

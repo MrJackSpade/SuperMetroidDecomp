@@ -2,8 +2,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// The state of one Magdollite part, with its bank-$7E:7800 extension. Extension words are named here instead of
-/// reproducing native's deliberately obscure drawing-queue/spawn-snapshot aliases between three neighboring records.
+/// The state of one Magdollite part, with its extension words. Extension words are named here instead of
+/// reproducing the original's deliberately obscure drawing-queue/spawn-snapshot aliases between three neighboring records.
 /// The values the game keeps in the enemy's common record are emptied with it when the enemy is killed (<see
 /// cref="ClearWithRecord"/>).
 /// </summary>
@@ -61,7 +61,7 @@ public sealed class MagdolliteEnemyState
 
     /// <summary>
     /// Extension variable four. Only the overlay's instance is polled by the head; decrementing it in every part
-    /// remains observable and matches main AI exactly. The wrapping word counts enemy updates, is reset to $0100 by the
+    /// remains observable and matches main AI exactly. The wrapping word counts enemy updates, is reset to 256 by the
     /// throw list, and expires when the head observes its sign bit after decrementing through zero.
     /// </summary>
     public WrappingCountdown AttackTimer { get; internal set; }
@@ -80,7 +80,7 @@ public sealed class MagdolliteEnemyState
     public bool BodyReachedApex { get; internal set; }
     /// <summary>NotEmergedFlag at extension offset $1A: despite the host name, true holds the arm dormant; the head clears it to start growth and landing sets it again.</summary>
     public bool BodyWakeRequested { get; internal set; }
-    /// <summary>ThrowXPosition/throwYPosition at extension offsets $24/$26: whole-pixel room position captured at the apex and used as the base for hand-animation shifts and restoration.</summary>
+    /// <summary>Whole-pixel room position captured at the apex and used as the base for hand-animation shifts and restoration.</summary>
     public Position16<RoomPixels> ThrowOrigin { get; internal set; }
 
     /// <summary>Empties the values the game keeps in the enemy's common record.</summary>

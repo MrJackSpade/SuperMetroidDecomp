@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
-/// <summary>Native KiHunter trigger, fixed-point acceleration and detached-wing orbit constants.</summary>
+/// <summary>KiHunter trigger, fixed-point acceleration and detached-wing orbit constants.</summary>
 public static class KiHunterMotionDefinitions
 {
     /// <summary>Tested with signed distance comparison.</summary>
@@ -8,9 +8,9 @@ public static class KiHunterMotionDefinitions
     /// <summary>One eighth, in the 16.16 units these accelerations are added in.</summary>
     private const int OneEighth = 8192;
 
-    /// <summary>$A8:F182/$A8:F184: seven eighths of a pixel per frame squared, added by both falling and hopping.</summary>
+    /// <summary>Seven eighths of a pixel per frame squared, added by both falling and hopping.</summary>
     public static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromRaw(7 * OneEighth);
-    /// <summary>$A8:F186 low byte, fallingWingsArcRadius, used by detached-wing setup and both arcs.</summary>
+    /// <summary>The falling wings' arc radius, used by detached-wing setup and both arcs.</summary>
     public const int DetachedWingRadius = 48;
 
 

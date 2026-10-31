@@ -11,7 +11,7 @@ public sealed class MaridiaLargeSnailEnemyState
     internal AnimationProgramCursor<MaridiaLargeSnailProgram> Program { get; set; }
 
     /// <summary>
-    /// Extra word $00: the requested animation, 0 through 7, an index into the eight-entry selector table at $CB77.
+    /// Extra word zero: the requested animation, 0 through 7, an index into the eight-entry selector table.
     /// Its lowest bit selects the left-facing program, and the idle, roll and attack transitions set, clear and toggle
     /// its upper two bits, which never carries it outside the table.
     /// </summary>
@@ -20,7 +20,7 @@ public sealed class MaridiaLargeSnailEnemyState
     /// <summary>Extra word $01: the last requested animation <c>SetOumInstList</c> installed, 0 through 7.</summary>
     public int InstalledAnimationScriptIndex { get; internal set; }
 
-    /// <summary>Extra word $02: set by instruction $CCB3 when the attack animation ends.</summary>
+    /// <summary>Extra word two: set by the attack animation's cue when it ends.</summary>
     public bool AttackAnimationFinished { get; internal set; }
 
     /// <summary>
@@ -40,7 +40,7 @@ public sealed class MaridiaLargeSnailEnemyState
 
     /// <summary>
     /// Extra word $0B: movement suppression produced after AI and consumed on the next frame.
-    /// This one-frame pipeline is intentional cartridge ordering, not input latency invented
+    /// This one-frame pipeline is intentional game ordering, not input latency invented
     /// by the host translation.
     /// </summary>
     public bool StopMovementNextFrame { get; internal set; }

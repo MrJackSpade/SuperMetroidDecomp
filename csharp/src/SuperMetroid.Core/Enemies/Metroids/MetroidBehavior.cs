@@ -130,7 +130,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Metroid movement {state.Function} exceeds its four-entry ROM table.");
+                    $"Metroid movement {state.Function} is not one of its four movements.");
         }
 
         // The ordinary body supplies the central map. Both outer objects are
@@ -240,7 +240,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         FreezeMetroidOuterBody(state.OuterBodyB, MetroidOuterBodyDefinitions.OuterBodyBFrozenProgram);
     }
 
-    /// <summary>Ports the palette-bit modulation in custom hurt AI <c>$A3:EB33</c>.</summary>
+    /// <summary>Applies the palette-bit modulation of the Metroid's custom hurt AI.</summary>
     internal static void ApplyMetroidHurt(RoomEnemySlot slot)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
@@ -327,8 +327,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusProjectileFamily family = collisionProjectileType.Family;
         if (state.Function == MetroidAiFunction.AttachedToSamus)
         {
-            // The bomb collision pass presents the exploding power bomb as family $0500;
-            // family $0300 is its earlier expansion/controller record and is not the value
+            // The bomb collision pass presents the exploding power bomb as family 0x0500;
+            // family 0x0300 is its earlier expansion/controller record and is not the value
             // tested by Metroid_Shot.
             if (family == SamusProjectileFamily.Bomb)
                 DetachMetroidWithPowerBomb(slot, state, samus);
@@ -387,7 +387,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// <c>MetroidDeathItemDropRoutine</c> around the origin $A3:EF31/EF38
+    /// Spawns the Metroid's death drops around the origin
     /// recorded before <c>EnemyDeath</c> cleared the slot.
     /// </summary>
     internal void RequestMetroidDrops(Position16<RoomPixels> origin)
@@ -448,7 +448,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Routes bomb-family collisions through Metroid's attachment and recoil rules.</summary>
     internal void AddMetroidBombReactions(EnemySharedReactions table)
     {
-        // Metroid shot AI ignores bombs while frozen, detaches an attached body for family $0500, or applies its
+        // Metroid shot AI ignores bombs while frozen, detaches an attached body for family 0x0500, or applies its
         // peculiar slot-zero recoil otherwise.
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.Metroid &&
                                   EnemyCollision.ShotAi(c.Enemy) == EnemyReaction.MetroidShot,
@@ -506,7 +506,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return true;
             }
 
-            // Like the ordinary path, the walker only marks the direction word. $A0:A184 does not reject a
+            // Like the ordinary path, the walker only marks the direction word. The damage path does not reject a
             // projectile an earlier enemy marked this pass: a Super Missile that just hit a Rinka still reaches
             // EnemyShot_Metroid.
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
@@ -524,8 +524,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             if (enemy.Health == 0)
             {
-                // $A3:EF31 records the drop origin, EnemyDeath spawns the explosion, and only then
-                // $A3:EF74 spawns the five drops.
+                // The death records the drop origin, EnemyDeath spawns the explosion, and only then
+                // the five drops spawn.
                 Position16<RoomPixels> dropOrigin = enemy.Position.Whole;
                 FinishMetroidDeath(enemy, c.Samus);
                 _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.Big);

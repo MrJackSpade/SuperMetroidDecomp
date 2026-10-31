@@ -47,7 +47,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Mochtroid</c>.</summary>
     internal static void InitializeMochtroid(RoomEnemySlot slot)
     {
-        // Room WRAM clearing initializes both parallel words to zero. Installing the
+        // Room clearing initializes both parallel words to zero. Installing the
         // first nonzero list is important: the original's equality shortcut is also the
         // source of its documented respawning-Mochtroid crash when stale extension RAM is
         // retained. Ordinary room loads start clean and therefore take the safe path.
@@ -90,7 +90,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mochtroid movement {selectedMode} exceeds its three-entry ROM table.");
+                    $"Mochtroid movement {selectedMode} is not one of its three movements.");
         }
     }
 
@@ -113,7 +113,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             StoreMochtroidYVelocity(state, 0);
 
         // Y is intentionally resolved first. Horizontal collision therefore sees the
-        // vertically adjusted position, matching $A3:A80D followed by $A3:A87C.
+        // vertically adjusted position, matching the game's vertical then horizontal collision.
         int xDifference = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole);
         int xVelocity = unchecked(state.Velocity.X.RawValue - EightEight.FromWhole(xDifference >> 2));
         xVelocity = ClampMochtroidVelocity(xVelocity);
@@ -224,7 +224,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None)
         {
-            // Common touch would publish 96/5 here, but $A3:A99E clears both words before
+            // Common touch would publish 96/5 here, but the Mochtroid's touch clears both words before
             // Samus's movement phase can consume them. Apply only the suit-divided health
             // change; starting the host knockback state and trying to undo its pose would
             // introduce side effects the game never reaches.

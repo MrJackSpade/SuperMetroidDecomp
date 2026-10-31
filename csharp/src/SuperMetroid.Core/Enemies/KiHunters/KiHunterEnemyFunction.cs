@@ -24,7 +24,7 @@ public enum KiHunterEnemyFunction
     GroundWait,
     /// <summary>Installs the acid-spit list facing Samus and suspends movement while bytecode owns the attack.</summary>
     SelectAcidSpit,
-    /// <summary>Copies X and Y from the physically preceding body slot, native enemy minus $40.</summary>
+    /// <summary>Copies X and Y from the physically preceding body slot.</summary>
     FollowBody,
     /// <summary>Dispatches the detached wing's secondary arc function stored in its extended variable zero.</summary>
     DetachedWing,

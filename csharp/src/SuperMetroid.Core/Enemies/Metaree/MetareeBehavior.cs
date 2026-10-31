@@ -109,7 +109,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         MetareeEnemyState state,
         SamusState samus)
     {
-        // `$A3:898A-$899A` computes a wrapped signed difference, takes its two's-complement
+        // The proximity test computes a wrapped signed difference, takes its two's-complement
         // absolute value, and performs an unsigned compare. It notably does *not* check that
         // Samus is below the actor; preserving that retail bug matters to the velocity math.
         int horizontalDistance = Math.Abs(
@@ -117,7 +117,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (horizontalDistance >= MetareeHorizontalActivationDistance)
             return;
 
-        // The SNES unsigned-divider input is the wrapped 16-bit Y difference. If Samus is
+        // The unsigned divider input is the wrapped 16-bit Y difference. If Samus is
         // above Metaree, this deliberately creates the game's enormous dive velocity
         // instead of sanitizing the old bug into modern signed physics.
         int verticalDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole - slot.Position.Y.Whole);
@@ -149,7 +149,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        // Native AI reloads this every airborne frame. It becomes a countdown only after
+        // The game reloads this every airborne frame. It becomes a countdown only after
         // the attachment probe reports the ground, which is why interrupted dives never age.
         state.BurrowTimer = WrappingCountdown.Start(MetareeBurrowLifetimeNtsc);
 

@@ -128,7 +128,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         // DEC followed by BEQ/BPL expires on zero and also tolerates an already-zero timer's
-        // wrapped $FFFF value. This is deliberately not a host-side "if timer > 0" clamp.
+        // wrapped -1 value. This is deliberately not a host-side "if timer > 0" clamp.
         CountdownStep timer = state.FunctionTimer.Decrement();
         state.FunctionTimer = timer.Remaining;
         if (!timer.IsZero && timer.IsNonNegative)
@@ -164,7 +164,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
 
-        // The pointer is $8FAC plus the high angle nibble shifted down by two, one four-byte record per
+        // The resume point is the high angle nibble shifted down by two, one four-byte record per
         // pose: the tracking loop resumes at the pose for the arc of the turn the angle lies in.
         state.Program = new AnimationProgramCursor<MorphBallEyeProgram>(MorphBallEyeProgram.Active,
             state.Angle.Sector(MorphBallEyeBeamDefinitions.TrackingPoses));
@@ -277,7 +277,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Darkens the beam's colour one step and removes the beam once green has faded to black.</summary>
     private void FadeMorphBallEyeBeam()
     {
-        // $88:EAD6 tests green before updating the cone or darkening any channel. Once green
+        // The beam fade tests green before updating the cone or darkening any channel. Once green
         // has reached zero intensity, the beam is removed on this pass, its colour black.
         if (MorphBallEyeBeam.Color.Green == 0)
         {

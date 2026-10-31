@@ -24,7 +24,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Resolves the three adjacent records that form one Magdollite.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Provides the live CGRAM target for the palette cycle.</summary>
+    /// <summary>Provides the live palette target for the palette cycle.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Runs common contact damage before the species reaction.</summary>
     private readonly EnemyCollision _collision;
@@ -446,8 +446,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports $A8:B3CB's drawing-queue alias. For the third record, source +61 is the head's
-    /// Y word and destination +64 is its Y radius. Expressing that relationship directly
+    /// Reproduces the Magdollite's drawing-queue alias. For the third record, the source is the head's
+    /// Y word and the destination is its Y radius. Expressing that relationship directly
     /// preserves collision geometry without exposing unrelated queue storage to C#.
     /// </summary>
     private void UpdateMagdolliteHeadRadius(RoomEnemySlot overlay)
@@ -787,14 +787,14 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.InstallAnimation(new MagdolliteLavaAnimation(throwsRight ? MagdolliteLavaProgram.Right : MagdolliteLavaProgram.Left));
     }
 
-    /// <summary>Ports $86:E049-$E09B: the lava flies sideways at its speed until it leaves the view.</summary>
+    /// <summary>Runs the lava's per-frame behaviour: the lava flies sideways at its speed until it leaves the view.</summary>
     internal static void RunMagdolliteLavaFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
 
-        // $86:E049 deletes actors outside the inclusive 256x256 camera square after their
+        // The lava is deleted outside the inclusive 256x256 camera square after its
         // horizontal move. The lava never moves vertically.
         if (CoordinateAxis.Wrap(projectile.Position.X.Whole - camera.X) >= 256 ||
             CoordinateAxis.Wrap(projectile.Position.Y.Whole - camera.Y) >= 256)
@@ -803,7 +803,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports shot-list instruction $86:DFEA.</summary>
+    /// <summary>Shot-animation cue: requests the lava's drop.</summary>
     internal void RequestMagdolliteLavaDrop(RoomEnemyProjectileSlot projectile)
     {
         _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(

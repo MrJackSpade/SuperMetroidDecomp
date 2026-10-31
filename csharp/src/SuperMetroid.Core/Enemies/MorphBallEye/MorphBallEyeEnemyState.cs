@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
-/// The state of retail enemy <c>$E6BF</c>. The mount and eye body share a definition, but parameter two's sign selects
+/// The state of the Morph Ball eye. The mount and eye body share a definition, but parameter two's sign selects
 /// their role. The values the game keeps in the enemy's common record are emptied with it when the enemy is killed
 /// (<see cref="ClearWithRecord"/>).
 /// </summary>

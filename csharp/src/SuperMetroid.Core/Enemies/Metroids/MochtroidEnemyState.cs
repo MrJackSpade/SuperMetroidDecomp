@@ -17,7 +17,7 @@ public sealed class MochtroidEnemyState
     /// <summary>Gets the one-update movement selector cleared before each main-AI dispatch.</summary>
     public MochtroidMovementMode MovementMode { get; internal set; }
 
-    /// <summary>$7E:7802 parallel word used by the instruction-list change detector: the installed animation, or none for the cleared word.</summary>
+    /// <summary>Parallel word used by the animation change detector: the installed animation, or none for the cleared word.</summary>
     internal MochtroidProgram? InstalledProgram { get; set; }
 
     /// <summary>Where the animation resumes.</summary>

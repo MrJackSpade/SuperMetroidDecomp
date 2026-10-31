@@ -89,14 +89,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static bool IsKiHunterWingDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterYellowWings or EnemyDefinitionId.KihunterRedWings;
 
-    /// <summary>Ports body initializer <c>$A8:F188</c>.</summary>
+    /// <summary>Initializes the Ki-Hunter body.</summary>
     internal static void InitializeKiHunter(RoomEnemySlot body)
     {
         KiHunterEnemyState state = CreateKiHunterState(body);
 
         // Every Ki-Hunter list is interpreted by the common enemy bytecode engine. The
-        // disassembly calls this property "disable Samus collision", but the live engine
-        // proves bit $2000 is the process-instructions flag.
+        // original name calls this property "disable Samus collision", but the live engine
+        // proves it is the animation-script flag.
         body.Properties = body.Properties.With(EnemyProperties.RunsAnimationScript);
         state.HasLostWings = false;
         InstallKiHunterInstruction(body, state, KiHunterProgram.FlyingLeft);
@@ -117,7 +117,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports wing initializer <c>$A8:F214</c>, including its preceding-slot aliases.</summary>
+    /// <summary>Initializes the Ki-Hunter's wings, including their preceding-slot aliases.</summary>
     internal void InitializeKiHunterWings(RoomEnemySlot wings)
     {
         RoomEnemySlot body = GetKiHunterBody(wings);
@@ -133,7 +133,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             wings.Properties = wings.Properties.With(EnemyProperties.Deleted);
     }
 
-    /// <summary>Dispatches body main <c>$A8:F25C</c> and wing main <c>$A8:F262</c>.</summary>
+    /// <summary>Dispatches the body's and wings' main behaviours.</summary>
     private void RunKiHunterMain(
         RoomEnemySlot actor,
         KiHunterEnemyState state,
@@ -189,7 +189,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports flying patrol function <c>$A8:F268</c>.</summary>
+    /// <summary>Flies the patrol.</summary>
     private void RunKiHunterFlyingPatrol(
         RoomEnemySlot body,
         KiHunterEnemyState state,
@@ -351,7 +351,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports wing-loss fall/gravity function <c>$A8:F55A</c>.</summary>
+    /// <summary>Falls under gravity after losing the wings.</summary>
     private void RunKiHunterFalling(
         RoomEnemySlot body,
         KiHunterEnemyState state,
@@ -369,7 +369,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + KiHunterGravity);
     }
 
-    /// <summary>Ports grounded jump setup <c>$A8:F58B</c>.</summary>
+    /// <summary>Sets up a grounded jump.</summary>
     private void StartKiHunterGroundJump(
         RoomEnemySlot body,
         KiHunterEnemyState state,
@@ -389,7 +389,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 : KiHunterProgram.JumpRight);
     }
 
-    /// <summary>Ports airborne hop function <c>$A8:F5F0</c>.</summary>
+    /// <summary>Moves through an airborne hop.</summary>
     private void RunKiHunterGroundJump(
         RoomEnemySlot body,
         KiHunterEnemyState state,
@@ -432,7 +432,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + KiHunterGravity);
     }
 
-    /// <summary>Ports post-landing wait/decision function <c>$A8:F68B</c>.</summary>
+    /// <summary>Waits after landing and decides what to do next.</summary>
     private static void RunKiHunterGroundWait(
         RoomEnemySlot body,
         KiHunterEnemyState state,
@@ -448,7 +448,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             : KiHunterEnemyFunction.StartGroundJump;
     }
 
-    /// <summary>Ports left/right spit-list selection <c>$A8:F6B3</c>.</summary>
+    /// <summary>Selects the left or right acid-spit animation.</summary>
     private static void SelectKiHunterAcidSpit(
         RoomEnemySlot body,
         KiHunterEnemyState state,
@@ -464,14 +464,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = KiHunterEnemyFunction.NoOp;
     }
 
-    /// <summary>Ports attached-wing follower <c>$A8:F6F3</c>.</summary>
+    /// <summary>Moves attached wings with the body.</summary>
     private void FollowKiHunterBody(RoomEnemySlot wings)
     {
         RoomEnemySlot body = GetKiHunterBody(wings);
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
     }
 
-    /// <summary>Ports detached wing dispatcher <c>$A8:F7CF</c>.</summary>
+    /// <summary>Dispatches the detached wings' behaviour.</summary>
     private void RunDetachedKiHunterWing(
         RoomEnemySlot wings,
         KiHunterEnemyState state,
@@ -491,7 +491,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports detached wing orbit <c>$A8:F7DB</c>, including its odd ROM word read.</summary>
+    /// <summary>Advances the detached wings' orbit, including its odd authored word read.</summary>
     internal static void RunDetachedKiHunterWingOrbit(RoomEnemySlot wings, KiHunterEnemyState state)
     {
         state.WingArcAngle = state.WingArcAngle.AddRaw(ReadKiHunterQuadraticAngleDelta(
@@ -509,7 +509,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         DecrementKiHunterDetachedSpeedIndex(state);
     }
 
-    /// <summary>Ports collision-bearing detached arc <c>$A8:F8AD</c>.</summary>
+    /// <summary>Advances the detached wings' collision-bearing arc.</summary>
     private void RunDetachedKiHunterWingCollisionArc(
         RoomEnemySlot wings,
         KiHunterEnemyState state,
@@ -557,7 +557,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterEnemyState wingState = wings.RequireSpeciesState<KiHunterEnemyState>();
         if (body.Health == 0)
         {
-            // The routine assigns exactly $0200, stripping processing and any other
+            // The routine assigns exactly the deletion property, stripping processing and any other
             // population flags rather than merely ORing the deleted bit.
             wings.Properties = EnemyProperties.Deleted;
             return;
@@ -582,7 +582,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         wings.FlashTimer = body.FlashTimer;
     }
 
-    /// <summary>Initializes all fields written by <c>$A8:F701/$F851/$F87F/$F98D</c>.</summary>
+    /// <summary>Initializes all fields the wing detachment writes.</summary>
     private static void DetachKiHunterWings(RoomEnemySlot wings, KiHunterEnemyState state)
     {
         state.SavedWingPosition = wings.Position.Whole;
@@ -664,7 +664,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool LiesWithinMiddleHalfTurn(RotationAngle angle) =>
         angle.AddRaw(RotationAngle.QuarterTurn.RawValue).CompareTo(RotationAngle.HalfTurn) >= 0;
 
-    /// <summary>Instruction <c>$A8:F526</c>: return to steady art and sync attached wings.</summary>
+    /// <summary>Animation cue: return to steady art and sync attached wings.</summary>
     private KiHunterProgram ReturnKiHunterToSteadyInstruction(RoomEnemySlot body)
     {
         KiHunterEnemyState state = body.RequireSpeciesState<KiHunterEnemyState>();
@@ -720,20 +720,20 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Returns the physical <c>enemy + $40</c> alias used by every body-to-wing access in
-    /// bank $A8. The matching definition words are authoritative while the pair is being
+    /// Returns the next physical slot, the alias used by every body-to-wing access in
+    /// the Ki-Hunter's behaviour. The matching definition words are authoritative while the pair is being
     /// initialized. Afterward, however, <c>DetermineWhichEnemiesToProcess</c> clears only a
     /// deleted wing's definition word; all other words in its 64-byte record remain resident,
     /// and the game deliberately continues reading or writing them through this alias.
     /// A permanently ground-bound red Ki-Hunter therefore has a live body followed by enemy
-    /// definition zero on its second frame. Requiring the definition to remain $EB7F changed
-    /// valid ROM behavior into a host exception whenever that body was shot.
+    /// definition zero on its second frame. Requiring the definition to remain the wing's changed
+    /// valid game behavior into a host exception whenever that body was shot.
     /// </summary>
     private RoomEnemySlot GetKiHunterWings(RoomEnemySlot body)
     {
         // NormalEnemyShotAi clears the complete body record before returning to Ki-Hunter's
-        // private `$A8:F701` tail on a fatal hit. The game nevertheless keeps X as the
-        // dead body's physical slot and accesses `enemy + $40` to delete its wings. Once the
+        // private shot tail on a fatal hit. The game nevertheless keeps the
+        // dead body's physical slot and accesses the next slot to delete its wings. Once the
         // typed state has established this slot as a body, a cleared definition word is
         // therefore valid until the callback finishes; revalidating only the mutable header
         // converts the ordinary fatal-shot path into a host exception.
@@ -798,7 +798,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>The <c>$0000:E000</c> 16.16 downward acceleration added to a falling or hopping body each frame.</summary>
+    /// <summary>The 0.875-pixel 16.16 downward acceleration added to a falling or hopping body each frame.</summary>
     internal static SignedSixteenSixteen KiHunterGravity => KiHunterMotionDefinitions.Gravity;
 
     /// <summary>Requires a live Samus, room collision data and a body definition before body-only movement AI.</summary>
@@ -898,8 +898,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int KiHunterAcidTerminalYSpeed = 512;
 
     /// <summary>
-    /// Ports <c>SpawnEprojWithGfx</c> plus definitions $86:CF18/$CF26 and initializers
-    /// $86:CF90/$CFA6. The projectile retains the firing body's exact VRAM/palette words.
+    /// Spawns an acid spit from its definition and initializer.
+    /// The projectile retains the firing body's exact tile and palette words.
     /// </summary>
     internal void SpawnKiHunterAcidSpit(RoomEnemySlot body, bool movingRight)
     {
@@ -924,9 +924,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports one-shot pre-instructions $86:CFD5/$CFE6. The animation list installs one via
-    /// common opcode $8161 after its opening map; the callback shifts nineteen pixels and
-    /// then installs the $CFF8 mover.
+    /// Runs the one-shot spit frame behaviours. The animation installs one through the
+    /// common frame-behaviour cue after its opening map; the callback shifts nineteen pixels and
+    /// then installs the falling mover.
     /// </summary>
     internal static void StartKiHunterAcidMovement(
         RoomEnemyProjectileSlot projectile,
@@ -938,7 +938,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports $86:CFF8 exactly: move/test Y, then X, then add capped 8.8 gravity. A floor
+    /// Moves the falling acid exactly: move/test Y, then X, then add capped 8.8 gravity. A floor
     /// collision swaps to the game splash list; a wall collision only zeros X speed.
     /// </summary>
     internal static void RunKiHunterAcidMovement(

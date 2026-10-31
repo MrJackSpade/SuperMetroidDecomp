@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
-/// <summary>Cardinal displacement in shipped shake dispatch $A3:A88F, selected by timer bits1..2.</summary>
+/// <summary>Cardinal displacement in the shipped shake, selected by timer bits1..2.</summary>
 internal static class MochtroidShakeDefinitions
 {
-    /// <summary>$A3:A76D/A775, MocktroidShakeVelocityTable X/Y: the two-pixel shake amplitude.
+    /// <summary>The shake velocity table's two-pixel shake amplitude.
     /// Axis and sign derive from the timer; the amplitude is an authored scalar (see residualScalarInputsReview).</summary>
     internal const int Amplitude = 2;
 

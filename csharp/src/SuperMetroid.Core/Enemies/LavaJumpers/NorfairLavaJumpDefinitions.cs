@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 internal static class NorfairLavaJumpDefinitions
 {
     /// <summary>
-    /// The four signed 8.8 Y velocities. Native AI selects a
+    /// The four signed 8.8 Y velocities. The jump selects a
     /// two-byte record with <c>HIBYTE(random) &amp; 6</c>.
     /// </summary>
     private static readonly SignedEightEight[] InitialVerticalVelocities =

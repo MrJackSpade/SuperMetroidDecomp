@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// </summary>
 public enum MaridiaLargeSnailBounceFunction
 {
-    /// <summary>Function_Oum_Falling, $A2:CF66: increases the quadratic-speed selector by $0180 per update up to $4000; a floor impact consumes a bounce, subtracts $1000, and selects rising.</summary>
+    /// <summary>Increases the quadratic-speed selector by 384 per update up to 16384; a floor impact consumes a bounce, subtracts 4096, and selects rising.</summary>
     Falling = 1,
-    /// <summary>Function_Oum_Rising, $A2:CFA9: subtracts $0180 per update and uses the quadratic table's negative 16.16 pixel displacement; signed selector underflow resets to zero and selects falling without moving that update.</summary>
+    /// <summary>Subtracts 384 per update and uses the quadratic table's negative 16.16 pixel displacement; signed selector underflow resets to zero and selects falling without moving that update.</summary>
     Rising,
 }

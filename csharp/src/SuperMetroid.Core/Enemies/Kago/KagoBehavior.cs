@@ -48,8 +48,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new KagoEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // Kago's population word already carries the other authored property bits. Native
-        // init ORs only $2000 so the common instruction interpreter animates the shell.
+        // Kago's population word already carries the other authored property bits. The
+        // initializer sets only the animation-script property so the common animation interpreter animates the shell.
         slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -77,7 +77,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Ports the Kago-owned tail of <c>Kago_Shot</c>. The caller has
-    /// already executed common normal-enemy shot AI, exactly matching the leading JSR in
+    /// already executed common normal-enemy shot AI, exactly matching the leading call in
     /// the game routine.
     /// </summary>
     internal void ResolveKagoShotAfterCommon(RoomEnemySlot slot, KagoEnemyState state)
@@ -105,7 +105,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             state.DeathAnimationStarted = true;
         }
 
-        // The ROM spawns even on the lethal eleventh callback, after requesting Kago's
+        // The game spawns even on the lethal eleventh callback, after requesting Kago's
         // death animation. Pool exhaustion is silent and therefore does not roll back the
         // counter, earthquake, or animation transition.
         if (SpawnKagoBug(slot))
@@ -246,7 +246,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Sets property $8000 once the bug is at least 23 pixels from its source Kago. That
+    /// Lets Samus's shots hit the bug once it is at least 23 pixels from its source Kago. That
     /// delay prevents the shot which opened the shell from immediately destroying the bug.
     /// </summary>
     private static void EnableKagoBugShotCollisionWhenSeparated(RoomEnemyProjectileSlot projectile)
@@ -257,7 +257,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.BlocksSamusProjectiles = true;
     }
 
-    /// <summary>Ports idle pre-instruction <c>$86:D0CA</c>.</summary>
+    /// <summary>Runs the bug's idle per-frame behaviour.</summary>
     internal void RunKagoBugIdle(RoomEnemyProjectileSlot projectile)
     {
         StepKagoBugSound(projectile);
@@ -276,7 +276,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
     }
 
-    /// <summary>Ports airborne rising pre-instruction <c>$86:D0EC</c>.</summary>
+    /// <summary>Runs the bug's airborne rising per-frame behaviour.</summary>
     internal void RunKagoBugJumping(RoomEnemyProjectileSlot projectile, RoomLevelData level)
     {
         StepKagoBugSound(projectile);
@@ -303,7 +303,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             BeginKagoBugFall(projectile);
     }
 
-    /// <summary>Ports falling pre-instruction <c>$86:D128</c>.</summary>
+    /// <summary>Runs the bug's falling per-frame behaviour.</summary>
     internal void RunKagoBugFalling(RoomEnemyProjectileSlot projectile, RoomLevelData level)
     {
         StepKagoBugSound(projectile);
@@ -335,7 +335,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileProgram.Falling));
     }
 
-    /// <summary>Ports instruction <c>$86:D15C</c>, including its unusual RNG reuse.</summary>
+    /// <summary>Animation cue: starts the bug's jump, including its unusual RNG reuse.</summary>
     internal void StartKagoBugJump(RoomEnemyProjectileSlot projectile)
     {
         StepKagoBugSound(projectile);
@@ -367,7 +367,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileFrameBehavior.KagoBugJump;
     }
 
-    /// <summary>Ports landed-list instruction <c>$86:D1B6</c>.</summary>
+    /// <summary>Landed-animation cue: returns the bug to idle.</summary>
     internal void StartKagoBugIdle(RoomEnemyProjectileSlot projectile)
     {
         projectile.StateOf<KagoBugState>().IdleFrames = (ReadKagoRandomNumber() & 31) + 1;
@@ -375,7 +375,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileFrameBehavior.KagoBugWaiting;
     }
 
-    /// <summary>Ports shot-list drop instruction <c>$86:D1CE</c>.</summary>
+    /// <summary>Shot-animation cue: requests the bug's drop.</summary>
     internal void RequestKagoBugDrop(RoomEnemyProjectileSlot projectile)
     {
         _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(

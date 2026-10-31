@@ -4,13 +4,12 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>
 /// Physical collision for Oum's 30 extended frames. Every frame
-/// at $CB87-$CCA9 has exactly one component at (0,0); only its hitbox-list
-/// pointer changes. The editable OAM and the three callback identities are
+/// has exactly one component at (0,0); only its hitbox-list
+/// changes. The editable sprite pieces and the three callback identities are
 /// intentionally separate from this catalog.
 /// </summary>
 internal static class MaridiaLargeSnailCollisionDefinitions
 {
-    /// <summary>Bank containing Oum's extended frames and hitbox lists.</summary>
     /// <summary>Callback used by Oum's extended hitboxes that hurt Samus on contact.</summary>
     private const EnemyReaction DamageTouch = EnemyReaction.MaridiaLargeSnailDamagingTouch;
     /// <summary>Callback for Oum surfaces that permit harmless contact.</summary>

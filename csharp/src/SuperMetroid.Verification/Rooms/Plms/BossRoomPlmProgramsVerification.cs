@@ -207,7 +207,7 @@ internal static class BossRoomPlmProgramsVerification
                 length = 5;
                 return true;
             case RoomPlmInstruction.GotoIfEventSet:
-                AssertEqual((ushort)EventNumber.MotherBrainGlassDestroyed, Word(2), "glass destroyed event");
+                AssertEqual((ushort)EventNumber.MotherBrainGlassDestroyed.ToEventNumber(), Word(2), "glass destroyed event");
                 AssertEqual(MotherBrainGlassPlmProgram.NoGlass, Entry(Word(4)), "glass no-glass target");
                 cue = MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SkipIfGlassDestroyed);
                 length = 6;
@@ -228,7 +228,7 @@ internal static class BossRoomPlmProgramsVerification
                 length = 10;
                 return true;
             case RoomPlmInstruction.SetEvent:
-                AssertEqual((ushort)EventNumber.MotherBrainGlassDestroyed, Word(2), "glass sets its destroyed event");
+                AssertEqual((ushort)EventNumber.MotherBrainGlassDestroyed.ToEventNumber(), Word(2), "glass sets its destroyed event");
                 cue = MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SetGlassDestroyed);
                 length = 4;
                 return true;

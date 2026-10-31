@@ -138,7 +138,7 @@ internal static void VerifyEventBitfield()
     AssertThrows<ArgumentOutOfRangeException>(() => events.Add(-1), "negative event number rejected");
     AssertThrows<ArgumentOutOfRangeException>(() => events.Add(PersistentProgress.EventCount), "event number past the game's rejected");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => state.SetEvent((EventNumber)0x3f),
+        () => state.SetEvent((EventNumber)(-1)),
         "unnamed event rejected by named API");
     state.SetEvent(EventNumber.TourianUnlocked);
     AssertTrue(state.HasEvent(EventNumber.TourianUnlocked), "named retail event set");

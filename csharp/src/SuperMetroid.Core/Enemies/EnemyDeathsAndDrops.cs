@@ -232,10 +232,9 @@ internal sealed class EnemyDeathsAndDrops
     {
         EnemyPickupKind kind = SelectRandomEnemyDrop(pickup);
 
-        // $86:EF29 also branches on the X that Random_Drop_Routine restores, but on this
-        // path X still holds the spawn routine's projectile ID ($F337), never zero, so any
-        // slot can become a pickup. Its `...,X` header store therefore lands at $7F:E6FF,
-        // intro/credits tilemap scratch, and the drop roll reads it back from there.
+        // Unlike a finished death explosion, a direct drop becomes a pickup in any projectile
+        // slot, slot zero included. The roll reads the drop's definition straight back from
+        // the pickup that holds it.
         pickup.StartAnimation(new EnemyDeathProjectileAnimation(kind is EnemyPickupKind.None or EnemyPickupKind.NoDrop
             ? ConfigureDormantPickup(pickup)
             : ConfigurePickup(pickup, kind)));

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
@@ -29,7 +28,6 @@ using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 internal static class RoomPaletteFxPresentationVerification
 {
     /// <summary>Audits extracted room palette colors and all installed program families against retail color words.</summary>
-    [PrivateInstallation("Checks the import pipeline's RoomPaletteFxPresentationExtractor on the cartridge: Extracted Room Palette Fx Presentation.")]
     internal static void VerifyExtractedRoomPaletteFxPresentation(
         SuperMetroidAddressSpace bus)
     {
@@ -193,7 +191,6 @@ internal static class RoomPaletteFxPresentationVerification
     }
 
     /// <summary>Checks the ending gunship's calculated palette samples and independent color edits against its native cycle.</summary>
-    [PrivateInstallation("Checks the import pipeline's RoomPaletteFxPresentationExtractor on the cartridge: Extracted Ending Gunship Palette Fx Presentation.")]
     internal static void VerifyExtractedEndingGunshipPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
@@ -273,7 +270,6 @@ internal static class RoomPaletteFxPresentationVerification
     }
 
     /// <summary>Checks post-credits logo glare ownership, calculated colors, edits, and installed playback.</summary>
-    [PrivateInstallation("Checks the import pipeline's RoomPaletteFxPresentationExtractor on the cartridge: Extracted Logo Glare Palette Fx Presentation.")]
     internal static void VerifyExtractedLogoGlarePaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {

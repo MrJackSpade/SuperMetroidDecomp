@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -29,7 +28,6 @@ namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 internal static class MapPaletteCycleVerification
 {
     /// <summary>Compares native animation cadence and CGRAM, then checks override rebinding and visible palette isolation.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Map Palette Cycle Integration with MapPresentationExtractor output read from the cartridge.")]
     internal static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentation original, ImportedAreaMap[] rules)
     {

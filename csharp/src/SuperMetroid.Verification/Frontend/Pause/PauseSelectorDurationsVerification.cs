@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -15,7 +14,6 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseSelectorDurationsVerification
 {
     /// <summary>Checks stock timing, per-phase edits, custom cycle lengths, and invalid durations.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Pause Selector Durations with PauseSelectorExtractor output read from the cartridge.")]
     internal static void VerifyPauseSelectorDurations(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);

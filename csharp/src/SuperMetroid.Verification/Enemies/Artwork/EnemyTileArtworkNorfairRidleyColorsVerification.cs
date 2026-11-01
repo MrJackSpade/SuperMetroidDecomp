@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -24,7 +23,6 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 internal static class EnemyTileArtworkNorfairRidleyColorsVerification
 {
     /// <summary>Compares all initial and reveal colors, guarded production updates, isolated edits, and override validation.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Installed Norfair Ridley Colors with EnemyTileArtworkFiles output read from the cartridge.")]
     internal static void VerifyInstalledNorfairRidleyColors(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

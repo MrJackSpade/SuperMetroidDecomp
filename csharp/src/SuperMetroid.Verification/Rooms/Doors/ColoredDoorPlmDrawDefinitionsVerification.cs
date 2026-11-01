@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -459,7 +458,6 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
         Suite(nameof(RoomPlmProgramsVerification.VerifyColoredDoorPrograms), () => RoomPlmProgramsVerification.VerifyColoredDoorPrograms(rom));
 
     /// <summary>Checks extracted stock, an edited green-cap override, survival across stock refresh, and rejection of malformed override or stock files.</summary>
-    [PrivateInstallation("Checks the RoomPlmColoredDoorVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     private static void VerifyColoredDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("colored-door-visual");

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
@@ -23,7 +22,6 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
 {
     /// <summary>Compares live pulse frames with cartridge colors, then checks
     /// one edited channel, override persistence, and malformed asset rejection.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Installed Zebetite Colors with EnemyTileArtworkFiles output read from the cartridge.")]
     internal static void VerifyInstalledZebetiteColors(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

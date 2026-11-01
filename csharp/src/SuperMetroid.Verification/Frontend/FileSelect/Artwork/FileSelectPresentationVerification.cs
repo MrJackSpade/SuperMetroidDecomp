@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
@@ -19,7 +18,6 @@ namespace SuperMetroid.Verification.Frontend.FileSelect.Artwork;
 internal static class FileSelectPresentationVerification
 {
     /// <summary>Compares native and installed COPY/CLEAR flows frame by frame, then verifies live art replacement and malformed-input failures.</summary>
-    [PrivateInstallation("Checks the import pipeline's FileSelectPresentationExtractor on the cartridge: File Select Presentation Assets.")]
     internal static void VerifyFileSelectPresentationAssets(
         ISnesAddressSpace bus,
         string stock,

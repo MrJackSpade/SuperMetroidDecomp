@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using System.Text;
@@ -18,7 +17,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class CreditsPresentationVerification
 {
     /// <summary>Compares every native credit row and exercises runtime scrolling and strict JSON validation.</summary>
-    [PrivateInstallation("Checks the import pipeline's CreditsPresentationExtractor on the cartridge: Credits Presentation.")]
     internal static void VerifyCreditsPresentation(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Enemies.Metroids;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies.Metroids;
@@ -13,7 +12,6 @@ namespace SuperMetroid.Verification.Harness;
 internal static class LookupRomOraclesVerification
 {
     /// <summary>Checks every registered narration page's native begin callback, then its extraction and compilation.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Intro Narration Native Pages with IntroNarrationExtractor output read from the cartridge.")]
     internal static void VerifyIntroNarrationNativePages(CartridgeImportAddressSpace rom)
     {
         var narrationSources = IntroNarrationScriptSources.Pages.ToArray();

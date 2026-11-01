@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -20,7 +19,6 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapAtlasVerification
 {
     /// <summary>Compares stock tile bytes with ROM, then verifies override pixels, identity, rebind, and invalid asset handling.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Map Atlas Integration with MapPresentationExtractor output read from the cartridge.")]
     internal static void VerifyMapAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentation original, ImportedAreaMap[] rules)
     {

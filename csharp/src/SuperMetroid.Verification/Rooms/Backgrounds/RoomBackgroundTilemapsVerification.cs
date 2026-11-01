@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
@@ -16,7 +15,6 @@ using SuperMetroid.Verification.Harness;
 internal static class RoomBackgroundTilemapsVerification
 {
     /// <summary>Compares all retail sources, Ceres VRAM parity, and the effect of a single JSON tile edit.</summary>
-    [PrivateInstallation("Checks the import pipeline's RoomBackgroundTilemapExtractor on the cartridge: Room Background Tilemap Extraction.")]
     internal static void VerifyRoomBackgroundTilemapExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");

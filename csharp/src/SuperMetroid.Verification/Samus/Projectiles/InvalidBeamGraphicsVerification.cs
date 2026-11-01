@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -18,7 +17,6 @@ using SuperMetroid.Core.Progression;
 internal static class InvalidBeamGraphicsVerification
 {
     /// <summary>Verifies bounded instruction reads, ordinary beam palettes, and both direct and queued Chainsaw graphics loads.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Invalid Beam Graphics with ProjectilePresentationFiles output read from the cartridge.")]
     internal static void VerifyInvalidBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -15,7 +14,6 @@ namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 internal static class IntroRinkaPartsVerification
 {
     /// <summary>Compares every stock part and visible/wrapped draw, then ensures edited fields retain supplied compositions.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Intro Rinka Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyIntroRinkaParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("Rinka", value.AppendIdentity);

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text;
 using System.Text.Json;
@@ -20,7 +19,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class PowerBombFixedColorsVerification
 {
     /// <summary>Compares every fixed-color RGB5 triplet and guarded Power Bomb/Crystal Flash lifecycle with cartridge data.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Power Bomb Fixed Colors with PowerBombFixedColorExtractor output read from the cartridge.")]
     internal static void VerifyPowerBombFixedColors()
     {
         if (!File.Exists("Super Metroid.smc"))

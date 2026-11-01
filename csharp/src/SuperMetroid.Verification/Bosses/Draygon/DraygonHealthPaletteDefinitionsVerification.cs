@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
@@ -16,7 +15,6 @@ namespace SuperMetroid.Verification.Bosses.Draygon;
 internal static class DraygonHealthPaletteDefinitionsVerification
 {
     /// <summary>Compares eight retail thresholds, all authored health values, and boundary updates without table reads.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Draygon Health Palette Definitions with DraygonColorExtractor output read from the cartridge.")]
     internal static void VerifyDraygonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
     {
 

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -15,7 +14,6 @@ namespace SuperMetroid.Verification.Frontend.Menus;
 internal static class MenuShoulderButtonPixelsVerification
 {
     /// <summary>Compares stock atlas uploads and each button pixel with native planar tiles, then checks isolated edits and input bounds.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Menu Shoulder Button Pixels with MapSpriteExtractor output read from the cartridge.")]
     internal static void VerifyMenuShoulderButtonPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0x28, 0x29, 0x2a, 0x2e];

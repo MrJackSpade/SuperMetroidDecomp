@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -16,7 +15,6 @@ using SuperMetroid.AssetExtraction.Samus;
 internal static class SpeedBoostPalettePointersVerification
 {
     /// <summary>Matches four equipment selections to native pointers and live palette output, including failure without installed colors.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Speed Boost Palette Pointers with SamusFullBodyCycleColorExtractor output read from the cartridge.")]
     internal static void VerifySpeedBoostPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -21,7 +20,6 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseSelectorCompositionsVerification
 {
     /// <summary>Checks stock compact storage and independent edits to selector parts and animation phases.</summary>
-    [PrivateInstallation("Checks the import pipeline's PauseSelectorExtractor on the cartridge: Pause Selector Compositions.")]
     internal static void VerifyPauseSelectorCompositions(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);

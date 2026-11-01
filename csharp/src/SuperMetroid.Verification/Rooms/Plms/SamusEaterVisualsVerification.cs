@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.Verification.Areas.Escape;
@@ -23,7 +22,6 @@ using SuperMetroid.Core.World;
 internal static class SamusEaterVisualsVerification
 {
     /// <summary>Extracts all eight native draws, checks their compiled geometry and live floor/ceiling redraws, and rejects collision-changing overrides.</summary>
-    [PrivateInstallation("Checks the RoomPlmSamusEaterVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     internal static void VerifySamusEaterVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

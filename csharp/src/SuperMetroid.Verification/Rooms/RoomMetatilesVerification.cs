@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -23,7 +22,6 @@ internal static class RoomMetatilesVerification
     /// Roundtrips distinct CRE and area metatiles, checks the installed compositions are the cartridge's, and checks an edited
     /// composition document changes exactly its edited tile.
     /// </summary>
-    [PrivateInstallation("Checks the import pipeline's RoomMetatileExtractor on the cartridge: Room Metatile Extraction.")]
     internal static void VerifyRoomMetatileExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");

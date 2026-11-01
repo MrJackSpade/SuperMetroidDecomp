@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Palettes;
@@ -24,7 +23,6 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 internal static class CeresRidleyMode7ColorsVerification
 {
     /// <summary>Compares native zoom rows, all getaway frames, override repair, and source-read blocking.</summary>
-    [PrivateInstallation("Checks the import pipeline's CeresRidleyMode7ColorExtractor and MapPresentationExtractor on the cartridge: Ceres Ridley Mode7 Color Override.")]
     internal static void VerifyCeresRidleyMode7ColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentation original, ISnesAddressSpace rom,
         GameplayBasePalette initialPalettes)

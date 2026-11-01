@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -21,7 +20,6 @@ using SuperMetroid.Core.World;
 internal static class KraidRoomVisualsVerification
 {
     /// <summary>Extracts ten retail Kraid draw lists, edits three visual cells, and checks live redraws preserve physical words and stock integrity.</summary>
-    [PrivateInstallation("Checks the RoomPlmKraidVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     internal static void VerifyKraidRoomVisuals()
     {
         Suite(nameof(VerifyKraidRoomVisualSelection), () => VerifyKraidRoomVisualSelection());

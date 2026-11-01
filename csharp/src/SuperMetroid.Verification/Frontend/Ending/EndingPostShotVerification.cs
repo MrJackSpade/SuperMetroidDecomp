@@ -17,7 +17,6 @@ internal static class EndingPostShotVerification
 {
     /// <summary>Compares every post-shot frame with native timing and exact palette and VRAM contents.</summary>
     /// <param name="bus">Retail cartridge data used as the expected artwork and palette source.</param>
-    [PrivateInstallation("Cartridge-oracle check: compares Ending Post Shot with EndingFontAtlasExtractor output read from the cartridge.")]
     internal static void VerifyEndingPostShot(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyEndingPostShotTransferFields), () => VerifyEndingPostShotTransferFields(bus));

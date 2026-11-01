@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Buffers.Binary;
@@ -17,7 +16,6 @@ using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 internal static class GameOptionsLanguagePalettesVerification
 {
     /// <summary>Compares both toggle settings and highlight states across all four box regions.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Game Options Toggle Geometry with GameOptionsPresentationExtractor output read from the cartridge.")]
     internal static void VerifyGameOptionsToggleGeometry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -70,7 +68,6 @@ internal static class GameOptionsLanguagePalettesVerification
     private static byte GameOptionsToggleGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks every tilemap word in four language regions for Japanese and English states.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Game Options Language Palettes with GameOptionsPresentationExtractor output read from the cartridge.")]
     internal static void VerifyGameOptionsLanguagePalettes()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

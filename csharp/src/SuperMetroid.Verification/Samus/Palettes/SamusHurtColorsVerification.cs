@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -21,7 +20,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class SamusHurtColorsVerification
 {
     /// <summary>Compares extracted colors and ordinary and cinematic flash cycles, including malformed inputs.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Samus Hurt Colors with SamusHurtColorExtractor output read from the cartridge.")]
     internal static void VerifySamusHurtColors()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -61,7 +59,6 @@ internal static class SamusHurtColorsVerification
     }
 
     /// <summary>Checks each counter step's selected source palette or intentional no-write frame.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Hurt Cycle with SamusSuitColorExtractor output read from the cartridge.")]
     private static void CompareHurtCycle(ISnesAddressSpace rom,
         InstalledSamusHurtColors catalog, bool cinematic)
     {

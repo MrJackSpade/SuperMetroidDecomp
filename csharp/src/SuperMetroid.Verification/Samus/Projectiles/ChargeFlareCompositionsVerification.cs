@@ -23,7 +23,6 @@ using SuperMetroid.Verification.Harness;
 internal static class ChargeFlareCompositionsVerification
 {
     /// <summary>Checks extracted parts across selector, position, and OAM capacity cases, then validates visual edits and malformed assets.</summary>
-    [PrivateInstallation("Checks the import pipeline's ChargeFlareSpriteExtractor on the cartridge: Charge Flare Compositions.")]
     internal static void VerifyChargeFlareCompositions(SuperMetroidAddressSpace bus,
         bool flareOnly = false)
     {

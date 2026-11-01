@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
@@ -25,7 +24,6 @@ namespace SuperMetroid.Verification.Areas.Ceres.Artwork;
 internal static class CeresEscapeTileArtworkVerification
 {
     /// <summary>Compares native transfer bytes, then checks a PNG edit reaches VRAM without cartridge reads.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ceres Escape Tile Artwork with EscapeTimerTileAtlasExtractor output read from the cartridge.")]
     internal static void VerifyCeresEscapeTileArtwork(ISnesAddressSpace rom,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

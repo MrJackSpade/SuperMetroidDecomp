@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -15,7 +14,6 @@ namespace SuperMetroid.Verification.Frontend.Menus;
 internal static class MenuBeveledSquarePixelsVerification
 {
     /// <summary>Compares both native square tile colorways with pixel calculations and verifies isolated PNG edits survive VRAM encoding.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Menu Beveled Square Pixels with MapSpriteExtractor output read from the cartridge.")]
     internal static void VerifyMenuBeveledSquarePixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0x98, 0x99];

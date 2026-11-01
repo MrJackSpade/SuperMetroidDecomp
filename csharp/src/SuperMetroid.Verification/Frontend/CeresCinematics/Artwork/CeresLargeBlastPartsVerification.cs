@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -20,7 +19,6 @@ internal static class CeresLargeBlastPartsVerification
 {
     /// <summary>Compares stock parts and wrapped OAM, then distinguishes tile
     /// edits that keep calculated geometry from edits that retain supplied parts.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ceres Large Blast Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyCeresLargeBlastParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresLargeBlast", value.AppendIdentity);

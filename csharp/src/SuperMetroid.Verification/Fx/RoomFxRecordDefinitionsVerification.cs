@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
@@ -40,7 +39,6 @@ internal static class RoomFxRecordDefinitionsVerification
     }
 
     /// <summary>Compares Ceres FX outputs with native reads and guards compiled consumers from rereading record bytes.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Compiled Ceres Room Fx Consumers with RoomFxPaletteBlendExtractor output read from the cartridge.")]
     private static void VerifyCompiledCeresRoomFxConsumers(SuperMetroidAddressSpace bus)
     {
         LoadStationEntry station = LoadStations.Get(AreaId.Ceres, 0);

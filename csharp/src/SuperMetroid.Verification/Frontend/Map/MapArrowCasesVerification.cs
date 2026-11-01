@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -16,7 +15,6 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapArrowCasesVerification
 {
     /// <summary>Checks extracted directions and independent JSON edits for position, phase timing, and identity.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Map Arrow Cases with MapArrowExtractor output read from the cartridge.")]
     internal static void VerifyMapArrowCases(ISnesAddressSpace rom)
     {
         byte[] bytes = MapArrowExtractor.Extract(rom);

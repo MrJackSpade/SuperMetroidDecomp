@@ -67,7 +67,6 @@ internal static class EndingLogoVerification
     }
 
     /// <summary>Checks logo frame operands, sprite relationships, and instruction cursors against cartridge words.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ending Logo Programs with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyEndingLogoPrograms(ISnesAddressSpace bus)
     {
         ushort[] operands = [0xee5f, 0xee67, 0xee73, 0xee77, 0xee7b, 0xee8d, 0xee91, 0xee95];
@@ -102,7 +101,6 @@ internal static class EndingLogoVerification
     }
 
     /// <summary>Checks calculated logo sprite relationships while preserving supplied edits and native OAM placement.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ending Logo Related Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     private static void VerifyEndingLogoRelatedParts(ISnesAddressSpace bus, int frame,
         CinematicSpriteFrameDefinition definition, SpriteComposition upper, SpriteComposition completeRight)
     {

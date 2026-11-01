@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Samus;
@@ -14,7 +13,6 @@ using SuperMetroid.Verification.Harness;
 internal static class SamusArmCannonDefinitionsVerification
 {
     /// <summary>Compares six opening flags with the cartridge and checks the second-sample transition without ROM policy reads.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Samus Arm Cannon Definitions with SamusArmCannonArtworkFiles output read from the cartridge.")]
     internal static void VerifySamusArmCannonDefinitions(SuperMetroidAddressSpace rom)
     {
         using var artworkDirectory = new TestScratchDirectory("map-catalog");

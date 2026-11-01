@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
@@ -22,7 +21,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class EndingTextPresentationVerification
 {
     /// <summary>Matches extracted font bytes and panels to the cartridge, then checks text edits, snapshot rebinding, and glyph validation.</summary>
-    [PrivateInstallation("Checks the import pipeline's EndingFontAtlasExtractor and EndingTextExtractor on the cartridge: Ending Text Presentation.")]
     internal static void VerifyEndingTextPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -127,7 +125,6 @@ internal static class EndingTextPresentationVerification
     }
 
     /// <summary>Checks deterministic text extraction and that an override changes catalog identity and fails loudly when corrupt.</summary>
-    [PrivateInstallation("Checks the import pipeline's EndingTextExtractor on the cartridge: Ending Text Assets.")]
     internal static void VerifyEndingTextAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -157,7 +154,6 @@ internal static class EndingTextPresentationVerification
     }
 
     /// <summary>Checks deterministic indexed-PNG extraction and that a pixel override changes installed VRAM bytes.</summary>
-    [PrivateInstallation("Checks the import pipeline's EndingFontAtlasExtractor on the cartridge: Ending Font Assets.")]
     internal static void VerifyEndingFontAssets(
         ISnesAddressSpace bus,
         string stockDirectory,

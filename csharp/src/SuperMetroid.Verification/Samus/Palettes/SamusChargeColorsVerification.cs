@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
@@ -29,7 +28,6 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 internal static class SamusChargeColorsVerification
 {
     /// <summary>Edits representative charge and Hyper colors, then checks installed identity and CGRAM output without rereading native palette words.</summary>
-    [PrivateInstallation("Checks the import pipeline's MapPresentationExtractor and SamusChargeColorExtractor on the cartridge: Samus Charge Color Override.")]
     internal static void VerifySamusChargeColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentation original, ISnesAddressSpace rom)
     {
@@ -161,7 +159,6 @@ internal static class SamusChargeColorsVerification
     }
 
     /// <summary>Checks all suit and charge phases against ROM, including canonical shared pointers and the runtime six-step palette cadence.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Samus Charge Color Phases with SamusChargeColorExtractor output read from the cartridge.")]
     internal static HashSet<int> VerifySamusChargeColorPhases(ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusChargeColorExtractor.Extract(rom);

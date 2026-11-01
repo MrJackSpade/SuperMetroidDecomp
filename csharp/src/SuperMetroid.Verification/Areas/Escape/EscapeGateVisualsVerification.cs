@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -136,7 +135,6 @@ internal static class EscapeGateVisualsVerification
     }
 
     /// <summary>Checks extraction, override reload after stock refresh, and tampered stock rejection.</summary>
-    [PrivateInstallation("Checks the RoomPlmEscapeGateVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     private static void VerifyEscapeGateVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("escape-gate-visual");

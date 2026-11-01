@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
@@ -25,7 +24,6 @@ internal static class SingleFrameEnemyVisualsVerification
     /// Checks the single-operand omissions identified in #1166, including OAM compositions
     /// consumed immediately after instruction selection and edits preserved from older schemas.
     /// </summary>
-    [PrivateInstallation("Checks the import pipeline's EnemyProjectileSpritemapFiles and EnemySpritemapFiles on the cartridge: Single Frame Enemy Visuals.")]
     internal static void VerifySingleFrameEnemyVisuals()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

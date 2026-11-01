@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
@@ -19,7 +18,6 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class WorldMapLabelsVerification
 {
     /// <summary>Verifies stock output with ROM coordinates blocked, then checks editable anchors and override preservation.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares World Map Labels with MapPresentationExtractor output read from the cartridge.")]
     internal static void VerifyWorldMapLabels(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
         Suite(nameof(VerifyMapWindowOriginX), () => VerifyMapWindowOriginX(bus, original.Labels));

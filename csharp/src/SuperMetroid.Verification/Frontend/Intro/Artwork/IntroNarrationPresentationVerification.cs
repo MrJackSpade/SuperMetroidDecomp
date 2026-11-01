@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Tooling;
@@ -23,7 +22,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class IntroNarrationPresentationVerification
 {
     /// <summary>Compares all six stock pages and the font upload with native data, then checks edits, rebinding, and malformed glyph rejection.</summary>
-    [PrivateInstallation("Checks the import pipeline's IntroFontAtlasExtractor and IntroNarrationExtractor on the cartridge: Intro Narration Presentation.")]
     internal static void VerifyIntroNarrationPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -195,7 +193,6 @@ internal static class IntroNarrationPresentationVerification
     };
 
     /// <summary>Checks deterministic stock JSON, installed text overrides, identity changes, and corrupt-override failure.</summary>
-    [PrivateInstallation("Checks the import pipeline's IntroNarrationExtractor on the cartridge: Intro Narration Assets.")]
     internal static void VerifyIntroNarrationAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -231,7 +228,6 @@ internal static class IntroNarrationPresentationVerification
     }
 
     /// <summary>Checks deterministic stock PNG bytes, edited installed VRAM bytes, identity changes, and corrupt-PNG rejection.</summary>
-    [PrivateInstallation("Checks the import pipeline's IntroFontAtlasExtractor on the cartridge: Intro Font Assets.")]
     internal static void VerifyIntroFontAssets(
         ISnesAddressSpace bus,
         string stockDirectory,

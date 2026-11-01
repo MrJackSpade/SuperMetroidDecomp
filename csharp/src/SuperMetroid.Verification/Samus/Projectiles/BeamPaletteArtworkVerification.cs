@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
@@ -26,7 +25,6 @@ using SuperMetroid.Core.Progression;
 internal static class BeamPaletteArtworkVerification
 {
     /// <summary>Compares every beam selection's CGRAM with native output and checks isolated JSON color edits.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Beam Palette Artwork with BeamPaletteExtractor output read from the cartridge.")]
     internal static void VerifyBeamPaletteArtwork(ISnesAddressSpace bus)
     {
         byte[] bytes = BeamPaletteExtractor.Extract(bus);
@@ -76,7 +74,6 @@ internal static class BeamPaletteArtworkVerification
     }
 
     /// <summary>Checks NMI rebinding respects Crystal Flash and Hyper owners and uses edited Grapple colors.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Beam Palette Ownership with BeamPaletteExtractor output read from the cartridge.")]
     private static void VerifyBeamPaletteOwnership(ISnesAddressSpace bus, InstalledBeamPalettes palettes)
     {
         var runtime = CreateRetailRuntimeFixture();

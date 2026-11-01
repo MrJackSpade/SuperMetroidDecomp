@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
@@ -244,7 +243,6 @@ internal static class GrappleBlockProgramsVerification
     }
 
     /// <summary>Checks extracted stock, edited override, stock refresh, and rejection of invalid art or corrupt stock manifest.</summary>
-    [PrivateInstallation("Checks the RoomPlmGrappleBlockVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     private static void VerifyGrappleBlockVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("grapple-block-visual");

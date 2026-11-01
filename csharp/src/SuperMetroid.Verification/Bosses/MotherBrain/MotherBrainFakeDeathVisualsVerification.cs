@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
@@ -21,7 +20,6 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 internal static class MotherBrainFakeDeathVisualsVerification
 {
     /// <summary>Checks fake-death stock draws, live visual edits, collision isolation, override persistence, and failures.</summary>
-    [PrivateInstallation("Checks the RoomPlmMotherBrainFakeDeathVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     internal static void VerifyMotherBrainFakeDeathVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

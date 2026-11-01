@@ -57,7 +57,6 @@ internal static class CrocomireBodyVisualsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBodyVisualToolingDefinitions.FramePointer(50), "body frame past end");
     }
     /// <summary>Checks generated BG2 keys against retail selectors and confirms the extractor and loader preserve all 42 mixed-frame streams.</summary>
-    [PrivateInstallation("Checks the import pipeline's CrocomireBg2FrameFiles on the cartridge: Crocomire Bg2 Generated Catalog.")]
     internal static void VerifyCrocomireBg2GeneratedCatalog(SuperMetroidAddressSpace rom)
     {
         var pointers = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Body)

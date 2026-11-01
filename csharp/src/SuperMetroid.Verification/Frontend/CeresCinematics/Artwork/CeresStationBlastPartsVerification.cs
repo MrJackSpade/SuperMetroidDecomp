@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -18,7 +17,6 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics.Artwork;
 internal static class CeresStationBlastPartsVerification
 {
     /// <summary>Preserves visual edits and compares stock frames at visible and wrapped origins.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ceres Station Blast Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyCeresStationBlastParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStationBlast", value.AppendIdentity);

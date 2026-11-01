@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
@@ -23,7 +22,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class EscapeTimerPresentationVerification
 {
     /// <summary>Checks extraction, installed overrides, VRAM transfers, and rendered OAM against native timer assets.</summary>
-    [PrivateInstallation("Checks the import pipeline's EscapeTimerPresentationExtractor and EscapeTimerTileAtlasExtractor on the cartridge: Escape Timer Presentation Assets.")]
     internal static void VerifyEscapeTimerPresentationAssets(ISnesAddressSpace bus, string stock,
         string overrides, AreaMapPresentation original,
         GameplayBasePalette initialPalettes)

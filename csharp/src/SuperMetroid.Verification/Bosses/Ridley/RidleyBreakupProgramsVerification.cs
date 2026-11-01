@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.World.Artwork;
@@ -30,7 +29,6 @@ internal static class RidleyBreakupProgramsVerification
 {
 
     /// <summary>Drives the grab-release death branch and compares all 29 fragment programs with native data.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ridley Breakup Programs with EnemySpritemapFiles output read from the cartridge.")]
     internal static void VerifyRidleyBreakupPrograms()
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));

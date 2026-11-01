@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -17,7 +16,6 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics.Artwork;
 internal static class CeresLargeAsteroidPartsVerification
 {
     /// <summary>Preserves three group anchors, independent edits, and native visible or wrapped OAM.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ceres Large Asteroid Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyCeresLargeAsteroidParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresLargeAsteroid", value.AppendIdentity);

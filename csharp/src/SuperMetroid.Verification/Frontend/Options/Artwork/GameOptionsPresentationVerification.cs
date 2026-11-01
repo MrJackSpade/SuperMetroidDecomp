@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
@@ -20,7 +19,6 @@ namespace SuperMetroid.Verification.Frontend.Options.Artwork;
 internal static class GameOptionsPresentationVerification
 {
     /// <summary>Compares menu frames, audio, and controller changes, then checks edited anchors and state-safe rebinding.</summary>
-    [PrivateInstallation("Checks the import pipeline's GameOptionsPresentationExtractor on the cartridge: Game Options Presentation Assets.")]
     internal static void VerifyGameOptionsPresentationAssets(
         ISnesAddressSpace bus,
         string stock,

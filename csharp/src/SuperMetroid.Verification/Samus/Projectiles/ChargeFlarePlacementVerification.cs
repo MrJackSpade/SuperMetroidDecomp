@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -33,7 +32,6 @@ using SuperMetroid.Core.Gameplay;
 internal static class ChargeFlarePlacementVerification
 {
     /// <summary>Compares stock flare placement across pose, direction, coordinate, and Mode 7 cases, then checks edited offsets and state isolation.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Charge Flare Placement with ChargeFlarePlacementExtractor and ChargeFlareSpriteExtractor output read from the cartridge.")]
     internal static void VerifyChargeFlarePlacement(SuperMetroidAddressSpace bus)
     {
         Suite(nameof(VerifyChargeFlareCompositions), () => VerifyChargeFlareCompositions(bus));

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
@@ -412,7 +411,6 @@ internal static class SamusFullBodyCycleColorsVerification
                 "Varia bright-only edit preserves supplied midpoint and other colors");
     }
     /// <summary>Edits four cycle families, drives their production owners for each suit, and checks CGRAM without source rereads.</summary>
-    [PrivateInstallation("Checks the import pipeline's MapPresentationExtractor and SamusFullBodyCycleColorExtractor on the cartridge: Samus Full Body Cycle Color Override.")]
     internal static void VerifySamusFullBodyCycleColorOverride(
         string stockDirectory, string overrideDirectory,
         AreaMapPresentation original, ISnesAddressSpace rom,

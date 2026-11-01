@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.Core;
@@ -412,7 +411,6 @@ internal static class ShotBlockPlmProgramsVerification
     }
 
     /// <summary>Checks installed stock art, user overrides, stock replacement, and corruption rejection.</summary>
-    [PrivateInstallation("Checks the RoomPlmShotBlockVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     private static void VerifyShotBlockVisualInstallation(ISnesAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("shot-block-visual");

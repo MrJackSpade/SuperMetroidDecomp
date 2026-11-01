@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -20,7 +19,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class EscapeTypewriterPresentationVerification
 {
     /// <summary>Runs extracted programs to completion and checks live edits, debugger restore, and invalid glyph rejection.</summary>
-    [PrivateInstallation("Checks the import pipeline's EscapeTypewriterExtractor on the cartridge: Escape Typewriter Presentation.")]
     internal static void VerifyEscapeTypewriterPresentation(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -99,7 +97,6 @@ internal static class EscapeTypewriterPresentationVerification
     }
 
     /// <summary>Checks deterministic stock extraction and that a catalog override changes rendered text and content identity.</summary>
-    [PrivateInstallation("Checks the import pipeline's EscapeTypewriterExtractor on the cartridge: Escape Typewriter Assets.")]
     internal static void VerifyEscapeTypewriterAssets(
         ISnesAddressSpace bus,
         string stockDirectory,

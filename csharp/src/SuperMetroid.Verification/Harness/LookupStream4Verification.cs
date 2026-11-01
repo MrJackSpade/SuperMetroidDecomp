@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
@@ -154,7 +153,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks title tube and display shades against native words and confirms edited RGB channels propagate independently.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Title Ambient Colors with TitlePaletteExtractor output read from the cartridge.")]
     private static void VerifyLookupStream4TitleAmbientColors(ISnesAddressSpace rom)
     {
         ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
@@ -256,7 +254,6 @@ internal static class LookupStream4Verification
         Console.WriteLine("Title ambient mechanics:28 native controls, independent record decoding,164 actual per-tick CGRAM states, untouched colors and mechanics read guard pass; independent color artwork remains pending.");
     }
     /// <summary>Combines title ambient palette artwork and mechanics checks through the installed color source.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Title Ambient Complete with TitlePaletteExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4TitleAmbientComplete(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4TitleAmbientColors), () => VerifyLookupStream4TitleAmbientColors(rom));
@@ -348,7 +345,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Confirms the ending font preserves cartridge space glyph data and layout boundaries.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ending Font Spaces with EndingFontAtlasExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4EndingFontSpaces(ISnesAddressSpace rom)
     {
         byte[] decoded = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom),
@@ -419,7 +415,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Maridia palette colors and source ownership against the native palette rows.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Maridia Colors with RoomPaletteFxPresentationExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4MaridiaColors(CartridgeImportAddressSpace rom)
     {
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
@@ -486,7 +481,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks the planet text glyphs and placement data against cartridge definitions.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Planet Text with RoomPaletteFxPresentationExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4PlanetText(CartridgeImportAddressSpace rom)
     {
         var all = PlanetZebesTextPaletteFxColorDefinitions.All;
@@ -563,7 +557,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ceres fade phases, native color rows, and installed CGRAM exposure.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ceres Fades with CeresRidleyColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4CeresFades(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -634,7 +627,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ceres alarm palette timing and color output at its native CGRAM destination.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ceres Alarm with CeresRidleyColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4CeresAlarm(ISnesAddressSpace rom)
     {
         ushort Native(int row, int color)
@@ -832,7 +824,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Spore Spawn health-dependent palette stages against native colors.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Spore Health Ramp with SporeSpawnColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4SporeHealthRamp(ISnesAddressSpace rom)
     {
         ushort[][] native = Enumerable.Range(0, 4)
@@ -893,7 +884,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks the healthy Spore Spawn palette aliases the intended native color range.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Spore Healthy Alias with SporeSpawnColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4SporeHealthyAlias(ISnesAddressSpace rom)
     {
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
@@ -944,7 +934,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Spore Spawn level-fade phases and their source palette rows.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Spore Level Fade with SporeSpawnColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4SporeLevelFade(ISnesAddressSpace rom)
     {
         byte[] palette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
@@ -1015,7 +1004,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Spore Spawn background-fade stages against native palette words.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Spore Background Fade with SporeSpawnColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4SporeBackgroundFade(ISnesAddressSpace rom)
     {
         byte[] palette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
@@ -1085,7 +1073,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Spore Spawn sprite-fade stages against native palette words.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Spore Sprite Fade with SporeSpawnColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4SporeSpriteFade(ISnesAddressSpace rom)
     {
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
@@ -1158,7 +1145,6 @@ internal static class LookupStream4Verification
         }
     }
     /// <summary>Checks the ending result panel artwork and its installed presentation mapping.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ending Result Panel with EndingTextExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4EndingResultPanel(ISnesAddressSpace rom)
     {
         byte[] source = EndingTextExtractor.Extract(rom);
@@ -1206,7 +1192,6 @@ internal static class LookupStream4Verification
             ?? throw new InvalidOperationException("An ending-text tile serialized to null.");
 
     /// <summary>Checks ending subtitle glyph selection and layout against imported presentation data.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ending Subtitle with EndingTextExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4EndingSubtitle(ISnesAddressSpace rom)
     {
         byte[] source = EndingTextExtractor.Extract(rom);
@@ -1363,7 +1348,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks HUD icon tiles and their source identities against native artwork.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Hud Icons with GameplayHudPresentationExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4HudIcons(ISnesAddressSpace rom)
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
@@ -1435,7 +1419,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks the HUD template cells against their native layout words.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Hud Template with GameplayHudPresentationExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4HudTemplate(ISnesAddressSpace rom)
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
@@ -1473,7 +1456,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks the installed HUD top row at the native VRAM tile positions.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Hud Top Row with GameplayHudPresentationExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4HudTopRow(ISnesAddressSpace rom)
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
@@ -1513,7 +1495,6 @@ internal static class LookupStream4Verification
         Console.WriteLine("HUD top row:32native words,192independent edits/hash/193shown rows/template independence pass; native border source exported.");
     }
     /// <summary>Checks the complete auto-reserve HUD display assembled from its component cells.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Hud Auto Complete with GameplayHudPresentationExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4HudAutoComplete(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4HudAutoCells), () => VerifyLookupStream4HudAutoCells(rom));
@@ -1552,7 +1533,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks auto-reserve HUD cell identities against the cartridge tile words.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Hud Auto Cells with GameplayHudPresentationExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4HudAutoCells(ISnesAddressSpace rom)
     {
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);
@@ -1596,7 +1576,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks HUD digit tile identities and their native order.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Hud Digits with GameplayHudPresentationExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4HudDigits(ISnesAddressSpace rom)
     {
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);
@@ -1734,7 +1713,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks beam palette relations and installed CGRAM and VRAM output against native data.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Beam Color Relations with BeamPaletteExtractor and BeamTileExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4BeamColorRelations(ISnesAddressSpace rom)
     {
         byte[] source = BeamPaletteExtractor.Extract(rom);
@@ -1890,7 +1868,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks enemy notice-region bounds and their native coordinate ordering.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Notice Regions with GameplayMessageNoticeExtractor output read from the cartridge.")]
     private static void VerifyLookupStream4NoticeRegions(ISnesAddressSpace rom)
     {
         byte[] bytes = GameplayMessageNoticeExtractor.Extract(rom);
@@ -1955,7 +1932,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks message dispatch IDs and their cartridge table positions.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Message Dispatch with GameplayMessagePanelExtractor output read from the cartridge.")]
     private static void VerifyLookupStream4MessageDispatch(ISnesAddressSpace rom)
     {
         for (int bits = 0; bits <= ushort.MaxValue; bits++)
@@ -2084,7 +2060,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks dark lightning palette rows and their source pointers against native values.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Dark Lightning Colors with RoomPaletteFxPresentationExtractor output read from the cartridge.")]
     private static void VerifyLookupStream4DarkLightningColors(ISnesAddressSpace rom)
     {
         var program = CrateriaLightningColorDefinitions.DarkProgram;
@@ -2126,7 +2101,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks normal lightning palette rows and their source pointers against native values.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Lightning Colors with RoomPaletteFxPresentationExtractor output read from the cartridge.")]
     private static void VerifyLookupStream4LightningColors(ISnesAddressSpace rom)
     {
         var program = CrateriaLightningColorDefinitions.SurfaceProgram;
@@ -2206,7 +2180,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks statue palette rows and selection data against native colors.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Statue Colors with RoomPaletteFxPresentationExtractor output read from the cartridge.")]
     private static void VerifyLookupStream4StatueColors(ISnesAddressSpace rom)
     {
 
@@ -2291,7 +2264,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks power-bomb palette color stages against cartridge words.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Power Bomb Colors with PowerBombFixedColorExtractor output read from the cartridge.")]
     private static void VerifyLookupStream4PowerBombColors(ISnesAddressSpace rom)
     {
         byte[] original = PowerBombFixedColorExtractor.Extract(rom);
@@ -2394,7 +2366,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Draygon intro palette phases and installed CGRAM colors against native stages.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Draygon Intro with DraygonColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4DraygonIntro(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -2461,7 +2432,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Draygon sprite palette stages and their installed CGRAM output.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Draygon Sprite with DraygonColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4DraygonSprite(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -2523,7 +2493,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Draygon background palette stages and their installed CGRAM output.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Draygon Background with DraygonColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4DraygonBackground(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -2587,7 +2556,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Draygon health-driven palette selection and installed CGRAM output.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Draygon Health with DraygonColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4DraygonHealth(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
@@ -2652,7 +2620,6 @@ internal static class LookupStream4Verification
         Console.WriteLine("Draygon health:32 native colors/zero overrides,96RGB edits/hash,776full copies,48actual health calls and48actual hurt calls/read guard/held band/restore pass.");
     }
     /// <summary>Checks imported Draygon color rows against the native palette source.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Draygon Colors with DraygonColorExtractor output read from the cartridge.")]
     private static void VerifyLookupStream4DraygonColors(ISnesAddressSpace rom)
     {
         byte[] original = DraygonColorExtractor.Extract(rom);
@@ -2709,7 +2676,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Norfair reveal room palette frames and destination colors against cartridge data.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Norfair Reveal with NorfairRidleyColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4NorfairReveal(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -2799,7 +2765,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Norfair initial palette state and its installed CGRAM colors.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Norfair Initial with NorfairRidleyColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4NorfairInitial(ISnesAddressSpace rom)
     {
         ushort[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + i * 2))).ToArray();
@@ -2893,7 +2858,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Botwoon color progression and installed CGRAM slots against native rows.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Botwoon Colors with BotwoonColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4BotwoonColors(ISnesAddressSpace rom)
     {
         byte[] original = BotwoonColorExtractor.Extract(rom);
@@ -3057,7 +3021,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks beam tile geometry and installed VRAM words against native layouts.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Beam Tile Geometry with BeamPaletteExtractor and BeamTileExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4BeamTileGeometry(ISnesAddressSpace rom)
     {
         int diagonalX = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D110) & 0x1FF;
@@ -3181,7 +3144,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ceres starting palette state and installed CGRAM colors.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ceres Start with CeresRidleyColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4CeresStart(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -3237,7 +3199,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ceres Baby palette phases and installed CGRAM colors.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ceres Baby with CeresRidleyColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4CeresBaby(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -3330,7 +3291,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks shared Ceres retreat colors and phase ownership against cartridge rows.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ceres Retreat Shared with CeresRidleyColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4CeresRetreatShared(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -3371,7 +3331,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ceres zoom and retreat palette phases in their native order.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ceres Zoom And Retreat with CeresRidleyColorExtractor and CeresRidleyMode7ColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4CeresZoomAndRetreat(ISnesAddressSpace rom)
     {
         byte[] zoomJson = CeresRidleyMode7ColorExtractor.Extract(rom);
@@ -3450,7 +3409,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ceres health-dependent palette phases and installed CGRAM output.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ceres Health with CeresRidleyColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4CeresHealth(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -3531,7 +3489,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks HUD anchor coordinates and cell placement against native layout data.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Hud Anchors with GameplayHudPresentationExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream4HudAnchors(ISnesAddressSpace rom)
     {
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);

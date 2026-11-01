@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -213,7 +212,6 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
     private static byte EyeDoorRetailProgramPathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks extracted stock validation, override persistence, and invalid eye-door visual rejection.</summary>
-    [PrivateInstallation("Checks the RoomPlmEyeDoorVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     private static void VerifyEyeDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("eye-door-visual");

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -16,7 +15,6 @@ namespace SuperMetroid.Verification.Fx;
 internal static class RoomFxAnimatedTileArtworkVerification
 {
     /// <summary>Checks retail room-FX frames through both transfer owners, installed edits, and older atlas-width imports.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Room Fx Animated Tile Artwork with RoomFxAnimatedTileAtlasExtractor output read from the cartridge.")]
     internal static void VerifyRoomFxAnimatedTileArtwork()
     {
         if (!File.Exists("Super Metroid.smc"))

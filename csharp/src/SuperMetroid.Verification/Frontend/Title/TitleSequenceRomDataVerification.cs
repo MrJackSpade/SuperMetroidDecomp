@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Frontend;
@@ -20,7 +19,6 @@ internal static class TitleSequenceRomDataVerification
     /// Runs every natural title card, pan, zoom, hold, and fade, then separately proves
     /// that the native confirm-button shortcut still takes its fade-out/fade-in route.
     /// </summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Title Sequence Rom Data with TitleGradientExtractor output read from the cartridge.")]
     internal static void VerifyTitleSequenceRomData()
     {
         byte[] rom = CreateConstructedTitleRom();

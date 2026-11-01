@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Tooling;
@@ -67,7 +66,6 @@ internal static class BotwoonWallVisualsVerification
     }
 
     /// <summary>Checks extraction, installed overrides, stock repair, and rejection of physical-bit edits.</summary>
-    [PrivateInstallation("Checks the RoomPlmBotwoonWallVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     internal static void VerifyBotwoonWallVisuals()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

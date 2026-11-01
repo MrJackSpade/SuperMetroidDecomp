@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Enemies;
@@ -16,7 +15,6 @@ namespace SuperMetroid.Verification.Bosses.Botwoon;
 internal static class BotwoonHealthPaletteDefinitionsVerification
 {
     /// <summary>Compares all signed health decisions with native thresholds and drives the production palette update.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Botwoon Health Palette Definitions with BotwoonColorExtractor output read from the cartridge.")]
     internal static void VerifyBotwoonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
     {
 

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -16,7 +15,6 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapArrowDurationsVerification
 {
     /// <summary>Compares four native cycles, bounds, custom phase edits, and frame-by-frame arrow timing.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Map Arrow Durations with MapArrowExtractor output read from the cartridge.")]
     internal static void VerifyMapArrowDurations(ISnesAddressSpace rom)
     {
         byte[] bytes = MapArrowExtractor.Extract(rom);

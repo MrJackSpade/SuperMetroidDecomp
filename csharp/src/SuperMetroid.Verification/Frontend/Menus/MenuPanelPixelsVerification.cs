@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -15,7 +14,6 @@ namespace SuperMetroid.Verification.Frontend.Menus;
 internal static class MenuPanelPixelsVerification
 {
     /// <summary>Compares stock atlas uploads and every panel pixel, then checks edited artwork and invalid coordinates.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Menu Panel Pixels with MapSpriteExtractor output read from the cartridge.")]
     internal static void VerifyMenuPanelPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0x57, 0x58, 0x59, 0x5a];

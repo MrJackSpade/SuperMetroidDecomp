@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -19,7 +18,6 @@ internal static class CeresVortexPartsVerification
 {
     /// <summary>Compares stock parts and wrapped OAM, then checks edits to
     /// shared versus independent cells follow the intended substitution path.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Ceres Vortex Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyCeresVortexParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);

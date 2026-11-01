@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -20,7 +19,6 @@ internal static class IntroEyeInstructionsVerification
     private const int FinalPageUpdates = 300;
 
     /// <summary>Plays both eye programs through the production objects beside a reader of the native lists.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Intro Eye Instructions with IntroNarrationExtractor output read from the cartridge.")]
     internal static void VerifyIntroEyeInstructions(ISnesAddressSpace rom)
     {
         var narration = IntroNarrationFile.Read(

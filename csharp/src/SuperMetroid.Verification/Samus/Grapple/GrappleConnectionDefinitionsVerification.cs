@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleFiringDefinitionsVerification;
@@ -65,7 +64,6 @@ internal static class GrappleConnectionDefinitionsVerification
     private static byte GrappleConnectionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks accepted grapple connections across authored movement, aim, vertical-speed, and anchor-owner states with compiled reads forbidden.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Grapple Connection Dispatch with GrappleFlarePlacementExtractor and GrappleSwingFrameExtractor output read from the cartridge.")]
     private static void VerifyGrappleConnectionDispatch(SuperMetroidAddressSpace rom)
     {
         // Read the native function, handler, or pose word used as a dispatch oracle.
@@ -122,7 +120,6 @@ internal static class GrappleConnectionDefinitionsVerification
     private static byte GrappleConnectionDispatchRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks eight native special-angle rows, exact 16-bit angle matches, wrapped body offsets, phase changes, and camera clamps.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Grapple Special Connections with GrappleFlarePlacementExtractor output read from the cartridge.")]
     private static void VerifyGrappleSpecialConnections(SuperMetroidAddressSpace rom)
     {
         // Read one native special-angle record word from two cartridge bytes.

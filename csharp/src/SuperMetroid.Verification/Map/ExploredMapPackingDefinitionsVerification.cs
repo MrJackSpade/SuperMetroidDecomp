@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Frontend;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
@@ -99,7 +98,6 @@ internal static class ExploredMapPackingDefinitionsVerification
     private static byte ExploredMapPackingDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks that edited map artwork preserves SRAM layout and that debugger restoration requires artwork rebinding.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Calculated Map Packing Bindings with MapPresentationExtractor output read from the cartridge.")]
     private static void VerifyCalculatedMapPackingBindings(ISnesAddressSpace native, PersistentProgress explored)
     {
         string parent = Path.GetFullPath(Path.Combine("csharp", "test-temp"));

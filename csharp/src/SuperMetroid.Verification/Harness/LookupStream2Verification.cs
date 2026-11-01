@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -280,7 +279,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks projectile identity selectors, extracted compositions, and 417 actual OAM drawings.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Projectile Identity Geometry with ChargeFlareSpriteExtractor and ProjectileSpriteExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream2ProjectileIdentityGeometry(ISnesAddressSpace rom)
     {
         var expected = new SortedSet<ushort>();
@@ -510,7 +508,6 @@ internal static class LookupStream2Verification
         Console.WriteLine("Environmental catalogs:six native definition/color/loop bindings,292mechanics words,16heat phase bytes,actual complete/repeating cycles,live colors,enumeration/order and bounds pass; accent timing and independent colors remain pending.");
     }
     /// <summary>Checks extracted pause backdrop geometry, independent edits, and VRAM tile output.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Backdrop Geometry with PauseBackdropExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream2BackdropGeometry(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseBackdropExtractor.Extract(rom);
@@ -588,7 +585,6 @@ internal static class LookupStream2Verification
         }
     }
     /// <summary>Checks pause equipment base cells, edit preservation, and layout geometry.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Equipment Base Geometry with PauseEquipmentBaseExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream2EquipmentBaseGeometry(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseEquipmentBaseExtractor.Extract(rom);
@@ -634,7 +630,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks pause wireframe mirror relationships and independently edited cells.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Wireframe Mirrors with PauseWireframeExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream2WireframeMirrors(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseWireframeExtractor.Extract(rom);
@@ -701,7 +696,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks extracted reserve UI labels, placement, and edited glyph ownership.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Reserve Labels with PauseReserveUiExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream2ReserveLabels(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseReserveUiExtractor.Extract(rom);
@@ -762,7 +756,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks equipment label text geometry, native cells, and independent edit behavior.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Equipment Labels with PauseEquipmentLabelExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream2EquipmentLabels(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseEquipmentLabelExtractor.Extract(rom);
@@ -865,7 +858,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks pause equipment blank cells against native art and edited label boundaries.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Equipment Blank with PauseEquipmentLabelExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream2EquipmentBlank(SuperMetroidAddressSpace rom)
     {
         byte[] nativeJson = PauseEquipmentLabelExtractor.Extract(rom);
@@ -1315,7 +1307,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks projectile trail appearance catalog and independent sprite edits.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Trail Appearance with ProjectileTrailExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream2TrailAppearance(ISnesAddressSpace rom)
     {
         byte[] json = ProjectileTrailExtractor.Extract(rom);
@@ -1360,7 +1351,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks trail instruction words and emitted OAM across the compiled programs.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Trail Programs with ProjectileTrailExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream2TrailPrograms(ISnesAddressSpace bus)
     {
         byte[] json = ProjectileTrailExtractor.Extract(bus);
@@ -1677,7 +1667,6 @@ internal static class LookupStream2Verification
         Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, the pages shown/phase handoff and enumeration pass.");
     }
     /// <summary>Checks reserve arrow RGB5 colors, independent edits, and CGRAM placement.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Reserve Arrow Colors with PauseReserveUiExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream2ReserveArrowColors(ISnesAddressSpace rom)
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
@@ -1742,7 +1731,6 @@ internal static class LookupStream2Verification
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
     }
     /// <summary>Checks reserve bar and arrow positions against extracted pause UI geometry.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Reserve Geometry with PauseReserveUiExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream2ReserveGeometry(ISnesAddressSpace rom)
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
@@ -1877,7 +1865,6 @@ internal static class LookupStream2Verification
         Console.WriteLine("Stream 2 palette mechanics: original mechanics, inline color offsets, durations, dispatch and bounds pass.");
     }
     /// <summary>Checks Crystal Flash body colors and emitted CGRAM against extracted native phases.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Crystal Body with CrystalFlashColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream2CrystalBody(ISnesAddressSpace rom)
     {
         byte[] source = CrystalFlashColorExtractor.Extract(rom);
@@ -2044,7 +2031,6 @@ internal static class LookupStream2Verification
         }
     }
     /// <summary>Checks projectile frame bindings for power and directional combinations.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Power Direction Bindings with ProjectileFrameBindingExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream2PowerDirectionBindings(ISnesAddressSpace rom)
     {
         byte[] json = ProjectileFrameBindingExtractor.Extract(rom);

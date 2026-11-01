@@ -54,7 +54,6 @@ internal static void VerifyLoRomCrossBankCompressedData()
 }
 
 /// <summary>Checks the fresh-save file-select tilemap and its surrounding labels against installed cartridge art.</summary>
-[PrivateInstallation("Cartridge-oracle check: compares File Select Fresh Save Tilemap with FileSelectPresentationExtractor output read from the cartridge.")]
 internal static void VerifyFileSelectFreshSaveTilemap()
 {
     var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling

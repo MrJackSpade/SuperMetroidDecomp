@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Tooling;
@@ -54,7 +53,6 @@ internal static class SpeedBoosterVisualsVerification
     }
 
     /// <summary>Checks extraction and a production bomb reveal with immediate and streamed art but unchanged physical block.</summary>
-    [PrivateInstallation("Checks the RoomPlmSpeedBoosterVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     internal static void VerifySpeedBoosterVisuals()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

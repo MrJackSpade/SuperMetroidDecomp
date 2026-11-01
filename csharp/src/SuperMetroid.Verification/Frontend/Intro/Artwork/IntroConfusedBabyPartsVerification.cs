@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -15,7 +14,6 @@ namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 internal static class IntroConfusedBabyPartsVerification
 {
     /// <summary>Preserves independent visual edits and compares stock drawing at visible and wrapped origins.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Intro Confused Baby Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyIntroConfusedBabyParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("ConfusedBaby", value.AppendIdentity);

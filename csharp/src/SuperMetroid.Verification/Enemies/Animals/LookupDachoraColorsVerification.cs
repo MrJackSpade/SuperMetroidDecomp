@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Enemies.Animals;
@@ -19,7 +18,6 @@ internal static class LookupDachoraColorsVerification
     /// native word, that the stock install stores no speed/shine colors, and that every
     /// single-cell edit resolves exactly while storing only that cell.
     /// </summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Lookup Dachora Colors with DachoraColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupDachoraColors(ISnesAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupDachoraColorsRomByte(rom, address), LookupDachoraColorsRomByte(rom, address + 1));

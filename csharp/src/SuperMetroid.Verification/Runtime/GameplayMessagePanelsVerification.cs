@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -19,7 +18,6 @@ using SuperMetroid.AssetExtraction.Hud;
 internal static class GameplayMessagePanelsVerification
 {
     /// <summary>Checks all installed panels without ROM reads, then edits and restores an active message.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Gameplay Message Panels with GameplayMessagePanelExtractor output read from the cartridge.")]
     internal static void VerifyGameplayMessagePanels(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -71,7 +69,6 @@ internal static class GameplayMessagePanelsVerification
     }
 
     /// <summary>Checks deterministic stock extraction, override identity, and corrupt replacement failure.</summary>
-    [PrivateInstallation("Checks the import pipeline's GameplayMessagePanelExtractor on the cartridge: Gameplay Message Panel Assets.")]
     internal static void VerifyGameplayMessagePanelAssets(
         ISnesAddressSpace bus,
         string stockDirectory,

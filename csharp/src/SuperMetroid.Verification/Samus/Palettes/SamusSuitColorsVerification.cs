@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
@@ -30,7 +29,6 @@ using SuperMetroid.AssetExtraction.Samus;
 internal static class SamusSuitColorsVerification
 {
     /// <summary>Compares all three suit palettes to retail colors and checks catalog bounds and CGRAM installation.</summary>
-    [PrivateInstallation("Checks the import pipeline's SamusSuitColorExtractor on the cartridge: Normal Suit Catalog Boundary.")]
     internal static void VerifyNormalSuitCatalogBoundary()
     {
         var cartridge = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -114,7 +112,6 @@ internal static class SamusSuitColorsVerification
     }
 
     /// <summary>Checks edited suit colors through live loading, restoration, hurt recovery, and Ceres entry.</summary>
-    [PrivateInstallation("Checks the import pipeline's SamusSuitColorExtractor on the cartridge: Samus Suit Color Override.")]
     internal static void VerifySamusSuitColorOverride(
         string stockDirectory,
         string overrideDirectory,

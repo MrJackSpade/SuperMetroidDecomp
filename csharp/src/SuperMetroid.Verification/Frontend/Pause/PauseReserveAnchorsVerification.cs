@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Hardware;
@@ -19,7 +18,6 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseReserveAnchorsVerification
 {
     /// <summary>Checks stock positions, independent axis edits, sprite output, and anchor bounds.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Pause Reserve Anchors with PauseReserveTankExtractor output read from the cartridge.")]
     internal static void VerifyPauseReserveAnchors(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);

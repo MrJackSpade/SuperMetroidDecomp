@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -14,7 +13,6 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapSaveMarkerCoordinatesVerification
 {
     /// <summary>Builds the independent 34-marker cartridge corpus and compares its serialized presentation.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Map Save Marker Coordinates with MapSaveMarkerExtractor output read from the cartridge.")]
     internal static void VerifyMapSaveMarkerCoordinates(ISnesAddressSpace rom)
     {
         var points = new Dictionary<string, Position16<MapPixels>>();

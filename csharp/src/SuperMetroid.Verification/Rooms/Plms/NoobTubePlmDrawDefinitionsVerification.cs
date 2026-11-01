@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -123,7 +122,6 @@ internal static class NoobTubePlmDrawDefinitionsVerification
     }
 
     /// <summary>Checks extracted stock, selected override, stock replacement, and invalid visual documents.</summary>
-    [PrivateInstallation("Checks the RoomPlmNoobTubeVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     private static void VerifyNoobTubeVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("noob-tube-visual");

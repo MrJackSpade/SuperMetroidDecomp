@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
@@ -116,7 +115,6 @@ internal static class CollectibleVisualsVerification
     }
 
     /// <summary>Checks extracted stock, selected tank-frame overrides, replacement stock, and invalid visual bits.</summary>
-    [PrivateInstallation("Checks the RoomPlmCollectibleVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     private static void VerifyCollectibleVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("collectible-visual");

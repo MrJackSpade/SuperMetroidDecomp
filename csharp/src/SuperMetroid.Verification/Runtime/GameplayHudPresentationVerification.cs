@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
@@ -21,7 +20,6 @@ namespace SuperMetroid.Verification.Runtime;
 internal static class GameplayHudPresentationVerification
 {
     /// <summary>Compares stock HUD tiles with native data and checks override propagation without live ROM reads.</summary>
-    [PrivateInstallation("Checks the import pipeline's GameplayHudPresentationExtractor on the cartridge: Gameplay Hud Presentation Assets.")]
     internal static void VerifyGameplayHudPresentationAssets(ISnesAddressSpace bus, string stock,
         string overrides, AreaMapPresentation original,
         GameplayBasePalette initialPalettes)

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -21,7 +20,6 @@ using SuperMetroid.Core.World;
 internal static class MaridiaElevatubeVisualsVerification
 {
     /// <summary>Confirms an art override reaches immediate and streamed tiles without changing collision, sound timing, or PLM deletion.</summary>
-    [PrivateInstallation("Checks the RoomPlmMaridiaElevatubeVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     internal static void VerifyMaridiaElevatubeVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

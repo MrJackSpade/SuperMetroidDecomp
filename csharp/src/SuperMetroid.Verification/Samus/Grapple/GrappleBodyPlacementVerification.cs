@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
@@ -22,7 +21,6 @@ using SuperMetroid.Verification.Harness;
 internal static class GrappleBodyPlacementVerification
 {
     /// <summary>Compares installed and edited swing art across mirrored angles, facing, anchor wrap, and pendulum updates.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Grapple Body Placement with GrappleSwingFrameExtractor output read from the cartridge.")]
     internal static void VerifyGrappleBodyPlacement(SuperMetroidAddressSpace rom)
     {
         var position = new Action<SamusState, SamusGrappleState>(SamusGrappleSwing.PositionSamusFromPendulum);

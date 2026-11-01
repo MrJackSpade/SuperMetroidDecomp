@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
@@ -21,7 +20,6 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 internal static class CrocomireArenaVisualsVerification
 {
     /// <summary>Checks stock mapping, visible edits, physical block isolation, override persistence, and asset rejection.</summary>
-    [PrivateInstallation("Checks the RoomPlmCrocomireVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     internal static void VerifyCrocomireArenaVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -20,7 +19,6 @@ internal static class MapMarkerPixelsVerification
     internal static void VerifyDefeatedBossPixels(ISnesAddressSpace rom) => VerifyMapMarkerPixelFamily(rom, [0x9f]);
 
     /// <summary>Compares stock pixels and VRAM uploads, then checks edited tiles and coordinate bounds.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Map Marker Pixel Family with MapSpriteExtractor output read from the cartridge.")]
     private static void VerifyMapMarkerPixelFamily(ISnesAddressSpace rom, int[] tiles)
     {
         var files = MapSpriteExtractor.Extract(rom);

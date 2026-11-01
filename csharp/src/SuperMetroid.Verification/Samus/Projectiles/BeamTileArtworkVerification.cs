@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Samus.Palettes;
@@ -24,7 +23,6 @@ using SuperMetroid.Core.Progression;
 internal static class BeamTileArtworkVerification
 {
     /// <summary>Compares all beam selections with native VRAM, checks one-pixel edits, and exercises queued artwork rebinding.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Beam Tile Artwork with BeamPaletteExtractor and BeamTileExtractor output read from the cartridge.")]
     internal static void VerifyBeamTileArtwork(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailDefinitions), () => VerifyProjectileTrailDefinitions(bus));

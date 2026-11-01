@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
@@ -20,7 +19,6 @@ namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 internal static class IntroMotherBrainExplosionPartsVerification
 {
     /// <summary>Compares stock parts at visible and wrapped origins while preserving independently edited composition fields and part counts.</summary>
-    [PrivateInstallation("Cartridge-oracle check: compares Intro Mother Brain Explosion Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyIntroMotherBrainExplosionParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("MotherBrainExplosion", value.AppendIdentity);

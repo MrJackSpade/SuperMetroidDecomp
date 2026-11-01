@@ -25,7 +25,7 @@ internal static class PixelComparison
         }
         if (count == 0) return;
         string images = Save(packet, context, expected, actual, difference);
-        throw new InvalidOperationException($"{context} ({packet.Identity}): {count} pixels differ; first ({first % packet.Size.X},{first / packet.Size.X}) " +
+        throw new InvalidOperationException($"{context} (game frame {packet.FrameNumber}): {count} pixels differ; first ({first % packet.Size.X},{first / packet.Size.X}) " +
             $"expected {expected[first]} actual {actual[first]}; bounds ({left},{top})-({right},{bottom}) inclusive; images in {images}.");
     }
 
@@ -35,7 +35,7 @@ internal static class PixelComparison
     /// </summary>
     private static string Save(DisplayPacket packet, string context, RgbaPixel[] expected, RgbaPixel[] actual, RgbaPixel[] difference)
     {
-        string name = string.Concat($"{context} {packet.Identity.Sequence}".Select(character => char.IsLetterOrDigit(character) ? character : '-'));
+        string name = string.Concat($"{context} {packet.FrameNumber}".Select(character => char.IsLetterOrDigit(character) ? character : '-'));
         string directory = Path.Combine(AppContext.BaseDirectory, "pixel-failures", name);
         Directory.CreateDirectory(directory);
         var size = new Extent16<ImagePixels>(packet.Size.X, packet.Size.Y);

@@ -57,7 +57,8 @@ internal static class RetailKraidCaptureTests
             if (changed || tick % 8 == 0 || mainLoop)
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
-                var packet = new DisplayPacket(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
+                samples++;
+                var packet = new DisplayPacket((ushort)tick, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: Kraid rise tick={tick}, AI={BodyFunction()}");
             }
@@ -89,7 +90,8 @@ internal static class RetailKraidCaptureTests
             if (changed || tick % 4 == 0 || finished)
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
-                var packet = new DisplayPacket(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
+                samples++;
+                var packet = new DisplayPacket((ushort)tick, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid growth tick={tick}, AI={BodyFunction()}");
                 growthSamples++;
             }
@@ -118,7 +120,8 @@ internal static class RetailKraidCaptureTests
             if (changed || tick % 4 == 0 || boss.DeathSequenceComplete)
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
-                var packet = new DisplayPacket(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
+                samples++;
+                var packet = new DisplayPacket((ushort)tick, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid death tick={tick}, AI={BodyFunction()}");
                 deathSamples++;
             }

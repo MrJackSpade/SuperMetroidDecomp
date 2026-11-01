@@ -28,13 +28,13 @@ internal static class ObjSubscreenVerification
         byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 8; oam[1] = 8;
         var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 0);
-        var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
+        var packet = new DisplayPacket(0, new LayeredScene(memory,
             new DisplayLayer[] { new SpritesLayer(true) }, 15));
 
         var pixels = DisplayRendering.Render(packet);
         AssertEqual(new RgbaPixel(255, 0, 255), pixels[8 * 256 + 8], "OBJ subscreen adds blue to red backdrop");
         AssertEqual(new RgbaPixel(255, 0, 0), pixels[0], "transparent OBJ preserves backdrop");
-        var ordinary = new DisplayPacket(new(2, 1, 0), new LayeredScene(memory,
+        var ordinary = new DisplayPacket(0, new LayeredScene(memory,
             new DisplayLayer[] { new SpritesLayer() }, 15));
     }
 
@@ -54,7 +54,7 @@ internal static class ObjSubscreenVerification
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2 + priority * 16);
             var registers = new AffineTransform(256, 0, 0, 256, new Offset16<FloorPixels>(0, 0), new Offset16<FloorPixels>(0, 0));
             var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3);
-            var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
+            var packet = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { new TurningFloorLayer(registers, AffineFloorFixtures.Floor(vram, ToColors(colors)), AddsForeground: true) }, 15));
             var pixels = DisplayRendering.Render(packet);
             RgbaPixel expected = opaqueBg && priority == 0 ? new(0, 132, 0)
@@ -79,7 +79,7 @@ internal static class ObjSubscreenVerification
         byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 8; oam[1] = 8;
         var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3);
-        var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
+        var packet = new DisplayPacket(0, new LayeredScene(memory,
             new DisplayLayer[] { new TurningFloorLayer(new(256, 0, 0, 256, default, default), AffineFloorFixtures.Floor(vram, ToColors(colors)), true) }, 15));
         var pixels = DisplayRendering.Render(packet);
         AssertEqual(new RgbaPixel(198, 99, 0), pixels[8 * 256 + 8], "Mode7 minus OBJ clamps each five-bit component without halving");
@@ -99,7 +99,7 @@ internal static class ObjSubscreenVerification
         {
             byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(objPalette * 2);
-            var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(
+            var packet = new DisplayPacket(0, new LayeredScene(
                 FramePaint.FromOam(vram, ToColors(palette), oam, 1, 0),
                 new DisplayLayer[] { new SpritesLayer(FixedColor: new(8, 4, 2)) }, 15));
             var pixels = DisplayRendering.Render(packet);
@@ -109,7 +109,7 @@ internal static class ObjSubscreenVerification
 
             foreach (byte selectedPriority in new byte[] { 0, 1 })
             {
-                var filtered = new DisplayPacket(new(1, 1, 0), new LayeredScene(
+                var filtered = new DisplayPacket(0, new LayeredScene(
                     FramePaint.FromOam(vram, ToColors(palette), oam, 1, 0),
                     new DisplayLayer[] { new SpriteDepthLayer(selectedPriority, new(8, 4, 2)) }, 15));
                 var filteredPixels = DisplayRendering.Render(filtered);
@@ -133,7 +133,7 @@ internal static class ObjSubscreenVerification
         // The subscreen and its coverage picture the one-screen maps at a tilemap word, read as the fixture stands when drawn.
         PicturedPlane Plane(int tilemapWord) => VramPictureFixtures.Plane(vram, ToColors(colors), tilemapWord, 0, TileInkDepth.SixteenColours, AddedPicturedPlaneLayer.MapSize);
         var memory = FramePaint.FromNative(ToColors(colors), []);
-        var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
+        var packet = new DisplayPacket(0, new LayeredScene(memory,
             new DisplayLayer[] { new AddedPicturedPlaneLayer(Plane(0x7000)) }, 15));
         AssertTrue(DisplayRendering.Render(packet).All(pixel => pixel == new RgbaPixel(255, 0, 255)),
             "four-bit subscreen resolves upper bitplanes and sixteen-color palette stride before addition");
@@ -146,7 +146,7 @@ internal static class ObjSubscreenVerification
         {
             byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2);
-            var masked = new DisplayPacket(new(3, 1, 0), new LayeredScene(
+            var masked = new DisplayPacket(0, new LayeredScene(
                 FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3),
                 new DisplayLayer[] { new SpritesLayer(), new AddedPicturedPlaneLayer(Plane(0x7000),
                     new PicturedPlaneLayer(Plane(0x6800), new Position16<TilePlanePixels>(0, 0), null), MainObjects: true) }, 15));
@@ -162,7 +162,7 @@ internal static class ObjSubscreenVerification
             byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(priority << 4);
             vram[0xe000 + (32 + 1) * 2 + 1] = (byte)(4 | (highBackground ? 32 : 0));
-            var composite = new DisplayPacket(new(2, 1, 0), new LayeredScene(
+            var composite = new DisplayPacket(0, new LayeredScene(
                 FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3),
                 new DisplayLayer[] { new AddedPicturedPlaneLayer(Plane(0x7000), IncludeObjects: true) }, 15));
             bool objectWins = priority >= (highBackground ? 3 : 2);

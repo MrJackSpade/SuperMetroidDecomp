@@ -30,7 +30,7 @@ internal static class RetailFrontendTests
             if (newPhase || tick % 17 == 0 || title.Phase == TitleSequencePhase.TitleScreenFadeOut)
             {
                 var expected = title.Render();
-                var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), title.CaptureRenderSnapshot());
+                var packet = new DisplayPacket((ushort)tick, title.CaptureRenderSnapshot());
                 if (title.Phase == TitleSequencePhase.SceneThreeZoom && (packet.Floor ?? throw new InvalidOperationException("Verification requires packet.Floor.")).Gradient is null)
                     throw new InvalidOperationException("Native scene-three gradient was not spawned.");
                 if (title.Phase == TitleSequencePhase.YearText && (packet.Floor ?? throw new InvalidOperationException("Verification requires packet.Floor.")).Gradient is not null)
@@ -52,7 +52,7 @@ internal static class RetailFrontendTests
         {
             ControllerButton input = tick % 47 == 0 ? ControllerButton.Start : ControllerButton.None;
             var expected = legacy.Step(input);
-            var actual = captured.StepCaptured(input, tick + 1, 2);
+            var actual = captured.StepCaptured(input);
             if (expected.GameState != actual.Frame.GameState || expected.Phase != actual.Frame.Phase ||
                 expected.FrameNumber != actual.Frame.FrameNumber ||
                 !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))

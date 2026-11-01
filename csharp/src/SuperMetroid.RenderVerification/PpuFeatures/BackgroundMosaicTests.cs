@@ -51,7 +51,8 @@ internal static class BackgroundMosaicTests
             var ordinary = new GameplaySceneLayer(registers, rooms, new BackgroundLineScrolls { Horizontal = horizontal, Vertical = vertical });
             DisplayLayer layer = mode is 0 or 3 ? ordinary : new GameplayBlendLayer(ordinary, ScreenWindow.Closed, false, new SceneBlend { Layers = mode == 2 ? ColorBlend.Backdrop : ColorBlend.None, BlendsWithLayersBehind = mode == 2, FixedColor = RgbColor.Black }, subscreenUsesBg2: mode == 2);
             var scene = new LayeredScene(memory, [layer], 15);
-            var packet = new DisplayPacket(new(++cases, 1, 0), scene);
+            cases++;
+            var packet = new DisplayPacket(0, scene);
             var actual = DisplayRendering.Render(scene);
             for (int y = 0; y < 224; y++)
             for (int x = 0; x < 256; x++)

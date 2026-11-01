@@ -165,7 +165,8 @@ internal sealed class AndroidGameSession
                 ControllerButton input = Input.Sample();
                 data.Record(input);
                 var previousGameState = data.Game.GameState;
-                CapturedFrontendFrame frame = data.Game.StepCaptured(input, ++sequence, data.Generation);
+                sequence++;
+                CapturedFrontendFrame frame = data.Game.StepCaptured(input);
                 view.SetRoomIdentity(data.Game.GameplayActiveRoomIdentity is { } room
                     ? $"Room {room} [{data.Game.GameplayActiveRoom?.Name}, state {data.Game.GameplayActiveRoomState?.Name}]"
                     : "No active room");
@@ -294,7 +295,7 @@ internal sealed class AndroidGameSession
                 string result = request.Action(data);
                 RefreshEffectiveOptions(data);
                 Input.Clear();
-                var retained = data.Game.GetRetainedDisplay(1, data.Generation);
+                var retained = data.Game.GetRetainedDisplay();
                 if (retained is not null) view.Publish(SoftwareFrameSnapshotRenderer.Render(retained), result);
                 request.Result.TrySetResult(result);
             }

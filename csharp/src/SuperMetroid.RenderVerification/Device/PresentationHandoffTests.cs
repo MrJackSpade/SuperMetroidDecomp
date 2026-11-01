@@ -19,23 +19,23 @@ internal static class PresentationHandoffTests
     /// <summary>Checks immutable ownership transfer, replacement accounting, generation invalidation, and publication while a consumer holds a frame.</summary>
     private static void VerifyLatestFrameMailbox()
     {
-        var first = new DisplayPacket(new(1, 1, ushort.MaxValue), new RgbaPixel(198, 127, 63, 255));
+        var first = new RenderFrame(new(1, 1), new DisplayPacket(ushort.MaxValue, new RgbaPixel(198, 127, 63, 255)));
         var mailbox = new LatestRenderFrameMailbox(1);
         mailbox.Publish(first);
         AssertTrue(ReferenceEquals(first, mailbox.TakeLatest()), "mailbox transfers immutable ownership");
         AssertTrue(mailbox.TakeLatest() is null, "consumption does not repeat a frame");
-        // The cartridge counter wraps here, but host sequence remains monotonic.
-        mailbox.Publish(new(new(2, 1, 0), default(RgbaPixel)));
-        mailbox.Publish(new(new(3, 1, 1), default(RgbaPixel)));
+        // The game's frame number wraps here, but the host sequence keeps increasing.
+        mailbox.Publish(Frame(2, 1, 0));
+        mailbox.Publish(Frame(3, 1, 1));
         AssertEqual(1L, mailbox.Metrics.Replaced, "superseded visuals counted");
         mailbox.AdvanceGeneration(2);
         AssertEqual(1L, mailbox.VerificationCounters.Invalidated, "queued old generation discarded");
         AssertTrue(!mailbox.IsCurrent(first), "consumer-held old packet invalidated");
         AssertTrue(mailbox.TakeLatest() is null, "old generation cannot be acquired after reset");
         AssertThrows<InvalidOperationException>(() => mailbox.Publish(first), "old publication generation rejected");
-        AssertThrows<InvalidOperationException>(() => mailbox.Publish(new(new(3, 2, 0), default(RgbaPixel))),
+        AssertThrows<InvalidOperationException>(() => mailbox.Publish(Frame(3, 2, 0)),
             "sequence cannot rewind across load");
-        mailbox.Publish(new(new(4, 2, 0), default(RgbaPixel)));
+        mailbox.Publish(Frame(4, 2, 0));
         AssertEqual(4L, (mailbox.TakeLatest() ?? throw new InvalidOperationException("Verification requires mailbox.TakeLatest().")).Identity.Sequence, "new generation published");
 
         // Deliberately park the consumer after it has acquired a packet. Publication
@@ -43,10 +43,10 @@ internal static class PresentationHandoffTests
         // This is a mailbox component test, not a gameplay/audio throughput claim.
         using var acquired = new ManualResetEventSlim();
         using var release = new ManualResetEventSlim();
-        mailbox.Publish(new(new(5, 2, 1), default(RgbaPixel)));
+        mailbox.Publish(Frame(5, 2, 1));
         Task consumer = Task.Run(() =>
         {
-            DisplayPacket held = mailbox.TakeLatest()
+            RenderFrame held = mailbox.TakeLatest()
                 ?? throw new InvalidOperationException("Consumer fixture had no frame.");
             acquired.Set();
             if (!release.Wait(TimeSpan.FromSeconds(10)))
@@ -57,7 +57,7 @@ internal static class PresentationHandoffTests
         {
             AssertTrue(acquired.Wait(TimeSpan.FromSeconds(10)), "consumer acquired first packet");
             for (long sequence = 6; sequence <= 1005; sequence++)
-                mailbox.Publish(new(new(sequence, 2, unchecked((ushort)sequence)), default(RgbaPixel)));
+                mailbox.Publish(Frame(sequence, 2, unchecked((ushort)sequence)));
             // Keep the consumer blocked for at least the required 250 ms. Publication
             // above already completed while it was blocked; no scheduling-speed ratio
             // is used as a flaky pass criterion.
@@ -81,7 +81,7 @@ internal static class PresentationHandoffTests
     private static void VerifyPresentationGate()
     {
         var gate = new RenderPresentationGate(1);
-        RenderFrameIdentity old = new(1, 1, 0), current = new(2, 2, 0);
+        RenderFrameIdentity old = new(1, 1), current = new(2, 2);
         gate.AdvanceGeneration(2);
         bool called = false;
         AssertTrue(!gate.TryPresent(old, () => called = true) && !called,
@@ -110,7 +110,7 @@ internal static class PresentationHandoffTests
             AssertTrue(!reset.IsCompleted, "reset cannot finish while presentation owns boundary");
             // Mailbox operations deliberately use a different lock and remain available.
             var mailbox = new LatestRenderFrameMailbox(2);
-            mailbox.Publish(new(current, default(RgbaPixel)));
+            mailbox.Publish(new(current, new DisplayPacket(0, default(RgbaPixel))));
             AssertTrue(mailbox.TakeLatest() is not null, "publication independent of presentation gate");
         }
         finally
@@ -119,10 +119,14 @@ internal static class PresentationHandoffTests
         }
         AssertTrue(!gate.TryPresent(current, () => throw new InvalidOperationException("stale presentation")),
             "completed reset forbids prior generation");
-        AssertTrue(gate.TryPresent(new(3, 3, 0), () => { }), "new generation presents after reset");
+        AssertTrue(gate.TryPresent(new(3, 3), () => { }), "new generation presents after reset");
         Console.WriteLine("  Presentation gate: stale rejection, atomic reset ordering, exception release and independent publication agree.");
     }
 
+    /// <summary>A solid frame under the host identity <paramref name="sequence"/>/<paramref name="generation"/>, showing game frame <paramref name="frameNumber"/>.</summary>
+    private static RenderFrame Frame(long sequence, long generation, int frameNumber) =>
+        new(new(sequence, generation), new DisplayPacket(frameNumber, default(RgbaPixel)));
+
     /// <summary>Fails with <paramref name="message"/> unless <paramref name="condition"/> holds.</summary>
     private static void AssertTrue(bool condition, string message)
     {

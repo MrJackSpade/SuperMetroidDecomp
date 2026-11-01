@@ -61,7 +61,7 @@ internal static class EndingWavySamusTests
                 RgbaPixel[] withoutWave = DisplayRendering.Render(new LayeredScene(snapshot.Paint, unwaved, snapshot.Brightness));
                 RgbaPixel[] expected = DisplayRendering.Render(snapshot);
                 Require(!expected.SequenceEqual(withoutWave), "Native artwork must visibly add the blue transformation effect");
-                var packet = new DisplayPacket(new(age + 1, 1, (ushort)age), snapshot);
+                var packet = new DisplayPacket((ushort)age, snapshot);
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), "Ending wave frame on this device matches the WARP reference device");
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), "Repeated wave rendering does not advance simulation");
                 if (age == 3) Require(previous is not null && !expected.SequenceEqual(previous), "Wave changes visible pixels between consecutive frames");

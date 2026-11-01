@@ -31,7 +31,7 @@ internal static class NorfairGlowCaptureTests
             runtime.StepFrame(0);
             var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             original ??= scene;
-            var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), scene);
+            var packet = new DisplayPacket((ushort)tick, scene);
             PixelComparison.Verify(packet, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()),
                 renderer.RenderForReadback(packet), $"{device.Kind}: Norfair glow frame {tick}");
 
@@ -46,7 +46,7 @@ internal static class NorfairGlowCaptureTests
             var registers = originalLayer.View;
             var foreground = new LayeredScene(memory,
                 [new GameplaySceneLayer(registers with { MainScreenLayers = ScreenLayers.Foreground }, originalLayer.Rooms)], original.Brightness);
-            var isolated = new DisplayPacket(new(tick + 1, 2, (ushort)tick), foreground);
+            var isolated = new DisplayPacket((ushort)tick, foreground);
             var pixels = DisplayRendering.Render(isolated);
             PixelComparison.Verify(isolated, pixels, renderer.RenderForReadback(isolated),
                 $"{device.Kind}: isolated Norfair foreground {tick}");

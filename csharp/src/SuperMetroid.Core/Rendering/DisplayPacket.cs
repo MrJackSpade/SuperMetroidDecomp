@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 public sealed class DisplayPacket
 {
-    /// <summary>The host's publication identity and the game frame it shows; sequence and generation are positive, while the mailbox enforces their ordering.</summary>
-    public RenderFrameIdentity Identity { get; }
+    /// <summary>The number of the game update this frame shows, counted as the game counts its updates.</summary>
+    public int FrameNumber { get; }
     /// <summary>The layered scene this frame shows, or <see langword="null"/> when it shows a turning floor or a solid colour.</summary>
     public LayeredScene? Layers { get; }
     /// <summary>The turning floor, backdrop and sprites this frame shows, or <see langword="null"/> when it shows layers or a solid colour.</summary>
@@ -25,10 +25,10 @@ public sealed class DisplayPacket
     public int Brightness { get; }
 
     /// <summary>Creates a frame showing a layered scene at the scene's brightness.</summary>
-    /// <param name="identity">Publication identity with positive host sequence and generation.</param>
+    /// <param name="frameNumber">The number of the game update this frame shows.</param>
     /// <param name="layers">The complete layered scene, including its brightness.</param>
-    public DisplayPacket(RenderFrameIdentity identity, LayeredScene layers)
-        : this(identity)
+    public DisplayPacket(int frameNumber, LayeredScene layers)
+        : this(frameNumber)
     {
         Ensure.NotNull(layers);
         Layers = layers;
@@ -36,10 +36,10 @@ public sealed class DisplayPacket
     }
 
     /// <summary>Creates a frame showing a turning floor, backdrop and sprites at the scene's brightness.</summary>
-    /// <param name="identity">Publication identity with positive host sequence and generation.</param>
+    /// <param name="frameNumber">The number of the game update this frame shows.</param>
     /// <param name="floor">The complete turning-floor scene, including its brightness.</param>
-    public DisplayPacket(RenderFrameIdentity identity, FloorScene floor)
-        : this(identity)
+    public DisplayPacket(int frameNumber, FloorScene floor)
+        : this(frameNumber)
     {
         Ensure.NotNull(floor);
         Floor = floor;
@@ -47,22 +47,21 @@ public sealed class DisplayPacket
     }
 
     /// <summary>Creates a frame filled with one colour, shown at <paramref name="brightness"/>.</summary>
-    /// <param name="identity">Publication identity with positive host sequence and generation.</param>
+    /// <param name="frameNumber">The number of the game update this frame shows.</param>
     /// <param name="solidColor">The colour filling all 256 by 224 pixels before the brightness applies.</param>
     /// <param name="brightness">The frame's brightness, from black (zero) to <see cref="DisplayBrightness.Full"/>.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The brightness is below black or above full.</exception>
-    public DisplayPacket(RenderFrameIdentity identity, RgbaPixel solidColor, int brightness = DisplayBrightness.Full)
-        : this(identity)
+    /// <exception cref="ArgumentOutOfRangeException">The frame number is negative, or the brightness is below black or above full.</exception>
+    public DisplayPacket(int frameNumber, RgbaPixel solidColor, int brightness = DisplayBrightness.Full)
+        : this(frameNumber)
     {
         SolidColor = solidColor;
         Brightness = DisplayBrightness.Require(brightness);
     }
 
-    /// <summary>Validates the host identity.</summary>
-    private DisplayPacket(RenderFrameIdentity identity)
+    /// <summary>Records the frame number, which is never negative.</summary>
+    private DisplayPacket(int frameNumber)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(identity.Sequence);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(identity.Generation);
-        Identity = identity;
+        ArgumentOutOfRangeException.ThrowIfNegative(frameNumber);
+        FrameNumber = frameNumber;
     }
 }

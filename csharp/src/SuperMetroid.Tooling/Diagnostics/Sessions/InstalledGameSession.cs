@@ -89,8 +89,6 @@ internal sealed class InstalledGameSession : IDisposable
     public SuperMetroidGame Game { get; private set; }
     /// <summary>Fingerprint of installed audio, maps, projectiles, and artwork.</summary>
     public SuperMetroid.AssetExtraction.Installation.GameContentIdentity ContentIdentity { get; }
-    /// <summary>Capture generation incremented whenever the live game graph is replaced.</summary>
-    public long Generation { get; private set; } = 1;
 
     /// <summary>Appends one consumed controller word to the active session recording.</summary>
     public void Record(ControllerButton input) => recorder.RecordFrame(input);

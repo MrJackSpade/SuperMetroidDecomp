@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Spatial;
 using System.Runtime.ExceptionServices;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Presentation;
 using SuperMetroid.Rendering.Direct3D11.Telemetry;
@@ -127,11 +126,11 @@ public sealed class D3D11RenderWorker
         thread.Start();
     }
 
-    /// <summary>Publishes one complete immutable display packet and wakes the GPU owner without waiting for rendering; a newer pending packet replaces the old visual packet instead of creating a backlog.</summary>
+    /// <summary>Publishes one complete immutable display frame and wakes the GPU owner without waiting for rendering; a newer pending frame replaces the old one instead of creating a backlog.</summary>
     /// <param name="frame">Current-generation frame with a strictly increasing sequence, including across load/reset generations; simulation data remains outside the mailbox.</param>
     /// <exception cref="ArgumentNullException"><paramref name="frame"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The worker is stopping, the generation differs, or the sequence does not increase; stored worker failures are also rethrown.</exception>
-    public void Publish(DisplayPacket frame)
+    public void Publish(RenderFrame frame)
     {
         lock (lifecycle)
         {
@@ -198,7 +197,7 @@ public sealed class D3D11RenderWorker
     {
         try
         {
-            DisplayPacket? retained = null;
+            RenderFrame? retained = null;
             bool suspended = false;
             int consecutiveLosses = 0;
             while (true)
@@ -236,7 +235,7 @@ public sealed class D3D11RenderWorker
 
     /// <summary>Creates one device generation and consumes mailbox frames until shutdown or device loss.</summary>
     private void RunDevice(nint window, ref Extent16<DisplayPixels> clientSize, D3D11DeviceKind kind,
-        ref DisplayPacket? retained, ref bool suspended, ref int consecutiveLosses)
+        ref RenderFrame? retained, ref bool suspended, ref int consecutiveLosses)
     {
             using var device = new D3D11RenderDevice(kind);
             try
@@ -298,11 +297,11 @@ public sealed class D3D11RenderWorker
                         if (!timed) Interlocked.Increment(ref skippedGpuTimingSamples);
                         long submissionStarted = System.Diagnostics.Stopwatch.GetTimestamp();
                         var uploadBefore = renderer.UploadStatistics;
-                        renderer.Render(packet);
+                        renderer.Render(packet.Display);
                         cpuCompositionTiming.Record(System.Diagnostics.Stopwatch.GetElapsedTime(submissionStarted).TotalMilliseconds);
                         if (timed) gpuTimer.MarkCompositionFinished();
                         long presentationStarted = System.Diagnostics.Stopwatch.GetTimestamp();
-                        var presentationResult = presenter.Present(renderer, packet.Identity, gate, timed ? gpuTimer : null);
+                        var presentationResult = presenter.Present(renderer, packet, gate, timed ? gpuTimer : null);
                         cpuPresentationTiming.Record(System.Diagnostics.Stopwatch.GetElapsedTime(presentationStarted).TotalMilliseconds);
                         var uploadAfter = renderer.UploadStatistics;
                         cpuUploadTiming.Record(uploadAfter.CpuMilliseconds - uploadBefore.CpuMilliseconds);

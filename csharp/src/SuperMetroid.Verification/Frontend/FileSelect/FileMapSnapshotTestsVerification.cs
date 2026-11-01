@@ -80,7 +80,7 @@ internal static class FileMapSnapshotTestsVerification
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
         {
             ControllerButton input = tick % 47 == 0 ? ControllerButton.Start : 0;
-            var reference = game.Step(input); var actual = capturedGame.StepCaptured(input, tick + 1, 1);
+            var reference = game.Step(input); var actual = capturedGame.StepCaptured(input);
             sawMap |= game.GameState == SuperMetroidGameState.FileSelectMap;
             AssertTrue(game.PublishedPixels().SequenceEqual(RenderForComparison(actual.Snapshot)), "saved-file frontend pixels");
             AssertEqual(reference.GameState, actual.Frame.GameState, "saved-file frontend state");
@@ -92,7 +92,8 @@ internal static class FileMapSnapshotTestsVerification
 
         void Compare(RgbaPixel[] expected, LayeredScene captured, string name)
         {
-            var packet = new DisplayPacket(new(++samples, 1, 0), captured);
+            samples++;
+            var packet = new DisplayPacket(0, captured);
             AssertTrue(expected.SequenceEqual(RenderForComparison(packet)), name);
         }
     }
@@ -107,7 +108,7 @@ internal static class FileMapSnapshotTestsVerification
         var child = new LayeredScene(blue, new DisplayLayer[] { new SpritesLayer() }, 15);
         var window = new InsetSceneLayer(child, 127, 111, 130, 113);
         var parent = new LayeredScene(red, new DisplayLayer[] { window }, 15);
-        var packet = new DisplayPacket(new(1, 1, 0), parent);
+        var packet = new DisplayPacket(0, parent);
         RgbaPixel[] pixels = DisplayRendering.Render(packet);
         for (int y = 0; y < 224; y++)
         for (int x = 0; x < 256; x++)

@@ -67,7 +67,7 @@ internal static class FileSelectSoundVerification
         for (int tick = 0; tick < 500; tick++)
         {
             ControllerButton button = game.GameState == SuperMetroidGameState.FileSelectMenus ? accept : ControllerButton.Start;
-            var frame = game.StepCaptured(tick % 47 == 0 ? button : ControllerButton.None, tick + 1, 1).Frame;
+            var frame = game.StepCaptured(tick % 47 == 0 ? button : ControllerButton.None).Frame;
             reachedSavedMap |= frame.GameState == SuperMetroidGameState.FileSelectMap;
             static bool IsSwoosh(AudioEvent audioEvent) => audioEvent is AudioEvent.StartSoundEffect started &&
                 started.SoundEffect == Library1Sound.FileSelected;

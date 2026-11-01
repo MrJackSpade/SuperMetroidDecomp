@@ -43,7 +43,8 @@ internal static class RoomFxSnapshotTestsVerification
             var fx = new RoomLayer3FxRenderSnapshot(type, blend, new Position16<OverlayPixels>(65530, 511), new Position16<RoomPixels>(0, currentY),
                 WaterBg3WavePhase: phase, WaterSurfaceScreenY: surface);
             OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomLayer3Fx(fx, plane);
-            var packet = new DisplayPacket(new(++samples, 1, 0),
+            samples++;
+            var packet = new DisplayPacket(0,
                 new LayeredScene(memory, layer is null ? [] : new DisplayLayer[] { layer }, 15));
             RgbaPixel[] actual = DisplayRendering.Render(packet);
             AssertTrue(actual.AsSpan(0, 256 * 32).SequenceEqual(baseline.AsSpan(0, 256 * 32)),
@@ -54,7 +55,7 @@ internal static class RoomFxSnapshotTestsVerification
             BlendOperation.Add, null!, ScrollBands.Uniform(0)), "BG math requires its described line scrolls");
         AssertThrows<ArgumentOutOfRangeException>(() => new OverlayBlendLayer(plane, 0, 64, 32,
             (BlendOperation)255, ScrollBands.Uniform(0), ScrollBands.Uniform(0)), "BG math rejects unknown equation");
-        var encoded = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory, [owned], 15));
+        var encoded = new DisplayPacket(0, new LayeredScene(memory, [owned], 15));
         AssertThrows<InvalidDataException>(() => GameplayEffectCapture.CaptureRoomLayer3Fx(
             new(RoomFxType.Water, LayerBlendingConfiguration.Rain, Position16<OverlayPixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)), plane), "capture preserves invalid water configuration failure");
         Console.WriteLine($"  Room FX snapshots: {samples} water/lava/acid/rain/fog cases, HUD exclusion and ownership agree.");

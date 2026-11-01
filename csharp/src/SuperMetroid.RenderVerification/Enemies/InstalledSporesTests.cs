@@ -55,7 +55,7 @@ internal static class InstalledSporesTests
                 foreach (DisplayPacket packet in packets)
                 {
                     PixelComparison.Verify(packet, DisplayRendering.Render(packet),
-                        renderer.RenderForReadback(packet), $"{kind}: spores case {packet.Identity}");
+                        renderer.RenderForReadback(packet), $"{kind}: spores case {packet.FrameNumber}");
                 }
                 Console.WriteLine($"{kind}: {packets.Count} spore/source-priority frames match the WARP reference exactly.");
             }
@@ -394,7 +394,7 @@ internal static class InstalledSporesTests
                     $"Spore source exclusion differs: x{x}, expected {expected}, actual {pixels[64 * 256 + x]}; palette {palette}, OBJ {objPriority}, BG priorities {bg1High}/{bg2High}, planes {enabled}.");
             }
             Require(pixels[0] == new RgbaPixel(16, 16, 16), "Spores blended into the HUD.");
-            var packet = new DisplayPacket(new(packets.Count + 1, 1, 0), scene);
+            var packet = new DisplayPacket(packets.Count + 1, scene);
             packets.Add(packet); cases++;
         }
         Console.WriteLine($"{cases} independent spore pixel cases cover BG1 exclusion, BG2/backdrop addition, all OBJ palettes/priorities and HUD preservation.");

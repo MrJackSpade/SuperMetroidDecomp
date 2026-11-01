@@ -60,7 +60,7 @@ internal static class WaterfallTests
         Check(80, 24, 20, 16, "OBJ palette three is exempt");
         Check(96, 19, 13, 7, "OBJ palette four participates");
         Check(112, 19, 13, 7, "backdrop participates");
-        var packet = new DisplayPacket(new(1, 1, 0), scene);
+        var packet = new DisplayPacket(0, scene);
         PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "waterfall source/priority/color math");
         Console.WriteLine($"{device.Kind}: waterfall priority, colors and OBJ exemptions passed.");
 

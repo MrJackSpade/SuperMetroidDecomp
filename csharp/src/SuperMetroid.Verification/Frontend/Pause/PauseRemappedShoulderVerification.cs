@@ -36,9 +36,8 @@ internal static class PauseRemappedShoulderVerification
             var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random) { GameState = SuperMetroidGameState.PausedB };
             game.AdoptRuntime(runtime);
             game.Session.Show(pause);
-            long sequence = 0;
             for (int frame = 0; frame < 8 && !pause.IsPageTransitionActive; frame++)
-                game.StepCaptured(held, ++sequence, 1);
+                game.StepCaptured(held);
             AssertEqual(opensEquipment, pause.IsPageTransitionActive,
                 $"physical {held} with swapped aim bindings {(opensEquipment ? "opens" : "does not open")} the equipment page");
         }

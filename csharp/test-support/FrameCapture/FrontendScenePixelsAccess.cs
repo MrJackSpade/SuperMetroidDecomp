@@ -11,12 +11,9 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 internal static class FrontendScenePixelsAccess
 {
-    /// <summary>The identity the rendered snapshots carry; rendering does not read it.</summary>
-    private static RenderFrameIdentity Identity => new(1, 1, 0);
-
     /// <summary>Rasterizes a layered snapshot.</summary>
     internal static RgbaPixel[] Pixels(LayeredScene snapshot) =>
-        DisplayRendering.Render(new DisplayPacket(Identity, snapshot));
+        DisplayRendering.Render(new DisplayPacket(0, snapshot));
 
     /// <summary>Rasterizes a published gameplay frame.</summary>
     /// <param name="frame">The published frame.</param>

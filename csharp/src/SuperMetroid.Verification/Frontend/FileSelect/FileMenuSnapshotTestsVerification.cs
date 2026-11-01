@@ -85,7 +85,7 @@ internal static class FileMenuSnapshotTestsVerification
             RgbaPixel[] expected = legacy();
             LayeredScene snapshot = capture();
             Match(expected, DisplayRendering.Render(
-                new DisplayPacket(new(comparisons + 1, 1, (ushort)comparisons), snapshot)));
+                new DisplayPacket((ushort)comparisons, snapshot)));
             Match(expected, DisplayRendering.Render(snapshot));
             Match(expected, DisplayRendering.Render(capture()));
             step();

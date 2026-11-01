@@ -86,7 +86,7 @@ internal static class ColorWindowSnapshotTestsVerification
             "a window joins no more shapes than the backend draws");
         AssertThrows<ArgumentException>(() => new WindowCone(Offset16<ScreenPixels>.Zero, 0, WindowCone.AngleUnitsPerTurn / 2),
             "a cone is narrower than half a turn");
-        _ = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
+        _ = new DisplayPacket(0, new LayeredScene(memory,
             new DisplayLayer[] { new ColourAddWindowLayer(owned, new RgbColor(25, 1, 31)) }, 15));
         Console.WriteLine($"  Color window snapshots: {samples} suit/Power Bomb retained windows and window ownership agree.");
 

@@ -38,7 +38,8 @@ internal static class RetailDeathCaptureTests
         void Step(ControllerButton input, bool comparePixels)
         {
             var expected = legacy.Step(input);
-            var actual = captured.StepCaptured(input, ++sequence, 1);
+            sequence++;
+            var actual = captured.StepCaptured(input);
             if (expected.GameState != actual.Frame.GameState ||
                 expected.Phase != actual.Frame.Phase || expected.FrameNumber != actual.Frame.FrameNumber ||
                 !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))

@@ -46,7 +46,7 @@ internal static class RetailRidleyCaptureTests
             if (scene.Layers[0] is not TurningRoomLayer { Floor: not null } mixed ||
                 mixed.HudLines != ScreenGeometry.GameplayHudHeightPixels)
                 throw new InvalidOperationException("Retail Ridley fixture did not capture mixed Mode-7 floor and HUD.");
-            var packet = new DisplayPacket(new(retained.Count + 1, 1, 0), scene);
+            var packet = new DisplayPacket(retained.Count + 1, scene);
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                 $"{device.Kind}: retail Ridley scale={scale}, tilt={tilt}, scroll={scroll}");
             retained.Add(new RetainedFrame(packet, expected));
@@ -56,7 +56,7 @@ internal static class RetailRidleyCaptureTests
         for (int color = 0; color < SnesCgram.ColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new RgbColor(0, 0, 0));
         foreach (var sample in retained.AsEnumerable().Reverse())
             PixelComparison.Verify(sample.Packet, sample.Expected, renderer.RenderForReadback(sample.Packet),
-                $"{device.Kind}: retained Ridley {sample.Packet.Identity.Sequence}");
+                $"{device.Kind}: retained Ridley {sample.Packet.FrameNumber}");
         Console.WriteLine($"{device.Kind}: {retained.Count} retail Ridley mixed-mode captures and retained replays match exactly.");
         RetailRidleyEscapeTests.Run(device, renderer);
     }

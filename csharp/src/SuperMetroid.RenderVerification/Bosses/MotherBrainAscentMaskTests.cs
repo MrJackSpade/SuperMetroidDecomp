@@ -42,11 +42,11 @@ internal static class MotherBrainAscentMaskTests
             Check(16, 215, 129, "leg remains visible immediately above floor band");
             Check(0, 40, active ? 1 : 2, "upper band omits BG2 only during ascent");
             Check(0, 80, 2, "middle band retains BG2");
-            var packet = new DisplayPacket(new(1, 1, 0), scene);
+            var packet = new DisplayPacket(0, scene);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Mother Brain ascent mask");
             var math = new GameplayBlendLayer(layer, ScreenWindow.Closed, false, new SceneBlend { Layers = ColorBlend.None, BlendsWithLayersBehind = false, FixedColor = RgbColor.Black });
             var mathScene = new LayeredScene(memory, [math], 15);
-            var mathPacket = new DisplayPacket(new(2, 1, 0), mathScene);
+            var mathPacket = new DisplayPacket(0, mathScene);
             PixelComparison.Verify(mathPacket, pixels, DisplayRendering.Render(mathScene), "CPU source-aware ascent mask");
             PixelComparison.Verify(mathPacket, pixels, renderer.RenderForReadback(mathPacket), "GPU source-aware ascent mask");
 

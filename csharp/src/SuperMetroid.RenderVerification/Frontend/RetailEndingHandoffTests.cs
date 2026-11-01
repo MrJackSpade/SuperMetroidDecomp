@@ -32,7 +32,8 @@ internal static class RetailEndingHandoffTests
         void Step(ControllerButton input, bool pixels)
         {
             var expected = legacy.Step(input);
-            var actual = captured.StepCaptured(input, ++sequence, 1);
+            sequence++;
+            var actual = captured.StepCaptured(input);
             legacy.CopyAudioFrame(leftAudio);
             captured.CopyAudioFrame(rightAudio);
             if (expected.GameState != actual.Frame.GameState ||

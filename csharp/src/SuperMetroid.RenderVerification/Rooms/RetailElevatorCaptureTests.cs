@@ -28,7 +28,7 @@ internal static class RetailElevatorCaptureTests
             ControllerButton input = legacy.RuntimeForVerification is null && tick % 47 == 0
                 ? ControllerButton.Start : 0;
             var expected = legacy.Step(input);
-            var actual = captured.StepCaptured(input, tick + 1, 1);
+            var actual = captured.StepCaptured(input);
             if (expected.GameState != actual.Frame.GameState ||
                 expected.Phase != actual.Frame.Phase || expected.FrameNumber != actual.Frame.FrameNumber ||
                 !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))

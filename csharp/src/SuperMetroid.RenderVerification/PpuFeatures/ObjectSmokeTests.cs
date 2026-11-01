@@ -55,7 +55,8 @@ internal static class ObjectSmokeTests
 
         void Check(FramePaint memory, byte obsel, DisplayLayer[] layers)
         {
-            var frame = new DisplayPacket(new(++cases, 1, 0),
+            cases++;
+            var frame = new DisplayPacket(0,
                 new LayeredScene(memory, layers, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame),
                 renderer.RenderForReadback(frame), $"{device.Kind}: OBJ sample {cases}, OBSEL {obsel}, parts {memory.SpriteParts().Length}");

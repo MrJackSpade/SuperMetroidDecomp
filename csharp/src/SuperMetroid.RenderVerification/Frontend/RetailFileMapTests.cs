@@ -23,7 +23,8 @@ internal static class RetailFileMapTests
         int samples = 0;
         void Compare(RgbaPixel[] expected, LayeredScene scene, string context)
         {
-            var packet = new DisplayPacket(new(++samples, 1, 0), scene);
+            samples++;
+            var packet = new DisplayPacket(0, scene);
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: file map {context}");
         }
         for (int area = 0; area < 6; area++)

@@ -190,6 +190,7 @@ public sealed class SuperMetroidGame
             Session.GameplayRuntime.Clock.CountDoorMusicLoad(Session.HostServices.DoorMusicLoadFrames);
         var gameplayAudio = new GameplayAudioFramePublication(Session.audio);
         FrameNumber = WrappingCounter.IncrementWord(FrameNumber);
+        Session.display.BeginUpdate(FrameNumber);
         if (Session.Runtime is null)
             Session.frameClock.AdvanceAcceptedFrame();
         AdvanceMenuRandom();
@@ -444,38 +445,23 @@ public sealed class SuperMetroidGame
     private string PhaseName => Phases.Of(Session.GameState).Name;
 
     /// <summary>
-    /// Republishes the retained immutable display under a fresh host identity without
-    /// advancing simulation, audio, or draw-owned state. Used after restoring a captured
-    /// debugger state and when attaching a presenter to an already paused game.
+    /// The display the game last published, stamped with the current frame number, without advancing the game, its
+    /// audio or any scene. A host shows it when it starts presenting a game that is not running, such as one it has
+    /// just restored or one it has paused.
     /// </summary>
-    /// <remarks>
-    /// Returns null when this game has only produced legacy pixels. The host must handle
-    /// that explicitly; this method never fabricates a GPU packet from a CPU raster or
-    /// calls a scene draw routine to reconstruct an earlier display.
-    /// </remarks>
-    public DisplayPacket GetRetainedDisplay(long hostSequence, long hostGeneration)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostSequence);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostGeneration);
-        return Session.display.Retained(new(hostSequence, hostGeneration, FrameNumber));
-    }
+    /// <exception cref="InvalidOperationException">An update is being captured.</exception>
+    public DisplayPacket GetRetainedDisplay() => Session.display.Retained();
 
     /// <summary>
-    /// Advances one frame, capturing extracted scenes instead of rasterizing them.
-    /// Unconverted scenes are explicitly reported as legacy pixel output. The host
-    /// supplies sequence/generation outside the saved game graph, so restoring game
-    /// state must not rewind presentation identity. This is a staged migration API.
+    /// Runs one update and returns its status with the display it published, stamped with the update's frame number.
     /// </summary>
-    public CapturedFrontendFrame StepCaptured(ControllerButton controllerInput, long hostSequence, long hostGeneration)
+    public CapturedFrontendFrame StepCaptured(ControllerButton controllerInput)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostSequence);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostGeneration);
-        var identity = new RenderFrameIdentity(hostSequence, hostGeneration, WordWrap.Unsigned(FrameNumber + 1));
-        Session.display.BeginCapture(identity);
+        Session.display.BeginCapture();
         try
         {
             FrontendFrame frame = Step(controllerInput);
-            return new(frame, Session.display.CompleteCapture(identity));
+            return new(frame, Session.display.CompleteCapture());
         }
         finally { Session.display.EndCapture(); }
     }

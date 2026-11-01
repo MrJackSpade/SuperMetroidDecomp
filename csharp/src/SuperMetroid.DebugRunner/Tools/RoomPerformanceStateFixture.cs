@@ -49,7 +49,7 @@ internal static class RoomPerformanceStateFixture
         {
             data.Record(0);
             long start = Stopwatch.GetTimestamp();
-            var result = data.Game.StepCaptured(0, frame, data.Generation);
+            var result = data.Game.StepCaptured(0);
             lastSnapshot = result.Snapshot;
             long stepped = Stopwatch.GetTimestamp();
             pixels = DisplayRendering.Render(result.Snapshot);

@@ -20,11 +20,11 @@ internal static class GpuTimingTests
         {
             for (int i = 0; i < 2; i++)
             {
-                if (!timer.TryBegin(new(batch * 2 + i + 1, 1, 0))) throw new InvalidOperationException("Free timer slot refused.");
+                if (!timer.TryBegin(new(batch * 2 + i + 1, 1))) throw new InvalidOperationException("Free timer slot refused.");
                 renderer.Render(frame);
                 timer.End();
             }
-            if (timer.TryBegin(new(100, 1, 0)) || timer.PendingSamples != 2 || timer.SkippedSamples != batch + 1)
+            if (timer.TryBegin(new(100, 1)) || timer.PendingSamples != 2 || timer.SkippedSamples != batch + 1)
                 throw new InvalidOperationException("Full timestamp ring did not bound/record skipped telemetry.");
             // Only this diagnostic waits via readback. Production TryRead uses DoNotFlush
             // and returns immediately if the GPU has not finished the oldest sample.

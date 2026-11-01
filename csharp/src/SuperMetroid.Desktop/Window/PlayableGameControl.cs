@@ -349,8 +349,6 @@ public sealed class PlayableGameControl : UserControl
                 canvas.Focus();
                 return;
             }
-            if (gpuWorker is not null && loaded.Game.GetRetainedDisplay(displaySequence + 1, displayGeneration + 1) is null)
-                throw new NotSupportedException("This debugger state contains legacy pixels, not a captured scene, which Direct3D 11 cannot draw.");
         }
         catch (Exception exception)
         {
@@ -379,7 +377,7 @@ public sealed class PlayableGameControl : UserControl
         game = loaded.Game;
         GameSessionComposer.Restore(game, content ?? throw new InvalidOperationException(
             "Restored desktop session has no installed content."), saveFile);
-        pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
+        pendingDisplay = PresentationFrame(game.GetRetainedDisplay());
         displayedRoom = null;
         pendingPlaybackFrames = 0;
 
@@ -537,8 +535,8 @@ public sealed class PlayableGameControl : UserControl
         try
         {
             long frameStarted = Stopwatch.GetTimestamp();
-            var captured = game.StepCaptured(input, ++displaySequence, displayGeneration);
-            pendingDisplay = captured.Snapshot;
+            var captured = game.StepCaptured(input);
+            pendingDisplay = PresentationFrame(captured.Snapshot);
             FrontendFrame frame = captured.Frame;
 
             // The session already advanced its SPC model and synthesized this update's samples
@@ -859,12 +857,15 @@ public sealed class PlayableGameControl : UserControl
         base.Dispose(disposing);
     }
 
-    /// <summary>Monotonic identity assigned to each captured display publication.</summary>
+    /// <summary>Monotonic sequence the host assigns to each display it hands to presentation.</summary>
     private long displaySequence;
     /// <summary>Invalidates older display packets across reset and state-load boundaries.</summary>
     private long displayGeneration;
-    /// <summary>Captured scene awaiting GPU publication or software rasterization.</summary>
-    internal DisplayPacket? pendingDisplay;
+    /// <summary>The game's latest display under the host's presentation identity, awaiting GPU publication.</summary>
+    internal RenderFrame? pendingDisplay;
+
+    /// <summary>Gives a display the game published the next presentation sequence in the current generation.</summary>
+    private RenderFrame PresentationFrame(DisplayPacket display) => new(new(++displaySequence, displayGeneration), display);
     /// <summary>Asynchronous Direct3D worker owning the canvas window when enabled.</summary>
     internal D3D11RenderWorker? gpuWorker;
     /// <summary>Prevents duplicate renderer initialization for this control.</summary>
@@ -984,7 +985,7 @@ public sealed class PlayableGameControl : UserControl
         // A publication may already have occurred during asynchronous startup.
         // Fresh identity makes this safe without advancing a paused game. Coverage or
         // runtime failures surface through the worker's health check.
-        pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
+        pendingDisplay = PresentationFrame(game.GetRetainedDisplay());
         PublishGpuDisplay();
         rendererHealthTimer.Tick += CheckRendererHealth;
         previousPresentTimestamp = System.Diagnostics.Stopwatch.GetTimestamp();
@@ -1027,9 +1028,9 @@ public sealed class PlayableGameControl : UserControl
     private void PublishGpuDisplay()
     {
         if (gpuWorker is not { } worker || rendererStopping) return;
-        if (pendingDisplay is not { } packet)
+        if (pendingDisplay is not { } frame)
             throw new NotSupportedException("Direct3D11 requires a captured scene; legacy raster fallback is not permitted.");
-        worker.Publish(packet);
+        worker.Publish(frame);
     }
 
     /// <summary>Await before destroying the form/child HWND; never synchronously wait on the UI thread.</summary>

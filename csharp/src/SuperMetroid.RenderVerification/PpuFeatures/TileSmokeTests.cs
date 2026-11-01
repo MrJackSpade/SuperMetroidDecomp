@@ -60,7 +60,8 @@ internal static class TileSmokeTests
 
         void Check(DisplayLayer[] layers, string name, byte brightness = 15)
         {
-            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, layers, DisplayBrightness.Combine(brightness, 13, 11)));
+            count++;
+            var frame = new DisplayPacket(0, new LayeredScene(memory, layers, DisplayBrightness.Combine(brightness, 13, 11)));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame), $"{device.Kind}: {name} #{count}");
         }
     }
@@ -87,7 +88,7 @@ internal static class TileSmokeTests
         var palette = new RgbColor[SnesCgram.ColorCount];
         palette[3 * 16 + 2] = new RgbColor(31, 0, 0); palette[3 * 16 + 10] = new RgbColor(0, 0, 31);
         var memory = FramePaint.FromNative(palette, []);
-        var frame = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
+        var frame = new DisplayPacket(0, new LayeredScene(memory,
             new DisplayLayer[] { new PictureGridLayer(VramPictureFixtures.Grid(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
                 new Position16<TilePlanePixels>(0, 0), null) }, 15));
         var expected = DisplayRendering.Render(frame);

@@ -33,7 +33,7 @@ internal static class ReportedEyeStateFixture
         for (long frame = 1; frame <= 80; frame++)
         {
             data.Record(0);
-            var result = data.Game.StepCaptured(0, frame, data.Generation);
+            var result = data.Game.StepCaptured(0);
         }
         if (runtime.Display.DisplayedMorphBallEyeBeam is not { Phase: MorphBallEyeBeamPhase.Full })
             throw new InvalidDataException("Reported room eye did not reach a fully published beam.");

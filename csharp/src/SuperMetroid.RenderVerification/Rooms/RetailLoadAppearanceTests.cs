@@ -38,7 +38,7 @@ internal static class RetailLoadAppearanceTests
             ControllerButton input = legacy.GameState != SuperMetroidGameState.MainGameplay && tick % 47 == 0
                 ? ControllerButton.Start : 0;
             var expected = legacy.Step(input);
-            var actual = captured.StepCaptured(input, tick + 1, 1);
+            var actual = captured.StepCaptured(input);
             if (expected.GameState != actual.Frame.GameState ||
                 expected.FrameNumber != actual.Frame.FrameNumber || expected.Phase != actual.Frame.Phase ||
                 !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))

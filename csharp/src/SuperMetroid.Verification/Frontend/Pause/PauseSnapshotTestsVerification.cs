@@ -49,7 +49,7 @@ internal static class PauseSnapshotTestsVerification
             RgbaPixel[] expected = pause.Render();
             LayeredScene packet = pause.CaptureRenderSnapshot();
             Match(expected, DisplayRendering.Render(
-                new DisplayPacket(new(frame + 1, 1, (ushort)frame), packet)), frame);
+                new DisplayPacket((ushort)frame, packet)), frame);
             Match(expected, DisplayRendering.Render(packet), frame);
             Match(expected, DisplayRendering.Render(packet), frame);
             LayeredScene repeated = pause.CaptureRenderSnapshot();

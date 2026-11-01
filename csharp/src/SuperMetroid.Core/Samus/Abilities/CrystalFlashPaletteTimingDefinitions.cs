@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>
 /// Compiled timing metadata for the Crystal Flash body-palette cycle. Palette pointers
 /// remain presentation data; this catalog owns only the fixed delays interleaved with
-/// those pointers by <c>HandleCrystalFlashPalette</c> at <c>$91:DB93</c>.
+/// those pointers by <c>HandleCrystalFlashPalette</c>.
 /// </summary>
 internal static class CrystalFlashPaletteTimingDefinitions
 {

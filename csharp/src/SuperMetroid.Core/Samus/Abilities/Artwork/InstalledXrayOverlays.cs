@@ -13,12 +13,12 @@ public sealed class InstalledXrayOverlays
 
     /// <summary>Eight installed X-ray item appearances indexed by graphics slot.</summary>
     /// <remarks>
-    /// Issue #1038: native $84:839D..83AC holds eight little-endian draw
+    /// Issue #1038: the item overlay table holds eight little-endian draw
     /// pointers; the shown block is at pointer + 2.
-    /// The pinned NTSC J/U v1.0 ROM yields slots 0..7 as $08E, $090,
+    /// The original data yields slots 0..7 as $08E, $090,
     /// $092, $094, $04A, $04D, $04F, $050. The overlay caller bounds
     /// checks each selected slot; the independent installation verifier
-    /// compared all eight stock values with the cartridge. These are
+    /// compared all eight stock values with the game. These are
     /// authored visual choices and reveals.json may replace them, so no
     /// universal formula can replace this bounded installed array.
     /// </remarks>
@@ -26,11 +26,11 @@ public sealed class InstalledXrayOverlays
     /// <summary>Installed room-specific X-ray tile lists keyed by overlay.</summary>
     /// <remarks>
     /// Issue #1039: among 323 pinned NTSC J/U v1.0 room states, only
-    /// Bomb Torizo selects special-X-ray pointer $8F:986B. Its three
-    /// four-byte records are (X=$0F,Y=$0A..$0C,word=$0052), followed
-    /// by zero coordinates at $8F:9877. The native loop stops there;
+    /// Bomb Torizo selects a special X-ray overlay. Its three
+    /// four-byte records are (X=$0F,Y=$0A..$0C,block 82), followed
+    /// by zero coordinates. The loop stops there;
     /// adjacent bytes are not a fourth record. The independent installation
-    /// verifier compared all three stock records with the cartridge.
+    /// verifier compared all three stock records with the game.
     /// reveals.json may change coordinates and blocks while retaining the
     /// overlay and record count, so the apparent Y sequence is not an
     /// algorithm for all valid installations. Retain the bounded lists
@@ -72,7 +72,7 @@ public sealed class InstalledXrayOverlays
                 throw new InvalidDataException($"Missing required X-ray room overlay {overlay.Name}.");
     }
 
-    /// <summary>Selects the installed item reveal metatile by native graphics-slot index, independently of whether an item has been collected.</summary>
+    /// <summary>Selects the installed item reveal metatile by graphics-slot index, independently of whether an item has been collected.</summary>
     /// <param name="graphicsSlot">Zero-based slot 0..7: four dynamic item graphics followed by the four fixed collectible graphics.</param>
     /// <returns>The selected appearance.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The slot is outside the installed eight-entry array.</exception>
@@ -96,7 +96,7 @@ public sealed class InstalledXrayOverlays
         }
     });
 
-    /// <summary>Returns a room overlay's installed records in native draw order.</summary>
+    /// <summary>Returns a room overlay's installed records in draw order.</summary>
     /// <param name="overlay">The active room state's overlay; a state without one is handled by the caller.</param>
     /// <returns>The shared copied record list; coordinates are room-block positions with the appearance shown there.</returns>
     /// <exception cref="InvalidDataException">No installed list exists for the overlay.</exception>

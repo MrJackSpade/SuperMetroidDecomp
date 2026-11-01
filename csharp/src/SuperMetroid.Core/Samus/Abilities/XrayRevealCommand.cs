@@ -1,20 +1,20 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>The seven bank-$91 revealed-block commands named by the X-ray reveal tables.</summary>
+/// <summary>The seven revealed-block commands named by the X-ray reveal tables.</summary>
 public enum XrayRevealCommand
 {
-    /// <summary>RevealedBlockCommand_VerticalExtension at $91:CE79.</summary>
+    /// <summary>RevealedBlockCommand_VerticalExtension.</summary>
     VerticalExtension,
-    /// <summary>RevealedBlockCommand_HorizontalExtension at $91:CEBB.</summary>
+    /// <summary>RevealedBlockCommand_HorizontalExtension.</summary>
     HorizontalExtension,
-    /// <summary>RevealedBlockCommand_Copy1x1BlockToXrayBG2Tilemap at $91:CF36.</summary>
+    /// <summary>RevealedBlockCommand_Copy1x1BlockToXrayBG2Tilemap.</summary>
     CopyOne,
-    /// <summary>RevealedBlockCommand_Copy1x1BlockToXrayBG2TilemapIfBrinstar at $91:CF3E.</summary>
+    /// <summary>RevealedBlockCommand_Copy1x1BlockToXrayBG2TilemapIfBrinstar.</summary>
     CopyBrinstar,
-    /// <summary>RevealedBlockCommand_Copy2x1BlockToXrayBG2Tilemap at $91:CF4E.</summary>
+    /// <summary>RevealedBlockCommand_Copy2x1BlockToXrayBG2Tilemap.</summary>
     CopyWide,
-    /// <summary>RevealedBlockCommand_Copy1x2BlockToXrayBG2Tilemap at $91:CF62.</summary>
+    /// <summary>RevealedBlockCommand_Copy1x2BlockToXrayBG2Tilemap.</summary>
     CopyTall,
-    /// <summary>RevealedBlockCommand_Copy2x2BlockToXrayBG2Tilemap at $91:CF6F.</summary>
+    /// <summary>RevealedBlockCommand_Copy2x2BlockToXrayBG2Tilemap.</summary>
     CopySquare,
 }

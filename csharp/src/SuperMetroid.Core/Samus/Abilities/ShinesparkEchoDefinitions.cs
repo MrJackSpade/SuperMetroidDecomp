@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Native identities for the ordinary projectile slots used by crash echoes.</summary>
+/// <summary>Identities for the ordinary projectile slots used by crash echoes.</summary>
 public static class ShinesparkEchoDefinitions
 {
     /// <summary>The value each key selects; DepartureAngles looks it up.</summary>

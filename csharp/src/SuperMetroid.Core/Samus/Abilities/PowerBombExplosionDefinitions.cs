@@ -37,15 +37,15 @@ public static class PowerBombExplosionDefinitions
     /// <summary>Crystal Flash's shorter explosion radius limit.</summary>
     public const int CrystalFlashRadiusLimit = 8192;
     /// <summary>
-    /// Maximum component of the first native Crystal Flash color at $88:8D85:
+    /// Maximum component of the first Crystal Flash color:
     /// RGB5 (14,14,10). This is a lifetime operand, not replacement artwork.
     /// </summary>
     internal const int CrystalFlashInitialFadeSteps = 14;
     /// <summary>
-    /// $88:A5BE-$A5CC divides the consumed unsigned 8.8 radius by $0800 to
+    /// The explosion divides the consumed unsigned 8.8 radius by 2048 to
     /// select a color. Crystal Flash reaches only the first four yellow rows.
     /// </summary>
     internal const int CrystalFlashColorRadiusShift = 11;
-    /// <summary>$88:8B96, byte reloaded by ordinary and Crystal Flash afterglow handlers.</summary>
+    /// <summary>Byte reloaded by ordinary and Crystal Flash afterglow handlers.</summary>
     public const int AfterglowTimerReload = 3;
 }

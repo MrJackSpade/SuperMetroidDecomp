@@ -2,65 +2,65 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Compiled form of the complete revealed-block dispatcher at $91:D2D6-$91:D4D9.
-/// Definitions retain native command identities because the tilemap builder uses their
+/// Compiled form of the complete revealed-block dispatcher.
+/// Definitions retain the game's command identities because the tilemap builder uses their
 /// distinct copy dimensions and Brinstar-only behavior.
 /// </summary>
 internal static class XrayRevealDefinitions
 {
-    /// <summary>Blank metatile selected by negative-coordinate extension exits at $91:CE95/$91:CED7.</summary>
+    /// <summary>Blank metatile selected by negative-coordinate extension exits.</summary>
     internal const int BlankMetatile = 255;
 
-    /// <summary>Behaviour $46 is the only special-air value admitted by the native table.</summary>
+    /// <summary>Behaviour $46 is the only special-air value admitted by the table.</summary>
     /// <remarks>
-    /// Issue #1028: pinned NTSC J/U v1.0 ROM $91:D306..D30F contains
-    /// ($0046, $D30C), terminal $FFFF, then copy-one command $CF36 and
-    /// tile $00FF. Native $91:CE08 compares the zero-extended behaviour byte,
+    /// Issue #1028: the special-air table holds one entry for behaviour $46
+    /// and a terminator, then a copy-one command and
+    /// tile 255. The lookup compares the zero-extended behaviour byte,
     /// so equality with $46 is the complete bounded algorithm over 0..255;
-    /// every other behaviour returns no reveal. Direct ROM words and all 256
+    /// every other behaviour returns no reveal. The original data and all 256
     /// special-air cases in the independent X-ray reveal oracle agree.
     /// </remarks>
     internal const int SpecialAirRevealBehavior = 70;
 
-    /// <summary>Behaviour $0E is the only spike-block value admitted by the native table.</summary>
+    /// <summary>Behaviour $0E is the only spike-block value admitted by the table.</summary>
     /// <remarks>
-    /// Issue #1030: pinned NTSC J/U v1.0 ROM $91:D318..D321 contains
-    /// ($000E, $D31E), terminal $FFFF, then copy-one command $CF36 and
-    /// tile $005F. Native $91:CE08 compares zero-extended behaviour, making
+    /// Issue #1030: the spike-block table holds one entry for behaviour $0E
+    /// and a terminator, then a copy-one command and
+    /// tile 95. The lookup compares zero-extended behaviour, making
     /// equality with $0E the exact bounded rule over 0..255; other behaviour
-    /// values return no reveal. Direct ROM words and all 256 spike-block
+    /// values return no reveal. The original data and all 256 spike-block
     /// cases in the independent X-ray reveal oracle agree.
     /// </remarks>
     internal const int SpikeRevealBehavior = 14;
 
-    /// <summary>Air reveals one $00FF tile for every behaviour byte.</summary>
+    /// <summary>Air reveals one tile 255 for every behaviour byte.</summary>
     /// <remarks>
-    /// Issue #1027: pinned NTSC J/U v1.0 ROM $91:D2FC..D305 has the sole
-    /// wildcard $FF00 to $D302, then $FFFF; $D302 holds copy-one command
-    /// $CF36 and tile $00FF. Native $91:CE08 checks the wildcard before the
+    /// Issue #1027: the air table has the sole
+    /// wildcard entry, then a terminator; the wildcard's command is copy-one
+    /// with tile 255. The lookup checks the wildcard before the
     /// unsigned behaviour byte, so the exact bounded rule for behaviour 0..255 is this
-    /// constant definition. Direct ROM words and the independent 256-case
+    /// constant definition. The original data and the independent 256-case
     /// air slice of the X-ray reveal oracle agree; no pointer table is needed.
     /// </remarks>
     internal static readonly XrayRevealDefinition Air = One(255);
     /// <summary>Horizontal extension command for every behaviour byte.</summary>
     /// <remarks>
-    /// Issue #1029: pinned NTSC J/U v1.0 ROM $91:D310..D317 has wildcard
-    /// $FF00 to $D316, terminal $FFFF, then the operand-free horizontal
-    /// extension command $CEBB. Native $91:CE08 checks the wildcard first,
+    /// Issue #1029: the horizontal-extension table has a wildcard
+    /// entry and a terminator, then the operand-free horizontal
+    /// extension command. The lookup checks the wildcard first,
     /// making this constant definition exact for all unsigned behaviour 0..255.
-    /// Direct ROM words and the independent 256-case horizontal-extension
+    /// The original data and the independent 256-case horizontal-extension
     /// oracle agree; the neighboring spike table is not part of this lookup.
     /// </remarks>
     internal static readonly XrayRevealDefinition HorizontalExtension =
         new(XrayRevealCommand.HorizontalExtension, 0, 0, 0, 0);
     /// <summary>Vertical extension command for every behaviour byte.</summary>
     /// <remarks>
-    /// Issue #1031: pinned NTSC J/U v1.0 ROM $91:D462..D469 has wildcard
-    /// $FF00 to $D468, terminal $FFFF, then operand-free vertical extension
-    /// command $CE79. Native $91:CE08 checks the wildcard first, making
+    /// Issue #1031: the vertical-extension table has a wildcard
+    /// entry and a terminator, then the operand-free vertical extension
+    /// command. The lookup checks the wildcard first, making
     /// this constant definition exact for all unsigned behaviour 0..255.
-    /// Direct ROM words and the independent 256-case vertical-extension
+    /// The original data and the independent 256-case vertical-extension
     /// oracle agree; adjacent grapple entries do not belong to this lookup.
     /// </remarks>
     internal static readonly XrayRevealDefinition VerticalExtension =

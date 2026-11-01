@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>Ports uncollected-item and room-special reveal writes after the terrain pass.</summary>
 public static class XrayRevealOverlays
 {
-    /// <summary>Applies $84:831A in descending PLM slot order, then room-authored record order.</summary>
+    /// <summary>Applies the item overlays in descending PLM slot order, then room-authored record order.</summary>
     /// <param name="level">The room, whose size places the overlays' blocks.</param>
     /// <param name="blocks">The reveal's shown cells, as <see cref="XrayRevealMap.Build"/> lays them out.</param>
     /// <param name="items">The room's collectibles.</param>
@@ -71,7 +71,7 @@ public static class XrayRevealOverlays
         // The overlay admits only the first 16x16 blocks, not the fine-scroll column.
         if ((uint)x >= XrayRevealLayout.MetatileColumns - 1 || (uint)y >= XrayRevealLayout.MetatileRows) return;
         // The overlay swaps the two tile rows for vertical mirroring. It neither toggles each tile's mirroring nor
-        // implements horizontal mirroring; preserve that cartridge behaviour.
+        // implements horizontal mirroring; preserve that game behaviour.
         bool flip = (appearance.Mirroring & BlockMirroring.Vertical) != BlockMirroring.None;
         blocks[XrayRevealCells.CellOf(x, y)] = new RevealedBlock(appearance.Block,
             flip ? RevealedBlockArrangement.RowsSwapped : RevealedBlockArrangement.AsDefined);

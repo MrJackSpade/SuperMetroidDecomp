@@ -18,7 +18,7 @@ internal sealed class ShinesparkEchoProjectile
         _slotTable = slotTable;
     }
     /// <summary>
-    /// $90:D40D allocates fixed slots without clearing their unrelated parallel words.
+    /// The crash's end allocates fixed slots without clearing their unrelated parallel words.
     /// Echo drawing storage remains in Samus independently of this projectile owner.
     /// </summary>
     internal void InitializeShinesparkEcho(int index, RotationAngle angle)
@@ -33,7 +33,7 @@ internal sealed class ShinesparkEchoProjectile
         slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(0));
     }
 
-    /// <summary>Runs only the live slot's installed $90:D4D2 handler.</summary>
+    /// <summary>Runs only the live slot's installed echo handler.</summary>
     internal void StepShinesparkEcho(SamusState samus,
         SamusProjectileSlot slot, Position16<RoomPixels> camera)
     {

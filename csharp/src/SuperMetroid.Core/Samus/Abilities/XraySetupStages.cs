@@ -18,8 +18,8 @@ public static class XraySetupStages
     };
 
     /// <summary>
-    /// Whether the room is drawn with X-ray blending while setup is still running. <c>$91:D223</c>
-    /// installs the blending pre-instruction <c>$91:D27F</c> before call one; it first executes
+    /// Whether the room is drawn with X-ray blending while setup is still running. Setup
+    /// installs the blending frame behaviour before call one; it first executes
     /// after call one, by which point call two has also run, so blending shows from the third call on.
     /// </summary>
     public static bool ShowsBlendedRoom(this XraySetupStage stage) => stage switch

@@ -8,12 +8,12 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// The shared bank-$88/$91 Varia- and Gravity-suit pickup transformation.
+/// The shared Varia- and Gravity-suit pickup transformation.
 /// </summary>
 /// <remarks>
 /// <para>
-/// The item PLM grants the equipment bit and displays bank $85's message first. Only after
-/// that synchronous message returns does <c>$91:D4E4/$91:D5BA</c> center and lock Samus,
+/// The item PLM grants the equipment bit and displays message first. Only after
+/// that synchronous message returns does the suit pickup center and lock Samus,
 /// while the light beam's per-line display effect advances this seven-stage sequence
 /// once per gameplay frame. This owner deliberately begins after the message rather than
 /// hiding those two independently observable lifetimes behind one host animation.
@@ -33,7 +33,7 @@ public sealed class SamusSuitPickupState
 {
     /// <summary>Holds the setup sound request until the enemy audio owner can publish it once.</summary>
     private bool _transformationSoundPending;
-    /// <summary>Native queue guard captured at suit setup, before deferred host publication.</summary>
+    /// <summary>Queue guard captured at suit setup, before deferred host publication.</summary>
     public bool TransformationSoundSuppressed { get; private set; }
 
     /// <summary>Consumes the one-shot normal-priority transformation sound request suit setup makes.</summary>
@@ -51,11 +51,11 @@ public sealed class SamusSuitPickupState
     /// Effect updates left before the light beam's stage step is installed.
     /// The handler runs an object's pre-instruction before its instructions; the list's
     /// first call ends on a one-frame table entry and its second installs the
-    /// pre-instruction and sleeps ($91:D5A2/$D67A), so the first stage runs on the third.
+    /// pre-instruction and sleeps, so the first stage runs on the third.
     /// </summary>
     private int _frameBehaviorInstallCallsRemaining;
 
-    /// <summary>The suit whose native stage-three function is installed.</summary>
+    /// <summary>The suit whose stage-three function is installed.</summary>
     public SamusSuitPickupKind Kind { get; private set; }
 
     /// <summary>The light-beam stage the next pre-instruction call runs; it returns to the first stage when the transformation finishes.</summary>
@@ -115,8 +115,8 @@ public sealed class SamusSuitPickupState
         LightBeamWideningVelocity = WideningVelocity(SuitPickupBeamDefinitions.InitialWideningSpeed);
         Beam = SamusSuitPickupBeam.None;
 
-        // `$91:D4F7-$D53A/$D5CD-$D610` cancels every independent speed component before
-        // changing pose. CancelRunningMomentum also preserves the native departing-echo
+        // // The suit pickup cancels every independent speed component before
+        // changing pose. CancelRunningMomentum also preserves the departing-echo
         // side effect and publishes the immediate palette restore only when boost was live.
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         samus.HorizontalSpeed.ExtraRunSpeed = default;
@@ -141,10 +141,10 @@ public sealed class SamusSuitPickupState
         samus.CommitPoseHistory();
         samus.Control.LockForSuitPickup();
 
-        // Native writes whole positions but leaves fractional words untouched. These are
+        // // The game writes whole positions but leaves fractional words untouched. These are
         // fixed screen coordinates, not a room-specific item-location approximation.
         samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(layer1.X + 120), CoordinateAxis.Wrap(layer1.Y + 136)));
-        // $91:D580/$D58D store the same words as the previous position, so this frame's
+        // // The pickup stores the same words as the previous position, so this frame's
         // scrolling sees no movement.
         samus.WritePreviousXPosition(samus.Position.X.Whole);
         samus.WritePreviousYPosition(samus.Position.Y.Whole);
@@ -196,7 +196,7 @@ public sealed class SamusSuitPickupState
     }
 
     /// <summary>
-    /// Publishes suit writes to the other owners of native $0DEC/$0DEE: the stage number, and the light beam's
+    /// Publishes suit writes to the other owners of the two shared scratch words: the stage number, and the light beam's
     /// progress word (its scanline count, or its left column in the low byte and right column in the high byte).
     /// </summary>
     private void PublishSharedScratch(SamusState samus)
@@ -241,7 +241,7 @@ public sealed class SamusSuitPickupState
     /// <summary>Extends the narrow beam inward from both screen edges until 128 rows are covered.</summary>
     private void StepLightBeamAppears()
     {
-        // The count grows from zero by eight to exactly 128, so the cartridge's signed
+        // The count grows from zero by eight to exactly 128, so the game's signed
         // comparison with 128 is this ordinary one.
         _lightBeamScanlines += 8;
         Beam = new(SamusSuitPickupBeamShape.GrowingFromEdges,
@@ -274,7 +274,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
-    /// <summary>Applies the mirrored ROM curve to each row as the beam widens and fixed color approaches white.</summary>
+    /// <summary>Applies the mirrored authored curve to each row as the beam widens and fixed color approaches white.</summary>
     private void StepCurvedWidening()
     {
         AdvanceColorTowardWhite();
@@ -283,7 +283,7 @@ public sealed class SamusSuitPickupState
         int oldLeft = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamLeft.X);
         int left = WordWrap.LowByte(oldLeft - amount);
         int right = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamRight.X);
-        // The native BEQ shares the negative-result clamp. Exact zero must also
+        // The BEQ shares the negative-result clamp. Exact zero must also
         // force the right endpoint to 255 or the reveal is delayed by a frame.
         if (left == 0 || WordWrap.SignedLowByte(oldLeft - amount) < 0)
         {
@@ -297,7 +297,7 @@ public sealed class SamusSuitPickupState
         }
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
-        // `$88:E13E-$E19C` widens this column by the authored curve on each scanline.
+        // // Stage two widens this column by the authored curve on each scanline.
         Beam = new(SamusSuitPickupBeamShape.CurvedColumn, _lightBeamLeft, _lightBeamRight, 0);
 
         LightBeamWideningVelocity += WideningVelocity(SuitPickupBeamDefinitions.WideningAcceleration);
@@ -310,7 +310,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
-    /// <summary>Installs the equipment bit, suited front pose, and palette at the native third-stage handoff.</summary>
+    /// <summary>Installs the equipment bit, suited front pose, and palette at the third-stage handoff.</summary>
     private void RevealSuit(SamusState samus, SamusColours colours)
     {
         SamusEquipmentFlags mask = Kind == SamusSuitPickupKind.Varia
@@ -337,9 +337,9 @@ public sealed class SamusSuitPickupState
             AdvanceColorTowardOrange();
 
         // The wipe grows from zero by the speed's whole pixels and stops once it reaches 128, so it
-        // stays far inside the range where the cartridge's signed comparison is this ordinary one.
+        // stays far inside the range where the game's signed comparison is this ordinary one.
         _lightBeamScanlines += EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue);
-        // The final curved column is wiped by this many scanlines from the top. Native's
+        // // The final curved column is wiped by this many scanlines from the top. The game's
         // lower do/while starts at position minus one, so the bottom wipe is one shorter.
         Beam = Beam with { Shape = SamusSuitPickupBeamShape.ClosingCurvedColumn, Progress = _lightBeamScanlines };
 
@@ -355,7 +355,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
-    /// <summary>Closes the single remaining center scanline until the native threshold ends the effect.</summary>
+    /// <summary>Closes the single remaining center scanline until the threshold ends the effect.</summary>
     private void StepLightBeamDissipates()
     {
         // Window columns are eight bits wide: the starting left column 255 wraps to 7 on the first call.

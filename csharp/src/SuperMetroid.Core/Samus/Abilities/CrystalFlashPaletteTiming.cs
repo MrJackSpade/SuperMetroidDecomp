@@ -7,11 +7,11 @@ internal static class CrystalFlashPaletteTiming
 {
     /// <summary>Returns the duration selected by an aligned byte offset into the records.</summary>
     /// <remarks>
-    /// All ten timer words at <c>$91:DC02</c> plus a four-byte record stride
-    /// are <c>$000A</c> in the pinned NTSC J/U v1.0 ROM. Thus every aligned
-    /// offset from 0 through 36 returns ten after validation; the native
+    /// All ten timer words plus a four-byte record stride
+    /// are ten in the original data. Thus every aligned
+    /// offset from 0 through 36 returns ten after validation; the
     /// handler advances and wraps that offset at 40. A complete 100-call
-    /// production cycle matches with timer-word ROM reads forbidden.
+    /// production cycle matches without reading the original timer words.
     /// Investigation: #625 / #668.
     /// </remarks>
     public static ushort DurationForByteOffset(int byteOffset)

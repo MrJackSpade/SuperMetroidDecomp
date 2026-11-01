@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// The X-ray reveal's blocks (#1431): two screens of 16x16 blocks, written in whole blocks by <c>$91:CB8E</c> and its
+/// The X-ray reveal's blocks (#1431): two screens of 16x16 blocks, written in whole blocks by the reveal and its
 /// overlays, of which BG2 shows the first screen and the second screen's first column.
 /// </summary>
 public static class XrayRevealLayout

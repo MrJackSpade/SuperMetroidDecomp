@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Palettes;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Ports the Metroid-attachment branch of <c>HandleMiscSamusPalette</c> at <c>$91:D8A5</c>. A draining Metroid is the
+/// Ports the Metroid-attachment branch of <c>HandleMiscSamusPalette</c>. A draining Metroid is the
 /// retail producer: Samus alternates between the Speed Booster palette and the normal suit, one per update, until the
 /// Metroid releases her (<see cref="SamusState.MetroidAttachmentPalette"/>).
 /// </summary>

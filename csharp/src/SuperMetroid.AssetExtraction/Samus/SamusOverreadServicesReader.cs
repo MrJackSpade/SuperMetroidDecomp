@@ -24,18 +24,20 @@ internal static class SamusOverreadServicesReader
         Ensure.NotNull(document);
         if (document.Version != SamusOverreadFormat.Version)
             throw new InvalidDataException("Samus overread file has an unsupported version.");
-        return new SamusOverreadServices(
-            AnimationContinuation(Require(document.AnimationContinuations, nameof(document.AnimationContinuations))),
-            TrailStarts(Require(document.TrailFramesAtListStart, nameof(document.TrailFramesAtListStart)),
+        return new SamusOverreadServices(new SamusOverreadServiceParts
+        {
+            AnimationContinuation = AnimationContinuation(Require(document.AnimationContinuations, nameof(document.AnimationContinuations))),
+            TrailStarts = TrailStarts(Require(document.TrailFramesAtListStart, nameof(document.TrailFramesAtListStart)),
                 Require(document.TrailPlacementsPastRecords, nameof(document.TrailPlacementsPastRecords))),
-            SpaceTimeOverwrite(Require(document.SpaceTimeOverwrites, nameof(document.SpaceTimeOverwrites))),
-            ChainsawFuseShift(Require(document.ChainsawFuseLandings, nameof(document.ChainsawFuseLandings))),
-            ChargeFlareDelays(Require(document.ChargeFlareDelaysBelowPrograms, nameof(document.ChargeFlareDelaysBelowPrograms))),
-            PostureAdmission(Require(document.PostureAdmissions, nameof(document.PostureAdmissions))),
-            SpeedBoosterColours(Require(document.SpeedBoosterOverrunColours, nameof(document.SpeedBoosterOverrunColours))),
-            UnauthoredBeamSpeeds(Require(document.UnauthoredBeamLaunchSpeeds, nameof(document.UnauthoredBeamLaunchSpeeds))),
-            DrainedCrashDepartures(Require(document.DrainedCrashDepartures, nameof(document.DrainedCrashDepartures))),
-            ChainsawColours(Require(document.ChainsawBeamColours, nameof(document.ChainsawBeamColours))));
+            SpaceTimeOverwrite = SpaceTimeOverwrite(Require(document.SpaceTimeOverwrites, nameof(document.SpaceTimeOverwrites))),
+            ChainsawFuseShift = ChainsawFuseShift(Require(document.ChainsawFuseLandings, nameof(document.ChainsawFuseLandings))),
+            ChargeFlareDelays = ChargeFlareDelays(Require(document.ChargeFlareDelaysBelowPrograms, nameof(document.ChargeFlareDelaysBelowPrograms))),
+            PostureAdmission = PostureAdmission(Require(document.PostureAdmissions, nameof(document.PostureAdmissions))),
+            SpeedBoosterColours = SpeedBoosterColours(Require(document.SpeedBoosterOverrunColours, nameof(document.SpeedBoosterOverrunColours))),
+            UnauthoredBeamSpeeds = UnauthoredBeamSpeeds(Require(document.UnauthoredBeamLaunchSpeeds, nameof(document.UnauthoredBeamLaunchSpeeds))),
+            DrainedCrashDepartures = DrainedCrashDepartures(Require(document.DrainedCrashDepartures, nameof(document.DrainedCrashDepartures))),
+            ChainsawColours = ChainsawColours(Require(document.ChainsawBeamColours, nameof(document.ChainsawBeamColours))),
+        });
     }
 
     /// <summary>Every pose with an animation program and its program's successor.</summary>

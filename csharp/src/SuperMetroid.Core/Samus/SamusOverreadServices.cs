@@ -16,38 +16,20 @@ namespace SuperMetroid.Core.Samus;
 public sealed class SamusOverreadServices
 {
     /// <summary>Keeps every decoded service.</summary>
-    /// <param name="animationContinuation">What a Samus animation frame past its pose's program reads.</param>
-    /// <param name="trailStarts">Where a projectile trail starts when its read passes its placement list.</param>
-    /// <param name="spaceTimeOverwrite">What SpaceTime's palette copy overwrites in saved progression.</param>
-    /// <param name="chainsawFuseShift">Where the Chainsaw beam's animation lands when its fuse speeds up.</param>
-    /// <param name="chargeFlareDelays">The delays a charge-flare frame reads below the flare's programs.</param>
-    /// <param name="postureAdmission">Whether the posture-transition admission admits weapons for a pose outside its table.</param>
-    /// <param name="speedBoosterColours">The suit colours Gravity Speed Booster copies from past its cycle.</param>
-    /// <param name="unauthoredBeamSpeeds">The speeds a Spazer and Plasma beam launches at.</param>
-    /// <param name="drainedCrashDepartures">The angles a Shinespark crash finishing in a drained pose releases its echoes at.</param>
-    /// <param name="chainsawColours">The colours the Chainsaw beam's palette loader reads past its table.</param>
-    internal SamusOverreadServices(
-        LaidOutProgramContinuation<SamusPoseId> animationContinuation,
-        TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> trailStarts,
-        SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>, ProgressionOverwrite> spaceTimeOverwrite,
-        ChainsawFuseAnimationShift<AnimationProgramCursor<SamusProjectileProgram>> chainsawFuseShift,
-        ChargeFlareDelaysBelowPrograms chargeFlareDelays,
-        PostureAdmissionBeyondTransitions<SamusPoseId> postureAdmission,
-        SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> speedBoosterColours,
-        UnauthoredBeamLaunchSpeeds<SamusBeamCombination> unauthoredBeamSpeeds,
-        DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> drainedCrashDepartures,
-        ChainsawBeamColours<RgbColor> chainsawColours)
+    /// <param name="parts">The services, as the import pipeline decoded them.</param>
+    internal SamusOverreadServices(SamusOverreadServiceParts parts)
     {
-        AnimationContinuation = Ensure.NotNull(animationContinuation);
-        TrailStarts = Ensure.NotNull(trailStarts);
-        SpaceTimeOverwrite = Ensure.NotNull(spaceTimeOverwrite);
-        ChainsawFuseShift = Ensure.NotNull(chainsawFuseShift);
-        ChargeFlareDelays = Ensure.NotNull(chargeFlareDelays);
-        PostureAdmission = Ensure.NotNull(postureAdmission);
-        SpeedBoosterColours = Ensure.NotNull(speedBoosterColours);
-        UnauthoredBeamSpeeds = Ensure.NotNull(unauthoredBeamSpeeds);
-        DrainedCrashDepartures = Ensure.NotNull(drainedCrashDepartures);
-        ChainsawColours = Ensure.NotNull(chainsawColours);
+        Ensure.NotNull(parts);
+        AnimationContinuation = Ensure.NotNull(parts.AnimationContinuation);
+        TrailStarts = Ensure.NotNull(parts.TrailStarts);
+        SpaceTimeOverwrite = Ensure.NotNull(parts.SpaceTimeOverwrite);
+        ChainsawFuseShift = Ensure.NotNull(parts.ChainsawFuseShift);
+        ChargeFlareDelays = Ensure.NotNull(parts.ChargeFlareDelays);
+        PostureAdmission = Ensure.NotNull(parts.PostureAdmission);
+        SpeedBoosterColours = Ensure.NotNull(parts.SpeedBoosterColours);
+        UnauthoredBeamSpeeds = Ensure.NotNull(parts.UnauthoredBeamSpeeds);
+        DrainedCrashDepartures = Ensure.NotNull(parts.DrainedCrashDepartures);
+        ChainsawColours = Ensure.NotNull(parts.ChainsawColours);
     }
 
     /// <summary>What a Samus animation frame past its pose's program reads, by a pose that animates by each program.</summary>

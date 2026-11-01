@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class ChargeFlarePlacements
 {
     /// <summary>Import-selected source kind; placement values themselves cannot distinguish Grapple from beam art.</summary>
-    private readonly bool grapple;
+    private readonly ChargeFlareSource source;
     /// <summary>Only authored offsets differing from the selected stock source definitions, by <see cref="Slot"/>.</summary>
     internal readonly Dictionary<int, Offset16<RoomPixels>> offsets = new();
     /// <summary>Copies changed visual offsets while retaining the beam or Grapple fallback contract.</summary>
-    private ChargeFlarePlacements(IReadOnlyDictionary<int, Offset16<RoomPixels>> supplied, bool grapple)
+    private ChargeFlarePlacements(IReadOnlyDictionary<int, Offset16<RoomPixels>> supplied, ChargeFlareSource source)
     {
-        this.grapple = grapple;
+        this.source = source;
         foreach ((int slot, Offset16<RoomPixels> offset) in supplied)
             if (offset != CalculatedOffset(slot >= ChargeFlarePlacementDefinitions.StandingDirectionCount,
                 slot % ChargeFlarePlacementDefinitions.StandingDirectionCount)) offsets.Add(slot, offset);
@@ -35,12 +35,12 @@ public sealed class ChargeFlarePlacements
     /// <returns>The signed whole-pixel placement offset, without camera or pose-graphics Y adjustments.</returns>
     public Offset16<RoomPixels> Resolve(bool running, int direction)
     {
-        if ((uint)direction >= DirectionsFor(grapple, running)) throw new ArgumentOutOfRangeException(nameof(direction));
+        if ((uint)direction >= DirectionsFor(source, running)) throw new ArgumentOutOfRangeException(nameof(direction));
         return offsets.TryGetValue(Slot(running, direction), out var supplied)
             ? supplied : CalculatedOffset(running, direction);
     }
     /// <summary>Gets the fallback from the beam or Grapple definitions chosen at import.</summary>
-    private Offset16<RoomPixels> CalculatedOffset(bool running, int direction) => grapple
+    private Offset16<RoomPixels> CalculatedOffset(bool running, int direction) => source == ChargeFlareSource.Grapple
         ? ChargeFlarePlacementOffsets.GrappleOffset(running, direction)
         : ChargeFlarePlacementOffsets.BeamOffset(running, direction);
 
@@ -48,7 +48,7 @@ public sealed class ChargeFlarePlacements
     /// How many directions a movement mode places the flare for: the ten named aiming directions, and for the standing
     /// beam flare its turning placements too; Grapple never fires while turning.
     /// </summary>
-    private static int DirectionsFor(bool grapple, bool running) => grapple || running
+    private static int DirectionsFor(ChargeFlareSource source, bool running) => source == ChargeFlareSource.Grapple || running
         ? ChargeFlarePlacementDefinitions.DirectionCount
         : ChargeFlarePlacementDefinitions.StandingDirectionCount;
 
@@ -82,20 +82,19 @@ public sealed class ChargeFlarePlacements
         {
             throw new InvalidDataException("A charge-flare placement offset is outside the signed 16-bit range.", error);
         }
-        bool grapple = source == ChargeFlareSource.Grapple;
-        int keys = DirectionsFor(grapple, running: false) + DirectionsFor(grapple, running: true);
+        int keys = DirectionsFor(source, running: false) + DirectionsFor(source, running: true);
         if (document.Version != ChargeFlarePlacementDefinitions.Version || document.Offsets is null || document.Offsets.Count != keys)
             throw new InvalidDataException($"Charge-flare placement requires version {ChargeFlarePlacementDefinitions.Version} and all standing/running directions.");
         var offsets = new Dictionary<int, Offset16<RoomPixels>>();
         foreach (bool running in (bool[])[false, true])
-        for (int direction = 0; direction < DirectionsFor(grapple, running); direction++)
+        for (int direction = 0; direction < DirectionsFor(source, running); direction++)
         {
             string key = ChargeFlarePlacementOffsets.Key(running, direction);
             if (!document.Offsets.TryGetValue(key, out var value) || value is null)
                 throw new InvalidDataException($"Missing charge-flare placement {key}.");
             offsets.Add(Slot(running, direction), value.Offset);
         }
-        return new(offsets, grapple);
+        return new(offsets, source);
     }
     /// <summary>Serializes a beam placement document as indented camel-case UTF-8 JSON and validates its version, complete key set, and signed offsets through the beam loader before returning it.</summary>
     /// <param name="document">Document containing every standing, turning and running direction placement.</param>

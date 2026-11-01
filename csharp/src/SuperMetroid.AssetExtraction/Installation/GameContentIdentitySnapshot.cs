@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend;
+namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
 /// Serializable installed-content identity captured beside deterministic diagnostic state.

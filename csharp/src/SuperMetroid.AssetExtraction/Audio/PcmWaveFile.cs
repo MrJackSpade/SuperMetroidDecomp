@@ -1,7 +1,9 @@
 using System.Buffers.Binary;
 using System.Text;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Audio;
 
-namespace SuperMetroid.Core.Audio;
+namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>Strict PCM16 RIFF/WAVE codec: mono for extracted and replacement samples, interleaved stereo for rendered clips (#1305).</summary>
 /// <remarks>

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Audio;
+namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>Decoded 16-bit PCM samples and their sample rate.</summary>
 /// <param name="SampleRate">The sample rate.</param>

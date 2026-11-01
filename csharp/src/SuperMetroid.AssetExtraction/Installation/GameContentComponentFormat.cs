@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend;
+using SuperMetroid.Core;
+
+namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>Bounded, extensible component table shared by state and recording headers.</summary>
 public static class GameContentComponentFormat

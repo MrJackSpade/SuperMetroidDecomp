@@ -1,47 +1,45 @@
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// The frame handler's beta, <c>SamusNewStateHandler</c>. Samus commands install the handler identities;
-/// <see cref="TitleDemo"/> and <see cref="Fatal"/> are what a frame dispatches instead while the attract demo or the
-/// death states own Samus. The pointer holds exactly one handler at a time.
+/// The second half of Samus's per-frame work, which Samus commands select: movement, animation and the energy checks.
+/// <see cref="TitleDemo"/> and <see cref="Fatal"/> are what a frame runs instead while the attract demo or the death
+/// sequence owns Samus. Exactly one is selected at a time.
 /// </summary>
 internal enum SamusBetaHandler
 {
     /// <summary>
-    /// SamusNewStateHandler_Normal</c>: movement, the timer/hack handler, animation, pose transitions,
-    /// periodic damage and the low-energy check.
+    /// Ordinary play: movement, the timer handler, animation, pose transitions, periodic damage and the low-energy check.
     /// </summary>
     Normal,
 
     /// <summary>
-    /// Another locked handler, such as <c>SamusNewStateHandler_RidingElevator</c>: no low-energy check.
+    /// Another locked state, such as riding an elevator: no low-energy check.
     /// </summary>
     Locked,
 
-    /// <summary>SamusNewStateHandler_SamusIsLocked</c>, installed by Samus command zero: no animation or pose transitions.</summary>
+    /// <summary>Locked by a script, as the first Samus command does: no animation or pose transitions.</summary>
     ScriptLocked,
 
     /// <summary>
-    /// Mother Brain's rainbow-beam beta, the bare <c>RTL_90E8D9</c>: no movement at all and no low-energy check, and
-    /// reserve recovery leaves it in place.
+    /// Held by Mother Brain's rainbow beam: no movement at all and no low-energy check, and reserve recovery leaves it in
+    /// place.
     /// </summary>
     RainbowBeam,
 
-    /// <summary><c>RTL_90E8D6</c>, installed by command six (refill and map stations): neither moves nor animates Samus.</summary>
+    /// <summary>At a refill or map station: Samus neither moves nor animates.</summary>
     RefillStation,
 
-    /// <summary><c>RTL_90E8CD</c>, installed by suit command $15: the empty beta of the suit transformation.</summary>
+    /// <summary>During a suit pickup's transformation: nothing runs.</summary>
     SuitPickup,
 
-    /// <summary>SamusNewStateHandler_TitleDemo</c>: the attract demo's beta, without periodic damage or energy checks.</summary>
+    /// <summary>The attract demo: without periodic damage or energy checks.</summary>
     TitleDemo,
 
     /// <summary>
-    /// SamusNewStateHandler_EnteringExitingGunship</c>: its own low-health checker and no escape-timer
-    /// handler.
+    /// Entering or leaving the gunship: its own low-health check and no escape-timer handling.
     /// </summary>
     Gunship,
 
-    /// <summary>The death sequence's game states ($15-$18), which call neither handler.</summary>
+    /// <summary>The death sequence, which runs neither half.</summary>
     Fatal,
 }

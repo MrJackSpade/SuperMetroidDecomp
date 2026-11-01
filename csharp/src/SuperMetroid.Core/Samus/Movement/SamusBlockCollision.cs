@@ -382,8 +382,8 @@ public static class SamusBlockCollision
     }
 
     /// <summary>
-    /// Ports the left-to-right/right-to-left vertical scans</c>
-    /// plus <c>Samus_MoveDown_NoSolidColl</c>'s final fixed-point position addition.
+    /// Moves Samus vertically against the blocks, scanning them left to right or right to left, then adds the final
+    /// fixed-point step to her position when nothing solid stops her.
     /// </summary>
     public static BlockMoveResult MoveVertical(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, VerticalBlockMove move)
     {

@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// This is deliberately a cinematic state machine rather than a video or a host-authored
 /// slideshow. Backgrounds, character art, palettes, spritemaps, and animation durations
 /// preserve the game's behavior; editable text and fonts come from installed assets. The named phases merely replace the
-/// game's <c>cinematic_function</c> entries, making the same coroutine boundaries debuggable in C#.
+/// game's <c>cinematic_function</c> entries, so the scene steps through the same boundaries the game does.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingCreditsState : IFrontendScreen

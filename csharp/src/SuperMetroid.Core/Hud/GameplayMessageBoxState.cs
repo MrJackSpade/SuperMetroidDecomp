@@ -67,7 +67,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// <summary>The message the box shows, or <see cref="GameplayMessageId.None"/> while none has begun.</summary>
     public GameplayMessageId MessageId { get; private set; }
 
-    /// <summary>Current coroutine segment, exposed so frame-by-frame debugging is useful.</summary>
+    /// <summary>The message box's current step.</summary>
     public GameplayMessageBoxPhase Phase { get; private set; }
 
     /// <summary>

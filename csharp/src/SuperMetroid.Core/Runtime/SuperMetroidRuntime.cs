@@ -348,8 +348,8 @@ internal sealed class SuperMetroidRuntime
     public SpriteFrameBuffer Sprites { get; } = new();
 
     /// <summary>
-    /// The sprite frame the most recent frame boundary made visible. Renderers use it; debugger watches
-    /// can compare it with <see cref="Sprites"/>, which the current update is preparing.
+    /// The sprite frame the most recent frame boundary made visible. Renderers draw it while the current update
+    /// prepares <see cref="Sprites"/>.
     /// </summary>
     public SpriteFrameBuffer DisplayedSprites { get; } = new();
 

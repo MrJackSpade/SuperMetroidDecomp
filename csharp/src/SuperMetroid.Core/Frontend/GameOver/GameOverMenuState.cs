@@ -96,7 +96,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     public bool TitleRequested { get; private set; }
 
     /// <summary>
-    /// Reattaches host-owned presentation after debugger restoration and refreshes only
+    /// Reattaches the installed map artwork when a stored game is restored and refreshes only
     /// presentation-owned display state. Animation phase, answer selection and fade remain live.
     /// </summary>
     public void BindMapPresentation(AreaMapPresentation? catalog)

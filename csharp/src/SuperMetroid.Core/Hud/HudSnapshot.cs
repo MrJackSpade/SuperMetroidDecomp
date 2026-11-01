@@ -15,7 +15,7 @@ public readonly record struct HudSnapshot(
     int ReserveHealth,
     SuperMetroid.Core.Progression.ReserveTankMode ReserveMode)
 {
-    /// <summary>A useful pre-item debugging state: 99 energy and no equipment.</summary>
+    /// <summary>A HUD before any item is collected: 99 energy and no equipment.</summary>
     public static HudSnapshot CeresDebug => new(
         Health: 99,
         MaxHealth: 99,

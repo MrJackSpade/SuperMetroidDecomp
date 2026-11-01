@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Title;
 
-/// <summary>Debugger-facing names for the visible title-sequence functions.</summary>
+/// <summary>The visible title sequence's steps.</summary>
 public enum TitleSequencePhase
 {
     /// <summary>Runs the progressive 1994 title card over black, including its initial blank hold, before triggering the lower-background pan.</summary>

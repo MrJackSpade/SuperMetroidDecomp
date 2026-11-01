@@ -58,7 +58,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private readonly Position16<MapTiles> roomMapPosition;
     /// <summary>Visibility rule for the installed map and its scroll bounds.</summary>
     private readonly MapRevealMode mapRevealMode;
-    /// <summary>Host-bound map artwork, rebound after debugger state restoration.</summary>
+    /// <summary>Installed map artwork, rebound when a stored game is restored.</summary>
     [NonSerialized] private AreaMapPresentation? mapPresentation;
     /// <summary>The pause screen: its artwork, tilemaps (including the retained gameplay HUD rows), palette and sprite entries (#1358).</summary>
     internal readonly PauseScreen screen;
@@ -249,9 +249,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// </summary>
     /// <remarks>
     /// Rendering itself is intentionally pure. The game advances these counters from its
-    /// draw routines, but the desktop may render a framebuffer more than once while paused
-    /// (for example, a debugger watch or PNG capture). The dispatcher calls this exactly
-    /// once per frame so inspection cannot change game-visible timing.
+    /// draw routines, but a host may draw the same frame more than once while paused
+    /// (for example, a screen capture). The dispatcher calls this exactly
+    /// once per frame so extra draws cannot change game-visible timing.
     /// </remarks>
     public void AdvanceAnimations(int frameCounterByte = 0, PauseAnimationPhase phase = PauseAnimationPhase.Stable)
     {

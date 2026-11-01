@@ -173,6 +173,6 @@ public sealed class SpriteImage
     internal ReadOnlySpan<RgbColor> StandardColoursOf(ImageColourGroup group) =>
         StandardColours.Slice(group.FirstColour, ImageColourGroup.Colours);
 
-    /// <summary>Names the image for debugger watches.</summary>
+    /// <summary>Names the image with its size.</summary>
     public override string ToString() => $"{Name} ({Size.X}x{Size.Y})";
 }

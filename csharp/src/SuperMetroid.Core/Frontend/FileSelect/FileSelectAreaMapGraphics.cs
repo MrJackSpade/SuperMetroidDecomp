@@ -79,7 +79,7 @@ public sealed class FileSelectAreaMapGraphics
     }
 
     /// <summary>
-    /// Rebinds every installed resource the area map draws, after a content change or debugger restoration, without
+    /// Rebinds every installed resource the area map draws, after a content change or a stored game's restoration, without
     /// selecting another area or restarting its palette fade.
     /// </summary>
     internal void BindMapPresentation(AreaMapPresentation? catalog)

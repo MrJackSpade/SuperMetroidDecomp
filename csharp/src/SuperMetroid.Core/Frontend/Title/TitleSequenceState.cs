@@ -56,11 +56,11 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal readonly ScreenSprites objects;
     /// <summary>Preserves newly pressed input edges for title skip and file-select entry.</summary>
     private readonly ControllerInputState controller = new();
-    /// <summary>Host-selected scanline gradient rebound after debugger-state restoration.</summary>
+    /// <summary>Installed scanline gradient, rebound when a stored game is restored.</summary>
     [NonSerialized] private TitleGradientPresentation? titleGradientPresentation;
-    /// <summary>Host-selected title palette rebound after debugger-state restoration.</summary>
+    /// <summary>Installed title palette, rebound when a stored game is restored.</summary>
     [NonSerialized] private TitlePalettePresentation? titlePalettePresentation;
-    /// <summary>Host-selected title graphics rebound after debugger-state restoration.</summary>
+    /// <summary>Installed title graphics, rebound when a stored game is restored.</summary>
     [field: NonSerialized] internal TitleGraphicsPresentation? TitleGraphics { get; private set; }
     /// <summary>Countdown for the active title phase, including fade and idle stages.</summary>
     internal int PhaseTimer { get; private set; }
@@ -148,7 +148,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         BeginTextSequence(TitleSequenceDefinitions.TextSequences.Year);
     }
 
-    /// <summary>Current title sub-state, exposed as a stable debugger label.</summary>
+    /// <summary>Current title sub-state.</summary>
     public TitleSequencePhase Phase { get; internal set; }
 
     /// <summary>True after the title's slow fade has handed control to file select.</summary>
@@ -177,17 +177,17 @@ public sealed class TitleSequenceState : IFrontendScreen
         return title;
     }
 
-    /// <summary>Rebinds the host-selected presentation after debugger-state restoration.</summary>
+    /// <summary>Rebinds the installed scanline gradient when a stored game is restored.</summary>
     internal void BindTitleGradient(TitleGradientPresentation? presentation) =>
         titleGradientPresentation = presentation;
 
-    /// <summary>Rebinds installed sprite compositions after debugger-state restoration.</summary>
+    /// <summary>Rebinds installed sprite compositions when a stored game is restored.</summary>
     internal void BindTitleGraphics(TitleGraphicsPresentation? presentation)
     {
         TitleGraphics = presentation;
     }
 
-    /// <summary>Rebinds installed title colors after debugger-state restoration.</summary>
+    /// <summary>Rebinds installed title colors when a stored game is restored.</summary>
     internal void BindTitlePalette(TitlePalettePresentation? presentation)
     {
         titlePalettePresentation = presentation;

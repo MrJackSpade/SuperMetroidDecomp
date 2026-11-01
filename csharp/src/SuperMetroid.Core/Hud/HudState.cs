@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Hud;
 /// <summary>
 /// What Super Metroid's gameplay HUD shows, as values (#1466): each energy tank, the energy count, each ammunition
 /// count, the AUTO reserve indicator, which item icons are shown and the shade the selection last gave each, and the
-/// five-by-three minimap's cells. Each value keeps what the HUD last drew, as the cartridge's HUD keeps its last
+/// five-by-three minimap's cells. Each value keeps what the HUD last drew, as the game's HUD keeps its last
 /// writes; a value nothing has drawn since the HUD was set up shows the installed template. The values select the
 /// installed HUD images and place them (<see cref="Shown"/>).
 /// </summary>
@@ -46,24 +46,24 @@ public sealed class HudState
     [field: NonSerialized]
     internal GameplayHudPresentation? Presentation { get; private set; }
 
-    /// <summary>Native $05F7: suppress minimap updates after a boss initializer.</summary>
+    /// <summary>Suppresses minimap updates after a boss initializer.</summary>
     public bool MinimapDisabled { get; internal set; }
 
-    /// <summary>$90:A7E2 blanks the fifteen minimap cells and disables updates.</summary>
+    /// <summary>Blanks the fifteen minimap cells and disables updates.</summary>
     internal void DisableMinimapForBoss()
     {
         MinimapDisabled = true;
         Minimap.AsSpan().Fill(MinimapHiddenCell.Instance);
     }
 
-    /// <summary>$82:E1B7 restores minimap updates when leaving the room.</summary>
+    /// <summary>Restores minimap updates when leaving the room.</summary>
     internal void EnableMinimapAfterDoorEntry() => MinimapDisabled = false;
 
     /// <summary>Whether the HUD has been set up from an inventory.</summary>
     public bool IsInitialized { get; private set; }
 
     /// <summary>
-    /// One-frame publication of <c>QueueSfx1_Max6($39)</c> from <c>$80:9B44</c>.
+    /// One-frame publication of the item-selection sound from the HUD update.
     /// The frontend consumes it after the runtime frame has completed.
     /// </summary>
     public bool SelectionSoundRequestedThisFrame { get; private set; }
@@ -76,7 +76,7 @@ public sealed class HudState
     }
 
     /// <summary>
-    /// Native queue suppression captured when the HUD requests its sound, rather than
+    /// Sound suppression captured when the HUD requests its sound, rather than
     /// when the frontend eventually publishes it. Later explosion state changes must
     /// not retroactively admit or reject an earlier request.
     /// </summary>
@@ -101,8 +101,8 @@ public sealed class HudState
     }
 
     /// <summary>
-    /// Ports the visible data work of <c>$80:9A79</c> and its first
-    /// <c>$80:9B44</c> update for an explicit inventory snapshot.
+    /// Draws the HUD's initial values and its first
+    /// update for an explicit inventory snapshot.
     /// </summary>
     public void Initialize(HudSnapshot snapshot)
     {
@@ -133,7 +133,7 @@ public sealed class HudState
             ammoCounts[2] = snapshot.PowerBombs;
 
         ToggleItemHighlight(snapshot.SelectedItem, HudIconShade.Selected);
-        // `$80:9AC9` initializes samus_prev_hud_item_index to zero. HandleHudTilemap
+        // HUD setup initializes the previous selected item to zero. The HUD update
         // performs the first live comparison on the next gameplay pass.
         PreviousSelectedItem = HudItem.Beam;
         SelectionSoundRequestedThisFrame = false;
@@ -141,7 +141,7 @@ public sealed class HudState
     }
 
     /// <summary>
-    /// Replays the mutable counter portion of <c>$80:9B44</c> from live Samus state. The
+    /// Replays the mutable counter portion of the HUD update from live Samus state. The
     /// counters are redrawn every gameplay frame and the next accepted frame shows them;
     /// initialization is not the sole owner of the energy digits. Updating them on every
     /// gameplay pass prevents enemy damage from changing physics state while the visible
@@ -162,7 +162,7 @@ public sealed class HudState
         SelectionSoundSuppressedThisFrame = soundSuppressed;
 
         // Permanent pickups can introduce an inventory family after HUD initialization.
-        // The cartridge's item routines add those icons immediately; replay the same
+        // The game's item pickups add those icons immediately; replay the same
         // guarded additions here before updating their counters. Each addition is
         // idempotent and preserves an already-shown icon and the live minimap.
         if ((samus.EquippedItems & SamusEquipmentFlags.XrayScope) != SamusEquipmentFlags.None)
@@ -186,9 +186,9 @@ public sealed class HudState
         if (samus.ReserveTankMode == ReserveTankMode.Auto)
             DrawAutoReserve(samus.ReserveEnergy != 0);
 
-        // `$80:9BD3-$9C20` gives the newly selected icon the selected shade, returns the
+        // Selecting an item gives the newly selected icon the selected shade, returns the
         // old icon to the deselected shade, then publishes sound $39. This belongs in the
-        // live HUD update rather than the input handler: native suppresses the sound (but
+        // live HUD update rather than the input handler: the game suppresses the sound (but
         // not the visual change) while spinning, wall-jumping, grappling, or time is frozen.
         if (samus.SelectedHudItem != PreviousSelectedItem)
         {
@@ -205,7 +205,7 @@ public sealed class HudState
     }
 
     /// <summary>
-    /// Ports the visible 5x3 result of <c>UpdateMinimap</c> at <c>$90:A91B</c> for a
+    /// Draws the visible 5x3 minimap for a
     /// supplied room/map position, including exploration bits and the blinking center cell.
     /// </summary>
     public void UpdateMinimap(SharedGameState system, MinimapFrame frame)
@@ -223,12 +223,12 @@ public sealed class HudState
         if (frame.RoomMap.X > byte.MaxValue || frame.RoomMap.Y > byte.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(frame.RoomMap));
 
-        // $90:A91B returns rather than indexing unrelated map memory if Samus is outside
+        // The minimap update returns rather than indexing unrelated map memory if Samus is outside
         // the active room. The 16-pixel comparison consumes the same positions as collision.
         if (MinimapDisabled || !frame.RoomSize.Contains(frame.Samus.ToRoomBlock()))
             return;
 
-        // One area-map tile represents one 256x256 room screen. The native Y formula has
+        // One area-map tile represents one 256x256 room screen. The Y formula has
         // an intentional +1 because the HUD map convention places the room header's Y one
         // row above the screen containing Samus.
         int centerX = (frame.RoomMap.X + RoomGridConversions.PixelToScreen(frame.Samus.X)) & 63;
@@ -273,7 +273,7 @@ public sealed class HudState
                 MapCell mapCell = frame.PresentationMap.Cell(cell);
                 Minimap[destination] = new MinimapMapCell(mapCell.Shape, mapCell.Mirroring,
                     explored ? MinimapShade.Explored : MinimapShade.Unexplored);
-                // The center slope also explores the corner above it. The native top
+                // The center slope also explores the corner above it. The top
                 // row has already been rendered and its explored bits latched, so that
                 // cell acquires the explored shade on the next minimap update.
                 if (outputX == 2 && outputY == 1 && explored && centerY > 0 &&
@@ -351,7 +351,7 @@ public sealed class HudState
         reserveIndicator = containsEnergy ? HudReserveIndicator.Filled : HudReserveIndicator.Empty;
     }
 
-    /// <summary>Ports $82:AF33 without reinitializing icons, counters or the minimap.</summary>
+    /// <summary>Restores the HUD after a pause or menu without reinitializing icons, counters or the minimap.</summary>
     public void ClearAutoReserveIndicator()
     {
         if (!IsInitialized) throw new InvalidOperationException("Initialize the HUD before clearing AUTO.");
@@ -360,7 +360,7 @@ public sealed class HudState
     }
 
     /// <summary>
-    /// Adds item <paramref name="itemIndex"/>'s icon if the HUD has not yet. The cartridge draws an icon only over a
+    /// Adds item <paramref name="itemIndex"/>'s icon if the HUD has not yet. The game draws an icon only over a
     /// blank anchor, so an added icon replaces any shade the selection gave the cells beneath it only when it draws.
     /// </summary>
     private void AddIcon(int itemIndex)

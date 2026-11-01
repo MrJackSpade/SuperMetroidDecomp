@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>
 /// The Samus projectiles' timed records (#1301), by <see cref="SamusProjectileFrame.Record"/>, the identity installed
 /// frame bindings key on: each record's stock spritemap, its hitbox radii and the animation frame trails read.
-/// Generated from the verified native lists.
+/// Generated from the verified animation scripts.
 /// </summary>
 internal static class SamusProjectileRecordDefinitions
 {

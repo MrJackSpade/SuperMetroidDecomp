@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
-/// <summary>Native state-$22 and state-$25 functions from station destruction through Zebes arrival.</summary>
+/// <summary>The destruction cinematic's functions from station destruction through Zebes arrival.</summary>
 internal enum CeresDestructionPhase
 {
     /// <summary>Holds the first Ceres scene until its queued music has drained.</summary>

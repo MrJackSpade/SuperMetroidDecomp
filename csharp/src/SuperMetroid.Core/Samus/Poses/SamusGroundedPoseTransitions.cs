@@ -11,9 +11,9 @@ internal static class SamusGroundedPoseTransitions
 
     /// <summary>
     /// Installs the lookup-failure pose of an aimed crouching turn when every input is
-    /// released ($91:81DB -> $91:82D9). Definition byte two is `$28` for all six records,
+    /// released. Definition byte two is `$28` for all six records,
     /// so the turn is abandoned for left-facing crouch art regardless of its direction.
-    /// Because the pose changes, $91:EBEE skips command two; only $91:F404 runs.
+    /// Because the pose changes, the prospective pose handler skips command two; only the pose initializer runs.
     /// </summary>
     public static void ApplyAimedCrouchingTurnInputFallback(SamusState samus, SamusPoseId targetPose)
     {
@@ -26,9 +26,9 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Applies prospective pose change command two ($91:ECD0) when a turn's input lookup
+    /// Applies prospective pose change command two when a turn's input lookup
     /// fails and the pose definition retains the current pose. Movement types $0E, $17 and
-    /// $18 all select command two in $91:8332. This stops reverse acceleration without
+    /// $18 all select command two in the lookup-failure table. This stops reverse acceleration without
     /// restarting the unfinished turn animation or erasing velocity words.
     /// </summary>
     public static void ApplyTurnInputFallback(SamusState samus, SamusMovementType movementType)
@@ -42,8 +42,8 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Exact 16.16 ADC equivalent shared by bank-$91's grounded, aerial, and spin-turn
-    /// initializers. It deliberately permits word overflow, matching the 65816 registers.
+    /// Exact 16.16 add-with-carry equivalent shared by the grounded, aerial, and spin-turn
+    /// initializers. It deliberately permits word overflow, matching the game's arithmetic.
     /// </summary>
     internal static void FoldExtraRunSpeedIntoBaseAndStartTurn(SamusState samus)
     {
@@ -62,8 +62,8 @@ internal static class SamusGroundedPoseTransitions
     /// real `$0B/$0C` horizontal-fire records.
     /// </summary>
     /// <remarks>
-    /// All admitted records have radius 21. If both endpoints are running, `$91:F50C` writes
-    /// `$8000` to the new-frame word and `$91:FB5C` preserves the current frame and timer;
+    /// All admitted records have radius 21. If both endpoints are running, the pose initializer writes
+    /// 32768 to the new-frame word and the animation setup preserves the current frame and timer;
     /// this matters when firing midway through the ten-frame run cycle. A transition between
     /// movement types initializes frame zero normally. Movement type changes take effect on
     /// the following frame because pose transitions occur after movement.
@@ -88,7 +88,7 @@ internal static class SamusGroundedPoseTransitions
             SamusPoseMetadata.IsLeftFacingCrouchingPose(targetPose);
         if (!sameRightFamily && !sameLeftFamily && !sameRightCrouch && !sameLeftCrouch)
         {
-            // The native input tables never feed a facing reversal through this arm-only
+            // The input tables never feed a facing reversal through this arm-only
             // transition seam; reversal has its own turn-pose initialization path.
             throw new InvalidOperationException(
                 $"Grounded aim transition {samus.Pose} -> {targetPose} is outside this same-facing pose family.");
@@ -106,15 +106,15 @@ internal static class SamusGroundedPoseTransitions
             (SamusPoseMetadata.IsLeftFacingRunningPose(sourcePose) && SamusPoseMetadata.IsLeftFacingRunningPose(targetPose));
         if (!preservesRunningAnimation)
         {
-            // This is `$91:F404/$91:FB08`'s ordinary target installation. Replacing Pose
+            // This is the pose initializer's ordinary target installation. Replacing Pose
             // directly would omit radius refresh, delay-list selection, and command cleanup.
             ApplySimpleGroundedPoseChange(samus, sourcePose, targetPose, "Grounded arm");
             return;
         }
 
-        // `$91:F50C-$F51A` sees previous movement type one and publishes `$8000`. The BMI
-        // at `$91:FB5C` exits before touching frame, timer, or delay-buffer state. Every live
-        // running arm pose points to the same `$91:B20A` list, so the cached list address is
+        // Sees previous movement type one and publishes 32768. The sign test
+        // in the animation setup exits before touching frame, timer, or delay-buffer state. Every live
+        // running arm pose points to the same delay list, so the cached list address is
         // already exact and must not be rebound or reset here.
         int oldRadius = samus.Kinematics.Radius.Y;
         samus.Pose = targetPose;
@@ -128,7 +128,7 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Implements `$91:EB56-$91:EB87`'s ten-entry shot-direction selector. The input pose
+    /// Implements the ten-entry shot-direction selector of the wall-stop pose. The input pose
     /// may be the current running pose after a killed-X-speed collision or the prospective
     /// running pose tested by the one-pixel arm-pump probe.
     /// </summary>
@@ -152,11 +152,11 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Ports <c>CheckIfProspectivePoseRunsIntoAWall</c> at <c>$91:EADE</c>.
+    /// Ports <c>CheckIfProspectivePoseRunsIntoAWall</c>.
     /// </summary>
     /// <remarks>
     /// A current type-one collision maps the current pose immediately. Otherwise, only a
-    /// prospective type-one pose is interesting: native first probes solid enemies one pixel
+    /// prospective type-one pose is interesting: the game first probes solid enemies one pixel
     /// ahead in the CURRENT pose direction and maps the prospective pose without moving when
     /// one is hit. Otherwise it moves Samus that pixel, retains the move when clear, and maps
     /// the prospective pose's shot direction when a block stops it. The retained move is the
@@ -184,7 +184,7 @@ internal static class SamusGroundedPoseTransitions
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         if (samus.Kinematics.InteractiveEnemies.Count != 0)
         {
-            // $91:EB05-$EB3C: Samus_vs_SolidEnemy_CollisionDetection with $12.$14 = 1.0000
+            // Samus_vs_SolidEnemy_CollisionDetection with $12.$14 = 1.0000
             // and the facing direction stored as the collision movement direction.
             SamusCollisionDirection direction = facingLeft
                 ? SamusCollisionDirection.Left
@@ -207,12 +207,12 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Installs the pose selected when `$91:EADE` finds a block wall. This deliberately
+    /// Installs the pose selected when the wall check finds a block wall. This deliberately
     /// accepts standing/running/landing sources as well as an existing wall-stop source:
-    /// `$91:EADE` can test a prospective run before that run is installed, and changing aim
+    /// Can test a prospective run before that run is installed, and changing aim
     /// while still pressing into the wall proposes another running pose for the same probe.
-    /// A moonwalk that proposes a run is probed too: `$91:EB05` moves one pixel along the
-    /// moonwalk pose's facing, but `$91:EB4E` picks the wall pose from the proposed run's
+    /// A moonwalk that proposes a run is probed too: the probe moves one pixel along the
+    /// moonwalk pose's facing, but the wall pose is picked from the proposed run's
     /// direction, so a moonwalk facing right can stop in the left-facing wall pose.
     /// </summary>
     public static void ApplyRanIntoWallPoseChange(SamusState samus, SamusPoseId targetPose)
@@ -258,11 +258,11 @@ internal static class SamusGroundedPoseTransitions
 
     /// <summary>
     /// Applies the movement-type-$10 option gate and stable-pose changes surrounding
-    /// <c>InitializeSamusPose_Moonwalking</c> at <c>$91:F88C</c>.
+    /// <c>InitializeSamusPose_Moonwalking</c>.
     /// </summary>
     /// <remarks>
     /// Standing transition tables always publish a moonwalk candidate when Shoot and the
-    /// backward direction are held. The native settings word decides what that candidate
+    /// backward direction are held. The settings word decides what that candidate
     /// means: enabled retains `$49/$4A/$75-$78`; disabled substitutes ordinary `$25/$26`
     /// turn art. Once active, aim changes and the direct return to forward running are
     /// ordinary radius-21 pose installations with no invented velocity adjustment.
@@ -291,7 +291,7 @@ internal static class SamusGroundedPoseTransitions
             // corresponding Moonwalk pose before the option gate runs. The initializer
             // does not special-case the old landing movement type: with Moonwalk off it
             // substitutes the same ordinary `$25/$26` turn used from `$01/$02`.
-            // `$91:F893-$F8A9` tests the candidate pose-X byte. `$4A/$76/$78` store four
+            // Tests the candidate pose-X byte. `$4A/$76/$78` store four
             // and become right-to-left `$25`; `$49/$75/$77` store eight and become `$26`.
             ApplyGroundedTurn(samus, 
                 targetVisualRight ? SamusPoseId.TurningRightToLeftPose : SamusPoseId.TurningLeftToRightPose);
@@ -321,7 +321,7 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Applies `$91:F8D3-$91:F950` when a stable moonwalk pose reverses while Jump is held.
+    /// Applies the moonwalk turn when a stable moonwalk pose reverses while Jump is held.
     /// The six requested `$BF-$C4` records are not airborne yet: they retain the grounded
     /// turn movement handler while their three visible frames play.
     /// </summary>
@@ -337,7 +337,7 @@ internal static class SamusGroundedPoseTransitions
             7 => SamusPoseId.MoonwalkTurnJumpRightPose,
             8 => SamusPoseId.MoonwalkTurnJumpAimUpRightPose,
             // Stable moonwalk poses publish only the six directions enumerated above.
-            // Another value means WRAM/pose metadata is inconsistent, not missing logic.
+            // Another value means the pose state or metadata is inconsistent, not missing logic.
             _ => throw new InvalidDataException(
                 $"Moonwalk shot direction ${SamusPoseMetadata.ReadShotDirection(samus):X2} is invalid for a stable moonwalk pose."),
         };
@@ -362,7 +362,7 @@ internal static class SamusGroundedPoseTransitions
 
     /// <summary>
     /// Applies the verified ordinary transition from standing-right pose $01 to running-
-    /// right pose $09 at the end-of-frame bank-$91 transition seam.
+    /// right pose $09 at the end-of-frame transition seam.
     /// </summary>
     /// <remarks>
     /// This is intentionally not a general pose setter. For this transition, momentum
@@ -381,7 +381,7 @@ internal static class SamusGroundedPoseTransitions
         samus.Pose = SamusPoseId.MovingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-        // $91:F404 -> $91:FB08 resets animation frame zero and loads pose $09's first
+        // The pose initializer resets animation frame zero and loads pose $09's first
         // delay byte after SamusFunc_F433 refreshes pose direction/movement metadata.
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
@@ -403,7 +403,7 @@ internal static class SamusGroundedPoseTransitions
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
         // Pose $09's new-pose-unless-buttons byte is $01. Once Samus_Pose_Func2 selects
-        // momentum index two, `$91:ECD0` cancels `$0B3C/$0B3E` but deliberately leaves the
+        // momentum index two, the momentum cancellation cancels the boost words but deliberately leaves the
         // numeric extra pair intact. The following standing movement pass consumes that
         // final no-base-speed displacement before clearing every X-motion word.
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
@@ -427,7 +427,7 @@ internal static class SamusGroundedPoseTransitions
             SamusPoseId.FacingLeftNormalPose,
             "Running-left to standing-left");
 
-        // This is the mirrored `$91:ECD0` momentum-index-two route used by `$09 -> $01`.
+        // This is the mirrored momentum-index-two cancellation route used by `$09 -> $01`.
         // ExtraRunSpeed/Subspeed remain available to standing's ordered movement/clear pass.
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
     }
@@ -456,16 +456,16 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Applies bank-$91's grounded turn initialization at <c>$91:F8D3</c>. Input tables
+    /// Applies the grounded turn initialization. Input tables
     /// first publish generic `$25/$26`; the initializer indexes the previous pose's shot
-    /// direction through `$91:F9C2` and may replace it with `$8B-$8E/$9C/$9D`.
+    /// direction through the grounded turn table and may replace it with `$8B-$8E/$9C/$9D`.
     /// </summary>
     public static void ApplyGroundedTurn(SamusState samus, SamusPoseId targetPose, ControllerButton controllerInput = ControllerButton.None)
     {
 
-        // `$91:F8D3-$F8DB` gives the two front-view poses a deliberately unusual route.
+        // Gives the two front-view poses a deliberately unusual route.
         // Their pose-X direction is zero, so they cannot honestly be classified as either
-        // a right-facing or left-facing source. Native code instead skips the shot-direction
+        // a right-facing or left-facing source. The game instead skips the shot-direction
         // lookup entirely when the previous pose is `$00/$9B`, retaining the generic
         // `$25/$26` selected by that front-view pose's input transition table.
         bool wasForwardFacing = SamusPoseMetadata.IsForwardFacingPose(samus.Pose);
@@ -477,7 +477,7 @@ internal static class SamusGroundedPoseTransitions
         bool wasCrouching = sourceMovementType == SamusMovementType.Crouching;
         bool wasMoonwalking = sourceMovementType == SamusMovementType.Moonwalking;
 
-        // `$91:F8F3-$F903` reads the PREVIOUS moonwalk pose, not the selected turn pose.
+        // Reads the PREVIOUS moonwalk pose, not the selected turn pose.
         // Preserve the complete source byte now so the low-nibble projectile direction is
         // still available after ApplySimpleGroundedPoseChange replaces `Pose` below.
         int moonwalkSourceShotDirection = wasMoonwalking
@@ -518,16 +518,16 @@ internal static class SamusGroundedPoseTransitions
             return;
         }
 
-        // `$91:F8D3` reads the PREVIOUS pose record before it installs the final turn art.
-        // Previous movement type five selects `$91:F9CC`; every other admitted source uses
-        // `$91:F9C2`. Both tables have ten entries, but shot directions four/five belong to
+        // Reads the PREVIOUS pose record before it installs the final turn art.
+        // Previous movement type five selects the second shot-direction table; every other admitted source uses
+        // the first. Both tables have ten entries, but shot directions four/five belong to
         // the compact straight-down family that remains untranslated.
         SamusPoseId selectedTurnPose;
         if (wasForwardFacing)
         {
-            // This is the literal early branch to `$91:F931`: keep the transition-table
+            // This is the literal early branch: keep the transition-table
             // result. Reading byte three from `$00/$9B` here would manufacture an aim/facing
-            // direction that the cartridge explicitly declines to inspect.
+            // direction that the game explicitly declines to inspect.
             selectedTurnPose = targetPose;
         }
         else
@@ -545,7 +545,7 @@ internal static class SamusGroundedPoseTransitions
                     8 => SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose,
                     9 => SamusPoseId.TurningLeftToRightCrouchingAimUpPose,
                     // Grounded/crouched pose metadata cannot publish the compact-aerial
-                    // directions 4/5 (or any value outside the native eight-entry set).
+                    // directions 4/5 (or any value outside the eight-entry set).
                     _ => throw new InvalidDataException(
                         $"Crouched turn shot direction ${shotDirection:X2} is invalid."),
                 }
@@ -574,16 +574,16 @@ internal static class SamusGroundedPoseTransitions
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
-        // $91:F931-$91:F941 folds the run-button/speed-booster component into base speed
+        // Folds the run-button/speed-booster component into base speed
         // with two independent 16-bit ADCs and their carry. Use one wrapping 16.16 add to
         // preserve exactly that pair of operations, including overflow at the high word.
         uint combinedSpeed = unchecked(speed.BaseFixed +
             speed.ExtraRunSpeed.RawValue);
         speed.BaseSpeed = new UnsignedSixteenSixteen(WordWrap.Unsigned(SixteenSixteen.WholeOf(combinedSpeed)), WordWrap.Unsigned(combinedSpeed));
 
-        // The native handler consumes the extra component and selects acceleration mode
-        // one. $90:8EA9 interprets that mode as “move opposite the NEW facing direction”
-        // while $90:9A7E decelerates, which is how reversal preserves old momentum.
+        // The handler consumes the extra component and selects acceleration mode
+        // one. The direction selector interprets that mode as “move opposite the NEW facing direction”
+        // while the speed calculation decelerates, which is how reversal preserves old momentum.
         speed.ExtraRunSpeed = default;
         speed.AccelerationMode = SamusAccelerationMode.Turning;
 
@@ -591,8 +591,8 @@ internal static class SamusGroundedPoseTransitions
 
         if (wasMoonwalking)
         {
-            // The handed shot makes HUD handler `$90:DD74` treat the one-frame turning
-            // state as shooting. `$90:BA5F` later fires it in this source pose's
+            // The handed shot makes the turning HUD handler treat the one-frame turning
+            // state as shooting. The beam producer later fires it in this source pose's
             // direction when a beam slot can actually be initialized.
             samus.PendingTransitionShot = new SamusTransitionShot(moonwalkSourceShotDirection);
         }
@@ -621,7 +621,7 @@ level, targetPose, frameCounter, plms, out int adjustment);
 
 
     /// <summary>
-    /// Installs one already-validated grounded pose and runs the common $91:F404/$91:FB08
+    /// Installs one already-validated grounded pose and runs the common pose initializer's
     /// metadata/radius work, initializing frame zero only for a changed pose.
     /// </summary>
     internal static void ApplySimpleGroundedPoseChange(SamusState samus, 
@@ -641,7 +641,7 @@ level, targetPose, frameCounter, plms, out int adjustment);
         // remains active until next alpha, including compact down-aim targets.
         if (refreshRadius)
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-        // $91:FB64-$FB67 retains the frame/timer when the ordinary pose is
+        // Retains the frame/timer when the ordinary pose is
         // unchanged. A prospective run rejected by the wall probe can resolve
         // back to the current wall-stop pose on every held-input frame.
         if (expectedPose != targetPose)

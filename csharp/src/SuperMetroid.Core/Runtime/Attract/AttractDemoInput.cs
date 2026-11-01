@@ -5,7 +5,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Runtime.Attract;
 
 /// <summary>
-/// Title owner for compiled stock input programs and their ROM-backed verification path.
+/// Title owner for compiled stock input programs.
 /// Held and newly-pressed words are independent; deriving edges loses scripted edges.
 /// </summary>
 public sealed class AttractDemoInput
@@ -14,7 +14,7 @@ public sealed class AttractDemoInput
     /// <remarks><see cref="StepStock"/> advances its instruction timers and independently authored held/newly-pressed controller words, which the gameplay runtime consumes without deriving new edges.</remarks>
     public DemoInputState Script { get; } = new();
 
-    /// <summary>Production title playback uses compiled input definitions, not ROM bytecode.</summary>
+    /// <summary>Production title playback uses compiled input definitions.</summary>
     public AttractDemoInput(AttractDemoScene scene)
     {
         Ensure.NotNull(scene);
@@ -27,7 +27,7 @@ public sealed class AttractDemoInput
         Script.Step((_, frameBehavior) => ApplyFrameBehavior(frameBehavior, gameState, movementType),
             cue => throw new InvalidOperationException($"Title demonstrations call no {cue} routine."));
 
-    /// <summary>Redirects stock demo input at leave and movement branches using the cartridge's actual type-$1A comparison.</summary>
+    /// <summary>Redirects stock demo input at leave and movement branches using the game's actual Draygon-grab comparison.</summary>
     private void ApplyFrameBehavior(DemoInputFrameBehavior frameBehavior, SuperMetroidGameState gameState, SamusMovementType movementType)
     {
         switch (frameBehavior)
@@ -39,8 +39,8 @@ public sealed class AttractDemoInput
                     Script.Redirect(frameBehavior, DemoInputProgram.AttractDelete);
                 break;
             case DemoInputFrameBehavior.AttractShinespark:
-                // The routine's name does not match its type-$1A comparison. Retain
-                // the actual cartridge branch rather than correcting that oddity.
+                // The routine's name does not match its Draygon-grab comparison. Retain
+                // the actual branch rather than correcting that oddity.
                 if (movementType != SamusMovementType.DraygonHeld)
                     Script.Redirect(DemoInputFrameBehavior.AttractCheckLeave,
                         DemoInputProgram.AttractDiagonalShinesparkContinuation);

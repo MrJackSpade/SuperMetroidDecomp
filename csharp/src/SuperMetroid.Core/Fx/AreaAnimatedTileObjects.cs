@@ -9,12 +9,12 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 internal static class AreaAnimatedTileObjects
 {
-    /// <summary>Direct area/bit behavior selection, shared by retail and native audit views.</summary>
-    /// <remarks>All eight original lists at $83:AC76..AD65 share spike objects for
+    /// <summary>Direct area/bit behavior selection, shared by retail and audit views.</summary>
+    /// <remarks>All eight areas' selections share spike objects for
     /// bits0/1. Later bits select named area effects or the empty object. This dispatch
     /// is independently verified against NTSC J/U v1.0 and pinned bank_83.asm
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d); no selection matrix remains.
-    /// Callers retain their distinct area bounds and validation order. Native area index 7,
+    /// Callers retain their distinct area bounds and validation order. Area index 7,
     /// beyond the seven retail areas, selects only the shared spikes.</remarks>
     internal static AnimatedTileObject SelectObject(int areaIndex, int bit) => bit switch
     {
@@ -38,7 +38,7 @@ internal static class AreaAnimatedTileObjects
         (AreaId.Maridia, 3) => AnimatedTileObject.MaridiaSandFalling,
         _ => AnimatedTileObject.Empty,
     };
-    /// <summary>Returns the bank-$87 object header selected by one retail area/bit pair.</summary>
+    /// <summary>Returns the object selected by one retail area/bit pair.</summary>
     public static AnimatedTileObject Read(AreaId area, int bit)
     {
         if ((uint)bit >= ObjectsPerArea)

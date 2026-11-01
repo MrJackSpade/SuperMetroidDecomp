@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus;
 
 /// <summary>
 /// The compatibility services that reproduce what Samus's glitch paths read past the data the original game meant them
-/// to read (#1474), as the import pipeline decoded them from the player's cartridge (owner question 3). The session's
+/// to read (#1474), as the import pipeline decoded them from the player's game data (owner question 3). The session's
 /// gameplay runtime receives them with the installed content and hands each to the owner that consults it when it builds
 /// that owner. Lifetime: the installation's, shared by every runtime of the session.
 /// </summary>

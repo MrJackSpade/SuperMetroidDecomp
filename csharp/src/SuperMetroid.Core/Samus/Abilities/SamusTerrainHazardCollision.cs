@@ -6,18 +6,18 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Cartridge-faithful damage side effects owned by bank-$94 terrain collision.
+/// Faithful damage side effects owned by terrain collision.
 /// </summary>
 /// <remarks>
 /// Solid spike blocks are handled synchronously by the directional movement dispatcher.
-/// Spike-air is deliberately different: `$94:9B60` samples Samus's bottom, center, and
+/// Spike-air is deliberately different: the inside-block reaction samples Samus's bottom, center, and
 /// top points during frame-handler alpha, before beta movement. Keeping both entry points
 /// here prevents their similar damage values from erasing that timing distinction.
 /// </remarks>
 public static class SamusTerrainHazardCollision
 {
     /// <summary>
-    /// Runs the damaging subset of <c>BlockInsideDetection</c> at <c>$94:9B60</c> and
+    /// Runs the damaging subset of <c>BlockInsideDetection</c> and
     /// publishes the room-dependent spike-block behaviour-zero gate used later during movement.
     /// </summary>
     public static void PrepareFrame(
@@ -29,7 +29,7 @@ public static class SamusTerrainHazardCollision
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
 
-        // `$94:8E83` makes Wrecked Ship's behaviour-zero spike blocks harmless until Phantoon's
+        // The spike reaction makes Wrecked Ship's behaviour-zero spike blocks harmless until Phantoon's
         // area-boss bit is set. Every other area admits that table entry unconditionally.
         samus.OrdinarySpikeBlockBtsZeroDamageEnabled =
             area != AreaId.WreckedShip || areaBossDefeated;
@@ -38,7 +38,7 @@ public static class SamusTerrainHazardCollision
             VisitInsidePoint(level, samus, Position16<RoomPixels>.Of(samus.Position.X.Whole, y)));
     }
 
-    /// <summary>Applies `$94:8E83/$8ECF/$8F0A` after a solid spike block is contacted.</summary>
+    /// <summary>Applies the solid spike reactions after a solid spike block is contacted.</summary>
     internal static void ApplySolidSpikeCollision(
         SamusState samus,
         RoomCollisionBlock block)
@@ -86,7 +86,7 @@ public static class SamusTerrainHazardCollision
             return;
         }
 
-        // `$94:9866` is disabled during shinespark/Screw-Attack/contact-damage bodies and
+        // The spike-air reaction is disabled during shinespark/Screw-Attack/contact-damage bodies and
         // while the common invincibility timer is nonzero. It also restores the normal-air
         // horizontal table before returning, independently of whether damage was admitted.
         samus.HorizontalSpeed.SelectNormalAirSpeedTable();
@@ -96,7 +96,7 @@ public static class SamusTerrainHazardCollision
         PublishDamage(samus, SpikeHazardDefinitions.LightSpikeDamage);
     }
 
-    /// <summary>Applies spike damage and the native invincibility, knockback duration, and facing-dependent direction side effects.</summary>
+    /// <summary>Applies spike damage and the invincibility, knockback duration, and facing-dependent direction side effects.</summary>
     private static void PublishDamage(
         SamusState samus,
         int wholeDamage)
@@ -105,7 +105,7 @@ public static class SamusTerrainHazardCollision
         samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);
         samus.KnockbackTimer = WrappingCountdown.Start(SpikeHazardDefinitions.KnockbackFrames);
 
-        // The native expression `((pose_x_dir ^ $0C) & $08) != 0` maps right-facing
+        // The expression `((pose_x_dir ^ $0C) & $08) != 0` maps right-facing
         // records to leftward knockback and both left/front-special records to the other
         // direction. A switch over the proven pose discriminator states that intent.
         samus.KnockbackXDirection = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Right

@@ -50,12 +50,12 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
 
     /// <summary>Selected BGR555 copyright white the title fast-skip route and title-screen presentation rebinding restore to the copyright glyph's white.</summary>
     public RgbColor SkipCopyrightWhite { get; }
-    /// <summary>Selected BGR555 copyright tint the fast skip restores to the copyright glyph's red; the legacy Red name does not restrict its channels, and the stock word is $7D80.</summary>
+    /// <summary>Selected BGR555 copyright tint the fast skip restores to the copyright glyph's red; the legacy Red name does not restrict its channels, and the stock word is 32128.</summary>
     public RgbColor SkipCopyrightRed { get; }
 
     /// <inheritdoc />
     /// <param name="key">A color the tube-light or display program writes.</param>
-    /// <param name="color">Selected native BGR555 word when found, otherwise zero.</param>
+    /// <param name="color">Selected BGR555 word when found, otherwise zero.</param>
     /// <returns>True when the key identifies an authored or matching calculated ambient color; false for other records.</returns>
     public bool TryReadColor(PaletteFxColorKey key, out RgbColor color) =>
         animatedColors.TryGetValue(key, out color) ||

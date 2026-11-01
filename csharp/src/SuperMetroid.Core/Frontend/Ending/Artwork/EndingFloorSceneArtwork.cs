@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>
-/// One installed ending backdrop (#1409): its low-byte map, copied into both native $2000-word halves, and how many Mode 7
+/// One installed ending backdrop (#1409): its low-byte map, copied into both halves of the full map, and how many Mode 7
 /// characters its artwork holds. The installed ending floor sheets picture the characters; their pixels belong to the
 /// import pipeline that reads the installed artwork.
 /// </summary>
@@ -19,7 +19,7 @@ public class EndingFloorSceneArtwork
         CharacterCount = characterCount;
     }
 
-    /// <summary>The $2000 row-ordered tile indices written to the low VRAM byte lane at words $0000 and $2000.</summary>
+    /// <summary>The 8192 row-ordered tile indices written to the map's low byte lane in both halves.</summary>
     public ReadOnlyMemory<byte> Map { get; }
     /// <summary>The installed Mode 7 characters.</summary>
     public int CharacterCount { get; }

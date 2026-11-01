@@ -25,7 +25,7 @@ internal static class PlanetZebesTextColors
     internal static PaletteFxColorKey Endpoint(int color) => PlanetZebesTextPaletteFxColorDefinitions.All[0]
         .Color(PlanetZebesTextPaletteFxColorDefinitions.FrameCount - 1, color);
 
-    /// <summary>Round each RGB5 endpoint channel to nearest over seven native intervals; fade-out reverses the phase.</summary>
+    /// <summary>Round each RGB5 endpoint channel to nearest over seven intervals; fade-out reverses the phase.</summary>
     internal static bool TryCalculate(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> inputs, out RgbColor color)
     {
         color = RgbColor.Black;

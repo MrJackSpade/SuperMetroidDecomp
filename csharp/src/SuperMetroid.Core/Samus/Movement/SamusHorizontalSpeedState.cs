@@ -8,26 +8,26 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// The fixed-point horizontal-speed registers used by Samus's bank-$90 movement code.
+/// The fixed-point horizontal-speed registers used by Samus's movement code.
 /// </summary>
 /// <remarks>
 /// This class is intentionally narrower than a general-purpose desktop physics body. Every
-/// property corresponds to a native 16-bit WRAM word, and every operation below preserves
-/// the SNES routine's word-sized wrapping and comparisons. Room/enemy collision consumes
+/// property corresponds to a 16-bit word of Samus's state, and every operation below preserves
+/// the game's word-sized wrapping and comparisons. Room/enemy collision consumes
 /// the resulting displacement later; it is not guessed here.
 /// </remarks>
 public sealed class SamusHorizontalSpeedState
 {
-    /// <summary>Samus's base horizontal speed, <c>samus_x_base_speed</c>/<c>subspeed</c> at WRAM <c>$0B46</c>/<c>$0B48</c>.</summary>
+    /// <summary>Samus's base horizontal speed, <c>samus_x_base_speed</c>/<c>subspeed</c>.</summary>
     public UnsignedSixteenSixteen BaseSpeed { get; set; }
 
-    /// <summary>The run-button/speed-booster addition to horizontal speed at WRAM <c>$0B42</c>/<c>$0B44</c>.</summary>
+    /// <summary>The run-button/speed-booster addition to horizontal speed.</summary>
     public UnsignedSixteenSixteen ExtraRunSpeed { get; set; }
 
     /// <summary>
-    /// Native <c>samus_has_momentum_flag</c>. Once dash begins, releasing Dash or leaving
+    /// <c>samus_has_momentum_flag</c>. Once dash begins, releasing Dash or leaving
     /// movement type one retains the accumulated extra component until a specific cancel
-    /// routine (standing, turning, collision, etc.) clears WRAM <c>$0B3C</c>.
+    /// routine (standing, turning, collision, etc.) clears it.
     /// </summary>
     public bool HasRunningMomentum { get; set; }
 
@@ -56,18 +56,18 @@ public sealed class SamusHorizontalSpeedState
         set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>WRAM <c>$0AD0</c>, seeded to one on the first boosted running frame.</summary>
+    /// <summary>Seeded to one on the first boosted running frame.</summary>
     public WrappingCountdown SpecialPaletteTimer { get; set; }
 
     /// <summary>
-    /// One-shot event set when `$90:852C` enters stage four. Audio can consume this flag
+    /// One-shot event set when the boost reaches stage four. Audio can consume this flag
     /// later without making the movement translation depend on a host sound backend.
     /// </summary>
     public bool EchoSoundRequested { get; set; }
 
     /// <summary>
-    /// WRAM $0B40, SamusEchoesSFXFlag: set by $90:859D before the start request,
-    /// consumed by $90:F591 after boost ends, or cleared silently by quicksand $84:B40E. 0 through 65535.
+    /// SamusEchoesSFXFlag: set before the echo sound's start request,
+    /// consumed after boost ends, or cleared silently by quicksand. 0 through 65535.
     /// </summary>
     public int EchoSoundFlag
     {
@@ -88,8 +88,8 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Host-side publication of the immediate suit-palette copy performed by
-    /// <c>Cancel_SpeedBoosting</c> at <c>$91:DE53</c>. Movement owns the cancellation,
-    /// while the runtime owns CGRAM, so this flag preserves the native same-frame handoff
+    /// <c>Cancel_SpeedBoosting</c>. Movement owns the cancellation,
+    /// while the runtime owns the colours, so this flag preserves the same-frame handoff
     /// without passing a renderer through every collision and pose routine.
     /// </summary>
     public bool NormalSuitPaletteRestoreRequested { get; private set; }
@@ -115,10 +115,10 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public bool SpeedEchoesDeparting => SpeedEchoIndex > short.MaxValue;
 
-    /// <summary>First captured Speed Booster echo position: X at WRAM <c>$0AB0</c>, Y at <c>$0AB4</c>. X zero marks the slot empty.</summary>
+    /// <summary>First captured Speed Booster echo position. X zero marks the slot empty.</summary>
     public Position16<RoomPixels> FirstSpeedEchoPosition { get; private set; }
 
-    /// <summary>Second captured Speed Booster echo position: X at WRAM <c>$0AB2</c>, Y at <c>$0AB6</c>. X zero marks the slot empty.</summary>
+    /// <summary>Second captured Speed Booster echo position. X zero marks the slot empty.</summary>
     public Position16<RoomPixels> SecondSpeedEchoPosition { get; private set; }
 
     /// <summary>
@@ -130,7 +130,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Whole-pixel per-frame velocity of departing echo one; only X moves.</summary>
     public Offset16<RoomPixels> SecondSpeedEchoVelocity { get; private set; }
 
-    /// <summary>The total horizontal speed produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBC</c>/<c>$0DBE</c>.</summary>
+    /// <summary>The total horizontal speed produced by <c>Samus_CalcSpeed_X</c>.</summary>
     public UnsignedSixteenSixteen TotalSpeed { get; internal set; }
 
     /// <summary>
@@ -144,15 +144,15 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Acceleration mode at WRAM <c>$0B4A</c>: accelerating speeds up, while turning and decelerating both take the
-    /// deceleration branch in <c>$90:9A7E</c>.
+    /// Acceleration mode: accelerating speeds up, while turning and decelerating both take the
+    /// deceleration branch of the speed calculation.
     /// </summary>
     public SamusAccelerationMode AccelerationMode { get; set; }
 
     /// <summary>
     /// Optional deceleration multiplier, 0 through 255. Zero selects the table's plain
     /// deceleration; nonzero multiplies the whole deceleration and only the upper half of its
-    /// fraction, as the cartridge's asymmetric products do.
+    /// fraction, as the game's asymmetric products do.
     /// </summary>
     public int DecelerationMultiplier
     {
@@ -167,13 +167,13 @@ public sealed class SamusHorizontalSpeedState
     public SamusLiquidMedium ActiveSpeedTable { get; internal set; } = SamusLiquidMedium.Air;
 
     /// <summary>
-    /// Reproduces the ordinary-air assignment made by <c>$94:97D0</c> before movement.
+    /// Reproduces the ordinary-air assignment made by the block reaction before movement.
     /// </summary>
     public void SelectNormalAirSpeedTable() => ActiveSpeedTable = SamusLiquidMedium.Air;
 
     /// <summary>
     /// Ports <c>Determine_Samus_X_Speed_Table_Entry_Pointer</c>'s environmental selection
-    /// at <c>$90:9BD1</c>. The selected table's records are indexed later by movement type.
+    ///. The selected table's records are indexed later by movement type.
     /// </summary>
     public void SelectEnvironmentSpeedTable(SamusLiquidMedium liquidMedium)
     {
@@ -182,10 +182,10 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Ports the dry-air portion of <c>Handle_Samus_XExtraRunSpeed</c> at <c>$90:973E</c>.
+    /// Ports the dry-air portion of <c>Handle_Samus_XExtraRunSpeed</c>.
     /// Both routes accelerate by hexadecimal <c>0.1000</c>. Ordinary Dash caps at
     /// <c>2.0000</c>; equipped Speed Booster caps at <c>7.0000</c> and initializes its
-    /// counter through `$91:B61F`. Their shared momentum flag survives release and jumps.
+    /// counter through the boost stage table. Their shared momentum flag survives release and jumps.
     /// </summary>
     [IndependentFlag("Speed Booster equipment and liquid impedance are independent facts about Samus.")]
     public void HandleExtraRunSpeed(
@@ -195,7 +195,7 @@ public sealed class SamusHorizontalSpeedState
         bool liquidImpeded = false)
     {
         const ControllerButton dashButton = ControllerButton.B;
-        // `$90:9746-$9763` diverts a non-Gravity submerged body to the same no-acceleration
+        // Diverts a non-Gravity submerged body to the same no-acceleration
         // branch as releasing Dash. Existing momentum retains its numeric extra component;
         // without momentum, both words are cleared. This is not a multiplier or hard reset.
         bool activelyDashing = !liquidImpeded &&
@@ -203,13 +203,13 @@ public sealed class SamusHorizontalSpeedState
             controllerInput.HasAny(dashButton);
         if (!activelyDashing)
         {
-            // `$90:9808` clears the extra pair only before momentum has been established.
+            // Clears the extra pair only before momentum has been established.
             // A true flag carries the pair through airborne movement and a released button.
             if (!HasRunningMomentum)
             {
                 ExtraRunSpeed = default;
             }
-            // The native common epilogue also runs when Dash is released,
+            // The common epilogue also runs when Dash is released,
             // movement becomes airborne, or liquid suppresses acceleration.
             PublishBoostContactDamage();
             return;
@@ -219,8 +219,8 @@ public sealed class SamusHorizontalSpeedState
         {
             if (!HasRunningMomentum)
             {
-                // `$90:976C-$9780` initializes the counter's authored low byte.
-                // Palette writes themselves remain renderer work, but their native
+                // Initializes the counter's authored low byte.
+                // Palette writes themselves remain renderer work, but their
                 // frame/timer state is movement-visible and therefore retained here.
                 HasRunningMomentum = true;
                 SpecialPaletteTimer = WrappingCountdown.Start(1);
@@ -246,7 +246,7 @@ public sealed class SamusHorizontalSpeedState
             SpeedBoostCounter = default;
         }
 
-        // The cartridge compares the two words separately with signed BMI branches. This
+        // The game compares the two words separately with signed BMI branches. This
         // intentionally is not a conventional unsigned 32-bit >= comparison. The retail
         // no-booster fractional cap is zero, so a normal progression reaches 2.0000 and
         // clamps there on the following call before another 0.1000 can be added.
@@ -262,21 +262,21 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Executes the equipped-Speed-Booster interception at `$90:852C-$856B` when running
+    /// Executes the equipped-Speed-Booster interception when running
     /// reaches an animation command. True means the command was consumed and frame zero
-    /// was restarted from the ROM-authored delay list for the new boost stage.
+    /// was restarted from the authored delay list for the new boost stage.
     /// </summary>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which a full sound queue selects.</param>
     /// <param name="movementType">Current movement category; only running can consume this animation command.</param>
-    /// <param name="controllerInput">Current held SNES button word; the native dash button must be held.</param>
-    /// <param name="animationFrameBuffer">Native frame-delay adjustment added to the selected stage's first animation delay.</param>
+    /// <param name="controllerInput">Current held button word; the dash button must be held.</param>
+    /// <param name="animationFrameBuffer">Frame-delay adjustment added to the selected stage's first animation delay.</param>
     /// <param name="animationFrame">Current animation frame, reset to zero only when this call consumes the command.</param>
     /// <param name="animationFrameTimer">Zero when the command is not consumed; otherwise the new first-frame delay plus the buffer, wrapped to sixteen bits.</param>
     /// <param name="queueEchoSound">
-    /// Synchronous native sound call, returning what the queue did with the echo.
-    /// Supplying it reproduces the cartridge's queue-dependent table selection and
+    /// Synchronous sound call, returning what the queue did with the echo.
+    /// Supplying it reproduces the game's queue-dependent table selection and
     /// replaces deferred sound publication. Null retains the legacy deferred path;
-    /// standalone callers can omit it when no cartridge audio queue is attached.
+    /// standalone callers can omit it when no audio queue is attached.
     /// </param>
     public bool TryAdvanceSpeedBoosterAnimationStage(
         UnauthoredBoostCadence unauthoredBoostCadence,
@@ -326,9 +326,9 @@ public sealed class SamusHorizontalSpeedState
         animationFrame = 0;
         animationFrameTimer = WrappingCountdown.FromRaw(animationFrameBuffer)
             .AddFrames(SamusRunningCadences.Delay(unauthoredBoostCadence, cadence, frame: 0)).RemainingFrames;
-        // Animation runs after movement. Native stage advancement changes cadence
+        // Animation runs after movement. Stage advancement changes cadence
         // and sound, not contact damage; the next movement epilogue publishes that.
-        // Publishing here enables boost damage one frame before the cartridge.
+        // Publishing here enables boost damage one frame before the game.
         return true;
     }
 
@@ -340,9 +340,9 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Ports the dry-room Speed Booster branch of
-    /// <c>Handle_ScrewAttack_SpeedBoosting_Palette</c> at <c>$91:D9B2</c>.
+    /// <c>Handle_ScrewAttack_SpeedBoosting_Palette</c>.
     /// </summary>
-    /// <returns>True when this call copied a ROM-authored palette into CGRAM.</returns>
+    /// <returns>True when this call copied an authored palette into Samus's colours.</returns>
     /// <param name="colours">Samus's colours, which the copied palette replaces.</param>
     /// <param name="frame">What this update's palette handler reads of Samus.</param>
     /// <param name="overrunColours">The colours Gravity copies on the Speed Booster steps past its cycle.</param>
@@ -357,15 +357,15 @@ public sealed class SamusHorizontalSpeedState
         bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(colours, frame.EquippedItems, suitColors);
         SamusSuit suit = frame.EquippedItems.ShownSuit();
 
-        // Stored-shine and shinespark handlers have priority in `$91:D6F7`. Cancellation's
+        // Stored-shine and shinespark handlers have priority in the palette dispatcher. Cancellation's
         // immediate normal-palette copy above still occurs, but handler zero must not advance
         // its hidden four-frame Speed Booster cycle beneath handler one or six.
         if (frame.SuppressActiveSpeedBoosterPalette)
             return paletteCopied;
 
-        // `$91:D9B2-$D9D8` tests the suit-palette Gravity bit before it asks whether
+        // Tests the suit-palette Gravity bit before it asks whether
         // Samus's *bottom* boundary lies under water or lava/acid. Power and Varia Samus
-        // return carry-set immediately when submerged: the current CGRAM colors, common
+        // return carry-set immediately when submerged: the current colours, common
         // timer, and palette-list offset all remain untouched. Gravity Suit bypasses this
         // gate and continues into the ordinary Screw Attack / Speed Booster logic even
         // though the raw room-FX comparison still says the body is underwater. The caller
@@ -380,7 +380,7 @@ public sealed class SamusHorizontalSpeedState
         {
             if (frame.AnimationFrame == 0)
             {
-                // `$91:DA43` resets only the palette-list byte offset. Frame zero retains
+                // Resets only the palette-list byte offset. Frame zero retains
                 // the already loaded normal suit colors; it does not emit a Screw palette.
                 CyclePaletteStep = 0;
                 return paletteCopied;
@@ -388,9 +388,9 @@ public sealed class SamusHorizontalSpeedState
 
             if (WordWrap.Signed(frame.AnimationFrame - 27) >= 0)
             {
-                // Carry clear at `$91:DA48` asks the outer palette dispatcher to copy
+                // Carry clear asks the outer palette dispatcher to copy
                 // the normal suit palette for frames 27 onward. Frames 1..26 cycle below.
-                // CGRAM is the desktop runtime's directly visible palette buffer.
+                // The colour store is the runtime's directly visible palette buffer.
                 LoadNormalSuitPalette(colours, frame.EquippedItems, suitColors);
                 return true;
             }
@@ -432,7 +432,7 @@ public sealed class SamusHorizontalSpeedState
             suit, CyclePaletteStep);
         SamusSpeedBoosterPalette.Apply(colours, source, cycleColors, overrunColours);
 
-        // The native clamp is AFTER the copy. Screw Attack can leave step four or five in
+        // The clamp is AFTER the copy. Screw Attack can leave step four or five in
         // this shared step; retain that one bounded overrun before pinning the last step.
         CyclePaletteStep = CyclePaletteStep >= SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep
             ? SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep
@@ -442,12 +442,12 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Defers the normal 16-color suit copy until before the runtime's palette handlers.
-    /// Native pose initialization performs this when leaving a Screw Attack spin family.
+    /// The game's pose initialization performs this when leaving a Screw Attack spin family.
     /// </summary>
     public void RequestNormalSuitPaletteRestore() => NormalSuitPaletteRestoreRequested = true;
 
     /// <summary>
-    /// Publishes the immediate suit copies requested by native momentum cancellation and
+    /// Publishes the immediate suit copies requested by momentum cancellation and
     /// pose initialization. These precede charge and special-palette handling, which may
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
@@ -464,7 +464,7 @@ public sealed class SamusHorizontalSpeedState
         return true;
     }
 
-    /// <summary>Copies one of the six ROM-authored Screw Attack palettes and wraps its offset.</summary>
+    /// <summary>Copies one of the six authored Screw Attack palettes and wraps its offset.</summary>
     private void CopyAndAdvanceScrewAttackPalette(
         SamusColours colours,
         SamusSuit suit,
@@ -476,14 +476,14 @@ public sealed class SamusHorizontalSpeedState
             "Screw Attack palette requires installed Samus full-body cycle colors."))
             .Apply(colours, palette);
 
-        // Steps 0 through 5 form the six-frame cycle. The native CMP uses the current
+        // Steps 0 through 5 form the six-frame cycle. The CMP uses the current
         // step, so the last wraps to zero only after its palette has been copied.
         CyclePaletteStep = CyclePaletteStep >= SamusPaletteDefinitions.FullBodyCycles.ScrewAttackSteps - 1
             ? 0
             : CyclePaletteStep + 1;
     }
 
-    /// <summary>Loads the normal Power/Varia/Gravity palette selected by the native suit index.</summary>
+    /// <summary>Loads the normal Power/Varia/Gravity palette selected by the suit index.</summary>
     private static void LoadNormalSuitPalette(
         SamusColours colours,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
@@ -493,7 +493,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Ports <c>Samus_UpdateSpeedEchoPos</c> at <c>$90:EEE7</c> for ordinary active boost.
+    /// Ports <c>Samus_UpdateSpeedEchoPos</c> for ordinary active boost.
     /// The gameplay clock, not the frame counter, selects the four-frame sampling phase.
     /// </summary>
     /// <param name="gameTimeFrames">The gameplay clock's frame count, 0 to 65535; only its four-frame phase is read and nothing stores it.</param>
@@ -523,11 +523,11 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Applies the observable echo-slot clears shared by shinespark windup at
-    /// <c>$90:D068</c> and directional launch setup at <c>$91:F83E</c>.
+    /// Applies the observable echo-slot clears shared by shinespark windup
+    /// and directional launch setup.
     /// </summary>
     /// <remarks>
-    /// Native also clears two later crash-circle velocity bytes. Those bytes are not part
+    /// The game also clears two later crash-circle velocity bytes. Those bytes are not part
     /// of the ordinary active-echo model yet; the X position words and alternating index
     /// below are the exact subset consumed by <see cref="CaptureSpeedEchoPosition"/> and
     /// the current renderer.
@@ -539,11 +539,11 @@ public sealed class SamusHorizontalSpeedState
         SecondSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
         FirstSpeedEchoPosition = FirstSpeedEchoPosition.WithX(0);
         SecondSpeedEchoPosition = SecondSpeedEchoPosition.WithX(0);
-        // Launch marks slots empty through X alone. Native leaves the old Y words
+        // Launch marks slots empty through X alone. The game leaves the old Y words
         // intact until the next gameplay-clock sample overwrites them.
     }
 
-    /// <summary>Clears active echo storage during native ResetProjectileData ($90:AD22).</summary>
+    /// <summary>Clears active echo storage during ResetProjectileData.</summary>
     public void ResetSpeedEchoPositionsForRoomTransition()
     {
         ResetSpeedEchoPositionsForShinespark();
@@ -552,10 +552,10 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Publishes the overloaded `$0AAE-$0AB6` words owned by the shinespark-crash handler.
+    /// Publishes the overloaded echo words owned by the shinespark-crash handler.
     /// </summary>
     /// <remarks>
-    /// The cartridge reuses the ordinary boost-echo index as an 8-bit radius plus an
+    /// The game reuses the ordinary boost-echo index as an 8-bit radius plus an
     /// 8-bit crash subphase, and reuses the two captured positions as orbiting sprites.
     /// Keeping the write centralized prevents desktop-only crash fields from drifting away
     /// from the exact words consumed by the translated draw handler.
@@ -570,7 +570,7 @@ public sealed class SamusHorizontalSpeedState
         SecondSpeedEchoPosition = second;
     }
 
-    /// <summary>Adds the native 16.16 extra-run increment while retaining separate WRAM whole and fractional words.</summary>
+    /// <summary>Adds the 16.16 extra-run increment while retaining separate whole and fractional words.</summary>
     private void AddExtraRunAcceleration()
     {
         uint accelerated = unchecked(ExtraRunSpeed.RawValue + SamusMovementDefinitions.HorizontalMotion.ExtraRunAcceleration);
@@ -585,11 +585,11 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Ports <c>Samus_CancelSpeedBoost</c> at <c>$91:DE53</c>, including the transition
+    /// Ports <c>Samus_CancelSpeedBoost</c>, including the transition
     /// from alternating captured positions into the high-bit echo-departure state.
     /// </summary>
     /// <param name="facing">
-    /// Current pose-definition direction. Native treats exactly left (four) as facing left;
+    /// Current pose-definition direction. The game treats exactly left (four) as facing left;
     /// every other direction uses the right-facing +8 echo velocity branch.
     /// </param>
     public void CancelRunningMomentum(SamusFacingDirection facing)
@@ -603,9 +603,9 @@ public sealed class SamusHorizontalSpeedState
             NormalSuitPaletteRestoreRequested = true;
         }
 
-        // This block is intentionally outside the momentum test. Every native caller can
-        // enter echo-departure mode even when `$0B3C` was already clear. Repeated calls while
-        // `$0AAE` is negative must *not* reset the velocities or restart the two bodies.
+        // This block is intentionally outside the momentum test. Every caller can
+        // enter echo-departure mode even when the momentum flag was already clear. Repeated calls while
+        // the echo index is negative must *not* reset the velocities or restart the two bodies.
         if (!SpeedEchoesDeparting)
         {
             SpeedEchoIndex = DepartingSpeedEchoIndex;
@@ -616,7 +616,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Reconciles the speed/echo portion of $91:E633 after the equipment menu.
+    /// Reconciles the speed/echo portion of the unpause equipment check after the equipment menu.
     /// Unlike ordinary momentum cancellation, unequipping Speed Booster erases
     /// the echoes outright and leaves the numeric run-speed pair until the next
     /// movement update observes the cleared momentum flag.
@@ -645,7 +645,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Performs the complete horizontal-momentum teardown shared by collision, standing,
-    /// posture, aerial, and Morph-Ball handlers. The native seam first cancels Speed Booster
+    /// posture, aerial, and Morph-Ball handlers. The seam first cancels Speed Booster
     /// bookkeeping/echoes, then clears the two extra-run words, two base-speed words, and
     /// acceleration mode; keeping that ordering here prevents five copies from diverging.
     /// </summary>
@@ -657,7 +657,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Clears the five horizontal velocity/acceleration words without canceling
-    /// boost bookkeeping. Crouching's $90:A57C cleanup performs only these stores;
+    /// boost bookkeeping. Crouching's cleanup performs only these stores;
     /// its angle-held input route can therefore preserve a temporary Blue Suit.
     /// </summary>
     public void ClearHorizontalVelocity()
@@ -692,14 +692,13 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Advances one cancellation echo during <c>Samus_DrawEchoes</c> at
-    /// <c>$90:87D3-$90:884B</c>.
+    /// Advances one cancellation echo during <c>Samus_DrawEchoes</c>.
     /// </summary>
     /// <remarks>
-    /// This side effect really belongs to drawing in the cartridge: Y approaches the live
+    /// This side effect really belongs to drawing in the game: Y approaches the live
     /// Samus center by two pixels, X advances by the signed eight-pixel velocity, and the
     /// position is cleared on the exact frame it crosses Samus. Returning false means the
-    /// slot is empty or crossed this frame and therefore must not emit OAM.
+    /// slot is empty or crossed this frame and therefore must not be drawn.
     /// </remarks>
     public bool AdvanceDepartingSpeedEcho(
         int slot,
@@ -744,7 +743,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Executes `$90:884E-$90:8854` after both departure slots have been considered.
+    /// Clears the departure state after both departure slots have been considered.
     /// Once neither stored X position remains, the shared index returns to ordinary zero.
     /// </summary>
     public void FinishDepartingSpeedEchoFrame()
@@ -758,15 +757,15 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Resolves the row of the entry selected by <c>Samus_DetermineSpeedTableEntryPtr_X</c> at
-    /// <c>$90:9BD1</c> among the three adjacent tables, assuming the already-modeled inside-block
+    /// Resolves the row of the entry selected by <c>Samus_DetermineSpeedTableEntryPtr_X</c>
+    /// among the three adjacent tables, assuming the already-modeled inside-block
     /// reaction chose the table.
     /// </summary>
     public int ResolveEntryRow(SamusMovementType movementType) =>
         SamusHorizontalMotion.Row(ActiveSpeedTable, movementType);
 
     /// <summary>
-    /// Resolves authored speed entries without ROM access. Fields remain split into the
+    /// Resolves authored speed entries without reading the original data. Fields remain split into the
     /// same high/low words as the original table instead of becoming floating-point values.
     /// </summary>
     public SpeedTableEntry ReadEntry(SamusMovementType movementType) => ReadEntryAtRow(ResolveEntryRow(movementType));
@@ -779,8 +778,8 @@ public sealed class SamusHorizontalSpeedState
                 $"Samus horizontal speed row {row} is past the {SamusHorizontalMotionDefinitions.RowCount} authored mechanics records.");
 
     /// <summary>
-    /// Ports <c>Samus_CalcBaseSpeed_X</c> at <c>$90:9A7E</c> and returns its unsigned
-    /// 16.16 result. It mutates the modeled WRAM speed words exactly once.
+    /// Ports <c>Samus_CalcBaseSpeed_X</c> and returns its unsigned
+    /// 16.16 result. It mutates the modeled speed words exactly once.
     /// </summary>
     public uint CalculateBaseSpeed(SamusMovementType movementType)
     {
@@ -789,13 +788,13 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Executes `$90:9A7E` against a standalone record. Bomb jumps use the standalone record at
-    /// `$90:9F25` instead of the movement-type-indexed normal table.
+    /// Executes the speed calculation against a standalone record. Bomb jumps use their own standalone record
+    /// instead of the movement-type-indexed normal table.
     /// </summary>
     public uint CalculateBaseSpeed(SamusStandaloneSpeedRecord record) =>
         CalculateBaseSpeed(SamusHorizontalMotion.Standalone(record));
 
-    /// <summary>Applies the table's acceleration or deceleration using native split-word arithmetic and updates base speed.</summary>
+    /// <summary>Applies the table's acceleration or deceleration using split-word arithmetic and updates base speed.</summary>
     internal uint CalculateBaseSpeed(SpeedTableEntry entry)
     {
 
@@ -803,7 +802,7 @@ public sealed class SamusHorizontalSpeedState
         {
             SetBaseFixed(unchecked(BaseFixed - (uint)ScaledDeceleration(entry).RawValue));
 
-            // The native BMI tests only the signed high word. Once deceleration crosses
+            // The BMI tests only the signed high word. Once deceleration crosses
             // below zero it clears both halves and returns to acceleration mode zero.
             if (WordWrap.Signed(BaseSpeed.Whole) < 0)
             {
@@ -815,7 +814,7 @@ public sealed class SamusHorizontalSpeedState
         {
             SetBaseFixed(unchecked(BaseFixed + (uint)entry.Acceleration.RawValue));
 
-            // $90:9A7E does not use a normal unsigned 32-bit >= comparison. Preserve its
+            // Does not use a normal unsigned 32-bit >= comparison. Preserve its
             // signed word-subtraction quirk, including the fact that exact equality does
             // not count as greater and therefore is left untouched.
             if (IsGreaterThanQuirked(
@@ -832,8 +831,8 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Ports <c>CalculateSamusXBaseSpeed_DecelerationDisallowed</c> at
-    /// <c>$90:9B1F</c>. Despite its name, acceleration-mode bit zero still selects the
+    /// Ports <c>CalculateSamusXBaseSpeed_DecelerationDisallowed</c>.
+    /// Despite its name, acceleration-mode bit zero still selects the
     /// turning/deceleration branch; modes zero and two both accelerate toward the table
     /// maximum. The returned flag is the routine's carry result and is important to spin
     /// jump's decision to retain horizontal motion.
@@ -846,7 +845,7 @@ public sealed class SamusHorizontalSpeedState
         if (AccelerationMode == SamusAccelerationMode.Turning)
         {
             // This is byte-for-byte the same asymmetric multiplier calculation used by
-            // the deceleration-allowed routine. The distinction between the two native
+            // the deceleration-allowed routine. The distinction between the two
             // entry points is the bit test above and their carry result, not the subtract.
             SetBaseFixed(unchecked(BaseFixed - (uint)ScaledDeceleration(entry).RawValue));
             if (WordWrap.Signed(BaseSpeed.Whole) < 0)
@@ -855,14 +854,14 @@ public sealed class SamusHorizontalSpeedState
                 AccelerationMode = SamusAccelerationMode.Accelerating;
             }
 
-            // Every path through $90:9B5E-$90:9BC3 exits with carry clear.
+            // Every path through the deceleration-disallowed routine exits with carry clear.
             return new AerialBaseSpeedResult(BaseFixed, ReachedMaximum: false);
         }
 
         SetBaseFixed(unchecked(BaseFixed + (uint)entry.Acceleration.RawValue));
 
         // CMP/BMI performs signed 16-bit comparisons. Exact equality in both halves is
-        // deliberately *not* considered a cap: $90:9B5A returns carry clear in that case.
+        // deliberately *not* considered a cap: the routine returns carry clear in that case.
         int maximumWhole = entry.MaximumSpeed.WholeWord;
         int maximumFraction = entry.MaximumSpeed.Fraction;
         bool exceedsMaximum = WordWrap.Signed(BaseSpeed.Whole - maximumWhole) > 0 ||
@@ -878,8 +877,8 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Ports <c>Samus_CalcSpeed_X</c> at <c>$90:E4E6</c>: add extra run speed, shift by
-    /// min(divisor, 4), and publish the total-speed WRAM pair used by animation/collision.
+    /// Ports <c>Samus_CalcSpeed_X</c>: add extra run speed, shift by
+    /// min(divisor, 4), and publish the total-speed pair used by animation/collision.
     /// </summary>
     public uint CalculateTotalSpeed(uint baseSpeed)
     {
@@ -891,24 +890,24 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Ports the non-collision portion of <c>Samus_CalcDisplacementMoveRight</c> at
-    /// <c>$90:E4AD</c>, including the ±15-pixel whole-word clamp from <c>$90:E430</c>.
+    /// Ports the non-collision portion of <c>Samus_CalcDisplacementMoveRight</c>,
+    /// including the ±15-pixel whole-word clamp.
     /// </summary>
     public int CalculateRightDisplacement(uint baseSpeed, int extraDisplacement = 0) =>
         ClampDisplacement(unchecked((int)CalculateTotalSpeed(baseSpeed) + extraDisplacement));
 
     /// <summary>
-    /// Ports the non-collision portion of <c>Samus_CalcDisplacementMoveLeft</c> at
-    /// <c>$90:E464</c>. Left is native <c>extra displacement - total speed</c>, not merely
+    /// Ports the non-collision portion of <c>Samus_CalcDisplacementMoveLeft</c>.
+    /// Left is <c>extra displacement - total speed</c>, not merely
     /// a sign bit attached to the rightward result.
     /// </summary>
     public int CalculateLeftDisplacement(uint baseSpeed, int extraDisplacement = 0) =>
         ClampDisplacement(unchecked(extraDisplacement - (int)CalculateTotalSpeed(baseSpeed)));
 
-    /// <summary>Current base speed as the native high-word/low-word unsigned 16.16 pair.</summary>
+    /// <summary>Current base speed as the high-word/low-word unsigned 16.16 pair.</summary>
     public uint BaseFixed => BaseSpeed.RawValue;
 
-    /// <summary>Publishes a 16.16 result to the separate base-speed whole and fractional WRAM words.</summary>
+    /// <summary>Publishes a 16.16 result to the separate base-speed whole and fractional words.</summary>
     private void SetBaseFixed(uint value)
     {
         BaseSpeed = UnsignedSixteenSixteen.FromRaw(value);
@@ -917,9 +916,9 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>
     /// The deceleration one frame removes. Without a multiplier it is the table's value; with
     /// one, the whole part is multiplied in full but only the upper half of the fraction is,
-    /// and each product keeps only what fits its half, as the cartridge's byte multiplies do.
+    /// and each product keeps only what fits its half, as the game's byte multiplies do.
     /// Combining them as ordinary fixed-point multiplication would be cleaner, but would not be
-    /// what the cartridge executes.
+    /// what the game executes.
     /// </summary>
     private SignedSixteenSixteen ScaledDeceleration(SpeedTableEntry entry)
     {
@@ -933,7 +932,7 @@ public sealed class SamusHorizontalSpeedState
             WordWrap.Unsigned(fractionProduct));
     }
 
-    /// <summary>Compares split words with the cartridge's signed subtraction and strict low-word tie rule.</summary>
+    /// <summary>Compares split words with the game's signed subtraction and strict low-word tie rule.</summary>
     private static bool IsGreaterThanQuirked(
         int valueHigh,
         int valueLow,

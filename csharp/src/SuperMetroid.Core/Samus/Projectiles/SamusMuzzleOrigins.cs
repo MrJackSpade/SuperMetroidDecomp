@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Where each firing direction's projectile leaves the arm cannon.</summary>
 internal static class SamusMuzzleOrigins
 {
-    /// <summary>$90:C204..C253 ProjectileOriginOffsetsByDirection: physical muzzle coordinates for each named firing direction and running/Moonwalk mode.</summary>
+    /// <summary>ProjectileOriginOffsetsByDirection: physical muzzle coordinates for each named firing direction and running/Moonwalk mode.</summary>
     private static Offset16<RoomPixels> Muzzle(bool running, SamusProjectileDirection direction) => new SamusFiringStance(running, direction) switch
     {
         (false, SamusProjectileDirection.UpFacingRight) => new Offset16<RoomPixels>(2, -8),

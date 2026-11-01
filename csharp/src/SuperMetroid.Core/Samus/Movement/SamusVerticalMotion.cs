@@ -23,7 +23,7 @@ internal static class SamusVerticalMotion
     /// <summary>The gravity in <paramref name="medium"/>.</summary>
     internal static UnsignedSixteenSixteen Gravity(SamusLiquidMedium medium) => InMedium(Gravities, medium);
 
-    /// <summary>The value <paramref name="table"/> lists for <paramref name="medium"/>; the cartridge defines three media.</summary>
+    /// <summary>The value <paramref name="table"/> lists for <paramref name="medium"/>; the game defines three media.</summary>
     private static UnsignedSixteenSixteen InMedium(IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> table, SamusLiquidMedium medium) =>
         table.ContainsKey(medium) ? table[medium] : throw new InvalidOperationException($"Undefined {nameof(SamusLiquidMedium)} {medium}.");
 }

@@ -14,7 +14,7 @@ internal sealed class EndingCreditsRoll
     private readonly bool japaneseText;
     /// <summary>The ending's screen: its palette, the pictures its scenes have loaded and its text pages (#1358, #1467).</summary>
     private readonly EndingScreen screen ;
-    /// <summary>Dynamic cinematic actors in native slot traversal order.</summary>
+    /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
     /// <summary>The post-credits staging page.</summary>
     private readonly EndingTextPage postCreditsPage;
@@ -61,8 +61,8 @@ internal sealed class EndingCreditsRoll
     /// <summary>Restores the post-credits palette except colors zero through three and holds a blank screen for sixty calls.</summary>
     internal void SetupPostCreditsBlank()
     {
-        // F6FE copies Intro4 colors $04-$FF, disables text glow, forces blank, and arms
-        // function 129 for sixty calls. Preserve colors zero through three as native does.
+        // The credits' end copies Intro4 colors 4-255, disables text glow, forces blank, and arms
+        // function 129 for sixty calls. Preserve colors zero through three as the game does.
         ScreenColours postCredits = _stage.StaticScreen(EndingPaletteId.PostCredits);
         postCredits.LoadTo(screen.Palette, ScreenColourGroup.EndingPostCreditsRestoredBackground);
         postCredits.LoadTo(screen.Palette, ScreenColourGroup.EndingPostCreditsRestoredSprites);

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// Game state <c>$1B</c>: automatic reserve-tank recovery from <c>$82:DC10-$82:DC7F</c>.
+/// Game state <c>$1B</c>: automatic reserve-tank recovery.
 /// </summary>
 /// <remarks>
 /// This is an outer game-state owner, not an inventory convenience. It locks Samus, leaves
@@ -30,7 +30,7 @@ public sealed class SamusReserveAutoRecoveryState
         // gate alone leaves AnimateSamus running during the frozen recovery frames.
         // If X-Ray installed its own pair earlier in this state-eight frame, command
         // $1B replaces those handlers without ending the independently running cone effect.
-        // It leaves Mother Brain's rainbow-beam pair in place ($90:F414).
+        // It leaves Mother Brain's rainbow-beam pair in place.
         bool rainbowBeam = samus.Control.Mode.Beta == SamusBetaHandler.RainbowBeam;
         if (!rainbowBeam)
             samus.Xray.RelinquishSamusControlForReserveRecovery();
@@ -59,7 +59,7 @@ public sealed class SamusReserveAutoRecoveryState
             }
             else
             {
-                // Native's signed-underflow repair after this decrement handled corrupt reserve words; a count
+                // The game's signed-underflow repair after this decrement handled corrupt reserve words; a count
                 // decremented from a positive value reaches zero first.
                 samus.ReserveEnergy = SamusQuantity.DecrementPositive(samus.ReserveEnergy);
             }
@@ -70,10 +70,10 @@ public sealed class SamusReserveAutoRecoveryState
         {
             // State $1B clears the one shared freeze word before command $10 restores
             // normal control. X-Ray phase five deliberately checks that word and skips
-            // cleanup when it is zero, which is the cartridge's Reserve Mode glitch.
+            // cleanup when it is zero, which is the game's Reserve Mode glitch.
             samus.Xray.ClearSharedFreezeForReserveMode();
             // CallSomeSamusCode($10) restores the ordinary input/movement handlers unless
-            // Mother Brain's rainbow-beam pair holds them ($90:F2E3).
+            // Mother Brain's rainbow-beam pair holds them.
             if (samus.Control.Mode.Beta != SamusBetaHandler.RainbowBeam)
                 samus.Control.Unlock();
             IsActive = false;

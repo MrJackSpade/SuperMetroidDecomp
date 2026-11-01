@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Frontend.Options.Artwork;
 /// </summary>
 public abstract class GameOptionsPresentation
 {
-    /// <summary>Edited heading anchors by menu layout, or null for the native anchors.</summary>
+    /// <summary>Edited heading anchors by menu layout, or null for the stock anchors.</summary>
     internal readonly Dictionary<GameOptionsPage, Position16<SpritePixels>>? headingAnchors;
-    /// <summary>Edited cursor anchors by menu layout, or null for the native anchors.</summary>
+    /// <summary>Edited cursor anchors by menu layout, or null for the stock anchors.</summary>
     internal readonly Dictionary<GameOptionsPage, Position16<SpritePixels>[]>? cursorAnchors;
 
     /// <summary>Retains only the anchor edits that depart from stock geometry.</summary>
@@ -35,7 +35,7 @@ public abstract class GameOptionsPresentation
 
     /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying selected artwork and layout including their encoding.</summary>
     public string ContentIdentity { get; }
-    /// <summary>Cursor origin used during phases without a cursor table, in screen pixels with X=0-511 and Y=0-255; the actor remains in OAM.</summary>
+    /// <summary>Cursor origin used during phases without a cursor table, in screen pixels with X=0-511 and Y=0-255; the actor stays among the drawn sprites.</summary>
     public Position16<SpritePixels> HiddenCursor { get; }
     /// <summary>OBJ palette index 0-7 used for both the missile cursor and menu-heading sprite compositions.</summary>
     public int CursorPalette { get; }

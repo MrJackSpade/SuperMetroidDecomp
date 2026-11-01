@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
-/// <summary>Bank-$9B grapple functions a connection record installs after the pose handler runs.</summary>
+/// <summary>Grapple functions a connection record installs after the pose handler runs.</summary>
 public enum GrappleConnectionFunction
 {
-    /// <summary>Bank-$9B locked-in-place connection handler at $9B:C77E.</summary>
+    /// <summary>Locked-in-place connection handler.</summary>
     LockedInPlace,
-    /// <summary>Bank-$9B ordinary swinging connection handler at $9B:C79D.</summary>
+    /// <summary>Ordinary swinging connection handler.</summary>
     Swinging,
-    /// <summary>Bank-$9B wall-grab connection handler at $9B:C814.</summary>
+    /// <summary>Wall-grab connection handler.</summary>
     WallGrab,
 }

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>Which beam row each palette slot copies its colour from, and which slots are black.</summary>
 public static class BeamPaletteSources
 {
-    /// <summary>$90:C3C9..C3E0 selects Ice before Plasma before Wave before Spazer before Power; the first two colors alias the common Power inputs in all five rows.</summary>
+    /// <summary>The beam selection picks Ice before Plasma before Wave before Spazer before Power; the first two colors alias the common Power inputs in all five rows.</summary>
     internal static SamusBeamCombination ColorSourceSelection(SamusBeamCombination selection, int color)
     {
         if (color < 2) return SamusBeamCombination.Power;
@@ -16,7 +16,7 @@ public static class BeamPaletteSources
         return SamusBeamCombination.Power;
     }
 
-    /// <summary>$90:C3F3..C3FE and corresponding Power/Wave/Plasma/Spazer slots9..14 are black; Ice uses independent colored entries.</summary>
+    /// <summary>Power/Wave/Plasma/Spazer slots9..14 are black; Ice uses independent colored entries.</summary>
     internal static bool IsBlackSlot(SamusBeamCombination selection, int color) =>
         !selection.HasIce && color is >= 9 and <= 14;
 

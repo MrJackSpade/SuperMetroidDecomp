@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Samus's vertical direction at WRAM <c>$0B36</c> (<c>SamusYDirection</c>). The native game
-/// stores vertical speed as a magnitude and keeps its sign here. Banks <c>$90</c>, <c>$91</c>,
-/// <c>$9B</c> and <c>$A9</c> store only these three values (<c>STZ</c>, <c>LDA #$0001</c>,
-/// <c>LDA #$0002</c>).
+/// Samus's vertical direction (<c>SamusYDirection</c>). The game
+/// stores vertical speed as a magnitude and keeps its sign here. Every writer
+/// stores only these three values: zero, one
+/// and two.
 /// </summary>
 public enum SamusVerticalDirection
 {

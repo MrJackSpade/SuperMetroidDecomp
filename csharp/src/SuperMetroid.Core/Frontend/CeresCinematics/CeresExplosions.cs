@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// </summary>
 internal static class CeresExplosions
 {
-    /// <summary>Native spawner events, with repeating pre-instruction before final-wave instruction.</summary>
+    /// <summary>Spawner events, with the repeating frame behaviour before the final wave.</summary>
     internal static CeresExplosionSpawnEvents EventsAtFrame(int frame, bool repeatingEnabled, ref WrappingCountdown countdown)
     {
         bool repeat = false;
@@ -29,9 +29,9 @@ internal static class CeresExplosions
     /// <summary>Spawner-schedule milestones that each fire a wave on exactly one host frame.</summary>
     private enum SpawnerMilestone
     {
-        /// <summary>Instruction <c>$8B:C404</c> spawns the initial square-and-center wave.</summary>
+        /// <summary>The first wave spawns the initial square-and-center wave.</summary>
         InitialWave,
-        /// <summary>Instruction <c>$8B:C50C</c> spawns the final large-burst wave.</summary>
+        /// <summary>The final wave spawns the large bursts.</summary>
         FinalWave,
     }
 
@@ -44,35 +44,34 @@ internal static class CeresExplosions
     };
 
     /// <summary>
-    /// Returns one of the five timer/X/Y rows at <c>$8B:C46B/$C475/$C47F</c>.
+    /// Returns one of the five timer/X/Y rows of the first wave.
     /// </summary>
     /// <remarks>
-    /// Issues #625 and #992: the five instruction-delay words at
-    /// $8B:C46B+2*i match pinned NTSC J/U v1.0 ROM and bank_8B.asm:
+    /// Issues #625 and #992: the first wave's five delays are
     /// 1, 16, 32, 48, 64. For bounded blast index i=0..4 this is exactly
-    /// i=0 ? 1 : 16*i. $8B:C404 spawns those five indices, and initializer
-    /// $8B:C434 copies the selected word into the instruction timer before
+    /// i=0 ? 1 : 16*i. The first wave spawns those five indices, and each
+    /// blast's initializer copies its delay into the frame hold before
     /// the generic sprite handler runs. The first value is one, not zero:
     /// it schedules the first blast on its first eligible handler call.
     /// The selector rejects other indices rather than reading the adjacent
     /// X-offset table.
     ///
-    /// Issues #625 and #993: the separate signed X-offset table at
-    /// $8B:C475+2*i contains +16, -16, +16, -16, 0 for i=0..4; all five
-    /// words match pinned NTSC J/U v1.0 ROM and bank_8B.asm. The outer
+    /// Issues #625 and #993: the separate signed X offsets are
+    /// +16, -16, +16, -16, 0 for i=0..4, matching the
+    /// original data. The outer
     /// four follow 16*(1-2*(i&amp;1)); the fifth is the center blast at zero.
-    /// Initializer $8B:C434 computes Mode 7 origin X minus BG1 X, then
-    /// adds this signed offset with native 16-bit wrap. The bounded
+    /// Each blast starts at Mode 7 origin X minus BG1 X, then
+    /// adds this signed offset with sixteen-bit wrap. The bounded
     /// parity-and-center rule expresses the geometry without extending
     /// into the adjacent Y table.
     ///
-    /// Issues #625 and #994: the separate signed Y-offset table at
-    /// $8B:C47F+2*i contains -16, +16, +16, -16, 0 for i=0..4; all five
-    /// words match pinned NTSC J/U v1.0 ROM and bank_8B.asm. For the outer
+    /// Issues #625 and #994: the separate signed Y offsets are
+    /// -16, +16, +16, -16, 0 for i=0..4, matching the
+    /// original data. For the outer
     /// four, Y is the negative of the matching X offset when i&lt;2, then
     /// equals X when i=2..3; the fifth is the center at zero. Initializer
-    /// $8B:C434 computes Mode 7 origin Y minus BG1 Y before adding this
-    /// signed value with native 16-bit wrap. Together the bounded X/Y
+    /// Each blast starts at Mode 7 origin Y minus BG1 Y before adding this
+    /// signed value with sixteen-bit wrap. Together the bounded X/Y
     /// selectors describe four corners and a center without extrapolating
     /// into the following pre-instruction bytes.
     /// </remarks>
@@ -94,28 +93,28 @@ internal static class CeresExplosions
         return new(new(position.X, position.Y), 1);
     }
 
-    /// <summary>Returns one of the four timer/X/Y rows at <c>$8B:C56A/$C572/$C57A</c>.</summary>
+    /// <summary>Returns one of the four timer/X/Y rows of the final wave.</summary>
     /// <remarks>
-    /// Issues #625 and #997: the four final-wave instruction-delay words
-    /// at $8B:C56A+2*i are 1, 4, 8, 16 in pinned NTSC J/U v1.0 ROM and
-    /// bank_8B.asm. For bounded blast index i=0..3 this is i=0 ? 1 :
-    /// 1&lt;&lt;(i+1). $8B:C50C spawns these four indices, and initializer
-    /// $8B:C533 installs each selected word as the first instruction timer.
+    /// Issues #625 and #997: the four final-wave delays are
+    /// 1, 4, 8, 16, matching the original
+    /// data. For bounded blast index i=0..3 this is i=0 ? 1 :
+    /// 1&lt;&lt;(i+1). The final wave spawns these four indices, and each
+    /// initializer installs its delay as the first frame hold.
     /// Index zero retains its nonzero first-call delay. Other indices throw
     /// rather than reading the adjacent X-offset table.
     ///
-    /// Issues #625 and #998: the separate signed X-offset words at
-    /// $8B:C572+2*i are +8, +12, -8, -12 for i=0..3, matching pinned
-    /// NTSC J/U v1.0 ROM and bank_8B.asm. Their magnitude is
+    /// Issues #625 and #998: the separate signed X offsets are
+    /// +8, +12, -8, -12 for i=0..3, matching
+    /// the original data. Their magnitude is
     /// 8+4*(i&amp;1), positive for i&lt;2 and negative otherwise.
-    /// Initializer $8B:C533 adds this X after Mode 7 origin X minus BG1 X
-    /// with native 16-bit wrap. The bounded sign/magnitude rule exactly
+    /// Each initializer adds this X after Mode 7 origin X minus BG1 X
+    /// with sixteen-bit wrap. The bounded sign/magnitude rule exactly
     /// covers the four spawned actors, without reading adjacent Y words.
     ///
-    /// Issues #625 and #999: the separate signed Y-offset words at
-    /// $8B:C57A+2*i are -4, +8, -10, +12 for i=0..3, matching pinned
-    /// NTSC J/U v1.0 ROM and bank_8B.asm. Initializer $8B:C533 adds Y
-    /// after Mode 7 origin Y minus BG1 Y with native 16-bit wrap.
+    /// Issues #625 and #999: the separate signed Y offsets are
+    /// -4, +8, -10, +12 for i=0..3, matching
+    /// the original data. Each initializer adds Y
+    /// after Mode 7 origin Y minus BG1 Y with sixteen-bit wrap.
     /// These particular vertical placements are retained spatial choreography; see
     /// FinalBurstHeights for the narrowly scoped nonsense disposition under #1165.
     /// </remarks>

@@ -28,9 +28,9 @@ public enum SamusMovementType
     UnusedGlitchBallAlternate,
     /// <summary>Damage knockback movement until the hurt trajectory returns control to a normal pose.</summary>
     Knockback,
-    /// <summary>Unused movement-dispatch table entry <c>$0B</c>; preserved for cartridge pose identity.</summary>
+    /// <summary>Unused movement-dispatch table entry <c>$0B</c>; preserved for pose identity.</summary>
     Unused0B,
-    /// <summary>Unused movement-dispatch table entry <c>$0C</c>; preserved for cartridge pose identity.</summary>
+    /// <summary>Unused movement-dispatch table entry <c>$0C</c>; preserved for pose identity.</summary>
     Unused0C,
     /// <summary>Unused movement-dispatch table entry <c>$0D</c>, referenced only by unused pose records.</summary>
     Unused0D,

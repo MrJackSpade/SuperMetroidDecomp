@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Options.Artwork;
 /// </summary>
 public static class GameOptionsArtworkCells
 {
-    /// <summary>$82:F307/F31B/F33F selection missile rows, including controller scroll displacement.</summary>
+    /// <summary>Selection missile rows, including controller scroll displacement.</summary>
     internal static Position16<SpritePixels> CursorAnchor(GameOptionsPage page, int row)
     {
         if ((uint)row >= GameOptionsNames.CursorCount(page))
@@ -20,7 +20,7 @@ public static class GameOptionsArtworkCells
         };
     }
 
-    /// <summary>$82:F34B/F353/F35B and F369 named page heading setup anchors.</summary>
+    /// <summary>Named page heading setup anchors.</summary>
     internal static Position16<SpritePixels> HeadingAnchor(GameOptionsPage page) =>
         new(GameOptionsPositions.HeadingX(page), GameOptionsDefinitions.Headings.HeadingY);
 }

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Non-debug map landmarks and elevator destinations from the cartridge icon lists.</summary>
+/// <summary>Non-debug map landmarks and elevator destinations from the game's icon lists.</summary>
 public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
 {
     /// <summary>The installed map sprite sheet, rebound when a frontend save state is restored.</summary>
@@ -25,7 +25,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
     /// <summary>Area whose map exploration and icons this view draws.</summary>
     internal AreaId MapArea => area;
 
-    /// <summary>Shared $82:B892 boss-marker drawing used by pause and file-select maps.</summary>
+    /// <summary>Shared boss-marker drawing used by pause and file-select maps.</summary>
     public void DrawBossMarkers(ScreenSprites entries, Position16<MapPixels> scroll)
     {
         var layout = landmarks ?? throw new InvalidOperationException(
@@ -59,7 +59,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
             Add(entries, id, position, scroll, colouring);
     }
 
-    /// <summary>Native $82:B6DD draws these objects before Samus's selected-station indicator.</summary>
+    /// <summary>The game draws these objects before Samus's selected-station indicator.</summary>
     public void DrawBeforeMarker(ScreenSprites entries, Position16<MapPixels> scroll)
     {
         DrawBossMarkers(entries, scroll);
@@ -92,7 +92,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
         DrawElevatorLabels(entries, scroll);
     }
 
-    /// <summary>$82:BB30: destination lettering is visible only after downloading this area's map.</summary>
+    /// <summary>Destination lettering is visible only after downloading this area's map.</summary>
     public void DrawElevatorLabels(ScreenSprites entries, Position16<MapPixels> scroll)
     {
         if (!system.HasAreaMap(area)) return;
@@ -104,7 +104,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
                 elevatorLayout.Get(label.Id), scroll, ScreenColourGroup.MapLabels);
         }
     }
-    /// <summary>Converts a map-space landmark to OAM and draws it with installed sprite art.</summary>
+    /// <summary>Converts a map-space landmark to screen space and draws it with installed sprite art.</summary>
     private void Add(ScreenSprites entries, MapSpriteId id, Position16<MapPixels> position, Position16<MapPixels> scroll,
         ScreenColourGroup colouring)
     {

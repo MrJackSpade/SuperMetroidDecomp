@@ -40,7 +40,7 @@ internal sealed class EndingScreen
     /// <summary>The text the final page's lower screen shows, a copy of the staging page at the end of the white flash.</summary>
     internal ImmutableArray<ShownEndingText> FinalPageLowerText { get; private set; } = [];
 
-    /// <summary>Clears every load and every page, as a full VRAM clear does.</summary>
+    /// <summary>Clears every load and every page, as a full display clear does.</summary>
     public void Clear()
     {
         FloorScene = null;

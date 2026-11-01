@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// What horizontal camera target selection at <c>$90:95B7</c> asks of Samus: whether her motion runs
+/// What horizontal camera target selection asks of Samus: whether her motion runs
 /// against her facing (knockback, moonwalking, or a turn that keeps the old momentum), whether she faces
 /// left, and how far ahead of her the camera sits.
 /// </summary>
@@ -25,7 +25,7 @@ public readonly record struct HorizontalCameraContext(
     CameraDistanceMode CameraDistanceIndex)
 {
     /// <summary>
-    /// Decodes the runtime's native knockback, acceleration-mode and facing words into the camera context: a nonzero
+    /// Decodes the runtime's knockback, acceleration-mode and facing words into the camera context: a nonzero
     /// knockback direction is a knockback, acceleration mode one is the turn that keeps the old momentum, and pose
     /// facing four is left.
     /// </summary>

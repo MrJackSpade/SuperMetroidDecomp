@@ -2,17 +2,17 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Cartridge definitions for the final assembling Super Metroid icon.</summary>
+/// <summary>Definitions for the final assembling Super Metroid icon.</summary>
 internal static class EndingLogoDefinitions
 {
 
-    /// <summary>$8B:EF81: upper S, initialized by F18F, moved by F1E7, showing LogoUpperS.</summary>
+    /// <summary>Upper S, moving into place, showing LogoUpperS.</summary>
     internal static CinematicActorDefinition UpperS => new(CinematicSpriteFrameBehavior.SuperMetroidIconTopHalf, CinematicSpriteProgram.LogoUpperS);
-    /// <summary>$8B:EF87: lower S, initialized by F1A8, moved by F227, showing LogoLowerS.</summary>
+    /// <summary>Lower S, moving into place, showing LogoLowerS.</summary>
     internal static CinematicActorDefinition LowerS => new(CinematicSpriteFrameBehavior.SuperMetroidIconBottomHalf, CinematicSpriteProgram.LogoLowerS);
-    /// <summary>$8B:EF8D: upper circle, initialized by F1C1, stationary running LogoUpperCircle.</summary>
+    /// <summary>Upper circle, stationary, running LogoUpperCircle.</summary>
     internal static CinematicActorDefinition UpperCircle => new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.LogoUpperCircle);
-    /// <summary>$8B:EF93: lower circle, initialized by F1D4, stationary running LogoLowerCircle.</summary>
+    /// <summary>Lower circle, stationary, running LogoLowerCircle.</summary>
     internal static CinematicActorDefinition LowerCircle => new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.LogoLowerCircle);
 
     /// <summary>The logo actors in allocation order.</summary>
@@ -30,6 +30,6 @@ internal static class EndingLogoDefinitions
     public static Position16<ScreenPixels> BottomLanding => new(382, 383);
     /// <summary>E58A completes after sixteen palette pointer pairs.</summary>
     public const int PaletteSteps = 16;
-    /// <summary>F1E7 spawns the logo's palette-FX object $8D:E200 at landing.</summary>
+    /// <summary>The upper S spawns the logo's glare palette-FX object at landing.</summary>
     public const PaletteFxObject LandingPaletteFx = PaletteFxObject.PostCreditsSuperMetroidIcon;
 }

@@ -15,13 +15,13 @@ using SuperMetroid.Core.Frontend.Menus;
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>
-/// Installed-asset owner of bank-$82's pause map/equipment menu.
+/// Installed-asset owner of the pause map/equipment menu.
 /// </summary>
 /// <remarks>
-/// This object deliberately owns only the pause-menu-local WRAM/PPU image. The outer
-/// <see cref="SuperMetroidGame"/> dispatcher retains native game states $0C-$12, while the
+/// This object deliberately owns only the pause-menu-local display image. The outer
+/// <see cref="SuperMetroidGame"/> dispatcher retains the pause game states, while the
 /// live <see cref="SamusState"/> remains the sole owner of inventory words. Consequently an
-/// equipment-screen A press changes the same bits consumed by movement, rendering, and SRAM;
+/// equipment-screen A press changes the same bits consumed by movement, rendering, and saving;
 /// there is no host-only copy that can diverge from gameplay.
 /// </remarks>
 internal sealed class PauseMenuState : IMenuFrontendScreen
@@ -63,7 +63,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>The pause screen: its artwork, tilemaps (including the retained gameplay HUD rows), palette and sprite entries (#1358).</summary>
     internal readonly PauseScreen screen;
     /// <summary>
-    /// The equipment page as the cartridge's writes to its tilemap have left it (#1467): labels, overrun tail, wireframe,
+    /// The equipment page as the game's writes to its tilemap have left it (#1467): labels, overrun tail, wireframe,
     /// reserve display and arrow. The page shows it once uploaded.
     /// </summary>
     internal ShownEquipmentPage Equipment { get; private set; }
@@ -79,7 +79,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private int transitionFadeCounter;
     /// <summary>Current page-transition brightness, from black to full intensity.</summary>
     internal int TransitionBrightness { get; private set; } = 15;
-    /// <summary>Equipment or reserve category selected by the native cursor.</summary>
+    /// <summary>Equipment or reserve category selected by the cursor.</summary>
     internal PauseEquipmentCategory SelectedCategory { get; private set; }
     /// <summary>Selected item index within the current equipment category.</summary>
     internal int SelectedItem { get; private set; }
@@ -99,7 +99,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         throw new InvalidOperationException("The pause map arrows have not been set up.");
     /// <summary>Whether elevator labels draw before map icons during a fade-out.</summary>
     private bool mapLabelsBeforeIcons;
-    /// <summary>Current bank-$82 map-position marker frame.</summary>
+    /// <summary>Current map-position marker frame.</summary>
     internal int MapIndicatorAnimationFrame { get; set; }
     /// <summary>Remaining updates in the map-position marker frame.</summary>
     internal int MapIndicatorAnimationTimer { get; set; }
@@ -114,7 +114,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Category of the equipment selector when it was the last indicator drawn, for diagnostics; null after a map-marker draw.</summary>
     internal PauseEquipmentCategory? LastSelectorCategory { get; private set; }
 
-    /// <summary>Creates the isolated pause PPU image and initial map/equipment state from live gameplay.</summary>
+    /// <summary>Creates the isolated pause display image and initial map/equipment state from live gameplay.</summary>
     public PauseMenuState(PauseMenuEntry entry)
     {
 
@@ -140,9 +140,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         BindSpriteSheets(entry.SpriteSheets);
         if (entry.GameplayHud is not null)
         {
-            // SetupPPUForPauseMenu changes BG3SC to $58 but never uploads a replacement
-            // tilemap. The four-row gameplay HUD already resident at VRAM word $5800 is
-            // intentionally retained. A fresh host-side VRAM object used to discard that
+            // Pause setup moves the HUD layer's tilemap but never loads a replacement
+            // tilemap. The four-row gameplay HUD already resident there is
+            // intentionally retained. A fresh host-side display object used to discard that
             // state, removing the entire energy/ammo HUD from pause and exposing map BG1
             // pixels in the area that its BG3 plane normally covers. Pause keeps the HUD's
             // images gameplay displayed (#1351, #1466) and draws them under its palette.
@@ -150,7 +150,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
 
         // GameState_13 finishes pause setup by calling QueueClearingOfFxTilemap at
-        // `$80:A211`, which blanks every BG3 row beneath the four HUD rows. Pause draws
+        // the end of setup, which blanks every BG3 row beneath the four HUD rows. Pause draws
         // only the HUD's own layer (PauseScreen.RetainedHudPictures), so every otherwise-empty map
         // cell shows nothing rather than pause character zero, the visible orange `1` glyph.
         entry.MapPresentation.Palettes.Pause.LoadTo(screen.Palette);
@@ -167,7 +167,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         SetupMapScrolling();
     }
 
-    /// <summary>Zero for the map and one for the equipment page, matching WRAM $0753.</summary>
+    /// <summary>Zero for the map and one for the equipment page.</summary>
     public PauseScreenMode ScreenMode { get; private set; }
 
     /// <summary>
@@ -193,7 +193,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         if (ScreenMode == PauseScreenMode.Map)
         {
-            // `$82:9120`: L/R, then Start, then map scrolling. A Start press does not stop
+            // The map page runs L/R, then Start, then map scrolling. A Start press does not stop
             // the same frame's scroll pulse.
             if ((delayedPressed & ControllerButton.R) != ControllerButton.None)
             {
@@ -204,20 +204,20 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             }
             bool mapStart = HandleStartButton(delayedPressed);
             // Map arrows read the ordinary held controller word, not the delayed chrome
-            // input. An accepted pulse keeps running after release, as on the cartridge.
+            // input. An accepted pulse keeps running after release, as in the game.
             if (MapScrollBounds.Step(heldInput ?? delayedHeldInput, ref mapScrollPosition))
                 audio?.QueueSound(Library1Sound.MapScroll, priority: SoundRequestPriority.Normal);
             return mapStart;
         }
 
-        // `$82:9142`: EquipmentScreenMain, then L/R, then Start, so an A press in the
+        // The equipment page runs EquipmentScreenMain, then L/R, then Start, so an A press in the
         // frame that unpauses still toggles the selected item. EquipmentScreenMain consumes
-        // the ordinary $8F rising-edge word for D-pad/A; only the shared L/R/Start chrome
-        // uses the delayed-held word at $05DF.
+        // the ordinary rising-edge word for D-pad/A; only the shared L/R/Start chrome
+        // uses the delayed-held word.
         HandleEquipmentInput(newlyPressed, frameCounterByte);
         // EquipmentScreenMain refreshes the reserve amount independently of selected
         // label edits. Keep this per-frame write without rebuilding the whole tilemap,
-        // which would erase the cartridge's same-frame VAR overrun.
+        // which would erase the game's same-frame VAR overrun.
         WriteReserveSupplyDigits();
         UploadEquipmentTilemap();
         if ((delayedPressed & ControllerButton.L) != ControllerButton.None)
@@ -231,9 +231,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>
-    /// <c>Handle_PauseScreen_StartButton</c> at <c>$82:A5B7</c>, run last on both stable
+    /// <c>Handle_PauseScreen_StartButton</c>, run last on both stable
     /// pages. It reads the delayed-held word: a fresh press is excluded for three frames by
-    /// <c>$80:8146</c> before becoming menu input. True requests game state $10.
+    /// the controller's delayed-held filter before becoming menu input. True requests the unpause state.
     /// </summary>
     private bool HandleStartButton(ControllerButton delayedPressed)
     {
@@ -245,22 +245,22 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>
-    /// Advances the sprite animation drawn by the current native pause-menu substate.
+    /// Advances the sprite animation drawn by the current pause-menu substate.
     /// </summary>
     /// <remarks>
-    /// Rendering itself is intentionally pure. Bank $82 advances these counters from its
+    /// Rendering itself is intentionally pure. The game advances these counters from its
     /// draw routines, but the desktop may render a framebuffer more than once while paused
     /// (for example, a debugger watch or PNG capture). The dispatcher calls this exactly
-    /// once per emulated frame so inspection cannot change cartridge-visible timing.
+    /// once per frame so inspection cannot change game-visible timing.
     /// </remarks>
     public void AdvanceAnimations(int frameCounterByte = 0, PauseAnimationPhase phase = PauseAnimationPhase.Stable)
     {
-        // $82:9156 and $82:9353 emit destination labels before map icons during fade-out.
+        // The fade-out paths emit destination labels before map icons.
         mapLabelsBeforeIcons = phase == PauseAnimationPhase.FadingOut || Transition == PauseMenuTransition.MapToEquipmentFadeOut;
-        // Only stable map dispatch calls $82:B934. Fade paths retain counters but hide arrows.
+        // Only stable map dispatch handles the scroll arrows. Fade paths retain counters but hide arrows.
         CurrentMapArrows?.StepArrows(_ => false);
         pauseFrameCounterByte = frameCounterByte;
-        // $82:90E8 calls the palette handler after stable pause dispatch. The
+        // Stable pause dispatch calls the palette handler afterwards. The
         // outer pause/unpause fades draw sprites without advancing this owner.
         if (phase == PauseAnimationPhase.Stable && paletteAnimation.Step(screen.Palette))
             audio?.QueueSound(Library3Sound.PauseBeep, priority: SoundRequestPriority.Normal);
@@ -270,12 +270,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             StepItemSelectorAnimation();
     }
 
-    /// <summary>Prepares OAM on the simulation owner, then captures without raster work.</summary>
+    /// <summary>Prepares the sprite list on the simulation owner, then captures without raster work.</summary>
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
         // BG fetches start on physical scanline one; OBJ coordinates already use
-        // output-space Y. Keep the cartridge scroll and sprite origins unchanged.
+        // output-space Y. Keep the game's scroll and sprite origins unchanged.
         Position16<TilePlanePixels> mapScroll = new(
             ScreenMode == PauseScreenMode.Map ? MapScrollPosition.X : 0,
             CoordinateAxis.Wrap((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + ScreenGeometry.BackgroundRowOffset));
@@ -306,7 +306,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         _ => throw new InvalidOperationException($"The pause page is no {layer.GetType().Name}."),
     };
 
-    /// <summary>Assembles map markers or equipment sprites in their native page-specific order.</summary>
+    /// <summary>Assembles map markers or equipment sprites in their page-specific order.</summary>
     private void PrepareRenderSprites()
     {
         screen.Objects.BeginFrame();
@@ -318,8 +318,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, MapScrollPosition);
             CurrentMapArrows?.DrawArrows(screen.Objects, MapSheet, PauseMapScrollLayout.ArrowVerticalOffset);
             DrawMapPositionIndicator();
-            // Native pause shares the boss lists, defeated overlays and downloaded
-            // destination lettering with file select. Preserve their per-phase OAM order.
+            // Pause shares the boss lists, defeated overlays and downloaded
+            // destination lettering with file select. Preserve their per-phase drawing order.
             icons.DrawBossMarkers(screen.Objects, MapScrollPosition);
             if (!mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, MapScrollPosition);
         }
@@ -342,7 +342,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 if (TransitionBrightness > 0)
                     return;
 
-                // $82:9156/$9186 returns at black before the separate load dispatch.
+                // The fade-out returns at black before the separate load dispatch.
                 Transition = Transition == PauseMenuTransition.MapToEquipmentFadeOut
                     ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad;
                 return;
@@ -352,7 +352,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 if (Transition == PauseMenuTransition.MapToEquipmentLoad)
                 {
                     ScreenMode = PauseScreenMode.Equipment;
-                    // $82:AB47 resets the selector on each equipment-page entry.
+                    // The selector resets on each equipment-page entry.
                     SelectFirstCollectedEquipment();
                     // Equipment setup lights the arrow when reserves are nonempty;
                     // subsequent tank dispatches own animation and selection changes.
@@ -373,7 +373,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
             case PauseMenuTransition.MapToEquipmentFadeIn:
             case PauseMenuTransition.EquipmentToMapFadeIn:
-                // Load dispatches set delay/counter to one; $80:894D spends a
+                // Load dispatches set delay/counter to one; the fade-in spends a
                 // counter-only update between brightness writes.
                 if (transitionFadeCounter-- > 0) return;
                 transitionFadeCounter = PauseFadeTiming.CounterReload;
@@ -394,7 +394,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Selects reserves first when available, otherwise the first collected inventory item.</summary>
     private void SelectFirstCollectedEquipment()
     {
-        // $82:ABAD-$ABB5 selects the tank mode control whenever reserve capacity exists,
+        // The game selects the tank mode control whenever reserve capacity exists,
         // including empty tanks. The first beam is only the no-reserve fallback.
         if (samus.MaxReserveEnergy != 0)
         {
@@ -428,8 +428,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         samus.MaxReserveEnergy == 0 ? null : new ShownReserveDisplay(samus.ReserveTankMode, samus.ReserveEnergy));
 
     /// <summary>
-    /// Translates <c>Load_EquipmentScreen_ReserveHealth_Tilemap</c> at $82:8F70.
-    /// The cartridge displays current reserve supply, not maximum normal Energy Tank
+    /// Translates <c>Load_EquipmentScreen_ReserveHealth_Tilemap</c>.
+    /// The game displays current reserve supply, not maximum normal Energy Tank
     /// capacity. It leaves the authored template untouched until at least one Reserve Tank
     /// exists, then writes hundreds, tens, and ones as three consecutive BG1 words.
     /// </summary>
@@ -454,10 +454,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // Installed backdrops already contain their authored area lettering.
     }
 
-    /// <summary>Derives native map-scroll bounds and initial offset from visible tiles and Samus's map cell.</summary>
+    /// <summary>Derives map-scroll bounds and initial offset from visible tiles and Samus's map cell.</summary>
     private void SetupMapScrolling()
     {
-        // DetermineMapScrollLimits at $82:9EC4 scans either the downloaded cartridge map
+        // DetermineMapScrollLimits scans either the downloaded map
         // or the persistent explored plane. Expressing the scan in coordinates is exactly
         // equivalent to its byte/bit loops and makes the two-page 64x32 layout explicit.
         bool hasAreaMap = system.HasAreaMap(area);
@@ -466,7 +466,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         bool IsVisible(int x, int y)
         {
             bool explored = system.IsMapTileExplored(area, new(x, y));
-            // Native scroll bounds select one bit plane, unlike tile rendering, which
+            // The game's scroll bounds select one bit plane, unlike tile rendering, which
             // also displays explored secrets. Unioning the planes moves the map's center
             // after a secret is explored even though the downloaded bounds are unchanged.
             if (mapRevealMode == MapRevealMode.None)
@@ -497,7 +497,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             right = x;
             break;
         }
-        // Native vertical scans return their defaults before checking the final row
+        // The game's vertical scans return their defaults before checking the final row
         // in either direction. Match those boundary cases for sparse explored maps.
         for (int y = 0; y < 31; y++)
         {
@@ -515,7 +515,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
 
         // Every map word below keeps its sixteen-bit wrap where it is computed; the signed
-        // tests read those words as the cartridge's branches do.
+        // tests read those words as the game's branches do.
         int minimumX = WordWrap.Unsigned(left * 8 - (area == AreaId.Maridia ? 24 : 0));
         int maximumX = WordWrap.Unsigned(right * 8);
         int minimumY = WordWrap.Unsigned(top * 8);
@@ -576,10 +576,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             ScreenColourGroup.MapMarkers);
     }
 
-    /// <summary>Advances the map marker's native timer-before-draw frame cadence.</summary>
+    /// <summary>Advances the map marker's timer-before-draw frame cadence.</summary>
     private void StepMapIndicatorAnimation()
     {
-        // The native timer starts at zero, advances to frame one on the first draw, then
+        // The timer starts at zero, advances to frame one on the first draw, then
         // decrements after reloading. This order is intentionally not a conventional
         // "draw frame zero for N ticks" animation helper.
         if (MapIndicatorAnimationTimer == 0)
@@ -606,7 +606,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             return;
 
         // DrawPauseScreenSpriteAnim(3) selects the third timer/frame pair. Its animation
-        // list is a cartridge pointer, with three-byte entries (delay, unused, ID offset).
+        // list holds three-byte entries (delay, unused, ID offset).
         ItemSelectorAnimationTimer--;
         if (ItemSelectorAnimationTimer > 0)
             return;
@@ -635,7 +635,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>
-    /// Ports the three SetPauseScreenButtonLabelPalettes variants at $82:A628-$A84C and the upload of the two label rows
+    /// Runs the three SetPauseScreenButtonLabelPalettes variants and the redraw of the two label rows
     /// that follows each: the frame shows its labels in <paramref name="highlight"/>'s shades from the next capture.
     /// </summary>
     private void SetPauseButtonLabelMode(PauseButtonHighlight highlight) =>
@@ -654,7 +654,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private static PauseEquipmentBit ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
         PauseEquipmentRules.Mask(category.Category, item);
 
-    /// <summary>Dispatches reserve input or moves and toggles equipment in native update order.</summary>
+    /// <summary>Dispatches reserve input or moves and toggles equipment in the game's update order.</summary>
     private void HandleEquipmentInput(ControllerButton pressed, int frameCounterByte)
     {
         PauseEquipmentCategory dispatchedCategory = SelectedCategory;
@@ -671,11 +671,11 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (dispatchedCategory == PauseEquipmentCategory.Beams && samus.CollectedBeams == SamusBeamFlags.None)
             return;
         if (SelectedCategory == PauseEquipmentCategory.Reserves)
-            throw new NotSupportedException("Same-frame equipment toggle into reserve tables requires native out-of-table WRAM behavior.");
+            throw new NotSupportedException("A same-frame equipment toggle into the reserve rows reads past the equipment tables; that read is not reproduced.");
 
         // Dispatch precedes movement. Boots->Plasma therefore retains the Boots copy
         // length and bypasses the Weapons handler's Spazer/Plasma exclusion. Do not use
-        // upstream C's 'Fixed var bug' category guard: it is absent from retail ROM.
+        // upstream C's 'Fixed var bug' category guard: it is absent from the retail game.
         SamusBeamFlags previousBeams = samus.EquippedBeams;
         var target = PauseEquipmentCategories.Get(SelectedCategory);
         PauseEquipmentBit mask = ReadCategoryMask(target, SelectedItem);
@@ -705,7 +705,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     PauseEquipmentCategories.Get(PauseEquipmentCategory.Beams).LabelWordCount, true);
             }
         }
-        // Native patches only the chosen label, then refreshes the wireframe. Rebuilding
+        // The game patches only the chosen label, then refreshes the wireframe. Rebuilding
         // all labels would erase the intentional overlong copy that displays VAR.
         WriteSamusWireframe();
         UploadEquipmentTilemap();
@@ -713,7 +713,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
     /// <summary>
     /// Writes one equipment label: <paramref name="wordCount"/> cells, the dispatched category's label width, so the retail
-    /// overlong Plasma copy and a beam column's five-cell write over a nine-cell label are written as the cartridge writes them.
+    /// overlong Plasma copy and a beam column's five-cell write over a nine-cell label are written as the game writes them.
     /// </summary>
     private void UpdateEquipmentLabel(PauseEquipmentCategory categoryIndex, int item, int wordCount, bool disabled) =>
         Equipment = Equipment.WithLabelWritten(PauseEquipmentLabelTiles.Label(categoryIndex, item), wordCount,
@@ -729,7 +729,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         {
             if (!ReadCategoryMask(category, item).IsSetIn(samus.CollectedBeams, samus.CollectedItems))
             {
-                // $82:B4B7 checks byte offset ten only AFTER an unsuccessful probe.
+                // The suit scan checks byte offset ten only AFTER an unsuccessful probe.
                 // Thus directly entering the final suit item can succeed, but scanning
                 // forward from an earlier missing item must not discover it.
                 if (categoryIndex == PauseEquipmentCategory.Suits && step > 0 &&
@@ -755,7 +755,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         return true;
     }
 
-    /// <summary>Applies native directional links among beam, suit, boot, and reserve rows.</summary>
+    /// <summary>Applies the directional links among beam, suit, boot, and reserve rows.</summary>
     private void MoveEquipmentSelector(ControllerButton pressed)
     {
         bool left = (pressed & ControllerButton.Left) != ControllerButton.None, right = (pressed & ControllerButton.Right) != ControllerButton.None;
@@ -843,7 +843,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         catalog.Palettes.Pause.LoadToExcept(screen.Palette, screen.Palette.Colours(ScreenColourGroup.MapHighlight),
             screen.Palette.Colours(ScreenColourGroup.PauseReserveArrowShade), screen.Palette.Colours(ScreenColourGroup.PauseReserveArrowLight));
         // The equipment page is typed state the rebound sheets' pictures show again (#1467): its labels, overrun tail,
-        // wireframe and reserve display keep exactly what the cartridge's writes left, and nothing is rewritten.
+        // wireframe and reserve display keep exactly what the game's writes left, and nothing is rewritten.
         if (samus.MaxReserveEnergy != 0)
         {
             // A rebind is not a tank dispatch: re-apply the owner's latched arrow state with the
@@ -855,9 +855,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
         if (ScreenMode != PauseScreenMode.Map) UploadEquipmentTilemap();
         // The live button highlight, including a Start/fade highlight, is state the frame's pictures show again; do not
-        // rerun controls or rebuild equipment: that would erase native same-frame label overruns.
+        // rerun controls or rebuild equipment: that would erase the game's same-frame label overruns.
         // Preserve the serialized scroll position and transition timing. Only refresh
-        // BG1 when it currently contains the map; the equipment page shares that VRAM.
+        // BG1 when it currently contains the map; the equipment page shares that layer.
         if (ScreenMode == PauseScreenMode.Map) LoadPauseMapTilemap();
     }
 
@@ -868,7 +868,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Eight-bit frame phase (zero through 255) retained for reproducing the arrow's current color on rebind.</summary>
     private int reserveArrowLatchedFrame;
 
-    /// <summary>Runs $82:AD0A after the tank input handler and D-pad response.</summary>
+    /// <summary>Runs the reserve arrow update after the tank input handler and D-pad response.</summary>
     private void UpdateReserveArrow(int frameCounterByte)
     {
         bool inTanks = SelectedCategory == PauseEquipmentCategory.Reserves;
@@ -897,7 +897,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         SetReserveArrow(reserveArrowLatchedState, reserveArrowLatchedFrame);
 
     /// <summary>
-    /// Rewrites the reserve mode and tank labels for the current mode, only when reserve capacity exists. Native setup keeps
+    /// Rewrites the reserve mode and tank labels for the current mode, only when reserve capacity exists. Setup keeps
     /// MODE's initial MANUAL text for the zero mode and replaces its four characters once a mode is set.
     /// </summary>
     private void WriteReserveLabels()
@@ -909,7 +909,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Accepted eight-bit frame phase (zero through 255) retained so repeated renders cannot advance tank fill flicker.</summary>
     private int pauseFrameCounterByte;
 
-    /// <summary>Ports $82:B2AA's full/partial/empty strip and final cap.</summary>
+    /// <summary>Draws the reserve strip's full/partial/empty tanks and final cap.</summary>
     private void DrawReserveTanks()
     {
         if (samus.MaxReserveEnergy == 0) return;
@@ -939,15 +939,15 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
     }
 
-    /// <summary>Native $0757 sound cadence, advanced only by the selected reserve-transfer handler.</summary>
+    /// <summary>Reserve-transfer sound cadence, advanced only by the selected reserve-transfer handler.</summary>
     internal WrappingCountdown ReserveTransferSoundDelay { get; private set; }
 
     /// <summary>The selected item while the reserve-tank category is selected.</summary>
     private PauseReserveItem SelectedReserveItem => (uint)SelectedItem < (uint)PauseReserveEnergyDefinitions.Items.Length
         ? PauseReserveEnergyDefinitions.Items[SelectedItem]
-        : throw new InvalidDataException($"Unsupported native reserve subdispatcher {SelectedItem}.");
+        : throw new InvalidDataException($"Unsupported reserve subdispatcher {SelectedItem}.");
 
-    /// <summary>Runs the tank subdispatcher before its D-pad response, as at $82:AC70.</summary>
+    /// <summary>Runs the tank subdispatcher before its D-pad response.</summary>
     private void HandleReserveInput(ControllerButton pressed)
     {
         switch (SelectedReserveItem)

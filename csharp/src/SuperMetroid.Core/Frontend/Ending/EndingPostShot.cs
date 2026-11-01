@@ -11,7 +11,7 @@ internal sealed class EndingPostShot
     private int calls;
     /// <summary>Frames remaining after rotation reaches its minimum scale.</summary>
     private int hold;
-    /// <summary>Current size of the rotating shot graphic, clamped at the native minimum.</summary>
+    /// <summary>Current size of the rotating shot graphic, clamped at its minimum.</summary>
     public int Scale { get; private set; } = EndingPostShotDefinitions.InitialScale;
     /// <summary>Rotation of the shot graphic, turned backward on each active rotation step and wrapping around the full turn.</summary>
     public RotationAngle Angle { get; private set; } = RotationAngle.Zero;
@@ -25,7 +25,7 @@ internal sealed class EndingPostShot
     /// <summary>Captures the starting palette for the post-shot rotation, fades and logo parts.</summary>
     public EndingPostShot(ScreenPalette palette) => sourceColours = Ensure.NotNull(palette).Capture();
 
-    /// <summary>Advances the native rotation, both palette fades, the subtitle and logo parts, and white-flash handoff by one update.</summary>
+    /// <summary>Advances the rotation, both palette fades, the subtitle and logo parts, and white-flash handoff by one update.</summary>
     public void Step(EndingScreen screen)
     {
         Ensure.NotNull(screen);

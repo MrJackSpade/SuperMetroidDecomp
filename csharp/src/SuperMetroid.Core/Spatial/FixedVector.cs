@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// A two-dimensional signed native 16.16 displacement or per-frame velocity. Each axis is one
+/// A two-dimensional signed 16.16 displacement or per-frame velocity. Each axis is one
 /// <see cref="SignedSixteenSixteen"/>, so whole/fraction assembly, carry and 32-bit wrap live
 /// in exactly one place.
 /// </summary>
@@ -13,8 +13,8 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
     /// <summary>No displacement.</summary>
     public static FixedVector<TSpace> Zero => default;
 
-    /// <summary>Assembles both axes from the native whole and fraction words, each 0 through 65535.</summary>
-    [SpatialComponents("Native codec: the four WRAM words of one displacement.")]
+    /// <summary>Assembles both axes from whole and fraction words, each 0 through 65535.</summary>
+    [SpatialComponents("Codec: the four stored words of one displacement.")]
     public static FixedVector<TSpace> FromWords(int xWhole, int xFraction, int yWhole, int yFraction) =>
         new(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(Ensure.BetweenInclusive(0, ushort.MaxValue, xWhole)), xFraction),
             SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(Ensure.BetweenInclusive(0, ushort.MaxValue, yWhole)), yFraction));
@@ -33,13 +33,13 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
     public FixedVector<TSpace> WithWhole(Offset16<TSpace> whole) =>
         new(X.WithWholePixels(whole.X), Y.WithWholePixels(whole.Y));
 
-    /// <summary>Replaces only the X whole word, as cartridge routines that store one half do.</summary>
+    /// <summary>Replaces only the X whole word, as game routines that store one half do.</summary>
     public FixedVector<TSpace> WithWholeX(int wholePixels) => WithX(X.WithWholePixels(wholePixels));
 
-    /// <summary>Replaces only the Y whole word, as cartridge routines that store one half do.</summary>
+    /// <summary>Replaces only the Y whole word, as game routines that store one half do.</summary>
     public FixedVector<TSpace> WithWholeY(int wholePixels) => WithY(Y.WithWholePixels(wholePixels));
 
-    /// <summary>Replaces only the Y fraction word, as cartridge routines that store one half do.</summary>
+    /// <summary>Replaces only the Y fraction word, as game routines that store one half do.</summary>
     public FixedVector<TSpace> WithFractionY(int fraction) => WithY(Y.WithFraction(fraction));
 
     /// <summary>Adds two displacements, carrying fractions and wrapping each axis at 32 bits.</summary>

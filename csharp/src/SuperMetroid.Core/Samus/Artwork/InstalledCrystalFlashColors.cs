@@ -5,17 +5,17 @@ using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
-/// Editable Crystal Flash body and bubble colors. Native timers, frame cursors,
+/// Editable Crystal Flash body and bubble colors. Timers, frame cursors,
 /// and completion still belong to <see cref="SamusCrystalFlashState"/>.
 /// </summary>
 public sealed class InstalledCrystalFlashColors
 {
-    /// <summary>Complete edited body frames, retained only when any supplied color differs from the native calculated pulse.</summary>
+    /// <summary>Complete edited body frames, retained only when any supplied color differs from the calculated pulse.</summary>
     internal readonly RgbColor[][]? body;
     /// <summary>Bubble samples that differ from the rotating ramp, including the independently painted stock white.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> bubble = [];
 
-    /// <summary>Compares all supplied frames with native color rules before retaining only independent edits.</summary>
+    /// <summary>Compares all supplied frames with color rules before retaining only independent edits.</summary>
     internal InstalledCrystalFlashColors(RgbColor[][] body, RgbColor[][] bubble)
     {
         // Discard stock body rows only after checking every supplied color. Edited
@@ -25,7 +25,7 @@ public sealed class InstalledCrystalFlashColors
         for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
             calculated &= body[frame][color] == CalculateBody(frame, color);
         this.body = calculated ? null : body;
-        // The rotating ramp accounts for 35 stock words. The remaining native white
+        // The rotating ramp accounts for 35 stock words. The remaining white
         // is an independent painted color choice; retain only that supplied sample.
         // Arbitrary supplied edits remain exact.
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
@@ -34,10 +34,10 @@ public sealed class InstalledCrystalFlashColors
                 this.bubble.Add(new ColourCell(frame, color), bubble[frame][color]);
     }
 
-    /// <summary>Returns one editable body color for a native playback record, calculating stock rows when they require no stored overrides.</summary>
+    /// <summary>Returns one editable body color for a playback record, calculating stock rows when they require no stored overrides.</summary>
     /// <param name="frame">Zero-based body record index, 0 through 9 in playback order.</param>
     /// <param name="color">Zero-based color within the ten-color body portion, including transparent color zero.</param>
-    /// <returns>SNES RGB555 color word, with red in bits 0..4, green in bits 5..9, and blue in bits 10..14.</returns>
+    /// <returns>RGB555 color word, with red in bits 0..4, green in bits 5..9, and blue in bits 10..14.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside the body dimensions.</exception>
     public RgbColor ResolveBody(int frame, int color)
     {
@@ -49,7 +49,7 @@ public sealed class InstalledCrystalFlashColors
     }
 
     /// <summary>
-    /// $9B:96C0-$9773 body colors, selected by ten $91:DC00 records: the first
+    /// The body colors, selected by ten playback records: the first
     /// frame is neutral grey16; subsequent frames pulse 19,23,27,23 twice and
     /// return to19. All nine visible body colors share that intensity. The
     /// transparent color is the fixed RGB5 backdrop (0,0,14) in every frame.
@@ -61,10 +61,10 @@ public sealed class InstalledCrystalFlashColors
         int grey = frame == 0 ? 16 : 27 - 4 * Math.Abs((frame - 1) % 4 - 2);
         return new RgbColor(grey, grey, grey);
     }
-    /// <summary>Returns one editable bubble color from the independently cycling six-frame sequence, preserving supplied edits and the native painted white sample.</summary>
+    /// <summary>Returns one editable bubble color from the independently cycling six-frame sequence, preserving supplied edits and the painted white sample.</summary>
     /// <param name="frame">Zero-based bubble palette index, 0 through 5.</param>
     /// <param name="color">Zero-based color within the six-color bubble portion, 0 through 5.</param>
-    /// <returns>SNES RGB555 color word, with red in bits 0..4, green in bits 5..9, and blue in bits 10..14.</returns>
+    /// <returns>RGB555 color word, with red in bits 0..4, green in bits 5..9, and blue in bits 10..14.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside the bubble dimensions.</exception>
     public RgbColor ResolveBubble(int frame, int color)
     {
@@ -77,11 +77,11 @@ public sealed class InstalledCrystalFlashColors
     }
 
     /// <summary>
-    /// $9B:96D4 + 32*frame rotates six pink-to-white levels one color per frame.
+    /// The bubble rows rotate six pink-to-white levels one color per frame.
     /// Red stays31; green/blue descend from31 to25 with nearest-integer interpolation
-    /// across five intervals. Frame5/color0 at $9B:9774 is independently painted white
-    /// ($7FFF), rather than the ramp's $7BDF. The uniform five-tick traversal at
-    /// $91:DBA0-DBBD and six-word copy at $91:DC88-DCAE supply no phase-specific
+    /// across five intervals. Frame5/color0 is independently painted white
+    /// rather than the ramp's 31711. The uniform five-tick traversal
+    /// and six-word copy supply no phase-specific
     /// operation generating that choice. Only that sample remains supplied stock data;
     /// a formula exception would merely reencode its frame/color identity and value.
     /// </summary>

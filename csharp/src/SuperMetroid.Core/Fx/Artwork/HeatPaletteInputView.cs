@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// The red endpoint preserves the base green/blue of its phase-zero color; the mixed endpoint preserves the
 /// base green-minus-blue difference of its phase-zero color. Only the shared red target and the
 /// mixed target's red/green are independent stock inputs. They specify the chosen
-/// heat tint, not samples indexed by time or distance. The native consumer supplies
+/// heat tint, not samples indexed by time or distance. The heat program supplies
 /// no temperature/intensity parameter deriving those targets: it selects painted
 /// palette colors. Inventing an index formula for these three choices would merely
 /// encode the chosen tint, the #1165 nonsense exception. All temporal interpolation,

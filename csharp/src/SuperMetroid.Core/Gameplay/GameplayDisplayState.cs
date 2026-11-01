@@ -12,7 +12,7 @@ internal sealed class GameplayDisplayState
 
     /// <summary>
     /// The room's default layer blending. Room and per-line effect setup own it; the current Landing Site
-    /// shell starts at bank-$88's cleared-FX default two.
+    /// shell starts at the room effects' cleared default two.
     /// </summary>
     public LayerBlendingConfiguration LayerBlendingDefaultConfig { get; set; } =
         LayerBlendingConfiguration.NormalGameplay;
@@ -33,8 +33,8 @@ internal sealed class GameplayDisplayState
 
 
     /// <summary>
-    /// Door setup shows the elevator shaft's floor before the room is exposed (<c>$8F:E4E0</c>), or removes it
-    /// (<c>$8F:E513</c>), scrolled with the latched layer-1 scroll. A getaway floor already latched stays, as it takes
+    /// Door setup shows the elevator shaft's floor before the room is exposed, or removes it,
+    /// scrolled with the latched layer-1 scroll. A getaway floor already latched stays, as it takes
     /// precedence over the shaft's. Later room-main changes reach the display only through the frame latch.
     /// </summary>
     /// <param name="transform">The shaft's transform, or null to remove the floor.</param>

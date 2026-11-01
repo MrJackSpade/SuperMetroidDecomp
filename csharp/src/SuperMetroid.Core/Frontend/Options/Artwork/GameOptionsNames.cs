@@ -39,7 +39,7 @@ public static class GameOptionsNames
     public static string CursorSpriteName(int frame) =>
         Ensure.Element(CursorSpriteNames, frame);
 
-    /// <summary>The assignable button a native selector names.</summary>
+    /// <summary>The assignable button a selector index names.</summary>
     /// <param name="index">Zero-based index 0-6 in X, A, B, Select, Y, L, R order.</param>
     /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-6.</exception>
     public static ControllerButton ControllerLabelButton(int index) =>

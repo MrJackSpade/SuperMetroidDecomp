@@ -1,15 +1,15 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>Pinned NTSC bank-$90 vertical mechanics; presentation overrides do not alter physics.</summary>
+/// <summary>Pinned NTSC vertical mechanics; presentation overrides do not alter physics.</summary>
 internal static class SamusVerticalMotionDefinitions
 {
     /// <summary>
-    /// $90:9EB5/9EB7 YSpeed/YSubSpeedWhenBouncingInMorphBall; the second rebound subtracts one from the whole word, and
+    /// YSpeed/YSubSpeedWhenBouncingInMorphBall; the second rebound subtracts one from the whole word, and
     /// both NTSC rebounds have zero fractional speed.
     /// </summary>
     internal static UnsignedSixteenSixteen BallBounceSpeed { get; } = new(1, 0);
 
-    /// <summary>$90:9EF5/9EFB InitialYSpeeds/InitialYSubSpeeds_BombJump: bomb launch is weakened equally in both liquids,
+    /// <summary>InitialYSpeeds/InitialYSubSpeeds_BombJump: bomb launch is weakened equally in both liquids,
     /// as unsigned 16.16 speeds by medium.</summary>
     internal static readonly IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> BombJumpSpeeds =
         new Dictionary<SamusLiquidMedium, UnsignedSixteenSixteen>
@@ -19,7 +19,7 @@ internal static class SamusVerticalMotionDefinitions
         [SamusLiquidMedium.LavaOrAcid] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(1),
     };
 
-    /// <summary>$90:9EE9/9EEF InitialYSpeeds/InitialYSubSpeeds_Knockback: hurt launch ignores jump equipment and dash speed,
+    /// <summary>InitialYSpeeds/InitialYSubSpeeds_Knockback: hurt launch ignores jump equipment and dash speed,
     /// as unsigned 16.16 speeds by medium.</summary>
     internal static readonly IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> KnockbackSpeeds =
         new Dictionary<SamusLiquidMedium, UnsignedSixteenSixteen>
@@ -30,7 +30,7 @@ internal static class SamusVerticalMotionDefinitions
     };
 
     /// <summary>
-    /// $90:9EB9..9EE8 InitialYSpeeds/InitialYSubSpeeds: the launch magnitude with High Jump equipped by medium and
+    /// InitialYSpeeds/InitialYSubSpeeds: the launch magnitude with High Jump equipped by medium and
     /// whether Samus kicks away from a wall, as unsigned 16.16 speeds. In lava or acid High Jump outweighs the wall kick.
     /// </summary>
     internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen> HighJumpLaunchSpeeds =
@@ -45,7 +45,7 @@ internal static class SamusVerticalMotionDefinitions
     };
 
     /// <summary>
-    /// $90:9EB9..9EE8 InitialYSpeeds/InitialYSubSpeeds: the launch magnitude without High Jump by medium and whether
+    /// InitialYSpeeds/InitialYSubSpeeds: the launch magnitude without High Jump by medium and whether
     /// Samus kicks away from a wall, as unsigned 16.16 speeds.
     /// </summary>
     internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen> UnassistedLaunchSpeeds =
@@ -59,7 +59,7 @@ internal static class SamusVerticalMotionDefinitions
         [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.Jump)] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(44),
     };
 
-    /// <summary>$90:9EA1/9EA7 YSubAcceleration/YAcceleration: each medium's gravity, a fraction of a pixel per frame in
+    /// <summary>YSubAcceleration/YAcceleration: each medium's gravity, a fraction of a pixel per frame in
     /// all three media.</summary>
     internal static readonly IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> Gravities =
         new Dictionary<SamusLiquidMedium, UnsignedSixteenSixteen>

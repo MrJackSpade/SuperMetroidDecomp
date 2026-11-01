@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>Scroller distances used by vertical target selection at <c>$90:9666</c>.</summary>
+/// <summary>Scroller distances used by vertical target selection.</summary>
 /// <param name="YDirection">Samus's vertical direction this frame.</param>
 /// <param name="UpScroller">The room's up-scroller distance in pixels, 0 through 255.</param>
 /// <param name="DownScroller">The room's down-scroller distance in pixels, 0 through 255.</param>

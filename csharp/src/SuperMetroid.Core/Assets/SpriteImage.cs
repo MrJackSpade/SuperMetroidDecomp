@@ -27,7 +27,7 @@ public sealed class SpriteImage
     /// <param name="size">The image's width and height in pixels; both are positive.</param>
     /// <param name="pixels">Width times height pixels, row by row from the top; a pixel with zero alpha is transparent.</param>
     /// <param name="paletteIndices">Each pixel's colour group's place times sixteen plus its colour, zero where transparent.</param>
-    /// <param name="palette">Which half of CGRAM the palette indices name, and the 128 colours of it the pixels were coloured with.</param>
+    /// <param name="palette">Which half of the colour table the palette indices name, and the 128 colours of it the pixels were coloured with.</param>
     /// <param name="priorities">Each pixel's priority against the backgrounds 0..3, or a background pixel's tile priority 0..1.</param>
     /// <param name="partGroups">Each pixel's <see cref="PartColourGroup.Code"/>, as the installed image stores it.</param>
     /// <exception cref="ArgumentException">
@@ -45,7 +45,7 @@ public sealed class SpriteImage
     /// </summary>
     /// <param name="name">The image's installed name, which names it in diagnostics.</param>
     /// <param name="size">The image's width and height in pixels; both are positive.</param>
-    /// <param name="palette">Which half of CGRAM the palette indices name, and the colours of it the pixels were coloured with.</param>
+    /// <param name="palette">Which half of the colour table the palette indices name, and the colours of it the pixels were coloured with.</param>
     /// <param name="decode">Produces the image's layers, as the copying constructor takes them.</param>
     /// <exception cref="ArgumentException">The name is empty or a dimension is zero.</exception>
     public SpriteImage(string name, Extent16<ImagePixels> size, SpriteImagePalette palette, Func<SpriteImageLayers> decode)
@@ -70,7 +70,7 @@ public sealed class SpriteImage
         Ensure.NotNull(palette);
         ArgumentException.ThrowIfNullOrEmpty(name);
         if (!Enum.IsDefined(palette.Half))
-            throw new ArgumentException($"Sprite image {name} names no half of CGRAM.", nameof(palette));
+            throw new ArgumentException($"Sprite image {name} names no half of the colour table.", nameof(palette));
         if (size.X == 0 || size.Y == 0)
             throw new ArgumentException($"Sprite image {name} has no pixels.", nameof(size));
         ReadOnlySpan<RgbColor> colours = palette.Standard.AsSpan();
@@ -141,7 +141,7 @@ public sealed class SpriteImage
     /// <summary>The image's width and height in pixels.</summary>
     public Extent16<ImagePixels> Size { get; }
 
-    /// <summary>Which half of CGRAM the palette indices name.</summary>
+    /// <summary>Which half of the colour table the palette indices name.</summary>
     public SpriteImageColours Colours { get; }
 
     /// <summary>
@@ -166,7 +166,7 @@ public sealed class SpriteImage
     /// <summary>How each pixel was inked, row by row from the top: its palette entry, priority and part colour group.</summary>
     public ReadOnlySpan<SpriteImageInk> Inks => content.Value.Inks;
 
-    /// <summary>The 128 colours of the image's half of CGRAM the pixels were coloured with.</summary>
+    /// <summary>The 128 colours of the image's half of the colour table the pixels were coloured with.</summary>
     public ReadOnlySpan<RgbColor> StandardColours => standardColours;
 
     /// <summary>The standard colours of the image's colour group <paramref name="group"/>.</summary>

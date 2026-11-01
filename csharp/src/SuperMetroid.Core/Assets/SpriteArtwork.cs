@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// Immutable owned sprite artwork: a sheet of eight-by-eight four-bit characters that whole-frame draw entries
-/// read directly, without a VRAM upload. Characters are laid out sixteen to a row, so a part larger than one
-/// character reads character <c>c + row * 16 + column</c>, the same grid the SNES OBJ name table uses.
+/// read directly, without an upload. Characters are laid out sixteen to a row, so a part larger than one
+/// character reads character <c>c + row * 16 + column</c>, the same grid the game's sprite characters use.
 /// </summary>
 public sealed class SpriteArtwork
 {
@@ -19,7 +19,7 @@ public sealed class SpriteArtwork
 
     /// <summary>Copies the planar characters so later edits to the source cannot change published frames.</summary>
     /// <param name="id">The artwork's owned identity.</param>
-    /// <param name="characters">SNES four-bit planar characters, 32 bytes each.</param>
+    /// <param name="characters">Four-bit planar characters, 32 bytes each.</param>
     /// <exception cref="ArgumentException">The bytes are empty or not a whole number of characters.</exception>
     public SpriteArtwork(SpriteArtworkId id, ReadOnlySpan<byte> characters)
     {

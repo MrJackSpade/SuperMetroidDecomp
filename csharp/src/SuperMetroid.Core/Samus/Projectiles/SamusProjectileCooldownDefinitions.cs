@@ -1,20 +1,20 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Native NTSC firing delays, independent of projectile presentation assets.</summary>
+/// <summary>NTSC firing delays, independent of projectile presentation assets.</summary>
 internal static class SamusProjectileCooldownDefinitions
 {
     /// <summary>The SpaceTime beam's cooldown byte.</summary>
     internal const int SpacetimeCooldown = 13;
 
-    /// <summary>Cooldown $0CCC that Handle_Samus_Cooldown ($90:AC32) holds while time is frozen.</summary>
+    /// <summary>Cooldown that Handle_Samus_Cooldown holds while time is frozen.</summary>
     internal const int FrozenTime = 32;
 
     /// <summary>
-    /// $90:C27A: the non-beam cooldowns, one row per non-beam projectile kind. The missile (row one) waits 10 frames,
+    /// The non-beam cooldowns, one row per non-beam projectile kind. The missile (row one) waits 10 frames,
     /// the super missile (row two) 20, the power bomb (row three) 40 and the morph-ball bomb (row five) 16; every
     /// other kind's row is zero.
     /// </summary>
     internal static readonly byte[] NonBeamCooldownRows = [0, 10, 20, 40, 0, 16, 0, 0, 0];
-    /// <summary>Native low-nibble beam bits: Plasma plus Ice without Wave or Spazer.</summary>
+    /// <summary>Low-nibble beam bits: Plasma plus Ice without Wave or Spazer.</summary>
     internal const int PlasmaIce = 10;
 }

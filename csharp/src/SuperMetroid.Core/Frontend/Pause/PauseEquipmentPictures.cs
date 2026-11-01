@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// Names the equipment page's pictures (#1467) and says which a shown page places. Every picture is laid out from the
 /// page's corner, and no picture shows a cell another part writes: the base leaves out every cell a dynamic part can
 /// write, each part's picture covers its bounding rectangle with the template around the part's own cells, and where the
-/// Plasma overrun's tail meets the wireframe the wireframe, which the cartridge rewrites after every label write, owns the
+/// Plasma overrun's tail meets the wireframe the wireframe, which the game rewrites after every label write, owns the
 /// cell.
 /// </summary>
 internal static class PauseEquipmentPictures

@@ -19,7 +19,7 @@ internal sealed class GameplayTimeFreeze
     /// <summary>
     /// Ownership of the shared freeze outside X-ray. Reserve auto-refill and
     /// fatal-damage states set this while still calling portions of state-eight gameplay;
-    /// every enemy/projectile/scroll consumer must observe the same native word.
+    /// every enemy/projectile/scroll consumer must observe the same freeze.
     /// </summary>
     public bool GameplayTimeFrozen { get; set; }
 

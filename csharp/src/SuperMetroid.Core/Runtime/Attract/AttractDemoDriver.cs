@@ -100,7 +100,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     }
 
     /// <summary>
-    /// Loads the bank-$82/$91 demo scene without consulting or writing a player save.
+    /// Loads the demo scene without consulting or writing a player save.
     /// Uses the ordinary room, PLM, enemy, FX, and graphics loaders with demo progression.
     /// </summary>
     internal void InitializeAttractDemo(AttractDemoScene scene)

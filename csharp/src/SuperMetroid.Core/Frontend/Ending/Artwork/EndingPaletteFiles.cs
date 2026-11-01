@@ -10,9 +10,9 @@ public static class EndingPaletteFiles
     public static string FileName(EndingPaletteId id) =>
         Ensure.Listed(EndingPaletteDefinitions.FileNames, id);
 
-    /// <summary>Full editable resource sizes, not individual CGRAM transfer lengths:
-    /// four 256-color bank-$8C allocations, two 16-color palettes, and sixteen pairs
-    /// of 16-color crossfade palettes. Native credits transfers can select a subset.</summary>
+    /// <summary>Full editable resource sizes, not individual palette load lengths:
+    /// four 256-color allocations, two 16-color palettes, and sixteen pairs
+    /// of 16-color crossfade palettes. The credits' palette loads can select a subset.</summary>
     public static int ColorCount(EndingPaletteId id) =>
         Ensure.Listed(EndingPaletteDefinitions.ColorCounts, id);
 }

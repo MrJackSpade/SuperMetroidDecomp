@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// The scrolling sky as an accepted frame shows it: layer 2's vertical scroll, which follows the camera
-/// (<c>$88:AFB2</c>), and whether the sky shows its rows in bands on the tall layer-2 map. The bands'
+/// (it copies layer one's), and whether the sky shows its rows in bands on the tall layer-2 map. The bands'
 /// horizontal scrolls are read while the frame is drawn and are not part of this latch.
 /// </summary>
 /// <param name="ShowsBands">Whether the sky shows its rows in horizontally scrolled bands on the tall layer-2 map.</param>

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>The retail room FX headers, each holding its records in native order; regenerate with --generate-room-fx-records.</summary>
+/// <summary>The retail room FX headers, each holding its records in the game's order; regenerate with --generate-room-fx-records.</summary>
 public static class RoomFxDefinitions
 {
     /// <summary>The LandingSiteState3 room FX.</summary>

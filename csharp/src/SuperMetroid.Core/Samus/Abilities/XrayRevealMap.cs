@@ -6,21 +6,21 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Builds the cartridge's copied-BG1/revealed-BG2 screens in native write order, one whole 16x16 block at a time (#1431):
+/// Builds the game's copied-BG1/revealed-BG2 screens in write order, one whole 16x16 block at a time (#1431):
 /// each cell is the block it shows and how it lays the block's picture out.
 /// </summary>
 public static class XrayRevealMap
 {
     /// <summary>
-    /// Ports $91:CB8E-CFD9's base-copy and terrain-reveal passes. Item and special-room
-    /// overlays are applied afterwards by their respective owners, as on the cartridge.
+    /// Runs the reveal's base-copy and terrain-reveal passes. Item and special-room
+    /// overlays are applied afterwards by their respective owners, as on the game.
     /// </summary>
     /// <param name="level">The room whose blocks the reveal resolves and whose BG1 plane the base copy reads.</param>
     /// <param name="layer1Position">Layer one's position, which selects the revealed blocks.</param>
     /// <param name="bg1Offset">
     /// BG1's scroll less layer one's position. The base copy reads the BG1 plane's block at each cell's scrolled position
-    /// (#1351), from the block holding the screen's left and top edges onwards, where the cartridge read the BG1 tilemap
-    /// back out of VRAM; a cell beyond the room shows nothing.
+    /// (#1351), from the block holding the screen's left and top edges onwards, where the game read the BG1 tilemap
+    /// back out of the displayed layer; a cell beyond the room shows nothing.
     /// </param>
     /// <param name="area">The room's area; only Brinstar shows Brinstar-only reveals.</param>
     /// <param name="visuals">Installed reveal art, or null for the stock table.</param>
@@ -62,7 +62,7 @@ public static class XrayRevealMap
                     continue;
                 CopyMetatile(col, row, reveal.TopLeft);
                 // The last column of screen one suppresses right-hand writes. Screen
-                // two is visited separately with native remaining-count zero, not one.
+                // two is visited separately with remaining-count zero, not one.
                 bool right = col != XrayRevealLayout.MetatileColumns - 2;
                 if (right && reveal.Command is XrayRevealCommand.CopyWide or XrayRevealCommand.CopySquare)
                     CopyMetatile(col + 1, row, reveal.TopRight);
@@ -97,7 +97,7 @@ public static class XrayRevealMap
         void Place(int col, int row, RevealedBlock? block)
         {
             // Bottom-edge multi-block commands can write past the two transferred screens, into
-            // native scratch RAM; only the shown cells belong to this display projection.
+            // the game's scratch memory; only the shown cells belong to this display projection.
             int cell = XrayRevealCells.CellOf(col, row);
             if (cell >= 0) result[cell] = block;
         }

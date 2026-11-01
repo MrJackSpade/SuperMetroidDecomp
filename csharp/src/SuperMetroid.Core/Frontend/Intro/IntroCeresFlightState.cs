@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Initial native Mode 7 leg of Samus's flight toward Ceres station.</summary>
+/// <summary>Initial Mode 7 leg of Samus's flight toward Ceres station.</summary>
 internal sealed class IntroCeresFlightState
 {
     /// <summary>Holds the music queue whose drain gates the initial display.</summary>
@@ -54,15 +54,15 @@ internal sealed class IntroCeresFlightState
     private bool spaceColonyHoldStarted;
     /// <summary>Whether the optional one-frame katakana caption record has drawn the katakana caption.</summary>
     internal bool JapaneseCaptionShown { get; private set; }
-    /// <summary>Selects the cartridge's alternate Japanese caption record.</summary>
+    /// <summary>Selects the game's alternate Japanese caption record.</summary>
     private readonly bool japaneseText;
     /// <summary>Gates one brightness decrement every other frame in the closing fade.</summary>
     private int fadeDelay;
 
     /// <summary>Loads installed flight art and leaves the scene black for the setup update.</summary>
-    /// <param name="audio">The shared music queue that $8B:BDE4 waits on.</param>
+    /// <param name="audio">The shared music queue the approach waits on.</param>
     /// <param name="artwork">Installed cinematic artwork; the approach cannot start without it.</param>
-    /// <param name="japaneseText">Native <c>AltText</c>, which adds the katakana SPACE COLONY caption.</param>
+    /// <param name="japaneseText">The Japanese text option, which adds the katakana SPACE COLONY caption.</param>
     /// <param name="sheets">The installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's tiles; required.</param>
     public IntroCeresFlightState(AudioQueues audio,
         CeresFlightArtwork? artwork = null, bool japaneseText = false, InstalledSpriteSheets? sheets = null)
@@ -78,11 +78,11 @@ internal sealed class IntroCeresFlightState
             "space/Ceres OBJ characters");
         Artwork = content;
 
-        // $BCCD loads the floor's front view and the OBJ characters; the scene shows the front view's installed floor (#1467).
+        // Setup loads the floor's front view and the sprite characters; the scene shows the front view's installed floor (#1467).
         objects = new ScreenSprites();
         content.Palette.LoadTo(palette);
         // The loads above are invisible: the screen stays black until the music queue drains.
-        // $8B:BCA0 itself runs as the next dispatch's cinematic function.
+        // The display setup itself runs as the next dispatch's cinematic function.
         Phase = IntroCeresFlightPhase.Initial;
     }
 
@@ -105,7 +105,7 @@ internal sealed class IntroCeresFlightState
         artwork.Palette.LoadTo(palette);
     }
 
-    /// <summary>Current native cinematic dispatch phase, including the final handoff to Ceres gameplay.</summary>
+    /// <summary>Current cinematic dispatch phase, including the final handoff to Ceres gameplay.</summary>
     public IntroCeresFlightPhase Phase { get; private set; }
 
     /// <summary>True after the SPACE COLONY hold and final fade reach black.</summary>
@@ -117,7 +117,7 @@ internal sealed class IntroCeresFlightState
         switch (Phase)
         {
             case IntroCeresFlightPhase.Initial:
-                // $8B:BDD2-$BDDF: the flight's music data, then its track, on the shared queue.
+                // The flight's music data, then its track, on the shared queue.
                 audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
                 audio.ScheduleMusic(
                     MusicRequest.SelectTrack(CeresFlightSceneDefinitions.MusicTrack),
@@ -126,7 +126,7 @@ internal sealed class IntroCeresFlightState
                 break;
 
             case IntroCeresFlightPhase.WaitForMusicQueue:
-                // $8B:BDE4 enables the display once CheckIfMusicIsQueued reports an empty queue.
+                // The approach enables the display once CheckIfMusicIsQueued reports an empty queue.
                 if (!audio.HasQueuedMusic)
                 {
                     brightness = 15;
@@ -226,19 +226,19 @@ internal sealed class IntroCeresFlightState
         objects.FinishFrame();
     }
 
-    /// <summary>Whether the scene shows its rear view: once <c>$BE22</c> has queued the rear-view map.</summary>
+    /// <summary>Whether the scene shows its rear view: once the rear-view map has been queued.</summary>
     internal bool ShowsRearView => Phase is not (IntroCeresFlightPhase.Initial or IntroCeresFlightPhase.WaitForMusicQueue or
         IntroCeresFlightPhase.FlyingIntoCamera);
 
     /// <summary>Loads the rear map, places five actors, and primes the white fixed-color flash.</summary>
     private void SetupRearView()
     {
-        // $BE22 loads the rear view's map; the rear view's phase selects its installed floor (#1467).
+        // The rear view's map loads; the rear view's phase selects its installed floor (#1467).
         background = new(new(WordWrap.Unsigned(-32), 0), new(WordWrap.Unsigned(-128), 0));
         angle = RotationAngle.FromTableIndex(32);
 
-        // These five slots are the exact $BE3B-$BE5C spawn order. Their visual lists
-        // remain cartridge streams; the compiled definitions supply callback identity,
+        // These five slots are the exact spawn order. Their visual animations
+        // remain authored scripts; the compiled definitions supply callback identity,
         // initializer results and the physical motion applied by StepRearViewActors.
         RearViewActors = Enumerable.Range(0, CeresFlightActorDefinitions.RearViewActorCount)
             .Select(index =>
@@ -254,8 +254,8 @@ internal sealed class IntroCeresFlightState
             })
             .ToArray();
 
-        // CGADSUB=$31 adds the fixed colour to BG1, OBJ, and backdrop. $BE09 begins at
-        // white and $BFDA removes one five-bit component step per frame until black.
+        // CGADSUB=$31 adds the fixed colour to BG1, sprites, and backdrop. The flash begins at
+        // white and removes one five-bit component step per frame until black.
         flashIntensity = 31;
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
     }
@@ -277,12 +277,12 @@ internal sealed class IntroCeresFlightState
     /// <summary>Fades fixed color and enlarges the rear-view Mode 7 image until the title begins.</summary>
     private void StepFlyingTowardCeres()
     {
-        // The fixed-colour flash fades by one SNES component step per frame, clamped at zero
+        // The fixed-colour flash fades by one component step per frame, clamped at zero
         // (the selector-only register values $20/$40/$80).
         flashIntensity = Math.Max(0, flashIntensity - 1);
 
-        // $BFDA drifts BG1 left by an eighth of a pixel and grows the rear-of-gunship Mode 7
-        // image in two native bands: +16 until 3072, then +32 until 8192.
+        // The rear view drifts BG1 left by an eighth of a pixel and grows the rear-of-gunship Mode 7
+        // image in two bands: +16 until 3072, then +32 until 8192.
         background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, -SixteenSixteen.FromWhole(1) / 8));
         if (zoom < 3072)
             zoom += 16;
@@ -295,8 +295,8 @@ internal sealed class IntroCeresFlightState
     /// <summary>Switches to the Mode 1 caption and writes its first glyph.</summary>
     private void SetupSpaceColonyTitle()
     {
-        // `$8B:C03E` switches from Mode 7 to Mode 1, assigns BG1SC=$5C/BG1NBA=$06,
-        // and starts BG object list `$8C:D629`. The rear-view cinematic actors are not
+        // The title switches from Mode 7 to Mode 1, assigns BG1SC=$5C/BG1NBA=$06,
+        // and starts the caption's background text object. The rear-view cinematic actors are not
         // deleted, so Ceres and both asteroid layers remain behind the title text.
         CaptionLettersShown = 0;
         spaceColonyHoldStarted = false;
@@ -319,7 +319,7 @@ internal sealed class IntroCeresFlightState
             return;
         }
 
-        // $8B:C096 skips the Japanese caption record for English text. Japanese text draws
+        // The caption skips the Japanese caption record for English text. Japanese text draws
         // it on a one-frame record before the hold.
         if (japaneseText && !JapaneseCaptionShown)
         {
@@ -329,7 +329,7 @@ internal sealed class IntroCeresFlightState
         }
 
         // The list's final record holds the completed caption for $80 frames before
-        // `$8B:C0A2` installs the ordinary fade owner.
+        // the fade step installs the ordinary fade owner.
         if (!spaceColonyHoldStarted)
         {
             spaceColonyHoldStarted = true;
@@ -344,7 +344,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Lowers brightness every other dispatch until the black screen permits the Ceres handoff.</summary>
     private void StepFadeOut()
     {
-        // `$C0A2` seeds both fade words with one. `$8B:C0C5` calls HandleFadingOut, which
+        // The fade step seeds both fade words with one. The fade-out calls HandleFadingOut, which
         // therefore removes one brightness level every other frame and ends with the screen blanked.
         if (fadeDelay-- > 0)
             return;
@@ -376,7 +376,7 @@ internal sealed class IntroCeresFlightState
         }
     }
 
-    /// <summary>Adds a fractional X delta and wraps the actor within the native 512-pixel span.</summary>
+    /// <summary>Adds a fractional X delta and wraps the actor within the 512-pixel span.</summary>
     private static void AddWrappedX(IntroDiscoverySprite actor, int fractionalDelta)
     {
         FixedCoordinate x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
@@ -392,7 +392,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Accelerates the front stars and both Mode 7 scroll offsets along the same diagonal.</summary>
     private void StepStarsAndBackground()
     {
-        // BEBE adds $0080 to a signed 8.8 speed, then applies that same growing delta to
+        // The star field adds 128/256 to a signed 8.8 speed, then applies that same growing delta to
         // the star actor and both Mode 7 offsets. This is why the ship rush feels diagonal.
         if (stars.FrameBehavior !=
             CeresFlightActorDefinitions.FrontStars.ActiveFrameBehavior)
@@ -412,7 +412,7 @@ internal sealed class IntroCeresFlightState
             IntroCinematicMotion.AddEightEight(background.Y, velocity));
     }
 
-    /// <summary>Rejects installed art streams shorter than the native transfer size.</summary>
+    /// <summary>Rejects installed art streams shorter than the size the scene loads.</summary>
     private static void RequireMinimum(int length, int minimum, string name)
     {
         if (length < minimum)

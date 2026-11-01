@@ -9,11 +9,11 @@ internal sealed class ProjectileImpactAudio
     [NonSerialized] private bool _cinematicImpactAudioSuppressed;
 
     /// <summary>Borrowed current-owner-frame missile impact requests for library two with queue limit six; reading the list does not consume or play them.</summary>
-    /// <remarks>The backing list is cleared by <see cref="ProjectileImpactAudio.BeginImpactAudioFrame"/> and is not a snapshot. Cinematic suppression omits requests; an active Power Bomb is recorded in each request's sound-suppression flag for native queue handling.</remarks>
+    /// <remarks>The backing list is cleared by <see cref="ProjectileImpactAudio.BeginImpactAudioFrame"/> and is not a snapshot. Cinematic suppression omits requests; an active Power Bomb is recorded in each request's sound-suppression flag for queue handling.</remarks>
     public IReadOnlyList<SoundRequest> ImpactSoundRequests =>
         _impactSoundRequests is { } requests ? requests : Array.Empty<SoundRequest>();
 
-    /// <summary>Starts an owner frame; cinematic_function suppresses missile impact SFX in $93:80CF.</summary>
+    /// <summary>Starts an owner frame; cinematic_function suppresses missile impact sounds.</summary>
     public void BeginImpactAudioFrame(ImpactAudioContext context)
     {
         _impactSoundRequests?.Clear();

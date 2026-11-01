@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Three editable, full-body normal suit palettes; suit selection remains gameplay code.</summary>
 /// <remarks>Issue #1165 retains the22 distinct opaque ink colors and two
-/// transparent-slot payloads from $9B:9400/9520/9800 under the nonsense exception.
-/// $91:DD5B copies those words to fixed OBJ palette slots. Sprite tile pixels
+/// transparent-slot payloads of the three suit palettes under the nonsense exception.
+/// The suit palette load copies those words to fixed sprite palette slots. Sprite tile pixels
 /// choose categorical ink indices, not a time, distance, light level or shade
 /// magnitude from which RGB can be calculated. For example, the yellow Power
 /// inks at slots1/2/10/11/12 have intensities8/29/21/11/18: the order identifies
@@ -26,8 +26,8 @@ public sealed class InstalledSamusSuitColors
     internal readonly Dictionary<ColourCell, RgbColor> gravity;
 
     /// <summary>Stores a Power palette and only differing colors for the other suits.</summary>
-    /// <remarks>Original $9B:9400/9520/9800 share twelve of sixteen slots
-    /// per secondary suit. Native suit selection is categorical; named owners
+    /// <remarks>The original suit palettes share twelve of sixteen slots
+    /// per secondary suit. Suit selection is categorical; named owners
     /// replace the palette roster. Comparing supplied values preserves arbitrary
     /// independent player edits. This removes duplicated words; the remaining
     /// base-ink disposition is documented on the catalog.</remarks>

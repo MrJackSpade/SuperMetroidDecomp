@@ -2,27 +2,26 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>Immutable mechanics shared by the three Samus-loading palette programs.</summary>
 /// <remarks>
-/// Issue #855 / #625: pinned NTSC J/U v1.0 ROM definitions <c>$8D:E1F4</c>,
-/// <c>$E1F8</c>, and <c>$E1FC</c> enter at <c>$8D:DB62</c>, <c>$DCC8</c>,
-/// and <c>$DE2E</c>. Each starts with <c>SetColorIndex($0180)</c>, then
-/// four <c>SetTimer(byte)</c> groups at bank-local entry offsets
-/// <c>$0007,$0056,$00A5,$00F4</c>. Timers <c>$24,3,3,2</c> replay each
+/// Issue #855 / #625: the Power, Varia and Gravity definitions
+/// share one layout.
+/// Each starts with <c>SetColorIndex(384)</c>, then
+/// four <c>SetTimer(byte)</c> groups, whose
+/// timers <c>36,3,3,2</c> replay each
 /// group's pair of <c>3, colors[16], Wait</c> records via
 /// <c>DecrementTimerAndGoto(group start)</c>. One final
-/// <c>1, colors[16], Wait</c> record starts at offset <c>$0140</c>;
-/// <c>Delete</c> follows at <c>$0164</c>. Thus
+/// <c>1, colors[16], Wait</c> record follows, and
+/// <c>Delete</c> ends the program. Thus
 /// <c>(36 + 3 + 3 + 2)*2*3 + 1 = 265</c> frames elapse. All 99
-/// control words and 12 timer bytes match the ROM. The 432 BGR555 words
+/// control words and 12 timer bytes match the original programs. The 432 BGR555 words
 /// remain live presentation data supplied by the presentation compiler;
-/// this catalog owns only placement, timing, replay, and deletion. ROM SHA-256:
-/// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.
+/// this catalog owns only placement, timing, replay, and deletion.
 /// </remarks>
 public static class SamusLoadingSuitPaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes sixteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 16;
-    /// <summary>Native Power-suit definition $8D:E1F4 selects program $DB62.</summary>
+    /// <summary>The Power-suit definition's program.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Power =
         new()
         {
@@ -30,7 +29,7 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
             Object = PaletteFxObject.SamusLoadingPowerSuit,
             Rows = PaletteFxColorRows.Of(PaletteFxProgram.SamusLoadingPowerSuit1, ColorsPerFrame),
         };
-    /// <summary>Native Varia-suit definition $8D:E1F8 selects program $DCC8.</summary>
+    /// <summary>The Varia-suit definition's program.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Varia =
         new()
         {
@@ -38,7 +37,7 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
             Object = PaletteFxObject.SamusLoadingVariaSuit,
             Rows = PaletteFxColorRows.Of(PaletteFxProgram.SamusLoadingVairaSuit1, ColorsPerFrame),
         };
-    /// <summary>Native Gravity-suit definition $8D:E1FC selects program $DE2E.</summary>
+    /// <summary>The Gravity-suit definition's program.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Gravity =
         new()
         {
@@ -51,7 +50,7 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
     /// <remarks>Named program identities replace the former indexed descriptor array.
     /// The view preserves original order/count/index rejection; runtime mechanics
     /// dispatches directly to the same three named owners without enumeration.
-    /// Native header words and all program ownership are independently checked for1165.</remarks>
+    /// Header words and all program ownership are independently checked for #1165.</remarks>
     public static IReadOnlyList<SamusLoadingSuitPaletteFxColorDefinition> All { get; } = [Power, Varia, Gravity];
 
 }

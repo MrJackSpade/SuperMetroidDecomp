@@ -143,7 +143,7 @@ internal static class EndingCreditsPresentation
     /// <summary>Whether to use the waiting scene's BG2 map and character base.</summary>
     private static bool UsesWaitingBackground(EndingCreditsState ending) => !EndingCreditsPhaseGroups.FromWaitingSamus.Contains(ending.Stage.Phase)
         || ending.Stage.Phase == EndingCreditsPhase.PostCreditsReward;
-    /// <summary>Whether native E1D2/E2DD subscreen settings add OBJ to BG2 and backdrop.</summary>
+    /// <summary>Whether the post-credit subscreen settings add sprites to BG2 and backdrop.</summary>
     private static bool RewardSubscreenAddition(EndingCreditsState ending) => ending.Explosion.ExplosionCrossfadeActive
         || ending.Stage.Phase == EndingCreditsPhase.PostCreditsShootingStars
         || (ending.Stage.Phase == EndingCreditsPhase.PostCreditsReward && ending.Stage.EndingReward != EndingReward.Armored);

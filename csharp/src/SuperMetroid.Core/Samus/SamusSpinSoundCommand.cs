@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus;
 
-/// <summary>Selects the current spin sound for cartridge Samus command $1C ($90:F41E).</summary>
+/// <summary>Selects the current spin sound for Samus command $1C.</summary>
 internal static class SamusSpinSoundCommand
 {
     /// <summary>Selects spin, space-jump, or screw-attack audio from movement, pose, and wall-jump frame; returns null outside spin movement.</summary>

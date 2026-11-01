@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Fx;
 public sealed class PaletteFxSessionState
 {
     /// <summary>
-    /// Bit 15 of <c>PaletteFXObject_Enable</c> ($1E79), checked first by the handler. Game
-    /// data loading sets it; the escape timer's expiry (<c>$90:E106</c>) clears it.
+    /// Bit 15 of the palette-FX enable word, checked first by the handler. Game
+    /// data loading sets it; the escape timer's expiry clears it.
     /// </summary>
     public bool HandlerEnabled { get; private set; } = true;
 
@@ -21,6 +21,6 @@ public sealed class PaletteFxSessionState
     /// <summary>Last heat palette phase applied to Samus; prevents redundant program restarts.</summary>
     internal int PreviousSamusInHeatPaletteIndex { get; set; }
 
-    /// <summary><c>Disable_PaletteFXObjects</c> ($8D:C4CD).</summary>
+    /// <summary>Disables the palette-FX objects.</summary>
     public void DisableHandler() => HandlerEnabled = false;
 }

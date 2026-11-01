@@ -2,20 +2,20 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// The gradual fade of a set of colours toward target colours ($82:DA02/$82:DA4A/$82:DAA6)
+/// The gradual fade of a set of colours toward target colours
 /// that death, doors, maps and several bosses share.
 /// </summary>
 internal sealed class GradualPaletteTransition
 {
-    /// <summary>Native divisor controlling how far each interpolation call moves.</summary>
+    /// <summary>Divisor controlling how far each interpolation call moves.</summary>
     private readonly int denominator;
     /// <summary>Shared fade counter advanced and reset by this transition.</summary>
     private readonly GradualColorChangeCounter numerator;
 
-    /// <summary>Captures the destination palette and binds the native shared fade counter.</summary>
+    /// <summary>Captures the destination palette and binds the shared fade counter.</summary>
     /// <param name="target">The colours to fade to, an image of the colours the transition changes.</param>
-    /// <param name="denominator">Native interpolation divisor, one through 65534; transition number denominator plus one installs the exact target.</param>
-    /// <param name="numerator">The shared <c>$7E:C400</c> transition number this fade advances.</param>
+    /// <param name="denominator">Interpolation divisor, one through 65534; transition number denominator plus one installs the exact target.</param>
+    /// <param name="numerator">The shared transition number this fade advances.</param>
     public GradualPaletteTransition(ColourImage target, int denominator, GradualColorChangeCounter numerator)
     {
         Ensure.NotNull(numerator);
@@ -28,9 +28,9 @@ internal sealed class GradualPaletteTransition
     }
 
     /// <summary>
-    /// Advances one native call. The first call (transition number zero) is intentionally a
+    /// Advances one call. The first call (transition number zero) is intentionally a
     /// no-op, number denominator+1 reaches the exact target, and the following call returns
-    /// complete while resetting the native counter.
+    /// complete while resetting the shared counter.
     /// </summary>
     public bool Step()
     {
@@ -59,7 +59,7 @@ internal sealed class GradualPaletteTransition
     /// <summary>The colours the transition fades to, which a caller may change without resetting fade progress or current colours.</summary>
     internal ColourImage Target { get; }
 
-    /// <summary>Applies native fixed-point interpolation independently to each RGB5 channel.</summary>
+    /// <summary>Applies fixed-point interpolation independently to each RGB5 channel.</summary>
     private RgbColor CalculateColor(int step, RgbColor current, RgbColor destination) =>
         current.Zip(destination, (_, from, to) => CalculateComponent(step, from, to));
 

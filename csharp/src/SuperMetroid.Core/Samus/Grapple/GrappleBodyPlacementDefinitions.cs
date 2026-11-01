@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
-/// <summary>Native swing collision-body placement, independent of the displayed animation frame.</summary>
+/// <summary>Swing collision-body placement, independent of the displayed animation frame.</summary>
 internal static class GrappleBodyPlacementDefinitions
 {
-    /// <summary>$9B:C2C2 GrappleSwingSamusXYOffsets_Left: 32 X/Y offsets relative to physical rope Start.</summary>
+    /// <summary>GrappleSwingSamusXYOffsets_Left: 32 X/Y offsets relative to physical rope Start.</summary>
     internal static readonly Offset16<RoomPixels>[] LeftOffsets =
     [
         new Offset16<RoomPixels>(0, -15), new Offset16<RoomPixels>(7, -14), new Offset16<RoomPixels>(12, -11), new Offset16<RoomPixels>(18, -10), new Offset16<RoomPixels>(22, -6), new Offset16<RoomPixels>(26, 2), new Offset16<RoomPixels>(29, 5), new Offset16<RoomPixels>(31, 10),
@@ -12,7 +12,7 @@ internal static class GrappleBodyPlacementDefinitions
         new Offset16<RoomPixels>(-31, 15), new Offset16<RoomPixels>(-30, 10), new Offset16<RoomPixels>(-27, 5), new Offset16<RoomPixels>(-26, 1), new Offset16<RoomPixels>(-21, -6), new Offset16<RoomPixels>(-16, -9), new Offset16<RoomPixels>(-16, -12), new Offset16<RoomPixels>(-8, -14),
     ];
 
-    /// <summary>$9B:C302 GrappleSwingSamusXYOffsets_Right: 32 X/Y offsets relative to physical rope Start.</summary>
+    /// <summary>GrappleSwingSamusXYOffsets_Right: 32 X/Y offsets relative to physical rope Start.</summary>
     internal static readonly Offset16<RoomPixels>[] RightOffsets =
     [
         new Offset16<RoomPixels>(0, -14), new Offset16<RoomPixels>(9, -13), new Offset16<RoomPixels>(16, -10), new Offset16<RoomPixels>(18, -8), new Offset16<RoomPixels>(21, -5), new Offset16<RoomPixels>(26, 2), new Offset16<RoomPixels>(28, 6), new Offset16<RoomPixels>(30, 10),

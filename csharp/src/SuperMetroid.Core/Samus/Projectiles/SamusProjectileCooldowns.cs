@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusProjectileCooldowns
 {
     /// <summary>
-    /// $90:C254..C28E: beam charge doubles the ordinary 15-frame delay; uncharged
+    /// Beam charge doubles the ordinary 15-frame delay; uncharged
     /// Plasma+Ice has its own 12-frame cadence. Held-fire repeats every 25 frames.
     /// Unused beam combinations, padding and unused non-beam kinds remain zero.
     /// </summary>

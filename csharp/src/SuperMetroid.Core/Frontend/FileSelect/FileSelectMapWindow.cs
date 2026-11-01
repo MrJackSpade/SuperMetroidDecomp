@@ -1,19 +1,19 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>
-/// Area-to-room map window motion from <c>$81:AAAC</c> and <c>$81:AC84</c>.
+/// Area-to-room map window motion.
 /// This is a clipping-window expansion, not a scale transform of the map pixels.
 /// </summary>
 public sealed class FileSelectMapWindow
 {
-    /// <summary>Native 16.16 expansion or contraction velocity for each window edge.</summary>
+    /// <summary>16.16 expansion or contraction velocity for each window edge.</summary>
     private readonly uint[] velocities = new uint[4];
     /// <summary>Current 16.16 left, right, top, and bottom clipping positions.</summary>
     internal readonly uint[] edges = new uint[4];
     /// <summary>Signed-underflow countdown controlling the final moving frame.</summary>
     private WrappingCountdown timer;
 
-    /// <summary>Creates the area-to-room expanding window at the installed label anchor, with collapsed edges and native area-specific 16.16 velocities/timer; editable anchors do not change compiled motion.</summary>
+    /// <summary>Creates the area-to-room expanding window at the installed label anchor, with collapsed edges and area-specific 16.16 velocities/timer; editable anchors do not change compiled motion.</summary>
     /// <param name="area">Game-area identity 0..5 for the six Zebes areas, not the file-select display-order ordinal.</param>
     /// <param name="labels">Required installed world-map label anchors; a missing catalog is rejected even though the parameter defaults to null.</param>
     /// <exception cref="ArgumentOutOfRangeException">The area has no supported transition.</exception>
@@ -56,10 +56,10 @@ public sealed class FileSelectMapWindow
         new(FixedCoordinate.WholeOf(unchecked((int)edges[1])), FixedCoordinate.WholeOf(unchecked((int)edges[3])));
     /// <summary>Whether the transition timer has reached signed underflow after the final edge movement; initially false and latched true until this window is discarded.</summary>
     public bool IsComplete { get; private set; }
-    /// <summary>Whether this is $81:AFF6's shortened room-to-area contraction: subtract velocities without whole-word clamps, and reveal the area scene when complete.</summary>
+    /// <summary>Whether this is the shortened room-to-area contraction: subtract velocities without whole-word clamps, and reveal the area scene when complete.</summary>
     public bool IsReturning { get; private set; }
 
-    /// <summary>$81:AFF6 begins a shortened, unclamped contraction from the inset room frame.</summary>
+    /// <summary>Begins a shortened, unclamped contraction from the inset room frame.</summary>
     public static FileSelectMapWindow CreateReturn(int area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions? labels = null)
     {
         var window = new FileSelectMapWindow(area, labels);

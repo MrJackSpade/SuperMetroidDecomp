@@ -13,7 +13,7 @@ public sealed record RuntimeFramePolicy
     public bool AllowCeresElevatorDeparture { get; init; } = true;
 
     /// <summary>
-    /// Whether the normal frame tail advances the native four-word gameplay clock; disabling it does
+    /// Whether the normal frame tail advances the four-part gameplay clock; disabling it does
     /// not suppress the frame boundary, the random draw, or gameplay-owner updates.
     /// </summary>
     public bool AdvanceGameTime { get; init; } = true;

@@ -17,7 +17,7 @@ public static class IntroNarrationDefinitions
     public const int LastTextRow = 16;
     /// <summary>Five cinematic background-object updates between character records, including spaces; independent of host elapsed time.</summary>
     public const int CharacterDelayFrames = 5;
-    /// <summary>One-update duration of the no-op marker at the beginning of each native page stream.</summary>
+    /// <summary>One-update duration of the no-op marker at the beginning of each page stream.</summary>
     public const int InitialMarkerDelayFrames = 1;
     /// <summary>128 cinematic background-object updates held after the final page starts caret blinking and before its finish callback.</summary>
     public const int FinalPageHoldFrames = 128;

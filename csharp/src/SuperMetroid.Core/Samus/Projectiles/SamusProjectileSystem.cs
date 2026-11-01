@@ -18,13 +18,13 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <remarks>
 /// This class is deliberately a field-for-field translation rather than a desktop particle
-/// effect. Firing comes from bank $90, damage and animation records come from bank $93,
-/// and terrain movement comes from bank $94. Keeping those seams visible makes every value
+/// effect. Firing, damage and animation records, and terrain movement each keep
+/// their own seam. Keeping those seams visible makes every value
 /// inspectable in a C# debugger and prevents a convenient host sprite from replacing the
-/// actual cartridge projectile lifecycle.
+/// actual projectile lifecycle.
 ///
 /// The implemented producer covers ordinary and charged plain power beams. The shared slot
-/// model and bank-$93 interpreter are intentionally general enough for the remaining beam
+/// model and interpreter are intentionally general enough for the remaining beam
 /// and missile families, but unsupported producers are rejected before allocating a slot.
 /// </remarks>
 [RoomLifetime]
@@ -51,7 +51,7 @@ public sealed class SamusProjectileSystem
     /// <summary>Advances special beam combinations that share ordinary projectile storage.</summary>
     internal BeamCombos Combos { get; }
 
-    /// <summary>Interprets bank-$93 projectile records and draws their sprite compositions.</summary>
+    /// <summary>Interprets projectile records and draws their sprite compositions.</summary>
     internal ProjectileAnimation Animation { get; }
 
     /// <summary>Applies HUD, cooldown, equipment, and charge rules when allocating a shot.</summary>
@@ -122,14 +122,14 @@ public sealed class SamusProjectileSystem
     /// <summary>The shot slots by ordinal.</summary>
     public IReadOnlyList<SamusProjectileSlot> Slots => SlotTable.Slots;
 
-    /// <summary>The most recent `$91:D743` charged-shot palette sub-handler result.</summary>
+    /// <summary>The most recent charged-shot palette sub-handler result.</summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep
     {
         get => Charge.LastBeamChargePaletteStep;
         private set => Charge.LastBeamChargePaletteStep = value;
     }
 
-    /// <summary>Nested `$91:D83F` result when inactive charging falls through to visor handling.</summary>
+    /// <summary>Nested visor result when inactive charging falls through to visor handling.</summary>
     public SamusVisorPaletteStepResult LastVisorPaletteStep
     {
         get => Charge.LastVisorPaletteStep;
@@ -140,8 +140,8 @@ public sealed class SamusProjectileSystem
     public SamusProjectileFrameResult LastFrameResult { get; private set; }
 
     /// <summary>
-    /// Executes the palette half of <c>Update_Beam_Tiles_and_Palette</c> at $90:AC8D for the equipped beam: sixteen
-    /// words into sprite palette six, CGRAM colors $E0-$EF. Its characters are not copied: the installed projectile
+    /// Executes the palette half of <c>Update_Beam_Tiles_and_Palette</c> for the equipped beam: sixteen
+    /// words into sprite palette six, colours 224-239. Its characters are not copied: the installed projectile
     /// sheets are composed over every beam combination's characters.
     /// </summary>
     public static void LoadBeamPalette(
@@ -154,7 +154,7 @@ public sealed class SamusProjectileSystem
     private static SamusBeamCombination SelectedCombination(SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams) =>
         SamusBeamCombinations.Of(equippedBeams);
 
-    /// <summary>Loads a beam combination's final CGRAM palette from installed art or the special beam definitions.</summary>
+    /// <summary>Loads a beam combination's final palette from installed art or the special beam definitions.</summary>
     public static void LoadBeamPalette(ColourRun beam,
         SamusBeamCombination selection, SuperMetroid.Core.Samus.Artwork.InstalledBeamPalettes? palettes)
     {
@@ -186,8 +186,8 @@ public sealed class SamusProjectileSystem
             beam.Write(color, ChainsawBeamGraphicsDefinitions.Colours[color]);
     }
     /// <summary>
-    /// Runs <c>HandleBeamChargePalettes</c> at <c>$91:D743-$D7D4</c> against the
-    /// modeled Samus CGRAM palette.
+    /// Runs <c>HandleBeamChargePalettes</c> against the
+    /// modeled Samus palette.
     /// </summary>
     /// <remarks>
     /// This belongs to the Samus palette handler, not charge-flare drawing. It edits
@@ -195,7 +195,7 @@ public sealed class SamusProjectileSystem
     /// are written at this phase.
     /// The runtime executes special Speed Booster/Screw/Shinespark/Crystal Flash/X-ray
     /// handlers afterward unless glow expiry returns the normal-suit restoration action.
-    /// That action models carry set at `$91:D70B`, bypassing special handlers for one frame.
+    /// That action models the restore branch, bypassing special handlers for one frame.
     /// </remarks>
     public SamusBeamChargePaletteStepResult UpdateBeamChargePalette(
         SamusColours colours,
@@ -209,10 +209,10 @@ public sealed class SamusProjectileSystem
 
         if (Charge.ChargedShotGlowTimer.IsZero)
         {
-            // `$91:D748-$D793` admits the continuously cycling charge palette only while
+            // The charge palette admits the continuously cycling charge palette only while
             // grapple's function pointer is exactly inactive and the flare counter has
             // reached 60. The 65816 BMI is a signed subtraction test, retained literally
-            // so Hyper's `$8000` sentinel follows cartridge behavior too.
+            // so Hyper's 32768 sentinel follows game behavior too.
             bool chargePaletteActive =
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
                 Charge.FlareCounter != 0 &&
@@ -240,7 +240,7 @@ public sealed class SamusProjectileSystem
                 return LastBeamChargePaletteStep;
             }
 
-            // `$91:D7B0` resets the sequence whenever charge is below threshold or grapple
+            // The charge palette resets the sequence whenever charge is below threshold or grapple
             // owns its function pointer. This guarantees the next eligible call starts at
             // palette zero rather than resuming a partially completed cycle.
             Charge.ChargePaletteStep = 0;
@@ -255,9 +255,9 @@ public sealed class SamusProjectileSystem
 
         if (!samus.HyperBeamEnabled)
         {
-            // `$91:D799` decrements before its BEQ. Starting at four therefore produces
-            // white on timers 3, 2, and 1. Timer 1 -> 0 takes carry-set `$D7AE`, causing
-            // outer `$D717` to restore the complete suit palette on the fourth call.
+            // The glow decrements before its zero test. Starting at four therefore produces
+            // white on timers 3, 2, and 1. Timer 1 -> 0 takes the restore branch, causing
+            // the outer handler to restore the complete suit palette on the fourth call.
             Charge.ChargedShotGlowTimer = Charge.ChargedShotGlowTimer.Decrement().Remaining;
             if (Charge.ChargedShotGlowTimer.IsZero)
             {
@@ -267,9 +267,9 @@ public sealed class SamusProjectileSystem
                 return LastBeamChargePaletteStep;
             }
 
-            // Native starts at `Palettes_SpriteP4C1 + $1C` and walks backward by words.
+            // The game starts at sprite palette four's last colour and walks backward by words.
             // That is exactly colors 15..1: transparent color zero is intentionally left
-            // untouched while every visible Samus color becomes yellow `$03FF`.
+            // untouched while every visible Samus color becomes yellow (31,31,0).
             for (int color = 1; color < 16; color++)
                 colours.Suit.Write(color, new RgbColor(31, 31, 0));
 
@@ -280,7 +280,7 @@ public sealed class SamusProjectileSystem
 
         // Hyper's sign bit selects this branch but is not part of the table index. Odd
         // values are pure hold calls; even low-five-bit values 20..2 select palette 0..9.
-        // Each selected ROM palette consequently remains visible for exactly two calls.
+        // Each selected authored palette consequently remains visible for exactly two calls.
         if (Charge.ChargedShotGlowTimer.IsInAlternatePhase(1))
         {
             Charge.ChargedShotGlowTimer = Charge.ChargedShotGlowTimer.Decrement().Remaining;
@@ -292,8 +292,8 @@ public sealed class SamusProjectileSystem
         int tableOffset = Charge.ChargedShotGlowTimer.CyclePhase(2, 16) * 2;
         if (tableOffset == 0)
         {
-            // `$91:D7C1` branches before DEC at `$D7CB`. Native explicitly zeroes the
-            // already-`$8000` timer and returns carry so `$D717` performs the suit copy.
+            // Hyper's final call branches before the decrement. The game explicitly zeroes the
+            // already-32768 timer and returns carry so the outer handler performs the suit copy.
             Charge.ChargedShotGlowTimer = WrappingCountdown.Start(0);
             ProjectileAnimation.LoadNormalSuitPalette(colours, samus);
             LastBeamChargePaletteStep = new(
@@ -325,7 +325,7 @@ public sealed class SamusProjectileSystem
     /// <param name="sharedProjectiles">
     /// Bomb-slot owner carrying the shared projectile cooldown. The runtime steps that
     /// clock once, immediately before calling this method; this method may replace it after
-    /// a successful shot just as bank $90 does.
+    /// a successful shot just as the game does.
     /// </param>
     /// <param name="projectileProducerEnabled">Whether to admit the HUD weapon producer; existing ordinary slots still run when this is false, subject to live X-ray freeze.</param>
     /// <param name="producerSoundSuppressed">Optional captured sound-suppression decision at production; null uses the shared Power Bomb owner's current active state.</param>
@@ -342,10 +342,10 @@ public sealed class SamusProjectileSystem
         bool soundSuppressedAtProduction = producerSoundSuppressed ?? sharedProjectiles.PowerBombExplosion.IsActive;
 
         // Humanoid projectile dispatch is selected by the live HUD item. Indices zero/three
-        // share `$90:B80D`; index one reaches `$90:BE62`'s missile producer. Ball poses still
+        // share the beam producer; index one reaches the missile producer. Ball poses still
         // dispatch to the companion bomb owner, and the debug grapple route disables this
         // producer explicitly while it owns Shoot.
-        // $90:DCE0-DCE8 branches straight to Handle_Projectiles for either
+        // The forward-facing HUD handler branches straight to Handle_Projectiles for either
         // forward-facing pose. In particular an elevator may keep accepting physical
         // controller samples without allowing them to charge or fire a weapon.
         // Spin, wall-jump, hurt and special entries dispatch HudSelectionHandler_JumpEtc, not
@@ -361,14 +361,14 @@ public sealed class SamusProjectileSystem
         bool preservesTurnCharge = hudHandler == SamusHudHandler.Turning &&
             samus.PendingTransitionShot is null;
         // Posture-transition dispatch preserves the carried charge during morph art;
-        // ordinary crouch/stand transitions still run their native beam producer.
+        // ordinary crouch/stand transitions still run their beam producer.
         bool preservesPostureCharge = hudHandler == SamusHudHandler.Transition &&
             !SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose,
                 grappleActive: samus.Grapple.Phase != GrapplePhase.Inactive, PostureAdmission);
         if (projectileProducerEnabled && !preservesJumpHandlerCharge && !preservesTurnCharge && !preservesPostureCharge && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
             !SamusPoseMetadata.IsStableBallPose(samus.Pose))
         {
-            // $90:DDC8 calls the normal beam handler when selected X-ray's Run
+            // The X-ray HUD handler calls the normal beam handler when selected X-ray's Run
             // action is released. Holding Run owns this dispatch even if setup is
             // rejected; selection alone must not consume Shoot. Inputs are normalized
             // by the runtime, so the canonical Run bit also honors remapped bindings.
@@ -500,30 +500,30 @@ public sealed class SamusProjectileSystem
             else if (slot.FrameBehavior ==
                 SamusProjectileFrameBehavior.ChargedChainsawOverrun)
             {
-                // Charged combination thirteen does not point at ROM code. Its table
-                // overrun stores $0A0A, so native JSR enters the low-WRAM mirror and begins
+                // Charged combination thirteen does not point at game code. Its table
+                // overrun reads a word of Samus's state, so the game jumps there and begins
                 // decoding the cached previous-Super-Missile word as opcodes. This semantic
                 // port cannot execute arbitrary mutable data as 65C816 code; fail at the
                 // same callback-dispatch seam instead of silently substituting Wave motion.
                 throw new NotSupportedException(
-                    "Charged Chainsaw callback $90:0A0A enters mutable low WRAM at " +
-                    "$7E:0A0A; arbitrary data-as-65C816 execution is not translated.");
+                    "Charged Chainsaw callback enters Samus's mutable state " +
+                    "as code; executing arbitrary data is not translated.");
             }
             else if (slot.FrameBehavior ==
                 SamusProjectileFrameBehavior.MurderBeamMisalignedExecution)
             {
                 // Safe left-facing Murder Beam has instruction pointer zero and never
                 // enters HandleProjectile. Other directions retain an instruction list;
-                // the overread callback then jumps into unrelated bank-$90 code and the
-                // cartridge stops making forward progress. Keep that unsafe execution
+                // the overread callback then jumps into unrelated code and the
+                // game stops making forward progress. Keep that unsafe execution
                 // explicit instead of silently substituting ordinary beam motion.
                 throw new NotSupportedException(
-                    "Unsafe Murder Beam callback $90:A4AA enters unrelated bank-$90 " +
-                    "execution; only the cartridge-safe left-facing zero-list shot is translated.");
+                    "Unsafe Murder Beam callback enters unrelated game code; " +
+                    "only the safe left-facing zero-list shot is translated.");
             }
 
             // Kill_Projectile replaces rather than clears a live beam. Consequently the
-            // explosion's first bank-$93 record is selected in this same handler pass.
+            // explosion's first record is selected in this same handler pass.
             if (slot.Cursor is not null)
                 projectileDeleted |= Animation.RunProjectileInstructionHandler(slot);
         }
@@ -537,8 +537,8 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Advances <c>$90:BAFC</c>'s three charge-flare animation components as a simulation phase and reports which
-    /// components this frame shows, in native order. Nothing here depends on the display.
+    /// Advances the flare draw's three charge-flare animation components as a simulation phase and reports which
+    /// components this frame shows, in order. Nothing here depends on the display.
     /// </summary>
     public ChargeFlareComponents AdvanceChargeFlare(SamusState samus)
     {
@@ -549,9 +549,9 @@ public sealed class SamusProjectileSystem
 
         if (samus.HyperBeamEnabled)
         {
-            // Hyper Beam replaces the ordinary count-up flare with `$90:BAFC`'s descending
-            // three-component program. Native iteration is fast spark -> slow spark -> main
-            // flare (WRAM offsets four, two, zero), so preserve that reverse OAM order.
+            // Hyper Beam replaces the ordinary count-up flare with the flare's descending
+            // three-component program. The game iterates fast spark -> slow spark -> main
+            // flare (offsets four, two, zero), so preserve that reverse drawing order.
             for (int component = 2; component >= 0; component--)
             {
                 CountdownStep timer = Charge.DecrementFlareTimer(component);
@@ -561,7 +561,7 @@ public sealed class SamusProjectileSystem
                     Charge.SetFlareFrame(component, WrappingCounter.DecrementWord(Charge.FlareFrame(component)));
                     if (finalFrame)
                     {
-                        // The fast-spark component at native offset four owns the global
+                        // The fast-spark component at offset four owns the global
                         // completion signal. Other zero frames merely stop rearming.
                         if (component == 2)
                             Charge.FlareCounter = 0;
@@ -606,7 +606,7 @@ public sealed class SamusProjectileSystem
             Animation.DrawFlareComponent(sprites, samus, layer1, component, turningFloor, artwork);
     }
 
-    /// <summary>Draws `$93:8254`'s live ordinary-projectile subset after Samus.</summary>
+    /// <summary>Draws the live ordinary-projectile subset after Samus.</summary>
     public void DrawLiveProjectiles(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
@@ -636,8 +636,8 @@ public sealed class SamusProjectileSystem
                     continue;
             }
 
-            // Unlike the bomb/explosion pass, native live projectile drawing does not
-            // cull by world X. OAM retains the nine-bit X and lets the PPU clip it.
+            // Unlike the bomb/explosion pass, the game's live projectile drawing does not
+            // cull by world X. The sprite keeps the nine-bit X and the screen clips it.
             // This also preserves sprite ordering/capacity when a combo orbits offscreen.
             if (slot.Sprite is not null)
                 ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slot.SlotIndex),
@@ -646,11 +646,11 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Advances <c>$90:B6A9</c>'s eighteen projectile-trail slots as a simulation phase, after the ordinary
+    /// Advances the eighteen projectile-trail slots as a simulation phase, after the ordinary
     /// projectile pass. Each side owns its own timer, instruction pointer and position.
     /// </summary>
     /// <param name="timeIsFrozen">
-    /// WRAM <c>$0A78</c>. Frozen trails retain their current record and are still drawn;
+    /// Whether time is frozen. Frozen trails retain their current record and are still drawn;
     /// their timers and embedded position commands do not advance.
     /// </param>
     public void AdvanceTrails(bool timeIsFrozen)
@@ -682,7 +682,7 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Draws beam explosions in bank-$A0's earlier bomb/explosion phase.
+    /// Draws beam explosions in enemy collision's earlier bomb/explosion phase.
     /// </summary>
     public void DrawExplosions(
         SpriteFrameBuffer sprites,
@@ -722,7 +722,7 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Native ResetProjectileData ($90:AD22): clears projectile storage without the flare
+    /// ResetProjectileData: clears projectile storage without the flare
     /// counter, flare animation words or charge palette state, which <see cref="Reset"/> clears after it.
     /// </summary>
     private void ClearProjectileData(SamusState? samus)

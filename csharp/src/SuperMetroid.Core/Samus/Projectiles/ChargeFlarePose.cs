@@ -6,7 +6,7 @@ internal readonly record struct ChargeFlarePose
     /// <summary>
     /// Shot-direction table index, 0 through 15. The draw path already rejects larger values, and the flare
     /// placement table is indexed by it directly, so indices beyond the ten projectile directions select the
-    /// table's adjacent entries exactly as the cartridge does.
+    /// table's adjacent entries exactly as the game does.
     /// </summary>
     public required int Direction { get; init; }
 
@@ -15,7 +15,7 @@ internal readonly record struct ChargeFlarePose
 
     /// <summary>
     /// Pose graphics Y offset in pixels, 0 through 255: the pose's offset taken as an unsigned byte, so a negative
-    /// pose offset raises the flare by 256 minus its magnitude, as the cartridge's unsigned subtraction does.
+    /// pose offset raises the flare by 256 minus its magnitude, as the game's unsigned subtraction does.
     /// </summary>
     public required int PoseYOffset { get; init; }
 

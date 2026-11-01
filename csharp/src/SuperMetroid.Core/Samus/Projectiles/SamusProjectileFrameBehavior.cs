@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Semantic identities for the bank-$90 function pointers stored per slot.</summary>
+/// <summary>Semantic identities for the function pointers stored per slot.</summary>
 public enum SamusProjectileFrameBehavior
 {
     /// <summary>No pre-instruction is assigned.</summary>
@@ -39,6 +39,6 @@ public enum SamusProjectileFrameBehavior
     ChainsawPowerBomb,
     /// <summary>Represents the charged chainsaw combination's callback overrun past the callback table.</summary>
     ChargedChainsawOverrun,
-    /// <summary>Represents the Murder Beam's misaligned native execution path.</summary>
+    /// <summary>Represents the Murder Beam's misaligned execution path.</summary>
     MurderBeamMisalignedExecution,
 }

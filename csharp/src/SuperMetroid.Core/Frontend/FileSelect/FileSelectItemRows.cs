@@ -3,11 +3,11 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <summary>Orders file-select items into the main and data-management page rows and maps save slots to their items.</summary>
 internal static class FileSelectItemRows
 {
-    /// <summary>Main-page rows from top to bottom ($81:A312); the save slots lead, in slot order.</summary>
+    /// <summary>Main-page rows from top to bottom; the save slots lead, in slot order.</summary>
     private static readonly FileSelectItem[] MainRows =
         [FileSelectItem.SlotA, FileSelectItem.SlotB, FileSelectItem.SlotC, FileSelectItem.Copy, FileSelectItem.Clear, FileSelectItem.Exit];
 
-    /// <summary>Copy and clear page rows from top to bottom ($81:9772, $81:9C03).</summary>
+    /// <summary>Copy and clear page rows from top to bottom.</summary>
     private static readonly FileSelectItem[] DataRows =
         [FileSelectItem.SlotA, FileSelectItem.SlotB, FileSelectItem.SlotC, FileSelectItem.Exit];
 

@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 
 /// <summary>
-/// The compact-lettering labels in the menu atlas: the seven elevator area labels selected by $82:C4DB..C568, the ship
+/// The compact-lettering labels in the menu atlas: the seven elevator area labels, the ship
 /// label, EXIT (cells $5F/$B7) and SELECT/START (cells $A5..$AA). Norfair and Maridia skip the large-font stem cells
-/// $11 and $17, Tourian occupies $08, $09, $20, $32 left to right ($82:C51D), and EXIT spans $5F then $B7.
+/// $11 and $17, Tourian occupies $08, $09, $20, $32 left to right, and EXIT spans $5F then $B7.
 /// </summary>
 internal static class MenuCompactLetteringDefinitions
 {

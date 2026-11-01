@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusPoseDispatch
 {
     /// <summary>
-    /// The pose's facing, from the native PoseDefinitions facing byte. Poses whose byte names neither left nor right
+    /// The pose's facing, from the PoseDefinitions facing byte. Poses whose byte names neither left nor right
     /// (the front view, the unused glitch-ball records and two adjacent-code records) face neither way.
     /// </summary>
     internal static SamusFacingDirection ReadFacing(SamusPoseId pose) => pose switch
@@ -272,7 +272,7 @@ internal static class SamusPoseDispatch
     };
 
     /// <summary>
-    /// The pose's movement type, from the native PoseDefinitions movement byte, which selects the movement handler.
+    /// The pose's movement type, from the PoseDefinitions movement byte, which selects the movement handler.
     /// The adjacent-code records FD and FF read bytes beyond the retail dispatcher, which is corrupt metadata and fails
     /// here; FE reads a standing byte.
     /// </summary>
@@ -540,7 +540,7 @@ internal static class SamusPoseDispatch
         var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 
-    /// <summary>Native PoseDefinitions NoInputPose selection, $91:B62B record stride eight; FD..FF are bounded adjacent code observations.</summary>
+    /// <summary>PoseDefinitions NoInputPose selection, record stride eight; FD..FF are bounded adjacent code observations.</summary>
     internal static SamusPoseId ReadNoInputPose(SamusPoseId pose) => pose switch
     {
         SamusPoseId.StandingAimUpRightPose or

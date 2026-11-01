@@ -7,17 +7,17 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The eight cinematic sprite objects spawned by Mother Brain's fourth intro missile hit.
 /// </summary>
 /// <remarks>
-/// Definitions $CF15 and $CF1B: initializer tables place each object and delay its first frame, and each runs its own
+/// The large and small explosion definitions: initializer tables place each object and delay its first frame, and each runs its own
 /// typed program (#641). Every object keeps its own timer and program, which is what creates the staggered blast
 /// pattern.
 /// </remarks>
 internal sealed class IntroMotherBrainExplosionSystem
 {
-    /// <summary>Three small and five big actors retained in native spawn and OAM order.</summary>
+    /// <summary>Three small and five big actors retained in spawn and drawing order.</summary>
     internal readonly List<ExplosionActor> actors = [];
 
     /// <summary>
-    /// Replays the eight spawn calls at $8B:B7C6-$B80B in their original order.
+    /// Replays the eight spawn calls in their original order.
     /// </summary>
     public void SpawnFourthHitExplosions()
     {
@@ -33,14 +33,14 @@ internal sealed class IntroMotherBrainExplosionSystem
             actors.Add(ExplosionActor.CreateBig(parameter));
     }
 
-    /// <summary>Advances every allocated object through the exact bank-$8B list format.</summary>
+    /// <summary>Advances every allocated object through the exact cinematic animation format.</summary>
     public void Step(int introCrossfadeTimer)
     {
         foreach (ExplosionActor actor in actors)
             actor.Step(introCrossfadeTimer);
     }
 
-    /// <summary>Adds each visible spritemap in native actor order to cinematic OAM.</summary>
+    /// <summary>Adds each visible spritemap in actor order to the cinematic sprites.</summary>
     internal void Draw(ScreenSprites objects, CinematicSpriteSheet installedArt)
     {
         Ensure.NotNull(objects);
@@ -55,7 +55,7 @@ internal sealed class IntroMotherBrainExplosionSystem
         }
     }
 
-    /// <summary>One bank-$8B cinematic object's delayed program and visible frame.</summary>
+    /// <summary>One cinematic object's delayed program and visible frame.</summary>
     internal sealed class ExplosionActor
     {
         /// <summary>The cinematic sprite object running the explosion's program.</summary>
@@ -108,7 +108,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             if (!IsActive)
                 return;
 
-            // $8B:BA0F deletes these actors only when the later page-two crossfade timer
+            // The explosions delete these actors only when the later page-two crossfade timer
             // reaches zero. Starting the delete before the generic decrement makes deletion
             // occur in this same handler call.
             if (introCrossfadeTimer == 0)

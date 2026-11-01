@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Exclusive navigation phases; these names are not cartridge dispatcher addresses.</summary>
+/// <summary>Exclusive navigation phases; these names are not the game's dispatcher entries.</summary>
 public enum FileSelectMapNavigationPhase
 {
     /// <summary>Accepts area-map confirm or cancel edges.</summary>

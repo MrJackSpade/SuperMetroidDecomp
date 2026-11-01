@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The projectile-inheritance block, kept in the cartridge's byte layout (<c>$7E:0DA8-$7E:0DB9</c>):
+/// The projectile-inheritance block, kept in the game's byte layout:
 /// <c>CameraYSubSpeed</c>, then four signed 16.16 distance records, integer word then fraction word, for left
 /// (<c>ProjSpeed_DistanceSamusMovedLeft</c>), right, up and down. The records are deliberately not reconstructed from
 /// net frame displacement: each movement call overwrites one direction, and the launch-velocity load reads the word one
@@ -20,7 +20,7 @@ public sealed class ProjectileInheritanceRecords
     /// <summary>Each signed 16.16 direction record has a whole and fractional word.</summary>
     private const int RecordByteCount = 4;
 
-    /// <summary>The block's bytes in cartridge address order.</summary>
+    /// <summary>The block's bytes in their stored order.</summary>
     internal readonly byte[] Bytes = new byte[ByteCount];
 
     /// <summary>
@@ -41,10 +41,10 @@ public sealed class ProjectileInheritanceRecords
         WriteWord(offset + 2, WordWrap.Unsigned(signedDisplacement));
     }
 
-    /// <summary>The native alpha tail zeroes the four distance records, leaving the camera subspeed.</summary>
+    /// <summary>The alpha tail zeroes the four distance records, leaving the camera subspeed.</summary>
     internal void ClearMovement() => Array.Clear(Bytes, FirstRecordOffset, ByteCount - FirstRecordOffset);
 
-    /// <summary>Combines a shot's base speed with the direction-specific overlapping words using native signed arithmetic.</summary>
+    /// <summary>Combines a shot's base speed with the direction-specific overlapping words using signed sixteen-bit arithmetic.</summary>
     internal EightEightVector<RoomPixels> ReadVelocity(SamusProjectileDirection direction, int baseSpeed)
     {
         int upward = LaunchVelocityWord(SamusCollisionDirection.Up);
@@ -81,7 +81,7 @@ public sealed class ProjectileInheritanceRecords
     /// <summary>Writes <paramref name="value"/> little-endian at <paramref name="offset"/>.</summary>
     private void WriteWord(int offset, int value) => LittleEndianWord.Write(Bytes.AsSpan(offset), value);
 
-    /// <summary>Maps left, right, up, or down to its native 16.16 record offset.</summary>
+    /// <summary>Maps left, right, up, or down to its 16.16 record offset.</summary>
     private static int RecordOffset(SamusCollisionDirection direction) => direction switch
     {
         SamusCollisionDirection.Left => FirstRecordOffset,

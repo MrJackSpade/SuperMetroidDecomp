@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The library-one sound each beam combination fires with, uncharged and charged, and the missile sounds.
 /// </summary>
 /// <remarks>
-/// The cartridge indexes its uncharged and charged sound tables with the raw four-bit beam combination. Combinations
+/// The game indexes its uncharged and charged sound tables with the raw four-bit beam combination. Combinations
 /// twelve through fifteen therefore read past the twelve authored combinations: an uncharged shot plays the first
 /// charged beam family's sounds, and a charged shot plays the following non-beam row (no sound, missile, Super Missile,
 /// no sound). Those four overreads are gameplay-visible advanced-technique behaviour and are kept deliberately.

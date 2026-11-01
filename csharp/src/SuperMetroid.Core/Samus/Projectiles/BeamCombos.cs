@@ -36,7 +36,7 @@ internal sealed class BeamCombos
     public int ComboState { get; internal set; }
 
     /// <summary>
-    /// FireSBA ($90:CCC0): debit the selected beam cost before attempting its family.
+    /// FireSBA: debit the selected beam cost before attempting its family.
     /// This is the allocation boundary; the normal producer must call it only after
     /// charge/input eligibility, and particles require their own pre-instruction updates.
     /// </summary>
@@ -49,7 +49,7 @@ internal sealed class BeamCombos
         if (samus.SelectedHudItem != HudItem.PowerBomb) return false;
         SamusBeamCombination beam = SamusBeamCombinations.Of(samus.EquippedBeams);
         if (!beam.IsRetail)
-            throw new NotSupportedException("Out-of-table Spazer/Plasma combo dispatcher requires emulated ROM execution.");
+            throw new NotSupportedException("An out-of-table Spazer/Plasma combo runs whatever follows the combo dispatch table; that is not reproduced.");
         int remaining = samus.PowerBombs - SamusComboMechanics.GetPowerBombCost(beam);
         samus.PowerBombs = remaining < 0 ? 0 : remaining;
         SamusComboKind? combo = SamusComboMechanics.ComboKind(beam);
@@ -122,7 +122,7 @@ internal sealed class BeamCombos
         int index = echo ? EchoTableIndex(slot.Type) : slot.Type.BeamCombination.TableIndex;
         SamusProjectileHeader header = SamusProjectileSelection.Select(table, index);
         slot.Damage = SamusProjectileDamage.Read(header);
-        if (WordWrap.Signed(slot.Damage) < 0) throw new InvalidDataException("Negative native combo projectile damage.");
+        if (WordWrap.Signed(slot.Damage) < 0) throw new InvalidDataException("Negative combo projectile damage.");
         SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, comboData != BeamComboData.Combo ? slot.Direction.ToAimIndex() : 0);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -133,7 +133,7 @@ internal sealed class BeamCombos
     private static int EchoTableIndex(SamusProjectileType echo) =>
         echo.BeamTableRow - SamusFiringTableDefinitions.EchoRowOffset - BeamComboDefinitions.EchoTableLeadingRows;
 
-    /// <summary>Runs $90:CF09/$CF7A for one Ice combo slot and returns its optional library-one sound request.</summary>
+    /// <summary>Runs one Ice combo slot and returns its optional library-one sound request.</summary>
     internal SoundEffectId? StepIceCombo(SamusState samus,
         SamusProjectileSlot slot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
     {
@@ -187,7 +187,7 @@ internal sealed class BeamCombos
         _charge.FlareCounter = 0;
         return sound;
     }
-    /// <summary>Original $90:D793 Plasma ring update; phase is stored in the slot's native Y-speed word.</summary>
+    /// <summary>The Plasma ring update; phase is stored in the slot's Y-speed word.</summary>
     internal void StepPlasmaCombo(SamusState samus,
         SamusProjectileSlot slot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
     {
@@ -224,7 +224,7 @@ internal sealed class BeamCombos
                     _animation.ClearProjectile(slot);
                 else slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.LowByte(slot.Velocity.X.SignedRawValue + BeamComboDefinitions.PlasmaRadiusStep)));
                 break;
-            default: throw new InvalidDataException("Plasma ring reached an invalid native phase.");
+            default: throw new InvalidDataException("Plasma ring reached an invalid phase.");
         }
     }
     /// <summary>
@@ -244,7 +244,7 @@ internal sealed class BeamCombos
             (progression ?? throw new InvalidOperationException(
                 "SpaceTime's palette-copy overwrite writes progression; the frame must pass it.")).Overwrite(overwrite);
     }
-    /// <summary>Runs $90:DB06/$DC9C, including paired-hit cleanup and retagging the primary particles as falling trails.</summary>
+    /// <summary>Runs the Spazer combo, including paired-hit cleanup and retagging the primary particles as falling trails.</summary>
     internal SoundEffectId? StepSpazerCombo(SamusState samus,
         SamusProjectileSlot slot, SamusBombProjectileSystem shared, int cameraY)
     {
@@ -328,7 +328,7 @@ internal sealed class BeamCombos
         return null;
     }
 
-    /// <summary>Advances the Spazer particle's byte-sized angular phase by its signed native step.</summary>
+    /// <summary>Advances the Spazer particle's byte-sized angular phase by its signed step.</summary>
     private static void AdvanceSpazerAngle(SamusProjectileSlot slot) =>
         slot.ComboAngle = slot.ComboAngle.AddTableUnits(slot.Velocity.Y.SignedRawValue);
 
@@ -346,7 +346,7 @@ internal sealed class BeamCombos
             InitializeComboData(slot, BeamComboData.Echo);
         }
     }
-    /// <summary>Runs $90:DA08's Wave combo homing oscillator, preserving 8.8 acceleration and 16.16 position carry.</summary>
+    /// <summary>Runs the Wave combo's homing oscillator, preserving 8.8 acceleration and 16.16 position carry.</summary>
     internal SoundEffectId? StepWaveCombo(SamusState samus,
         SamusProjectileSlot slot, SamusBombProjectileSystem shared)
     {
@@ -385,7 +385,7 @@ internal sealed class BeamCombos
         return slot.SlotIndex == 3 && (oldXSpeed < 0) != (slot.Velocity.X.SignedRawValue < 0) ? BeamComboDefinitions.WavePulseSound : null;
     }
 
-    /// <summary>Moves one Wave velocity component toward Samus, respecting the native acceleration and signed speed bound.</summary>
+    /// <summary>Moves one Wave velocity component toward Samus, respecting the acceleration and signed speed bound.</summary>
     private static int AccelerateWaveAxis(int speed, int targetDelta)
     {
         if (targetDelta < 0)

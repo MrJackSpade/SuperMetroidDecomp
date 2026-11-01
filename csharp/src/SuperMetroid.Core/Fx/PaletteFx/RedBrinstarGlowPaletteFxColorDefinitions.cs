@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>Immutable control words for Red Brinstar's background-glow palette loop.</summary>
 /// <remarks>
-/// Palette-FX definition <c>$F77D</c> owns fourteen timed records at $8D:EED7-$EFF6.
+/// The palette-FX definition owns fourteen timed records.
 /// Its 112 BGR555 colors remain live presentation data; this catalog owns only color-index
 /// setup, durations, waits, and loop control.
 /// </remarks>

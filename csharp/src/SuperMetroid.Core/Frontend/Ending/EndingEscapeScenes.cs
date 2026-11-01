@@ -17,7 +17,7 @@ internal sealed class EndingEscapeScenes
     private readonly int gameTimeMinutes;
     /// <summary>The ending's screen: its palette and the graphics transfers its scenes have made (#1358).</summary>
     private readonly EndingScreen screen ;
-    /// <summary>Dynamic cinematic actors in native slot traversal order.</summary>
+    /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
     /// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
@@ -94,7 +94,7 @@ internal sealed class EndingEscapeScenes
     /// <summary>Visits live cinematic slots from high to low, allowing callback replacements in lower slots to run this frame.</summary>
     internal void StepSprites()
     {
-        // Native traversal re-reads each slot. A callback can replace a lower slot,
+        // Traversal re-reads each slot. A callback can replace a lower slot,
         // which then runs later in this same frame; higher slots wait until next frame.
         for (int slot = EndingSpriteSlots.Count - 1; slot >= 0; slot--)
         {

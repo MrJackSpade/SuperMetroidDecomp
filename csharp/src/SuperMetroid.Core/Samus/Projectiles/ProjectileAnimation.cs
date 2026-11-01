@@ -8,7 +8,7 @@ using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The bank-$93 projectile instruction interpreter and drawing: slot clearing, live projectile and charge-flare OAM, flare animation state and the suit palette the flare restores.</summary>
+/// <summary>The projectile animation interpreter and drawing: slot clearing, live projectile and charge-flare sprites, flare animation state and the suit palette the flare restores.</summary>
 internal sealed class ProjectileAnimation
 {
     /// <summary>Owns charge-flare frame and countdown arrays advanced by the interpreter.</summary>
@@ -25,7 +25,7 @@ internal sealed class ProjectileAnimation
         _slotTable = slotTable;
         _flareDelaysBelow = Ensure.NotNull(flareDelaysBelow);
     }
-    /// <summary>Decodes timed bank-$93 frames, goto, and delete; publishes frame radius and animation metadata when the countdown expires.</summary>
+    /// <summary>Decodes timed frames, goto, and delete; publishes frame radius and animation metadata when the countdown expires.</summary>
     internal bool RunProjectileInstructionHandler(
         SamusProjectileSlot slot)
     {
@@ -58,7 +58,7 @@ internal sealed class ProjectileAnimation
             : _slotTable.ProjectileCounter - 1;
     }
 
-    /// <summary>Publishes an installed projectile composition when its screen origin passes native horizontal and Y-byte clipping.</summary>
+    /// <summary>Publishes an installed projectile composition when its screen origin passes horizontal and Y-byte clipping.</summary>
     internal static void DrawSlot(
         SpriteFrameBuffer sprites,
         SpriteSource source,
@@ -84,9 +84,9 @@ internal sealed class ProjectileAnimation
     /// <summary>Advances a flare component only after its countdown underflows, honoring restart and rewind delay commands.</summary>
     internal void AdvanceFlareComponent(int component)
     {
-        // The assembly advances only when 16-bit DEC crosses zero into `$FFFF`. A timer
+        // The game advances only when the 16-bit decrement crosses zero into 65535. A timer
         // value of zero therefore survives one visible call; testing equality here would
-        // make every ROM-authored delay one frame too short.
+        // make every authored delay one frame too short.
         CountdownStep timer = _charge.DecrementFlareTimer(component);
         if (timer.IsNonNegative)
             return;
@@ -130,13 +130,13 @@ internal sealed class ProjectileAnimation
     {
         var visualOffset = (artwork.Placement ?? throw new InvalidOperationException(
             "Charge flare requires installed placement definitions."))
-            .Resolve(pose.Running, pose.Direction & 0x0f); // magic-number-audit: allow(PoseOrMovement) - low nibble of the native shot-direction byte
+            .Resolve(pose.Running, pose.Direction & 0x0f); // magic-number-audit: allow(PoseOrMovement) - low nibble of the pose shot-direction byte
         int xOffset = visualOffset.X;
         int yOffset = visualOffset.Y;
 
-        // `$90:BBE1` calls `$8B:8A52` under the same Ceres-status high bit used by the
+        // The flare draw applies Ceres's rotation under the same Ceres-status high bit used by the
         // body renderer. Only Samus's center is transformed; the pose-selected muzzle
-        // offsets are added afterward. Retail then restores `$0AF6/$0AFA`, so this path
+        // offsets are added afterward. Retail then restores Samus's world point, so this path
         // must never write the public physics coordinates merely to reuse the arithmetic.
         var samusPosition = samus.Position.Whole;
         Position16<RoomPixels> renderPoint = turningFloor is { } transform
@@ -145,7 +145,7 @@ internal sealed class ProjectileAnimation
         int screenX = CoordinateAxis.Wrap(renderPoint.X + xOffset - layer1.X);
         int screenY = CoordinateAxis.Wrap(renderPoint.Y + yOffset - pose.PoseYOffset - layer1.Y);
 
-        // `$90:BC98` clips only by the origin's Y high byte. The shared bank-$81 loader
+        // The flare draw clips only by the origin's Y high byte. The shared loader
         // deliberately allows individual entries to wrap, matching charge sparks near an
         // edge instead of applying the generic on-screen-origin parking rule.
         if (ScreenConversions.IsOutsideSpriteRange(screenY))
@@ -154,10 +154,10 @@ internal sealed class ProjectileAnimation
         int indexOffset = CoordinateAxis.Wrap(pose.FacingLeft
             ? component switch { 0 => 0, 1 => 42, _ => 48 }
             : component switch { 0 => 0, 1 => 30, _ => 36 });
-        // `$90:BBEA` keeps only the low byte of the frame word before adding the offset.
+        // The flare draw keeps only the low byte of the frame word before adding the offset.
         int tableIndex = CoordinateAxis.Wrap(indexOffset + WordWrap.LowByte(_charge.FlareFrame(component)));
-        // A frame that wrapped to $FF selects a pointer past the end of $93:A1A1. Native then
-        // draws a "spritemap" out of WRAM, I/O registers and open bus (into OAM only; the
+        // A frame that wrapped to 255 selects a pointer past the end of the flare table. The game then
+        // draws a "spritemap" out of unrelated memory (into the sprite list only; the
         // index is masked to $1FF). That garbage needs full memory emulation and has no
         // gameplay effect, so the port draws nothing for it (#1275, Mother Brain glitch movie).
         if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteSelection.Contains(tableIndex))
@@ -180,7 +180,7 @@ internal sealed class ProjectileAnimation
         SamusState samus) =>
         SamusNormalSuitPalette.Load(colours.Suit, samus.EquippedItems, samus.Presentation.SuitColors);
 
-    /// <summary>Installed timed-frame sprite choices; null retains the cartridge diagnostic path.</summary>
+    /// <summary>Installed timed-frame sprite choices; null retains the game diagnostic path.</summary>
     [field: NonSerialized]
     public SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings? FrameBindings { get; set; }
 }

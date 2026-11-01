@@ -62,7 +62,7 @@ public sealed class SamusProjectileSlot
     /// <summary>
     /// The slot an ignited Super Missile moves as its invisible collision link, or null when it names none. An unlinked
     /// Super Missile names slot zero: a missile that ignites with no free slot, or is reflected before igniting, treats
-    /// slot zero as its link, as the cartridge does. A reflection leaves it naming none until it re-ignites.
+    /// slot zero as its link, as the game does. A reflection leaves it naming none until it re-ignites.
     /// </summary>
     public int? SuperMissileLinkSlot { get; internal set; }
 

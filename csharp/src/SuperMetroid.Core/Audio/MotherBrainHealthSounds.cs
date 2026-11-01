@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Audio;
 
-/// <summary>Cartridge definitions for Mother Brain encounter incremental energy audio.</summary>
+/// <summary>Definitions for the Mother Brain encounter's incremental energy sounds.</summary>
 internal static class MotherBrainHealthSounds
 {
-    /// <summary>$A9:C54A, HandlePlayingGainingLosingIncrementalEnergySFX: first audible energy value.</summary>
+    /// <summary>The first energy value at which gaining or losing energy is audible.</summary>
     public const int MinimumEnergy = 81;
-    /// <summary>$A9:C552: mask of the enemy-main execution counter; zero selects every eighth call.</summary>
+    /// <summary>Mask of the enemy-update counter; zero selects every eighth call.</summary>
     public const int EnemyClockMask = 7;
 }

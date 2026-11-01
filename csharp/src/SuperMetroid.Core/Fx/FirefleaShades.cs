@@ -17,7 +17,7 @@ internal static class FirefleaShades
         if (index is < 0 or >= FlashCount)
         {
             throw new InvalidDataException(
-                $"Fireflea flashing index {index} is outside the {FlashCount}-entry native cycle.");
+                $"Fireflea flashing index {index} is outside the {FlashCount}-entry flash cycle.");
         }
 
         return WordWrap.LowByte(6 - Math.Abs(index - 6));

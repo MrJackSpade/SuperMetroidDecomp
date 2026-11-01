@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
 /// The ending's floor zoom and angle thresholds, the gunship's motion and the credits' scroll (#1416). Zooms are 8.8
-/// scales, where $0100 is unity.
+/// scales, where 256 is unity.
 /// </summary>
 public static class EndingMotionDefinitions
 {

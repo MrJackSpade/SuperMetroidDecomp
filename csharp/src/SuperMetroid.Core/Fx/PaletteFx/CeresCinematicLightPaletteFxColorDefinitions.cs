@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// palette programs.
 /// </summary>
 /// <remarks>
-/// The two navigation-light definitions retain their distinct native entry points but
-/// converge on the cartridge's single shared fourteen-record loop at <c>$8D:C892</c>.
+/// The two navigation-light definitions retain their distinct entry points but
+/// converge on a single shared fourteen-record loop.
 /// Their BGR555 colors remain live presentation data; this catalog owns palette placement,
 /// timing, waits, and loop control.
 /// </remarks>

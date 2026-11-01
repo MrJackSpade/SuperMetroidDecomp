@@ -2,14 +2,14 @@ using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>A room FX header: the records LoadFXHeader walks for the entry door, in native order.</summary>
+/// <summary>A room FX header: the records LoadFXHeader walks for the entry door, in the game's order.</summary>
 /// <remarks>Door-specific records come first and the list ends at its default record or terminator. Mother Brain's
 /// header keeps, after its default, the records her FX entries select by index.</remarks>
 public sealed class RoomFxHeader
 {
-    /// <summary>Holds a header's records in native order.</summary>
+    /// <summary>Holds a header's records in the game's order.</summary>
     /// <param name="name">The header's name, the disassembly's label for it without its prefix, or a fixture's description.</param>
-    /// <param name="records">The header's records in native order.</param>
+    /// <param name="records">The header's records in the game's order.</param>
     public RoomFxHeader(string name, RoomFxRecordDefinition[] records)
     {
         Name = Ensure.NotNull(name);
@@ -19,11 +19,11 @@ public sealed class RoomFxHeader
     /// <summary>The header's name.</summary>
     public string Name { get; }
 
-    /// <summary>The header's records in native order.</summary>
+    /// <summary>The header's records in the game's order.</summary>
     public IReadOnlyList<RoomFxRecordDefinition> Records { get; }
 
     /// <summary>Selects the first default or matching-door record, or none at the terminator.</summary>
-    /// <remarks>Native $89:AB99..ABB7 treats the terminator record as unconditional, before comparing the
+    /// <remarks>The game treats the terminator record as unconditional, before comparing the
     /// requested door. A record without a door is the default.</remarks>
     public RoomFxRecordDefinition? Select(DoorDefinition? door)
     {

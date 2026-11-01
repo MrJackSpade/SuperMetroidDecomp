@@ -5,8 +5,8 @@ internal static class PaletteFxSlotInspectionDefinitions
 {
     /// <summary>
     /// How many slots below its own the pre-instruction looks: it deletes its object when that slot holds one. The
-    /// cartridge reads the slot's own offset from the handler's enable word, which lands this many slots down the
-    /// object list (<c>$8D:F621</c>).
+    /// game reads the slot's own offset from the handler's enable word, which lands this many slots down the
+    /// object list.
     /// </summary>
     internal const int InspectedSlotDistance = 2;
 }

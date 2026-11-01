@@ -8,7 +8,7 @@ public sealed class CrateriaLightningPaletteFxColorDefinition
     {
     }
 
-    /// <summary>Program identity selecting either the live $F765 surface lightning or retained unused $F769 dark-lightning mechanics and color resource.</summary>
+    /// <summary>Program identity selecting either the live surface lightning or the retained unused dark-lightning mechanics and color resource.</summary>
     public required CrateriaLightningPaletteOwner Owner { get; init; }
 
     /// <summary>Live BGR555 words per timed record: eight for surface lightning, or seven for dark lightning.</summary>

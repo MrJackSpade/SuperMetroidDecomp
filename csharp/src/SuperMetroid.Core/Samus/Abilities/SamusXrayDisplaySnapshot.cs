@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>
 /// Value-only X-ray display input sampled after the update: the cone effect's setup and beam
 /// phases, and the cone geometry its window table is built from. Facing and crouch are resolved
-/// from pose metadata here, so rendering needs no cartridge definition access.
+/// from pose metadata here, so rendering needs no pose definition access.
 /// </summary>
 /// <param name="FinishedThisFrame">Whether this logic frame's beam step completed phase five, which still owns this displayed frame.</param>
 /// <param name="SetupStage">The next X-ray setup call; <see cref="XraySetupStage.Complete"/> once setup has finished.</param>

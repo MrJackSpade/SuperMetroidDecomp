@@ -4,19 +4,18 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// Immutable mechanics for the shared wide-background and space-whiteout palette ramp.
 /// </summary>
 /// <remarks>
-/// Issue #848 / #625: pinned NTSC J/U v1.0 ROM definition <c>$8D:E1E8</c>
-/// enters at <c>$8D:D362</c>, sets color index <c>$0022</c>, and branches
-/// to <c>$D36E</c>. Definition <c>$8D:E1D0</c> enters at <c>$8D:D36A</c>,
-/// sets index <c>$0000</c>, and falls through to that same ramp. It has
+/// Issue #848 / #625: the wide-background definition
+/// sets color index 34 and branches
+/// to the shared ramp. The space-whiteout definition
+/// sets index 0 and falls through to that same ramp. It has
 /// fifteen six-byte records of <c>14, color, Wait</c>, then <c>Delete</c>
-/// at <c>$D3C8</c> after 210 frames; all 37 control words match. For frame
+/// after 210 frames; all 37 control words match. For frame
 /// <c>f</c> (0..14), grayscale channel <c>g</c> is
 /// <c>floor((31*f + 6)/14)</c>, except frame 12 uses <c>g = 26</c> rather
-/// than 27. The BGR555 color is <c>g * $0421</c>. This rule matches all
-/// fifteen ROM colors exactly, including the authored one-unit step. The
+/// than 27. The BGR555 color is <c>g</c> in each of red, green and blue. This rule matches all
+/// fifteen original colors exactly, including the authored one-unit step. The
 /// presentation compiler still supplies those live colors while this catalog
-/// supplies only controls to the palette-FX runtime. ROM SHA-256:
-/// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.
+/// supplies only controls to the palette-FX runtime.
 /// </remarks>
 public static class ZebesExplosionWhiteoutPaletteFxColorDefinitions
 {

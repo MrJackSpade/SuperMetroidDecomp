@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Frontend.GameOver;
 /// eight steps of that wave; its duration is 2 + abs(4 - cryStep), with cryStep 0..7, and its palette follows
 /// the frame. The first cry step of each group queues that group's cry when its countdown expires. The final
 /// step restarts the program at step zero. Steps are calculated on demand; there is no stored instruction
-/// array. The extraction pipeline and the ROM-oracle verification check every step against the cartridge's
-/// own record stream.
+/// array. The extraction pipeline and verification check every step against the original
+/// animation script.
 /// </remarks>
 public static class GameOverBabyAnimation
 {

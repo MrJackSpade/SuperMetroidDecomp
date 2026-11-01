@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Cartridge identities and tables owned by the Morph-Ball bomb producer in bank $90.
+/// Identities and tables owned by the Morph-Ball bomb producer.
 /// </summary>
 public static class MorphBallBombDefinitions
 {
@@ -17,12 +17,12 @@ public static class MorphBallBombDefinitions
     /// <summary>Initial normal- and power-bomb fuse written by their firing routines.</summary>
     public const int InitialBombTimer = 60;
 
-    /// <summary>Minimum flare counter accepted by <c>FireBombOrBombSpread</c> at $90:C0AB.</summary>
+    /// <summary>Minimum flare counter accepted by <c>FireBombOrBombSpread</c>.</summary>
     public const int RequiredChargeFrames = 60;
 
     /// <summary>
     /// The updates of held Down a bomb spread charges for within each <see cref="DownChargeTimeoutCycle"/> of the
-    /// timeout counter; reaching it forces release while Down remains held (the cartridge tests bits six and seven).
+    /// timeout counter; reaching it forces release while Down remains held (the game tests bits six and seven).
     /// </summary>
     public const int DownChargeTimeoutUpdates = 192;
 

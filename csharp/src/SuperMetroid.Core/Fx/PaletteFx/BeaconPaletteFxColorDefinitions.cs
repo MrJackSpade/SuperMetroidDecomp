@@ -2,18 +2,17 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>Immutable mechanics for the shared Crateria/Brinstar beacon-flashing loop.</summary>
 /// <remarks>
-/// Definition <c>$F781</c> is used by pre-Tourian hall, Red Brinstar mainstreet, the
+/// The beacon definition is used by pre-Tourian hall, Red Brinstar mainstreet, the
 /// Red Brinstar elevator, and early Kraid rooms. Its sound-ID byte is a fixed
-/// library-two selection; setup, timing, CGRAM skips, audio command, and loop
+/// library-two selection; setup, timing, colour skips, audio command, and loop
 /// flow compile. The forty BGR555 colors remain presentation data.
-/// $8D:EFF7 selects CGRAM byte $00E2. Ten records last ten frames each:
-/// frames i=0..5 begin at $EFFB + 14*i; frames i=6..9 begin at
-/// $F052 + 14*(i-6), after the $C673 library-two sound opcode at $F04F
-/// consumes the compiled one-byte ID $18 at $F051. Each record writes three
-/// colors, runs $C5BD to skip nine CGRAM colors, writes one more color,
-/// then waits at $C595. The $C61E goto at $F08A returns to $EFFB;
+/// Ten records last ten frames each; after the sixth record
+/// the program queues the beacon sound.
+/// Each record writes three
+/// colors, skips nine colors, writes one more color,
+/// then waits. A final goto returns to the first record;
 /// frame ten reaches that control after a 100-frame cycle. All 35
-/// mechanics words match the pinned NTSC J/U v1.0 ROM.
+/// mechanics words match the original program.
 /// </remarks>
 public static class BeaconPaletteFxColorDefinitions
 {

@@ -8,7 +8,7 @@ public sealed class TitleScreenAmbientPaletteFxColorDefinition
     {
     }
 
-    /// <summary>Semantic title-palette owner selecting native definition $8D:E1A0 (tube) or $8D:E1A4 (displays); not a runtime palette-object slot index.</summary>
+    /// <summary>Semantic title-palette owner selecting the tube or the displays definition; not a runtime palette-object slot index.</summary>
     public required TitleScreenAmbientPaletteFxProgramOwner Owner { get; init; }
     /// <summary>The colours the program animates.</summary>
     public required PaletteFxColours Colours { get; init; }

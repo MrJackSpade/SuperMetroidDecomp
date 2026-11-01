@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
-/// <summary>Editable JSON schema for selected-save marker drawing anchors; native station identities, load destinations, and initial scrolling remain application-owned.</summary>
+/// <summary>Editable JSON schema for selected-save marker drawing anchors; station identities, load destinations, and initial scrolling remain application-owned.</summary>
 public sealed record MapSaveMarkerDocument
 {
     /// <summary>Schema revision, which loading requires to equal <see cref="MapSaveMarkerFormat.Version"/>.</summary>

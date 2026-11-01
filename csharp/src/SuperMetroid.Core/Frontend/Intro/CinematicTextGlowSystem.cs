@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Ports $8B:97F7/$9828/$9849: eight independently aging glowing rectangles of narration text.</summary>
+/// <summary>Eight independently aging glowing rectangles of narration text.</summary>
 internal sealed class CinematicTextGlowSystem
 {
-    /// <summary>Eight native glow records age independently and are allocated from the highest free slot.</summary>
+    /// <summary>Eight glow records age independently and are allocated from the highest free slot.</summary>
     private readonly GlowSlot[] slots = new GlowSlot[CinematicTextGlowDefinitions.SlotCount];
 
     /// <summary>Starts a glow over the text rectangle at <paramref name="cell"/>; an occupied eight-slot pool silently drops the request.</summary>
@@ -44,7 +44,7 @@ internal sealed class CinematicTextGlowSystem
     /// <summary>One independently timed text rectangle in the cinematic glow pool.</summary>
     private struct GlowSlot
     {
-        /// <summary>Whether this native slot currently participates in text glow updates.</summary>
+        /// <summary>Whether this slot currently participates in text glow updates.</summary>
         public bool Active;
         /// <summary>Upper-left text cell of the glow rectangle.</summary>
         public Position16<TilemapCells> Cell;

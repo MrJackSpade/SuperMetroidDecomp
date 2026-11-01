@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
 /// The installed presentation content that gameplay reads: area maps, HUD and escape artwork, boss palettes, room-FX
-/// tiles and Samus palette inputs, plus the installed VRAM assets they upload. The frontend's complete presentation
+/// tiles and Samus palette inputs, plus the installed artwork they show. The frontend's complete presentation
 /// catalog supplies it.
 /// </summary>
 public interface IGameplayPresentationContent : IAreaMapSource, IInstalledArtworkContent
@@ -43,7 +43,7 @@ public interface IGameplayPresentationContent : IAreaMapSource, IInstalledArtwor
     /// <summary>The Speed Booster delays the getaway's wing frames leave behind for the unauthored cadence.</summary>
     CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; }
 
-    /// <summary>Room and cinematic palette-animation colors; instruction timing, CGRAM destinations, and side effects remain compiled.</summary>
+    /// <summary>Room and cinematic palette-animation colors; step timing, colour destinations, and side effects remain compiled.</summary>
     RoomPaletteFxPresentation RoomPaletteFx { get; }
 
     /// <summary>Selected room-FX palette-blend presentation, separate from layer-3 tilemap geometry and animated character bytes.</summary>
@@ -58,7 +58,7 @@ public interface IGameplayPresentationContent : IAreaMapSource, IInstalledArtwor
     /// <summary>Samus hurt-flash and cinematic-restoration color artwork.</summary>
     InstalledSamusHurtColors SamusHurtColors { get; }
 
-    /// <summary>Crystal Flash body and bubble colors; native timing, frame selection, and completion remain engine-owned.</summary>
+    /// <summary>Crystal Flash body and bubble colors; timing, frame selection, and completion remain engine-owned.</summary>
     InstalledCrystalFlashColors CrystalFlashColors { get; }
 
     /// <summary>Visor colors shared by X-ray and room palette cycling, separate from complete suit palettes.</summary>

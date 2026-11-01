@@ -30,7 +30,7 @@ internal static class SamusProjectileDamage
     };
 
     /// <summary>
-    /// $93:8431..8640 ProjectileDataTable_Uncharged_* / Charged_*: the charge state and beams of a beam header. The charged
+    /// ProjectileDataTable_Uncharged_* / Charged_*: the charge state and beams of a beam header. The charged
     /// half swaps Wave/Plasma and Plasma-Wave/Plasma-Ice order.
     /// </summary>
     internal static SamusBeamIdentity BeamIdentity(SamusProjectileHeader header) => new(
@@ -42,7 +42,7 @@ internal static class SamusProjectileDamage
     private static SamusBeamCombination Beam(SamusProjectileHeader header) =>
         Beams.TryGetValue(header, out SamusBeamCombination value) ? value : throw new ArgumentOutOfRangeException(nameof(header), header, "Undefined projectile header.");
 
-    /// <summary>Maps a beam header to its native base damage and triples charged shots.</summary>
+    /// <summary>Maps a beam header to its base damage and triples charged shots.</summary>
     private static int BeamDamage(SamusBeamIdentity identity)
     {
         var (charged, beam) = identity;

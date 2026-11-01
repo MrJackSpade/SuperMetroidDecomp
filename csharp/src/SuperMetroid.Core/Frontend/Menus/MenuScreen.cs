@@ -7,9 +7,9 @@ using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>
-/// The shared menu screen <c>LoadInitialMenuTiles</c> ($81:8DDB) sets up for file select, options, game over and the
+/// The shared menu screen <c>LoadInitialMenuTiles</c> sets up for file select, options, game over and the
 /// file-select maps (#1358): the installed artwork it draws, its palette and its sprite entries; its pages are installed
-/// pictures it places (#1467). It publishes these; the capture composes them, so no menu owns PPU memory.
+/// pictures it places (#1467). It publishes these; the capture composes them, so no menu owns display memory.
 /// </summary>
 internal sealed class MenuScreen
 {
@@ -37,7 +37,7 @@ internal sealed class MenuScreen
 
     /// <summary>
     /// A page showing the menus' pictures named <paramref name="frames"/>, each placed at the page's corner in drawing order,
-    /// a later one over an earlier one (#1467): each lands where the cartridge's page shows it.
+    /// a later one over an earlier one (#1467): each lands where the game's page shows it.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed menu pictures hold no such frame.</exception>
     internal PicturedPlane PagePictures(params ReadOnlySpan<string> frames)
@@ -51,7 +51,7 @@ internal sealed class MenuScreen
 
     /// <summary>
     /// A page showing the menus' pictures named in <paramref name="pictures"/>, each placed at its page cell in drawing order
-    /// (#1467): a field's picture lands where the cartridge writes that field.
+    /// (#1467): a field's picture lands where the game writes that field.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed menu pictures hold no such frame.</exception>
     internal PicturedPlane CellPictures(IEnumerable<PlacedFrame> pictures)

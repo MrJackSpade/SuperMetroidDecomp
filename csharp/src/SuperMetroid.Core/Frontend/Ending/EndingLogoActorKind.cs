@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Four mutually exclusive native logo roles, in E554..E569 allocation order.</summary>
+/// <summary>Four mutually exclusive logo roles, in allocation order.</summary>
 internal enum EndingLogoActorKind
 {
     /// <summary>Upper S half approaches the final logo from its initial off-center position.</summary>

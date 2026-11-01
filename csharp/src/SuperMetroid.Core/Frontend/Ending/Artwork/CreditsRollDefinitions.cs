@@ -9,7 +9,7 @@ public static class CreditsRollDefinitions
     public const int SectionBlankRows = 16;
     /// <summary>One blank tile row before each non-heading line, separating large names within a section.</summary>
     public const int InterLineBlankRows = 1;
-    /// <summary>Thirty-five blank tile rows following the final general-manager name, retaining the native scrolling tail.</summary>
+    /// <summary>Thirty-five blank tile rows following the final general-manager name, retaining the roll's scrolling tail.</summary>
     public const int TrailingBlankRows = 35;
     /// <summary>Total expanded scrolling stream length, 520 tile rows including headings, two-row names, and blank spacing; not the 128-row source tilemap size.</summary>
     public const int ExpectedCompiledRows = 520;

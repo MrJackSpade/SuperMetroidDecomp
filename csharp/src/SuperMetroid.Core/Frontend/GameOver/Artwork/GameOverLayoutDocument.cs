@@ -13,7 +13,7 @@ public record GameOverLayoutDocument
     /// <summary>Schema version that must equal <see cref="GameOverPresentationDefinitions.Version"/>.</summary>
     [JsonPropertyOrder(1)]
     public required int Version { get; init; }
-    /// <summary>Four named palette phases, each holding sixteen packed SNES BGR555 words in the range $0000-$7FFF.</summary>
+    /// <summary>Four named palette phases, each holding sixteen packed BGR555 words from 0 to 32767.</summary>
     [JsonPropertyOrder(4)]
     public required Dictionary<string, ushort[]> BabyPalettes { get; init; }
     /// <summary>Shared Baby and egg drawing origin in screen pixels, X=0-255 and Y=0-255.</summary>

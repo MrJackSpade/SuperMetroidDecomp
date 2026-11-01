@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Native cinematic actor slots and their instruction-list behavior.</summary>
+/// <summary>Cinematic actor slots and their animation behavior.</summary>
 internal enum EndingSpriteRole
 {
     /// <summary>First right-moving cloud in escape scene A.</summary>
@@ -29,11 +29,11 @@ internal enum EndingSpriteRole
     ExplosionStars,
     /// <summary>Silhouette spawned by the explosion instruction stream.</summary>
     ExplosionSilhouette,
-    /// <summary>Right starfield in its fixed native slot during flyaway.</summary>
+    /// <summary>Right starfield in its fixed slot during flyaway.</summary>
     ExplosionStarsRight,
-    /// <summary>Left starfield in its fixed native slot during flyaway.</summary>
+    /// <summary>Left starfield in its fixed slot during flyaway.</summary>
     ExplosionStarsLeft,
-    /// <summary>Final afterglow in its fixed native slot.</summary>
+    /// <summary>Final afterglow in its fixed slot.</summary>
     ExplosionAfterglow,
     /// <summary>First gunship completion-text actor.</summary>
     OperationWasText,

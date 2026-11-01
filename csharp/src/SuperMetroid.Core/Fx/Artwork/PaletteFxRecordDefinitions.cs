@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
 /// The presentation boundary of the palette-FX programs (#1298): each <see cref="PaletteFxFrame"/> record's layout of
-/// written colours and skipped CGRAM entries. Its colours are installed artwork keyed by <see cref="PaletteFxColorKey"/>.
-/// Generated from the verified native lists.
+/// written colours and skipped colour entries. Its colours are installed artwork keyed by <see cref="PaletteFxColorKey"/>.
+/// Generated from the verified animation scripts.
 /// </summary>
 internal static class PaletteFxRecordDefinitions
 {
@@ -683,6 +683,6 @@ internal static class PaletteFxRecordDefinitions
         [new(false, 5)],
     ];
 
-    /// <summary>How <paramref name="frame"/> writes CGRAM.</summary>
+    /// <summary>How <paramref name="frame"/> writes its colours.</summary>
     internal static IReadOnlyList<PaletteFxRecordPart> Layout(PaletteFxFrame frame) => Layouts[RecordLayouts[frame.Record]];
 }

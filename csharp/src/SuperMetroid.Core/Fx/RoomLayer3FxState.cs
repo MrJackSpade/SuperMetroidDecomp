@@ -7,13 +7,13 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Cartridge-owned room effect selected by one sixteen-byte bank-$83 FX record.
+/// Game-owned room effect selected by one sixteen-byte FX record.
 /// </summary>
 /// <remarks>
-/// Every room effect shares the native base/target position, packed 8.8 Y velocity, and
-/// timer loaded by <c>$89:AB82</c>. This owner retains those words even when that effect's
-/// renderer is not translated yet, allowing bank-$84 PLMs to make their native shared-state
-/// writes without inventing another representation for the corresponding bank-$88 state.
+/// Every room effect shares the base/target position, packed 8.8 Y velocity, and
+/// timer the room-FX loader sets. This owner retains those words even when that effect's
+/// renderer is not translated yet, allowing PLMs to make their shared-state
+/// writes without inventing another representation for the corresponding room-effect state.
 /// The translated BG3 effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
 /// </remarks>
 [RoomLifetime]
@@ -94,7 +94,7 @@ public sealed class RoomLayer3FxState
     /// </summary>
     internal bool LavaAcidBg3FrameBehaviorInstalled { get; set; }
     /// <summary>
-    /// Records direct deletion of liquid scroll per-line effect objects at $A9:8C0C, which stops
+    /// Records direct deletion of liquid scroll per-line effect objects by an enemy, which stops
     /// their per-frame updates until the next room load.
     /// </summary>
     internal bool LiquidMotionStopped { get; set; }
@@ -103,7 +103,7 @@ public sealed class RoomLayer3FxState
     private WrappingCountdown lavaSoundTimer;
     /// <summary>Current liquid rise or fall state selected by the FX record.</summary>
     private LiquidRisePhase liquidRisePhase;
-    /// <summary>Audio requests emitted in native order during the current effect pass.</summary>
+    /// <summary>Audio requests emitted in the game's order during the current effect pass.</summary>
     private readonly List<SoundRequest> soundRequests = [];
     /// <summary>Rebound sound recipient for effect requests after a debugger restore.</summary>
     [NonSerialized] private IActivePowerBomb? audioPowerBomb;
@@ -122,7 +122,7 @@ public sealed class RoomLayer3FxState
     public FixedCoordinate BaseY { get; internal set; }
 
     /// <summary>
-    /// Where a rising or falling liquid stops, at X zero. A Y from 32768 up disables the motion, as the cartridge's
+    /// Where a rising or falling liquid stops, at X zero. A Y from 32768 up disables the motion, as the game's
     /// sign test does.
     /// </summary>
     public Position16<RoomPixels> TargetSurface { get; private set; }
@@ -130,7 +130,7 @@ public sealed class RoomLayer3FxState
     /// <summary>The liquid's signed 8.8 vertical velocity in room pixels per update while it moves toward its target.</summary>
     public SignedEightEight YVelocity { get; private set; }
 
-    /// <summary>Native zero-extended FX timer byte loaded from record offset eight.</summary>
+    /// <summary>Zero-extended FX timer byte loaded from record offset eight.</summary>
     public WrappingCountdown Timer { get; private set; }
 
     /// <summary>FX B layer-blending selector installed by the effect pre-instruction.</summary>
@@ -149,7 +149,7 @@ public sealed class RoomLayer3FxState
 
     /// <summary>
     /// The live liquid surface after rising and tide processing, at X zero. A Y from 32768 up (65535 with no liquid)
-    /// lies above the room, as the cartridge's sign test reads it.
+    /// lies above the room, as the game's sign test reads it.
     /// </summary>
     public Position16<RoomPixels> Surface { get; internal set; } = NoSurface;
 
@@ -160,18 +160,18 @@ public sealed class RoomLayer3FxState
     public RoomLiquidOptions LiquidOptions { get; internal set; }
 
     /// <summary>
-    /// Sound requests emitted by the current bank-$88 effect pass in cartridge queue order.
+    /// Sound requests emitted by the current effect pass in queue order.
     /// The list is cleared at the beginning of every <see cref="Step"/> call.
     /// </summary>
     public IReadOnlyList<SoundRequest> SoundRequests => soundRequests;
 
     /// <summary>
     /// Global earthquake words requested by the current effect pass. The timer value is a
-    /// bit mask because the cartridge uses <c>TSB</c>, not assignment.
+    /// bit mask because the game sets the bits, not assigns them.
     /// </summary>
     public RoomFxEarthquakeRequest? EarthquakeRequest { get; private set; }
 
-    /// <summary>Builds one room's layer-3 FX from the current door's native FX record.</summary>
+    /// <summary>Builds one room's layer-3 FX from the current door's FX record.</summary>
     /// <param name="session">The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</param>
     /// <param name="colours">The background colours receiving the record's palette blend.</param>
     /// <param name="fx">The room state's FX definition.</param>
@@ -240,7 +240,7 @@ public sealed class RoomLayer3FxState
         }
         else if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            // `$88:B4CE` seeds timer B to one, so the first per-line effect object pass rotates A
+            // Lava and acid start with timer B at one, so the first per-line effect object pass rotates A
             // from zero to $1E and then reloads either four or six. Expressing the already-
             // resolved waveform phase as zero produces the same first visible table.
             lavaAcidBg2WaveTimer = WrappingCountdown.FromRaw(UsesLavaAcidVerticalWave
@@ -250,7 +250,7 @@ public sealed class RoomLayer3FxState
         }
         else if (Type == RoomFxType.Rain)
         {
-            // `$88:D981` masks the random word with six *after* shifting it once,
+            // Rain masks the random word with six *after* shifting it once,
             // producing byte offsets 0/2/4/6 into a word table. Expressed as a C#
             // element index that is bits two and three of the original random word.
             rainWindVelocity = new Offset16<OverlaySubpixels>(
@@ -260,17 +260,17 @@ public sealed class RoomLayer3FxState
 
     /// <summary>
     /// True for the liquids whose BG3 per-line effect step moves the surface: lava and
-    /// acid ($88:B3B0) and water ($88:C48E). That motion belongs to the per-line effect pass.
+    /// acid and water. That motion belongs to the per-line effect pass.
     /// </summary>
     public bool MovesLiquidBeforeMainLoop =>
         Type is RoomFxType.Lava or RoomFxType.Acid || RoomFxTypes.UsesWater(Type);
 
     /// <summary>
-    /// Runs liquid motion and shared-state writes from $88:B3B0 and $88:C48E before
-    /// main-loop RNG generation. $88:C3E9 and $88:D85E install the callback on the
-    /// first per-line effect pass; lava/acid's $88:B44A-B44E then swaps the shared RNG bytes on
+    /// Runs liquid motion and shared-state writes for lava, acid and water before
+    /// main-loop random-number generation. Their setup installs the callback on the
+    /// first per-line effect pass; lava/acid's callback then swaps the shared random bytes on
     /// subsequent unfrozen passes, even off screen. Rising/tidal motion also runs during
-    /// door fades and pause entry. Visual/VRAM updates remain in <see cref="Step"/>,
+    /// door fades and pause entry. Visual updates remain in <see cref="Step"/>,
     /// which must not advance that motion twice.
     /// </summary>
     public void AdvanceLiquidMotion(SharedGameState system, bool timeIsFrozen)
@@ -284,7 +284,7 @@ public sealed class RoomLayer3FxState
         if (!LavaAcidBg3FrameBehaviorInstalled)
         {
             LavaAcidBg3FrameBehaviorInstalled = true;
-            // $88:C3E7 sets the sound timer in the same pass that installs the pre-instruction.
+            // Water's setup sets the sound timer in the same pass that installs the frame behaviour.
             if (lavaOrAcid)
                 lavaSoundTimer = WrappingCountdown.Start(LavaAcidWaveDefinitions.AmbientSoundPeriod);
             return;
@@ -293,7 +293,7 @@ public sealed class RoomLayer3FxState
             return;
         if (!lavaOrAcid)
         {
-            // $88:C4A3-C4BB: the rising function and tide; water leaves the RNG alone.
+            // Water's rising function and tide; water leaves the random number alone.
             AdvanceLiquidMotion(system.RandomNumber, system.EarthquakeSoundDelay);
             return;
         }
@@ -304,9 +304,9 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
-    /// Ports <c>$88:B421-$B446</c>: while a lava surface's Y is not negative, its timer
+    /// The lava sound clock: while a lava surface's Y is not negative, its timer
     /// counts down and, on reaching zero, reloads and queues a random ambient sound.
-    /// Acid shares the pre-instruction but not this sound.
+    /// Acid shares the per-frame behaviour step but not this sound.
     /// </summary>
     private void QueueLavaAmbientSound(int random)
     {
@@ -322,7 +322,7 @@ public sealed class RoomLayer3FxState
             SoundSuppressed: audioPowerBomb?.IsActive == true));
     }
 
-    /// <summary>Runs the active bank-$88 pre-instruction and rain animtile handler.</summary>
+    /// <summary>Runs the active effect's per-frame behaviour step and rain animtile handler.</summary>
     public void Step(ArtworkFrameSelections frames, RoomLayer3FxFrame frame)
     {
         Ensure.NotNull(frames);
@@ -372,14 +372,14 @@ public sealed class RoomLayer3FxState
 
         if (Type == RoomFxType.Spores)
         {
-            // $88:DA47 samples each signed accumulator before adding its velocity.
+            // Spores sample each signed accumulator before adding its velocity.
             // Unlike rain, spores are anchored to the current camera, not its delta.
             Scroll = frame.Camera.AsBg3Scroll() + drift.WholePixels();
             drift = drift.WithY(WordWrap.Signed(drift.Y - AtmosphereDriftDefinitions.SporesVerticalVelocity));
             return;
         }
 
-        // `$88:DB36` anchors fog to layer one and moves its texture by -$40/+50 in 8.8.
+        // Fog anchors to layer one and moves its texture by -$40/+50 in 8.8.
         Scroll = frame.Camera.AsBg3Scroll() + drift.WholePixels();
         drift = new(WordWrap.Signed(drift.X + AtmosphereDriftDefinitions.FogHorizontalVelocity),
             WordWrap.Signed(drift.Y - AtmosphereDriftDefinitions.FogVerticalVelocity));
@@ -418,9 +418,9 @@ public sealed class RoomLayer3FxState
 
     /// <summary>
     /// Applies shared liquid writes made by room PLMs and enemy instructions. These are
-    /// intentionally not a rendering shortcut: bank $84 writes the same fields loaded by
-    /// <c>$89:AB82</c>. The translated bank-$88 liquid handler consumes those shared words
-    /// on its next ordinary effect pass, just as the cartridge does.
+    /// intentionally not a rendering shortcut: PLMs write the same fields the
+    /// room-FX loader sets. The liquid handler consumes those shared words
+    /// on its next ordinary effect pass, just as the game does.
     /// </summary>
     internal void SetLiquidMotion(
         int? baseYPosition = null,
@@ -440,7 +440,7 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
-    /// $89:AB02 LoadFxEntry reloads motion, blending and three colors, but does not restart
+    /// LoadFxEntry reloads motion, blending and three colors, but does not restart
     /// per-line effects, animated tiles, or the liquid's current motion phase as a room load would.
     /// </summary>
     internal LayerBlendingConfiguration ApplyEntry(BackgroundColourSets colours,
@@ -465,7 +465,7 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
-    /// Applies <c>Instruction_PLM_EnableWaterPhysics</c> at <c>$84:D525</c> to the
+    /// Applies the enable-water-physics PLM step to the
     /// liquid-options word. The PLM clears only its own bit, so
     /// this mutation must live on the room-FX owner that republishes the word to Samus;
     /// changing only Samus's projected copy would be undone by the next FX frame.
@@ -478,9 +478,9 @@ public sealed class RoomLayer3FxState
         LiquidOptions &= ~RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave;
 
     /// <summary>
-    /// Ports the observable static-water path of <c>$88:C48E</c> and both circular wave
+    /// Runs the observable static-water path of the water effect and both circular wave
     /// clocks. Rising/tidal rooms retain their loaded surface words; the presently reported
-    /// room has zero velocity and therefore exercises the cartridge's normal static branch.
+    /// room has zero velocity and therefore exercises the game's normal static branch.
     /// </summary>
     private void StepWater(
         Position16<RoomPixels> camera,
@@ -526,7 +526,7 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
-    /// Ports the visible outputs of <c>$88:B3B0</c> and <c>$88:B4D5</c>. The liquid
+    /// Runs the visible outputs of the lava/acid effect and its heat haze. The liquid
     /// surface and BG3 plane follow the room camera, while one of two sixteen-scanline BG2
     /// waveforms rotates at the cadence selected by the record's liquid-options byte.
     /// </summary>
@@ -539,8 +539,8 @@ public sealed class RoomLayer3FxState
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
         waterSurfaceScreenY = CoordinateAxis.Difference(Surface.Y, camera.Y);
-        // Lava/acid $88:B3B0 uses the same surface-relative BG3VOFS equation as water
-        // $88:C48E. Zeroing it anchored the animated characters to the screen instead of
+        // Lava/acid uses the same surface-relative BG3VOFS equation as water.
+        // Zeroing it anchored the animated characters to the screen instead of
         // beginning their first texture row immediately below the liquid boundary.
         Scroll = camera.AsBg3Scroll().WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
 
@@ -559,8 +559,8 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
-    /// Executes the parallel native callback trios at $88:B343/$B367/$B382 for lava/acid
-    /// and $88:C428/$C44C/$C458 for water. A nonzero velocity first arms the wait phase,
+    /// Runs the parallel callback trios for lava/acid
+    /// and for water. A nonzero velocity first arms the wait phase,
     /// the record timer then expires, and only then does the signed 8.8 velocity move the
     /// 16.16 base position toward the target. Door-specific Norfair entries rely on this
     /// sequence to raise lava into the visible viewport.
@@ -603,13 +603,13 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
-    /// Executes <c>$88:B21D</c> and the shared <c>$88:B36A-$B373/$B385-$B38E</c>
+    /// Runs the earthquake sound clock and the shared
     /// writes used while lava or acid waits and moves. Sound cadence and screen shake are
-    /// parallel outputs of the cartridge FX actor; neither is inferred by the renderer.
+    /// parallel outputs of the game's FX actor; neither is inferred by the renderer.
     /// </summary>
     private void PublishRisingLiquidFeedback(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
     {
-        // Water's $88:C44C/$C458 callbacks only wait/move. Lava and acid's
+        // Water's callbacks only wait/move. Lava and acid's
         // parallel callbacks additionally request sound and a global earthquake.
         if (Type is not (RoomFxType.Lava or RoomFxType.Acid))
             return;
@@ -620,18 +620,18 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
-    /// Ports the signed timer and eight-entry loop at <c>$88:B21D-$B254</c>.
-    /// All eight native sound words are library-two Earthquake; the negative ninth
+    /// Runs the signed timer and eight-entry earthquake-sound loop.
+    /// All eight sound words are library-two Earthquake; the negative ninth
     /// word resets selection to zero. Constant sound selection and the index bound
     /// replace those words; the independently retained rhythm supplies only delays.
     /// </summary>
     /// <param name="randomNumber">Current RNG word, sampled without advancing it; its low two bits add zero through three updates to the next earthquake-sound delay.</param>
     /// <param name="earthquakeSoundDelay">
     /// The frame the save file found at power-on adds to the next delay. The earthquake sound request restores the carry
-    /// with <c>PLP</c>, so <c>ADC .baseTimer</c> at $88:B245 adds it. Both callers' per-line effect objects are the first their FX
+    /// with the status restore, so the delay addition adds it. Both callers' per-line effect objects are the first their FX
     /// spawns after the door deletes the per-line effect objects, so they run in slot zero, which inherits the main loop's
     /// power-on carry (<see cref="PowerOnEarthquakeSoundDelay"/>); a later slot would see the clear carry from
-    /// <c>CPX #$0C</c>.
+    /// the room-effect slot loop.
     /// </param>
     private void HandleEarthquakeSoundEffect(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
     {
@@ -656,11 +656,11 @@ public sealed class RoomLayer3FxState
         EarthquakeSoundSequenceIndex++;
     }
 
-    /// <summary>The statue per-line effect steps call the same $88:B21D earthquake sound owner.</summary>
+    /// <summary>The statue per-line effect steps call the same earthquake sound owner.</summary>
     internal void PublishStatueEarthquakeSound(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay) =>
         HandleEarthquakeSoundEffect(randomNumber, earthquakeSoundDelay);
 
-    /// <summary>Ports <c>RaiseOrLowerFx</c> at $88:868C for the shared liquid words.</summary>
+    /// <summary>Runs <c>RaiseOrLowerFx</c> for the shared liquid words.</summary>
     private bool AdvanceBaseYToTarget()
     {
         if (CoordinateAxis.AsSigned(TargetSurface.Y) < 0)
@@ -694,7 +694,7 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
-    /// Ports <c>FxHandleTide</c> at $88:B2C9. Native writes the scaled sine word starting
+    /// Runs <c>FxHandleTide</c>. The game writes the scaled sine word starting
     /// one byte into the 16.16 offset pair, equivalent to the eight-bit shift below. The
     /// asymmetric phase deltas deliberately spend different durations in each half-wave.
     /// </summary>
@@ -721,7 +721,7 @@ public sealed class RoomLayer3FxState
             return;
         }
 
-        // $88:B2DF/$B316 index the negative-cosine prefix, not the sine origin.
+        // The tide indexes the negative-cosine prefix, not the sine origin.
         int sample = Trigonometry.SignedNegativeCosineWord(Ensure.BetweenInclusive(0, byte.MaxValue, EightEight.WholeOf(TidePhase)));
         TideFixedOffset = SixteenSixteen.FromEightEight(sample * scale);
         AdvanceTidePhase(sample >= 0 ? positiveDelta : negativeDelta);
@@ -745,7 +745,7 @@ public sealed class RoomLayer3FxState
     private bool UsesLavaAcidHorizontalWave =>
         (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != RoomLiquidOptions.None;
 
-    /// <summary>Computes native BG3 vertical scroll from the liquid surface relative to camera Y.</summary>
+    /// <summary>Computes BG3 vertical scroll from the liquid surface relative to camera Y.</summary>
     private static int ComputeLiquidVerticalScroll(int surfaceY, int cameraY)
     {
         if (CoordinateAxis.AsSigned(surfaceY) < 0)
@@ -809,7 +809,7 @@ public sealed class RoomLayer3FxState
     private static readonly Offset16<OverlaySubpixels> WaterDriftVelocity =
         new(WordWrap.Signed(WaterWaveDefinitions.HorizontalSubscrollVelocity), 0);
 
-    /// <summary>The mutually exclusive callbacks installed in the native rise-function word.</summary>
+    /// <summary>The mutually exclusive callbacks installed in the rise-function word.</summary>
     private enum LiquidRisePhase
     {
         /// <summary>Waits until signed velocity points from the current base toward the target.</summary>

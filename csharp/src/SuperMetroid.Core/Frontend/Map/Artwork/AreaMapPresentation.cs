@@ -91,7 +91,7 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     public MapStationPositions Stations { get; }
     /// <summary>Boss, elevator, and gunship drawing anchors, independent of progression and destination rules.</summary>
     public MapLandmarkPositions Landmarks { get; }
-    /// <summary>File-select save-marker visual coordinate overrides, independent of native load targets and scrolling.</summary>
+    /// <summary>File-select save-marker visual coordinate overrides, independent of load targets and scrolling.</summary>
     public MapSaveMarkerPositions SaveMarkers { get; }
     /// <summary>Map-arrow artwork and presentation frames for scrolling indicators.</summary>
     public MapArrowPresentation Arrows { get; }
@@ -107,7 +107,7 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     public PauseReserveArrowColours PauseReserveArrow { get; }
     /// <summary>Escape countdown visual layout and digit presentation, separate from the character bytes in <see cref="EscapeTimerTiles"/>.</summary>
     public EscapeTimerPresentation EscapeTimer { get; }
-    /// <summary>Selected character bytes for the two escape-timer VRAM transfers.</summary>
+    /// <summary>Selected character bytes for the two escape-timer artwork loads.</summary>
     public EscapeTimerTileAtlas EscapeTimerTiles { get; }
     /// <summary>Gameplay HUD tilemap and display presentation, separate from the standard HUD character atlas.</summary>
     public GameplayHudPresentation GameplayHud { get; }
@@ -133,7 +133,7 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     public TitlePalettePresentation TitlePalette { get; }
     /// <summary>Title-screen gradient presentation, separate from its static palette and character artwork.</summary>
     public TitleGradientPresentation TitleGradient { get; }
-    /// <summary>Room and cinematic palette-animation colors; instruction timing, CGRAM destinations, and side effects remain compiled.</summary>
+    /// <summary>Room and cinematic palette-animation colors; step timing, colour destinations, and side effects remain compiled.</summary>
     public RoomPaletteFxPresentation RoomPaletteFx { get; }
     /// <summary>Mother Brain health-selected palette artwork, separate from rainbow and room-color families.</summary>
     public MotherBrainHealthPalettePresentation MotherBrainHealthPalette { get; }
@@ -156,7 +156,7 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     public InstalledSamusSuitColors SamusSuitColors { get; }
     /// <summary>Samus full-body palette-cycle inputs, separate from static suit, visor, and charged-beam colors.</summary>
     public SamusFullBodyCycleColours SamusFullBodyCycleColors { get; }
-    /// <summary>Crystal Flash body and bubble colors; native timing, frame selection, and completion remain engine-owned.</summary>
+    /// <summary>Crystal Flash body and bubble colors; timing, frame selection, and completion remain engine-owned.</summary>
     public InstalledCrystalFlashColors CrystalFlashColors { get; }
     /// <summary>Charged-beam and pseudo-Screw-Attack palette inputs, separate from base suit colors.</summary>
     public SamusChargeColours SamusChargeColors { get; }
@@ -168,7 +168,7 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     public CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; }
     /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
     public SamusHyperBeamColours SamusHyperBeamColors { get; }
-    /// <summary>Resolves installed escape-timer character bytes for a VRAM transfer.</summary>
+    /// <summary>Resolves installed escape-timer character bytes for an artwork load.</summary>
     /// <param name="asset">The transfer identity; this provider supports only the escape-timer identities in its catalog.</param>
     /// <returns>Read-only planar character bytes for the requested transfer.</returns>
     /// <exception cref="InvalidDataException">The requested identity is not supported by this provider.</exception>
@@ -205,8 +205,8 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
             InstalledArtworkId.BeamChainsawTiles or
             InstalledArtworkId.BeamSpacetimeTiles or
             InstalledArtworkId.StandardObjectTiles or
-            InstalledArtworkId.HudTopRowTilemap => throw new InvalidDataException($"Map catalog cannot resolve VRAM asset {asset}."),
-        _ => throw new InvalidDataException($"Map catalog cannot resolve VRAM asset {asset}."),
+            InstalledArtworkId.HudTopRowTilemap => throw new InvalidDataException($"Map catalog cannot resolve artwork {asset}."),
+        _ => throw new InvalidDataException($"Map catalog cannot resolve artwork {asset}."),
     };
     /// <summary>Returns an area's selected map presentation with verified stock exploration and station-reveal rules.</summary>
     /// <param name="area">One of the seven retail area identities, including Ceres.</param>

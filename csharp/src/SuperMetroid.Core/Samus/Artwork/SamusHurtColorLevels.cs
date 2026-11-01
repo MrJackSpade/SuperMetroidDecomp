@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>The intro and hurt colour levels each step selects.</summary>
 internal static class SamusHurtColorLevels
 {
-    /// <summary>$9B:A3A2..A3BE: named pen-role aliases in the selected monochrome shade composition.</summary>
+    /// <summary>Named pen-role aliases in the selected monochrome shade composition.</summary>
     internal static int IntroLevelSourceIndex(int index) => index switch
     {
         1 or 5 or 14 => 1, // Armor/cannon/helmet shadow.
@@ -19,7 +19,7 @@ internal static class SamusHurtColorLevels
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
-    /// <summary>$9B:A3A2..A3BE: main gray shades plus half shades; the lowest half deliberately rounds darker.</summary>
+    /// <summary>Main gray shades plus half shades; the lowest half deliberately rounds darker.</summary>
     internal static int DefaultIntroLevel(int index)
     {
         int Main(int step) => OutlineLevel + (FullIntensity - OutlineLevel) * step / MainShadeIntervals;

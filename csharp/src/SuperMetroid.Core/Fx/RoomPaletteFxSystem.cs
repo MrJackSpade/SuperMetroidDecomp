@@ -9,11 +9,11 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Cartridge-driven owner for the eight bank-$8D palette-FX slots created by room FX.
+/// Game-driven owner for the eight palette-FX slots created by room FX.
 /// </summary>
 /// <remarks>
 /// Room graphics load a useful static palette, but many rooms immediately replace part of
-/// it with bytecode selected by the active bank-$83 FX record. Landing Site is one of them:
+/// it with programs selected by the active FX record. Landing Site is one of them:
 /// palette-FX bit zero flashes the scrolling-sky horizon's lightning colours. Keeping the
 /// programs, timers, and the colours each object animates here avoids encoding a
 /// screenshot's colors as a room-specific correction.
@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Fx;
 [RoomLifetime]
 public sealed class RoomPaletteFxSystem
 {
-    /// <summary>Native bank-$8D allocator capacity and descending handler range.</summary>
+    /// <summary>Palette-FX pool capacity and descending handler range.</summary>
     private const int SlotCount = 8;
 
     /// <summary>Persistent interpreter state for the eight palette-FX objects.</summary>
@@ -42,7 +42,7 @@ public sealed class RoomPaletteFxSystem
     public RoomPaletteFxSystem(PaletteFxSessionState session) => _session = Ensure.NotNull(session);
 
     /// <summary>
-    /// Bit 15 of <c>PaletteFXObject_Enable</c> ($1E79), checked first by the handler; it lives on the session.
+    /// Bit 15 of the palette-FX enable word, checked first by the handler; it lives on the session.
     /// </summary>
     public bool HandlerEnabled => _session.HandlerEnabled;
 
@@ -52,13 +52,13 @@ public sealed class RoomPaletteFxSystem
     /// <summary>Music calls published by palette bytecode during the current frame.</summary>
     public IReadOnlyList<DelayedMusicRequest> MusicRequests => musicRequests;
 
-    /// <summary>Whether a particular cartridge definition currently owns a native slot.</summary>
+    /// <summary>Whether a particular definition currently owns a slot.</summary>
     public bool IsDefinitionActive(PaletteFxObject definition) =>
         slots.Any(slot => slot.Object == definition);
 
     /// <summary>
-    /// Spawns a non-room palette object through the same native allocator/interpreter used
-    /// by room FX. Samus's load appearance uses definitions $E1F4/$E1F8/$E1FC and must not
+    /// Spawns a non-room palette object through the same allocator/interpreter used
+    /// by room FX. Samus's load appearance uses its own three definitions and must not
     /// be reimplemented as a host-side tint.
     /// </summary>
     public void SpawnDefinition(
@@ -70,13 +70,13 @@ public sealed class RoomPaletteFxSystem
         if (!IsDefinitionActive(definition))
         {
             throw new InvalidOperationException(
-                $"Palette-FX object {definition} could not acquire a native slot.");
+                $"Palette-FX object {definition} could not acquire a slot.");
         }
     }
 
     /// <summary>
     /// Builds one room's palette-FX objects: exactly the bits selected by the matching
-    /// sixteen-byte bank-$83 FX record.
+    /// sixteen-byte FX record.
     /// </summary>
     /// <param name="session">The handler enable bit and heat palette phases, which room loading never clears.</param>
     /// <param name="fx">The room state's FX definition.</param>
@@ -137,7 +137,7 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
-    /// <summary>Runs one native <c>PaletteFXObject_Handler</c> pass in descending slot order.</summary>
+    /// <summary>Runs one <c>PaletteFXObject_Handler</c> pass in descending slot order.</summary>
     /// <remarks>
     /// Colors are a required execution dependency, not an optional bind operation.
     /// Every caller, including a restored owner, must supply its current installed
@@ -152,7 +152,7 @@ public sealed class RoomPaletteFxSystem
         audioPowerBomb = powerBomb;
 
         // PaletteFXObject_Handler owns a new publication window on every game frame.
-        // Requests are momentary calls into bank $80, not persistent object state.
+        // Requests are momentary calls into the shared queues, not persistent object state.
         soundRequests.Clear();
         musicRequests.Clear();
 
@@ -166,8 +166,8 @@ public sealed class RoomPaletteFxSystem
             if (slot.Object is null)
                 continue;
 
-            // `$8D:C552` decrements before comparing with one. Unsigned underflow is
-            // intentional cartridge behavior for malformed or externally edited state.
+            // The timer decrements before comparing with one. Unsigned underflow is
+            // intentional game behavior for malformed or externally edited state.
             slot.FrameHold = slot.FrameHold.Decrement().Remaining;
             if (!slot.FrameHold.IsZero)
                 continue;
@@ -176,14 +176,14 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
-    /// <summary>Allocates the highest free native slot and applies definition-specific setup for Intro, Norfair, or Brinstar.</summary>
+    /// <summary>Allocates the highest free slot and applies definition-specific setup for Intro, Norfair, or Brinstar.</summary>
     private void Spawn(
         PaletteFxObject definition,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated)
     {
         // Spawn_PaletteFXObject searches byte offsets 14,12,...,0, which is slot order
-        // 7..0. A full native pool silently rejects another spawn; this is a documented
+        // 7..0. A full pool silently rejects another spawn; this is a documented
         // allocation result, not a failed translation that should be hidden by an exception.
         PaletteFxSlot? slot = null;
         for (int index = SlotCount - 1; index >= 0; index--)
@@ -216,7 +216,7 @@ public sealed class RoomPaletteFxSystem
                 return;
 
             case PaletteFxSetup.Norfair:
-                // `$8D:E440` chooses the complete program from the same live suit bits
+                // The heat object chooses the complete program from the same live suit bits
                 // used by Samus. Gravity has priority when both bits are present.
                 slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(
                     PaletteFxHeatPrograms.Start(PaletteFxHeatPrograms.SuitFor(equippedItems)));
@@ -301,7 +301,7 @@ public sealed class RoomPaletteFxSystem
         || slots[slotIndex - PaletteFxSlotInspectionDefinitions.InspectedSlotDistance].Object is not null;
 
     /// <summary>
-    /// Ports <c>FrameBehavior_PaletteFXObject_SamusInHeat</c> at $8D:E379. The palette
+    /// Runs the Samus-in-heat per-frame behaviour step. The palette
     /// object deliberately owns both presentation and damage: an unprotected Samus gains
     /// one quarter-unit of 16.16 damage per frame, while a second Norfair object publishes
     /// the animation index consumed here on the following descending-slot pass.
@@ -439,7 +439,7 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
-    /// <summary>Serializable native object state retained between palette-FX handler passes.</summary>
+    /// <summary>Serializable object state retained between palette-FX handler passes.</summary>
     internal sealed class PaletteFxSlot
     {
         /// <summary>The palette-FX object the slot runs; null marks an available slot.</summary>
@@ -461,7 +461,7 @@ public sealed class RoomPaletteFxSystem
         /// <summary>Loop counter consumed by the decrement-and-goto command.</summary>
         public WrappingCountdown Timer { get; set; }
 
-        /// <summary>Releases the object and clears every native interpreter word for reuse.</summary>
+        /// <summary>Releases the object and clears every interpreter word for reuse.</summary>
         public void Clear()
         {
             Object = null;

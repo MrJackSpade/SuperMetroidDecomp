@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
-/// <summary>Native $8E:8000/D600 menu character cells: which calculated drawing each cell has, and the per-cell facts
+/// <summary>The menu character cells: which calculated drawing each cell has, and the per-cell facts
 /// <see cref="WorldMapCharacterDrawing"/> draws them from.</summary>
 /// <remarks>The named icon topology, stroke/guide placement and pen roles are selected composition inputs; numeric tile
 /// identities and transport cannot generate a different font or icon design on their behalf.</remarks>
@@ -8,20 +8,20 @@ internal static class WorldMapCharacterDefinitions
 {
     /// <summary>Hardware character side in pixels; all primitive coordinates use the complete eight-pixel cell.</summary>
     internal const int CellSide = 8;
-    /// <summary>$8E:D600 2-bpp character role: outside a room.</summary>
+    /// <summary>Background character role: outside a room.</summary>
     internal const int Outside = 3;
-    /// <summary>$8E:D600 2-bpp character role: room fill.</summary>
+    /// <summary>Background character role: room fill.</summary>
     internal const int Fill = 1;
-    /// <summary>$8E:D600 2-bpp character role: room edge.</summary>
+    /// <summary>Background character role: room edge.</summary>
     internal const int Edge = 2;
-    /// <summary>$8E:8000..91FF/9A00..A5FF/AC00..B3FF and named UI labels: retained typeface face pen.</summary>
+    /// <summary>Foreground glyph cells and named UI labels: retained typeface face pen.</summary>
     internal const int ForegroundFontFace = 14;
-    /// <summary>$8E:8000..91FF/9A00..A5FF/AC00..B3FF and named UI labels: retained typeface shadow pen.</summary>
+    /// <summary>Foreground glyph cells and named UI labels: retained typeface shadow pen.</summary>
     internal const int ForegroundFontShadow = 13;
     /// <summary>$6A: the world-map label font's A cell; the letters follow alphabetically.</summary>
     internal const int LabelLetterACell = 106;
 
-    /// <summary>Native Latin and Japanese glyph cells.</summary>
+    /// <summary>Latin and Japanese glyph cells.</summary>
     internal static readonly WorldMapCellRange[] ForegroundFontCells =
     [
         new(0, 143),
@@ -43,7 +43,7 @@ internal static class WorldMapCharacterDefinitions
     /// shadow from the row above.</summary>
     internal static readonly WorldMapCellRange[] TallGlyphBlocks = [new(0, 95), new(208, 303), new(352, 415)];
 
-    /// <summary>$8E:D9C0..DA5F: ten outlined small numerals, ordered 1..9,0.</summary>
+    /// <summary>Ten outlined small numerals, ordered 1..9,0.</summary>
     internal static readonly WorldMapCellRange OutlinedDigitCells = new(60, 69);
     /// <summary>The five original edge choices where an outlined numeral leaves its outline open.</summary>
     internal static readonly WorldMapCellPixel[] OutlinedDigitOpenPixels =
@@ -55,7 +55,7 @@ internal static class WorldMapCharacterDefinitions
         new(69, new(2, 7)),
     ];
 
-    /// <summary>$8E:D600..DBFF: each calculated background cell's drawing; font and icon contours are supplied.</summary>
+    /// <summary>Each calculated background cell's drawing; font and icon contours are supplied.</summary>
     internal static readonly IReadOnlyDictionary<int, WorldMapBackgroundShape> BackgroundShapes = new Dictionary<int, WorldMapBackgroundShape>
     {
         [0] = WorldMapBackgroundShape.BaselinePadding,
@@ -138,7 +138,7 @@ internal static class WorldMapCharacterDefinitions
         [95] = WorldMapBackgroundShape.Transparent,
     };
 
-    /// <summary>$8E:D800..D87F: complete cell, horizontal/vertical corridor and named open-side variants.</summary>
+    /// <summary>Complete cell, horizontal/vertical corridor and named open-side variants.</summary>
     internal static readonly IReadOnlyDictionary<int, WorldMapRoomBorder> RoomBorders = new Dictionary<int, WorldMapRoomBorder>
     {
         [32] = new(true, true, true, true),
@@ -151,7 +151,7 @@ internal static class WorldMapCharacterDefinitions
         [39] = new(false, false, false, true),
     };
 
-    /// <summary>$8E:D730..D7AF/D880..D8FF: half-cell slopes and their chosen wall/guide joins. Both selected descending
+    /// <summary>Half-cell slopes and their chosen wall/guide joins. Both selected descending
     /// upper triangles continue their boundary at left y=3 through y=4 to the dotted guide at y=5.</summary>
     internal static readonly IReadOnlyDictionary<int, WorldMapDiagonalRoom> DiagonalRooms = new Dictionary<int, WorldMapDiagonalRoom>
     {
@@ -173,7 +173,7 @@ internal static class WorldMapCharacterDefinitions
         [47] = new(true, 0, false, true, false, true, true, true),
     };
 
-    /// <summary>$8E:8000..D5FF: each calculated foreground cell's drawing; other cells show their own supplied pixels.</summary>
+    /// <summary>Each calculated foreground cell's drawing; other cells show their own supplied pixels.</summary>
     internal static readonly IReadOnlyDictionary<int, WorldMapForegroundShape> ForegroundShapes = new Dictionary<int, WorldMapForegroundShape>
     {
         [9] = WorldMapForegroundShape.Blank,

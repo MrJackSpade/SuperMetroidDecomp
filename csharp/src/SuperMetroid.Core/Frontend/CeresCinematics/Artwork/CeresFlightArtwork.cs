@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// artwork holds. The installed flight sheets picture the floors, characters and actor compositions; their maps, pixels
 /// and parts belong to the import pipeline that reads the installed artwork, which also names the content's identity
 /// (#1463, #1467).
-/// Flight motion, DMA order and the SPACE COLONY letter script remain compiled logic.
+/// Flight motion, artwork load order and the SPACE COLONY letter script remain compiled logic.
 /// </summary>
 public abstract class CeresFlightArtwork
 {
@@ -27,7 +27,7 @@ public abstract class CeresFlightArtwork
     public int FloorCharacterCount { get; }
     /// <summary>The installed space and Ceres OBJ characters.</summary>
     public int ObjectCharacterCount { get; }
-    /// <summary>Selected full 256-color RGB5 palette image for the approach; the native source is <c>$8C:E5E9</c>, separate from the PNGs' transport palettes.</summary>
+    /// <summary>Selected full 256-color RGB5 palette image for the approach, separate from the PNGs' transport palettes.</summary>
     public CeresFlightPalette Palette { get; }
     /// <summary>Selected initial screen-pixel positions for the five named rear-view actors; their movement and instruction timing remain compiled logic.</summary>
     public CeresFlightActorPlacements Actors { get; }

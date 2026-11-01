@@ -10,14 +10,14 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>
-/// Cartridge-backed implementation of the file-select path at
-/// <c>$81:944E-$81:A32A</c>.
+/// The file-select menu: slot choice, copy, clear and the
+/// helmet turn before loading.
 /// </summary>
 /// <remarks>
-/// This class deliberately models the native menu index and brightness transitions instead
+/// This class deliberately models the game's menu index and brightness transitions instead
 /// of replacing the screen with desktop widgets. Its tile graphics, starfield, text, palette,
-/// border, helmets, and selection missile all come from the supplied retail ROM. Slot
-/// validity and displayed energy/time are decoded from the cartridge's redundant SRAM
+/// border, helmets, and selection missile all come from the installed artwork. Slot
+/// validity and displayed energy/time are decoded from the redundant save
 /// checksum layout rather than from host-authored metadata.
 /// </remarks>
 public sealed class FileSelectMenuState : IMenuFrontendScreen
@@ -35,15 +35,15 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
     /// <summary>Receives menu sound requests when audio is available.</summary>
     private readonly AudioQueues? audio;
-    /// <summary>Reads and mutates the cartridge's checksummed three-slot SRAM layout.</summary>
+    /// <summary>Reads and mutates the checksummed three-slot save layout.</summary>
     private readonly SaveSlotStore saves;
     /// <summary>The menu screen file select draws: its artwork, tilemaps, palette and sprite entries.</summary>
     internal readonly MenuScreen screen;
-    /// <summary>Tracks button edges used by native menu navigation and confirmation.</summary>
+    /// <summary>Tracks button edges used by menu navigation and confirmation.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Host-owned file-select artwork rebound after debugger-state restoration.</summary>
     [NonSerialized] private AreaMapPresentation? mapPresentation;
-    /// <summary>Decoded slots whose null entries failed or lacked native SRAM checksums.</summary>
+    /// <summary>Decoded slots whose null entries failed or lacked save checksums.</summary>
     private readonly SuperMetroidSaveSlot?[] saveSlots = new SuperMetroidSaveSlot?[3];
     /// <summary>The selection missile's frame cycle.</summary>
     private readonly MenuMissileAnimation missile = new();
@@ -53,14 +53,14 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     internal int HelmetAnimationFrame { get; private set; }
     /// <summary>How bright the file-select screen is; it starts blanked and fades in and out between pages.</summary>
     private ScreenBrightness brightness;
-    /// <summary>Advances the native brightness timing for entry and submenu transitions.</summary>
+    /// <summary>Advances the brightness timing for entry and submenu transitions.</summary>
     private readonly ScreenFade screenFade = new();
     /// <summary>Installed page identifier rebuilt after save data or debugger bindings change.</summary>
     private FileSelectPage currentPresentationPage = FileSelectPage.MainEmpty;
     /// <summary>The page shown, with its slots' fields and the slots its prompt names (#1467).</summary>
     internal ShownFileSelectPage ShownPage { get; private set; } = new(FileSelectPage.MainEmpty, [], 0, 0);
 
-    /// <summary>Performs menu indices zero through two, including every native ROM transfer.</summary>
+    /// <summary>Performs menu indices zero through two, including every artwork load.</summary>
     public FileSelectMenuState(SaveSlotStore saves, AudioQueues? audio = null,
         AreaMapPresentation? mapPresentation = null, InstalledSpriteSheets? spriteSheets = null)
     {
@@ -85,10 +85,10 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         brightness = ScreenBrightness.Blanked;
     }
 
-    /// <summary>Native main-menu selection: slots A-C, Copy, Clear, or Exit.</summary>
+    /// <summary>Main-menu selection: slots A-C, Copy, Clear, or Exit.</summary>
     public FileSelectItem SelectedItem { get; private set; }
 
-    /// <summary>Current translated native menu phase.</summary>
+    /// <summary>Current menu phase.</summary>
     public FileSelectPhase Phase { get; private set; }
 
     /// <summary>True once a selected slot, empty or occupied, finishes its helmet turn and fade-out, requesting the game-options screen.</summary>
@@ -98,14 +98,14 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     public int SelectedSaveSlot =>
         FileSelectItemRows.TryGetSaveSlot(SelectedItem, out int slot) ? slot : FileSelectLayout.SaveSlotCount - 1;
 
-    /// <summary>Whether the selected A-C slot passed either native checksum directory.</summary>
+    /// <summary>Whether the selected A-C slot passed either checksum directory.</summary>
     public bool SelectedSlotContainsSave =>
         FileSelectItemRows.TryGetSaveSlot(SelectedItem, out int slot) && saveSlots[slot] is not null;
 
-    /// <summary>True when Exit/B completes the native fade back toward reset.</summary>
+    /// <summary>True when Exit/B completes the fade back toward reset.</summary>
     public bool TitleRequested { get; private set; }
 
-    /// <summary>True only on the frame in which Copy or Clear mutated cartridge SRAM.</summary>
+    /// <summary>True only on the frame in which Copy or Clear changed the saves.</summary>
     public bool SaveRamChangedThisFrame { get; private set; }
 
     /// <summary>
@@ -114,7 +114,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// </summary>
     internal bool ResumesAfterFrameWait => Phase is
         FileSelectPhase.EnterBlankScreenAfterFrameWait or FileSelectPhase.InitializeMainAfterFrameWait;
-    /// <summary>Advances one native menu frame from a raw SNES controller word.</summary>
+    /// <summary>Advances one menu frame from a raw controller word.</summary>
     public void Step(ControllerButton controllerInput)
     {
         SaveRamChangedThisFrame = false;
@@ -139,7 +139,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
 
             case FileSelectPhase.LoadBackground:
-                // $81:9E93 queues the Zebes/stars BG2 tilemap.
+                // File select queues the Zebes/stars BG2 tilemap.
                 Phase = FileSelectPhase.InitializeMain;
                 break;
 
@@ -155,7 +155,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
 
             case FileSelectPhase.FadeIn:
-                // $81:A058 index three.
+                // Index three.
                 screenFade.FadeIn(ref brightness);
                 if (brightness == ScreenBrightness.FullyLit)
                     Phase = FileSelectPhase.Main;
@@ -183,7 +183,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
             case FileSelectPhase.TurnSelectedHelmet:
                 StepSelectedHelmet();
-                // $81:9D91: Start/A ends the turn early; otherwise it ends once the
+                // Start/A ends the turn early; otherwise it ends once the
                 // final frame has also used up its own timer, which then reads zero.
                 if ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None ||
                     (HelmetAnimationFrame == FileSelectHelmetAnimation.FrameCount - 1 && helmetAnimationTimer == 0))
@@ -206,7 +206,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         }
     }
 
-    /// <summary>Captures file-menu display state after simulation-owned OAM preparation.</summary>
+    /// <summary>Captures file-menu display state after simulation-owned sprite preparation.</summary>
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
@@ -237,7 +237,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         for (int slot = 0; mainScreen && slot < 3; slot++)
         {
             // Menu index 32 fades with the completed (or Start-shortened) helmet turn
-            // still resident in OAM. Resetting to the first frame during the fade produces
+            // still drawn. Resetting to the first frame during the fade produces
             // a one-frame-visible head snap immediately before loading.
             int frame = FileSelectItemRows.ForSaveSlot(slot) == SelectedItem && Phase is
                     FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
@@ -264,7 +264,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     }
 
     /// <summary>
-    /// $81:9DE4 timer step for the selected helmet: each frame lasts the reload duration,
+    /// The timer step for the selected helmet: each frame lasts the reload duration,
     /// and advancing past the last frame stops the timer at zero on that frame instead.
     /// </summary>
     private void StepSelectedHelmet()
@@ -295,7 +295,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private int copyTargetSlot;
     /// <summary>Yes or No row selected on the copy or clear confirmation page.</summary>
     private YesNoChoice confirmationSelection;
-    /// <summary>Updates remaining before the copy arrow rotates its CGRAM colors.</summary>
+    /// <summary>Updates remaining before the copy arrow rotates its colors.</summary>
     private int copyArrowPaletteTimer;
 
     /// <summary>Controls whether the main page exposes Copy and Clear navigation.</summary>
@@ -536,7 +536,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         Phase = FileSelectPhase.CopyConfirm;
     }
 
-    /// <summary>Rotates the copy arrow palette colors when its native CGRAM animation timer expires.</summary>
+    /// <summary>Rotates the copy arrow palette colors when its animation timer expires.</summary>
     private void StepCopyArrowPalette()
     {
         if (copyArrowPaletteTimer == 0 || --copyArrowPaletteTimer != 0)
@@ -691,7 +691,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         return presentation.CursorPosition(page, row);
     }
 
-    /// <summary>Queues the menu cursor sound with the native six-request limit.</summary>
+    /// <summary>Queues the menu cursor sound with the six-request limit.</summary>
     private void QueueCursorSound() =>
         audio?.QueueSound(Library1Sound.MenuCursor, priority: SoundRequestPriority.Normal);
 
@@ -709,7 +709,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
     /// <summary>
     /// Shows the selected page with each slot's field and the slots its copy or clear prompt names, as they are now: the
-    /// cartridge uploads the page only where file select selects it or its slots change (#1467).
+    /// game redraws the page only where file select selects it or its slots change (#1467).
     /// </summary>
     private void RebuildInstalledPresentationPage() =>
         ShownPage = new ShownFileSelectPage(currentPresentationPage,

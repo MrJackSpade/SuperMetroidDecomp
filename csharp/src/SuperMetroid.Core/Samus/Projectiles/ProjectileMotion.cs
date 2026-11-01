@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 [RoomLifetime]
 internal sealed class ProjectileMotion
 {
-    /// <summary>Clears shots that expire or leave the native movement window.</summary>
+    /// <summary>Clears shots that expire or leave the movement window.</summary>
     private readonly ProjectileAnimation _animation;
     /// <summary>Allocates and removes the invisible Super Missile link slots.</summary>
     private readonly ProjectileSlotTable _slotTable;
@@ -40,8 +40,8 @@ internal sealed class ProjectileMotion
             return false;
         }
 
-        // `$90:AF00` allocates a persistent trail before applying acceleration or movement.
-        // Thus the detached 8x8 OBJ records the beam's old world position and visibly falls
+        // The trail beam's update allocates a persistent trail before applying acceleration or movement.
+        // Thus the detached 8x8 sprite records the beam's old world position and visibly falls
         // behind it. Failure to preserve this order makes the trail sit inside the projectile.
         slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
         if (slot.TrailTimer.IsZero)
@@ -80,7 +80,7 @@ internal sealed class ProjectileMotion
         if (collided)
             _terrainCollision.KillBeamOnBlockCollision(slot, powerBomb);
 
-        // $90:AF00 checks the movement window after the direction handler even
+        // The beam update checks the movement window after the direction handler even
         // when collision changed the beam into an explosion. KillBeam moves its
         // origin to the contact edge, which can put an otherwise retained shot
         // outside that window on this very frame.
@@ -102,7 +102,7 @@ internal sealed class ProjectileMotion
             return;
         }
 
-        // `$90:B0C3` and `$90:B0E4` differ only in the value reloaded after a trail timer
+        // The two trail updates differ only in the value reloaded after a trail timer
         // expires. The producer always starts at four; an uncharged low-family wave becomes
         // three only after its first emission. Spawning precedes acceleration and movement,
         // so the trail samples the old world position just like the no-wave family.
@@ -132,9 +132,9 @@ internal sealed class ProjectileMotion
             return;
         }
 
-        // `$90:B159` falls directly into the shared Wave movement. Hyper deliberately has
+        // Hyper's update falls directly into the shared Wave movement. Hyper deliberately has
         // no projectile-trail timer or SpawnProjectileTrail call; its long beam spritemap
-        // and the separately counting muzzle flare provide the complete native presentation.
+        // and the separately counting muzzle flare provide the complete presentation.
         RunWaveBeamShared(level, slot, layer1, roomPlms);
     }
 
@@ -153,7 +153,7 @@ internal sealed class ProjectileMotion
             WordWrap.Signed(SamusProjectileAccelerations.ReadWord(
                 SamusFiringTableDefinitions.BeamYAccelerations + direction * 2)))));
 
-        // `$94:A352/$A3E4` advance the same 16.16 positions and scan every block touched by
+        // Wave's block collisions advance the same 16.16 positions and scan every block touched by
         // the projectile radii, but deliberately return carry clear unconditionally. That is
         // the defining Wave Beam behavior: block reactions may run, yet terrain never kills
         // or clips the shot. The span scanners below now publish ordinary shootable-block
@@ -196,7 +196,7 @@ internal sealed class ProjectileMotion
 
         int direction = slot.Direction.ToAimIndex();
 
-        // Missile pre-instruction `$90:AF8F-$AFA0` first applies the same small directional
+        // The missile's frame behaviour first applies the same small directional
         // acceleration as beams. On the ignition frame Missile_Func1 below replaces velocity,
         // so this addition is intentionally overwritten; subsequent frames retain it.
         slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.X.SignedRawValue +
@@ -234,7 +234,7 @@ internal sealed class ProjectileMotion
         if (collided)
             _terrainCollision.KillMissile(slot, sharedProjectiles);
 
-        // The native missile direction handler may create an explosion just
+        // The missile direction handler may create an explosion just
         // beyond the retention boundary. Its caller still runs the offscreen
         // check on that same frame, after impact sound/cooldown side effects.
         DeleteIfOutsideMovementWindow(slot, layer1);
@@ -257,9 +257,9 @@ internal sealed class ProjectileMotion
             return false;
         }
 
-        // `$90:AFF3` begins with the producer's value four but reloads two after every
+        // The Super Missile trail begins with the producer's value four but reloads two after every
         // expiry. Super Missiles therefore emit twice as frequently as ordinary missiles;
-        // both families still select the same `$B5A1` art through pointer entries $20/$21.
+        // both families still select the same trail art through pointer entries $20/$21.
         slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
         if (slot.TrailTimer.IsZero)
         {
@@ -311,12 +311,12 @@ internal sealed class ProjectileMotion
     }
 
     /// <summary>
-    /// Applies the shared bank-$90 beam/missile deletion window after movement. The SNES
+    /// Applies the shared beam/missile deletion window after movement. The game's
     /// routine allows a 64-pixel apron above and left of the viewport and extends through
-    /// coordinate 319 on the other axes; centralizing those native bounds keeps projectile
+    /// coordinate 319 on the other axes; centralizing those bounds keeps projectile
     /// families from drifting apart during later translation.
     /// </summary>
-    /// <returns>True when the projectile was outside the native movement window and cleared.</returns>
+    /// <returns>True when the projectile was outside the movement window and cleared.</returns>
     private bool DeleteIfOutsideMovementWindow(
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1)
@@ -366,9 +366,9 @@ internal sealed class ProjectileMotion
         link.IsSpent = owner.IsSpent;
         link.Position = link.Position.WithWhole(owner.Position.Whole);
 
-        // `$90:BF78` deliberately calls the ordinary muzzle initializer again after copying
+        // The Super Missile link deliberately calls the ordinary muzzle initializer again after copying
         // the owner's coordinates. At ignition both positions are equivalent; retaining the
-        // call matters for moving/transition poses whose cartridge origin tables can change.
+        // call matters for moving/transition poses whose origin tables can change.
         BeamFiring.InitializePosition(samus, link);
         SamusProjectileHeader header = SamusProjectileSelection.Select(SamusProjectileSelectorTable.SuperMissileLink, 2);
         link.Damage = SamusProjectileDamage.Read(header);
@@ -383,7 +383,7 @@ internal sealed class ProjectileMotion
     /// <summary>Keeps an ordinary link stationary or clears the whole Super Missile family on its deletion signal.</summary>
     internal void RunSuperMissileLinkFrameBehavior(SamusProjectileSlot link)
     {
-        // `$90:B075` leaves an ordinary link completely stationary. A spent link clears every
+        // The link update leaves an ordinary link completely stationary. A spent link clears every
         // Super Missile slot, including its owner.
         if (!link.IsSpent)
             return;
@@ -410,7 +410,7 @@ internal sealed class ProjectileMotion
         bool ownerExploded = owner.Type.IsFamily(SamusProjectileFamily.MissileExplosion);
         if (wholeMagnitude < 11)
         {
-            // `$90:B494`: a slow link clears at once if the owner has already exploded,
+            // A slow link clears at once if the owner has already exploded,
             // otherwise it only follows the owner's center.
             if (ownerExploded)
             {
@@ -424,7 +424,7 @@ internal sealed class ProjectileMotion
             return;
         }
 
-        // `$90:B438-$B467`: a fast link samples ten pixels beyond the owner's previous
+        // A fast link samples ten pixels beyond the owner's previous
         // position to close the point-collision gap, and does so even when the owner has
         // just exploded; only then is it cleared. A missile that skips a door cap and
         // strikes the door behind it still opens the cap through its link.
@@ -463,7 +463,7 @@ internal sealed class ProjectileMotion
     {
         slot.Position = slot.Position.AdvanceX(ProjectileTerrainCollision.EightEightDelta(slot.Velocity.X.SignedRawValue));
 
-        // `$94:A46F` tests the projectile center, not its radius-spanning leading edge. Room
+        // Missile block collision tests the projectile center, not its radius-spanning leading edge. Room
         // width is stored in 256-pixel screens; coordinates in/past the first out-of-room
         // high byte skip reaction and are left for the later 64-pixel viewport deletion.
         int roomWidthInScreens = (level.Size.X + 15) >> 4;
@@ -505,7 +505,7 @@ internal sealed class ProjectileMotion
 
         RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
 
-        // `$94:9D9F/$9DCA` return the dispatcher to its caller with N set, causing the same
+        // Extension blocks return the dispatcher to its caller with N set, causing the same
         // point reaction to run again on the signed horizontal/vertical parent. A zero-behaviour
         // extension is transparent. Reuse the already translated level resolver so missiles
         // and the broad Samus body scans cannot disagree about chained extensions.
@@ -519,7 +519,7 @@ internal sealed class ProjectileMotion
         }
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
-            // `$94:9E55/$9E73` run the bank-$84 spawn before returning the collision
+            // The shootable reactions run the spawn before returning the collision
             // nibble's normal carry: type four remains pass-through; type C is solid.
             ProjectileTerrainCollision.TrySpawnShootableReaction(level, slot, block, roomPlms);
             return block.CollisionType == RoomCollisionType.ShootableBlock;
@@ -527,10 +527,10 @@ internal sealed class ProjectileMotion
 
         if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
         {
-            // `$94:9FD6/$9FF4` always indexes the bomb-block PLM table for nonnegative behaviour.
-            // A missile or Super Missile still performs Spawn_PLM, but setup `$84:CEDA`
-            // immediately clears the new slot because its family is neither `$0500` nor
-            // `$0300`; no terrain write, timer, sound, or persistent PLM survives that call.
+            // Bombable reactions always index the bomb-block PLM table for nonnegative behaviour.
+            // A missile or Super Missile still performs Spawn_PLM, but the bomb-block setup
+            // immediately clears the new slot because its family is neither a bomb
+            // nor a power bomb; no terrain write, timer, sound, or persistent PLM survives that call.
             // The reaction's carry is independent of setup: bombable air passes through,
             // while bombable solid destroys the missile.
             return block.CollisionType == RoomCollisionType.BombableBlock;
@@ -550,7 +550,7 @@ internal sealed class ProjectileMotion
             RoomCollisionType.SpecialBlock or
             RoomCollisionType.GrappleBlock => true,
 
-            // `$94:A147/$A15E` divide slope behaviour values into the five square definitions and
+            // Missile slope collision divides slope behaviour values into the five square definitions and
             // the remaining 27 pixel-height definitions. Both paths use the missile center;
             // the direction only changes which half of a square definition is sampled.
             RoomCollisionType.Slope =>
@@ -580,8 +580,8 @@ internal sealed class ProjectileMotion
         int slopeShape = block.Behavior.SlopeShape;
         if (slopeShape >= 5)
         {
-            // `$94:A58F` mirrors the projectile's within-block coordinate before indexing
-            // the cartridge table. behaviour bit 6 flips X and bit 7 flips Y. A table height at or
+            // Non-square slope collision mirrors the projectile's within-block coordinate before indexing
+            // the game table. behaviour bit 6 flips X and bit 7 flips Y. A table height at or
             // above the mirrored Y point (the original uses signed `height - y <= 0`) is
             // solid. Values can reach 20 for overhanging shapes, so do not mask to a nibble.
             int xInBlock = slot.Position.X.Whole & 15;
@@ -596,9 +596,9 @@ internal sealed class ProjectileMotion
             return height <= yInBlock;
         }
 
-        // `$94:A66A/$A71A` treat each square slope as four 8x8 quadrants. The top two behaviour
+        // Square slope collision treats each square slope as four 8x8 quadrants. The top two behaviour
         // bits select the base flip, while the projectile half along the movement axis and
-        // then the perpendicular axis select the exact quadrant. Each ROM byte is either
+        // then the perpendicular axis select the exact quadrant. Each authored byte is either
         // `$00` (air) or `$80` (solid).
         int quadrant = slopeShape * 4 + block.Behavior.SlopeOrientation;
         if (horizontalMovement)

@@ -11,7 +11,7 @@ public static class MapScreenDefinitions
     public const string FileName = "map-screens.json";
     /// <summary>The shared world-map foreground page.</summary>
     public static MapScreenPageId WorldForeground => MapScreenPageId.WorldForeground.Instance;
-    /// <summary>Number of columns and rows in each complete SNES tilemap page.</summary>
+    /// <summary>Number of columns and rows in each complete tilemap page.</summary>
     public const int PageColumns = 32, PageRows = 32;
     /// <summary>Number of tilemap cells in one 32-by-32 page.</summary>
     public const int PageCells = PageColumns * PageRows;

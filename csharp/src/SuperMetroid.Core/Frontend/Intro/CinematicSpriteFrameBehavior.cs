@@ -1,78 +1,78 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>The bank-$8B pre-instructions cinematic sprites run, whether their lists or their owners install them.</summary>
+/// <summary>The per-frame behaviours cinematic sprites run, whether their animation scripts or their owners install them.</summary>
 internal enum CinematicSpriteFrameBehavior
 {
-    /// <summary><c>RTS_8B93D9</c>, the shared no-op pre-instruction.</summary>
+    /// <summary>The shared behaviour that does nothing.</summary>
     NoOp = 1,
-    /// <summary><c>FrameBehavior_CinematicSpriteObject_MetroidEgg</c> at $8B:A8E8.</summary>
+    /// <summary>The Metroid egg's behaviour.</summary>
     MetroidEgg,
-    /// <summary><c>FrameBehavior_MetroidEgg_DeleteAfterCrossFade</c> at $8B:A903.</summary>
+    /// <summary>Deletes the Metroid egg once its cross-fade completes.</summary>
     MetroidEggDeleteAfterCrossFade,
-    /// <summary><c>FrameBehavior_CinematicSpriteObject_MetroidEggParticle</c> at $8B:A994.</summary>
+    /// <summary>A Metroid egg particle's flight.</summary>
     MetroidEggParticle,
-    /// <summary><c>FrameBehavior_CinematicSpriteObject_MetroidEggSlimeDrops</c> at $8B:AAB3.</summary>
+    /// <summary>The Metroid egg's slime drops.</summary>
     MetroidEggSlimeDrops,
-    /// <summary><c>PreInst_CinematicSpriteObject_BabyMetroidBeingDelivered</c> at $8B:AD68.</summary>
+    /// <summary>The Baby Metroid being delivered.</summary>
     BabyMetroidBeingDelivered,
-    /// <summary><c>PreInst_CinematicSpriteObject_BabyMetroidBeingExamined</c> at $8B:ADA6.</summary>
+    /// <summary>The Baby Metroid being examined.</summary>
     BabyMetroidBeingExamined,
-    /// <summary><c>FrameBehavior_IntroMotherBrain_CrossFading</c> at $8B:B82E.</summary>
+    /// <summary>The intro Mother Brain during the page cross-fade.</summary>
     IntroMotherBrainCrossFading,
-    /// <summary><c>FrameBehavior_IntroRinka_Moving_HitsSamus</c> at $8B:B8D8.</summary>
+    /// <summary>An intro Rinka moving on a course that hits Samus.</summary>
     IntroRinkaMovingHitsSamus,
-    /// <summary><c>FrameBehavior_IntroRinka_Moving_MissesSamus</c> at $8B:B93B.</summary>
+    /// <summary>An intro Rinka moving on a course that misses Samus.</summary>
     IntroRinkaMovingMissesSamus,
-    /// <summary><c>FrameBehavior_CinematicSpriteObject_ConfusedBabyMetroid</c> at $8B:BA5E: waiting for the egg to hatch.</summary>
+    /// <summary>The confused Baby Metroid waiting for the egg to hatch.</summary>
     ConfusedBabyWaitingForHatch,
-    /// <summary><c>FrameBehavior_ConfusedBabyMetroid_Hatched</c> at $8B:BA73.</summary>
+    /// <summary>The confused Baby Metroid once the egg has hatched.</summary>
     ConfusedBabyHatched,
-    /// <summary><c>FrameBehavior_ConfusedBabyMetroid_Idling</c> at $8B:BB0D.</summary>
+    /// <summary>The confused Baby Metroid idling.</summary>
     ConfusedBabyIdling,
-    /// <summary><c>FrameBehavior_ConfusedBabyMetroid_Dancing</c> at $8B:BB24.</summary>
+    /// <summary>The confused Baby Metroid dancing.</summary>
     ConfusedBabyDancing,
-    /// <summary><c>FrameBehavior_CinematicSpriteObject_CeresStars</c> at $8B:BEB5.</summary>
+    /// <summary>The Ceres star field's motion.</summary>
     CeresStars,
-    /// <summary><c>PreInst_CinematicSpriteObject_CeresExplosionLargeAsteroids</c> at $8B:BF35.</summary>
+    /// <summary>The Ceres destruction's large asteroids drifting.</summary>
     CeresLargeAsteroids,
-    /// <summary><c>FrameBehavior_CinematicSpriteObject_CeresUnderAttack</c> at $8B:BF5F.</summary>
+    /// <summary>Ceres station under attack drifting.</summary>
     CeresUnderAttack,
-    /// <summary><c>FrameBehavior_CinematicSpriteObject_CeresSmallAsteroid</c> at $8B:BF89.</summary>
+    /// <summary>The Ceres small asteroids drifting.</summary>
     CeresSmallAsteroid,
-    /// <summary><c>FrameBehavior_CinematicSpriteObject_CeresPurpleSpaceVortex</c> at $8B:BFC6.</summary>
+    /// <summary>The purple space vortex drifting.</summary>
     CeresPurpleSpaceVortex,
-    /// <summary><c>RTS_8BBFD9</c>, the no-op the stationary vortex's initializer installs.</summary>
+    /// <summary>The behaviour the stationary vortex's initializer installs, which does nothing.</summary>
     CeresStationaryVortexNoOp,
-    /// <summary>The Ceres explosion spawner's repeating explosions at $8B:C489.</summary>
+    /// <summary>The Ceres explosion spawner's repeating explosions.</summary>
     CeresExplosionSpawnerRepeating,
-    /// <summary><c>FrameBehavior_CinematicSpriteObject_CeresExplosion</c> at $8B:C582.</summary>
+    /// <summary>A Ceres explosion's motion with the fleeing gunship.</summary>
     CeresExplosion,
-    /// <summary><c>FrameBehavior_CinematicSpriteObject_Zebes</c> at $8B:C84E.</summary>
+    /// <summary>Planet Zebes waiting for the scene to slide.</summary>
     Zebes,
-    /// <summary><c>FrameBehavior_Zebes_SlideSceneAway</c> at $8B:C85D.</summary>
+    /// <summary>Planet Zebes sliding the scene away.</summary>
     ZebesSlideSceneAway,
-    /// <summary><c>FrameBehavior_CinematicSpriteObject_ZebesStars5</c> at $8B:C8AA: the completion owner waits for scene sliding.</summary>
+    /// <summary>The completion owner's star sheet waiting for scene sliding.</summary>
     ZebesStarsCompletionWait,
-    /// <summary><c>FrameBehavior_ZebesStars5_SlideSceneAway</c> at $8B:C8B9, which additionally installs game load at C8F2.</summary>
+    /// <summary>The completion owner's star sheet sliding the scene away, which additionally hands the cinematic back to game load.</summary>
     ZebesStarsCompletionSlideSceneAway,
-    /// <summary><c>FrameBehavior_CinematicSpriteObject_ZebesStars_2_3_4</c> at $8B:C8F9: waits for scene sliding.</summary>
+    /// <summary>The other star sheets waiting for scene sliding.</summary>
     ZebesStarsWait,
-    /// <summary><c>FrameBehavior_ZebesStars_2_3_4_SlideSceneAway</c> at $8B:C908.</summary>
+    /// <summary>The other star sheets sliding the scene away.</summary>
     ZebesStarsSlideSceneAway,
-    /// <summary>The Super Metroid icon's top half at $8B:F1E7.</summary>
+    /// <summary>The Super Metroid icon's top half.</summary>
     SuperMetroidIconTopHalf,
-    /// <summary>The Super Metroid icon's bottom half at $8B:F227.</summary>
+    /// <summary>The Super Metroid icon's bottom half.</summary>
     SuperMetroidIconBottomHalf,
-    /// <summary>The left stars' wait for the flyaway at $8B:F35A.</summary>
+    /// <summary>The left stars' wait for the flyaway.</summary>
     ZebesExplosionStarsWaitForFlyaway,
-    /// <summary>The left stars' horizontal acceleration at $8B:F375, falling through to the text-handoff deletion check.</summary>
+    /// <summary>The left stars' horizontal acceleration, falling through to the text-handoff deletion check.</summary>
     ZebesExplosionStarsMoving,
-    /// <summary><c>RTS_8BF51C</c>, the suitless upper body's no-op.</summary>
+    /// <summary>The suitless upper body's behaviour, which does nothing.</summary>
     RewardSuitlessUpperNoOp,
-    /// <summary>The reward body's flight at $8B:F528, which switches to the falling sheet above Y=-80.</summary>
+    /// <summary>The reward body's flight, which switches to the falling sheet above Y=-80.</summary>
     RewardBodyFlight,
-    /// <summary>The reward head's flight at $8B:F57F, which deletes the old head above Y=-80.</summary>
+    /// <summary>The reward head's flight, which deletes the old head above Y=-80.</summary>
     RewardHeadFlight,
-    /// <summary>The returning reward body at $8B:F5DD, which queues graphics and lands at Y=136.</summary>
+    /// <summary>The returning reward body, which queues graphics and lands at Y=136.</summary>
     RewardLanding,
 }

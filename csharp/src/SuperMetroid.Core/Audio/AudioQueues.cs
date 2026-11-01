@@ -64,7 +64,7 @@ public sealed class AudioQueues
     public AudioQueues() => Reset();
 
     /// <summary>
-    /// Door-owned part of native DisableSounds ($05F5): set after the entry stop
+    /// Door-owned part of the sound-disable switch: set after the entry stop
     /// commands and cleared after the destination fade. The frontend reconstructs
     /// it from its serialized coroutine state before every frame, including restores.
     /// It rejects new SFX only; queued sounds and music continue to advance.
@@ -82,7 +82,7 @@ public sealed class AudioQueues
     public bool HasQueuedMusic => MusicDelays.Any(delay => delay.Updates != 0);
 
     /// <summary>
-    /// Exact door-transition predicate at <c>$82:E2B5-$82:E2D7</c>: true while any of the
+    /// Exact door-transition predicate: true while any of the
     /// three sixteen-entry SFX rings has an unread request. An already-dequeued request that
     /// is merely waiting for its library's acknowledgement does not keep the door wait alive.
     /// </summary>
@@ -122,7 +122,7 @@ public sealed class AudioQueues
         PlayingTrack = null;
         _pendingPowerOnRequests.Clear();
 
-        // $80:841C installs the shared sounds, then stops the music and withdraws library
+        // Starting the game installs the shared sounds, then stops the music and withdraws library
         // two's request before the first ordinary dispatcher frame.
         _pendingPowerOnRequests.Add(new AudioRequest.ChangeMusicDataSet(null));
         _pendingPowerOnRequests.Add(new AudioRequest.StopMusic());
@@ -152,11 +152,11 @@ public sealed class AudioQueues
         // LoadRoomMusic first silences the current track and loads a changed room data set.
         // LoadNewMusicTrackIfChanged then queues the room's selected track.
         bool changesMusicData = QueueRoomMusicData(music.DataSet);
-        // `$82:E0E1` returns immediately for an inherited track. Most post-Ridley Ceres
+        // A door into a room that inherits its track leaves the music alone. Most post-Ridley Ceres
         // states deliberately inherit so track seven and its alarm bed continue through
         // every door. Treating that as a request to stop replaced the live escape track at
         // the first transition.
-        // `$82:E0E6-$E104` compares the requested data set and track, not the track alone.
+        // The door compares the requested data set and track, not the track alone.
         // A changed data set restarts the track even when both sets happen to use the same
         // track number. The Ceres interstitial ends on the Zebes-explosion set's track 5;
         // Landing Site requests the empty-Crateria set's track 5 and therefore must queue
@@ -166,7 +166,7 @@ public sealed class AudioQueues
     }
 
     /// <summary>
-    /// Executes $82:E0D5 after the door scroll and earlier music requests finish. An
+    /// Runs the door's music change after the door scroll and earlier music requests finish. An
     /// inherited track keeps the current one; otherwise the room's data set and track are
     /// compared with the loaded data set and the playing track.
     /// </summary>
@@ -177,7 +177,7 @@ public sealed class AudioQueues
     }
 
     /// <summary>
-    /// Queues only $82:E071's change to a different room data set. Saved-game loading
+    /// Queues only the change to a different room data set. Saved-game loading
     /// shares this operation but lets the appearance coroutine schedule its own tracks.
     /// </summary>
     /// <param name="dataSet">The room's data set, or null to keep the loaded one.</param>
@@ -204,12 +204,12 @@ public sealed class AudioQueues
     };
 
     /// <summary>
-    /// Executes the shared permanent-item music sequence from bank <c>$84</c>.
+    /// Runs the shared permanent-item music sequence.
     /// </summary>
     /// <remarks>
-    /// Every exposed, Chozo, and shot-block item list reaches <c>$84:8BDD</c> with track
-    /// two before its pickup instruction calls <c>PlayRoomMusicTrackAfterAFrames($0168)</c>.
-    /// The latter snapshots the currently playing room track, queues silence after 360
+    /// Every exposed, Chozo, and shot-block item reaches the item fanfare with track
+    /// two before its pickup step schedules the room track's return.
+    /// That step snapshots the currently playing room track, queues silence after 360
     /// frames, then restores that snapshot eight frames later. Queue clearing is part of
     /// the first opcode: retaining an older delayed room command can pre-empt the fanfare.
     /// </remarks>
@@ -266,7 +266,7 @@ public sealed class AudioQueues
             return admission;
 
         // The ring never fills here: a full ring holds fifteen unread requests, and every priority admits at most fifteen,
-        // so the occupancy test above has already rejected the request. The cartridge's full-ring branch, which keeps
+        // so the occupancy test above has already rejected the request. The game's full-ring branch, which keeps
         // the higher-priority of two requests in the last free position, is unreachable.
         int write = SoundWritePositions[queue];
         int next = NextSoundPosition(write);
@@ -339,7 +339,7 @@ public sealed class AudioQueues
                 DataSet = change.DataSet;
                 PlayingTrack = null;
                 requests.Add(new AudioRequest.ChangeMusicDataSet(change.DataSet));
-                // `$80:8F89-$8FA2` retires the data entry and returns. The timer stays zero,
+                // Retiring the data entry returns at once. The timer stays zero,
                 // so the next entry is fetched only on the following call when it underflows.
                 ClearAndAdvanceMusicEntry();
                 _soundHandlerDowntime = AudioQueueDefinitions.MusicChangeSoundDowntimeCalls;
@@ -405,11 +405,11 @@ public sealed class AudioQueues
     {
         switch (SoundStates[queue])
         {
-            case 0: // $82:8A2C - send the next queued request to its library.
+            case 0: // Send the next queued request to its library.
                 SendNextSound(queue, requests);
                 break;
 
-            case 1: // $82:8A55 - wait until the library acknowledges the request.
+            case 1: // Wait until the library acknowledges the request.
                 if (!acknowledgement.Acknowledges(_currentSounds[queue]))
                     requests.Add(AudioRequest.ForSound(SoundEffectLibraries.FromQueueIndex(queue), _currentSounds[queue]));
                 else
@@ -419,7 +419,7 @@ public sealed class AudioQueues
                 }
                 break;
 
-            case 2: // $82:8A6C - wait two frames, then withdraw the request.
+            case 2: // Wait two frames, then withdraw the request.
                 if ((_soundClearDelays[queue] = WrappingCounter.DecrementByte(_soundClearDelays[queue])) == 0)
                 {
                     requests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibraries.FromQueueIndex(queue)));
@@ -428,7 +428,7 @@ public sealed class AudioQueues
                 }
                 break;
 
-            case 3: // $82:8A7C - wait for the library to acknowledge the withdrawal, then continue.
+            case 3: // Wait for the library to acknowledge the withdrawal, then continue.
                 if (!acknowledgement.IsNone)
                 {
                     requests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibraries.FromQueueIndex(queue)));

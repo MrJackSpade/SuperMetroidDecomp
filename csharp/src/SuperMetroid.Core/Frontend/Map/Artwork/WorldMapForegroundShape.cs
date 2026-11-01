@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
-/// <summary>The calculated drawing of a $8E:8000..D5FF world-map foreground character cell: which supplied source pixel
+/// <summary>The calculated drawing of a world-map foreground character cell: which supplied source pixel
 /// each of its pixels shows.</summary>
 public enum WorldMapForegroundShape
 {

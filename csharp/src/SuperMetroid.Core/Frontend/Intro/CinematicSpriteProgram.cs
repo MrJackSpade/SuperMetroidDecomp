@@ -1,234 +1,234 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Every bank-$8B cinematic sprite list as a typed program (#641), in authored order.</summary>
+/// <summary>Every cinematic sprite animation script as a typed program (#641), in authored order.</summary>
 internal enum CinematicSpriteProgram
 {
-    /// <summary>The intro Mother Brain's four-pose loop ($8B:CB05).</summary>
+    /// <summary>The intro Mother Brain's four-pose loop.</summary>
     IntroMotherBrain,
-    /// <summary>Starts the intro's second page and its cross-fade ($8B:CB19).</summary>
+    /// <summary>Starts the intro's second page and its cross-fade.</summary>
     IntroMotherBrainStartPage2,
-    /// <summary>The intro Mother Brain's loop during the second page ($8B:CB1F).</summary>
+    /// <summary>The intro Mother Brain's loop during the second page.</summary>
     IntroMotherBrainPageTwo,
-    /// <summary>The Metroid egg at rest ($8B:CB33).</summary>
+    /// <summary>The Metroid egg at rest.</summary>
     MetroidEgg,
-    /// <summary>The Metroid egg shaking and hatching ($8B:CB3B).</summary>
+    /// <summary>The Metroid egg shaking and hatching.</summary>
     MetroidEggHatching,
-    /// <summary>The Metroid egg's shaking and hatching frames ($8B:CB43).</summary>
+    /// <summary>The Metroid egg's shaking and hatching frames.</summary>
     MetroidEggShaking,
-    /// <summary>The hatched egg's remaining frames before the third page ($8B:CB79).</summary>
+    /// <summary>The hatched egg's remaining frames before the third page.</summary>
     MetroidEggHatchedFrame2,
-    /// <summary>The hatched egg ($8B:CB97).</summary>
+    /// <summary>The hatched egg.</summary>
     MetroidEggHatched,
-    /// <summary>The Baby Metroid being delivered ($8B:CB9F).</summary>
+    /// <summary>The Baby Metroid being delivered.</summary>
     BabyMetroidBeingDelivered,
-    /// <summary>The delivered Baby Metroid's counted loop before the fourth page ($8B:CBA3).</summary>
+    /// <summary>The delivered Baby Metroid's counted loop before the fourth page.</summary>
     BabyMetroidBeingDeliveredLoop,
-    /// <summary>The delivered Baby Metroid ($8B:CBB9).</summary>
+    /// <summary>The delivered Baby Metroid.</summary>
     BabyMetroidDelivered,
-    /// <summary>The Baby Metroid being examined ($8B:CBCD).</summary>
+    /// <summary>The Baby Metroid being examined.</summary>
     BabyMetroidBeingExamined,
-    /// <summary>The examined Baby Metroid's counted loop before the fifth page ($8B:CBD1).</summary>
+    /// <summary>The examined Baby Metroid's counted loop before the fifth page.</summary>
     BabyMetroidBeingExaminedLoop,
-    /// <summary>The examined Baby Metroid ($8B:CBE7).</summary>
+    /// <summary>The examined Baby Metroid.</summary>
     BabyMetroidExamined,
-    /// <summary>The intro text caret ($8B:CBFB).</summary>
+    /// <summary>The intro text caret.</summary>
     IntroTextCaret,
-    /// <summary>The intro text caret blinking ($8B:CC03).</summary>
+    /// <summary>The intro text caret blinking.</summary>
     IntroTextCaretBlink,
-    /// <summary>The scientist cutscene's arrow ($8B:CC0F).</summary>
+    /// <summary>The scientist cutscene's arrow.</summary>
     IntroScientistArrow,
-    /// <summary>The scientist cutscene's arrow after its delay ($8B:CC23).</summary>
+    /// <summary>The scientist cutscene's arrow after its delay.</summary>
     IntroScientistArrowDelayed,
-    /// <summary>The confused Baby Metroid ($8B:CC2B).</summary>
+    /// <summary>The confused Baby Metroid.</summary>
     ConfusedBabyMetroid,
-    /// <summary>The destruction scene's large asteroid ($8B:CC3F).</summary>
+    /// <summary>The destruction scene's large asteroid.</summary>
     CeresDestructionLargeAsteroid,
-    /// <summary>Ceres station under attack ($8B:CC47).</summary>
+    /// <summary>Ceres station under attack.</summary>
     CeresUnderAttack,
-    /// <summary>The small asteroids ($8B:CC4F).</summary>
+    /// <summary>The small asteroids.</summary>
     CeresSmallAsteroid,
-    /// <summary>The purple space vortex ($8B:CC57).</summary>
+    /// <summary>The purple space vortex.</summary>
     CeresVortex,
-    /// <summary>Planet Zebes ($8B:CCAB).</summary>
+    /// <summary>Planet Zebes.</summary>
     ZebesPlanet,
-    /// <summary>The PLANET ZEBES title ($8B:CCBB).</summary>
+    /// <summary>The PLANET ZEBES title.</summary>
     ZebesTitle,
-    /// <summary>The Japanese PLANET ZEBES title ($8B:CCD5).</summary>
+    /// <summary>The Japanese PLANET ZEBES title.</summary>
     ZebesJapaneseTitle,
-    /// <summary>Ceres's first delayed small explosion ($8B:CCDB).</summary>
+    /// <summary>Ceres's first delayed small explosion.</summary>
     CeresSmallExplosion,
-    /// <summary>Ceres's repeating small explosion ($8B:CCF5).</summary>
+    /// <summary>Ceres's repeating small explosion.</summary>
     CeresRepeatingSmallExplosion,
-    /// <summary>The repeating part of CeresRepeatingSmallExplosion ($8B:CCF9).</summary>
+    /// <summary>The repeating part of CeresRepeatingSmallExplosion.</summary>
     CeresRepeatingSmallExplosionLoop,
-    /// <summary>Ceres's final large explosion ($8B:CD1B).</summary>
+    /// <summary>Ceres's final large explosion.</summary>
     CeresLargeExplosion,
-    /// <summary>The repeating part of CeresLargeExplosion ($8B:CD1F).</summary>
+    /// <summary>The repeating part of CeresLargeExplosion.</summary>
     CeresLargeExplosionLoop,
-    /// <summary>Metroid egg particle 1 ($8B:CD39).</summary>
+    /// <summary>Metroid egg particle 1.</summary>
     MetroidEggParticle1,
-    /// <summary>Metroid egg particle 2 ($8B:CD41).</summary>
+    /// <summary>Metroid egg particle 2.</summary>
     MetroidEggParticle2,
-    /// <summary>Metroid egg particle 3 ($8B:CD49).</summary>
+    /// <summary>Metroid egg particle 3.</summary>
     MetroidEggParticle3,
-    /// <summary>Metroid egg particle 4 ($8B:CD51).</summary>
+    /// <summary>Metroid egg particle 4.</summary>
     MetroidEggParticle4,
-    /// <summary>Metroid egg particle 5 ($8B:CD59).</summary>
+    /// <summary>Metroid egg particle 5.</summary>
     MetroidEggParticle5,
-    /// <summary>Metroid egg particle 6 ($8B:CD61).</summary>
+    /// <summary>Metroid egg particle 6.</summary>
     MetroidEggParticle6,
-    /// <summary>Metroid egg particle 7 ($8B:CD69).</summary>
+    /// <summary>Metroid egg particle 7.</summary>
     MetroidEggParticle7,
-    /// <summary>An egg particle hitting the ground ($8B:CD71).</summary>
+    /// <summary>An egg particle hitting the ground.</summary>
     MetroidEggParticleHitGround,
-    /// <summary>Zebes star sheet 0 ($8B:CD83).</summary>
+    /// <summary>Zebes star sheet 0.</summary>
     ZebesStarSheet0,
-    /// <summary>Zebes star sheet 1 ($8B:CD8B).</summary>
+    /// <summary>Zebes star sheet 1.</summary>
     ZebesStarSheet1,
-    /// <summary>Zebes star sheet 2 ($8B:CD93).</summary>
+    /// <summary>Zebes star sheet 2.</summary>
     ZebesStarSheet2,
-    /// <summary>Zebes star sheet 3 ($8B:CD9B).</summary>
+    /// <summary>Zebes star sheet 3.</summary>
     ZebesStarSheet3,
-    /// <summary>The Ceres flight's star field ($8B:CDA3).</summary>
+    /// <summary>The Ceres flight's star field.</summary>
     CeresStars,
-    /// <summary>The intro Mother Brain's big explosion ($8B:CDAB).</summary>
+    /// <summary>The intro Mother Brain's big explosion.</summary>
     IntroMotherBrainExplosionBig,
-    /// <summary>The intro Mother Brain's small explosion ($8B:CDCB).</summary>
+    /// <summary>The intro Mother Brain's small explosion.</summary>
     IntroMotherBrainExplosionSmall,
-    /// <summary>An intro Rinka ($8B:CDEB).</summary>
+    /// <summary>An intro Rinka.</summary>
     IntroRinka,
-    /// <summary>An intro Rinka moving ($8B:CDF9).</summary>
+    /// <summary>An intro Rinka moving.</summary>
     IntroRinkaMoving,
-    /// <summary>The intro Rinka spawner ($8B:CE0D).</summary>
+    /// <summary>The intro Rinka spawner.</summary>
     IntroRinkaSpawner,
-    /// <summary>The Ceres station blast ($8B:CE1B).</summary>
+    /// <summary>The Ceres station blast.</summary>
     CeresStationBlast,
-    /// <summary>The Ceres explosion spawner's two waves ($8B:CE35).</summary>
+    /// <summary>The Ceres explosion spawner's two waves.</summary>
     CeresExplosionSpawner,
-    /// <summary>The Ceres flight's large asteroid ($8B:CE4B).</summary>
+    /// <summary>The Ceres flight's large asteroid.</summary>
     CeresLargeAsteroid,
-    /// <summary>Deletes the actor ($8B:CE53).</summary>
+    /// <summary>Deletes the actor.</summary>
     Delete,
-    /// <summary>The exploding planet ($8B:EB0F).</summary>
+    /// <summary>The exploding planet.</summary>
     ZebesExplosionPlanet,
-    /// <summary>The repeating part of ZebesExplosionPlanet ($8B:EB13).</summary>
+    /// <summary>The repeating part of ZebesExplosionPlanet.</summary>
     ZebesExplosionPlanetLoop,
-    /// <summary>The explosion's purple glow ($8B:EB3D).</summary>
+    /// <summary>The explosion's purple glow.</summary>
     ZebesExplosionGlow,
-    /// <summary>The explosion's stars ($8B:EB51).</summary>
+    /// <summary>The explosion's stars.</summary>
     ZebesExplosionStars,
-    /// <summary>The delayed lava ($8B:EB59).</summary>
+    /// <summary>The delayed lava.</summary>
     ZebesExplosionLava,
-    /// <summary>The repeating part of ZebesExplosionLava ($8B:EB5D).</summary>
+    /// <summary>The repeating part of ZebesExplosionLava.</summary>
     ZebesExplosionLavaLoop,
-    /// <summary>The explosion silhouette ($8B:EB69).</summary>
+    /// <summary>The explosion silhouette.</summary>
     ZebesExplosionSilhouette,
-    /// <summary>The right stars and the scene hand-off ($8B:EB71).</summary>
+    /// <summary>The right stars and the scene hand-off.</summary>
     ZebesExplosionRightStars,
-    /// <summary>The left stars ($8B:EB81).</summary>
+    /// <summary>The left stars.</summary>
     ZebesExplosionLeftStars,
-    /// <summary>The afterglow ($8B:EB89).</summary>
+    /// <summary>The afterglow.</summary>
     ZebesExplosionAfterglow,
-    /// <summary>THE OPERATION WAS ($8B:EB91).</summary>
+    /// <summary>THE OPERATION WAS.</summary>
     OperationWasText,
-    /// <summary>THE OPERATION WAS held ($8B:EBCF).</summary>
+    /// <summary>THE OPERATION WAS held.</summary>
     OperationWasTextHold,
-    /// <summary>COMPLETED SUCCESSFULLY ($8B:EBD7).</summary>
+    /// <summary>COMPLETED SUCCESSFULLY.</summary>
     CompletedSuccessfullyText,
-    /// <summary>COMPLETED SUCCESSFULLY held ($8B:EC2D).</summary>
+    /// <summary>COMPLETED SUCCESSFULLY held.</summary>
     CompletedSuccessfullyTextHold,
-    /// <summary>CLEAR TIME and the clear time's spawns ($8B:EC35).</summary>
+    /// <summary>CLEAR TIME and the clear time's spawns.</summary>
     ClearTimeText,
-    /// <summary>CLEAR TIME held ($8B:EC79).</summary>
+    /// <summary>CLEAR TIME held.</summary>
     ClearTimeTextHold,
-    /// <summary>The clear time digit 0 ($8B:EC81).</summary>
+    /// <summary>The clear time digit 0.</summary>
     ClearTimeDigit0,
-    /// <summary>The clear time digit 1 ($8B:EC89).</summary>
+    /// <summary>The clear time digit 1.</summary>
     ClearTimeDigit1,
-    /// <summary>The clear time digit 2 ($8B:EC91).</summary>
+    /// <summary>The clear time digit 2.</summary>
     ClearTimeDigit2,
-    /// <summary>The clear time digit 3 ($8B:EC99).</summary>
+    /// <summary>The clear time digit 3.</summary>
     ClearTimeDigit3,
-    /// <summary>The clear time digit 4 ($8B:ECA1).</summary>
+    /// <summary>The clear time digit 4.</summary>
     ClearTimeDigit4,
-    /// <summary>The clear time digit 5 ($8B:ECA9).</summary>
+    /// <summary>The clear time digit 5.</summary>
     ClearTimeDigit5,
-    /// <summary>The clear time digit 6 ($8B:ECB1).</summary>
+    /// <summary>The clear time digit 6.</summary>
     ClearTimeDigit6,
-    /// <summary>The clear time digit 7 ($8B:ECB9).</summary>
+    /// <summary>The clear time digit 7.</summary>
     ClearTimeDigit7,
-    /// <summary>The clear time digit 8 ($8B:ECC1).</summary>
+    /// <summary>The clear time digit 8.</summary>
     ClearTimeDigit8,
-    /// <summary>The clear time digit 9 ($8B:ECC9).</summary>
+    /// <summary>The clear time digit 9.</summary>
     ClearTimeDigit9,
-    /// <summary>The clear time's colon ($8B:ECD1).</summary>
+    /// <summary>The clear time's colon.</summary>
     ClearTimeColon,
-    /// <summary>The animals escaping Zebes ($8B:ECD9).</summary>
+    /// <summary>The animals escaping Zebes.</summary>
     EndingAnimalEscape,
-    /// <summary>Ending cloud 0 ($8B:ECED).</summary>
+    /// <summary>Ending cloud 0.</summary>
     EndingCloud0,
-    /// <summary>Ending cloud 1 ($8B:ECF5).</summary>
+    /// <summary>Ending cloud 1.</summary>
     EndingCloud1,
-    /// <summary>Ending cloud 2 ($8B:ECFD).</summary>
+    /// <summary>Ending cloud 2.</summary>
     EndingCloud2,
-    /// <summary>Ending cloud 3 ($8B:ED05).</summary>
+    /// <summary>Ending cloud 3.</summary>
     EndingCloud3,
-    /// <summary>Ending cloud 4 ($8B:ED0D).</summary>
+    /// <summary>Ending cloud 4.</summary>
     EndingCloud4,
-    /// <summary>Ending cloud 5 ($8B:ED15).</summary>
+    /// <summary>Ending cloud 5.</summary>
     EndingCloud5,
-    /// <summary>The suitless Samus at rest ($8B:ED1D).</summary>
+    /// <summary>The suitless Samus at rest.</summary>
     SuitlessIdle,
-    /// <summary>The suitless Samus's legs at rest ($8B:ED25).</summary>
+    /// <summary>The suitless Samus's legs at rest.</summary>
     SuitlessLegsIdle,
-    /// <summary>The suitless Samus letting her hair down ($8B:ED2D).</summary>
+    /// <summary>The suitless Samus letting her hair down.</summary>
     HairRelease,
-    /// <summary>The suitless Samus's legs while she lets her hair down ($8B:ED59).</summary>
+    /// <summary>The suitless Samus's legs while she lets her hair down.</summary>
     HairReleaseLegs,
-    /// <summary>The suitless Samus jumping ($8B:ED7F).</summary>
+    /// <summary>The suitless Samus jumping.</summary>
     SuitlessJump,
-    /// <summary>The suitless Samus in flight ($8B:ED8D).</summary>
+    /// <summary>The suitless Samus in flight.</summary>
     SuitlessJumpFlight,
-    /// <summary>Samus falling ($8B:ED95).</summary>
+    /// <summary>Samus falling.</summary>
     Falling,
-    /// <summary>Samus landing and shooting ($8B:ED9D).</summary>
+    /// <summary>Samus landing and shooting.</summary>
     Landing,
-    /// <summary>The suited Samus at rest ($8B:EDB1).</summary>
+    /// <summary>The suited Samus at rest.</summary>
     SuitedIdle,
-    /// <summary>The helmet at rest ($8B:EDB9).</summary>
+    /// <summary>The helmet at rest.</summary>
     HelmetIdle,
-    /// <summary>The helmetless head at rest ($8B:EDC1).</summary>
+    /// <summary>The helmetless head at rest.</summary>
     HeadIdle,
-    /// <summary>The suited body during the gesture ($8B:EDC9).</summary>
+    /// <summary>The suited body during the gesture.</summary>
     GestureBody,
-    /// <summary>The suited arm's gesture ($8B:EDD3).</summary>
+    /// <summary>The suited arm's gesture.</summary>
     GestureArm,
-    /// <summary>The helmet during the gesture ($8B:EE0F).</summary>
+    /// <summary>The helmet during the gesture.</summary>
     GestureHelmet,
-    /// <summary>The helmetless head during the gesture ($8B:EE15).</summary>
+    /// <summary>The helmetless head during the gesture.</summary>
     GestureHead,
-    /// <summary>The suited Samus jumping ($8B:EE27).</summary>
+    /// <summary>The suited Samus jumping.</summary>
     SuitedJump,
-    /// <summary>The suited Samus in flight ($8B:EE35).</summary>
+    /// <summary>The suited Samus in flight.</summary>
     SuitedJumpFlight,
-    /// <summary>The helmet's jump ($8B:EE3D).</summary>
+    /// <summary>The helmet's jump.</summary>
     HelmetJump,
-    /// <summary>The helmet in flight ($8B:EE45).</summary>
+    /// <summary>The helmet in flight.</summary>
     HelmetFlight,
-    /// <summary>The helmetless head's jump ($8B:EE4D).</summary>
+    /// <summary>The helmetless head's jump.</summary>
     HeadJump,
-    /// <summary>The helmetless head in flight ($8B:EE55).</summary>
+    /// <summary>The helmetless head in flight.</summary>
     HeadFlight,
-    /// <summary>The icon's upper S ($8B:EE5D).</summary>
+    /// <summary>The icon's upper S.</summary>
     LogoUpperS,
-    /// <summary>The icon's lower S ($8B:EE65).</summary>
+    /// <summary>The icon's lower S.</summary>
     LogoLowerS,
-    /// <summary>The icon's upper circle and its right wrap ($8B:EE6D).</summary>
+    /// <summary>The icon's upper circle and its right wrap.</summary>
     LogoUpperCircle,
-    /// <summary>The repeating part of LogoUpperCircle ($8B:EE7F).</summary>
+    /// <summary>The repeating part of LogoUpperCircle.</summary>
     LogoUpperCircleLoop,
-    /// <summary>The icon's lower circle and its left wrap ($8B:EE87).</summary>
+    /// <summary>The icon's lower circle and its left wrap.</summary>
     LogoLowerCircle,
-    /// <summary>The repeating part of LogoLowerCircle ($8B:EE93).</summary>
+    /// <summary>The repeating part of LogoLowerCircle.</summary>
     LogoLowerCircleLoop,
 }

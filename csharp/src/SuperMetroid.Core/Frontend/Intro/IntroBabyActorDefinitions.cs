@@ -4,19 +4,19 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroBabyActorDefinitions
 {
 
-    /// <summary><c>$8B:CE5B/$A8D5</c>, the intact Metroid egg at (112,155).</summary>
+    /// <summary>The intact Metroid egg at (112,155).</summary>
     public static IntroBabyActorDefinition Egg =>
         new(CinematicSpriteFrameBehavior.MetroidEgg, CinematicSpriteProgram.MetroidEgg, new(112, 155), ScreenColourGroup.IntroDiscoveryActors);
 
-    /// <summary><c>$8B:CE61/$AD55</c>, the delivered baby Metroid at (84,139).</summary>
+    /// <summary>The delivered baby Metroid at (84,139).</summary>
     public static IntroBabyActorDefinition DeliveredBaby =>
         new(CinematicSpriteFrameBehavior.BabyMetroidBeingDelivered, CinematicSpriteProgram.BabyMetroidBeingDelivered, new(84, 139), ScreenColourGroup.IntroCrossFadeObjects);
 
-    /// <summary><c>$8B:CE67/$AD93</c>, the examined baby Metroid at (112,111).</summary>
+    /// <summary>The examined baby Metroid at (112,111).</summary>
     public static IntroBabyActorDefinition ExaminedBaby =>
         new(CinematicSpriteFrameBehavior.BabyMetroidBeingExamined, CinematicSpriteProgram.BabyMetroidBeingExamined, new(112, 111), ScreenColourGroup.IntroCrossFadeObjects);
 
-    /// <summary><c>$8B:CE79/$BA4B</c>, the newly hatched confused baby at (112,155).</summary>
+    /// <summary>The newly hatched confused baby at (112,155).</summary>
     public static IntroBabyActorDefinition ConfusedBaby =>
         new(CinematicSpriteFrameBehavior.ConfusedBabyWaitingForHatch, CinematicSpriteProgram.ConfusedBabyMetroid, new(112, 155), ScreenColourGroup.IntroDiscoveryActors);
 }

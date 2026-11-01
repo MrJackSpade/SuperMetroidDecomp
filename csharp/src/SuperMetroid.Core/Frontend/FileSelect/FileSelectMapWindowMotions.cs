@@ -2,24 +2,24 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Calculates the native map-window velocities and timer from the stock label origin.</summary>
+/// <summary>Calculates the map-window velocities and timer from the stock label origin.</summary>
 internal static class FileSelectMapWindowMotions
 {
     /// <summary>
-    /// $81:AA34..AA93 velocities and $81:AA94..AA9F timers for the six Zebes areas.
+    /// Window velocities and timers for the six Zebes areas.
     /// </summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against all original words and native consumers.
-    /// Let D=max(x,256-x,y,256-y) for the stock label position at $81:AA1C+4*area.
+    /// Independently reviewed for #1165 against all original words and their consumers.
+    /// Let D=max(x,256-x,y,256-y) for the area's stock label position.
     /// An edge at distance d travels floor(256*d/D)/64 pixels per call, negative for
     /// left/top. Quantize the positive magnitude before negating, then promote to signed
     /// 16.16. The farthest edge travels exactly four pixels per call. Timer=floor(D/4),
-    /// and the native consumer moves on timer zero before completing at signed underflow.
+    /// and the window moves on timer zero before completing at signed underflow.
     /// The generation square is 256 high even though the consumer clamps bottom at224.
     /// Integer numerators are at most65536; division precedes the ten-bit shift.
     /// Stock origins intentionally remain independent of editable label positions: edits
     /// move the initial window but did not change compiled motion in the prior contract.
-    /// No generated velocity table or runtime cartridge read is used.
+    /// No generated velocity table or runtime read of the original data is used.
     /// </remarks>
     public static FileSelectMapWindowMotion Get(int area)
     {
@@ -32,12 +32,12 @@ internal static class FileSelectMapWindowMotions
     }
 
     /// <summary>
-    /// Selects the original geographic label anchor at $81:AA1C..AA33 by named Zebes area.
+    /// Selects the original geographic label anchor by named Zebes area.
     /// </summary>
     /// <remarks>
-    /// Independently reviewed for #1165 as semantic area-to-anchor cases. Native label
-    /// drawing at $81:A9EC..A9F6 first resolves the area's identity, then selects its
-    /// X/Y pair; window setup at $81:AB29..AB3B selects the same pair. Area numbers are
+    /// Independently reviewed for #1165 as semantic area-to-anchor cases. Label
+    /// drawing first resolves the area's identity, then selects its
+    /// X/Y pair; window setup selects the same pair. Area numbers are
     /// categorical identities, not samples of a coordinate curve. The cases express
     /// that layout selection directly. Each coordinate field is checked against its
     /// complete original six-word view. Ceres and other unsupported identities reject.

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
-/// <summary>Supported native font layouts and tile attributes for ending text.</summary>
+/// <summary>Supported font layouts and tile attributes for ending text.</summary>
 public enum EndingTextStyle
 {
     /// <summary>Single-tile alphabet used by the producer/result panel.</summary>

@@ -11,26 +11,26 @@ public static class EndingFloorArtworkFormat
     public const int CharacterWidth = 128;
     /// <summary>Indexed character-atlas height in pixels, containing sixteen rows of 8-pixel-high tiles.</summary>
     public const int CharacterHeight = 128;
-    /// <summary>$4000 high-lane character bytes: 256 tiles of 64 chunky eight-bit pixels each.</summary>
+    /// <summary>16384 high-lane character bytes: 256 tiles of 64 chunky eight-bit pixels each.</summary>
     public const int CharacterByteCount = 256 * CharacterBytes;
     /// <summary>The chunky 8-bpp pixels of one Mode 7 character.</summary>
     public const int CharacterBytes = 64;
 
-    /// <summary>Width of one native ending backdrop half-map in tile indices.</summary>
+    /// <summary>Width of one ending backdrop half-map in tile indices.</summary>
     public const int MapWidth = 128;
-    /// <summary>Height of the editable backdrop half-map, whose 64 rows are repeated to fill the native 128-row map.</summary>
+    /// <summary>Height of the editable backdrop half-map, whose 64 rows are repeated to fill the full 128-row map.</summary>
     public const int MapHeight = 64;
-    /// <summary>$2000 low-lane tile indices per half-map, uploaded at both VRAM word $0000 and word $2000.</summary>
+    /// <summary>8192 low-lane tile indices per half-map, loaded into both halves of the map.</summary>
     public const int MapByteCount = MapWidth * MapHeight;
 
     /// <summary>Gets the indexed character-atlas filename for escape-a, escape-b, or planet-explosion.</summary>
-    /// <param name="id">The native backdrop whose editable PNG is requested.</param>
+    /// <param name="id">The backdrop whose editable PNG is requested.</param>
     /// <exception cref="ArgumentOutOfRangeException">The scene identifier is unsupported.</exception>
     public static string CharacterFileName(EndingFloorSceneId id) =>
         $"ending-{SceneName(id)}-mode7-characters.png";
 
     /// <summary>Gets the half-map JSON filename for escape-a, escape-b, or planet-explosion.</summary>
-    /// <param name="id">The native backdrop whose editable map is requested.</param>
+    /// <param name="id">The backdrop whose editable map is requested.</param>
     /// <exception cref="ArgumentOutOfRangeException">The scene identifier is unsupported.</exception>
     public static string MapFileName(EndingFloorSceneId id) =>
         $"ending-{SceneName(id)}-mode7-map.json";

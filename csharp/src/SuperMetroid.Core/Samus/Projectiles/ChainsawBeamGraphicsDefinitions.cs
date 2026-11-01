@@ -6,14 +6,14 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Bounded adjacent-table and instruction data consumed by Chainsaw beam selection.</summary>
 internal static class ChainsawBeamGraphicsDefinitions
 {
-    /// <summary>$000D: Plasma/Spazer/Wave indexes two words beyond the twelve-entry tile table at $90:C3B1.</summary>
+    /// <summary>Index 13: Plasma/Spazer/Wave indexes two words beyond the twelve-entry tile table.</summary>
     internal const SamusBeamCombination Selection = SamusBeamCombination.SpazerPlasmaWave;
 
     /// <summary>
     /// The sixteen colours of the glitched Chainsaw beam palette, in colour order, as red, green and blue five-bit
     /// channels. Its palette pointer lands just before Samus_Animate, so the loader reads an open-bus byte followed
-    /// by that routine's instruction bytes; these are those words as CGRAM keeps them, without the bit it discards.
-    /// The verification derives every colour from the cartridge bytes.
+    /// by that routine's instruction bytes; these are those words as the colour table keeps them, without the bit it discards.
+    /// The verification derives every colour from the game bytes.
     /// </summary>
     internal static readonly IReadOnlyList<RgbColor> Colours = Array.AsReadOnly<RgbColor>(
     [

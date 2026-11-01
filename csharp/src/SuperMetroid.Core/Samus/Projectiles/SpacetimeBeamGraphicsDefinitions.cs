@@ -6,12 +6,12 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Adjacent-table graphics selected when the player unpauses with SpaceTime equipped.</summary>
 internal static class SpacetimeBeamGraphicsDefinitions
 {
-    /// <summary>$000E: Plasma/Spazer/Ice selects the bounded SpaceTime beam.</summary>
+    /// <summary>Index 14: Plasma/Spazer/Ice selects the bounded SpaceTime beam.</summary>
     internal const SamusBeamCombination Selection = SamusBeamCombination.SpazerPlasmaIce;
     /// <summary>
-    /// Every colour of the SpaceTime beam palette. The cartridge's <c>$90:ACCD</c> reads its colours through
-    /// <c>$90:C3E5</c>'s colour word used as a pointer, <c>$90:19FF</c>: live enemy-projectile timers and
-    /// pre-instructions in WRAM. The port does not keep that native layout, so the palette is a defined one instead
+    /// Every colour of the SpaceTime beam palette. The game's beam palette load reads its colours through
+    /// a colour word used as a pointer into live enemy-projectile timers and
+    /// frame behaviours in memory. The port does not keep that layout, so the palette is a defined one instead
     /// (owner decision on #1318): black.
     /// </summary>
     internal static RgbColor PaletteColour => RgbColor.Black;

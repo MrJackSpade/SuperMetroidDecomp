@@ -6,7 +6,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Native logo actors followed by E58A's sixteen palette transfers.</summary>
+/// <summary>Logo actors followed by sixteen palette loads.</summary>
 internal sealed class EndingLogo
 {
     /// <summary>Scene callback fired when the top logo half reaches its landing point.</summary>
@@ -26,7 +26,7 @@ internal sealed class EndingLogo
     /// <summary>The logo hands off to percentage text after its sixteenth palette step.</summary>
     public bool Completed => PaletteStep == EndingLogoDefinitions.PaletteSteps;
 
-    /// <summary>Creates four logo actors and loads the initial artwork palette into CGRAM.</summary>
+    /// <summary>Creates four logo actors and loads the initial artwork palette into the colours.</summary>
     public EndingLogo(ScreenPalette colours, Action landed,
         EndingPaletteSet? paletteArtwork = null)
     {
@@ -45,7 +45,7 @@ internal sealed class EndingLogo
         RequirePaletteArtwork()[EndingPaletteId.LogoInitial].LoadTo(colours.Colours(ScreenColourGroup.EndingLogoSprites), 0);
     }
 
-    /// <summary>Restored scene state keeps its current CGRAM; only future transfers change.</summary>
+    /// <summary>Restored scene state keeps its current colours; only future palette loads change.</summary>
     public void BindPaletteArtwork(EndingPaletteSet? value) => paletteArtwork = value;
 
     /// <summary>Applies the pending crossfade pair before moving actors and interpreting their next instructions.</summary>

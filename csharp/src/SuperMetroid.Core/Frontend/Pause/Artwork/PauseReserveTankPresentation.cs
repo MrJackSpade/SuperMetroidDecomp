@@ -30,7 +30,7 @@ public abstract class PauseReserveTankPresentation
     /// <param name="sheet">The pause sheet.</param>
     /// <param name="visual">The one of the ten reserve visuals to draw.</param>
     /// <param name="index">Zero-based tank or trailing-cap anchor index.</param>
-    /// <exception cref="InvalidOperationException">The native visual identity is unknown.</exception>
+    /// <exception cref="InvalidOperationException">The visual identity is unknown.</exception>
     public void Draw(ScreenSprites entries, SpriteSheet sheet, PauseReserveTankVisual visual, int index)
     {
         // The strip position is checked before the visual.

@@ -5,37 +5,37 @@ namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>The Grapple Beam's definitions: its palette, sounds, swing physics, firing and rope drawing (#1411).</summary>
 /// <remarks>
-/// Grapple runtime state deliberately remains elsewhere. This type names the ROM tables,
-/// callback offsets, native physics coefficients, and fixed VRAM destinations that define
+/// Grapple runtime state deliberately remains elsewhere. This type names the tables,
+/// callback offsets, physics coefficients, and fixed artwork destinations that define
 /// the subsystem's data contract.
 /// </remarks>
 public static class GrappleBeamDefinitions
 {
-    /// <summary>Palette operands shared by grapple initialization and native cleanup tails.</summary>
+    /// <summary>Palette operands shared by grapple initialization and cleanup tails.</summary>
     public static class Palettes
     {
-        /// <summary>$9B:C67F selects beam palette two before entering the firing function.</summary>
+        /// <summary>Firing selects beam palette two before entering the firing function.</summary>
         public const SamusBeamCombination FiringSelection = SamusBeamCombination.Ice;
-        /// <summary>$9B:C686 writes $7F91 to sprite palette five, color fifteen.</summary>
+        /// <summary>Firing writes the rope's colour to sprite palette five, color fifteen.</summary>
         public static RgbColor FlareColor => new RgbColor(17, 28, 31);
     }
 
-    /// <summary>Exact sound queue commands issued by bank-$9B grapple functions.</summary>
+    /// <summary>Exact sound queue commands issued by grapple functions.</summary>
     public static class Sounds
     {
-        /// <summary>$9B:B8AA: stop the old beam before pose-change refiring.</summary>
+        /// <summary>Stop the old beam before pose-change refiring.</summary>
         public static readonly SoundRequest RestartStop = new(Library1Sound.GrappleEnd, SoundRequestPriority.Normal);
-        /// <summary>$9B:C51E firing tail: start the extending beam, only into an idle queue.</summary>
+        /// <summary>Firing tail: start the extending beam, only into an idle queue.</summary>
         public static readonly SoundRequest Fire = new(Library1Sound.GrappleStart, SoundRequestPriority.WhenIdle);
-        /// <summary>$9B:C703 accepted-contact tail: attached beam sound.</summary>
+        /// <summary>Accepted-contact tail: attached beam sound.</summary>
         public static readonly SoundRequest Attach = new(Library1Sound.Grappling, SoundRequestPriority.Normal);
-        /// <summary>$9B:C856/C8C5/C9CE/CB8B: stop the active grapple sound, at essential priority.</summary>
+        /// <summary>Every grapple teardown: stop the active grapple sound, at essential priority.</summary>
         public static readonly SoundRequest Stop = new(Library1Sound.GrappleEnd, SoundRequestPriority.Essential);
     }
-    /// <summary>Native angular-physics coefficients embedded in bank-$9B behavior.</summary>
+    /// <summary>Angular-physics coefficients embedded in behavior.</summary>
     public static class Physics
     {
-        /// <summary><c>$9B:C745-C74C</c>, firing handler's accepted-connection tail: automatically retract eight pixels per frame after the connection helper clears its delta.</summary>
+        /// <summary>Firing handler's accepted-connection tail: automatically retract eight pixels per frame after the connection helper clears its delta.</summary>
         public const int InitialConnectionRetraction = -8;
         /// <summary>Per-frame downward angular acceleration.</summary>
         public const int GravityMagnitude = 24;
@@ -52,9 +52,9 @@ public static class GrappleBeamDefinitions
     /// <summary>Direction-indexed firing velocity, origin, and flare tables.</summary>
     public static class Firing
     {
-        /// <summary>$9B:C51E initializes GrappleBeam_PoseChangeAutoFireTimer to ten; $C490 decrements before checking the pose.</summary>
+        /// <summary>Firing initializes GrappleBeam_PoseChangeAutoFireTimer to ten; the pose-change check decrements before checking the pose.</summary>
         public const int PoseChangeAutoFireFrames = 10;
-        /// <summary>$9B:C51E uses a six-pixel graphics Y offset for moving Draygon-held poses.</summary>
+        /// <summary>Firing uses a six-pixel graphics Y offset for moving Draygon-held poses.</summary>
         public const int DraygonMovingGraphicsYOffset = 6;
         /// <summary>Number of direction records represented by every firing table.</summary>
         public const int DirectionCount = 10;
@@ -63,21 +63,21 @@ public static class GrappleBeamDefinitions
     /// <summary>Swing-frame, body-offset, rope-character, and fixed upload definitions.</summary>
     public static class Rendering
     {
-        /// <summary>$94:B036, DrawGrappleBeam: distance between consecutive rope objects in pixels.</summary>
+        /// <summary>DrawGrappleBeam: distance between consecutive rope objects in pixels.</summary>
         public const int SegmentSpacing = 8;
-        /// <summary>$94:AFD9-AFE4: convert a signed 8.8 sample into an eight-pixel 16.16 displacement.</summary>
+        /// <summary>Convert a signed 8.8 sample into an eight-pixel 16.16 displacement.</summary>
         public const int SegmentSampleToFixedPoint = SegmentSpacing * 256;
-        /// <summary>$94:B048, DrawGrappleBeam: the segment counts the length quotient wraps through, one per animation slot.</summary>
+        /// <summary>DrawGrappleBeam: the segment counts the length quotient wraps through, one per animation slot.</summary>
         public const int SegmentCountCycle = 16;
-        /// <summary>$94:B051, DrawGrappleBeam: first animation slot, traversed downward.</summary>
+        /// <summary>DrawGrappleBeam: first animation slot, traversed downward.</summary>
         public const int FirstSegmentSlot = 15;
-        /// <summary>$94:B016/B025, DrawGrappleBeam: center an eight-pixel character on its beam coordinate.</summary>
+        /// <summary>DrawGrappleBeam: center an eight-pixel character on its beam coordinate.</summary>
         public const int CharacterCenterOffset = 4;
-        /// <summary>$94:B07A, DrawGrappleBeam: a segment is off screen when either whole coordinate reaches this extent.</summary>
+        /// <summary>DrawGrappleBeam: a segment is off screen when either whole coordinate reaches this extent.</summary>
         public const int ViewportExtent = 256;
-        /// <summary>$94:B18B-B197: each rope animation record lasts five visits to its slot.</summary>
+        /// <summary>Each rope animation record lasts five visits to its slot.</summary>
         public const int SegmentAnimationDelay = 5;
-        /// <summary>$94:B18B-B197: four successive rope animation records before the goto.</summary>
+        /// <summary>Four successive rope animation records before the goto.</summary>
         public const int SegmentAnimationFrameCount = 4;
     }
 

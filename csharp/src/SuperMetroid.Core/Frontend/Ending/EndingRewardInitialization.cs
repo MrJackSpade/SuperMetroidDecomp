@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// Where a reward actor starts and which palette it draws with (#1416: the values are arbitrary; the bank-$8B
+/// Where a reward actor starts and which palette it draws with (#1416: the values are arbitrary; the
 /// initialization routine words that named them are verification's <c>EndingRewardNativeWords</c>).
 /// </summary>
 internal enum EndingRewardInitialization

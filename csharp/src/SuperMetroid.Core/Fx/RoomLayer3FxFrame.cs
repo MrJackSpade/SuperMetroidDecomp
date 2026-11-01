@@ -23,7 +23,7 @@ public sealed record RoomLayer3FxFrame
     /// <summary>
     /// The room's Fireflea darkness level this frame (0, then +2 per Fireflea killed, at most 12), copied from the
     /// enemies' room status for the darkness effect, which already takes it as a number; values outside the
-    /// cartridge's word (0 through 65535) are rejected.
+    /// sixteen-bit range (0 through 65535) are rejected.
     /// </summary>
     public int FirefleaDarknessLevel { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 

@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public static class PowerBombExplosionAfterglow
 {
     /// <summary>
-    /// Compiled $88:A35D wake criterion for a stock Crystal Flash: the maximum
-    /// native component is 14+row for the four reachable $88:8D85 rows. Keeping
-    /// this operand independent of editable RGB preserves the native fade count,
+    /// Compiled afterglow wake criterion for a stock Crystal Flash: the maximum
+    /// component is 14+row for the four reachable explosion colour rows. Keeping
+    /// this operand independent of editable RGB preserves the fade count,
     /// signed-timer cadence and cleanup frame without storing presentation colors.
     /// </summary>
     public static int CrystalFlashAfterglowSteps(int consumedRadius)

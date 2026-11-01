@@ -3,8 +3,8 @@ using SuperMetroid.Core.Enemies.Elevator;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// State $09's door function before state $0A: every door hit installs <c>$82:E17D</c>, and a downward elevator replaces it
-/// with the <c>$82:E19F</c> delay before destination loading resumes.
+/// The door function before destination loading: every door hit installs an immediate finish, and a downward elevator replaces it
+/// with a delay before destination loading resumes.
 /// </summary>
 internal sealed class DownwardsElevatorWait
 {

@@ -15,7 +15,7 @@ public static class GameOptionsPresentationDefinitions
     public static IReadOnlyList<GameOptionsScreen> Tilemaps { get; } = Enum.GetValues<GameOptionsScreen>();
     /// <summary>The three menu layouts headings and cursors are anchored by, in primary, controller and special order.</summary>
     internal static IReadOnlyList<GameOptionsPage> MenuPages { get; } = Enum.GetValues<GameOptionsPage>();
-    /// <summary>The assignable buttons whose glyphs the controller page shows, in native selector order: X, A, B, Select, Y, L, R.</summary>
+    /// <summary>The assignable buttons whose glyphs the controller page shows, in selector order: X, A, B, Select, Y, L, R.</summary>
     public static IReadOnlyList<ControllerButton> ControllerLabelButtons { get; } =
         [ControllerButton.X, ControllerButton.A, ControllerButton.B, ControllerButton.Select, ControllerButton.Y, ControllerButton.L, ControllerButton.R];
     /// <summary>The two special settings, icon cancel then moonwalk.</summary>

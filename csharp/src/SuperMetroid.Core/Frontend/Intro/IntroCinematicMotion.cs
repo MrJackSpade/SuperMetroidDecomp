@@ -3,18 +3,18 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>Exact fixed-point additions shared by translated opening-cinematic actors.</summary>
 internal static class IntroCinematicMotion
 {
-    /// <summary>One axis as the native 32-bit whole:fraction value (whole word in the high half).</summary>
+    /// <summary>One axis as the 32-bit whole:fraction value (whole word in the high half).</summary>
     public static uint Packed(FixedCoordinate position) => new FixedCoordinate(position.Whole, position.Fraction).RawValue;
 
-    /// <summary>One axis from a native 32-bit whole:fraction value.</summary>
+    /// <summary>One axis from a 32-bit whole:fraction value.</summary>
     public static FixedCoordinate Unpacked(uint value) => new(FixedCoordinate.WholeOf(unchecked((int)value)), WordWrap.Unsigned(value));
 
-    /// <summary>Adds a native whole/fraction velocity pair to one axis.</summary>
+    /// <summary>Adds a whole/fraction velocity pair to one axis.</summary>
     public static FixedCoordinate AddSixteenSixteen(
         FixedCoordinate position,
         int wholeVelocity,
         int fractionalVelocity) =>
-        // Native 16-bit ADC first adds the fractional words, then propagates its carry into
+        // A 16-bit add with carry first adds the fractional words, then propagates its carry into
         // the signed whole-word sum. Packing them produces precisely that wrap/carry model.
         // Each velocity word keeps its low sixteen bits.
         SignedSixteenSixteen

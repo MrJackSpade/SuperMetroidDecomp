@@ -14,7 +14,7 @@ public static class SamusDrawingDefinitions
             public const int LandingVerticalOffsetByteCount = 17;
             /// <summary>Twelve transition poses with two visual offset bytes each.</summary>
             public const int PostureTransitionVerticalOffsetByteCount = 24;
-            /// <summary>Native contiguous drained-body visual offset interval.</summary>
+            /// <summary>Contiguous drained-body visual offset interval.</summary>
             public const int DrainedVerticalOffsetByteCount = 32;
     }
 
@@ -23,7 +23,7 @@ public static class SamusDrawingDefinitions
     /// <summary>The arm-cannon cover's aim directions.</summary>
     public static class ArmCannon
     {
-        /// <summary>Number of direction selectors accepted by the native dispatcher.</summary>
+        /// <summary>Number of direction selectors accepted by the dispatcher.</summary>
         public const int DirectionCount = 10;
     }
 }

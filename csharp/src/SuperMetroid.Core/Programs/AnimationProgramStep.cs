@@ -22,7 +22,7 @@ internal abstract record AnimationProgramStep<TProgram, TFrame, TCue>
 
     /// <summary>
     /// Shows <see cref="Frame"/> for <see cref="Duration"/> processing updates; the program yields until it expires. A zero
-    /// duration is the cartridge's own: the native timer wraps, so the frame stays for 65536 updates.
+    /// duration is the game's own: the frame hold wraps, so the frame stays for 65536 updates.
     /// </summary>
     /// <param name="Frame">The frame shown.</param>
     /// <param name="Duration">The processing updates the frame lasts.</param>
@@ -49,7 +49,7 @@ internal abstract record AnimationProgramStep<TProgram, TFrame, TCue>
 
     /// <summary>
     /// Runs on into the program authored after this one. It behaves like a goto, but a cursor resting here already
-    /// belongs to the next program, as the cartridge's instruction pointer does.
+    /// belongs to the next program, as the running animation script does.
     /// </summary>
     /// <param name="Target">The program authored next.</param>
     internal sealed record FallIntoStep(TProgram Target) : AnimationProgramStep<TProgram, TFrame, TCue>
@@ -79,7 +79,7 @@ internal abstract record AnimationProgramStep<TProgram, TFrame, TCue>
 
     /// <summary>
     /// Shows <paramref name="frame"/> for <paramref name="duration"/> processing updates. A zero duration is the
-    /// cartridge's own: the native timer wraps, so the frame stays for 65536 updates.
+    /// game's own: the frame hold wraps, so the frame stays for 65536 updates.
     /// </summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> Show(TFrame frame, int duration) =>
         new ShowStep(frame, Ensure.BetweenInclusive(0, ushort.MaxValue, duration));

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>
 /// The room effect's part of the BG3 plane a gameplay frame shows (#1348, #1466): 32 columns by 64 rows, every cell the
 /// cleared picture, with the picture of the effect's page from row 31 down. Liquids (the whole plane) and atmospheres (its
-/// lower 32 rows) read this one plane, and nothing is written into VRAM for them. The HUD is not in it: the HUD is its own
+/// lower 32 rows) read this one plane, and nothing is uploaded for them. The HUD is not in it: the HUD is its own
 /// display layer, so a liquid whose scroll wraps shows the plane's own cleared rows.
 /// </summary>
 public sealed class Layer3Plane

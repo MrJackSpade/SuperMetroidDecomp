@@ -2,7 +2,7 @@ using System.Collections.Frozen;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>NTSC cartridge charge-flare cadence and loop commands, independent of sprite composition.</summary>
+/// <summary>NTSC charge-flare cadence and loop commands, independent of sprite composition.</summary>
 internal static class ChargeFlareAnimationDefinitions
 {
     /// <summary>FlareAnimationDelays_MainFlare, the region's first program: thirty delays followed by rewind fourteen.</summary>
@@ -15,9 +15,9 @@ internal static class ChargeFlareAnimationDefinitions
     internal const int RegionByteCount = 46;
     /// <summary>The three words just before the programs, naming the main-flare, slow-spark and fast-spark programs.</summary>
     internal const int ProgramTableByteCount = 6;
-    /// <summary>$9B:C049, HandleGrappleBeamFlare: counter one force-selects main frame sixteen.</summary>
+    /// <summary>HandleGrappleBeamFlare: counter one force-selects main frame sixteen.</summary>
     internal const int GrappleInitialFrame = 16;
-    /// <summary>$9B:C04F, HandleGrappleBeamFlare: counter one seeds three before the ordinary decrement.</summary>
+    /// <summary>HandleGrappleBeamFlare: counter one seeds three before the ordinary decrement.</summary>
     internal const int GrappleInitialDelay = 3;
     /// <summary>The stream byte that encodes <see cref="ChargeFlareDelayCommand.Rewind"/>.</summary>
     internal const int RewindByte = 254;

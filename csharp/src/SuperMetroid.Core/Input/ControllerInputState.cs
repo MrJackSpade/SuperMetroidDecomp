@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
-/// Ports the controller-1 portion of <c>$80:9459</c>, which runs near the end of every
-/// frame boundary after the SNES automatic joypad read has completed.
+/// Reads the controller-1 sample near the end of every
+/// frame boundary, after the automatic controller read has completed.
 /// </summary>
 public sealed class ControllerInputState
 {
@@ -51,7 +51,7 @@ public sealed class ControllerInputState
     public WrappingCountdown RepeatTimer { get; private set; }
 
     /// <summary>
-    /// Temporarily publishes the demo's explicit held/edge pair, as bank-$90 demo alpha
+    /// Temporarily publishes the demo's explicit held/edge pair, as the demo's
     /// does. Disposing restores the real latched sample for the demo-cancellation check.
     /// This is deliberately not Latch: recorded edges need not equal held-input changes.
     /// </summary>
@@ -78,7 +78,7 @@ public sealed class ControllerInputState
         }
     }
 
-    /// <summary>Latches one completed SNES automatic joypad sample.</summary>
+    /// <summary>Latches one completed automatic controller sample.</summary>
     /// <remarks>Raw words are validated where they enter the game (recordings, replays, hosts), not here.</remarks>
     public void Latch(ControllerButton input)
     {
@@ -91,7 +91,7 @@ public sealed class ControllerInputState
 
         if (Current != ControllerButton.None && Current == Previous)
         {
-            // DEC is 16-bit and wraps. If RepeatTimer is zero, it becomes $FFFF and does
+            // The decrement is 16-bit and wraps. If RepeatTimer is zero, it becomes 65535 and does
             // not pulse—a detail retained because the retail repeat delays remain zero in
             // the known initialization paths and this output is marked unused.
             RepeatTimer = RepeatTimer.Decrement().Remaining;

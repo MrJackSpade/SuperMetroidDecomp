@@ -16,7 +16,7 @@ public sealed record InsetSceneLayer : DisplayLayer
     public int Bottom { get; }
     /// <summary>Creates a half-open screen rectangle that replaces parent pixels with a separately rendered child scene, without translating or scaling it.</summary>
     /// <param name="scene">Immutable child snapshot retained by reference; it may not itself contain a windowed-scene insertion.</param>
-    /// <param name="left">Inclusive horizontal edge in native screen pixels.</param>
+    /// <param name="left">Inclusive horizontal edge in screen pixels.</param>
     /// <param name="top">Inclusive vertical edge in screen lines.</param>
     /// <param name="right">Exclusive horizontal edge; equality with left is allowed and produces an empty-width rectangle.</param>
     /// <param name="bottom">Exclusive vertical edge; equality with top is allowed and produces an empty-height rectangle.</param>

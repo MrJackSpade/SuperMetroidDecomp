@@ -6,7 +6,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Gunship base inks with shared channels and the middle hull shade calculated.
-/// Original $8D:D8DC matches the Ceres/explosion gunship artwork: gold highlights use
+/// The original inks match the Ceres/explosion gunship artwork: gold highlights use
 /// green=red-1; three hull shades use green=red-3,blue0 and a nearest-rounded middle red;
 /// cockpit shades use red0 and proportional blue/green; underside shades share red/green
 /// and one blue offset. Only independent channels or differing player edits are stored.

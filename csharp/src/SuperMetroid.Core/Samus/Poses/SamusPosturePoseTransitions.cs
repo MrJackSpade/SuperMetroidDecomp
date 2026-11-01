@@ -16,7 +16,7 @@ internal static class SamusPosturePoseTransitions
     /// <param name="frameCounter">The frame counter supplied to changed-pose block reactions.</param>
     /// <param name="plms">Optional live PLM owner receiving those collision reactions.</param>
     /// <returns>True when the final standing pose and animation are installed; false when collision retains the source or substitutes stable crouch, which may change an aimed crouch even on failure.</returns>
-    /// <remarks>These six-byte input records bypass animated $F7–$FC stand-up poses. Accepted expansion applies the whole-pixel Y adjustment but retains the crouching radius until the next alpha pass, matching $91:FDAE's previous-pose radius publication.</remarks>
+    /// <remarks>These six-byte input records bypass animated $F7–$FC stand-up poses. Accepted expansion applies the whole-pixel Y adjustment but retains the crouching radius until the next alpha pass, matching the larger-radius check's previous-pose radius publication.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source and target are not a same-facing crouch-to-final-standing input-table route.</exception>
     public static bool TryApplyDirectCrouchToStandingTransition(SamusState samus, 
@@ -38,7 +38,7 @@ internal static class SamusPosturePoseTransitions
             // This entry point is the exact `$27/$28 -> $01/$02` direct-exit route.
             // Animated stand-ups and cross-facing changes have separate initializers.
             throw new InvalidOperationException(
-                $"Direct crouch exit {samus.Pose} -> {targetPose} is not a ROM-table route.");
+                $"Direct crouch exit {samus.Pose} -> {targetPose} is not a transition-table route.");
         }
 
         SamusPoseId sourcePose = samus.Pose;
@@ -51,7 +51,7 @@ internal static class SamusPosturePoseTransitions
                 out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
-            // $91:FFA7 does not restore an aimed crouch when the attempted standing body
+            // Does not restore an aimed crouch when the attempted standing body
             // is boxed in. It selects the ordinary stable crouch from facing metadata.
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
                 samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
@@ -59,7 +59,7 @@ internal static class SamusPosturePoseTransitions
         }
 
         samus.Pose = targetPose;
-        // `$91:FDAE` explicitly publishes the previous pose's radius while probing the
+        // Explicitly publishes the previous pose's radius while probing the
         // enlargement, and this direct transition does not call Samus_SetRadius afterward.
         // Ordinary alpha publishes the standing radius at the start of the next frame.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
@@ -69,12 +69,12 @@ internal static class SamusPosturePoseTransitions
 
 
     /// <summary>
-    /// Applies the crouching table's `$4B/$4C` jump entry through the native ordering:
-    /// enlarge radius 16 -> 19 with `$91:FDAE`, initialise movement type two, run the
-    /// `$91:FC66` crouch-only Y adjustment, then call `Make_Samus_Jump`.
+    /// Applies the crouching table's `$4B/$4C` jump entry through the ordering:
+    /// enlarge radius 16 -> 19 with the larger-radius check, initialise movement type two, run the
+    /// crouch-only Y adjustment, then call `Make_Samus_Jump`.
     /// </summary>
     /// <remarks>
-    /// `$91:FC7D` tests the literal previous pose, not merely movement type five. Therefore
+    /// Tests the literal previous pose, not merely movement type five. Therefore
     /// only ordinary `$27/$28` subtract ten extra pixels; aimed `$71-$74/$85/$86` still
     /// jump, but retain only the collision resolver's bottom-alignment adjustment.
     /// </remarks>
@@ -101,7 +101,7 @@ internal static class SamusPosturePoseTransitions
             // Only the two neutral `$4B/$4C` transition records enter this routine; aimed
             // crouches deliberately reuse the same facing-selected target.
             throw new InvalidOperationException(
-                $"Crouch jump {samus.Pose} -> {targetPose} is not a ROM-table route.");
+                $"Crouch jump {samus.Pose} -> {targetPose} is not a transition-table route.");
         }
 
         SamusPoseId sourcePose = samus.Pose;
@@ -124,7 +124,7 @@ internal static class SamusPosturePoseTransitions
 
         // Alpha owns the new radius next frame; collision correction and jump setup
         // below must not publish it during this frame's pose-commit stage.
-        // HandleJumpTransition_NormalJumping at $91:FC7D performs this after pose
+        // HandleJumpTransition_NormalJumping performs this after pose
         // initialization/collision but before Make_Samus_Jump. It writes only current Y;
         // the desktop state has no separately exposed PreviousYPosition word to mirror.
         if (sourcePose is SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingLeftPose)
@@ -144,7 +144,7 @@ internal static class SamusPosturePoseTransitions
     /// </summary>
     /// <returns>
     /// False only when simultaneous floor and ceiling collision leave no verified room to
-    /// expand from radius 16 to radius 21; native behavior then retains the crouching pose.
+    /// expand from radius 16 to radius 21; the game then retains the crouching pose.
     /// </returns>
     public static bool TryApplyPostureTransition(SamusState samus, 
 
@@ -188,20 +188,20 @@ internal static class SamusPosturePoseTransitions
         bool startsStanding = startsStandingRight || startsStandingLeft;
         if (!startsCrouching && !startsStanding)
         {
-            // `$91:F7B0/$F7D3` admit exactly the crouch/stand records enumerated above.
+            // Admit exactly the crouch/stand records enumerated above.
             throw new InvalidOperationException(
-                $"Posture transition {samus.Pose} -> {targetPose} is outside the crouch/stand ROM-table family.");
+                $"Posture transition {samus.Pose} -> {targetPose} is outside the crouch/stand transition-table family.");
         }
 
         if (startsCrouching)
         {
-            // `Samus_CrouchTrans` at `$91:F7B0` samples the high stage byte before later
+            // `Samus_CrouchTrans` samples the high stage byte before later
             // posture movement can cancel running momentum. A stage-four crouch therefore
-            // banks 180 palette-handler ticks even though the following stable crouch has
+            // stores 180 palette-handler ticks even though the following stable crouch has
             // no horizontal Speed Booster state of its own.
             if (samus.Shinespark.TryStoreFromSpeedBooster(samus.HorizontalSpeed.SpeedBoostCounter))
             {
-                // The successful native store replaces the shared palette handler
+                // The successful store replaces the shared palette handler
                 // and timer even if an interrupted Flash was keeping them alive.
                 samus.CrystalFlash.RelinquishPaletteHandler();
                 // Reserve Mode keeps only X-Ray's cone effect. Crouch storage replaces
@@ -212,8 +212,8 @@ internal static class SamusPosturePoseTransitions
             samus.Pose = targetPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-            // Prospective command seven reads five from $91:ED36, installs the target's
-            // radius 16, then probes those five pixels down through $94:96AB. On level
+            // Prospective command seven reads five from its distance table, installs the target's
+            // radius 16, then probes those five pixels down through the downward block collision. On level
             // ground the bottom boundary is unchanged; descending a slope, the probe meets
             // the surface first and the shorter clipped distance is what moves center Y.
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
@@ -230,7 +230,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixel
 
         // Expanding from crouch radius 16 to standing-transition radius 21 invokes the
         // common pose-change collision routine before initialization. The shared helper
-        // reads the target radius from this ROM rather than assuming the ordinary value 21.
+        // reads the target radius from the pose definition rather than assuming the ordinary value 21.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
 
@@ -247,7 +247,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixel
         }
 
         samus.Pose = targetPose;
-        // `$91:FDAE` restores the source radius before returning. The prospective
+        // Restores the source radius before returning. The prospective
         // standing-transition geometry was used only by the collision probes above;
         // ordinary alpha publishes the target radius at the start of the next frame.
         // Keeping that one-frame handoff is observable when the crouched body is resting
@@ -267,8 +267,8 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixel
     /// `$37/$38` shrink the current humanoid radius to seven and command seven moves center
     /// Y down by the table's nine-pixel request, clipped against room blocks using the
     /// new radius. This is not the source/target radius difference. `$3D/$3E` expand 7 to 16 through
-    /// `$91:FDAE`; floor collision normally moves center up nine. If both sides constrain a
-    /// radius-seven body, `$91:FFA7` rejects the target and keeps Samus morphed.
+    /// the larger-radius check; floor collision normally moves center up nine. If both sides constrain a
+    /// radius-seven body, the crouch selector rejects the target and keeps Samus morphed.
     /// </remarks>
     public static bool TryApplyMorphTransition(SamusState samus, 
 
@@ -280,10 +280,10 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixel
 
         Ensure.NotNull(level);
 
-        // `$91:F7CE` does not require movement type five. Falling straight-down `$2D/$2E`
+        // Does not require movement type five. Falling straight-down `$2D/$2E`
         // and spin-jump input tables can select the same `$37/$38` initializer. The literal
         // previous-movement-type test below even has a dedicated type-three side effect.
-        // Validate only the facing-preserving relationship guaranteed by the ROM table.
+        // Validate only the facing-preserving relationship guaranteed by the transition table.
         SamusFacingDirection sourceFacing = SamusPoseMetadata.ReadFacingDirection(samus);
         bool startsMorphingRight = sourceFacing == SamusFacingDirection.Right &&
             targetPose == SamusPoseId.MorphingTransitionRightPose;
@@ -308,14 +308,14 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixel
             // Morph and unmorph use a closed, facing-preserving table. Other ball pose
             // changes are handled by ApplyMorphBallPoseChange and must not enter here.
             throw new InvalidOperationException(
-                $"Morph transition {samus.Pose} -> {targetPose} is not a ROM-table route.");
+                $"Morph transition {samus.Pose} -> {targetPose} is not a transition-table route.");
         }
 
         if (startsMorphing)
         {
-            // InitializeSamusPose_MorphingTransition at $91:F7CE restores PreviousPose and
-            // returns carry set when bit $0004 is absent. No radius, animation, or position
-            // write from the rejected prospective pose survives that native frame.
+            // InitializeSamusPose_MorphingTransition restores PreviousPose and
+            // returns carry set when the Morph Ball bit is absent. No radius, animation, or position
+            // write from the rejected prospective pose survives that frame.
             if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.MorphBall))
                 return false;
 
@@ -333,16 +333,16 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
                 (frameCounter & 1) == 0, targetPose, plms);
             samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
                 samus.Kinematics.Position.Y.Whole + (SixteenSixteen.WholeOf(alignment.AcceptedDisplacement)));
-            // Command seven ($91:ED0E) replaces the previous whole-Y checkpoint
+            // Command seven replaces the previous whole-Y checkpoint
             // after alignment, so the camera does not count pose displacement as motion.
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
 
-            // `$91:F7D6-$F7E4` deliberately recognizes a spin-jump source and forces mode
+            // Deliberately recognizes a spin-jump source and forces mode
             // two so the compact body retains decelerating aerial momentum after morphing.
             if (previousMovementType == SamusMovementType.SpinJumping)
                 samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
 
-            // This is `$91:F7E7`, not the arm-cannon flare counter. Bomb-spread charging is
+            // This is the bomb-spread charge timeout, not the arm-cannon flare counter. Bomb-spread charging is
             // invalid once the body has entered either ordinary or Spring Ball form.
             samus.BombSpreadChargeTimeoutCounter = 0;
 
@@ -385,7 +385,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
     }
 
 
-    /// <summary>Shared bounce cancellation in native prospective command seven.</summary>
+    /// <summary>Shared bounce cancellation in prospective command seven.</summary>
     private static void CancelBounceForPostureTransition(SamusState samus)
     {
         if (samus.MorphBallBounceState == SamusBallBounceState.None)
@@ -401,10 +401,10 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
     /// is still active, without replacing the live aerial velocity.
     /// </summary>
     /// <remarks>
-    /// The cartridge's unmorph input table remains active before animation command `$FD`
+    /// The game's unmorph input table remains active before animation command `$FD`
     /// reaches its normal `$27/$28` crouch endpoint. Up, aim, and Fire input can therefore
     /// interrupt the transition with an ordinary movement-type-six falling record. This is
-    /// not a fresh jump or an animation-completion shortcut: it enters the shared bank-$91
+    /// not a fresh jump or an animation-completion shortcut: it enters the shared
     /// changed-pose initializer, makes room for the target body's potentially larger radius,
     /// and preserves the existing X/Y speed words that describe Samus's current fall.
     /// </remarks>
@@ -425,7 +425,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
             SamusPoseMetadata.IsLeftFacingFallingPose(targetPose);
         if (!rightFacingRoute && !leftFacingRoute)
         {
-            // `$91:A3F6/$91:A476` expose only the falling family matching the active
+            // Expose only the falling family matching the active
             // unmorph body's direction. Rejecting every other pairing keeps this helper
             // from silently becoming a catch-all for unrelated movement initializers.
             throw new InvalidOperationException(
@@ -442,7 +442,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
             // Radius sixteen is already non-ball geometry. If both sides constrain an
-            // attempted full-height falling body, `$91:FFA7` selects stable crouch just as
+            // attempted full-height falling body, the crouch selector selects stable crouch just as
             // it does for aimed crouch and compact-aerial expansion. A failed compensating
             // probe instead retains the visible unmorph frame and all live speed words.
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
@@ -494,14 +494,14 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
             (previousDirection == SamusFacingDirection.Left && currentDirection == SamusFacingDirection.Right);
         if (reversed)
         {
-            // `$91:FA32-$91:FA52` folds run momentum into base speed with one 16-bit carry,
+            // Folds run momentum into base speed with one 16-bit carry,
             // clears the extra words, and selects mode one so displacement initially keeps
             // travelling in the old direction while the ball decelerates through its turn.
             uint combined = unchecked(samus.HorizontalSpeed.BaseFixed +
                 SixteenSixteen.Compose(samus.HorizontalSpeed.ExtraRunSpeed.Whole,
                     samus.HorizontalSpeed.ExtraRunSpeed.Fraction));
             samus.HorizontalSpeed.BaseSpeed = UnsignedSixteenSixteen.FromRaw(combined);
-            // `$91:FA4C` invokes `Samus_CancelSpeedBoost` between the 16.16 fold and the
+            // Invokes `Samus_CancelSpeedBoost` between the 16.16 fold and the
             // explicit extra-word clear. Preserve that ordering even for ordinary Dash.
             samus.HorizontalSpeed.CancelRunningMomentum(currentDirection);
             samus.HorizontalSpeed.ExtraRunSpeed = default;
@@ -511,7 +511,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
 
 
     /// <summary>
-    /// Applies the winning solid-ceiling transition at $91:EFDF. Call after higher
+    /// Applies the winning solid-ceiling transition. Call after higher
     /// priority animation and hit interruptions, not from the collision scan.
     /// </summary>
     public static void ApplySolidCeilingCollision(SamusState samus)
@@ -522,8 +522,8 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
 
 
     /// <summary>
-    /// Resolves an ordinary Morph-Ball downward collision through `$91:EA07` and
-    /// `$91:F1FC`, including both automatic rebounds and the final grounded pose.
+    /// Resolves an ordinary Morph-Ball downward collision through the solid-vertical transition and
+    /// the ball bounce, including both automatic rebounds and the final grounded pose.
     /// </summary>
     /// <returns>True only when the collision ends grounded; false means another rebound.</returns>
     public static bool ApplyMorphBallLanding(SamusState samus)
@@ -531,7 +531,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
         if (!SamusPoseMetadata.IsAirborneMorphBallPose(samus.Pose) && !SamusPoseMetadata.IsGroundedMorphBallPose(samus.Pose))
             throw new InvalidOperationException($"Morph-Ball landing requires airborne pose $31/$32, not {samus.Pose}.");
 
-        // The cartridge tests the sign of a word subtraction, not an unsigned
+        // The game tests the sign of a word subtraction, not an unsigned
         // magnitude. Moonfall's negative velocity therefore lands without a rebound.
         if (samus.MorphBallBounceState == SamusBallBounceState.None &&
             WordWrap.Signed(samus.Kinematics.YSpeed.Whole - SamusMovementDefinitions.FirstBallBounceMinimumSpeed) >= 0)
@@ -557,7 +557,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
             ? SamusPoseId.MorphBallGroundLeftPose
             : SamusPoseId.MorphBallGroundRightPose;
         ApplyMorphBallPoseChange(samus, groundedPose);
-        // $91:F02D-$F033 clears base momentum only when the bounce handler returns
+        // Clears base momentum only when the bounce handler returns
         // carry clear. Both airborne rebounds above retain their horizontal speed.
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
@@ -566,8 +566,8 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
 
 
     /// <summary>
-    /// Resolves `$91:F25E` for Spring Ball. Holding Jump immediately calls the same
-    /// cartridge-backed jump initializer as a grounded Spring Ball press; otherwise the
+    /// Resolves the Spring Ball bounce. Holding Jump immediately calls the same
+    /// jump initializer as a grounded Spring Ball press; otherwise the
     /// bounce advances through the Spring Ball family's two rebounds.
     /// </summary>
     public static bool ApplySpringBallLanding(SamusState samus, ControllerButton controllerInput)
@@ -579,13 +579,13 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
         {
             samus.MorphBallBounceState = SamusBallBounceState.None;
             SamusAerialMovement.InitializeJump(samus);
-            // Native landing relaunch only initializes velocity. It retains the
+            // The landing relaunch only initializes velocity. It retains the
             // current airborne pose/animation, unlike a fresh grounded Jump input.
             // Changing pose here also selects a different next-frame movement path.
             return false;
         }
 
-        // $91:F26E dispatches on the rebound count only, so an ordinary-ball
+        // Dispatches on the rebound count only, so an ordinary-ball
         // rebound left over from a Spring Ball toggle selects the same rebound step.
         if (samus.MorphBallBounceState == SamusBallBounceState.None &&
             WordWrap.Signed(samus.Kinematics.YSpeed.Whole - SamusMovementDefinitions.FirstBallBounceMinimumSpeed) >= 0)
@@ -620,7 +620,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
 
 
     /// <summary>
-    /// Applies `$91:FC18` when grounded Spring Ball `$79/$7A` changes to `$7F/$80`.
+    /// Applies the Spring Ball jump when grounded Spring Ball `$79/$7A` changes to `$7F/$80`.
     /// Moving-ground poses first pass through the same table-selected target, but the
     /// initializer only launches when the previous movement type was exactly `$11`.
     /// </summary>
@@ -638,10 +638,10 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
 
 
     /// <summary>
-    /// Applies `$91:E8F2` after a bomb-jump frame moved down without a floor. Only the pose
+    /// Applies the walk-off transition after a bomb-jump frame moved down without a floor. Only the pose
     /// changes: the airborne ball's initializer leaves vertical speed for the next
     /// handler frame, whose underflow test turns the jump downward. Movement types whose
-    /// `$90:E65A` entry is "no change" keep their pose.
+    /// falling entry is "no change" keep their pose.
     /// </summary>
     public static void ApplyBombJumpFallingPose(SamusState samus)
     {
@@ -653,12 +653,12 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
         else if (SamusPoseMetadata.ReadMovementType(samus) is SamusMovementType.Standing or SamusMovementType.Running or
                  SamusMovementType.Crouching or SamusMovementType.Moonwalking or SamusMovementType.RanIntoWall)
             throw new InvalidOperationException(
-                $"Bomb-jump falling result for humanoid pose {samus.Pose} ($91:E8F2 airborne) is not translated.");
+                $"Bomb-jump falling result for humanoid pose {samus.Pose} (airborne walk-off) is not translated.");
     }
 
 
     /// <summary>
-    /// Applies `$91:E8F2`'s type-four walk-off endpoint, retaining the rolling animation
+    /// Applies the walk-off transition's type-four endpoint, retaining the rolling animation
     /// while changing to ordinary airborne pose `$31/$32` and starting dry-air gravity.
     /// </summary>
     public static void ApplyMorphBallWalkOff(SamusState samus)

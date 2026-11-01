@@ -10,7 +10,7 @@ internal static class SamusCollisionPoses
         pose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose ? SamusCollisionPose.StandingNormal
         : pose == SamusPoseId.RanIntoWallLeftPose ? SamusCollisionPose.RanIntoWallLeft
         : pose == SamusPoseId.RanIntoWallRightPose ? SamusCollisionPose.RanIntoWallRight
-        // `$94:938B/$94:93CE` arm an elevator only while samus_pose is below $09.
+        // Arm an elevator only while samus_pose is below $09.
         : SamusPoseNumbering.Precedes(pose, SamusPoseId.MovingRightNormalPose) ? SamusCollisionPose.StandingOther
         : SamusCollisionPose.Other;
 }

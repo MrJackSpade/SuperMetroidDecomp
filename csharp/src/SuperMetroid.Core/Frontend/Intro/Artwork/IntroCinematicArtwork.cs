@@ -21,7 +21,7 @@ public abstract class IntroCinematicArtwork
         CeresDestruction = Ensure.NotNull(parts.CeresDestruction);
     }
 
-    /// <summary>Native-precision colors loaded before the first narration card.</summary>
+    /// <summary>Full-precision colors loaded before the first narration card.</summary>
     public IntroCinematicPalette Palette { get; }
     /// <summary>Mode-7 and OBJ visual streams used after the narration fades to Ceres.</summary>
     public CeresFlightArtwork CeresFlight { get; }

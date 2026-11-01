@@ -9,7 +9,7 @@ public static class XrayRevealCells
     /// The shown cell a whole-block write at <paramref name="column"/>, <paramref name="row"/> lands in, or -1 where it
     /// lands where BG2 shows nothing. Columns past the first screen's sixteen continue in the second screen; a row past a
     /// screen's last continues at the top of the screen that follows it, and past the second screen the write is lost,
-    /// as the native buffer lays its two screens one after the other. Of the second screen only its first column is
+    /// as the buffer lays its two screens one after the other. Of the second screen only its first column is
     /// shown, as the fine-scroll column.
     /// </summary>
     /// <param name="column">The block column, the first screen's sixteen followed by the second's.</param>

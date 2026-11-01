@@ -13,7 +13,7 @@ public sealed class SamusLoadingSuitPaletteFxColorDefinition
     public required SamusLoadingSuitPaletteFxProgramOwner Owner { get; init; }
 
     /// <summary>The palette-FX object that installs this program.</summary>
-    /// <remarks><c>$8D:E1F4</c>, <c>$8D:E1F8</c>, or <c>$8D:E1FC</c>.</remarks>
+    /// <remarks>One object per suit.</remarks>
     public required PaletteFxObject Object { get; init; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>

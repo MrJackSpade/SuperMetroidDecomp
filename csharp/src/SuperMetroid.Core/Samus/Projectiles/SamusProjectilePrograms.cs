@@ -3,7 +3,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Runs the Samus projectiles' typed programs (#1301) as the bank-$93 instruction handlers run their lists: each timed
+/// Runs the Samus projectiles' typed programs (#1301) as the instruction handlers run their lists: each timed
 /// record installs its duration, spritemap and radii.
 /// </summary>
 internal static class SamusProjectilePrograms

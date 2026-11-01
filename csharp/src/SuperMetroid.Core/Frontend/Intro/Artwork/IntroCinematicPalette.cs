@@ -9,17 +9,17 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 public sealed class IntroCinematicPalette
 {
     /// <summary>
-    /// The colours whose sprite set repeats the neutral ramp ($8C:E4E9-E508); its set may be held as that ramp.
+    /// The colours whose sprite set repeats the neutral ramp; its set may be held as that ramp.
     /// </summary>
     private static readonly ScreenColourGroup NeutralRamp = ScreenColourGroup.IntroNarrationNeutralRamp;
 
     /// <summary>
-    /// The colours whose sprite set cross-fades ($8C:E5A9-E5C8): its first eight visible colours may repeat the sepia
+    /// The colours whose sprite set cross-fades: its first eight visible colours may repeat the sepia
     /// gradient of <see cref="CrossFadeGradientSource"/>.
     /// </summary>
     private static readonly ScreenColourGroup CrossFade = ScreenColourGroup.IntroCrossFadeObjects;
 
-    /// <summary>The discovery scene's background colours ($8C:E42B-E43A), whose sepia gradient the cross-fade repeats.</summary>
+    /// <summary>The discovery scene's background colours, whose sepia gradient the cross-fade repeats.</summary>
     private static readonly ScreenColourGroup CrossFadeGradientSource = ScreenColourGroup.IntroDiscoveryBackground;
 
     /// <summary>Decoded background sets; empty when the installed colours match the compiled stock paint.</summary>
@@ -82,7 +82,7 @@ public sealed class IntroCinematicPalette
         }
     }
 
-    /// <summary>Replaces every colour of the screen with the installed opening palette, corresponding to $8C:E3E9-E5E8; does not advance or reset cinematic fade timers.</summary>
+    /// <summary>Replaces every colour of the screen with the installed opening palette; does not advance or reset cinematic fade timers.</summary>
     /// <param name="colours">The screen's colours, every one of which the palette replaces.</param>
     public void LoadTo(ScreenPalette colours) => Colours.LoadTo(colours);
 }

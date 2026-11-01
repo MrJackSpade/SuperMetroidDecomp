@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class TourianEscapeRedFlashPaletteFxColorDefinitions
 {
 
-    /// <summary>Shutter and background loops with distinct CGRAM starts, frame durations, and color extents.</summary>
+    /// <summary>Shutter and background loops with distinct colour starts, frame durations, and color extents.</summary>
     private static readonly TourianEscapeRedFlashPaletteFxColorDefinition[] Definitions =
     [
         new()

@@ -33,7 +33,7 @@ public sealed class WorldMapLabelPositions
     }
 
     /// <summary>Selects the independently editable anchor belonging to a named Zebes area.</summary>
-    /// <remarks>Reviewed for #1165: the six native area identities select layout roles,
+    /// <remarks>Reviewed for #1165: the six area identities select layout roles,
     /// not numerical samples. Preserve each imported/custom point without deriving it
     /// from another area or storing a positional lookup. Only area IDs0..5 are valid.</remarks>
     public Position16<SpritePixels> Get(int area) => ((uint)area < AreaIds.Zebes.Count ? AreaIds.Zebes[area] : AreaId.Ceres) switch

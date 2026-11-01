@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Bank-$8B cinematic coroutine positions, from setup waits to the terminal result display.</summary>
+/// <summary>Ending cinematic coroutine positions, from setup waits to the terminal result display.</summary>
 internal enum EndingCreditsPhase
 {
     /// <summary>Waits out the setup updates before loading the first cloud scene.</summary>

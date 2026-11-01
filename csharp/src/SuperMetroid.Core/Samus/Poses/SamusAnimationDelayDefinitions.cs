@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Samus's pose animation programs: each frame's delay and the instruction that ends each run (#1473).</summary>
 /// <remarks>
-/// Independently reviewed for #1165 against the cartridge's pose animation data and interpreter, and typed for #1473: a
+/// Independently reviewed for #1165 against the game's pose animation data and interpreter, and typed for #1473: a
 /// program is the runs of frames a pose animates by, numbered as the pose's artwork numbers its frames, and closed by
 /// the instruction each run ends in. A program holds every run up to the next pose's program, so the frames the breathing,
 /// drained, falling, spin and wall-jump animations reach by instruction or by a special handler's frame all lie in it.

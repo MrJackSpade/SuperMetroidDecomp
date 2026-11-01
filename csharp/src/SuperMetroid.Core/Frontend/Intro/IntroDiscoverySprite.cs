@@ -5,11 +5,11 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// A bank-$8B cinematic sprite object: its position, colouring and pre-instruction, running one of the typed
-/// <see cref="CinematicSpriteProgram"/>s (#641) where the generic cinematic sprite handler ran its native list.
+/// A cinematic sprite object: its position, colouring and frame behaviour, running one of the typed
+/// <see cref="CinematicSpriteProgram"/>s (#641) where the generic cinematic sprite handler ran its animation script.
 /// </summary>
 /// <remarks>
-/// The shared pre-instruction install is carried out here; every other cue goes to the owner that steps the actor, and
+/// The shared frame-behaviour install is carried out here; every other cue goes to the owner that steps the actor, and
 /// an owner-less cue fails rather than being skipped.
 /// </remarks>
 internal sealed class IntroDiscoverySprite
@@ -31,7 +31,7 @@ internal sealed class IntroDiscoverySprite
     /// <summary>Cleared when the list's delete opcode retires the actor.</summary>
     public bool IsActive { get; private set; } = true;
 
-    /// <summary>The native whole and subpixel words of the sprite's position on both axes.</summary>
+    /// <summary>The whole and subpixel words of the sprite's position on both axes.</summary>
     public FixedPosition<ScreenPixels> Position { get; set; }
 
     /// <summary>The whole-pixel words of <see cref="Position"/>; assigning replaces them and keeps both subpixel words.</summary>
@@ -87,20 +87,20 @@ internal sealed class IntroDiscoverySprite
     }
 
     /// <summary>
-    /// Seeds the private instruction countdown used by the next generic sprite-handler
+    /// Seeds the private frame hold used by the next generic sprite-handler
     /// call. Cinematic object setup routines write this word directly when several actors
     /// share one list but must begin on staggered frames.
     /// </summary>
     /// <remarks>
     /// This is deliberately not represented by <see cref="GeneralTimer"/>. The latter is
-    /// the separate <c>CinematicSpriteObject_GotoTimers</c> scratch word consumed by list
-    /// opcodes $94C3/$94D6; conflating the two makes a delayed actor interpret its first
+    /// the separate <c>CinematicSpriteObject_GotoTimers</c> scratch word consumed by the
+    /// loop steps; conflating the two makes a delayed actor interpret its first
     /// frame immediately while merely changing an unrelated loop counter.
     /// </remarks>
     public void DelayFirstInstruction(int frames)
     {
         if (frames == 0)
-            throw new ArgumentOutOfRangeException(nameof(frames), "A native instruction delay must be nonzero.");
+            throw new ArgumentOutOfRangeException(nameof(frames), "A frame hold must be nonzero.");
         frameHold = WrappingCountdown.Start(frames);
     }
 
@@ -133,7 +133,7 @@ internal sealed class IntroDiscoverySprite
             return;
 
         AnimationProgramCursor<CinematicSpriteProgram> cursor = Program;
-        // Counter steps count the actor's goto-timer word, as the native timer-load and countdown opcodes do. Only a
+        // Counter steps count the actor's goto-timer word, as the timer-load and countdown steps do. Only a
         // counter step changes it, so an owner's own use of the word between steps survives.
         int timerBefore = GeneralTimer;
         WrappingCountdown counter = InstructionLoopCountdown;

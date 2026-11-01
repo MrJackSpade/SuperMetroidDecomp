@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>The solid spike-block BTS values with a damaging reaction in bank $94.</summary>
+/// <summary>The solid spike-block BTS values with a damaging reaction.</summary>
 public enum SpikeBlockBehavior
 {
-    /// <summary>Spike-block BTS zero selects the conditional 60-energy reaction at `$94:8E83`.</summary>
+    /// <summary>Spike-block BTS zero selects the conditional 60-energy reaction.</summary>
     Heavy = 0,
 
-    /// <summary>Spike-block BTS one selects the 16-energy reaction at `$94:8ECF`.</summary>
+    /// <summary>Spike-block BTS one selects the 16-energy reaction.</summary>
     Light = 1,
 
-    /// <summary>Spike-block BTS three selects the alternate 16-energy reaction at `$94:8F0A`.</summary>
+    /// <summary>Spike-block BTS three selects the alternate 16-energy reaction.</summary>
     AlternateLight = 3,
 }

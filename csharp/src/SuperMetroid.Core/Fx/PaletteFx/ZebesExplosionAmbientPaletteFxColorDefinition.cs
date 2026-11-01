@@ -12,7 +12,7 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
     public required ZebesExplosionAmbientPaletteFxProgramOwner Owner { get; init; }
 
     /// <summary>The palette-FX object that installs this program.</summary>
-    /// <remarks><c>$8D:E1D4</c> is afterglow and <c>$8D:E1D8</c> is lava.</remarks>
+    /// <remarks>One object installs the afterglow and the other the lava.</remarks>
     public required PaletteFxObject Object { get; init; }
 
 

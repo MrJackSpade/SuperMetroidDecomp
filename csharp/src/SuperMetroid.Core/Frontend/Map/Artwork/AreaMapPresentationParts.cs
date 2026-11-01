@@ -43,7 +43,7 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Boss, elevator, and gunship drawing anchors, independent of progression and destination rules.</summary>
     public required MapLandmarkPositions Landmarks { get; init; }
 
-    /// <summary>File-select save-marker visual coordinate overrides, independent of native load targets and scrolling.</summary>
+    /// <summary>File-select save-marker visual coordinate overrides, independent of load targets and scrolling.</summary>
     public required MapSaveMarkerPositions SaveMarkers { get; init; }
 
     /// <summary>Map-arrow artwork and presentation frames for scrolling indicators.</summary>
@@ -68,7 +68,7 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Escape countdown visual layout and digit presentation, separate from the character bytes in <see cref="EscapeTimerTiles"/>.</summary>
     public required EscapeTimerPresentation EscapeTimer { get; init; }
 
-    /// <summary>Selected character bytes for the two escape-timer VRAM transfers.</summary>
+    /// <summary>Selected character bytes for the two escape-timer artwork loads.</summary>
     public required EscapeTimerTileAtlas EscapeTimerTiles { get; init; }
 
     /// <summary>Gameplay HUD tilemap and display presentation, separate from the standard HUD character atlas.</summary>
@@ -108,7 +108,7 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Title-screen gradient presentation, separate from its static palette and character artwork.</summary>
     public required TitleGradientPresentation TitleGradient { get; init; }
 
-    /// <summary>Room and cinematic palette-animation colors; instruction timing, CGRAM destinations, and side effects remain compiled.</summary>
+    /// <summary>Room and cinematic palette-animation colors; step timing, colour destinations, and side effects remain compiled.</summary>
     public required RoomPaletteFxPresentation RoomPaletteFx { get; init; }
 
     /// <summary>Mother Brain health-selected palette artwork, separate from rainbow and room-color families.</summary>
@@ -141,7 +141,7 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Samus full-body palette-cycle inputs, separate from static suit, visor, and charged-beam colors.</summary>
     public required SamusFullBodyCycleColours SamusFullBodyCycleColors { get; init; }
 
-    /// <summary>Crystal Flash body and bubble colors; native timing, frame selection, and completion remain engine-owned.</summary>
+    /// <summary>Crystal Flash body and bubble colors; timing, frame selection, and completion remain engine-owned.</summary>
     public required InstalledCrystalFlashColors CrystalFlashColors { get; init; }
 
     /// <summary>Charged-beam and pseudo-Screw-Attack palette inputs, separate from base suit colors.</summary>

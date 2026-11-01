@@ -151,7 +151,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Starts the native transition out of a completed or canceled demo scene.</summary>
+    /// <summary>Starts the transition out of a completed or canceled demo scene.</summary>
     private void FinishAttractPlayback(AttractPlaybackEnd end)
     {
         session.Demo.Finish(cancelled: end == AttractPlaybackEnd.Cancelled);

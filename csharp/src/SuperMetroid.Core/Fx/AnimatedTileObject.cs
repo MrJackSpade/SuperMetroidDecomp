@@ -1,64 +1,64 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>The animated-tile objects rooms, room effects and the Tourian statues animate their characters with.
-/// Its values are arbitrary; verification's native view names each member's cartridge word (#1415).
+/// Its values are arbitrary; verification's view names each member's original identity (#1415).
 /// </summary>
 public enum AnimatedTileObject
 {
     /// <summary>No animated-tile object is loaded.</summary>
     None = 0,
-    /// <summary>$87:854C AnimatedTilesObject_TourianStatuePhantoon.</summary>
+    /// <summary>The Phantoon statue in the Tourian statue room.</summary>
     TourianStatuePhantoon = 1,
-    /// <summary>$87:8552 AnimatedTilesObject_TourianStatueRidley.</summary>
+    /// <summary>The Ridley statue in the Tourian statue room.</summary>
     TourianStatueRidley,
-    /// <summary>$87:8558 AnimatedTilesObject_TourianStatueKraid.</summary>
+    /// <summary>The Kraid statue in the Tourian statue room.</summary>
     TourianStatueKraid,
-    /// <summary>$87:855E AnimatedTilesObject_TourianStatueDraygon.</summary>
+    /// <summary>The Draygon statue in the Tourian statue room.</summary>
     TourianStatueDraygon,
-    /// <summary>$87:824B AnimatedTilesObjects_FX_nothing, the unused area-bit object.</summary>
+    /// <summary>The empty object an unused area bit selects.</summary>
     Empty,
-    /// <summary>$87:8257 AnimatedTilesObjects_FX_horizontalSpikes, common area bit0.</summary>
+    /// <summary>Horizontal spikes, common area bit0.</summary>
     HorizontalSpikes,
-    /// <summary>$87:8251 AnimatedTilesObjects_FX_verticalSpikes, common area bit1.</summary>
+    /// <summary>Vertical spikes, common area bit1.</summary>
     VerticalSpikes,
-    /// <summary>$87:825D AnimatedTilesObjects_FX_crateriaLake, Crateria bit2.</summary>
+    /// <summary>The Crateria lake, Crateria bit2.</summary>
     CrateriaLake,
-    /// <summary>$87:8263 unused Crateria lava object, preserved for area bit3.</summary>
+    /// <summary>The unused Crateria lava object, preserved for area bit3.</summary>
     UnusedCrateriaLava,
-    /// <summary>$87:8281 AnimatedTilesObjects_FX_brinstarPlant, Brinstar bit2.</summary>
+    /// <summary>The Brinstar plant, Brinstar bit2.</summary>
     BrinstarPlant,
-    /// <summary>$87:826F AnimatedTilesObjects_FX_wreckedShipScreen, Wrecked Ship bit4.</summary>
+    /// <summary>The Wrecked Ship screen, Wrecked Ship bit4.</summary>
     WreckedShipScreen,
-    /// <summary>kAnimtiles_MaridiaSandCeiling, $87:8287, selected by room FX animation bits.</summary>
+    /// <summary>The Maridia sand ceiling, selected by room FX animation bits.</summary>
     MaridiaSandCeiling,
-    /// <summary>kAnimtiles_MaridiaSandFalling, $87:828D, selected by room FX animation bits.</summary>
+    /// <summary>Falling Maridia sand, selected by room FX animation bits.</summary>
     MaridiaSandFalling,
-    /// <summary>Wrecked Ship rightward treadmill object at $87:8275.</summary>
+    /// <summary>Wrecked Ship rightward treadmill object.</summary>
     WreckedShipTreadmillRightwards,
-    /// <summary>Wrecked Ship leftward treadmill object at $87:827B.</summary>
+    /// <summary>Wrecked Ship leftward treadmill object.</summary>
     WreckedShipTreadmillLeftwards,
 
     /// <summary>
-    /// <c>kAnimtiles_Lava</c> at $87:82AB, spawned by the lava FX dispatcher at
-    /// $88:B279. Its five-frame loop uploads $40 bytes to VRAM word $4280.
+    /// The lava animation, spawned by the lava room effect.
+    /// Its five-frame loop repaints the liquid's characters.
     /// </summary>
     Lava,
 
     /// <summary>
-    /// <c>kAnimtiles_Acid</c> at $87:82C9, spawned by the acid FX dispatcher at
-    /// $88:B2A1. Its five-frame loop uploads $40 bytes to VRAM word $4280.
+    /// The acid animation, spawned by the acid room effect.
+    /// Its five-frame loop repaints the liquid's characters.
     /// </summary>
     Acid,
 
     /// <summary>
-    /// <c>kAnimtiles_Rain</c> at $87:82E7, spawned by the rain FX dispatcher at
-    /// $88:C4B9. Its five-frame loop uploads $50 bytes to VRAM word $4280.
+    /// The rain animation, spawned by the rain room effect.
+    /// Its five-frame loop repaints the rain's characters.
     /// </summary>
     Rain,
 
     /// <summary>
-    /// <c>AnimatedTilesObject_Spores</c> at $87:82FD, spawned by FX type $08 at
-    /// $88:DA25. Three ten-tick frames upload $30 bytes to VRAM word $4280.
+    /// The spore animation, spawned by the spore room effect.
+    /// Three ten-tick frames repaint the spores' characters.
     /// </summary>
     Spores,
 }

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Death;
 /// <summary>
 /// Compiled timing metadata for Samus's nine suit-explosion frames. Palette selectors
 /// remain presentation data; this catalog owns only the fixed timer bytes interleaved
-/// with those selectors by <c>HandleSamusDeathSequence</c> at <c>$9B:B823</c>.
+/// with those selectors by <c>HandleSamusDeathSequence</c>.
 /// </summary>
 /// <remarks>Issue1165 retains the nine countdown choices under the authored
 /// animation/nonsense exception. Native9BB5B4 loads the entry countdown and

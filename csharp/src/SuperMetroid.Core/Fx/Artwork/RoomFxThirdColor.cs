@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// <summary>Independent third-color red and calculated weather green/blue, preserving edits.</summary>
 internal sealed class RoomFxThirdColor
 {
-    /// <summary>Native selector used to calculate the weather ink's shared channels.</summary>
+    /// <summary>Selector used to calculate the weather ink's shared channels.</summary>
     private readonly RoomFxPaletteBlend selection;
     /// <summary>Independent red channel of the third ink.</summary>
     private readonly int red;

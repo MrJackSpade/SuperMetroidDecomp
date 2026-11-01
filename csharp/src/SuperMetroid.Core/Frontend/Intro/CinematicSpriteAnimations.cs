@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Frontend.Intro.CinematicSpriteProgram;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// Every bank-$8B cinematic sprite list as a typed program (#641), generated from the verified native lists: each frame
+/// Every cinematic sprite animation script as a typed program (#641), generated from the verified animation scripts: each frame
 /// shows a <see cref="CinematicSpritePose"/>, each owner instruction becomes a <see cref="CinematicSpriteCue"/>, and the
 /// shared delete stops the program.
 /// </summary>

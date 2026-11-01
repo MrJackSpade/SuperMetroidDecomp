@@ -4,9 +4,9 @@ using P = SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgram;
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// The palette-FX objects' programs (#1298), in place of their bank-$8D lists. Generated from the verified native lists:
+/// The palette-FX objects' programs (#1298). Generated from the verified animation scripts:
 /// each timed colour record shows a <see cref="PaletteFxFrame"/> and each command becomes a <see cref="PaletteFxCue"/>,
-/// a counter step or a branch; the native loop timer is the program counter.
+/// a counter step or a branch; the object's loop timer is the program counter.
 /// </summary>
 public static class PaletteFxAnimations
 {

@@ -4,24 +4,24 @@ namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>The definitions Samus's movement and pose selection read: speeds, timers, frames and sentinels (#1411).</summary>
 /// <remarks>
-/// Addresses are grouped by their native subsystem rather than by the C# class that happens
-/// to read them. Full 24-bit addresses use <see cref="int"/>; values stored natively as
-/// same-bank pointers use <see cref="ushort"/> so callers must explicitly supply the bank.
+/// Addresses are grouped by their subsystem rather than by the C# class that happens
+/// to read them. Full 24-bit locations use <see cref="int"/>;
+/// values stored as short pointers use <see cref="ushort"/> so callers must explicitly supply the rest.
 /// Runtime velocity, timers, and selected pointers do not belong in this catalog.
 /// </remarks>
 public static class SamusMovementDefinitions
 {
-    /// <summary>$91:F1FC/$F25E ball-landing handlers: signed whole-speed threshold for the first automatic bounce.</summary>
+    /// <summary>Ball-landing handlers: signed whole-speed threshold for the first automatic bounce.</summary>
     public const int FirstBallBounceMinimumSpeed = 3;
 
-    /// <summary>$90:A3C1, SamusMovement_Standing: held-shot animation timer before the animation tick.</summary>
+    /// <summary>SamusMovement_Standing: held-shot animation timer before the animation tick.</summary>
     public const int StandingShotAnimationTimer = 16;
 
-    /// <summary>$90:A58D, Samus_Movement_06_Falling: minimum signed whole speed selecting fast-fall art.</summary>
+    /// <summary>Samus_Movement_06_Falling: minimum signed whole speed selecting fast-fall art.</summary>
     public const int FastFallAnimationSpeed = 5;
-    /// <summary>$90:A58D falling handler: first fast-fall animation frame.</summary>
+    /// <summary>Falling handler: first fast-fall animation frame.</summary>
     public const int FastFallAnimationFrame = 5;
-    /// <summary>$90:A58D falling handler: fast-fall timer before the animation tick.</summary>
+    /// <summary>Falling handler: fast-fall timer before the animation tick.</summary>
     public const int FastFallAnimationTimer = 8;
 
 
@@ -30,7 +30,7 @@ public static class SamusMovementDefinitions
     {
 
         /// <summary>
-        /// The no-input fallback that retains the current pose after input lookup failure ($91:82F9). The cartridge
+        /// The no-input fallback that retains the current pose after input lookup failure. The game
         /// spells it as pose $FF, so it is the same identity as <see cref="SamusPoseId.AdjacentCodePoseFF"/>: a record
         /// whose fallback names pose $FF retains its pose.
         /// </summary>
@@ -38,7 +38,7 @@ public static class SamusMovementDefinitions
 
         /// <summary>
         /// $FF in pose-definition byte three: the pose has no shot direction. Hurt and
-        /// damage-boost art store it, and $91:E95D lands them through the facing pair.
+        /// damage-boost art store it, and the landing transition lands them through the facing pair.
         /// </summary>
         public const int NoShotDirection = 255;
     }
@@ -54,7 +54,7 @@ public static class SamusMovementDefinitions
     public static class Environment
     {
 
-        /// <summary>Four words per authored direct small-OBJ effect list at $90:8C0F/$90:8C17.</summary>
+        /// <summary>Four words per authored direct small-OBJ effect list.</summary>
         public const int DirectAtmosphericFrameCount = 4;
     }
 }

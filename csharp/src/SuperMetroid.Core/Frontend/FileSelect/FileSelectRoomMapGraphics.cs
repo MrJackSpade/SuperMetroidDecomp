@@ -8,7 +8,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Room-select BG1 map and BG2 frame installed by $81:A725 and $82:9517.</summary>
+/// <summary>Room-select BG1 map and BG2 frame.</summary>
 /// <remarks>Owns graphics only; selection, scrolling, windows and station markers belong to the menu state.</remarks>
 public sealed class FileSelectRoomMapGraphics
 {
@@ -28,7 +28,7 @@ public sealed class FileSelectRoomMapGraphics
     /// <summary>Persistent downloaded-map and explored-cell state held by the icon owner.</summary>
     internal SharedGameState MapSystem => icons.MapSystem;
 
-    /// <summary>Installs one area's revealed BG1 map and fixed BG2 frame into a separate menu PPU owner, following $81:A725/$82:9517 without choosing a load station or advancing menu timing.</summary>
+    /// <summary>Installs one area's revealed BG1 map and fixed BG2 frame into a separate menu display owner, without choosing a load station or advancing menu timing.</summary>
     /// <param name="system">Persistence owner supplying downloaded-map, explored-cell, boss, and station visibility state; it is not replaced or cleared.</param>
     /// <param name="area">One of the six Zebes map areas, excluding Ceres.</param>
     /// <param name="revealMode">Optional presentation reveal override when projecting installed map cells; ordinary selection uses persistence-driven visibility.</param>
@@ -82,7 +82,7 @@ public sealed class FileSelectRoomMapGraphics
         AreaMap = AreaMapProjection.Project(catalog.Get(area), system, catalog.HiddenCells.RoomSelect(system.HasAreaMap(area)));
     }
 
-    /// <summary>Composes landmarks, the saved-station marker, and arrows in native order without advancing animations.</summary>
+    /// <summary>Composes landmarks, the saved-station marker, and arrows in drawing order without advancing animations.</summary>
     private void PrepareIcons(Position16<MapPixels> scroll, FileSelectStationMarker marker,
         FileSelectMapAnimations? animations)
     {

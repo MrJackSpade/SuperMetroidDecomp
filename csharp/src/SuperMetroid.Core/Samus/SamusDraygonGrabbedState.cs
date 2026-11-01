@@ -6,11 +6,11 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// Exact Samus-owned half of the grabbed-by-Draygon route at `$90:E23B-$E359` and
-/// movement type `$1A` at `$90:A7D2`.
+/// Exact Samus-owned half of the grabbed-by-Draygon route and
+/// movement type `$1A`.
 /// </summary>
 /// <remarks>
-/// Draygon is an enemy actor, so bank `$A5` computes the boss's flight position and then
+/// Draygon is an enemy actor, so its AI computes the boss's flight position and then
 /// calls <c>MoveSamusWithDraygon</c>. This object deliberately accepts that actor position
 /// as an explicit input. It does not fabricate an enemy trajectory inside Samus physics.
 /// Everything after that boundary—the signed claw offset, pose family, escape counter,
@@ -18,26 +18,26 @@ namespace SuperMetroid.Core.Samus;
 /// </remarks>
 public sealed class SamusDraygonGrabbedState
 {
-    /// <summary>Native escape threshold stored at `$90:E095`.</summary>
+    /// <summary>Escape threshold.</summary>
     public const int EscapeButtonCounterTarget = 60;
 
-    /// <summary>True while `$90:E2A1` is installed as Samus's timer/hack handler.</summary>
+    /// <summary>True while the escape handler is installed as Samus's timer/hack handler.</summary>
     public bool IsActive { get; private set; }
 
-    /// <summary>Another callback replaced the RTS movement pointer without removing grab gamma.</summary>
+    /// <summary>Another callback replaced the empty movement pointer without removing grab gamma.</summary>
     public bool MovementHandlerReplaced { get; private set; }
 
-    /// <summary>True only while the grab's RTS still owns beta movement.</summary>
+    /// <summary>True only while the grab's empty handler still owns beta movement.</summary>
     public bool OwnsMovement => IsActive && !MovementHandlerReplaced;
 
-    /// <summary>Preserves grab gamma while a newer movement callback replaces RTS.</summary>
+    /// <summary>Preserves grab gamma while a newer movement callback replaces the empty handler.</summary>
     internal void RelinquishMovementHandler() => MovementHandlerReplaced = true;
 
     /// <summary>
     /// D-pad presses counted toward escaping, 0 through 65535. The counter shares one storage word with Crystal
     /// Flash's ammo countdown and the suit pickup's stage number, which mirror their writes into it, so it holds any
     /// value those owners leave, including a wrapped countdown. It advances as a sixteen-bit counter and the release
-    /// test is the cartridge's signed comparison against the target; other values are rejected.
+    /// test is the game's signed comparison against the target; other values are rejected.
     /// </summary>
     public int EscapeButtonCounter { get; private set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
@@ -48,20 +48,20 @@ public sealed class SamusDraygonGrabbedState
     private static int CountPress(int counter) => WordWrap.Unsigned(counter + 1);
 
     /// <summary>
-    /// Whether a counted press reached the target. The cartridge compares the shared word with a signed subtraction,
+    /// Whether a counted press reached the target. The game compares the shared word with a signed subtraction,
     /// so a word of 32828 or more, left by another owner, reads as below it.
     /// </summary>
     private static bool ReachedEscapeTarget(int counter) =>
         CoordinateAxis.Difference(counter, EscapeButtonCounterTarget) >= 0;
 
     /// <summary>
-    /// WRAM <c>DraygonEscapePreviousDpadInput</c>. Native stores the entire masked D-pad
+    /// <c>DraygonEscapePreviousDpadInput</c>. The game stores the entire masked D-pad
     /// nibble, not merely one direction, so a different diagonal chord is also a new input.
     /// </summary>
     public ControllerButton PreviousDpadInput { get; private set; }
 
     /// <summary>
-    /// Set by release exactly like grapple-connected-flags bit one at `$90:E353`. Draygon's
+    /// Set by release exactly like grapple-connected-flags bit one. Draygon's
     /// next <c>MoveSamusWithDraygon</c> call consumes the signal and starts flying upward.
     /// </summary>
     public bool ReleasePublishedToOwner { get; private set; }
@@ -69,11 +69,11 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>Most recently supplied whole-pixel Draygon body position.</summary>
     public Position16<RoomPixels> OwnerPosition { get; private set; }
 
-    /// <summary>Direction word used by bank `$A5`: false/zero left, true/nonzero right.</summary>
+    /// <summary>Direction word used by Draygon's AI: false/zero left, true/nonzero right.</summary>
     public bool OwnerFacingRight { get; private set; }
 
     /// <summary>
-    /// Ports <c>SetSamusIntoTheGrabbedByDraygonPose</c> at `$90:E23B`.
+    /// Ports <c>SetSamusIntoTheGrabbedByDraygonPose</c>.
     /// </summary>
     public void Begin(SamusState samus, bool draygonFacingRight)
     {
@@ -89,7 +89,7 @@ public sealed class SamusDraygonGrabbedState
         MovementHandlerReplaced = false;
         EscapeButtonCounter = 0;
         samus.CrystalFlash.SetSharedAmmoCounter(EscapeButtonCounter);
-        // Grab installs RTS movement, but leaves the Flash palette and its shared
+        // Grab installs an empty movement handler, but leaves the Flash palette and its shared
         // shine-timer word alive. A later release must not resume Flash draining.
         samus.CrystalFlash.RelinquishMovementHandler();
         PreviousDpadInput = 0;
@@ -97,13 +97,13 @@ public sealed class SamusDraygonGrabbedState
         OwnerFacingRight = draygonFacingRight;
         // Forced grab owns its history shift; no ordinary input slot is consumed.
         samus.CommitPoseHistory();
-        // `$90:E289-$E295` empties every prospective-pose slot. The super-special one is Samus's;
+        // Empties every prospective-pose slot. The super-special one is Samus's;
         // the runtime clears the others after EnemyMain (EnemyRoomStatus publishes the grab).
         samus.PendingTransitionalPose = null;
     }
 
     /// <summary>
-    /// Ports <c>MoveSamusWithDraygon</c> at `$A5:94A9` after enemy AI has updated the
+    /// Ports <c>MoveSamusWithDraygon</c> after enemy AI has updated the
     /// boss body. Facing left places Samus eight pixels left; facing right places her eight
     /// pixels right; both place her 40 pixels below the body center. Draygon also places a
     /// Samus who has just escaped, until it consumes the escape bit right after this placement.
@@ -125,7 +125,7 @@ public sealed class SamusDraygonGrabbedState
 
         samus.Position = samus.Position.WithWhole(ownerPosition + new Offset16<RoomPixels>(draygonFacingRight ? 8 : -8, 40));
 
-        // The native routine writes whole positions only. It does not clear subpositions,
+        // The routine writes whole positions only. It does not clear subpositions,
         // so preserving the split low words is intentional even though the actor overwrites
         // the visible whole coordinates on every owner update.
         return new DraygonOwnerPlacement();
@@ -145,7 +145,7 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Ports `$90:E2A1`: optionally suppress the already-selected input transition while a
+    /// Ports the escape handler: optionally suppress the already-selected input transition while a
     /// grapple is locked in place, then count a newly pressed D-pad pattern only when it is
     /// nonzero and different from the last counted pattern.
     /// </summary>
@@ -168,7 +168,7 @@ public sealed class SamusDraygonGrabbedState
             counted = true;
         }
 
-        // Native tests the signed difference only on a newly counted D-pad edge.
+        // The game tests the signed difference only on a newly counted D-pad edge.
         bool released = counted && ReachedEscapeTarget(EscapeButtonCounter);
         if (released)
             Release(samus);
@@ -179,7 +179,7 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Ports `$90:E2DE-$E359`. The release keeps extra run speed exactly as native does,
+    /// Ports the release. The release keeps extra run speed exactly as the game does,
     /// but clears base X speed, all vertical velocity, bounce state, and acceleration mode.
     /// </summary>
     public void Release(SamusState samus)
@@ -212,7 +212,7 @@ public sealed class SamusDraygonGrabbedState
         ReleasePublishedToOwner = true;
     }
 
-    /// <summary>Consumes the bank-$A5-facing release bit exactly once.</summary>
+    /// <summary>Consumes the Draygon-facing release bit exactly once.</summary>
     public bool ConsumeOwnerReleaseSignal()
     {
         bool published = ReleasePublishedToOwner;
@@ -233,7 +233,7 @@ public sealed class SamusDraygonGrabbedState
         // and movement handler. Crystal Flash can replace both while still held.
     }
 
-    /// <summary>Requires one of the native grabbed pose families before running movement type $1A.</summary>
+    /// <summary>Requires one of the grabbed pose families before running movement type $1A.</summary>
     private static void EnsureGrabbedPose(SamusState samus)
     {
         if (!SamusPoseMetadata.IsDraygonGrabbedPose(samus.Pose))

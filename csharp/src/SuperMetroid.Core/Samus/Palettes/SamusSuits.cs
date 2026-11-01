@@ -7,7 +7,7 @@ public static class SamusSuits
 {
     /// <summary>
     /// The suit whose colours Samus shows with <paramref name="equippedItems"/>. Gravity wins when both suits are
-    /// equipped, matching the cartridge's branch order; this is an ordinary three-way choice, not another flag set.
+    /// equipped, matching the game's branch order; this is an ordinary three-way choice, not another flag set.
     /// </summary>
     public static SamusSuit ShownSuit(this SamusEquipmentFlags equippedItems)
     {

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Samus.Abilities.Artwork;
 
 /// <summary>
-/// Installed visual choices for X-ray blocks. The cartridge's collision and behaviour lookup,
+/// Installed visual choices for X-ray blocks. The game's collision and behaviour lookup,
 /// copy dimensions, extension traversal, and Brinstar-only condition remain compiled.
 /// </summary>
 public sealed class InstalledXrayReveals
@@ -31,13 +31,13 @@ public sealed class InstalledXrayReveals
     /// <remarks>
     /// Issue #1037: the index is the kind's position times the 256 behaviour values, plus the behaviour, over the 16
     /// collision kinds. Of 4096 possible
-    /// slots, the pinned NTSC J/U v1.0 ROM has 305 drawable pairs; the
+    /// slots, the original data has 305 drawable pairs; the
     /// constructor requires exactly those pairs and rejects duplicates.
-    /// Stock operands come from bank-$91 reveal command records and all
-    /// 305 installed values match the independent cartridge oracle.
+    /// Stock operands come from reveal command records and all
+    /// 305 installed values match the independent oracle.
     /// The visual operands can also be replaced through reveals.json while
-    /// the native command and copy dimensions remain fixed. Therefore no
-    /// single ROM-derived formula can reproduce every valid installation:
+    /// the command and copy dimensions remain fixed. Therefore no
+    /// single formula derived from the original data can reproduce every valid installation:
     /// retain this bounded indexed store for the selected visual data.
     /// </remarks>
     private readonly XrayRevealVisualBlocks?[] blocks = new XrayRevealVisualBlocks?[16 * BehaviorValueCount];
@@ -45,7 +45,7 @@ public sealed class InstalledXrayReveals
     /// <summary>Where a collision kind and behaviour's visuals sit in the store.</summary>
     private static int Index(RoomCollisionType type, RoomBlockBehavior behavior) => TypePosition[type] * BehaviorValueCount + behavior.Value;
 
-    /// <summary>Creates a complete visual replacement for every drawable native rule.</summary>
+    /// <summary>Creates a complete visual replacement for every drawable reveal rule.</summary>
     /// <param name="entries">Exactly one set of blocks for each drawable collision kind and behaviour; command selection and copy geometry remain fixed.</param>
     /// <param name="overlays">Installed item/special-room visuals, or null for a noninstalled fixture.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
@@ -60,7 +60,7 @@ public sealed class InstalledXrayReveals
             XrayRevealDefinition? retail = XrayRevealTable.Find(type, behavior);
             if (retail is not { } definition || !IsDrawable(definition.Command))
                 throw new InvalidDataException(
-                    $"X-ray visual {type}/behaviour {behavior} has no drawable cartridge rule.");
+                    $"X-ray visual {type}/behaviour {behavior} has no drawable reveal rule.");
             int index = Index(type, behavior);
             if (blocks[index] is not null)
                 throw new InvalidDataException(
@@ -77,7 +77,7 @@ public sealed class InstalledXrayReveals
                 IsDrawable(definition.Command);
             if (drawable != (blocks[Index(type, behavior)] is not null))
                 throw new InvalidDataException(
-                    $"X-ray visual catalog does not cover cartridge rule {type}/behaviour {behavior}.");
+                    $"X-ray visual catalog does not cover reveal rule {type}/behaviour {behavior}.");
         }
     }
 
@@ -129,13 +129,13 @@ public sealed class InstalledXrayReveals
 
     /// <summary>Whether this compiled command carries authored visual blocks.</summary>
     /// <remarks>
-    /// Issue #1036: the pinned NTSC J/U v1.0 ROM has seven reachable
-    /// revealed-block commands. $91:CF36, CF3E, CF4E, CF62, and CF6F
+    /// Issue #1036: the original data has seven reachable
+    /// revealed-block commands. Five
     /// copy one, Brinstar-only one, wide, tall, and square operand tiles;
-    /// $91:CE79 and CEBB traverse vertical and horizontal extensions
+    /// and two traverse vertical and horizontal extensions
     /// instead. The exact bounded classification is membership in those
     /// five copy identities, with false for every other ushort. The
-    /// independent 16-by-256 native reveal oracle finds all seven commands;
+    /// independent 16-by-256 reveal oracle finds all seven commands;
     /// its drawable behaviour groups total 305, matching the installed visual
     /// catalog's exhaustive coverage assertion. Named membership is
     /// clearer than a pointer interval, since the two extension routines

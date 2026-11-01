@@ -8,11 +8,11 @@ public enum LayerBlendingConfiguration
 {
     /// <summary>
     /// <c>LayerBlending_Config</c> zero: <c>LayerBlending_Handler</c> branches past initialization
-    /// and the configuration table (<c>$88:8008</c> <c>BEQ</c>), leaving the layer registers as set.
+    /// and the configuration table, leaving the layer settings as they are.
     /// </summary>
     Unconfigured = 0,
 
-    /// <summary>Bank-$88 dispatcher offset <c>$02</c>, used by ordinary gameplay without a special room effect.</summary>
+    /// <summary>The configuration used by ordinary gameplay without a special room effect.</summary>
     NormalGameplay = 1,
 
     /// <summary>Dispatcher offset <c>$04</c>, which omits Phantoon's body before its fade-in.</summary>
@@ -69,10 +69,10 @@ public enum LayerBlendingConfiguration
     /// <summary>Dispatcher offset <c>$26</c>, an unused half-additive configuration.</summary>
     UnusedHalfAdditive,
 
-    /// <summary>Dispatcher offset <c>$28</c>, one of two native backdrop modes that advances the visor palette animation.</summary>
+    /// <summary>The first of two backdrop modes that advance the visor palette animation.</summary>
     VisorBackdrop28,
 
-    /// <summary>Dispatcher offset <c>$2A</c>, the second native backdrop mode that advances the visor palette animation.</summary>
+    /// <summary>The second of two backdrop modes that advance the visor palette animation.</summary>
     VisorBackdrop2A,
 
     /// <summary>Dispatcher offset <c>$2C</c>, haze rooms and the Torizo rooms.</summary>

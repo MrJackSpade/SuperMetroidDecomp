@@ -15,7 +15,7 @@ public static class LiquidEffects
         [.. Enumerable.Range(0, LavaAcidWaveDefinitions.WaveDisplacementCount).Select(index => HeatHorizontalWaveDisplacement(index))];
 
     /// <summary>Calculates the signed scanline displacement for a water wave index 0..15.</summary>
-    /// <remarks>The original $88:C46E waveform consists of two identical eight-sample
+    /// <remarks>The water waveform consists of two identical eight-sample
     /// periods. Within each four-sample half-wave, reflect the integer ramp around
     /// its midpoint: min(index&amp;3, 3-(index&amp;3)). Bit two reverses its sign.
     /// This is an exact integer triangular waveform, without a floating-point
@@ -34,9 +34,9 @@ public static class LiquidEffects
     }
 
     /// <summary>
-    /// Signed BG2HOFS displacement for index 0..15, matching $88:B589.
+    /// Signed BG2HOFS displacement for index 0..15, the lava/acid heat haze.
     /// This pulse pair subtracts a four-sample unit pulse starting at eight
-    /// from the same pulse starting at two. The native $88:B53B consumer
+    /// from the same pulse starting at two. The haze
     /// rotates all sixteen samples; its two unequal zero gaps are preserved.
     /// No sinusoidal interpolation or extrapolation is implied.
     /// </summary>
@@ -49,7 +49,7 @@ public static class LiquidEffects
     }
 
     /// <summary>
-    /// <c>Lava_SoundEffects</c> ($88:B3A1): library-two sounds chosen by the low three
+    /// The lava sounds: library-two sounds chosen by the low three
     /// RNG bits.
     /// </summary>
     public static SoundEffectId LavaAmbientSound(int randomIndex) => (randomIndex & 7) switch

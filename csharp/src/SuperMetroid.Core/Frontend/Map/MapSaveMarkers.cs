@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// </summary>
 public static class MapSaveMarkers
 {
-    /// <summary>Enumerates usable save/elevator identities in native slot order.</summary>
+    /// <summary>Enumerates usable save/elevator identities in slot order.</summary>
     /// <remarks>
     /// Independently reviewed for #1165: each of the six original sixteen-slot marker
-    /// views at $82:C80B has a usable coordinate exactly when the corresponding compiled
+    /// views has a usable coordinate exactly when the corresponding compiled
     /// load-station record has a nonzero room pointer. Unused slots have FFFE coordinates
     /// and a zero-room placement. Enumerate that existing semantic definition rather
     /// than store a second list of station identities. Validate the area immediately,
@@ -37,7 +37,7 @@ public static class MapSaveMarkers
 
     /// <summary>Whether a bounded station identity has an active placement and map marker.</summary>
     /// <param name="area">One of the six Zebes area identities.</param>
-    /// <param name="index">Native zero-based station slot, 0..15, not the ordinal within the usable-slot sequence.</param>
+    /// <param name="index">Zero-based station slot, 0..15, not the ordinal within the usable-slot sequence.</param>
     /// <returns>True for a slot with a compiled load room, independently of the player's used-station bits.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The area or station slot is outside its supported range.</exception>
     public static bool IsUsable(AreaId area, int index)
@@ -53,9 +53,9 @@ public static class MapSaveMarkers
         if (!AreaIds.IsZebes(area))
             throw new ArgumentOutOfRangeException(nameof(area), "Only Zebes areas have save-map markers.");
     }
-    /// <summary>Formats the stable editable marker key for a usable native save/elevator station, without selecting its drawing coordinates or load target.</summary>
+    /// <summary>Formats the stable editable marker key for a usable save/elevator station, without selecting its drawing coordinates or load target.</summary>
     /// <param name="area">One of the six Zebes area identities.</param>
-    /// <param name="index">Native zero-based station slot, 0..15.</param>
+    /// <param name="index">Zero-based station slot, 0..15.</param>
     /// <returns>The key formatted as the area name followed by <c>.Save.</c> and the station slot.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The area or station slot is outside its supported range.</exception>
     /// <exception cref="InvalidDataException">The bounded station slot has no usable placement.</exception>
@@ -64,7 +64,7 @@ public static class MapSaveMarkers
         if (!IsUsable(area, index)) throw new InvalidDataException($"Area {area} has no map coordinate for station {index}.");
         return $"{area}.Save.{index}";
     }
-    /// <summary>$81:A97E DrawAreaSelectMapLabels: at least one used, non-unused save-coordinate slot.</summary>
+    /// <summary>Whether the area-select map labels the area: at least one used, non-unused save-coordinate slot.</summary>
     /// <param name="area">One of the six Zebes area identities.</param>
     /// <param name="usedStations">The area's used save stations and elevators, by station slot.</param>
     /// <returns>True when a used station has a usable marker; used unused slots do not reveal an area label.</returns>
@@ -76,7 +76,7 @@ public static class MapSaveMarkers
         return false;
     }
     /// <summary>Enumerates the complete stable save/elevator marker identity set for editable layout validation, independent of player discovery.</summary>
-    /// <returns>Lazy marker keys in native area-ID order and ascending usable station-slot order.</returns>
+    /// <returns>Lazy marker keys in area-ID order and ascending usable station-slot order.</returns>
     public static IEnumerable<string> AllIds()
     {
         foreach (AreaId area in AreaIds.Zebes)

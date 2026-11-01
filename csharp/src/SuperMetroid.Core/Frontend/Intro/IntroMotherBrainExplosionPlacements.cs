@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 internal static class IntroMotherBrainExplosionPlacements
 {
-    /// <summary>Returns one complete <c>$8B:B98D</c> large-explosion placement record.</summary>
+    /// <summary>Returns one complete large-explosion placement record.</summary>
     public static IntroMotherBrainExplosionPlacement BigExplosion(int index) => Ensure.Element(BigExplosions, index);
 
-    /// <summary>Returns one complete <c>$8B:B9D4</c> small-explosion placement record.</summary>
+    /// <summary>Returns one complete small-explosion placement record.</summary>
     public static IntroMotherBrainExplosionPlacement SmallExplosion(int index) => Ensure.Element(SmallExplosions, index);
 }

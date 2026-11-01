@@ -66,8 +66,8 @@ internal static class HeatPaletteColors
 
     /// <summary>Maps heat row-zero colors to the corresponding normal suit-loading colors.</summary>
     /// <remarks>Each suit's phase-zero colors 0..14 equal colors 1..15 of the initial row of the same suit's
-    /// loading palette, and independently equal normal suit palettes $9B:9402/9522/9802. Heat omits the
-    /// transparent index zero. Native program layout and every original color were independently checked.
+    /// loading palette, and independently equal the normal suit palettes. Heat omits the
+    /// transparent index zero. The program layout and every original color were independently checked.
     /// This aliases identical suit artwork; it does not classify the source artwork as irreducible. Differing
     /// heat edits retain their own installed value.</remarks>
     internal static bool TryBasePalette(PaletteFxColorKey key, out PaletteFxColorKey source)
@@ -122,7 +122,7 @@ internal static class HeatPaletteColors
     /// <summary>Calculates the three interior samples of the shared five-level red ramp.</summary>
     /// <remarks>Power slot3's original red levels0,1,2,3,5 are the floor-rounded
     /// quarter steps from0 to5. Its green31/blue14 remain fixed. Thirteen other
-    /// color tracks share this red difference, independently verified from the native
+    /// color tracks share this red difference, independently verified from the original
     /// rows. Keep the endpoint colors as inputs; interior row r=1..3 is
     /// floor((startRed*(4-r)+endRed*r)/4), with the initial green/blue. Integer
     /// weighted sums also give defined, bounded RGB5 results for edited endpoints.
@@ -134,7 +134,7 @@ internal static class HeatPaletteColors
     /// <remarks>Original Power slot1 reds29,29,30,30,30 and slot8 reds27,28,28,29,29
     /// are nearest-rounded quarter steps, ties upward. Varia slot9 reds30,30,30,30,31
     /// are floor-rounded quarter steps. All retain initial green/blue. Supported
-    /// NTSC J/U v1.0 phase-zero words of those colors plus the native phase rows
+    /// NTSC J/U v1.0 phase-zero words of those colors plus the original phase rows
     /// independently establish all five samples. These exact conventional interpolation
     /// rules make no claim about the historical authoring software. Endpoints remain
     /// editable inputs; differing intermediate colors remain explicit overrides.</remarks>

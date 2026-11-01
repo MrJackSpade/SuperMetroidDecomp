@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// <summary>
 /// What the options screen's page shows (#1467): the page last loaded, and the language, bindings and special settings its
 /// language rows, controller labels and toggle choices were drawn from when it was loaded. The menu loads the page again
-/// whenever any of them changes, as the cartridge rewrites the page's labels and highlights.
+/// whenever any of them changes, as the game rewrites the page's labels and highlights.
 /// </summary>
 /// <param name="Page">The page shown.</param>
 /// <param name="JapaneseText">Whether the primary page highlights the Japanese text option.</param>

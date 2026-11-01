@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend.Map;
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>
-/// Pause-page held-input arbitration and the shared $82:925D eight-update scroll pulse.
+/// Pause-page held-input arbitration and the shared eight-update scroll pulse.
 /// File select uses different vertical bounds; pause must not inherit those limits.
 /// </summary>
 internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<MapPixels> maximum)
@@ -14,7 +14,7 @@ internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<M
     /// <summary>Counts updates within the current pulse, including the single position update.</summary>
     private int tick;
 
-    /// <summary>Checks the pause map's signed cartridge bounds for an arrow at the current map offset.</summary>
+    /// <summary>Checks the pause map's signed bounds for an arrow at the current map offset.</summary>
     public bool CanScroll(MapScrollDirection candidate, Position16<MapPixels> scroll) => candidate switch
     {
         MapScrollDirection.Left => Signed(minimum.X - PauseMapScrollLayout.LeftMargin - scroll.X) < 0,
@@ -40,7 +40,7 @@ internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<M
             else if (up && held.HasFlag(ControllerButton.Up)) direction = MapScrollDirection.Up;
             else if (down && held.HasFlag(ControllerButton.Down)) direction = MapScrollDirection.Down;
         }
-        // Native explicitly cancels a downward step at its lower limit. Other directions
+        // The game explicitly cancels a downward step at its lower limit. Other directions
         // finish the accepted pulse even when their button has since been released.
         if (direction == MapScrollDirection.Down && !down)
         {
@@ -58,6 +58,6 @@ internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<M
         return true;
     }
 
-    /// <summary>Applies the native signed 16-bit comparison to a map-bound subtraction.</summary>
+    /// <summary>Applies the signed 16-bit comparison to a map-bound subtraction.</summary>
     private static int Signed(int value) => WordWrap.Signed(value);
 }

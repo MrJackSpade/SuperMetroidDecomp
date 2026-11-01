@@ -1,16 +1,16 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The five bank-$90 trail programs as their steps: timed poses, one-pixel moves and the end.</summary>
+/// <summary>The five trail programs as their steps: timed poses, one-pixel moves and the end.</summary>
 internal static class ProjectileTrailProgramDefinitions
 {
-    /// <summary>$90:B4C9 ends a trail without drawing another frame.</summary>
+    /// <summary>Ends a trail without drawing another frame.</summary>
     private static readonly ProjectileTrailStep[] Empty =
     [
         new ProjectileTrailStep.End(),
     ];
 
     /// <summary>
-    /// $90:B4CB: the left ice sparkle's seventeen poses. It first falls a pixel after six poses, then after two more, then
+    /// The left ice sparkle's seventeen poses. It first falls a pixel after six poses, then after two more, then
     /// after every remaining pose; the last pose holds for four updates.
     /// </summary>
     private static readonly ProjectileTrailStep[] LeftIce =
@@ -45,7 +45,7 @@ internal static class ProjectileTrailProgramDefinitions
         new ProjectileTrailStep.End(),
     ];
 
-    /// <summary>$90:B52D: the right ice sparkle, the left sparkle's poses falling on the right stream.</summary>
+    /// <summary>The right ice sparkle, the left sparkle's poses falling on the right stream.</summary>
     private static readonly ProjectileTrailStep[] RightIce =
     [
         new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce0),
@@ -78,7 +78,7 @@ internal static class ProjectileTrailProgramDefinitions
         new ProjectileTrailStep.End(),
     ];
 
-    /// <summary>$90:B58F: the wave trail's four poses, shared by both sides.</summary>
+    /// <summary>The wave trail's four poses, shared by both sides.</summary>
     private static readonly ProjectileTrailStep[] Wave =
     [
         new ProjectileTrailStep.Pose(4, ProjectileTrailFrame.Wave0),
@@ -88,7 +88,7 @@ internal static class ProjectileTrailProgramDefinitions
         new ProjectileTrailStep.End(),
     ];
 
-    /// <summary>$90:B5A1: the missile trail's four poses, also drawn by Super Missiles.</summary>
+    /// <summary>The missile trail's four poses, also drawn by Super Missiles.</summary>
     private static readonly ProjectileTrailStep[] Missile =
     [
         new ProjectileTrailStep.Pose(4, ProjectileTrailFrame.Missile0),

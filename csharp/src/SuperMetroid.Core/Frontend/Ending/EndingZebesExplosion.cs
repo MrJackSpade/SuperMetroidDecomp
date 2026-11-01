@@ -10,7 +10,7 @@ internal sealed class EndingZebesExplosion
 {
     /// <summary>The ending's screen: its palette and the graphics transfers its scenes have made (#1358).</summary>
     private readonly EndingScreen screen ;
-    /// <summary>Dynamic cinematic actors in native slot traversal order.</summary>
+    /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
     /// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
@@ -52,14 +52,14 @@ internal sealed class EndingZebesExplosion
     /// <summary>The screen's colours, by owner, captured before the planet explosion's object/background crossfade.</summary>
     private ColourImage? explosionFadeSource;
 
-    /// <summary>Current native palette interpolation step during the explosion crossfade.</summary>
+    /// <summary>Current palette interpolation step during the explosion crossfade.</summary>
     private int explosionFadeStep;
 
-    /// <summary>Whether the explosion's palette interpolation still owns CGRAM writes.</summary>
+    /// <summary>Whether the explosion's palette interpolation still owns the colour writes.</summary>
     internal bool ExplosionCrossfadeActive => _stage.Phase is EndingCreditsPhase.FadeInZebesExplosion
         or EndingCreditsPhase.ZebesExplosionPaletteCrossfade;
 
-    /// <summary>Stops cloud palette effects, captures CGRAM and seeds the planet object's first fade step.</summary>
+    /// <summary>Stops cloud palette effects, captures the colours and seeds the planet object's first fade step.</summary>
     private void BeginExplosionCrossfade()
     {
         // Func115 clears the previous cloud palette programs before taking its source

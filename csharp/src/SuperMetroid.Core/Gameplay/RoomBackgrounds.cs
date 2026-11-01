@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// The room backgrounds one gameplay frame shows (#1346), resolved from level data with no tilemap: BG1 from the room's
 /// level plane, BG2 from its layer-2 plane when that layer streams, the source room's screen during a door's opening
 /// scroll, and words a room actor wrote over BG1. A null <see cref="Bg2"/> leaves BG2 to the sky's rows, a boss body
-/// that owns BG2 (#1352), or the VRAM tilemap its owner loaded (a library background or the X-ray reveal) until that
+/// that owns BG2 (#1352), or the tilemap its owner loaded (a library background or the X-ray reveal) until that
 /// owner gets its own layer.
 /// </summary>
 /// <param name="Bg1">The room's level plane on BG1.</param>

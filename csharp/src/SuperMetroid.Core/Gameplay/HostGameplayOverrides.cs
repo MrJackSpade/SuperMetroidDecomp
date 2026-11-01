@@ -2,7 +2,7 @@ using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Gameplay;
 
-/// <summary>The host's tester conveniences around the cartridge-authentic runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</summary>
+/// <summary>The host's tester conveniences around the authentic game runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</summary>
 public sealed record HostGameplayOverrides
 {
     /// <summary>Retail behavior: no tester convenience is active.</summary>

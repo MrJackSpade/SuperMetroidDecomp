@@ -1,26 +1,26 @@
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>The per-frame condition a palette effect checks before its program runs.
-/// Its values are arbitrary; verification's native view names each member's cartridge word (#1415).
+/// Its values are arbitrary; verification's view names each member's original identity (#1415).
 /// </summary>
 public enum PaletteFxFrameBehavior
 {
-    /// <summary><c>PaletteFxFrameBehavior_Null</c> at $8D:C526.</summary>
+    /// <summary>No per-frame condition.</summary>
     Null = 1,
-    /// <summary><c>PaletteFxFrameBehavior_Cleared</c> at $8D:C5E3.</summary>
+    /// <summary>The condition left once a cue clears it.</summary>
     Cleared,
-    /// <summary><c>PaletteFxFrameBehavior_Intro</c> at $8D:E20B.</summary>
+    /// <summary>The intro's per-frame condition.</summary>
     Intro,
-    /// <summary><c>PaletteFxFrameBehavior_DeleteWhenEnemyZeroDies</c> at $8D:E2E0.</summary>
+    /// <summary>Deletes the object when the enemy in slot zero dies.</summary>
     DeleteWhenEnemyZeroDies,
-    /// <summary><c>PaletteFxFrameBehavior_Heat</c> at $8D:E379.</summary>
+    /// <summary>The Samus-in-heat condition: heat damage and the heat palette phase.</summary>
     Heat,
-    /// <summary><c>PaletteFxFrameBehavior_SwitchAboveY380</c> at $8D:EC59.</summary>
+    /// <summary>Switches the lightning record when Samus is above the surface line.</summary>
     SwitchAboveY380,
-    /// <summary><c>PaletteFxFrameBehavior_SwitchAboveY380Second</c> at $8D:ED84.</summary>
+    /// <summary>The second lightning program's switch when Samus is above the surface line.</summary>
     SwitchAboveY380Second,
-    /// <summary><c>PaletteFxFrameBehavior_DeleteWhenAreaMiniBossDies</c> at $8D:EEC5.</summary>
+    /// <summary>Deletes the object when the area's mini-boss dies.</summary>
     DeleteWhenAreaMiniBossDies,
-    /// <summary><c>PaletteFxFrameBehavior_InspectAdjacentSlot</c> at $8D:F621.</summary>
+    /// <summary>Deletes the object when a slot below its own holds an object.</summary>
     InspectAdjacentSlot,
 }

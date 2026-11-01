@@ -7,15 +7,15 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Movement for ordinary/aimed crouching and the crouch/stand animation poses.
 /// </summary>
 /// <remarks>
-/// These routines look stationary but are not host no-ops: the cartridge still publishes
+/// These routines look stationary but are not host no-ops: the game still publishes
 /// total X speed, runs horizontal block/slope collision, and performs its downward grounding
 /// probe every frame. Keeping those calls makes ledges, slopes, and future conveyors meet
-/// the same bank-$94 seam as standing movement.
+/// the same seam as standing movement.
 /// </remarks>
 public static class SamusPostureMovement
 {
     /// <summary>
-    /// Ports movement type five at <c>$90:A573</c> for the complete equal-radius
+    /// Ports movement type five for the complete equal-radius
     /// `$27/$28/$71-$74/$85/$86` crouch family.
     /// </summary>
     internal static GroundedMovementResult StepCrouching(
@@ -40,8 +40,8 @@ public static class SamusPostureMovement
             frameCounter,
             plms);
 
-        // $90:A57C-$90:A588 performs this cleanup after both collision passes. It is not
-        // inferred from being stationary; these are literal observable WRAM writes.
+        // Performs this cleanup after both collision passes. It is not
+        // inferred from being stationary; these are literal observable writes.
         // Unlike collision teardown, this does not call the boost cancellation
         // routine. The later input fallback decides whether the retained stage ends.
         samus.HorizontalSpeed.ClearHorizontalVelocity();
@@ -50,7 +50,7 @@ public static class SamusPostureMovement
 
     /// <summary>
     /// Ports the `$35/$36/$3B/$3C/$F1-$FC` crouch/stand subset of movement type
-    /// `$0F` at <c>$90:A61C</c>.
+    /// `$0F`.
     /// </summary>
     internal static GroundedMovementResult StepCrouchStandTransition(
 
@@ -66,7 +66,7 @@ public static class SamusPostureMovement
                 $"Crouch/stand transition movement requires pose $35/$36/$3B/$3C/$F1-$FC, not {samus.Pose}.");
         }
 
-        // All four corresponding entries in $90:A659 are RTS. Unlike movement type five,
+        // All four corresponding entries in the posture cleanup table do nothing. Unlike movement type five,
         // the wrapper does not clear stored base momentum after moving. That distinction is
         // retained even though ordinary stand/crouch input reaches this code at zero speed.
         return MoveWithZeroBaseSpeed(level, samus, frameCounter, plms);
@@ -82,20 +82,20 @@ public static class SamusPostureMovement
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
-        // `$90:9348` does exactly two stores before tail-calling the ordinary horizontal
-        // mover: it zeros the *base* displacement pair `$12.$14`. It emphatically does
+        // Does exactly two stores before tail-calling the ordinary horizontal
+        // mover: it zeros the *base* displacement pair. It emphatically does
         // not require extra run speed to be zero. `MoveSamus_Horizontally` subsequently
-        // calls `$90:E4E6`, which adds `$0B42.$0B44` to that zero base. This is the retail
+        // adds the extra run speed to that zero base. This is the retail
         // behavior that lets a stage-four run continue sliding during crouch transition
-        // `$35/$36`; bank $91 samples and stores the shine before normal crouching clears
-        // that momentum. The old exception at this seam prevented that native route.
+        // `$35/$36`; Samus's pose handling samples and stores the shine before normal crouching clears
+        // that momentum. The old exception at this seam prevented that route.
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: 0);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
-        // `$90:923F` uses the external-Y replacement when present. Otherwise it couples
+        // Uses the external-Y replacement when present. Otherwise it couples
         // the downward floor probe to the total X speed calculated by the horizontal pass;
         // this matters for a Speed-Booster slide through `$35/$36`.
         int verticalDisplacement = SamusExtraDisplacement

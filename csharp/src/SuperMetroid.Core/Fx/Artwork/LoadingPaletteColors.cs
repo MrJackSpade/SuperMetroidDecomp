@@ -35,7 +35,7 @@ internal static class LoadingPaletteColors
         return false;
     }
 
-    /// <summary>Maps a loading color to its earliest identical native row.</summary>
+    /// <summary>Maps a loading color to its earliest identical row.</summary>
     /// <remarks>Rows zero through seven are four counted groups of a normal record and a shade record; row eight is
     /// the final record. Even rows and the final row repeat the normal row, row three repeats row one, and rows five
     /// and seven are the distinct shades.</remarks>

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingRewardActors
 {
     /// <summary>
-    /// Resolves one complete native initialization/pre-instruction/list record. The
+    /// Resolves one complete initialization/frame-behaviour/animation record. The
     /// selected program is a typed cinematic sprite program (#641).
     /// </summary>
     public static EndingRewardActorDefinition Get(EndingRewardActor definition) => definition switch

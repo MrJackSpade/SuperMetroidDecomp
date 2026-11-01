@@ -4,37 +4,37 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// The opening's Japanese subtitles: bank $8B's three "mode 7 objects" that load each page's
-/// subtitle, and the subtitle timer <c>$1BA3</c> that holds every page's input wait after a
+/// The opening's Japanese subtitles: the intro's three "mode 7 objects" that load each page's
+/// subtitle, and the subtitle timer that holds every page's input wait after a
 /// second subtitle appears. English text spawns none of them and leaves the timer at zero.
 /// </summary>
 /// <remarks>
-/// Game state $1E runs <c>Handle_Mode7Objects</c> ($8B:951D) after the cinematic sprite
+/// Game state $1E runs <c>Handle_Mode7Objects</c> after the cinematic sprite
 /// objects and before the BG objects whose page instructions spawn these subtitles, so an
 /// object first runs on the frame after its spawn. Slots are searched and processed from
 /// index two down to zero.
 /// </remarks>
 internal sealed class IntroJapaneseSubtitles
 {
-    /// <summary>$8B:B5B1 and its siblings: frames the second subtitle holds a page's input wait.</summary>
+    /// <summary>Frames the second subtitle holds a page's input wait.</summary>
     public const int SecondSubtitleHoldFrames = 60;
 
-    /// <summary>Three native mode 7 object slots, searched from highest index downward.</summary>
+    /// <summary>Three subtitle object slots, searched from highest index downward.</summary>
     private const int SlotCount = 3;
-    /// <summary>Active subtitle objects in native slot order; an empty slot is available for the next page.</summary>
+    /// <summary>Active subtitle objects in slot order; an empty slot is available for the next page.</summary>
     private readonly SubtitleObject?[] slots = new SubtitleObject?[SlotCount];
 
     /// <summary>Selects Japanese subtitle handling from the opening's alternate-text setting.</summary>
     public IntroJapaneseSubtitles(bool enabled) => Enabled = enabled;
 
-    /// <summary>Native <c>AltText</c> ($09E2) at the start of the intro.</summary>
+    /// <summary>The Japanese text option at the start of the intro.</summary>
     public bool Enabled { get; }
 
-    /// <summary><c>CinematicSpriteObject_IntroSubtitleTimer</c> ($1BA3), cleared by intro setup at $8B:A56B.</summary>
+    /// <summary><c>CinematicSpriteObject_IntroSubtitleTimer</c>, cleared by intro setup.</summary>
     public WrappingCountdown Timer { get; private set; }
 
     /// <summary>
-    /// <c>Instruction_HandleCreatingSubtitle_PageN</c> ($8B:AE43 and siblings), the first
+    /// <c>Instruction_HandleCreatingSubtitle_PageN</c>, the first
     /// instruction of each English page's text list: Japanese text loads the page's first
     /// subtitle.
     /// </summary>
@@ -45,7 +45,7 @@ internal sealed class IntroJapaneseSubtitles
     }
 
     /// <summary>
-    /// <c>Instruction_SpawnBlinkingMarkers_WaitForInput_PageN</c> ($8B:AE5B and siblings).
+    /// <c>Instruction_SpawnBlinkingMarkers_WaitForInput_PageN</c>.
     /// Returns true when the page's input wait starts now; on pages two to five Japanese text
     /// instead waits for a press that shows the second subtitle, and that object starts the wait.
     /// </summary>
@@ -58,8 +58,8 @@ internal sealed class IntroJapaneseSubtitles
     }
 
     /// <summary>
-    /// The timer check at the start of every intro input wait ($8B:AEB8, $AF6C, $B0F2, $B123,
-    /// $B1DA). True while the wait is held: the call consumed one frame of the timer.
+    /// The timer check at the start of every intro input wait, in each page's setup.
+    /// True while the wait is held: the call consumed one frame of the timer.
     /// </summary>
     public bool HoldInputWait()
     {
@@ -69,7 +69,7 @@ internal sealed class IntroJapaneseSubtitles
         return true;
     }
 
-    /// <summary>Runs <c>Handle_Mode7Objects</c> ($8B:951D) for one frame.</summary>
+    /// <summary>Runs <c>Handle_Mode7Objects</c> for one frame.</summary>
     /// <param name="newlyPressed">This frame's controller rising edges ($8F), read by the second subtitle's pre-instruction.</param>
     /// <param name="startInputWait">Receives each page whose second subtitle has started its input wait.</param>
     public void Step(ControllerButton newlyPressed, Action<IntroNarrationPageId> startInputWait)
@@ -80,7 +80,7 @@ internal sealed class IntroJapaneseSubtitles
     }
 
     /// <summary>
-    /// <c>Spawn_Mode7Objects</c> ($8B:94E4) takes the highest free slot. The intro never has
+    /// <c>Spawn_Mode7Objects</c> takes the highest free slot. The intro never has
     /// more than one subtitle alive, so a full table would be a modelling error.
     /// </summary>
     private void Spawn(SubtitleObject subtitle)
@@ -110,20 +110,20 @@ internal sealed class IntroJapaneseSubtitles
     /// <summary>One mode 7 object: its instruction timer and position in its subtitle list.</summary>
     private sealed class SubtitleObject(IntroNarrationPageId page, SubtitleStage stage)
     {
-        /// <summary>Current native subtitle instruction-list stage.</summary>
+        /// <summary>Current subtitle animation stage.</summary>
         private SubtitleStage stage = stage;
         /// <summary>One-frame transfer or wait-loop countdown before the next list action.</summary>
         private WrappingCountdown frameHold = WrappingCountdown.Start(1);
 
         /// <summary>
-        /// <c>Process_Mode7Objects_InstList</c> ($8B:9537): the pre-instruction, then the
+        /// <c>Process_Mode7Objects_InstList</c>: the pre-instruction, then the
         /// instruction list once the timer reaches zero. Returns true when the object deleted itself.
         /// </summary>
         public bool Process(IntroJapaneseSubtitles owner, ControllerButton newlyPressed, Action<IntroNarrationPageId> startInputWait)
         {
             if (stage == SubtitleStage.AwaitSecondSubtitleInput && newlyPressed != ControllerButton.None)
             {
-                // $8B:B585 and siblings: show the second subtitle, hold the input wait it
+                // The second subtitle's steps: show the second subtitle, hold the input wait it
                 // will start, and switch to the done-input list on this same frame.
                 stage = SubtitleStage.StartInputWait;
                 frameHold = WrappingCountdown.Start(1);
@@ -138,7 +138,7 @@ internal sealed class IntroJapaneseSubtitles
                     frameHold = WrappingCountdown.Start(1);
                     return false;
                 case SubtitleStage.AwaitSecondSubtitleInput:
-                    // $8B:D39D: one-frame transfer record, then goto itself.
+                    // One-frame transfer record, then goto itself.
                     frameHold = WrappingCountdown.Start(1);
                     return false;
                 case SubtitleStage.FinishFirstSubtitle:

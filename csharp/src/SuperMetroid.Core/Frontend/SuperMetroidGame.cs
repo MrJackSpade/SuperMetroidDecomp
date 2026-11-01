@@ -75,7 +75,7 @@ public sealed class SuperMetroidGame
     }
 
 
-    /// <summary>Creates a reset-state session, reading the selected save slot and capturing the native boot carry before any dispatcher frame runs.</summary>
+    /// <summary>Creates a reset-state session, reading the selected save slot and capturing the boot carry before any dispatcher frame runs.</summary>
     /// <param name="saves">The battery-backed saves the session owns; the host loads them and persists them on <see cref="SaveRamChanged"/>.</param>
     /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
     public SuperMetroidGame(
@@ -87,7 +87,7 @@ public sealed class SuperMetroidGame
 
     /// <summary>
     /// Creates the dispatcher with host-supplied timing and display policies, which verification hosts use to
-    /// replay recorded evidence or to retain the display while they inspect cartridge state.
+    /// replay recorded evidence or to retain the display while they inspect game state.
     /// </summary>
     /// <remarks>
     /// Frontend screens are always rendered because their state machines own their own compositors; only
@@ -154,7 +154,7 @@ public sealed class SuperMetroidGame
     /// <summary>The active room's selected state, exposed beside the room identity, or null before gameplay.</summary>
     public RoomStateSettings? GameplayActiveRoomState => Session.Runtime?.Room.ActiveRoom?.State;
 
-    /// <summary>Validated logical area/room pair, or null before cartridge gameplay.</summary>
+    /// <summary>Validated logical area/room pair, or null before gameplay.</summary>
     public RoomIdentity? GameplayActiveRoomIdentity => Session.Runtime?.Room.ActiveRoom?.Identity;
 
     /// <summary>The door the active room was entered through, exposed for door-transition watches.</summary>
@@ -481,7 +481,7 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>
-    /// Copies diagnostic state without reading cartridge data or invoking gameplay.
+    /// Copies diagnostic state without reading game data or invoking gameplay.
     /// Hosts capture this before a frame and again on failure to expose partial mutations.
     /// </summary>
     public string CaptureGameplayFailureContext()
@@ -499,7 +499,7 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>
-    /// Rebinds host policy after an interactive debugger-state load. Cartridge state,
+    /// Rebinds host policy after an interactive debugger-state load. Game state,
     /// resource totals, and the retained frame remain intact unless a tester grant is newly enabled. Exact replay must omit
     /// this override unless the recording explicitly supplies different host options.
     /// </summary>

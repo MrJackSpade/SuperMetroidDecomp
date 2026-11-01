@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Runtime.Attract;
 
 /// <summary>
-/// One title-demo scene joined across the native room, equipment, and Samus setup tables.
+/// One title-demo scene joined across the room, equipment, and Samus setup definitions.
 /// The room loader increments the global scene index after placement; these records all
 /// refer to the same pre-increment index, not the following scene's equipment.
 /// </summary>
@@ -20,6 +20,6 @@ public sealed record AttractDemoScene(
     SuperMetroid.Core.Progression.SamusEquipmentFlags Items, int Missiles, int SuperMissiles, int PowerBombs,
     int Health, SuperMetroid.Core.Progression.SamusBeamFlags CollectedBeams, SuperMetroid.Core.Progression.SamusBeamFlags EquippedBeams, SuperMetroid.Core.Input.DemoInputObjectDefinition InputObject)
 {
-    /// <summary>Native wrapping placement: camera + half-screen horizontally + the signed offset on each axis.</summary>
+    /// <summary>Wrapping placement: camera + half-screen horizontally + the signed offset on each axis.</summary>
     public Position16<RoomPixels> SamusPosition => CameraPosition + LoadStationEntry.SamusOffsetOrigin + SamusOffset;
 }

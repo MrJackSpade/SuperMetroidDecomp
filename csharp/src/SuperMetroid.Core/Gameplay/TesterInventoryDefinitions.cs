@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Gameplay;
 
-/// <summary>Inventory granted by the explicit host testing option, not a cartridge pickup.</summary>
+/// <summary>Inventory granted by the explicit host testing option, not a pickup.</summary>
 internal static class TesterInventoryDefinitions
 {
     /// <summary>Sets both current and maximum health when the host test inventory is granted.</summary>

@@ -97,7 +97,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
 
     /// <summary>
     /// True only on the update that shows a moved save choice. The runtime
-    /// consumes this to queue the cartridge's menu-move sound through the ordinary audio
+    /// consumes this to queue the game's menu-move sound through the ordinary audio
     /// owner instead of giving the message renderer an unrelated sound dependency.
     /// </summary>
     public bool ConfirmationSelectionChangedThisFrame { get; private set; }

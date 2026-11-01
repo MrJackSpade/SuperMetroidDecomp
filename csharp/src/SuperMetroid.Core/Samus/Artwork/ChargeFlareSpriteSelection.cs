@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public static class ChargeFlareSpriteSelection
 {
     /// <summary>
-    /// The composition each of the fifty-four native flare-table positions selects: thirty main-flare phases, then six
+    /// The composition each of the fifty-four flare-table positions selects: thirty main-flare phases, then six
     /// phases each of right slow, right fast, left slow and left fast sparks. Repeated main-flare phases stay separate
     /// positions.
     /// </summary>
     public static IReadOnlyList<ProjectileSpriteId> Selectors { get; } = [.. Enumerable.Range(0, 54).Select(Selector)];
 
-    /// <summary>True when <paramref name="selector"/> indexes the native $93:A1A1 flare table.</summary>
+    /// <summary>True when <paramref name="selector"/> indexes the flare table.</summary>
     public static bool Contains(int selector) => selector < Selectors.Count;
 
     /// <summary>The composition flare-table position <paramref name="index"/> selects.</summary>

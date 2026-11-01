@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// </summary>
 internal static class PauseMenuButtonLabels
 {
-    /// <summary>MAP, EXIT and SAMUS labels recolored by $82:A628-$A84C.</summary>
+    /// <summary>MAP, EXIT and SAMUS labels recolored by the label palette routines.</summary>
     public static IEnumerable<PauseButtonLabelSpan> ButtonLabelSpans
     {
         get
@@ -17,8 +17,8 @@ internal static class PauseMenuButtonLabels
     }
 
     /// <summary>Projects a named two-row button label into the 32-column BG2 tilemap.</summary>
-    /// <remarks>$82:A633/A66F/A6AB select MAP/EXIT/SAMUS at columns5/12/22.
-    /// Their lower halves are one32-word row below, as at A651/A68D/A6C9.
+    /// <remarks>MAP/EXIT/SAMUS sit at columns5/12/22.
+    /// Their lower halves are one32-word row below.
     /// The center EXIT label occupies four columns; the outside labels occupy five.</remarks>
     public static PauseButtonLabelSpan ButtonLabelSpan(PauseButtonLabel label, int row)
     {

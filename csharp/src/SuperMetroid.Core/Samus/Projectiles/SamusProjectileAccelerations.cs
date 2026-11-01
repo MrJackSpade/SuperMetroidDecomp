@@ -5,16 +5,16 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>The acceleration each projectile reads from its motion table.</summary>
 internal static class SamusProjectileAccelerations
 {
-    /// <summary>Resolves aligned native speed and acceleration words, including beam-selector overreads into missile data.</summary>
+    /// <summary>Resolves aligned speed and acceleration words, including beam-selector overreads into missile data.</summary>
     /// <param name="offset">The word's offset from the start of <see cref="SamusFiringTableDefinitions"/>.</param>
     internal static int ReadWord(int offset)
     {
         int speedOffset = offset - SamusFiringTableDefinitions.HorizontalVerticalSpeeds;
-        // Native data starts at an odd offset. Only aligned words in that layout
+        // The stored data starts at an odd offset. Only aligned words in that layout
         // belong to this catalog; preserve all other reads through the offset space.
         if (speedOffset >= 0 && (speedOffset & 1) == 0)
         {
-            // $90:C2D1 BeamSpeeds: twelve identical cardinal/diagonal pairs.
+            // BeamSpeeds: twelve identical cardinal/diagonal pairs.
             // Resolve physical offset before row ownership: combinations C..F
             // deliberately overread into ignition and missile acceleration data.
             if (speedOffset < 12 * 4) return (speedOffset & 2) == 0 ? CardinalSpeed : DiagonalSpeed;
@@ -34,10 +34,10 @@ internal static class SamusProjectileAccelerations
     }
 
     /// <summary>
-    /// $90:C303/C32B/C353: ten facing-dependent directions cover eight compass
+    /// The ten facing-dependent directions cover eight compass
     /// octants, with duplicated down and up directions. Project each acceleration
     /// magnitude onto the selected signed axis; diagonal magnitudes remain the
-    /// native missile54 / super182, while beam acceleration uses16 on either axis.
+    /// missile54 / super182, while beam acceleration uses16 on either axis.
     /// </summary>
     private static int Acceleration(int direction, bool yAxis, int cardinal, int diagonal)
     {

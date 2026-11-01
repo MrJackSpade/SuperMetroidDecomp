@@ -22,7 +22,7 @@ public sealed class InstalledProjectileFrameBindings
     internal ProjectileSpriteId Resolve(SamusProjectileFrame frame) =>
         sprites.TryGetValue(frame.Record, out ProjectileSpriteId sprite) ? sprite : SamusProjectileRecordDefinitions.Get(frame).Sprite;
 
-    /// <summary>Validates every timed-record visual assignment and compiles only bindings that differ from the reviewed native composition selection.</summary>
+    /// <summary>Validates every timed-record visual assignment and compiles only bindings that differ from the reviewed stock composition selection.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
     /// <returns>Compiled visual bindings detached from the document dictionary, with no duration, radius, trail, or damage overrides.</returns>
     /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, an incomplete 805-record set, or a composition outside the required set.</exception>

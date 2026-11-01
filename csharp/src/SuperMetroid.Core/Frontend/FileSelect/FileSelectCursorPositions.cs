@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </summary>
 internal static class FileSelectCursorPositions
 {
-    /// <summary>Calculates $81:A312+4*selection Y for main choices 0..5.</summary>
+    /// <summary>Calculates the main-page cursor Y for choices 0..5.</summary>
     /// <remarks>
     /// Independently reviewed for #1165: save rows start at48 with five-tile spacing;
     /// Copy/Clear/Exit start at163 with three-tile spacing. These two role groups
-    /// follow the native text layout. Bounds are checked before arithmetic and preserve
+    /// follow the menu's text layout. Bounds are checked before arithmetic and preserve
     /// ArgumentOutOfRangeException. X is the separate constant14.
     /// </remarks>
     public static int MainSelectionY(int selection)
@@ -22,7 +22,7 @@ internal static class FileSelectCursorPositions
             : 163 + 24 * (selection - SaveSlotCount));
     }
 
-    /// <summary>Calculates copy/clear cursor Y from $81:9772 and $81:9C03, choices0..3.</summary>
+    /// <summary>Calculates copy/clear cursor Y, choices0..3.</summary>
     /// <remarks>
     /// Independently reviewed for #1165: the three save choices start at72 with four-tile
     /// spacing. Exit shares the main-page Exit Y. Both original tables and the extractor's
@@ -35,7 +35,7 @@ internal static class FileSelectCursorPositions
             : MainSelectionY(MainSelectionCount - 1);
     }
 
-    /// <summary>Save-slot helmet Y from immediate operands $81:A028/A02E/A034.</summary>
+    /// <summary>Save-slot helmet Y.</summary>
     /// <remarks>
     /// Independently reviewed for #1165: slots0..2 use the main slot cursor anchor minus
     /// one pixel, giving the same five-tile spacing. Reject unsupported slot indices.

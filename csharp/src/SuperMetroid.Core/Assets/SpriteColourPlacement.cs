@@ -4,13 +4,13 @@ namespace SuperMetroid.Core.Assets;
 /// Where one load's shared sprite colour stores hold the colourings drawn under it (#1464): a room's loaded graphics set
 /// places its members' colours, the shared roles' and its encounters', and a frontend screen places its colour groups'.
 /// Actors and screens name colourings; this is the one place a colouring meets the store that holds it. Draws resolve
-/// their colours through it, and gameplay decides through it which colourings hold the same colours, as the cartridge's
+/// their colours through it, and gameplay decides through it which colourings hold the same colours, as the game's
 /// comparisons of palette selections decide.
 /// </summary>
 /// <remarks>
 /// A placement is an immutable record of what one load decided, taken when the load happens, so a draw that carries one
 /// keeps the placement current when it was published and reaches no live gameplay state. The stores stay eight shared
-/// stores the colour writers address, and the cartridge shows a colouring placed in a store whatever that store last
+/// stores the colour writers address, and the game shows a colouring placed in a store whatever that store last
 /// held, whoever wrote it (the escape Climb's silver Ninja Space Pirate shows a store its room never loads). Placing a
 /// colouring therefore still chooses a store; each load decides that here and nowhere else.
 /// </remarks>
@@ -27,7 +27,7 @@ public abstract class SpriteColourPlacement
     internal ColourRun ColoursOf(SpriteColouring colouring, IColourSets sets) => StoreOf(colouring).In(sets);
 
     /// <summary>
-    /// The number the cartridge's palette selection of <paramref name="colouring"/> reads as, for an AI that reads the
+    /// The number the game's palette selection of <paramref name="colouring"/> reads as, for an AI that reads the
     /// selection as a number rather than drawing in it.
     /// </summary>
     internal int SelectionNumber(SpriteColouring colouring) => StoreOf(colouring).Set;
@@ -62,7 +62,7 @@ public abstract class SpriteColourPlacement
 
     /// <summary>
     /// The store a following part of colour group <paramref name="partGroup"/> shows under a colouring held in
-    /// <paramref name="drawn"/>. The cartridge selects it by ORing the colouring's palette bits into the part's own, so a
+    /// <paramref name="drawn"/>. The game selects it by ORing the colouring's palette bits into the part's own, so a
     /// part whose group shares bits with the colouring's store shows a third store rather than the colouring's; that
     /// combination is kept exactly.
     /// </summary>

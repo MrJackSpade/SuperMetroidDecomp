@@ -15,7 +15,7 @@ internal sealed class EndingFlyaway
     private readonly bool crittersEscaped;
     /// <summary>The ending's screen: its palette and the graphics transfers its scenes have made (#1358).</summary>
     private readonly EndingScreen screen ;
-    /// <summary>Dynamic cinematic actors in native slot traversal order.</summary>
+    /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
     /// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
@@ -32,7 +32,7 @@ internal sealed class EndingFlyaway
     /// <summary>
     /// Cinematic calls made so far. Only its parity and quarter phase are read (the alternating
     /// atmospheric rotation and the planet turn cadence), so a growing count reproduces the
-    /// cartridge's wrapping word exactly.
+    /// game's wrapping word exactly.
     /// </summary>
     internal int CinematicFrame { get; set; }
 
@@ -98,7 +98,7 @@ internal sealed class EndingFlyaway
                     EndingSpriteRole.AnimalEscape);
                 IntroDiscoverySprite pod = sprites[^1].Sprite;
                 pod.GeneralTimer = EndingAnimalEscapeDefinitions.GeneralTimer;
-                // Native cinematic dispatch precedes actors, so a newly spawned pod
+                // Cinematic dispatch precedes actors, so a newly spawned pod
                 // moves and selects its first animation frame on this same call.
                 _stage.StepEndingSpriteFrameBehavior(sprites[^1]);
                 pod.Step();
@@ -133,7 +133,7 @@ internal sealed class EndingFlyaway
         }
     }
 
-    /// <summary>Adds a signed 16.16 motion delta to a Mode-7 coordinate with native word wrapping.</summary>
+    /// <summary>Adds a signed 16.16 motion delta to a Mode-7 coordinate with sixteen-bit wrapping.</summary>
     private static FixedCoordinate AddSignedFixed(FixedCoordinate position, int delta) =>
         SignedSixteenSixteen
             .FromRaw(delta)
@@ -142,7 +142,7 @@ internal sealed class EndingFlyaway
     /// <summary>Fixed-color white component over the planet escape, from full white (31) fading to zero, where it stays.</summary>
     private int flyawayWhite;
 
-    /// <summary>Countdown between native flyaway fixed-color decrements.</summary>
+    /// <summary>Countdown between flyaway fixed-color decrements.</summary>
     private int flyawayFadeCountdown;
 
     /// <summary>Fixed-color addition active only during visible planet flyaway phases.</summary>
@@ -156,7 +156,7 @@ internal sealed class EndingFlyaway
         return new(white, white, white);
     }
 
-    /// <summary>Decreases the flyaway white component at its cartridge interval.</summary>
+    /// <summary>Decreases the flyaway white component at its authored interval.</summary>
     private void StepFlyawayFade()
     {
         if (--flyawayFadeCountdown > 0) return;
@@ -165,7 +165,7 @@ internal sealed class EndingFlyaway
     }
 
     /// <summary>
-    /// The ending's first flyaway reuses the Ceres approach's cartridge source.
+    /// The ending's first flyaway reuses the Ceres approach's artwork.
     /// Rebind only chunks already loaded by the sixteen-update load;
     /// future chunks must still arrive on their original scheduled frames.
     /// </summary>
@@ -177,7 +177,7 @@ internal sealed class EndingFlyaway
     /// <summary>Restores the explosion's BG palette half before the flyaway's floor loads; the floor is an installed picture (#1467).</summary>
     internal void PrepareFlyawayUploads()
     {
-        // Func117 restores the BG half before disabling BG1. OBJ VRAM and palettes
+        // Func117 restores the BG half before disabling BG1. Sprite artwork and palettes
         // remain live while the two floor lanes are replaced over sixteen updates.
         _stage.StaticScreen(EndingPaletteId.Explosion).LoadBackgroundsTo(screen.Palette);
     }

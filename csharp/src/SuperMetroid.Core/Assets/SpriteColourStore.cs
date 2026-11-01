@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Assets;
 /// silver Ninja Space Pirate shows a stance store its room never loads.
 /// </summary>
 /// <remarks>
-/// Writers name a store by what it holds in gameplay. Only this type, the import pipeline and the native boundary know
+/// Writers name a store by what it holds in gameplay. Only this type, the import pipeline and the rendering boundary know
 /// which number the sprite colour sets give each store.
 /// </remarks>
 public readonly record struct SpriteColourStore

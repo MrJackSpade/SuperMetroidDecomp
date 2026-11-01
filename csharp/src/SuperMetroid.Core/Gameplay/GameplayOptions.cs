@@ -15,7 +15,7 @@ internal sealed class GameplayOptions
     /// </summary>
     /// <remarks>
     /// The guard deliberately surrounds the complete frame instead of branching inside the
-    /// many cartridge damage producers. Enemy, projectile, liquid, and scripted routines
+    /// many damage producers. Enemy, projectile, liquid, and scripted routines
     /// therefore retain their ordinary damage, collision, and animation side effects. Only
     /// a lethal zero-energy result is raised to one before the frontend can enter death.
     /// </remarks>
@@ -25,7 +25,7 @@ internal sealed class GameplayOptions
     /// Host testing switch that keeps every unlocked consumable ammo type above zero.
     /// </summary>
     /// <remarks>
-    /// Cartridge routines still subtract ammunition and publish their ordinary projectile,
+    /// Game routines still subtract ammunition and publish their ordinary projectile,
     /// HUD, and sound side effects. The frame-exit guard only raises a zero count to one when
     /// the corresponding maximum is nonzero, so it cannot unlock an unavailable item.
     /// </remarks>
@@ -38,9 +38,9 @@ internal sealed class GameplayOptions
     public MapRevealMode MapRevealMode { get; internal set; }
 
     /// <summary>
-    /// Host-readable equivalent of the native Moonwalk options word consumed by
-    /// `$91:F88C`. False preserves the default turn substitution; true admits the six
-    /// stable movement-type-$10 poses selected by the unchanged ROM input tables.
+    /// Host-readable equivalent of the game's Moonwalk option, read when
+    /// Samus turns. False preserves the default turn substitution; true admits the six
+    /// stable moonwalk poses selected by the unchanged input tables.
     /// </summary>
     public bool MoonwalkEnabled { get; set; }
 

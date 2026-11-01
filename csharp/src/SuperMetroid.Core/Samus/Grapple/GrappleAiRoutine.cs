@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>
-/// Header +$1A grapple-AI entry points, relative to the enemy's own bank. Every retail
-/// enemy selects one of the seven shared bank-$A0 reactions except the elevator, whose
+/// The enemy header's grapple reaction. Every retail
+/// enemy selects one of the seven shared reactions except the elevator, whose
 /// main AI doubles as its grapple AI.
 /// </summary>
 public enum GrappleAiRoutine
@@ -10,27 +10,27 @@ public enum GrappleAiRoutine
     /// <summary>No definition: the zero word of an empty enemy slot's default header.</summary>
     None,
 
-    /// <summary><c>Enemy_GrappleAI_NoInteraction</c> at $A0:8000.</summary>
+    /// <summary>The grapple passes through without interacting.</summary>
     NoInteraction,
 
-    /// <summary><c>Enemy_GrappleAI_SamusLatchesOn</c> at $A0:8005.</summary>
+    /// <summary>Samus latches onto the enemy.</summary>
     Attach,
 
-    /// <summary><c>Enemy_GrappleAI_KillEnemy</c> at $A0:800A.</summary>
+    /// <summary>The grapple kills the enemy.</summary>
     Kill,
 
-    /// <summary><c>Enemy_GrappleAI_CancelBeam</c> at $A0:800F.</summary>
+    /// <summary>The enemy cancels the grapple beam.</summary>
     Cancel,
 
-    /// <summary><c>Enemy_GrappleAI_LatchWithoutInvincibility</c> at $A0:8014.</summary>
+    /// <summary>Samus latches on without the enemy becoming invincible.</summary>
     AttachWithoutInvincibility,
 
-    /// <summary><c>Enemy_GrappleAI_LatchAndParalyse</c> at $A0:8019.</summary>
+    /// <summary>Samus latches on and the enemy is paralyzed.</summary>
     AttachAndParalyze,
 
-    /// <summary><c>Enemy_GrappleAI_HurtSamus</c> at $A0:801E.</summary>
+    /// <summary>The enemy hurts Samus through the grapple.</summary>
     HurtSamus,
 
-    /// <summary><c>MainAI_GrappleAI_FrozenAI_Elevator</c> at $A3:952A, the elevator's main AI.</summary>
+    /// <summary><c>MainAI_GrappleAI_FrozenAI_Elevator</c>, the elevator's main AI.</summary>
     ElevatorMainAi,
 }

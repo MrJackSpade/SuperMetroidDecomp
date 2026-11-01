@@ -5,25 +5,25 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal static class CeresExplosionDefinitions
 {
 
-    /// <summary>Number of actors spawned by instruction <c>$8B:C404</c>.</summary>
+    /// <summary>Number of actors spawned by the first wave.</summary>
     public const int InitialExplosionCount = 5;
 
-    /// <summary>Number of cyclic offsets consumed by pre-instruction <c>$8B:C489</c>.</summary>
+    /// <summary>Number of cyclic offsets consumed by the repeating wave's frame behaviour.</summary>
     public const int RepeatingExplosionCount = 8;
 
-    /// <summary>Number of actors spawned by instruction <c>$8B:C50C</c>.</summary>
+    /// <summary>Number of actors spawned by the final wave.</summary>
     public const int FinalExplosionCount = 4;
 
-    /// <summary><c>$8B:CE35</c>, invisible wait before instruction <c>$C404</c>.</summary>
+    /// <summary>Invisible wait before the first wave.</summary>
     public const int InitialWaitFrames = 128;
 
-    /// <summary><c>$8B:CE3B</c>, wait before installing repeating pre-instruction <c>$C489</c>.</summary>
+    /// <summary>Wait before installing the repeating wave's frame behaviour.</summary>
     public const int RepeatingStartWaitFrames = 80;
 
-    /// <summary><c>$8B:CE43</c>, final spawner lifetime before instruction <c>$C50C</c>.</summary>
+    /// <summary>Final spawner lifetime before the final wave.</summary>
     public const int RepeatingLifetimeFrames = 64;
 
-    /// <summary><c>$8B:C4A8</c>, frames between repeating second-wave explosions.</summary>
+    /// <summary>Frames between repeating second-wave explosions.</summary>
     public const int RepeatingPeriodFrames = 12;
 
     /// <summary>First host frame on which the initial wait has expired.</summary>
@@ -36,29 +36,29 @@ internal static class CeresExplosionDefinitions
     public const int SpawnerFinalFrame =
         InitialWaitFrames + RepeatingStartWaitFrames + RepeatingLifetimeFrames + 1;
 
-    /// <summary>$8B:C33C, CinematicFunctionTimer seed when the initial fade completes.</summary>
+    /// <summary>CinematicFunctionTimer seed when the initial fade completes.</summary>
     internal const int RepeatingCountdownSeed = 1;
-    /// <summary><c>$8B:CEBB</c>, first delayed small-explosion actor.</summary>
-    /// <remarks>Native list $8B:CCDB..CCF4 displays six duration-3 small-explosion frames, then deletes. It runs as a typed cinematic sprite program.</remarks>
+    /// <summary>First delayed small-explosion actor.</summary>
+    /// <remarks>Its animation displays six duration-3 small-explosion frames, then deletes. It runs as a typed cinematic sprite program.</remarks>
     public static CinematicActorDefinition InitialActor =>
         new(CinematicSpriteFrameBehavior.CeresExplosion, CinematicSpriteProgram.CeresSmallExplosion);
 
-    /// <summary><c>$8B:CEC1</c>, cyclic repeating small-explosion actor.</summary>
-    /// <remarks>Native list $8B:CCF5..CD1A repeats six duration-3 frames and a duration-16 blank six times, then deletes. It runs as a typed cinematic sprite program.</remarks>
+    /// <summary>Cyclic repeating small-explosion actor.</summary>
+    /// <remarks>Its animation repeats six duration-3 frames and a duration-16 blank six times, then deletes. It runs as a typed cinematic sprite program.</remarks>
     public static CinematicActorDefinition RepeatingActor =>
         new(CinematicSpriteFrameBehavior.CeresExplosion, CinematicSpriteProgram.CeresRepeatingSmallExplosion);
 
-    /// <summary><c>$8B:CEC7</c>, final delayed large-explosion actor.</summary>
-    /// <remarks>Native list $8B:CD1B..CD38 repeats four duration-5 frames and a duration-8 blank seven times, then deletes. It runs as a typed cinematic sprite program.</remarks>
+    /// <summary>Final delayed large-explosion actor.</summary>
+    /// <remarks>Its animation repeats four duration-5 frames and a duration-8 blank seven times, then deletes. It runs as a typed cinematic sprite program.</remarks>
     public static CinematicActorDefinition FinalWaveActor =>
         new(CinematicSpriteFrameBehavior.CeresExplosion, CinematicSpriteProgram.CeresLargeExplosion);
 
-    /// <summary><c>$8B:CF2D</c>, final station blast actor created by <c>$8B:C345</c>.</summary>
-    /// <remarks>Native list $8B:CE1B..CE34 displays six duration-5 station-blast frames, then deletes. It runs as a typed cinematic sprite program.</remarks>
+    /// <summary>Final station blast actor created as the station explodes.</summary>
+    /// <remarks>Its animation displays six duration-5 station-blast frames, then deletes. It runs as a typed cinematic sprite program.</remarks>
     public static CinematicActorDefinition StationBlastActor =>
         new(CinematicSpriteFrameBehavior.CeresExplosion, CinematicSpriteProgram.CeresStationBlast);
 
-    /// <summary>$8B:C4EB-$C50A, the repeating burst's eight chosen screen-space positions.</summary>
+    /// <summary>The repeating burst's eight chosen screen-space positions.</summary>
     /// <remarks>
     /// Retained under #1165's drawing/choreography exception. Each ordinal creates the
     /// same small blast, then advances modulo eight even if allocation fails. These
@@ -74,7 +74,7 @@ internal static class CeresExplosionDefinitions
         new Offset16<SpritePixels>(0, 0), new Offset16<SpritePixels>(16, 14), new Offset16<SpritePixels>(-12, 4), new Offset16<SpritePixels>(-8, -16),
     ];
 
-    /// <summary>$8B:C57A-$C581, chosen heights of the four final large bursts.</summary>
+    /// <summary>Chosen heights of the four final large bursts.</summary>
     /// <remarks>
     /// Retained as the final burst's spatial choreography under #1165. These are absolute
     /// offsets from the scrolling anchor, not successive displacements or a velocity curve.

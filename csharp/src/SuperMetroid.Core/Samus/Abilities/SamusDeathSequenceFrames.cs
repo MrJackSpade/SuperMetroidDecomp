@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public static class SamusDeathSequenceFrames
 {
     /// <summary>
-    /// $9B:B420: the initial visible death-pose animation frame the movement type in effect before fatal-damage pose
+    /// The initial visible death-pose animation frame the movement type in effect before fatal-damage pose
     /// setup selects, without replacing the separately initialized animation timer: ball movement starts at one, the
     /// two unused glitch-ball types at zero, every other movement type at five.
     /// </summary>

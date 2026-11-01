@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// Immutable control words and byte operands for Crateria's two lightning programs.
 /// </summary>
 /// <remarks>
-/// Definition <c>$F765</c> is the live Landing Site lightning effect. Definition
-/// <c>$F769</c> is the cartridge's unused dark-lightning counterpart. Their 202 BGR555
+/// The first definition is the live Landing Site lightning effect. The second
+/// is its unused dark-lightning counterpart. Their 202 BGR555
 /// words remain presentation data; timer setup, timing, branches, and targets are compiled.
 /// </remarks>
 public static class CrateriaLightningPaletteFxColorDefinitions
@@ -19,7 +19,7 @@ public static class CrateriaLightningPaletteFxColorDefinitions
             NeutralCount = 1,
             Rows = new(FirstRecord: 355, FrameCount: 12 + 1, ColorsPerFrame: 8),
         };
-    /// <summary>The unused counterpart whose dark colors target CGRAM colors 65 through 71.</summary>
+    /// <summary>The unused counterpart whose dark colors target colours 65 through 71.</summary>
     private static readonly CrateriaLightningPaletteFxColorDefinition Dark =
         new()
         {
@@ -28,9 +28,9 @@ public static class CrateriaLightningPaletteFxColorDefinitions
             NeutralCount = 2,
             Rows = new(FirstRecord: 368, FrameCount: 12 + 2, ColorsPerFrame: 7),
         };
-    /// <summary>The live and unused-dark programs in cartridge definition order.</summary>
+    /// <summary>The live and unused-dark programs in definition order.</summary>
     public static IReadOnlyList<CrateriaLightningPaletteFxColorDefinition> All { get; } = [Surface, Dark];
-    /// <summary>$8D:EC59/$ED84 restart the neutral record when Samus is above Y=$0380.</summary>
+    /// <summary>Both programs restart the neutral record when Samus is above Y=896.</summary>
     public const int VerticalSwitchSamusY = 896;
 
 }

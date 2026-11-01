@@ -84,9 +84,9 @@ internal static class RoomPaletteFxSelection
     };
     /// <summary>Selects the palette-FX object enabled by one area's effect bit.</summary>
     /// <remarks>Direct semantic area/bit dispatch for all eight areas and eight bits.
-    /// Unused selections (including Ceres/debug) select the native empty object.
+    /// Unused selections (including Ceres/debug) select the empty object.
     /// Validate area before bit, preserving both rejection domains and precedence.
-    /// All64 native words are independently verified; no selection matrix remains.</remarks>
+    /// All 64 selections are independently verified; no selection matrix remains.</remarks>
     internal static PaletteFxObject GetAreaDefinition(int areaIndex, int bitIndex)
     {
         if ((uint)areaIndex >= AreaCount)

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// One bank-$8C post-credit cinematic BG object, including the item-percentage opcodes.
+/// One post-credit cinematic background text object, including the item-percentage steps.
 /// </summary>
 /// <remarks>
 /// The typed characters are the installed glyph pictures of their style, written to the staging page at their cells
@@ -31,7 +31,7 @@ internal sealed class EndingBackgroundTextState
     private readonly EndingTextSequence? installedSequence;
     /// <summary>Next installed character to reveal on the staging page.</summary>
     internal int InstalledCharacterIndex { get; set; }
-    /// <summary>Preserves the native initial pause before the first glyph.</summary>
+    /// <summary>Preserves the initial pause before the first glyph.</summary>
     internal bool InstalledInitialMarkerPending { get; set; } = true;
     /// <summary>Tracks whether the item-percentage display hold has begun.</summary>
     private bool installedHoldStarted;

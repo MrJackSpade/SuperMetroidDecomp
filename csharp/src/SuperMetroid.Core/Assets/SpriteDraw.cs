@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// One whole-frame sprite entry of a published frame: an actor or display element shown at an origin. Backends draw it
-/// without OAM or VRAM.
+/// without sprite records or uploaded characters.
 /// </summary>
 public abstract record SpriteDraw
 {

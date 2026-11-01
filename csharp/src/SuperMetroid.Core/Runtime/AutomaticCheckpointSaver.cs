@@ -6,20 +6,20 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
-/// Owns gameplay events that execute the cartridge's ordinary <c>$81:8000</c> SRAM encoder
+/// Owns gameplay events that write the game's ordinary save
 /// without presenting a save-station prompt. Keeping this out of the outer dispatcher makes
-/// each native trigger independently testable while retaining one production save path.
+/// each automatic trigger independently testable while retaining one production save path.
 /// </summary>
 internal static class AutomaticCheckpointSaver
 {
     /// <summary>
-    /// $8B:C100-$C116 publishes $1F before saving the initial Ceres checkpoint.
+    /// The Ceres opening publishes its checkpoint game state before saving the initial Ceres checkpoint.
     /// </summary>
     public static void SaveCeresArrival(SaveSlotStore saves, SuperMetroidRuntime runtime, int slot) =>
         SaveCeresCheckpoint(saves, runtime, slot, SaveLoadingGameState.CeresElevatorArrival);
 
     /// <summary>
-    /// $82:83D6-$83E3 publishes $22 before saving at the completed escape blackout.
+    /// The escape ending publishes its checkpoint game state before saving at the completed escape blackout.
     /// This checkpoint resumes the destruction cinematic, never the escaping room.
     /// </summary>
     public static void SaveCeresDeparture(SaveSlotStore saves, SuperMetroidRuntime runtime, int slot) =>
@@ -55,7 +55,7 @@ internal static class AutomaticCheckpointSaver
             ?? throw new InvalidOperationException(
                 "Gunship landing completed without a live Samus actor.");
 
-        // `$A2:A987` executes `ORA #$0001` on $D8F8 before changing load station 18 to
+        // The gunship sets the ship-landed marker before changing load station 18 to
         // station zero and calling SaveToSram. The marker controls ship/save-point display
         // after reload and therefore belongs inside the atomic checkpoint operation.
         runtime.System.LoadSavedLoadingGameState(SaveLoadingGameStateCodec.Word(SaveLoadingGameState.MainGame));

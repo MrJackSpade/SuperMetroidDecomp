@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The thirty bank-$86 misc-dust and explosion animations, in the native index order of
-/// <c>MiscDust_InstListPointers</c> ($86:E42C). The spawn parameter of
+/// The thirty misc-dust and explosion animations, in the index order of
+/// <c>MiscDust_InstListPointers</c>. The spawn parameter of
 /// <c>EprojInit_DustCloudOrExplosion</c> is this index.
 /// </summary>
 public enum MiscDustAnimation
 {
-    /// <summary>Unused beam-charge sparkle ($86:E0EE).</summary>
+    /// <summary>Unused beam-charge sparkle.</summary>
     UnusedBeamCharge,
     /// <summary>Mother Brain's elbow charge particle.</summary>
     MotherBrainElbowChargeParticle,
@@ -17,13 +17,13 @@ public enum MiscDustAnimation
     SmallExplosion,
     /// <summary>Mother Brain's rainbow-beam explosion.</summary>
     MotherBrainRainbowBeamExplosion,
-    /// <summary>Unused beam trail ($86:E168).</summary>
+    /// <summary>Unused beam trail.</summary>
     UnusedBeamTrail,
     /// <summary>Dud shot: tiny explosion.</summary>
     DudShotTinyExplosion,
-    /// <summary>Unused power bomb ($86:E198).</summary>
+    /// <summary>Unused power bomb.</summary>
     UnusedPowerBomb,
-    /// <summary>Unused elevator pad ($86:E1A6).</summary>
+    /// <summary>Unused elevator pad.</summary>
     UnusedElevatorPad,
     /// <summary>Small dust cloud.</summary>
     SmallDustCloud,
@@ -33,37 +33,37 @@ public enum MiscDustAnimation
     EyeDoorSweatDrop,
     /// <summary>Smoke.</summary>
     Smoke,
-    /// <summary>Unused small energy drop ($86:E222).</summary>
+    /// <summary>Unused small energy drop.</summary>
     UnusedSmallEnergyDrop,
-    /// <summary>Unused big energy drop ($86:E22E).</summary>
+    /// <summary>Unused big energy drop.</summary>
     UnusedBigEnergyDrop,
-    /// <summary>Unused bomb ($86:E246).</summary>
+    /// <summary>Unused bomb.</summary>
     UnusedBomb,
-    /// <summary>Unused weird energy drop ($86:E258).</summary>
+    /// <summary>Unused weird energy drop.</summary>
     UnusedWeirdEnergyDrop,
     /// <summary>Rock particles.</summary>
     RockParticles,
     /// <summary>Short big dust cloud.</summary>
     ShortBigDustCloud,
-    /// <summary>Unused cloud with a short beam ($86:E2BA).</summary>
+    /// <summary>Unused cloud with a short beam.</summary>
     UnusedCloudShortBeam,
-    /// <summary>Unused cloud with a medium beam ($86:E2D4).</summary>
+    /// <summary>Unused cloud with a medium beam.</summary>
     UnusedCloudMediumBeam,
     /// <summary>Big dust cloud.</summary>
     BigDustCloud,
-    /// <summary>Unused long beam ($86:E314).</summary>
+    /// <summary>Unused long beam.</summary>
     UnusedLongBeam,
-    /// <summary>Unused flickering long beam ($86:E392).</summary>
+    /// <summary>Unused flickering long beam.</summary>
     UnusedFlickerLongBeam,
     /// <summary>Long Draygon breath bubbles.</summary>
     LongDraygonBreathBubbles,
-    /// <summary>Unused save-station electricity ($86:E3C6).</summary>
+    /// <summary>Unused save-station electricity.</summary>
     UnusedSaveStationElectricity,
-    /// <summary>Unused expanding vertical gate ($86:E3E8).</summary>
+    /// <summary>Unused expanding vertical gate.</summary>
     UnusedExpandVerticalGate,
-    /// <summary>Unused contracting vertical gate ($86:E40A).</summary>
+    /// <summary>Unused contracting vertical gate.</summary>
     UnusedContractVerticalGate,
-    /// <summary>Unused looping elevator pad ($86:E1FC).</summary>
+    /// <summary>Unused looping elevator pad.</summary>
     UnusedLoopingElevatorPad,
     /// <summary>Big explosion.</summary>
     BigExplosion,

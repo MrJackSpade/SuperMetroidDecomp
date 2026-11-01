@@ -27,7 +27,7 @@ public static class GameplayEffectCapture
     private static readonly int OnePixelPerSample = EightEight.FromWhole(1);
 
     /// <summary>
-    /// Describes water's optional BG2 wave from <c>$88:C5E4</c> (#1468): below the surface, BG2's horizontal scroll follows
+    /// Describes water's optional BG2 wave (#1468): below the surface, BG2's horizontal scroll follows
     /// the water waveform one sample a line, counted from the line below the surface and advanced by the wave's phase and
     /// BG2's fine vertical scroll; the lines above keep BG2's own scroll. Null without the wave.
     /// </summary>
@@ -44,8 +44,8 @@ public static class GameplayEffectCapture
     }
 
     /// <summary>
-    /// Describes the optional lava/acid BG2HOFS heat haze from <c>$88:B53B</c> (#1468), or null without it. Vertical
-    /// distortion has cartridge priority when both option bits are set, matching the branch order in <c>$88:B4D5</c>.
+    /// Describes the optional lava/acid BG2HOFS heat haze (#1468), or null without it. Vertical
+    /// distortion takes priority when both option bits are set, as the game checks it first.
     /// </summary>
     public static SampledScrollWave? BuildLavaAcidBackgroundHorizontalScrolls(
         RoomLayer3FxRenderSnapshot fx,
@@ -62,7 +62,7 @@ public static class GameplayEffectCapture
         return HeatHaze(bg2Scroll.X, bg2Scroll.Y, fx.LavaAcidBg2WavePhase, LiquidEffects.HeatHorizontalWaveform);
     }
 
-    /// <summary>Describes the Norfair heat-haze BG2VOFS wave from <c>$88:B5A9</c> (#1468), or null without it.</summary>
+    /// <summary>Describes the Norfair heat-haze BG2VOFS wave (#1468), or null without it.</summary>
     public static SampledScrollWave? BuildLavaAcidBackgroundVerticalScrolls(
         RoomLayer3FxRenderSnapshot fx,
         int bg2VerticalScroll)
@@ -73,13 +73,13 @@ public static class GameplayEffectCapture
             return null;
         }
 
-        // $88:B60A's vertical haze repeats the water wave's samples.
+        // The vertical haze repeats the water wave's samples.
         return HeatHaze(bg2VerticalScroll, bg2VerticalScroll, fx.LavaAcidBg2WavePhase, LiquidEffects.WaterWaveform);
     }
 
     /// <summary>
-    /// The rotating sixteen-sample heat haze over every gameplay line (#1468). <c>$88:C0B1</c> is sixteen one-line indirect
-    /// entries repeated through the frame: its pointer starts at BG2VOFS's low nibble, while <c>$88:B53B/$B5A9</c> rotates
+    /// The rotating sixteen-sample heat haze over every gameplay line (#1468). The haze is sixteen one-line
+    /// entries repeated through the frame: it starts at BG2VOFS's low nibble, while each frame
     /// the sixteen resident words backward through A, so the first gameplay line reaches the sample at that nibble plus the
     /// wave's phase.
     /// </summary>
@@ -117,7 +117,7 @@ public static class GameplayEffectCapture
         return new(ScreenWindow.Of(cone, MotherBrainBeamDefinitions.FirstLine), beam.Color);
     }
 
-    /// <summary>Composes native configuration $16 with both BG2 and BG3 on the subscreen.</summary>
+    /// <summary>Composes layer-blend configuration $16 with both BG2 and BG3 on the subscreen.</summary>
     public static GameplayBlendLayer CaptureWaterfall(GameplaySceneLayer gameplay,
         RoomLayer3FxRenderSnapshot fx)
     {

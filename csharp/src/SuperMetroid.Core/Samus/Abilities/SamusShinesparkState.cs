@@ -9,13 +9,13 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Cartridge-word state for stored Speed Booster shine and Samus's shinespark handler.
+/// State for stored Speed Booster shine and Samus's shinespark handler.
 /// </summary>
 /// <remarks>
-/// This is a transcription of the bank-$90/$91 state machine, not a desktop “dash”
+/// This is a transcription of the state machine, not a desktop “dash”
 /// controller. Timers wrap as 16-bit words, movement retains split 16.16 values, and every
-/// palette is selected through the user's ROM. Solid-enemy collision remains an explicit
-/// boundary; block collision uses the translated bank-$94 dispatcher.
+/// palette is selected through the user's installed artwork. Solid-enemy collision remains an explicit
+/// boundary; block collision uses the translated dispatcher.
 /// </remarks>
 public sealed class SamusShinesparkState
 {
@@ -28,7 +28,7 @@ public sealed class SamusShinesparkState
 
     /// <summary>
     /// Rebinds the live projectile and sound owners before movement/palette production,
-    /// including restored states. These references are routing, not cartridge state.
+    /// including restored states. These references are routing, not game state.
     /// </summary>
     internal void BindProjectileOwners(
         BeamChargeState charge,
@@ -38,16 +38,16 @@ public sealed class SamusShinesparkState
         _audioPowerBomb = powerBomb;
     }
 
-    /// <summary>Native queue guard captured at the stored-shine warning call, not at publication.</summary>
+    /// <summary>Queue guard captured at the stored-shine warning call, not at publication.</summary>
     public bool StoredShineWarningSoundSuppressed { get; private set; }
-    /// <summary>Native queue guard captured at directional launch.</summary>
+    /// <summary>Queue guard captured at directional launch.</summary>
     public bool LaunchSoundSuppressed { get; private set; }
-    /// <summary>Native queue guard shared by the two adjacent crash-entry sound calls.</summary>
+    /// <summary>Queue guard shared by the two adjacent crash-entry sound calls.</summary>
     public bool CrashSoundSuppressed { get; private set; }
-    /// <summary>Special-palette handler (WRAM <c>$0ACC</c>) this owner installs: none, stored shine, or shinesparking.</summary>
+    /// <summary>Special-palette handler this owner installs: none, stored shine, or shinesparking.</summary>
     public SamusSpecialPaletteType PaletteType { get; private set; }
 
-    /// <summary>WRAM <c>$0A6A</c>: 180 stored, 60 windup, and 15 during active motion.</summary>
+    /// <summary>The special-palette timer: 180 stored, 60 windup, and 15 during active motion.</summary>
     public WrappingCountdown ShineTimer { get; private set; }
 
     /// <summary>
@@ -56,14 +56,14 @@ public sealed class SamusShinesparkState
     /// </summary>
     public int PaletteStep { get; private set; }
 
-    /// <summary>WRAM <c>$0A64</c>, the shared 30-frame windup/crash countdown.</summary>
+    /// <summary>The shared 30-frame windup/crash countdown.</summary>
     public WrappingCountdown StartStopTimer { get; internal set; }
 
     /// <summary>
     /// The upward spark's 16.16 acceleration in pixels per frame per frame: 7.0 when windup begins, raised by
     /// Samus's vertical acceleration on every vertical or diagonal spark call, and cleared when the crash finishes.
     /// Its storage is shared with the suit pickup's scratch, which can replace it (see
-    /// <see cref="ApplySuitPickupScratch"/>); the adds wrap at 32 bits exactly as the cartridge's word pair does.
+    /// <see cref="ApplySuitPickupScratch"/>); the adds wrap at 32 bits exactly as the game's word pair does.
     /// </summary>
     public SignedSixteenSixteen VerticalAcceleration { get; private set; }
 
@@ -77,18 +77,18 @@ public sealed class SamusShinesparkState
     internal void ApplySuitPickupScratch(int substate, int lightBeamPosition) =>
         VerticalAcceleration = SignedSixteenSixteen.FromParts(WordWrap.Signed(substate), lightBeamPosition);
 
-    /// <summary>Debugger-readable replacement for the installed bank-$90 handler pointer.</summary>
+    /// <summary>Debugger-readable replacement for the installed handler pointer.</summary>
     public ShinesparkPhase Phase { get; internal set; }
 
     /// <summary>
-    /// Relinquishes the movement-handler pointer when bank $90 installs normal movement.
+    /// Relinquishes the movement-handler pointer when normal movement is installed.
     /// It does not clear the independently owned palette timer, boost counter, or echoes;
-    /// Draygon's unconditional release at $90:E2DE relies on that distinction.
+    /// Draygon's unconditional release relies on that distinction.
     /// </summary>
     internal void RelinquishMovementHandler() => Phase = ShinesparkPhase.Inactive;
 
     /// <summary>
-    /// Whether the spark's routine is installed in the single movement-handler word: $90:CFFA
+    /// Whether the spark's routine is installed in the single movement-handler word: the windup setup
     /// installs windup, and launch and crash replace it in turn until the crash finishes.
     /// </summary>
     public bool OwnsMovementHandler => Phase is
@@ -97,7 +97,7 @@ public sealed class SamusShinesparkState
         ShinesparkPhase.CrashFinish;
 
     /// <summary>
-    /// CrystalFlash ($90:D5A2) replaces both the movement pointer and shared special
+    /// CrystalFlash replaces both the movement pointer and shared special
     /// palette words. The new owner holds those words; do not resume this old owner
     /// after Flash finishes. Extra run speed and the boost counter are not cleared.
     /// </summary>
@@ -207,14 +207,14 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Host-readable echo drawing words associated with native projectile slot three.
+    /// Host-readable echo drawing words associated with projectile slot three.
     /// Active is the drawing enable, not ownership: a combo can overwrite the projectile
     /// without clearing these words or allowing the old echo handler to keep running.
     /// </summary>
     public ShinesparkReleasedEcho FirstReleasedCrashEcho => FirstReleasedCrashEchoSlot.Snapshot;
 
     /// <summary>
-    /// Host-readable snapshot of native projectile slot four. Native draws this slot before
+    /// Host-readable snapshot of projectile slot four. The game draws this slot before
     /// slot three, even though it is initialized second.
     /// </summary>
     public ShinesparkReleasedEcho SecondReleasedCrashEcho => SecondReleasedCrashEchoSlot.Snapshot;
@@ -225,7 +225,7 @@ public sealed class SamusShinesparkState
     internal readonly ReleasedEchoSlot SecondReleasedCrashEchoSlot = new();
 
     /// <summary>
-    /// Samus_HandleTransitionsB_5 ($91:EEA6) clears $0A6A and replaces the shared
+    /// Samus_HandleTransitionsB_5 clears the special-palette timer and replaces the shared
     /// special-palette handler with X-Ray. Relinquish this owner's palette state so
     /// it cannot keep ticking or repaint over the newly installed visor palette.
     /// </summary>
@@ -239,7 +239,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// ResetProjectileData ($90:AD22) clears the complete speed-echo arrays and index.
+    /// ResetProjectileData clears the complete speed-echo arrays and index.
     /// Keep the movement-handler phase and its unrelated timers unchanged.
     /// </summary>
     internal void ResetProjectileEchoStorage()
@@ -252,7 +252,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Ports <c>Samus_CrouchTrans</c> at <c>$91:F7B0</c>: a crouch at the full boost stage stores a shinespark.
+    /// Ports <c>Samus_CrouchTrans</c>: a crouch at the full boost stage stores a shinespark.
     /// </summary>
     public bool TryStoreFromSpeedBooster(SamusSpeedBoostCounter speedBoostCounter)
     {
@@ -268,7 +268,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Ports <c>Projectile_Func7_Shinespark</c> at <c>$90:CFFA</c> after bank $91 has
+    /// Ports <c>Projectile_Func7_Shinespark</c> after Samus's pose handling has
     /// selected windup pose `$C7/$C8`.
     /// </summary>
     public void BeginWindup(SamusState samus)
@@ -280,21 +280,21 @@ public sealed class SamusShinesparkState
         InitializeWindup(samus);
     }
 
-    /// <summary>DemoSetFunc_5/6 call the native windup initializer without a stored shine.</summary>
+    /// <summary>DemoSetFunc_5/6 call the windup initializer without a stored shine.</summary>
     internal void BeginDemoLaunch(SamusState samus, SamusPoseId targetPose)
     {
         InitializeWindup(samus);
         BeginDirectionalLaunch(samus, targetPose);
     }
 
-    /// <summary>Cancels beam charge and installs the native 30-frame spark windup, palette and boost state.</summary>
+    /// <summary>Cancels beam charge and installs the 30-frame spark windup, palette and boost state.</summary>
     private void InitializeWindup(SamusState samus)
     {
-        // Projectile_Func7_Shinespark checks $0CD0 before clearing it. A charge that has
+        // Projectile_Func7_Shinespark checks the charge counter before clearing it. A charge that has
         // reached the draw-time sound threshold first queues library-one $02; shorter
         // charges are still torn down without a sound call. The live projectile owner
-        // contains the flare layers and previous-counter word, while Samus mirrors $0CD0
-        // for movement decisions. Keep both views synchronized at this native seam.
+        // contains the flare layers and previous-counter word, while Samus mirrors the charge counter
+        // for movement decisions. Keep both views synchronized at this seam.
         int cancelledCharge = samus.ProjectileFlareCounter;
         if (cancelledCharge != 0)
         {
@@ -307,15 +307,15 @@ public sealed class SamusShinesparkState
             }
         }
 
-        // $90:CFFA replaces the movement and palette pointers. Flash's live
-        // $0A68 can admit this launch even after its movement was interrupted.
+        // The windup replaces the movement and palette pointers. Flash's live
+        // palette timer can admit this launch even after its movement was interrupted.
         samus.CrystalFlash.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishPaletteHandler();
         // A Reserve-Mode X-Ray cone effect survives, but directional spark setup replaces
         // the same shared special-palette dispatcher with handler six.
         samus.Xray.RelinquishPaletteHandler();
 
-        // These are literal native writes. Stage four remains published during windup even
+        // These are literal writes. Stage four remains published during windup even
         // though base speed is zero and the extra component becomes exactly 8.0000.
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         samus.Kinematics.YSpeed = default;
@@ -338,14 +338,14 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Installs the handler selected by <c>SamusFunc_F468_Shinespark</c> at
-    /// <c>$91:F80F</c> for poses `$C9-$CE`.
+    /// Installs the handler selected by <c>SamusFunc_F468_Shinespark</c>
+    /// for poses `$C9-$CE`.
     /// </summary>
     public void BeginDirectionalLaunch(SamusState samus, SamusPoseId targetPose,
         bool deferPoseChange = false)
     {
         Ensure.NotNull(samus);
-        // `$91:FACA` installs the launch handler over whatever handler is current. A windup
+        // The launch installs its handler over whatever handler is current. A windup
         // whose handler normal movement replaced (a knockback ending in `$C7/$C8`) keeps its
         // pose and the windup's speeds, and a direction still launches from it.
         Phase = targetPose switch
@@ -356,7 +356,7 @@ public sealed class SamusShinesparkState
             SamusPoseId.ShinesparkVerticalLeftPose => ShinesparkPhase.Vertical,
             SamusPoseId.ShinesparkDiagonalRightPose or
             SamusPoseId.ShinesparkDiagonalLeftPose => ShinesparkPhase.Diagonal,
-            // `$91:F80F` is reached only from the six table-selected `$C9-$CE` records.
+            // The launch is reached only from the six table-selected `$C9-$CE` records.
             // Any other byte is a caller contract violation, not another untranslated arm.
             SamusPoseId.ForwardFacingPowerSuitPose or
                 SamusPoseId.ForwardFacingSuitedPose or
@@ -632,7 +632,7 @@ public sealed class SamusShinesparkState
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
-    /// <summary>Runs one installed special-handler frame from <c>$90:D068-$D2B9</c>.</summary>
+    /// <summary>Runs one installed special-handler frame.</summary>
     /// <param name="terrain">The room terrain Samus's block collision probes: the address space, the level data, and the PLMs that react to touched blocks (#633).</param>
     /// <param name="samus">Live player state; movement, energy, contact damage, pose state, and echo coordinates may change during the call.</param>
     /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility, timeout policy and the previous checkpoint (#633).</param>
@@ -644,7 +644,7 @@ public sealed class SamusShinesparkState
 
         if (Phase == ShinesparkPhase.Windup)
         {
-            // DEC/BEQ/BMI at `$90:D068`: exact zero and signed underflow both launch up.
+            // The windup countdown: exact zero and signed underflow both launch up.
             CountdownStep timer = StartStopTimer.Decrement();
             StartStopTimer = timer.Remaining;
             bool timedOut = timer.IsZeroOrNegative;
@@ -704,7 +704,7 @@ false);
                 CapPreviousY(samus, checkpoint);
         }
 
-        // Native X and Y movement share one collision flag. Diagonal movement runs Y
+        // The game's X and Y movement share one collision flag. Diagonal movement runs Y
         // last, so a clear vertical probe replaces an earlier wall hit and allows the
         // spark to slide upward. Combining both results would terminate a retail spark
         // early; use the last executed axis, including when its result is clear.
@@ -719,7 +719,7 @@ false);
         // At exactly 30 energy, this frame still moves and drains to 29. The following
         // frame moves once more before EndSuperJump observes that 29 is below the threshold.
         // Invincible playtesting retains energy loss without requiring refills: below
-        // the native cutoff, continue draining to one, never decrementing zero or one.
+        // the cutoff, continue draining to one, never decrementing zero or one.
         bool drained = frame.PlayerInvincibilityEnabled
             ? samus.Health > 1
             : hasSustainingEnergy;
@@ -731,7 +731,7 @@ false);
     }
 
     /// <summary>
-    /// Runs palette handler one or six from <c>$91:D6F7</c>, including normal restoration
+    /// Runs palette handler one or six, including normal restoration
     /// when its signed countdown expires.
     /// </summary>
     public bool UpdatePalette(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
@@ -786,7 +786,7 @@ false);
     /// <summary>Stops translational spark motion, seeds paired orbit angles and installs the crash handler without clearing aliased angular travel.</summary>
     private void BeginCrash(SamusState samus)
     {
-        // `$90:D2BA-$D345` kills translational velocity before installing the crash handler.
+        // The crash entry kills translational velocity before installing the crash handler.
         samus.Kinematics.YSpeed = default;
         samus.Kinematics.YDirection = SamusVerticalDirection.None;
         samus.HorizontalSpeed.ExtraRunSpeed = default;
@@ -801,7 +801,7 @@ false);
         FirstReleasedCrashEchoSlot.DisableDrawing();
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
         CrashRadius = 0;
-        // The native entry does not initialize the aliased angular-travel/echo-Y
+        // The entry does not initialize the aliased angular-travel/echo-Y
         // word. A preceding echo or crash can therefore shorten this orbit.
         samus.HorizontalSpeed.SetShinesparkCrashEchoState(
             encodedIndex: 0,
@@ -813,8 +813,8 @@ false);
     }
 
     /// <summary>
-    /// WRAM $0AB4: crash angular delta aliases departing slot-three echo X. Preserve the
-    /// complete signed word so any still-owned echo write affects the native consumer: the delta reads the echo's X
+    /// The crash angular delta aliases departing slot-three echo X. Preserve the
+    /// complete signed word so any still-owned echo write affects the consumer: the delta reads the echo's X
     /// word as signed, -32768 through 32767, and a write stores it back as that word.
     /// </summary>
     private int CrashAngularDelta
@@ -823,7 +823,7 @@ false);
         set => FirstReleasedCrashEchoSlot.Position = FirstReleasedCrashEchoSlot.Position.WithX(WordWrap.Unsigned(value));
     }
 
-    /// <summary>Ports `$90:D346-$D3F2`, including the three overloaded-index substates.</summary>
+    /// <summary>Runs the crash, including the three overloaded-index substates.</summary>
     private ShinesparkMovementResult StepCrashOrbit(
         SamusState samus)
     {
@@ -832,7 +832,7 @@ false);
         {
             case ShinesparkCrashOrbitStage.Expanding:
             {
-                // `$90:D383` tests the old radius against twelve, after calculating +4.
+                // The crash tests the old radius against twelve, after calculating +4.
                 // The transition frame therefore publishes radius sixteen and the orbiting stage.
                 int oldRadius = CrashRadius;
                 CrashRadius += 4;
@@ -869,7 +869,7 @@ false);
         }
 
         // Projectile_SinLookup consumes a byte angle/radius and returns wrapped 16-bit
-        // offsets. Both additions below deliberately retain that unsigned WRAM wrapping.
+        // offsets. Both additions below deliberately retain that unsigned sixteen-bit wrapping.
         int orbitRadius = Ensure.BetweenInclusive(0, byte.MaxValue, CrashRadius);
         Offset16<RoomPixels> firstOffset = ProjectileSinLookup(FirstCrashEchoAngle, orbitRadius);
         Offset16<RoomPixels> secondOffset = ProjectileSinLookup(SecondCrashEchoAngle, orbitRadius);
@@ -904,7 +904,7 @@ false);
         return CoordinateAxis.Wrap(Ensure.BetweenInclusive(0, byte.MaxValue, CrashRadius) | stageNumber << CrashEchoStageShift);
     }
 
-    /// <summary>Ports the 30-frame center echo hold at `$90:D3F3`.</summary>
+    /// <summary>Runs the 30-frame center echo hold.</summary>
     private ShinesparkMovementResult StepCrashEchoCircle()
     {
         ShineTimer = WrappingCountdown.Start(15);
@@ -917,7 +917,7 @@ false);
     }
 
     /// <summary>
-    /// Ports `$90:D40D-$D4D1`: convert the crash copies into fixed projectile slots three
+    /// Ports the crash's end: convert the crash copies into fixed projectile slots three
     /// and four when capacity permits, restore standing, and expire palette handler six.
     /// </summary>
     internal ShinesparkMovementResult FinishCrash(
@@ -929,7 +929,7 @@ false);
         var departureAngles = ShinesparkEchoDepartures.DepartureAngles(samus.Pose);
         samus.HorizontalSpeed.ResetSpeedEchoPositionsForShinespark();
 
-        // Native reserves fixed projectile slots three and four. Its projectile counter
+        // The game reserves fixed projectile slots three and four. Its projectile counter
         // admits both while below four, only slot four at exactly four, and neither at five
         // or above. The runtime supplies the ordinary projectile count, not bomb count.
         // Capacity failure does not clear existing echo words or slots. In particular,
@@ -965,7 +965,7 @@ false,             CrashSequenceFinished: true);
             : SamusPoseId.FacingRightNormalPose;
         int previousRadius = samus.Kinematics.Radius.Y;
         samus.Pose = standingPose;
-        // The native transitional-pose handler restores normal movement and
+        // The transitional-pose handler restores normal movement and
         // aligns the standing body's bottom with the old crash body. Alpha alone
         // publishes the new live radius on the following frame.
         samus.AlignBottomAfterPoseChange(previousRadius, SamusPoseMetadata.ReadPoseYRadius(standingPose));
@@ -974,7 +974,7 @@ false,             CrashSequenceFinished: true);
 
     /// <summary>
     /// The projectile radius/angle belong to its current slot owner. Drawing enable and
-    /// coordinates are separate native words and may survive replacement of that owner.
+    /// coordinates are separate words and may survive replacement of that owner.
     /// </summary>
     internal bool StepOwnedReleasedCrashEcho(SamusState samus,
         Position16<RoomPixels> layer1, SamusProjectileSlot projectile)
@@ -1004,7 +1004,7 @@ false,             CrashSequenceFinished: true);
         if (slotOwner != CrashEchoSlotOwner.Projectile && !slot.Active)
             return false;
 
-        // `$90:D4D2` increments the complete word but passes only its low byte as radius.
+        // The crash increments the complete word but passes only its low byte as radius.
         // The point is recalculated from the *current* Samus position on every frame; these
         // are expanding radial copies, not ordinary projectiles with independent velocity.
         slot.ExpandRadius();
@@ -1012,9 +1012,9 @@ false,             CrashSequenceFinished: true);
         Position16<RoomPixels> point = samus.Position.Whole + offset;
         slot.Position = slot.Position.WithX(point.X);
 
-        // Native performs the X viewport rejection before calculating/publishing Y. The
+        // The game performs the X viewport rejection before calculating/publishing Y. The
         // cleared result is identical either way, but retaining the branch order makes a
-        // debugger trace line up with `$90:D4F2-$D51E` instruction for instruction.
+        // debugger trace line up with the game's steps.
         int screenX = CoordinateAxis.Difference(slot.Position.X, layer1.X);
         if (screenX is < 0 or >= 256)
         {
@@ -1032,7 +1032,7 @@ false,             CrashSequenceFinished: true);
         return true;
     }
 
-    /// <summary>Exact byte-split multiplication used by `$90:CC39/$90:CC8A`.</summary>
+    /// <summary>Exact byte-split multiplication used by the crash's sine and cosine.</summary>
     internal static Offset16<RoomPixels> ProjectileSinLookup(
         RotationAngle angle,
         int radius)
@@ -1049,13 +1049,13 @@ false,             CrashSequenceFinished: true);
         RotationAngle angle,
         int radius)
     {
-        // Native multiplies the positive half-wave, discards the fraction, then
+        // The game multiplies the positive half-wave, discards the fraction, then
         // restores sign. Shifting a negative product would round differently.
         return Trigonometry.MultiplySignedSine(radius, angle.ToByteAngle());
     }
 
     /// <summary>
-    /// Ports <c>$90:D1D6-$D1FB</c>: after horizontal spark movement, a previous X more than
+    /// After horizontal spark movement, a previous X more than
     /// 15 pixels behind Samus is pulled to 15 behind, in either direction.
     /// </summary>
     private static void CapPreviousX(SamusState samus, FixedPosition<RoomPixels> checkpoint)
@@ -1073,13 +1073,13 @@ false,             CrashSequenceFinished: true);
     }
 
     /// <summary>
-    /// Ports <c>$90:D2A3-$D2B6</c>: after vertical spark movement, a previous Y more than 14
+    /// After vertical spark movement, a previous Y more than 14
     /// pixels below Samus is pulled to 14 below.
     /// </summary>
     private static void CapPreviousY(SamusState samus, FixedPosition<RoomPixels> checkpoint)
     {
         int delta = CoordinateAxis.Wrap(samus.Position.Y.Whole - samus.PeekPreviousPositionWords(checkpoint).Y);
-        // CMP #$FFF2 / BPL: the sign of delta - $FFF2, which is delta + 14 in sixteen bits.
+        // The comparison takes the sign of delta + 14 in sixteen bits.
         if (WordWrap.Signed(delta + 14) < 0)
             samus.WritePreviousYPosition(CoordinateAxis.Wrap(samus.Position.Y.Whole + 14));
     }
@@ -1126,7 +1126,7 @@ false,             CrashSequenceFinished: true);
             samus.Kinematics.YSpeed.Fraction) + acceleration);
         samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(WordWrap.Unsigned(SixteenSixteen.WholeOf(speed)), WordWrap.Unsigned(speed));
 
-        // The native clamp operates on a temporary displacement, not stored velocity.
+        // The clamp operates on a temporary displacement, not stored velocity.
         // Keep accumulating the wrapped speed words even after movement reaches its cap.
         uint displacementSpeed = WordWrap.Signed(samus.Kinematics.YSpeed.Whole - 14) >= 0
             ? SixteenSixteen.Compose(14, samus.Kinematics.YSpeed.Fraction)
@@ -1136,7 +1136,7 @@ false,             CrashSequenceFinished: true);
             samus.Kinematics,
             upwardDisplacement);
 
-        // `$90:D261-$D29F` temporarily negates the signed result, clamps only a positive
+        // The upward move temporarily negates the signed result, clamps only a positive
         // upward magnitude at 15 whole pixels while preserving its fraction, then negates
         // it back before the room move. If external Y is strong enough to reverse motion
         // downward, the temporary value is negative and deliberately bypasses this clamp.
@@ -1148,7 +1148,7 @@ false,             CrashSequenceFinished: true);
                 (15u << 16) | WordWrap.Unsigned(collisionMagnitude)));
             upwardDisplacement = unchecked(-collisionMagnitude);
         }
-        // Shinespark's native solid-enemy branch sets collision and returns without
+        // Shinespark's solid-enemy branch sets collision and returns without
         // adding the clipped distance to Y. The ordinary upward mover instead advances
         // to the enemy boundary; using it here shifts the entire crash/recovery anchor.
         SolidEnemyCollisionResult enemy = SamusSolidEnemyCollision.Probe(
@@ -1162,7 +1162,7 @@ false,             CrashSequenceFinished: true);
     }
 
     /// <summary>
-    /// Mutable storage corresponding to one of native fixed projectile slots three/four.
+    /// Mutable storage corresponding to one of fixed projectile slots three/four.
     /// It is deliberately private so callers cannot manufacture a live visual projectile.
     /// </summary>
     internal sealed class ReleasedEchoSlot
@@ -1210,7 +1210,7 @@ false,             CrashSequenceFinished: true);
             Position = position;
         }
 
-        /// <summary>Zeroes the native drawing and position words after a viewport rejection.</summary>
+        /// <summary>Zeroes the drawing and position words after a viewport rejection.</summary>
         public void Clear()
         {
             Active = false;

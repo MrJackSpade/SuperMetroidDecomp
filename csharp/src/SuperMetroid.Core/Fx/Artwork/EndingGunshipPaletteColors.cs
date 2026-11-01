@@ -3,13 +3,13 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
-/// <summary>Original $8D:D6BA two-stage gunship reveal. Frames0..7 interpolate
+/// <summary>The two-stage gunship reveal. Frames0..7 interpolate
 /// white to dim with truncation; frames8..15 interpolate dim to bright with nearest
 /// rounding. Both have seven intervals. Dim channels are floor(bright*2/7), except
 /// frame7's final color, an independent boundary input. All256 original words confirm
 /// these rules. Supplied bright colors and independent edits remain presentation data.</summary>
-/// <remarks>The ending map uses source bytes0..2FF from$96:FE69 and blank tile8C
-/// elsewhere. Original$95:A82F character pixels selected by that map never reference
+/// <remarks>The ending map uses its first 768 source bytes and blank tile8C
+/// elsewhere. The character pixels selected by that map never reference
 /// palette5 slots0 or15. Retain only their specific source payloads (bright0000/0000,
 /// first-stage boundary0404) under #1165's nonsense exception: no visible color rule
 /// determines them, and reciting them would disguise the same data. Their temporal

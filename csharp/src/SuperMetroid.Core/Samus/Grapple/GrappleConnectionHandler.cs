@@ -1,26 +1,26 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
-/// <summary>Bank-$9B pose handlers named by the directional grapple connection records.</summary>
+/// <summary>Pose handlers named by the directional grapple connection records.</summary>
 public enum GrappleConnectionHandler
 {
-    /// <summary>Bank-$9B clockwise swing-pose connection handler at $9B:B9D9.</summary>
+    /// <summary>Clockwise swing-pose connection handler.</summary>
     SwingClockwise,
-    /// <summary>Bank-$9B anticlockwise swing-pose connection handler at $9B:B9E2.</summary>
+    /// <summary>Anticlockwise swing-pose connection handler.</summary>
     SwingAnticlockwise,
-    /// <summary>Bank-$9B standing up-right connection handler at $9B:B9EA.</summary>
+    /// <summary>Standing up-right connection handler.</summary>
     StandingUpRight,
-    /// <summary>Bank-$9B standing right connection handler at $9B:B9F3.</summary>
+    /// <summary>Standing right connection handler.</summary>
     StandingRight,
-    /// <summary>Bank-$9B standing down connection handler at $9B:B9FC.</summary>
+    /// <summary>Standing down connection handler.</summary>
     StandingDown,
-    /// <summary>Bank-$9B standing up-left connection handler at $9B:BA05.</summary>
+    /// <summary>Standing up-left connection handler.</summary>
     StandingUpLeft,
-    /// <summary>Bank-$9B crouching up-right connection handler at $9B:BA0E.</summary>
+    /// <summary>Crouching up-right connection handler.</summary>
     CrouchingUpRight,
-    /// <summary>Bank-$9B crouching right connection handler at $9B:BA17.</summary>
+    /// <summary>Crouching right connection handler.</summary>
     CrouchingRight,
-    /// <summary>Bank-$9B crouching down-left connection handler at $9B:BA20.</summary>
+    /// <summary>Crouching down-left connection handler.</summary>
     CrouchingDownLeft,
-    /// <summary>Bank-$9B crouching up-left connection handler at $9B:BA29.</summary>
+    /// <summary>Crouching up-left connection handler.</summary>
     CrouchingUpLeft,
 }

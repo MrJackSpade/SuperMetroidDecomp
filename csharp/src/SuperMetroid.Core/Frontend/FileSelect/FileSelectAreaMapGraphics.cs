@@ -10,7 +10,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>
-/// Tile and palette owners for the saved-game world map, from $81:A37C-$81:A58A.
+/// Tile and palette owners for the saved-game world map.
 /// Labels and transition windows are separate owners; this renders the unmasked BGs.
 /// </summary>
 public sealed class FileSelectAreaMapGraphics
@@ -21,13 +21,13 @@ public sealed class FileSelectAreaMapGraphics
     [field: NonSerialized]
     [AllowNull]
     private MapStaticPalettes Palettes { get => field ?? throw new InvalidOperationException("No area-map world colors are installed."); set; }
-    /// <summary>Installed world-label positions used when building OAM.</summary>
+    /// <summary>Installed world-label positions used when placing the screen's sprites.</summary>
     [NonSerialized] private WorldMapLabelPositions? labels;
     /// <summary>The installed sheets the world map's foreground and each area's background are pictured in (#1467).</summary>
     [NonSerialized] private InstalledSpriteSheets? worldSheets;
     /// <summary>The installed map sprite sheet the title and area labels draw from.</summary>
     [NonSerialized] private SpriteSheet? mapSheet;
-    /// <summary>Replaces label positions without changing the selected area or PPU state.</summary>
+    /// <summary>Replaces label positions without changing the selected area or display state.</summary>
     internal void BindLabels(WorldMapLabelPositions? content) => labels = content;
 
     /// <summary>Area-map graphics bound to every installed resource the file-select map draws.</summary>
@@ -89,7 +89,7 @@ public sealed class FileSelectAreaMapGraphics
         screen.BindWorldArtwork(catalog?.WorldArtwork);
     }
 
-    /// <summary>Replaces installed area palettes and refreshes CGRAM for the current selection.</summary>
+    /// <summary>Replaces installed area palettes and refreshes the colours for the current selection.</summary>
     private void BindPalettes(MapStaticPalettes? content)
     {
         Palettes = content;
@@ -105,7 +105,7 @@ public sealed class FileSelectAreaMapGraphics
         screen.BindScreenTiles(installed);
     }
 
-    /// <summary>Loads the selected area's installed world colors into menu CGRAM.</summary>
+    /// <summary>Loads the selected area's installed world colors into the menu's colours.</summary>
     private void LoadInstalledPalette(AreaId selectedArea)
     {
         Palettes.World(selectedArea).LoadTo(screen.Palette);

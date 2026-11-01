@@ -61,6 +61,12 @@ public sealed class ChargeFlarePlacements
                 ?? throw new InvalidDataException("Missing charge-flare placement document.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid charge-flare placement JSON.", error); }
+        // Deserialization runs each offset's signed-word range check in its setter, so a document
+        // holding an offset outside that range surfaces here as the setter's rejection.
+        catch (ArgumentOutOfRangeException error)
+        {
+            throw new InvalidDataException("A charge-flare placement offset is outside the signed 16-bit range.", error);
+        }
         int count = ChargeFlarePlacementDefinitions.DirectionCount;
         if (document.Version != ChargeFlarePlacementDefinitions.Version || document.Offsets is null || document.Offsets.Count != count * 2)
             throw new InvalidDataException("Charge-flare placement requires version 1 and all standing/running directions.");

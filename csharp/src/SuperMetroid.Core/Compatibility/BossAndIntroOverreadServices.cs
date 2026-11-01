@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// boss's service to that boss's fight; the opening cinematic hands the shell's to its fragments. Lifetime: the
 /// installation's, shared by every runtime and cinematic of the session.
 /// </summary>
+[CompatibilityService("Kraid's fingernails, Crocomire's volley and the intro egg shell read what lies past their authored data")]
 public sealed class BossAndIntroOverreadServices
 {
     /// <summary>Keeps every decoded service.</summary>

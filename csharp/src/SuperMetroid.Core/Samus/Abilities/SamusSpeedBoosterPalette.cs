@@ -17,8 +17,8 @@ internal static class SamusSpeedBoosterPalette
         if (source.Overrun is { } overrun)
         {
             IReadOnlyList<RgbColor> copied = overrunColours.Colours(overrun);
-            if (copied.Count != SamusPaletteDefinitions.Common.ColoursPerRow)
-                throw new InvalidDataException($"The Speed Booster step {overrun} copies {copied.Count} colours, not one suit row.");
+            if (copied.Count != SamusPaletteDefinitions.Common.ColoursPerSet)
+                throw new InvalidDataException($"The Speed Booster step {overrun} copies {copied.Count} colours, not one suit colour set.");
             for (int index = 0; index < copied.Count; index++)
                 colours.Suit.Write(index, copied[index]);
             return;

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>The colour each slot of each stock beam material palette is painted.</summary>
 internal static class BeamPaint
 {
-    /// <summary>Builds a sixteen-color beam material row from shared clear/white/black slots and the selected power, ice, wave, plasma, or Spazer paint.</summary>
+    /// <summary>Builds a sixteen-color beam colour set from shared clear/white/black slots and the selected power, ice, wave, plasma, or Spazer paint.</summary>
     internal static RgbColor Color(SamusBeamCombination selection, int color)
     {
         if (color == 0) return new RgbColor(0, 0, ClearTargetBlue);
@@ -31,8 +31,8 @@ internal static class BeamPaint
                 SamusBeamCombination.SpazerPlasma or
                 SamusBeamCombination.SpazerPlasmaWave or
                 SamusBeamCombination.SpazerPlasmaIce or
-                SamusBeamCombination.SpazerPlasmaIceWave => throw new InvalidOperationException($"{source} is not a beam palette row."),
-            _ => throw new InvalidOperationException($"{source} is not a beam palette row."),
+                SamusBeamCombination.SpazerPlasmaIceWave => throw new InvalidOperationException($"{source} is not a single beam's paint."),
+            _ => throw new InvalidOperationException($"{source} is not a single beam's paint."),
         };
     }
 
@@ -102,7 +102,7 @@ internal static class BeamPaint
         return new RgbColor(level, 0, level);
     }
 
-    /// <summary>Interpolates Plasma's green ramp and the brighter green-white accent row.</summary>
+    /// <summary>Interpolates Plasma's green ramp and the brighter green-white accent colours.</summary>
     private static RgbColor Plasma(int color)
     {
         if (color is >= 2 and <= 4)

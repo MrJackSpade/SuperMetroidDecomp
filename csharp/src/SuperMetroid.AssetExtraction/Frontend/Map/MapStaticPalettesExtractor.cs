@@ -25,7 +25,7 @@ internal static class MapStaticPalettesExtractor
         for (int selected = 0; selected < FileSelectMapDefinitions.AreaCount; selected++)
         {
             var colors = new SnesCgram(); CartridgePaletteImporter.LoadToCgram(colors, bus, MapSourceDefinitions.Menu.Colors);
-            for (int row = 0; row < FileSelectEntryColourDefinitions.BlackRows; row++)
+            for (int row = 0; row < FileSelectEntryColourDefinitions.BlackSets; row++)
                 new CgramPalettes(colors).BackgroundRow(row).Write(FileSelectEntryColourDefinitions.BlackColour, RgbColor.Black);
             for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
             {

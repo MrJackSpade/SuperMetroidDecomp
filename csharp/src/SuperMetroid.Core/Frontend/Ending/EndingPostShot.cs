@@ -62,15 +62,15 @@ internal sealed class EndingPostShot
     }
 
     /// <summary>Fades one colour group from its captured colours using the 32-step component progression.</summary>
-    private void ApplyFade(ColourRun row, int elapsed)
+    private void ApplyFade(ColourRun group, int elapsed)
     {
         int remaining = EndingPostShotDefinitions.FadeFrames - elapsed;
-        ReadOnlySpan<RgbColor> source = sourceColours.Of(row);
-        for (int colour = 0; colour < row.Count; colour++)
+        ReadOnlySpan<RgbColor> source = sourceColours.Of(group);
+        for (int colour = 0; colour < group.Count; colour++)
         {
             // The 8.8 accumulator subtracts component<<3 on every call;
             // taking the high byte is exactly floor(component * remaining / 32).
-            row.Write(colour, source[colour].Map((_, channel) => channel * remaining / EndingPostShotDefinitions.FadeFrames));
+            group.Write(colour, source[colour].Map((_, channel) => channel * remaining / EndingPostShotDefinitions.FadeFrames));
         }
     }
 

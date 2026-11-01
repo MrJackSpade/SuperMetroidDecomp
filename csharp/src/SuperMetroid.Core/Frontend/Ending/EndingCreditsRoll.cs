@@ -110,15 +110,15 @@ internal sealed class EndingCreditsRoll
     /// <summary>Fades one post-credits colour group toward its authored colours with 8.8 component truncation.</summary>
     private void ApplyPostCreditsPaletteRange(ScreenColourGroup group, int step)
     {
-        ColourRun row = screen.Palette.Colours(group);
+        ColourRun colours = screen.Palette.Colours(group);
         // The authored targets are read without replacing the current fade state.
         ReadOnlySpan<RgbColor> targets = _stage.StaticScreen(EndingPaletteId.PostCredits).Colours(group);
         // E110 saves Intro4 as its target, clears colors $20-$2F, then E158 runs the
         // shared 8CB2 component accumulator 32 times. Each increment is component<<3
         // in 8.8 precision; composing takes only its high byte, preserving truncation.
-        for (int colour = 0; colour < row.Count; colour++)
+        for (int colour = 0; colour < colours.Count; colour++)
         {
-            row.Write(colour, targets[colour].Map((_, channel) => EightEight.Multiply(channel << 3, step)));
+            colours.Write(colour, targets[colour].Map((_, channel) => EightEight.Multiply(channel << 3, step)));
         }
     }
 

@@ -27,7 +27,7 @@ internal static class WreckedShipPowerPaint
             _ => throw new ArgumentOutOfRangeException(nameof(set), set, "The Wrecked Ship's power-on does not paint this set."),
         };
     }
-    /// <summary>Builds shared gold, machinery, indicator, and neutral inks for the common row.</summary>
+    /// <summary>Builds shared gold, machinery, indicator, and neutral inks for the HUD set.</summary>
     private static RgbColor Common(int ink) => ink switch
     {
         >= 1 and <= 3 => Gold(ink - 1),

@@ -93,11 +93,11 @@ internal sealed class EndingZebesExplosion
     }
 
     /// <summary>Scales one colour group of the explosion's colours from those captured when the crossfade began.</summary>
-    private void ApplyExplosionFade(ColourRun row, int factor)
+    private void ApplyExplosionFade(ColourRun group, int factor)
     {
         ReadOnlySpan<RgbColor> source = (explosionFadeSource ?? throw new InvalidOperationException(
-            "The explosion crossfade has not captured its colours.")).Of(row);
-        for (int colour = 0; colour < row.Count; colour++)
-            row.Write(colour, source[colour].Map((_, channel) => channel * factor / EndingExplosionFadeDefinitions.Steps));
+            "The explosion crossfade has not captured its colours.")).Of(group);
+        for (int colour = 0; colour < group.Count; colour++)
+            group.Write(colour, source[colour].Map((_, channel) => channel * factor / EndingExplosionFadeDefinitions.Steps));
     }
 }

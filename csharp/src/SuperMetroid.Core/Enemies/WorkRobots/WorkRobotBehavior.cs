@@ -25,7 +25,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>Allocates lasers from the common enemy projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Writes the shared animated robot palette into its OBJ color row.</summary>
+    /// <summary>Writes the shared animated robot palette into its OBJ colour set.</summary>
     private readonly EnemyPresentation _presentation;
 
     /// <summary>Whether Phantoon's area-boss bit is set, which powers the work robots.</summary>

@@ -33,9 +33,9 @@ internal static class SamusColorPresentationContractChecks
                     body.Apply(colours, new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
                         (SamusSuit)3, 0));
                     body.Resolve(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
-                        SamusSuit.Gravity, 3), SamusPaletteDefinitions.Common.ColoursPerRow - 1);
+                        SamusSuit.Gravity, 3), SamusPaletteDefinitions.Common.ColoursPerSet - 1);
                     body.Resolve(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
-                        SamusSuit.Gravity, 3), SamusPaletteDefinitions.Common.ColoursPerRow);
+                        SamusSuit.Gravity, 3), SamusPaletteDefinitions.Common.ColoursPerSet);
                     suit.Apply(run, SamusSuit.Gravity);
                     suit.Apply(run, (SamusSuit)int.MaxValue);
                     charge.ApplyCharge(colours, false, SamusSuit.Gravity, SamusChargePaletteDefinitions.ChargeSteps - 1);
@@ -45,7 +45,7 @@ internal static class SamusColorPresentationContractChecks
                     hurt.Resolve(SamusHurtColorVariant.Intro, SamusHurtColorFormat.ColorsPerPalette - 1);
                     hurt.Resolve((SamusHurtColorVariant)int.MaxValue, 0);
                     hyper.Resolve(SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount - 1,
-                        SamusPaletteDefinitions.Common.ColoursPerRow - 1);
+                        SamusPaletteDefinitions.Common.ColoursPerSet - 1);
                     hyper.Resolve(SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount, 0);
                     visor.Resolve(SamusVisorColorFormat.ColorCount - 1);
                     visor.Resolve(SamusVisorColorFormat.ColorCount);

@@ -16,7 +16,7 @@ public sealed class InstalledRoomPlmColoredDoorVisuals
         Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[4];
         foreach (var frame in ColoredDoorCaps.All.OrderBy(item => ColoredDoorCaps.VisualId(item.Draw), StringComparer.Ordinal))
         {
-            for (int row = 0; row < appearances.Length; row++) appearances[row] = GetAppearance(frame.Draw, row);
+            for (int block = 0; block < appearances.Length; block++) appearances[block] = GetAppearance(frame.Draw, block);
             content.AppendName("frame", ColoredDoorCaps.VisualId(frame.Draw));
             content.Append("runs", 1);
             content.AppendAppearances("blocks", appearances);

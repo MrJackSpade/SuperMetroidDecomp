@@ -13,7 +13,7 @@ public static class SamusPaletteDefinitions
     public static class Common
     {
         /// <summary>The colours in each of Samus's colour sets: her suit's, her beams' and every palette her effects show.</summary>
-        public const int ColoursPerRow = 16;
+        public const int ColoursPerSet = 16;
     }
 
     /// <summary>Shared visor colors used by room animation and the X-ray Scope.</summary>
@@ -78,23 +78,23 @@ public static class SamusPaletteDefinitions
 
     /// <summary>Two independently timed palette streams used by Crystal Flash.</summary>
     /// <remarks>
-    /// The stock body colors are six ten-word subrows,
+    /// The stock body colors are six ten-word cycle steps,
     /// <c>r = 0..5</c>. Color zero is always
-    /// 14336; colors 1..9 in each subrow are the same grayscale word
+    /// 14336; colors 1..9 in each step are the same grayscale word
     /// with every channel at <c>16 + floor(11*min(r,6-r)/3)</c>. This yields channel
     /// levels 16, 19, 23, 27, 23, 19 and matches all 60 words in the
-    /// original data. The body pointer program selects rows
+    /// original data. The body pointer program selects steps
     /// 0,1,2,3,4,5,4,3,2,1 and copies only ten colors per transition;
     /// the following six bubble colors have a separate cursor and timer.
     /// Keep both streams live for the stock presentation. Body-color
     /// investigation: #625 / #902.
-    /// The six bubble colors follow each row's ten body colors.
+    /// The six bubble colors follow each step's ten body colors.
     /// For bubble color <c>c = 0..5</c>, let
     /// <c>k = (c-r+6)%6</c> and <c>q = k + (k &gt;= 3 ? 1 : 0)</c>.
     /// The stock BGR555 word is 32767 less 1056 times <c>q</c>, except
     /// <c>r = 5, c = 0</c> is 32767 rather than 31711.
     /// All 36 words, including that authored exception, match the
-    /// original data. The bubble cursor visits rows 0..5 and wraps
+    /// original data. The bubble cursor visits steps 0..5 and wraps
     /// independently of the body records. Bubble-color investigation:
     /// #625 / #903.
     /// </remarks>

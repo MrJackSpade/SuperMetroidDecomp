@@ -294,9 +294,9 @@ internal static class SamusOverreadDecoding
     /// </summary>
     private static Dictionary<string, IReadOnlyList<PaletteRgb5>> SpeedBoosterOverrunColours(IImportCartridgeSource cartridge) => new()
     {
-        [SpeedBoosterPaletteOverrun.FirstStepPastCycle.ToString()] = [.. Enumerable.Range(0, SamusPaletteDefinitions.Common.ColoursPerRow)
+        [SpeedBoosterPaletteOverrun.FirstStepPastCycle.ToString()] = [.. Enumerable.Range(0, SamusPaletteDefinitions.Common.ColoursPerSet)
             .Select(_ => PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(SamusOverreadSourceDefinitions.ExpansionOpenBusWord)))],
-        [SpeedBoosterPaletteOverrun.SecondStepPastCycle.ToString()] = [.. Enumerable.Range(0, SamusPaletteDefinitions.Common.ColoursPerRow)
+        [SpeedBoosterPaletteOverrun.SecondStepPastCycle.ToString()] = [.. Enumerable.Range(0, SamusPaletteDefinitions.Common.ColoursPerSet)
             .Select(index => PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(cartridge.ReadCartridgeWord(
                 SamusOverreadSourceDefinitions.SpeedBoosterGrappleCode + index * RgbColor.ByteCount))))],
     };

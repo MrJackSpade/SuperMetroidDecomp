@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class GoldenTorizoHealthPaint
 {
     /// <summary>Checks all eight palette bands and sixteen colors against this front or rear paint composition.</summary>
-    internal static bool Matches(RgbColor[][] rows, bool rear)
+    internal static bool Matches(RgbColor[][] frames, bool rear)
     {
         for (int frame = 0; frame <= Intervals; frame++)
         for (int color = 0; color < 16; color++)
-            if (rows[frame][color] != Color(frame, color, rear)) return false;
+            if (frames[frame][color] != Color(frame, color, rear)) return false;
         return true;
     }
 

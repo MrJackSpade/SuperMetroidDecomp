@@ -9,12 +9,12 @@ public sealed class InstalledBeamPalettes
     /// <summary>Only selected RGB5 words that differ from calculated stock beam paint.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> palettes = new();
     /// <summary>Stores independently edited colors while deriving unchanged words from stock paint.</summary>
-    internal InstalledBeamPalettes(RgbColor[][] rows)
+    internal InstalledBeamPalettes(RgbColor[][] selections)
     {
-        for (int index = 0; index < rows.Length; index++)
+        for (int index = 0; index < selections.Length; index++)
         for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)
-            if (rows[index][color] != BeamPaint.Color(SamusBeamCombinations.FromTableIndex(index), color))
-                palettes.Add(new ColourCell(index, color), rows[index][color]);
+            if (selections[index][color] != BeamPaint.Color(SamusBeamCombinations.FromTableIndex(index), color))
+                palettes.Add(new ColourCell(index, color), selections[index][color]);
     }
 
     /// <summary>Gets an edited beam color when supplied, otherwise its calculated stock value.</summary>

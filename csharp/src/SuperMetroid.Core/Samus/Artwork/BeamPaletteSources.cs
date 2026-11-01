@@ -2,10 +2,10 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Which beam row each palette slot copies its colour from, and which slots are black.</summary>
+/// <summary>Which single beam's paint each palette slot copies its colour from, and which slots are black.</summary>
 public static class BeamPaletteSources
 {
-    /// <summary>The beam selection picks Ice before Plasma before Wave before Spazer before Power; the first two colors alias the common Power inputs in all five rows.</summary>
+    /// <summary>The beam selection picks Ice before Plasma before Wave before Spazer before Power; the first two colors alias the common Power inputs in all five beams' paints.</summary>
     internal static SamusBeamCombination ColorSourceSelection(SamusBeamCombination selection, int color)
     {
         if (color < 2) return SamusBeamCombination.Power;

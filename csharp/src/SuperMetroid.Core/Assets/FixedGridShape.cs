@@ -3,8 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// The fixed dimensions of an editable row-major document grid, such as animation frames of
-/// palette colors: an exact number of rows, each holding an exact number of entries.
+/// The fixed dimensions of an editable row-major document grid, such as an animation's colours
+/// with one frame per row: an exact number of rows, each holding an exact number of entries.
 /// </summary>
 /// <param name="Rows">Required number of rows.</param>
 /// <param name="Columns">Required number of entries in every row.</param>

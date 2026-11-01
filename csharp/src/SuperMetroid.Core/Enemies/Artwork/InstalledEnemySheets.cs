@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// The installed pre-coloured enemy sheets (#1392), by the room graphics set that loads an enemy and the enemy: the
-/// sheet shows the enemy's frames in the colours its palette row holds once that set has loaded. Each set also has a
+/// sheet shows the enemy's frames in the colours its colour set holds once that graphics set has loaded. Each set also has a
 /// sheet for each tile base its spawned objects (enemy projectiles and room sprite objects) draw at.
 /// </summary>
 public sealed class InstalledEnemySheets : IEnemySheetSource

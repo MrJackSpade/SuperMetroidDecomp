@@ -48,7 +48,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Eight-frame countdown for the singleton graphics-drawn palette hook.</summary>
     internal WrappingCountdown MagdollitePaletteAnimationTimer { get; set; }
-    /// <summary>The palette cycle's current row, 0 through <see cref="MagdollitePaletteDefinitions.FrameCount"/> minus one; each step advances it around the cycle.</summary>
+    /// <summary>The palette cycle's current frame, 0 through <see cref="MagdollitePaletteDefinitions.FrameCount"/> minus one; each step advances it around the cycle.</summary>
     internal int MagdollitePaletteFrame { get; set; }
     /// <summary>The colours the final initialized Magdollite record draws in, whose set the cycle animates.</summary>
     internal SpriteColouring MagdolliteColouring { get; set; } = SharedSpriteColouring.Common;

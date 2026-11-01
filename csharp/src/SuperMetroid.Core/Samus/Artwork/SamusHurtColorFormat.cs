@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public static class SamusHurtColorFormat
 {
     /// <summary>Number of colors in one sprite palette: sixteen, including the transparent first slot.</summary>
-    public const int ColorsPerPalette = SamusPaletteDefinitions.Common.ColoursPerRow;
+    public const int ColorsPerPalette = SamusPaletteDefinitions.Common.ColoursPerSet;
 }

@@ -56,19 +56,19 @@ public sealed class MapPaletteCycle
         return durationEdits.ContainsKey(frame) ? durationEdits[frame] : StockDuration(frame);
     }
 
-    /// <summary>Copies the selected frame's sixteen colours over <paramref name="row"/> without advancing time or requesting audio.</summary>
-    /// <param name="row">The screen row the highlights colour, changed in place.</param>
+    /// <summary>Copies the selected frame's sixteen colours over <paramref name="highlightColours"/> without advancing time or requesting audio.</summary>
+    /// <param name="highlightColours">The screen colour set the highlights are coloured by, changed in place.</param>
     /// <param name="frame">Zero-based frame index, strictly below <see cref="FrameCount"/>.</param>
-    /// <remarks>Writes all sixteen colours including the row's first colour.</remarks>
+    /// <remarks>Writes all sixteen colours including the set's first colour.</remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside the selected cycle.</exception>
-    /// <exception cref="ArgumentException"><paramref name="row"/> does not hold sixteen colours.</exception>
-    public void Apply(ColourRun row, int frame)
+    /// <exception cref="ArgumentException"><paramref name="highlightColours"/> does not hold sixteen colours.</exception>
+    public void Apply(ColourRun highlightColours, int frame)
     {
         CheckFrame(frame);
-        if (row.Count != MapPaletteCycleFormat.ColorCount)
-            throw new ArgumentException($"A highlight cycle colours {MapPaletteCycleFormat.ColorCount} colours.", nameof(row));
+        if (highlightColours.Count != MapPaletteCycleFormat.ColorCount)
+            throw new ArgumentException($"A highlight cycle colours {MapPaletteCycleFormat.ColorCount} colours.", nameof(highlightColours));
         for (int color = 0; color < MapPaletteCycleFormat.ColorCount; color++)
-            row.Write(color,
+            highlightColours.Write(color,
                 reverseColorEdits.TryGetValue(new ColourCell(frame, color), out RgbColor edited)
                     ? edited : colors[Phase(frame)][color]);
     }

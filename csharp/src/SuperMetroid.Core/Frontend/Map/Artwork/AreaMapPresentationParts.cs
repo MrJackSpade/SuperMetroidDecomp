@@ -111,7 +111,7 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Mother Brain health-selected palette artwork, separate from rainbow and room-color families.</summary>
     public required MotherBrainHealthPalettePresentation MotherBrainHealthPalette { get; init; }
 
-    /// <summary>Mother Brain rainbow, drain, revival, normal-restoration, and fake-death colors; older overrides inherit newly introduced rows from stock.</summary>
+    /// <summary>Mother Brain rainbow, drain, revival, normal-restoration, and fake-death colors; older overrides inherit newly introduced colour tables from stock.</summary>
     public required MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; init; }
 
     /// <summary>Mother Brain arena color presentation, separate from boss health and rainbow palettes.</summary>

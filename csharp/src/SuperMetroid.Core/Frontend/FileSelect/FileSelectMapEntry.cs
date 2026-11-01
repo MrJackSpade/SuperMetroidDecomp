@@ -71,7 +71,7 @@ public sealed class FileSelectMapEntry
     /// <summary>Makes the colour the entry fade holds black in each of the first background sets.</summary>
     internal static void BlackenEntryColours(ScreenPalette palette)
     {
-        for (int set = 0; set < FileSelectEntryColourDefinitions.BlackRows; set++)
+        for (int set = 0; set < FileSelectEntryColourDefinitions.BlackSets; set++)
             Ensure.NotNull(palette).BackgroundSets.Set(set).Write(FileSelectEntryColourDefinitions.BlackColour, RgbColor.Black);
     }
 

@@ -28,7 +28,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
 
     /// <summary>Supplies installed auxiliary colors for the face-block animation.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Provides the live OBJ palette rows written by the graphics hook.</summary>
+    /// <summary>Provides the live OBJ colour sets written by the graphics hook.</summary>
     private readonly EnemyPresentation _presentation;
 
     /// <summary>Exposes the door-transition pause condition for the shared graphics hook.</summary>
@@ -147,14 +147,14 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     private static int AbsoluteFaceBlockDelta(int delta) =>
         WordWrap.Signed(delta) < 0 ? WordWrap.Unsigned(-delta) : Ensure.BetweenInclusive(0, ushort.MaxValue, delta);
 
-    /// <summary>Selects the block's OBJ palette row as the singleton graphics-hook target.</summary>
+    /// <summary>Selects the block's OBJ colour set as the singleton graphics-hook target.</summary>
     private void InstallBlueBrinstarFaceBlockPaletteHook(RoomEnemySlot slot)
     {
         _blueBrinstarFaceBlockPaletteHookInstalled = true;
 
         // `((palette_index * 16) & 0xFF00) >> 8`, followed by `(offset >> 1) + 137`,
         // simplifies to sprite palette N color nine. Keep that palette meaning explicit so a
-        // debugger sees an actual palette row rather than a mysterious byte offset.
+        // debugger sees an actual colour set rather than a mysterious byte offset.
         _blueBrinstarFaceBlockColouring = slot.Colouring;
     }
 

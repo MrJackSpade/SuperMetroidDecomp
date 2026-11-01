@@ -9,7 +9,7 @@ internal static class EnemyAuxiliaryColors
     internal static string ContentIdentity(EnemyAuxiliaryColorCatalog colors) =>
         SelectedPresentationHash.Create("enemy-auxiliary-colors-v1", content =>
         {
-            Span<RgbColor> row = stackalloc RgbColor[16];
+            Span<RgbColor> frameColours = stackalloc RgbColor[16];
             for (int tag = 0; tag < EnemyAuxiliaryColorDefinitions.All.Length; tag++)
             {
                 EnemyAuxiliaryColourFrames family = FamilyFor(colors, EnemyAuxiliaryColorDefinitions.All[tag].Id);
@@ -17,8 +17,8 @@ internal static class EnemyAuxiliaryColors
                 content.Append("frames", family.FrameCount);
                 for (int frame = 0; frame < family.FrameCount; frame++)
                 {
-                    for (int color = 0; color < family.ColorCount; color++) row[color] = family.Color(frame, color);
-                    content.AppendColors("row", row[..family.ColorCount]);
+                    for (int color = 0; color < family.ColorCount; color++) frameColours[color] = family.Color(frame, color);
+                    content.AppendColors("row", frameColours[..family.ColorCount]);
                 }
             }
         });

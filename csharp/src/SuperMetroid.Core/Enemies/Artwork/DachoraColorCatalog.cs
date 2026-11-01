@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// </summary>
 public sealed class DachoraColorCatalog
 {
-    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    /// <summary>Canonical selected RGB5 colors and ordered animation frames, independent of JSON encoding.</summary>
     public string ContentIdentity => DachoraColors.ContentIdentity(this);
 
     /// <summary>The selected normal palette and its speed and shine deviations.</summary>

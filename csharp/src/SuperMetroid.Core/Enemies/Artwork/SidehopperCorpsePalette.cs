@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// The corpse target and the drain's last row share corpse paint. Slot5 is white; slots8..15
+/// The corpse target and the drain's last stage share corpse paint. Slot5 is white; slots8..15
 /// interpolate RGB5 endpoints to nearest over seven intervals. The auxiliary
 /// import includes only slots0..14; its stock paint has a separate calculated owner. This helper preserves independently supplied15-color content. The standalone16-word target uses reviewed paints and material composition.
 /// </summary>
@@ -15,7 +15,7 @@ internal sealed class SidehopperCorpsePalette
     /// <summary>Uses reviewed stock paint definitions for a matching sixteen-color target.</summary>
     private readonly bool stockTarget;
     /// <summary>Number of colors in the imported fifteen-color prefix or full target palette.</summary>
-    [IntegerQuantity("number of colors in the palette row")]
+    [IntegerQuantity("number of colors in the palette")]
     internal int Count { get; }
 
     /// <summary>Preserves supplied paint unless its gradient has one exact reproducible endpoint.</summary>

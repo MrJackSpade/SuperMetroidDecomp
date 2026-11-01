@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// The installed pre-coloured enemy sheets (#1392): one sheet per enemy as a room graphics set loads it, with the frames
-/// its behaviour shows, coloured in the palette its row holds once the set has loaded. Identical sheets are installed
+/// its behaviour shows, coloured in the colours its colour set holds once the graphics set has loaded. Identical sheets are installed
 /// once; the manifest names each set's sheet for each of its enemies.
 /// </summary>
 public static class EnemySheetDefinitions

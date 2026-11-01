@@ -49,10 +49,10 @@ public enum ScreenColourGroup
     /// <summary>The opening's Mother Brain colours, which her hurt flash replaces.</summary>
     IntroMotherBrain,
 
-    /// <summary>The gameplay flashback's background colours: its first background row and the first colours of the next.</summary>
+    /// <summary>The gameplay flashback's background colours: its first background colour set and the first colours of the next.</summary>
     IntroGameplayBackground,
 
-    /// <summary>The gameplay flashback's first background row, which the flashback clears as it begins.</summary>
+    /// <summary>The gameplay flashback's first background colour set, which the flashback clears as it begins.</summary>
     IntroGameplayClearedBackground,
 
     /// <summary>The gameplay flashback's room colours.</summary>

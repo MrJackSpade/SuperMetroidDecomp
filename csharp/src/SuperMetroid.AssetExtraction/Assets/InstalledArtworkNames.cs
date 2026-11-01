@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Assets;
 
 /// <summary>Turns an identity's name into the lower-case, hyphenated form installed file names use.</summary>
 internal static class InstalledArtworkNames

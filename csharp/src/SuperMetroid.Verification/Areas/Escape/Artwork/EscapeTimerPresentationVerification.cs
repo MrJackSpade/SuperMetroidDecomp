@@ -164,7 +164,7 @@ internal static class EscapeTimerPresentationVerification
                     address < EscapeTimerPresentationDefinitions.DigitPointerTable + 10 * sizeof(ushort),
                 address => $"Escape timer reread compiled digit pointer at ${address:X6}."));
         AssertTrue(nativeSheet.Pixels.AsSpan().SequenceEqual(guardedSheet.Pixels) &&
-                SpriteSheet.Write(nativeSheet.Manifest).AsSpan().SequenceEqual(SpriteSheet.Write(guardedSheet.Manifest)),
+                SpriteSheetManifestWriter.Write(nativeSheet.Manifest).AsSpan().SequenceEqual(SpriteSheetManifestWriter.Write(guardedSheet.Manifest)),
             "timer sheet composition selects the same spritemaps without rereading the pointer table");
         Console.WriteLine("Escape timer digit pointers: ten cartridge words and a sheet composed without rereading the pointer table.");
     }

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Assets;
 
 /// <summary>The standard sprite artwork shared by gameplay, the intro, and Ceres destruction.</summary>
 public static class StandardObjectArtworkFormat

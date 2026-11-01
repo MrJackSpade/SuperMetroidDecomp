@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Assets;
 
 /// <summary>
 /// The layout of an artwork's character sheet: characters run sixteen to a row, so a character's number is its row times

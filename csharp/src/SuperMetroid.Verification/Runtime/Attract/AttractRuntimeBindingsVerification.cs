@@ -1,6 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Runtime;
@@ -12,6 +11,7 @@ namespace SuperMetroid.Verification.Runtime.Attract;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Assets;
 
 /// <summary>Checks installed artwork, palette, random state, and cheat-option ownership in attract and selected play.</summary>
 internal static class AttractRuntimeBindingsVerification

@@ -14,6 +14,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Assets;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Assets;
 
 /// <summary>Checks installed standard OBJ characters and their override path through gameplay setup's selection.</summary>
 internal static class StandardObjectArtworkVerification

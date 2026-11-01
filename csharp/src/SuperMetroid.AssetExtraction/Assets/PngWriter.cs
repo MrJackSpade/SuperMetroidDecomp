@@ -1,7 +1,8 @@
 using System.Buffers.Binary;
 using System.Text;
+using SuperMetroid.Core;
 
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Assets;
 
 /// <summary>
 /// Minimal RGBA PNG encoder used to keep the reverse-engineering tools dependency-free.

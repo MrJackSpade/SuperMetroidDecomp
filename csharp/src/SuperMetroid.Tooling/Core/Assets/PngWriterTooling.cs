@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.IO.Compression;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Assets;
 
 namespace SuperMetroid.Core.Assets;
 

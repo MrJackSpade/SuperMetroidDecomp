@@ -332,7 +332,7 @@ internal static class RoomBackgroundsFixtures
             Frames = frames,
             PartImages = [],
         };
-        return SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(document), writable: false), name, size, image,
+        return SpriteSheet.Load(new MemoryStream(SpriteSheetManifestWriter.Write(document), writable: false), name, size, image,
             indices, priorities, partGroups);
     }
 

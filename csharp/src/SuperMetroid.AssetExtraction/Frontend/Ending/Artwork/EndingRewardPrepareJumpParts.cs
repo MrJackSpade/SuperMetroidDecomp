@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Assets;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 

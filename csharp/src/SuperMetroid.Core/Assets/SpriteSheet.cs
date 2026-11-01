@@ -180,11 +180,8 @@ public sealed class SpriteSheet
         }
     }
 
-    /// <summary>Serializes a sheet manifest.</summary>
-    public static byte[] Write(SpriteSheetDocument document) => JsonSerializer.SerializeToUtf8Bytes(Ensure.NotNull(document), Options);
-
-    /// <summary>Camel-case manifest fields; unknown fields are rejected.</summary>
-    private static readonly JsonSerializerOptions Options = new()
+    /// <summary>Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings.</summary>
+    internal static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,

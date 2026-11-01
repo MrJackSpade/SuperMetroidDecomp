@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Frontend.Intro;
 using Pose = SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingRewardSpriteFrame;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Assets;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 

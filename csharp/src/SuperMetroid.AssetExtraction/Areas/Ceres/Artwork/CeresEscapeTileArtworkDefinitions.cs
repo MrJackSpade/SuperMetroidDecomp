@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Assets;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 

@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Assets;
 
 /// <summary>Defines the gameplay base-palette files and their fixed dimensions.</summary>
 public static class GameplayBasePaletteFormat

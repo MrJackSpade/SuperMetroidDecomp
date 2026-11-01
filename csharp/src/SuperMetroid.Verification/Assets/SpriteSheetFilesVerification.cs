@@ -66,7 +66,7 @@ internal static class SpriteSheetFilesVerification
             {
                 Frames = composed.Manifest.Frames.Where(pair => pair.Key != "Digit.9").ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal),
             };
-            File.WriteAllBytes(Path.Combine(overrides, frames), SpriteSheet.Write(missing));
+            File.WriteAllBytes(Path.Combine(overrides, frames), SpriteSheetManifestWriter.Write(missing));
             AssertThrows<InvalidDataException>(() => SpriteSheetFiles.Load(stock, overrides), "a sheet override missing a frame fails loudly");
             File.Delete(Path.Combine(overrides, frames));
 

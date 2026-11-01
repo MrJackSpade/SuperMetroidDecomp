@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Runtime;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Assets;
 
 /// <summary>Checks installed gameplay CGRAM base colors, room-entry sprite restoration, and palette edits.</summary>
 internal static class GameplayBasePalettesVerification

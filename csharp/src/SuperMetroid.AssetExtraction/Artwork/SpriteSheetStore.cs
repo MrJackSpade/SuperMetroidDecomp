@@ -99,7 +99,7 @@ internal sealed class SpriteSheetStore
         RgbaPng.Write(image, composed.Size, composed.Pixels);
         using var palette = new MemoryStream();
         RgbaPng.Write(palette, composed.Size, PaletteImage(composed.PaletteIndices, composed.Priorities, composed.PartGroups));
-        return new(name, image.ToArray(), palette.ToArray(), SpriteSheet.Write(composed.Manifest));
+        return new(name, image.ToArray(), palette.ToArray(), SpriteSheetManifestWriter.Write(composed.Manifest));
     }
 
     /// <summary>Writes one encoded sheet's files and records their hashes.</summary>

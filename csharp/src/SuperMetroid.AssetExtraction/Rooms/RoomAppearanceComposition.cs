@@ -61,8 +61,8 @@ internal static class RoomAppearanceComposition
         (BgCharacterSet set, int first, int count) = characters;
         Ensure.LengthEqual(values, inputs.Length);
         AppearanceOption[] reaching = Ensure.NotNull(options).Reaching(set, first);
-        // The first animation by name that paints the characters and has selected a frame shows that frame there.
-        AnimationAppearance? animation = null;
+        // The first animation by name that paints the characters and has selected a frame shows that frame there; selected
+        // is its index in the inputs, or negative while none has.
         int selected = -1;
         foreach (AppearanceOption option in reaching)
         {
@@ -71,15 +71,12 @@ internal static class RoomAppearanceComposition
             int index = inputs.IndexOf(candidate);
             if (index < 0 || values[index] == RoomAppearanceValues.Loaded)
                 continue;
-            if (animation is null || ShowsBefore(candidate, animation))
-            {
-                animation = candidate;
+            if (selected < 0 || ShowsBefore(candidate, (AnimationAppearance)inputs[selected]))
                 selected = index;
-            }
         }
-        if (animation is not null)
+        if (selected >= 0)
         {
-            AppearanceOption? frame = options.Option(animation, values[selected]);
+            AppearanceOption? frame = options.Option(inputs[selected], values[selected]);
             if (frame is null || !frame.Upload.Covers(set, first))
             {
                 shown = default;

@@ -9,6 +9,21 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// </summary>
 public sealed class IntroFontCharacters : IntroFontAtlas
 {
+    /// <summary>Canonical opening-font PNG file name.</summary>
+    public const string FileName = "intro-font.png";
+
+    /// <summary>Required number of indexed PNG colors.</summary>
+    public const int ColorCount = 4;
+
+    /// <summary>Number of glyph tiles in each atlas row.</summary>
+    public const int TilesPerRow = 16;
+
+    /// <summary>Required PNG width in pixels.</summary>
+    public const int Width = TilesPerRow * IntroFontAtlasFormat.TileSize;
+
+    /// <summary>Required PNG height in pixels.</summary>
+    public const int Height = IntroFontAtlasFormat.TileCount / TilesPerRow * IntroFontAtlasFormat.TileSize;
+
     /// <summary>Installed planar bytes only when the supplied font differs from the compiled native glyphs.</summary>
     internal readonly byte[]? suppliedCharacters;
 
@@ -27,7 +42,7 @@ public sealed class IntroFontCharacters : IntroFontAtlas
     public static IntroFontCharacters Read(Stream png)
     {
         IndexedPngImage image = IndexedPng.Read(
-            png, new(IntroFontAtlasFormat.Width, IntroFontAtlasFormat.Height));
+            png, new(IntroFontCharacters.Width, IntroFontCharacters.Height));
         byte[] planar = SnesPlanarTileEncoder.Encode(
             image.Pixels, image.Size, IntroFontAtlasFormat.BitsPerPixel);
         if (planar.Length != IntroFontAtlasFormat.ByteCount)

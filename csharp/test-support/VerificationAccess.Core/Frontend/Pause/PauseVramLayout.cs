@@ -20,7 +20,7 @@ internal static class PauseVramLayout
 
     /// <summary>VMADD $2000-$2FFF (byte $4000): the map-object OBJ characters uploaded from <c>$B6:C000</c>.</summary>
     public static readonly PpuLayoutCell ObjectCharacters = new(nameof(ObjectCharacters), PpuLayoutRegion.Vram,
-        MapSpriteByteAddress / sizeof(ushort), SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteFormat.ByteCount / sizeof(ushort),
+        MapSpriteByteAddress / sizeof(ushort), SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSpriteFormat.ByteCount / sizeof(ushort),
         "4-bpp OBJ characters (map objects)", PpuMemoryLayout.Vram);
 
     /// <summary>VMADD $3000-$37FF: the map and equipment pages' BG1 64x32 tilemap.</summary>

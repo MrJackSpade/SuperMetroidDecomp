@@ -25,8 +25,7 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
     private CeresFlightCharacters(byte[] floorCharacters, byte[] floorMaps,
         byte[] objectCharacters, CeresFlightPalette palette,
         CeresFlightSpritePresentation sprites, CeresFlightActorPlacements actors)
-        : base(palette, actors, floorCharacters.Length / CeresFlightArtworkFormat.FloorCharacterBytes,
-            objectCharacters.Length / CeresFlightArtworkFormat.ObjectCharacterBytes)
+        : base(palette, actors, objectCharacters.Length / CeresFlightArtworkFormat.ObjectCharacterBytes)
     {
         FloorCharacters = floorCharacters;
         FloorMaps = floorMaps;
@@ -82,9 +81,9 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
         Ensure.NotNull(spritesJson);
         Ensure.NotNull(actorsJson);
         IndexedPngImage floorImage = IndexedPng.Read(floorPng,
-            new(CeresFlightArtworkFormat.FloorWidth, CeresFlightArtworkFormat.FloorHeight));
+            new(CeresFlightArtworkFileFormat.FloorWidth, CeresFlightArtworkFileFormat.FloorHeight));
         IndexedPngImage objects = IndexedPng.Read(objectPng,
-            new(CeresFlightArtworkFormat.ObjectWidth, CeresFlightArtworkFormat.ObjectHeight));
+            new(CeresFlightArtworkFileFormat.ObjectWidth, CeresFlightArtworkFileFormat.ObjectHeight));
         if (floorImage.Colours.Length != 256 || objects.Colours.Length != 16)
             throw new InvalidDataException("Ceres flight requires 256-color Mode-7 and 16-color OBJ PNGs.");
 
@@ -92,13 +91,13 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
         byte[] characters = SnesMode7TileEncoder.Encode(floorImage.Pixels, floorImage.Size);
         byte[] objectCharacters = SnesPlanarTileEncoder.Encode(objects.Pixels,
             objects.Size, 4);
-        if (characters.Length != CeresFlightArtworkFormat.FloorByteCount ||
+        if (characters.Length != CeresFlightArtworkFileFormat.FloorByteCount ||
             objectCharacters.Length != CeresFlightArtworkFormat.ObjectByteCount)
             throw new InvalidDataException("Ceres flight PNGs compile to unexpected DMA lengths.");
         return new CeresFlightCharacters(characters, map, objectCharacters,
             palette,
             CeresFlightSpritePresentation.Load(spritesJson),
-            CeresFlightActorPlacements.Load(actorsJson));
+            CeresFlightActorLayoutFile.Read(actorsJson));
     }
 
     /// <summary>The characters <paramref name="flight"/> was read with.</summary>
@@ -113,11 +112,11 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
     internal static byte[] ReadMaps(Stream mapJson)
     {
         CeresFlightMapDocument document = ReadMap(Ensure.NotNull(mapJson));
-        byte[] map = new byte[2 * CeresFlightArtworkFormat.MapCellsPerView];
-        for (int index = 0; index < CeresFlightArtworkFormat.MapCellsPerView; index++)
+        byte[] map = new byte[2 * CeresFlightArtworkFileFormat.MapCellsPerView];
+        for (int index = 0; index < CeresFlightArtworkFileFormat.MapCellsPerView; index++)
         {
             map[index] = checked((byte)document.FrontTiles[index]);
-            map[CeresFlightArtworkFormat.MapCellsPerView + index] =
+            map[CeresFlightArtworkFileFormat.MapCellsPerView + index] =
                 checked((byte)document.RearTiles[index]);
         }
         return map;
@@ -150,16 +149,16 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
         {
             throw new InvalidDataException("Invalid Ceres flight Mode-7 map JSON.", error);
         }
-        if (document.Version != CeresFlightArtworkFormat.Version ||
-            document.Width != CeresFlightArtworkFormat.MapWidth ||
-            document.Height != CeresFlightArtworkFormat.MapHeight ||
+        if (document.Version != CeresFlightArtworkFileFormat.Version ||
+            document.Width != CeresFlightArtworkFileFormat.MapWidth ||
+            document.Height != CeresFlightArtworkFileFormat.MapHeight ||
             !ValidView(document.FrontTiles) || !ValidView(document.RearTiles))
             throw new InvalidDataException(
                 "Ceres flight map requires two ordered 32x24 arrays of eight-bit tile indexes.");
         return document;
 
         static bool ValidView(int[]? tiles) =>
-            tiles is { Length: CeresFlightArtworkFormat.MapCellsPerView } &&
+            tiles is { Length: CeresFlightArtworkFileFormat.MapCellsPerView } &&
             tiles.All(tile => (uint)tile <= byte.MaxValue);
     }
 }

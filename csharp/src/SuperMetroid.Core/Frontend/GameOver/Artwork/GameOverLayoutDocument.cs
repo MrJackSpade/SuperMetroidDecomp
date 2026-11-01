@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 /// <remarks>Init-only properties retain caller-owned mutable arrays and dictionaries; the stream loader parses its own independent document.</remarks>
 public record GameOverLayoutDocument
 {
-    /// <summary>Schema version that must equal <see cref="GameOverPresentationDefinitions.Version"/>.</summary>
+    /// <summary>Schema version that must equal the version the import supports.</summary>
     [JsonPropertyOrder(1)]
     public required int Version { get; init; }
     /// <summary>Four named palette phases, each holding sixteen packed BGR555 words from 0 to 32767.</summary>

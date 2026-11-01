@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -22,10 +23,10 @@ internal static class CeresFlightScreenMemory
         // $BCCD writes all $4000 character bytes to $2119, fills every corresponding low
         // byte with tile $8C, then overwrites only one view's $300-byte map.
         var mode7 = new Mode7Vram(vram);
-        mode7.LoadCharacters(artwork.FloorCharacters.Span[..CeresFlightArtworkFormat.FloorByteCount]);
+        mode7.LoadCharacters(artwork.FloorCharacters.Span[..CeresFlightArtworkFileFormat.FloorByteCount]);
         mode7.FillMap(CeresFloorShotDefinitions.BlankTile, FloorSheetComposer.CellCount);
-        int slice = rear ? CeresFlightArtworkFormat.MapCellsPerView : 0;
-        mode7.LoadMap(CeresFlightCharacters.Of(artwork).FloorMaps.Span.Slice(slice, CeresFlightArtworkFormat.MapCellsPerView));
+        int slice = rear ? CeresFlightArtworkFileFormat.MapCellsPerView : 0;
+        mode7.LoadMap(CeresFlightCharacters.Of(artwork).FloorMaps.Span.Slice(slice, CeresFlightArtworkFileFormat.MapCellsPerView));
         new CeresVram(vram).ObjectCharacters.Load(artwork.ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount]);
         return vram.CaptureImage();
     }
@@ -55,13 +56,13 @@ internal static class CeresFlightScreenMemory
         var tiles = new BackgroundTile[CeresCinematicPictures.PlaneCells * CeresCinematicPictures.PlaneCells];
         for (int letter = 0; letter < flight.CaptionLettersShown; letter++)
             tiles[SpaceColonyCaptionDefinitions.Row * CeresCinematicPictures.PlaneCells + SpaceColonyCaption.Column(letter)] =
-                SpaceColonyCaptionTileDefinitions.Glyphs[SpaceColonyCaption.Character(letter)];
+                SpaceColonyCaptionTileDefinitions.Glyphs[CeresCinematicPictureSheetComposer.CaptionCharacter(letter)];
         if (flight.JapaneseCaptionShown)
         {
             ReadOnlySpan<BackgroundTile> japanese = SpaceColonyCaptionTileDefinitions.JapaneseTiles;
             for (int index = 0; index < japanese.Length; index++)
-                tiles[(SpaceColonyCaptionDefinitions.JapaneseRow + index / SpaceColonyCaptionDefinitions.JapaneseWidth) * CeresCinematicPictures.PlaneCells +
-                    SpaceColonyCaptionDefinitions.JapaneseColumn + index % SpaceColonyCaptionDefinitions.JapaneseWidth] = japanese[index];
+                tiles[(SpaceColonyCaptionDefinitions.JapaneseRow + index / CeresCinematicPictureSheetComposer.JapaneseWidth) * CeresCinematicPictures.PlaneCells +
+                    SpaceColonyCaptionDefinitions.JapaneseColumn + index % CeresCinematicPictureSheetComposer.JapaneseWidth] = japanese[index];
         }
         return tiles;
     }

@@ -25,7 +25,7 @@ internal static class TitleSnapshotTestsVerification
         static void Verify(byte[] rom, string source)
         {
             var sourceBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-            TitleGradientPresentation gradient = TitleGradientPresentation.Load(
+            TitleGradientPresentation gradient = TitleGradientFile.Read(
                 new MemoryStream(TitleGradientExtractor.Extract(sourceBus), writable: false));
             var scene = CreateTitleFixture(sourceBus, titleGradientPresentation: gradient);
             var control = CreateTitleFixture(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom),

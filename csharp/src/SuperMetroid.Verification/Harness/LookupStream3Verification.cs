@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -126,7 +127,7 @@ internal static class LookupStream3Verification
         {
             var document = new IntroCinematicPaletteDocument
             {
-                Version = IntroCinematicPaletteFormat.Version,
+                Version = IntroCinematicPaletteFile.Version,
                 Colors = words.Select(word => new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 }).ToArray(),
             };
             using var json = new MemoryStream();
@@ -478,9 +479,9 @@ internal static class LookupStream3Verification
         void ConfirmEdit()
         {
             using var stream = new MemoryStream();
-            IntroNarrationPresentation.Write(stream, document);
+            IntroNarrationFile.Write(stream, document);
             stream.Position = 0;
-            var edited = IntroNarrationPresentation.Load(stream);
+            var edited = IntroNarrationFile.Read(stream);
             foreach (IntroNarrationPageId page in Enum.GetValues<IntroNarrationPageId>())
                 AssertTrue(edited.GetLines(page).SequenceEqual(document.Pages[page.ToString()].Lines),
                     "narration preserves independently supplied text, spacing and row choices");
@@ -570,7 +571,7 @@ internal static class LookupStream3Verification
             AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual game-over draw emits exact native ordered OAM " + draw.Name);
         }
-        foreach (string name in GameOverPresentationDefinitions.SpriteNames)
+        foreach (string name in GameOverPresentationFormat.SpriteNames)
         {
             if (name == GameOverPresentationNames.CursorFrameName(0)) for (int part = 0; part < 2; part++) AssertEqual(stock[name].Part(part), new MenuCursorParts(MenuMissileSpritemaps.SpritemapId(0) - 0x34)[part], "exact first cursor candidate part");
             AssertTrue(Calculated(stock[name]), "stock game-over geometry retains no full part array " + name);
@@ -837,7 +838,7 @@ internal static class LookupStream3Verification
                 presentation.ApplyLanguage(actual, japanese);
                 AssertTrue(actual.SequenceEqual(expected), "options language boxes preserve exact stock/edited cells");
             }
-            foreach (GameOptionsToggle toggle in GameOptionsPresentationDefinitions.Toggles)
+            foreach (GameOptionsToggle toggle in GameOptionsPresentationFormat.Toggles)
             foreach (bool enabled in new[] { false, true })
             {
                 GameOptionsToggleVisualDocument visual = document.SpecialToggles[GameOptionsNames.ToggleName(toggle)];
@@ -3581,7 +3582,7 @@ BranchesToSharedBody:true),
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var json = IntroNarrationExtractor.Extract(rom);
-        Suite(nameof(VerifyStream3NarrationLayout), () => VerifyStream3NarrationLayout(rom, json, IntroNarrationPresentation.Load(new MemoryStream(json))));
+        Suite(nameof(VerifyStream3NarrationLayout), () => VerifyStream3NarrationLayout(rom, json, IntroNarrationFile.Read(new MemoryStream(json))));
         Console.WriteLine("Narration layout: 770 native glyph/coordinate records, six calculated pages, one retained hard break and 34 independent edits pass.");
         return 0;
     }

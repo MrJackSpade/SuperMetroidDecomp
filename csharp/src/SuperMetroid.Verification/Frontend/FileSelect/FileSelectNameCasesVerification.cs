@@ -13,14 +13,14 @@ internal static class FileSelectNameCasesVerification
     internal static void VerifyFileSelectPageNames(byte[] source) => VerifyFileSelectNames(source, "Pages",
         ["Background", "Main.WithData", "Main.Empty", "Copy.Source", "Copy.Destination",
          "Copy.Confirm", "Copy.Completed", "Clear.Selection", "Clear.Confirm", "Clear.Completed"],
-        [FileSelectPresentationDefinitions.BackgroundPageName,
-            .. FileSelectPresentationDefinitions.Pages.Select(FileSelectParts.PageName)],
+        [FileSelectPresentationFormat.BackgroundPageName,
+            .. FileSelectPresentationFormat.Pages.Select(FileSelectParts.PageName)],
         () => FileSelectParts.PageName((FileSelectPage)byte.MaxValue));
 
     /// <summary>Checks names for energy, empty-slot, and time-colon patches.</summary>
     internal static void VerifyFileSelectPatchNames(byte[] source) => VerifyFileSelectNames(source, "Patches",
         ["Energy", "NoData", "TimeColon"],
-        [.. FileSelectPresentationDefinitions.Patches.Select(FileSelectParts.PatchName)],
+        [.. FileSelectPresentationFormat.Patches.Select(FileSelectParts.PatchName)],
         () => FileSelectParts.PatchName((FileSelectPatch)byte.MaxValue));
 
     /// <summary>Checks border anchor names for the three file-select flows.</summary>
@@ -40,7 +40,7 @@ internal static class FileSelectNameCasesVerification
         ["Border.Main", "Border.Copy", "Border.Clear", "Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3",
          "Helmet.0", "Helmet.1", "Helmet.2", "Helmet.3", "Helmet.4", "Helmet.5", "Helmet.6", "Helmet.7"],
         [.. FileSelectParts.SpriteNames],
-        () => FileSelectParts.HelmetSpriteName(FileSelectPresentationDefinitions.HelmetFrameCount));
+        () => FileSelectParts.HelmetSpriteName(FileSelectPresentationFormat.HelmetFrameCount));
 
     /// <summary>Checks exact names and their codec's rejection of an undefined identity, then rejects missing, extra, or case-changed JSON keys.</summary>
     private static void VerifyFileSelectNames(byte[] source, string field, string[] expected,

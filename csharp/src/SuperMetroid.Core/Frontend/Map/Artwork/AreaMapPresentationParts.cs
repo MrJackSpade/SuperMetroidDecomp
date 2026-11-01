@@ -53,9 +53,6 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Selected foreground and background PNG artwork for the world-map screen.</summary>
     public required WorldMapArtwork WorldArtwork { get; init; }
 
-    /// <summary>Selected map sprite shapes and indexed PNG artwork used to draw map icons.</summary>
-    public required MapSpriteCompositions Sprites { get; init; }
-
     /// <summary>Pause selection-indicator artwork and presentation parameters; inventory and selection logic remain engine-owned.</summary>
     public required PauseSelectorPresentation PauseSelectors { get; init; }
 

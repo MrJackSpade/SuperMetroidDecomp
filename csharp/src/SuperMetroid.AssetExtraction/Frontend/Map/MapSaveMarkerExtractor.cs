@@ -1,8 +1,8 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Progression;
 
@@ -38,7 +38,7 @@ public static class MapSaveMarkerExtractor
             }
         }
         using var stream = new MemoryStream();
-        MapSaveMarkerPositions.Write(stream, new() { Version = MapSaveMarkerFormat.Version, Markers = points });
+        MapSaveMarkerFile.Write(stream, new() { Version = MapSaveMarkerFormat.Version, Markers = points });
         return stream.ToArray();
     }
 }

@@ -20,7 +20,8 @@ internal static class AndroidFileImport
             installation.LoadAudioClips(),
             maps,
             projectiles,
-            SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(installation.LoadGameArtwork(maps, projectiles)));
+            SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(installation.LoadGameArtwork(maps, projectiles),
+                installation.LoadStandardObjects()));
         return ImportStateCore(
             root,
             source,

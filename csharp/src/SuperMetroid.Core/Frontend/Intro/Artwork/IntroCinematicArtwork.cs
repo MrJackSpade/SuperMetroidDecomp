@@ -11,14 +11,15 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 public abstract class IntroCinematicArtwork
 {
     /// <summary>Retains the selected opening palette and Ceres artwork.</summary>
-    /// <param name="parts">The opening cinematic's palette and Ceres artwork (#633).</param>
-    /// <exception cref="ArgumentNullException">The parts, palette or Ceres artwork are null.</exception>
-    internal IntroCinematicArtwork(IntroCinematicSceneParts parts)
+    /// <param name="palette">Full-precision colors loaded before the first narration card.</param>
+    /// <param name="ceresFlight">Mode-7 and OBJ visual streams used after the narration fades to Ceres.</param>
+    /// <param name="ceresDestruction">The destruction and Zebes-reveal actors' placements.</param>
+    /// <exception cref="ArgumentNullException">The palette or Ceres artwork are null.</exception>
+    internal IntroCinematicArtwork(IntroCinematicPalette palette, CeresFlightArtwork ceresFlight, CeresDestructionArtwork ceresDestruction)
     {
-        Ensure.NotNull(parts);
-        Palette = Ensure.NotNull(parts.Palette);
-        CeresFlight = Ensure.NotNull(parts.CeresFlight);
-        CeresDestruction = Ensure.NotNull(parts.CeresDestruction);
+        Palette = Ensure.NotNull(palette);
+        CeresFlight = Ensure.NotNull(ceresFlight);
+        CeresDestruction = Ensure.NotNull(ceresDestruction);
     }
 
     /// <summary>Full-precision colors loaded before the first narration card.</summary>

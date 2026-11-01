@@ -39,14 +39,14 @@ public static class PauseSelectorExtractor
         {
             int duration = bus.ReadCartridgeByte(animation + i * 3);
             if (duration == byte.MaxValue) break;
-            if (i >= PauseSelectorDefinitions.MaximumPhases || bus.ReadCartridgeByte(animation + i * 3 + 2) != 0)
+            if (i >= PauseSelectorFormat.MaximumPhases || bus.ReadCartridgeByte(animation + i * 3 + 2) != 0)
                 throw new InvalidDataException("Unexpected native selector frame offset or missing terminator.");
             phases.Add(new() { DurationTicks = duration, Reserve = "Reserve", Beam = "Beam", Equipment = "Equipment" });
         }
         var palette = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseSelectorPalette));
         if (palette.Raw != palette.PaletteBits) throw new InvalidDataException("Invalid native selector palette word.");
         using var output = new MemoryStream();
-        PauseSelectorSourcePresentation.Write(output, new() { Version = PauseSelectorDefinitions.Version,
+        PauseSelectorSourcePresentation.Write(output, new() { Version = PauseSelectorFormat.Version,
             InitialDurationTicks = bus.ReadCartridgeByte((int)PauseMenuSourceDefinitions.PauseSelectorInitialTimer), Palette = palette.PaletteIndex,
             Anchors = anchors, Frames = frames, Animation = phases.ToArray() });
         return output.ToArray();

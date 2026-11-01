@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -24,7 +25,6 @@ public sealed class WorldMapCharacters : WorldMapArtwork
     /// <param name="foreground">The foreground atlas's row-major pixel indices.</param>
     /// <param name="background">The background atlas's row-major pixel indices.</param>
     private WorldMapCharacters(byte[] foreground, byte[] background)
-        : base(foreground.Length / PixelsPerCharacter, background.Length / PixelsPerCharacter)
     {
         fontMask = FontMask;
         var masks = new ulong[WorldMapArtworkFormat.ForegroundTileCount];
@@ -106,9 +106,6 @@ public sealed class WorldMapCharacters : WorldMapArtwork
     /// <exception cref="InvalidDataException">The artwork was not read from installed artwork.</exception>
     public static WorldMapCharacters Of(WorldMapArtwork artwork) => artwork as WorldMapCharacters
         ?? throw new InvalidDataException("The world-map characters were not read from installed artwork.");
-
-    /// <summary>The pixels of one 8-by-8 character.</summary>
-    private const int PixelsPerCharacter = 64;
 
     /// <summary>Converts a tile-local pixel to a row-major atlas pixel index.</summary>
     private static int TilePixel(int tile, Position16<CharacterPixels> point) =>

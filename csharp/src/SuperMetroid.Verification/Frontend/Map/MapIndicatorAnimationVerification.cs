@@ -1,7 +1,6 @@
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Pause;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Progression;
@@ -38,7 +37,7 @@ internal static class MapIndicatorAnimationVerification
 
         using var json = new MemoryStream(MapSaveMarkerExtractor.Extract(rom), writable: false);
         var marker = new FileSelectStationMarker(AreaId.Crateria, 0,
-            MapSaveMarkerPositions.Load(json));
+            MapSaveMarkerFile.Read(json));
         int nativeOffset = 0, nativeTimer = 0, loops = 0;
         AssertEqual(ReadVerificationWord(rom, 0x82ba2d), MapSpriteOrdinals.Spritemaps.Word(marker.SpritemapId), "marker initial phase before first tick");
         for (int tick = 0; tick < 49; tick++)

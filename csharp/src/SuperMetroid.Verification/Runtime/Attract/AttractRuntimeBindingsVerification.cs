@@ -26,7 +26,6 @@ internal static class AttractRuntimeBindingsVerification
                 Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount)
                     .Select(_ => new PaletteRgb5 { Red = 1, Green = 2, Blue = 3 }).ToArray()))));
         var enemyArtwork = new EnemyIdentityFixture().Build();
-        var objects = (enemyArtwork.Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires enemyArtwork.KraidBackground.")).RoomBackgroundTiles;
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         // Exact cause of #1171: the previous attract path constructed this owner
         // without passing its already-installed palette catalog.
@@ -40,7 +39,6 @@ internal static class AttractRuntimeBindingsVerification
             SamusOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusOverreads,
             EnemyTileArtwork = enemyArtwork.Enemies,
             EnemySheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemySheets, BossArtwork = enemyArtwork.Bosses, AreaArtwork = enemyArtwork.Areas,
-            StandardObjectArt = objects,
         });
         int incomingRandom = game.DispatcherRandomNumber;
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);

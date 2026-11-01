@@ -1,10 +1,12 @@
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
-using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
@@ -107,9 +109,9 @@ public static class SpriteSheetFiles
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<InstalledSamusBodyArtwork> body,
         Lazy<AreaMapPresentation> maps, Lazy<IntroCinematicArtwork> intro, Lazy<EndingObjectArtwork> ending) => sheet switch
     {
-        SpriteSheetId.IntroScenePictures => IntroScenePictures.FrameNames,
-        SpriteSheetId.IntroNarrationPictures => IntroNarrationPictures.FrameNames,
-        SpriteSheetId.CeresCinematicPictures => CeresCinematicPictures.FrameNames,
+        SpriteSheetId.IntroScenePictures => IntroScenePictureSheetComposer.FrameNames,
+        SpriteSheetId.IntroNarrationPictures => IntroNarrationPictureSheetComposer.FrameNames,
+        SpriteSheetId.CeresCinematicPictures => CeresCinematicPictureSheetComposer.FrameNames,
         SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
             SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures =>
             EndingPictureSheetComposer.FrameNames(sheet),
@@ -125,10 +127,10 @@ public static class SpriteSheetFiles
         SpriteSheetId.SamusOverlays => SamusOverlaySheetComposer.Frames,
         SpriteSheetId.SamusAtmosphere => SamusAtmosphereSheetComposer.Frames,
         SpriteSheetId.SamusDeath => SamusDeathSheetComposer.Frames,
-        SpriteSheetId.GameOver => GameOverPresentationDefinitions.SpriteNames.ToArray(),
+        SpriteSheetId.GameOver => GameOverPresentationFormat.SpriteNames.ToArray(),
         SpriteSheetId.FileSelect => FileSelectParts.SheetFrames,
         SpriteSheetId.GameOptions => GameOptionsNames.SheetFrames,
-        SpriteSheetId.MapSprites => MapSpriteNames.SheetFrames,
+        SpriteSheetId.MapSprites => MapSpriteArtwork.SheetFrames,
         SpriteSheetId.PauseSprites => PauseSheetComposer.FrameNames(maps.Value),
         SpriteSheetId.PauseHud => HudImageSheet.PauseFrameNames(maps.Value),
         SpriteSheetId.MenuPictures => MenuPictureSheet.FrameNames(maps.Value),
@@ -140,7 +142,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.AreaMapBackgroundCrateria or SpriteSheetId.AreaMapBackgroundBrinstar or
             SpriteSheetId.AreaMapBackgroundNorfair or SpriteSheetId.AreaMapBackgroundWreckedShip or
             SpriteSheetId.AreaMapBackgroundMaridia or SpriteSheetId.AreaMapBackgroundTourian => [AreaMapPictures.WorldBackgroundFrame],
-        SpriteSheetId.Title => TitleSpriteDefinitions.All.Select(TitleSpriteDefinitions.FrameName),
+        SpriteSheetId.Title => TitleGraphicsFormat.Sprites.Select(TitleSpriteDefinitions.FrameName),
         SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.FrameNames(intro.Value),
         SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightFrameNames(intro.Value.CeresFlight),
         SpriteSheetId.CeresDestructionSprites or SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.CeresDestructionFrameNames(intro.Value),

@@ -40,7 +40,6 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
         SaveMarkers = parts.SaveMarkers;
         Arrows = parts.Arrows;
         WorldArtwork = parts.WorldArtwork;
-        Sprites = parts.Sprites;
         PauseSelectors = parts.PauseSelectors;
         PauseReserveTanks = parts.PauseReserveTanks;
         PauseReserveArrow = parts.PauseReserveArrow;
@@ -97,8 +96,6 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     public MapArrowPresentation Arrows { get; }
     /// <summary>Selected foreground and background PNG artwork for the world-map screen.</summary>
     public WorldMapArtwork WorldArtwork { get; }
-    /// <summary>The installed map and menu sprites; the game draws them from the map sprite sheet, and their compositions belong to the import pipeline (#1463).</summary>
-    public MapSpriteCompositions Sprites { get; }
     /// <summary>Pause selection-indicator artwork and presentation parameters; inventory and selection logic remain engine-owned.</summary>
     public PauseSelectorPresentation PauseSelectors { get; }
     /// <summary>Reserve-strip artwork and drawing origins, independent of reserve energy and fill selection.</summary>

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Options.Artwork;
 /// <remarks>Init-only properties retain caller-owned mutable arrays and dictionaries. The stream loader parses its own document before compiling the runtime presentation.</remarks>
 public record GameOptionsLayoutDocument
 {
-    /// <summary>Schema version that must equal <see cref="GameOptionsPresentationDefinitions.Version"/>.</summary>
+    /// <summary>Schema version that must equal the version the import supports.</summary>
     [JsonPropertyOrder(1)]
     public required int Version { get; init; }
     /// <summary>Exactly six named pages, each containing 1024 row-major cells for a 32-by-32 tilemap.</summary>

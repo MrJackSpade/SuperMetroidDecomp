@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
@@ -23,9 +22,6 @@ internal static class CeresDestructionSceneDefinitions
 
     /// <summary>The width, in pixels, of the world the approach's actors wrap around horizontally.</summary>
     internal const int WorldWidth = 512;
-
-    /// <summary>The cinematic's shared sprite characters loaded over the start of the station's: 208 of them.</summary>
-    internal const int SharedObjectCharacterBytes = 208 * CeresFlightArtworkFormat.ObjectCharacterBytes;
 
     /// <summary>The tracks the scene plays.</summary>
     internal static class Music

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.Core;
 using System.Text;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -24,9 +25,9 @@ public static class IntroNarrationExtractor
             pages.Add(source.Id.ToString(), ExtractPage(bus, source));
 
         using var output = new MemoryStream();
-        IntroNarrationPresentation.Write(output, new()
+        IntroNarrationFile.Write(output, new()
         {
-            Version = IntroNarrationDefinitions.Version,
+            Version = IntroNarrationFile.Version,
             Pages = pages,
         });
         return output.ToArray();

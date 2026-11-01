@@ -18,6 +18,19 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// </summary>
 internal static class IntroNarrationPictureSheetComposer
 {
+    /// <summary>The colour variants a letter shows: the variant it is typed in and each its glow gives it.</summary>
+    internal const int LetterColourVariants = CinematicTextGlowDefinitions.FinalPalette + 1;
+
+    /// <summary>Each letter the narration types: its alphabet without the space, which types none.</summary>
+    internal static IEnumerable<char> Letters => IntroNarrationGlyphs.Alphabet.Where(static letter => letter != ' ');
+
+    /// <summary>The name of every picture the sheet holds.</summary>
+    internal static IEnumerable<string> FrameNames =>
+    [
+        IntroNarrationPictures.FirstCard, IntroNarrationPictures.FinalLine,
+        .. Letters.SelectMany(static letter => Enumerable.Range(0, LetterColourVariants).Select(variant => IntroNarrationPictures.Letter(letter, variant))),
+    ];
+
     /// <summary>Pixels along each side of a character.</summary>
     private const int CharacterPixels = RoomTileCanvas.CharacterPixels;
 
@@ -33,16 +46,16 @@ internal static class IntroNarrationPictureSheetComposer
         byte[] blanked = Blanked(whole);
         RgbColor[] colours = ScreenColourImage.Encode(intro.Palette.Colours)[..SpriteImage.SpriteColourCount].ToArray();
         int cells = IntroNarrationPictures.PlaneCells;
-        int finalRows = IntroCinematicDefinitions.Text.FinalLineWordCount / cells;
-        char[] letters = [.. IntroNarrationPictures.Letters];
-        int variants = IntroNarrationPictures.LetterColourVariants;
+        int finalRows = IntroArtworkExtentDefinitions.FinalLineWordCount / cells;
+        char[] letters = [.. IntroNarrationPictureSheetComposer.Letters];
+        int variants = IntroNarrationPictureSheetComposer.LetterColourVariants;
         int letterTop = cells + finalRows;
         int letterRows = (letters.Length + cells - 1) / cells * variants;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(cells * CharacterPixels)), checked((ushort)((letterTop + letterRows) * CharacterPixels))));
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
-            [IntroNarrationPictures.FirstCard] = PaintRect(canvas, 0, 0, cells, IntroCinematicSourceArtwork.Of(intro).InitialNarrationTilemap.Span[..IntroCinematicDefinitions.Artwork.NarrationTilemapCells], whole, colours),
-            [IntroNarrationPictures.FinalLine] = PaintRect(canvas, 0, cells, cells, IntroCinematicSourceArtwork.Of(intro).FinalLine.Tiles.Span[..IntroCinematicDefinitions.Text.FinalLineWordCount], blanked, colours),
+            [IntroNarrationPictures.FirstCard] = PaintRect(canvas, 0, 0, cells, IntroCinematicSourceArtwork.Of(intro).InitialNarrationTilemap.Span[..IntroArtworkExtentDefinitions.NarrationTilemapCells], whole, colours),
+            [IntroNarrationPictures.FinalLine] = PaintRect(canvas, 0, cells, cells, IntroCinematicSourceArtwork.Of(intro).FinalLine.Tiles.Span[..IntroArtworkExtentDefinitions.FinalLineWordCount], blanked, colours),
         };
         for (int variant = 0; variant < variants; variant++)
         {
@@ -63,9 +76,9 @@ internal static class IntroNarrationPictureSheetComposer
     private static byte[] Blanked(byte[] font)
     {
         byte[] blanked = (byte[])font.Clone();
-        ReadOnlySpan<byte> blank = font.AsSpan(IntroTileSetDefinitions.FontFirstTile * CharacterBytes + IntroCinematicDefinitions.Text.JapaneseBlankSourceOffset, CharacterBytes);
+        ReadOnlySpan<byte> blank = font.AsSpan(IntroTileSetDefinitions.FontFirstTile * CharacterBytes + IntroArtworkExtentDefinitions.JapaneseBlankSourceOffset, CharacterBytes);
         int first = IntroTileSetDefinitions.JapaneseBlankFirstTile * CharacterBytes;
-        for (int offset = 0; offset < IntroCinematicDefinitions.Artwork.JapaneseBlankCharactersByteCount; offset += CharacterBytes)
+        for (int offset = 0; offset < IntroArtworkExtentDefinitions.JapaneseBlankCharactersByteCount; offset += CharacterBytes)
         {
             if (first + offset + CharacterBytes > blanked.Length)
                 throw new InvalidDataException($"The narration font ends before the Japanese glyph at byte {first + offset} it blanks.");

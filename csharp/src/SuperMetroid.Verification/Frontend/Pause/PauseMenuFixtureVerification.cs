@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.Pause;
@@ -57,14 +58,14 @@ internal static class PauseMenuFixtureVerification
             sprites.Frames[name] = [singlePart];
         using var spriteJson = Json(sprites);
         using var spritePng = File.OpenRead(Path.Combine(installation.MapDirectory, MapSpriteFormat.PngFile));
-        var selectors = Document<PauseSelectorDocument>(PauseSelectorDefinitions.FileName);
+        var selectors = Document<PauseSelectorDocument>(PauseSelectorFormat.FileName);
         selectors.Anchors[PauseSelectorAnchors.Anchor(PauseEquipmentCategory.Suits, 2)] = new(0x90, 0x70);
         selectors.Anchors[PauseSelectorAnchors.Anchor(PauseEquipmentCategory.Suits, 3)] = new(0xa0, 0x80);
         foreach (string name in selectors.Frames.Keys.ToArray()) selectors.Frames[name] = [singlePart];
         using var selectorJson = Json(selectors);
         // The original synthetic ROM supplied zero-part reserve-strip maps. Keep
         // that fixture isolation while reserve state and digits still execute.
-        var reserveTanks = Document<PauseReserveTankDocument>(PauseReserveTankDefinitions.FileName);
+        var reserveTanks = Document<PauseReserveTankDocument>(PauseReserveTankFormat.FileName);
         foreach (string name in reserveTanks.Frames.Keys.ToArray()) reserveTanks.Frames[name] = [];
         using var reserveJson = Json(reserveTanks);
         // Every part comes from the stock catalog's same-named property unless the fixture constructs it above.
@@ -81,7 +82,6 @@ internal static class PauseMenuFixtureVerification
             SaveMarkers = stock.SaveMarkers,
             Arrows = stock.Arrows,
             WorldArtwork = stock.WorldArtwork,
-            Sprites = MapSpriteArtwork.Read(spriteJson, spritePng),
             PauseSelectors = PauseSelectorSourcePresentation.Load(selectorJson),
             PauseReserveTanks = PauseReserveTankSourcePresentation.Load(reserveJson),
             PauseReserveArrow = stock.PauseReserveArrow,
@@ -125,6 +125,6 @@ internal static class PauseMenuFixtureVerification
             InstalledAreaMapPresentation.EndingTextOf(stock), InstalledAreaMapPresentation.ScreensOf(stock),
             new PauseScreenArtwork(backdrops, InstalledAreaMapPresentation.PauseOf(stock).Wireframes,
                 InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels,
-                InstalledAreaMapPresentation.PauseOf(stock).ReserveUi)));
+                InstalledAreaMapPresentation.PauseOf(stock).ReserveUi), MapSpriteArtwork.Read(spriteJson, spritePng)));
     }
 }

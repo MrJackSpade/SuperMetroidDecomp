@@ -32,8 +32,6 @@ public static class MapStationDiscoveryRules
         new("Maridia.Map.0", AreaId.Maridia, new(17, 18)),
     ];
 
-    /// <summary>Every compiled station marker in missile, energy, then map order; used to require the complete marker set in editable layouts.</summary>
-    public static IEnumerable<MapStationDiscoveryRule> All => missile.Concat(energy).Concat(map);
     /// <summary>Selects an area's marker family without testing exploration or consulting editable drawing positions.</summary>
     /// <param name="area">Validated retail area identity whose saved map owns the discovery cells.</param>
     /// <param name="kind">The mutually exclusive missile, energy, or map station family.</param>

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.FileSelect;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

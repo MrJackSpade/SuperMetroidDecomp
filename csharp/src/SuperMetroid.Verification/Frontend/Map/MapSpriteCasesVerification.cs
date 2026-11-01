@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -82,7 +83,7 @@ internal static class MapSpriteCasesVerification
             frames.Remove(changed.Name);
             AssertThrows<InvalidDataException>(() => Load(frames), "each map sprite role remains required");
         }
-        foreach (ushort invalid in new ushort[] { 0, MapSpriteDefinitions.Count + 1, ushort.MaxValue })
+        foreach (ushort invalid in new ushort[] { 0, MapSpriteFormat.FrameCount + 1, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), (MapSpriteId)invalid,
                 ScreenSpritesFixtures.Blank(), new(0, 0), ScreenColourGroup.MapLabels), "undefined map sprite identity fails");
         AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), 0, ScreenSpritesFixtures.Blank(),

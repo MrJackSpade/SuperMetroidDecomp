@@ -1,9 +1,9 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend.FileSelect;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -24,7 +24,7 @@ internal static class MapStationLayoutVerification
         int combinations = 0;
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            var rules = MapStationDiscoveryRules.All.Where(rule => rule.Area == area).ToArray();
+            var rules = MapStationLayoutFile.Markers.Where(rule => rule.Area == area).ToArray();
             for (int mask = 0; mask < (1 << rules.Length); mask++)
             {
                 var system = new SharedGameState();
@@ -34,10 +34,10 @@ internal static class MapStationLayoutVerification
                 var installed = new FileSelectMapIcons(system, area);
                 native.BindStations(original.Stations);
                 native.BindLandmarks(original.Landmarks);
-                native.BindSprites(MenuSheetFixtures.MapSprites(original.Sprites));
+                native.BindSprites(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
                 installed.BindStations(original.Stations);
                 installed.BindLandmarks(original.Landmarks);
-                installed.BindSprites(MenuSheetFixtures.MapSprites(original.Sprites));
+                installed.BindSprites(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
                 AssertTrue(Draw(native).SequenceEqual(Draw(installed)), $"station OAM stock parity {area}/{mask}");
                 combinations++;
             }
@@ -51,7 +51,7 @@ internal static class MapStationLayoutVerification
         points[moved] = new(80, 64);
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, MapStationLayoutFormat.FileName);
-        using (var stream = File.Create(replacement)) MapStationPositions.Write(stream, document with { Markers = points });
+        using (var stream = File.Create(replacement)) MapStationLayoutFile.Write(stream, document with { Markers = points });
         byte[] bytes = File.ReadAllBytes(replacement);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "station position edit changes catalog identity");
@@ -61,10 +61,10 @@ internal static class MapStationLayoutVerification
         var editIcons = new FileSelectMapIcons(state, AreaId.Brinstar);
         baseIcons.BindStations(original.Stations);
         baseIcons.BindLandmarks(original.Landmarks);
-        baseIcons.BindSprites(MenuSheetFixtures.MapSprites(original.Sprites));
+        baseIcons.BindSprites(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
         editIcons.BindStations(edited.Stations);
         editIcons.BindLandmarks(edited.Landmarks);
-        editIcons.BindSprites(MenuSheetFixtures.MapSprites(edited.Sprites));
+        editIcons.BindSprites(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(edited)));
         AssertTrue(Draw(baseIcons).SequenceEqual(Draw(editIcons)), "moving icon onto explored tile cannot reveal it");
         state.MarkExploredMapTile(AreaId.Brinstar, new(5, 8));
         AssertTrue(!Draw(baseIcons).SequenceEqual(Draw(editIcons)), "native discovery reveals relocated icon");
@@ -94,7 +94,7 @@ internal static class MapStationLayoutVerification
         File.WriteAllBytes(rebuiltStations, rebuiltBytes);
         foreach (var invalid in new[] { document with { Version = 2 }, document with { Markers = new() },
             document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { X = 512 }) } })
-            AssertThrows<InvalidDataException>(() => MapStationPositions.Write(new MemoryStream(), invalid), "invalid station version/identity/position rejected");
+            AssertThrows<InvalidDataException>(() => MapStationLayoutFile.Write(new MemoryStream(), invalid), "invalid station version/identity/position rejected");
         File.WriteAllText(replacement, "{bad stations");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "malformed station override cannot fall back");
         AssertEqual("{bad stations", File.ReadAllText(replacement), "malformed station override not overwritten");

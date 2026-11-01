@@ -1,6 +1,6 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -49,7 +49,7 @@ public static class MapStationLayoutExtractor
             if (count != rules.Length) throw new InvalidDataException($"Missing {area}/{kind} station records.");
         }
         using var stream = new MemoryStream();
-        MapStationPositions.Write(stream, new() { Version = MapStationLayoutFormat.Version, Markers = markers });
+        MapStationLayoutFile.Write(stream, new() { Version = MapStationLayoutFormat.Version, Markers = markers });
         return stream.ToArray();
     }
 }

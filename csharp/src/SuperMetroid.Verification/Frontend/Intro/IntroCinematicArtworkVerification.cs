@@ -89,7 +89,7 @@ internal static class IntroCinematicArtworkVerification
                 "installed portrait JSON, encoded through the codec, preserves every native tilemap word");
             AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.FirstNarrationTilemap,
-                        maximumOutputBytes: IntroCinematicDefinitions.Artwork.NarrationTilemapCells * sizeof(ushort))),
+                        maximumOutputBytes: IntroArtworkExtentDefinitions.NarrationTilemapCells * sizeof(ushort))),
                 "installed initial narration JSON, encoded through the codec, preserves every native tilemap word");
             for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
             {
@@ -163,7 +163,7 @@ internal static class IntroCinematicArtworkVerification
                 }
             }
             Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
-            string paletteName = IntroCinematicPaletteFormat.FileName;
+            string paletteName = IntroCinematicPaletteFile.FileName;
             string paletteStockPath = Path.Combine(installation.IntroCinematicDirectory, paletteName);
             string paletteOverridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, paletteName);
             IntroCinematicPaletteDocument paletteDocument =

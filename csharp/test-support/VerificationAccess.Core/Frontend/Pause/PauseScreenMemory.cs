@@ -22,7 +22,7 @@ internal static class PauseScreenMemory
         MapCharacterArtwork characters = MapCharacterArtwork.Of(artwork);
         characters.Map.LoadTo(pause.MapCharacters);
         characters.Pause.LoadTo(pause.InterfaceCharacters);
-        artwork.Sprites.LoadArtworkTo(pause.ObjectCharacters);
+        InstalledAreaMapPresentation.SpritesOf(artwork).LoadArtworkTo(pause.ObjectCharacters);
         characters.Hud.LoadTo(image);
         return image.CaptureImage();
     }

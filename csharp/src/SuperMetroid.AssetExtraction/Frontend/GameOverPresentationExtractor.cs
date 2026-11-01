@@ -83,7 +83,7 @@ public static class GameOverPresentationExtractor
         using var output = new MemoryStream();
         GameOverSourcePresentation.Write(output, new()
         {
-            Version = GameOverPresentationDefinitions.Version,
+            Version = GameOverPresentationFormat.Version,
             Tilemap = cells,
             Sprites = sprites,
             BabyPalettes = palettes,

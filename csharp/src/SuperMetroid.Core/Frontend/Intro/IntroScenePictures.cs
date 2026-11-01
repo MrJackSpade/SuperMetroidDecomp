@@ -23,10 +23,6 @@ public static class IntroScenePictures
     /// <summary>The name of eye frame <paramref name="frame"/>'s picture.</summary>
     internal static string Eye(IntroEyeFrame frame) => $"eye-{frame}";
 
-    /// <summary>The name of every picture the sheet holds.</summary>
-    public static IEnumerable<string> FrameNames =>
-        [.. Enum.GetValues<IntroScenePage>().Select(Page), Portrait, .. Enum.GetValues<IntroEyeFrame>().Select(Eye)];
-
     /// <summary>The plane showing scene page <paramref name="page"/>.</summary>
     internal static PicturedPlane PagePlane(InstalledSpriteSheets sheets, IntroScenePage page) =>
         Plane([new PlacedPlanePicture(Sheet(sheets).Frame(Page(page)), default)]);

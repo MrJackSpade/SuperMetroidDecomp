@@ -46,9 +46,6 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Gameplay base palettes a new runtime starts from.</summary>
     public GameplayBasePalette? GameplayBasePalettes { get; init; }
 
-    /// <summary>Common gameplay sprite characters (standard objects).</summary>
-    public RoomCharacterAtlas? StandardObjectArt { get; init; }
-
     /// <summary>Intro, Ceres destruction and Ceres flight artwork.</summary>
     public IntroCinematicArtwork? IntroCinematicArt { get; init; }
 

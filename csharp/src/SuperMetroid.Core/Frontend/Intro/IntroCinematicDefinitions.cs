@@ -6,18 +6,8 @@ public static class IntroCinematicDefinitions
     /// <summary>The extents, in bytes, of the installed opening artwork the cinematic requires.</summary>
     public static class Artwork
     {
-        /// <summary>The bytes of one four-bit character.</summary>
-        private const int FourBitCharacterBytes = 32;
-        /// <summary>The scenes' four-bit background characters.</summary>
-        private const int BackgroundCharacterCount = 1024;
-        /// <summary>The scenes' 1024 four-bit background characters.</summary>
-        public const int BackgroundCharacterBytes = BackgroundCharacterCount * FourBitCharacterBytes;
         /// <summary>The narration font's 144 two-bit characters.</summary>
         public const int FontOneBytes = 144 * 16;
-        /// <summary>The cells of one 32-by-32 narration tilemap.</summary>
-        public const int NarrationTilemapCells = 32 * 32;
-        /// <summary>The 96 two-bit characters the Japanese narration blanks with its blank glyph.</summary>
-        public const int JapaneseBlankCharactersByteCount = 96 * 16;
     }
 
     /// <summary>The planes the opening's scene and text are drawn on.</summary>
@@ -34,12 +24,8 @@ public static class IntroCinematicDefinitions
         public const int GameplayBlankStartIndex = 128;
         /// <summary>Gameplay text cells cleared.</summary>
         public const int GameplayBlankWordCount = 640;
-        /// <summary>Where the Japanese blank glyph starts in the font: its 41st character.</summary>
-        public const int JapaneseBlankSourceOffset = 41 * 16;
         /// <summary>The first cell the final text line replaces.</summary>
         public const int FinalLineFirstCell = 768;
-        /// <summary>Cells copied for the final text line.</summary>
-        public const int FinalLineWordCount = 128;
     }
 
     /// <summary>The colour runs the repeating flashback and narration crossfades fade.</summary>

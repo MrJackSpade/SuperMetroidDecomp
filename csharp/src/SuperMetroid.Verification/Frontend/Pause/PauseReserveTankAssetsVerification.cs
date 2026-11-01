@@ -29,7 +29,7 @@ internal static class PauseReserveTankAssetsVerification
     internal static void VerifyPauseReserveTankAssets(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation catalog)
     {
         Directory.CreateDirectory(overrides);
-        string stockPath = Path.Combine(stock, PauseReserveTankDefinitions.FileName), path = Path.Combine(overrides, PauseReserveTankDefinitions.FileName);
+        string stockPath = Path.Combine(stock, PauseReserveTankFormat.FileName), path = Path.Combine(overrides, PauseReserveTankFormat.FileName);
         byte[] bytes = File.ReadAllBytes(stockPath);
         var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, ArtworkJson.Options);
         var guard = NewReserveTankAssetReadGuard(bus);
@@ -79,7 +79,7 @@ internal static class PauseReserveTankAssetsVerification
         tankParts.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, true), new SnesSpritemapYByte(0),
             SnesObjAttributeWord.Create(50, 5, 3, TileFlip.Horizontal | TileFlip.Vertical), new Position16<SpritePixels>(132, 136));
         tankParts.FinalizeFrame();
-        PlacedSpritePart[] tank = PlacedSpritePart.OfOamObjects(tankParts, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection, MapSpriteArtwork.Of(edited.Sprites).Page.Id);
+        PlacedSpritePart[] tank = PlacedSpritePart.OfOamObjects(tankParts, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection, MapSpriteArtwork.Of(InstalledAreaMapPresentation.SpritesOf(edited)).Page.Id);
         AssertTrue(snapshot.Paint.SpriteParts()[^tank.Length..].SequenceEqual(tank),
             "actual menu draws the custom tank's position, size, tile, palette, priority and flips");
         var editedPixels = menu.Render();

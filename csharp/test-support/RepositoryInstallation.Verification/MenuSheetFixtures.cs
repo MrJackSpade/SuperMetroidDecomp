@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Assets;
@@ -65,7 +66,7 @@ internal static class MenuSheetFixtures
     internal static SpriteSheet MapSprites(MapSpriteCompositions catalog)
     {
         ArgumentNullException.ThrowIfNull(catalog);
-        return ReferenceEquals(catalog, InstalledFixtures.Maps.Sprites)
+        return ReferenceEquals(catalog, InstalledAreaMapPresentation.SpritesOf(InstalledFixtures.Maps))
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.MapSprites)
             : mapSprites.GetValue(catalog, key => Load(SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(key, InstalledFixtures.Maps),
                 $"catalog-{RuntimeHelpers.GetHashCode(key):X8}"));

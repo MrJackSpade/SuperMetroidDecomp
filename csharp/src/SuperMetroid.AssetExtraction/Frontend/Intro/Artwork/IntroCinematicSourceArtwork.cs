@@ -20,7 +20,8 @@ public sealed class IntroCinematicSourceArtwork : IntroCinematicArtwork
     /// <param name="parts">The opening's scene artwork, character atlases and sprite compositions.</param>
     /// <exception cref="ArgumentNullException">A required atlas, presentation, palette, or page collection is null.</exception>
     /// <exception cref="InvalidDataException">The scene pages, portrait or narration tilemaps are malformed.</exception>
-    public IntroCinematicSourceArtwork(IntroCinematicArtworkParts parts) : base(Ensure.NotNull(parts))
+    public IntroCinematicSourceArtwork(IntroCinematicArtworkParts parts)
+        : base(Ensure.NotNull(parts).Palette, parts.CeresFlight, parts.CeresDestruction)
     {
         Ensure.NotNull(parts.BackgroundPages);
         if (parts.BackgroundPages.Count != IntroCinematicArtworkFormat.BackgroundPageCount)

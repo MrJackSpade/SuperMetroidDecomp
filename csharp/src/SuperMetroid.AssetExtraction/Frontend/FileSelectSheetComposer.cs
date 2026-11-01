@@ -31,7 +31,7 @@ internal static class FileSelectSheetComposer
     {
         Ensure.NotNull(fileSelect);
         Ensure.NotNull(maps);
-        SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
+        SpriteArtwork page = MapSpriteArtwork.Of(InstalledAreaMapPresentation.SpritesOf(maps)).Page;
         FileSelectSourcePresentation source = FileSelectSourcePresentation.Of(fileSelect);
         int palette = fileSelect.ObjectPalette;
         var frames = new List<SheetFrameSource>();
@@ -40,12 +40,12 @@ internal static class FileSelectSheetComposer
             string name = FileSelectParts.BorderSpriteName(border);
             frames.Add(new(name, source.borderSprites[border].ToFrame(name, 0), page, palette));
         }
-        for (int frame = 0; frame < FileSelectPresentationDefinitions.CursorFrameCount; frame++)
+        for (int frame = 0; frame < FileSelectPresentationFormat.CursorFrameCount; frame++)
         {
             string name = FileSelectParts.CursorSpriteName(frame);
             frames.Add(new(name, source.cursorSprites[frame].ToFrame(name, 0), page, palette));
         }
-        for (int frame = 0; frame < FileSelectPresentationDefinitions.HelmetFrameCount; frame++)
+        for (int frame = 0; frame < FileSelectPresentationFormat.HelmetFrameCount; frame++)
         {
             string name = FileSelectParts.HelmetSpriteName(frame);
             frames.Add(new(name, source.helmetSprites[frame].ToFrame(name, 0), page, palette));

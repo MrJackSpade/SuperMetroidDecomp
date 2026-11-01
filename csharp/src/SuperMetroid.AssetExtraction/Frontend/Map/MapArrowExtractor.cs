@@ -1,5 +1,5 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -46,7 +46,7 @@ public static class MapArrowExtractor
             arrows.Add(direction.ToString(), new() { X = Read(record), Y = Read(record + 2) - 1, DurationTicks = durations.ToArray() });
         }
         using var stream = new MemoryStream();
-        MapArrowPresentation.Write(stream, new() { Version = MapArrowFormat.Version, Arrows = arrows });
+        MapArrowFile.Write(stream, new() { Version = MapArrowFormat.Version, Arrows = arrows });
         return stream.ToArray();
         ushort Read(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
     }

@@ -1,8 +1,8 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -20,7 +20,7 @@ internal static class MapSpriteSheetComposer
     private const int SpriteColours = 128;
 
     /// <summary>What the map sprite sheet composes.</summary>
-    internal static SpriteSheetSources Sources(AreaMapPresentation maps) => Sources(Ensure.NotNull(maps).Sprites, maps);
+    internal static SpriteSheetSources Sources(AreaMapPresentation maps) => Sources(InstalledAreaMapPresentation.SpritesOf(Ensure.NotNull(maps)), maps);
 
     /// <summary>What the map sprite sheet composes from <paramref name="sprites"/>, coloured with the menus of <paramref name="maps"/>.</summary>
     internal static SpriteSheetSources Sources(MapSpriteCompositions sprites, AreaMapPresentation maps)
@@ -28,7 +28,7 @@ internal static class MapSpriteSheetComposer
         Ensure.NotNull(sprites);
         Ensure.NotNull(maps);
         MapSpriteArtwork artwork = MapSpriteArtwork.Of(sprites);
-        List<SheetFrameSource> frames = [.. MapSpriteNames.Frames.Select(frame =>
+        List<SheetFrameSource> frames = [.. MapSpriteArtwork.FrameNames.Select(frame =>
             new SheetFrameSource(frame.Name, artwork.Frame(frame.Id), artwork.Page, FrontendSheetPalette.FrameColourGroup.Number))];
         var cgram = new SnesCgram();
         new CgramPalettes(cgram).LoadImage(ScreenColourImage.Encode(maps.Palettes.FileSelect));

@@ -25,7 +25,7 @@ public static class PauseReserveTankExtractor
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         foreach (var definition in PauseReserveTankParts.Frames()) frames.Add(definition.Name, MenuSpriteExtractor.Read(bus, PauseReserveTankVisualWords.Ordinals.Word(definition.Id)));
         using var output = new MemoryStream();
-        PauseReserveTankSourcePresentation.Write(output, new() { Version = PauseReserveTankDefinitions.Version,
+        PauseReserveTankSourcePresentation.Write(output, new() { Version = PauseReserveTankFormat.Version,
             Palette = PauseReserveTankDefinitions.Palette, Anchors = anchors, Frames = frames });
         return output.ToArray();
     }

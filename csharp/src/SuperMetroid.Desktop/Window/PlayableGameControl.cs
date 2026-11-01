@@ -288,7 +288,7 @@ public sealed class PlayableGameControl : UserControl
             selectedAudioAssets,
             mapPresentation,
             projectilePresentation,
-            InstalledArtworkIdentity.Create(artwork));
+            InstalledArtworkIdentity.Create(artwork, installation.LoadStandardObjects()));
         Console.WriteLine(
             $"Installed content: {installedContentIdentity.CompositeSha256}; " +
             $"definitions={installedContentIdentity.CompiledDefinitionsBuildId:D}, " +

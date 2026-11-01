@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
@@ -16,6 +17,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="EndingText">The editable ending text, whose pages and glyphs are pictured and whose typewriter characters are compiled.</param>
 /// <param name="Screens">The map screens' pages, pictured for the world map and the room maps.</param>
 /// <param name="Pause">The pause screen's backdrops, wireframes and equipment-page artwork, pictured into the pause sheet.</param>
+/// <param name="Sprites">The map and menu sprite compositions, pictured into the map sprite sheet and the menu sheets.</param>
 internal sealed record InstalledPresentationSources(
     MapCharacterArtwork Characters,
     GameplayMessageArtwork Messages,
@@ -23,4 +25,5 @@ internal sealed record InstalledPresentationSources(
     CreditsPresentation StaffCredits,
     EndingTextPresentation EndingText,
     MapScreenPresentation Screens,
-    PauseScreenArtwork Pause);
+    PauseScreenArtwork Pause,
+    MapSpriteCompositions Sprites);

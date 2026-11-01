@@ -75,11 +75,4 @@ public static class MapSaveMarkers
             if (usedStations.Contains(index)) return true;
         return false;
     }
-    /// <summary>Enumerates the complete stable save/elevator marker identity set for editable layout validation, independent of player discovery.</summary>
-    /// <returns>Lazy marker keys in area-ID order and ascending usable station-slot order.</returns>
-    public static IEnumerable<string> AllIds()
-    {
-        foreach (AreaId area in AreaIds.Zebes)
-            foreach (int index in Indices(area)) yield return Id(area, index);
-    }
 }

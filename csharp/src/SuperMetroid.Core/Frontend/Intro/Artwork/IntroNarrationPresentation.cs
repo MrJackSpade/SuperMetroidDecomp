@@ -1,8 +1,5 @@
 using System.Collections;
 using System.Text;
-using System.Security.Cryptography;
-using System.Text.Json;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -15,8 +12,8 @@ public sealed class IntroNarrationPresentation
     /// <summary>The six opening text pages, keyed by page in typewriter order.</summary>
     private readonly Dictionary<IntroNarrationPageId, NarrationPage> pages;
 
-    /// <summary>Retains six validated pages and the hash of their original JSON bytes.</summary>
-    private IntroNarrationPresentation(
+    /// <summary>Retains the six pages the import validated and the hash of their installed bytes.</summary>
+    internal IntroNarrationPresentation(
         Dictionary<IntroNarrationPageId, NarrationPage> pages,
         string contentIdentity)
     {
@@ -46,73 +43,6 @@ public sealed class IntroNarrationPresentation
             }
         }
         return result.ToArray();
-    }
-
-    /// <summary>Loads and validates the exact six-page opening-narration document.</summary>
-    public static IntroNarrationPresentation Load(Stream json)
-    {
-        Ensure.NotNull(json);
-        byte[] source;
-        using (var buffer = new MemoryStream())
-        {
-            json.CopyTo(buffer);
-            source = buffer.ToArray();
-        }
-
-        IntroNarrationDocument document;
-        try
-        {
-            document = JsonAssetDocument.Read<IntroNarrationDocument>(
-                source, ArtworkJson.Options)
-                ?? throw new InvalidDataException("Opening-narration document is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid opening-narration JSON.", error);
-        }
-
-        IntroNarrationPageId[] expected = Enum.GetValues<IntroNarrationPageId>();
-        if (document.Version != IntroNarrationDefinitions.Version || document.Pages is null ||
-            document.Pages.Count != expected.Length ||
-            expected.Any(page => !document.Pages.ContainsKey(page.ToString())))
-        {
-            throw new InvalidDataException(
-                "Opening narration requires version 1 and the exact six-page name set.");
-        }
-
-        var pages = new Dictionary<IntroNarrationPageId, NarrationPage>();
-        foreach (IntroNarrationPageId page in expected)
-        {
-            IntroNarrationPage value = document.Pages[page.ToString()]
-                ?? throw new InvalidDataException($"Opening-narration {page} is null.");
-            if (value.Lines is null || value.Lines.Length == 0)
-                throw new InvalidDataException($"Opening-narration {page} has no lines.");
-
-            var usedRows = new HashSet<int>();
-            foreach (IntroNarrationLine line in value.Lines)
-            {
-                if (string.IsNullOrEmpty(line.Text) ||
-                    line.Text.Length > IntroNarrationDefinitions.MaximumColumns ||
-                    line.Row < IntroNarrationDefinitions.FirstTextRow ||
-                    line.Row > IntroNarrationDefinitions.LastTextRow ||
-                    (line.Row & 1) != 0 || !usedRows.Add(line.Row) ||
-                    line.Text.Any(static character =>
-                        !IntroNarrationGlyphs.IsSupportedGlyph(character)))
-                {
-                    throw new InvalidDataException(
-                        $"Opening-narration {page} contains an invalid row, width or glyph.");
-                }
-            }
-            if (!value.Lines.Select(static line => line.Row).SequenceEqual(
-                    value.Lines.Select(static line => line.Row).Order()))
-            {
-                throw new InvalidDataException(
-                    $"Opening-narration {page} lines must be in ascending row order.");
-            }
-            pages.Add(page, new NarrationPage(value.Lines));
-        }
-
-        return new(pages, Convert.ToHexString(SHA256.HashData(source)));
     }
 
     /// <summary>Calculated word wrapping and two-row spacing. Stock story wording and its one deliberate hard break are reviewed narrative content; independent edits remain exact.</summary>
@@ -187,15 +117,5 @@ public sealed class IntroNarrationPresentation
             : CalculateLines(CalculatedText).GetEnumerator();
         /// <summary>Exposes the same row order to non-generic enumeration.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
-    /// <summary>Validates and writes an opening-narration document as JSON.</summary>
-    public static void Write(Stream output, IntroNarrationDocument document)
-    {
-        Ensure.NotNull(output);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
-            document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        output.Write(bytes);
     }
 }

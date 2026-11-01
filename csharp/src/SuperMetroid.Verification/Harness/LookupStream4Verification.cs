@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Samus.Palettes;
@@ -1615,7 +1616,7 @@ internal static class LookupStream4Verification
             for (int entry = start; CartridgeImportSource.Require(rom).ReadCartridgeWord(entry) < 0x8000; entry += 4)
                 if (CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 2)) != 0) nativeTitlePointers.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 2)));
         AssertEqual(31, nativeTitlePointers.Count, "native title sprite catalog size");
-        AssertEqual(TitleSpriteDefinitions.All.Count, Enum.GetValues<TitleSprite>().Length, "title composition domain is complete");
+        AssertEqual(TitleGraphicsFormat.Sprites.Count, Enum.GetValues<TitleSprite>().Length, "title composition domain is complete");
         AssertTrue(nativeTitlePointers.SetEquals(SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(rom).Values),
             "extraction maps every native title selector to exactly one named composition");
         AssertEqual(4, TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages.Length, "title baby animation phase count");

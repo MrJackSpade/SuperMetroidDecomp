@@ -1,4 +1,5 @@
 using System.Text.Json;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;

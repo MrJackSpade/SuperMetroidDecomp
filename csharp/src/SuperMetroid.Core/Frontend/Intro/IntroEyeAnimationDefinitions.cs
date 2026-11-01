@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 internal static class IntroEyeAnimationDefinitions
 {
-    /// <summary>Portrait-eye rectangle size in BG tiles: three columns by two rows.</summary>
-    internal static Extent16<TilemapCells> FrameSize => new(3, 2);
     /// <summary>The portrait tilemap cell at which every eye frame's top-left tile is drawn: column 17, row 13.</summary>
     internal static Position16<TilemapCells> PortraitCell => new(17, 13);
 }

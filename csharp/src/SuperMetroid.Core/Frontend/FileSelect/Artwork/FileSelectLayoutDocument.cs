@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 /// <remarks>Init-only properties hold caller-owned mutable arrays and dictionaries. A loaded presentation parses its own document and compiles artwork from the supplied JSON stream.</remarks>
 public record FileSelectLayoutDocument
 {
-    /// <summary>Schema version; must equal <see cref="FileSelectPresentationDefinitions.Version"/>.</summary>
+    /// <summary>Schema version; must equal the version the import supports.</summary>
     [JsonPropertyOrder(1)]
     public required int Version { get; init; }
     /// <summary>Exactly the named menu pages, each containing 1024 row-major cells for a 32-by-32 tilemap.</summary>

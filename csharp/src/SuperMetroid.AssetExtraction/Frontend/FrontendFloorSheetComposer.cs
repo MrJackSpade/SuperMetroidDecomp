@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.Core;
@@ -93,7 +94,7 @@ internal static class FrontendFloorSheetComposer
         Ensure.NotNull(flight);
         Ensure.NotNull(destruction);
         ReadOnlySpan<byte> characters = CeresFlightCharacters.Of(flight).FloorCharacters.Span;
-        if (characters.Length < CeresFlightArtworkFormat.FloorByteCount)
+        if (characters.Length < CeresFlightArtworkFileFormat.FloorByteCount)
             throw new InvalidDataException("The Ceres flight's Mode 7 characters are shorter than the scenes load.");
         if (CeresFlightCharacters.Of(flight).FloorMaps.Length + destruction.Views.Length < CeresFloorShotDefinitions.MapCells)
             throw new InvalidDataException("The Ceres cinematics' floor views are shorter than the scenes load.");
@@ -101,7 +102,7 @@ internal static class FrontendFloorSheetComposer
         CeresFlightCharacters.Of(flight).FloorMaps.Span.CopyTo(views);
         destruction.Views.Span[..(CeresFloorShotDefinitions.MapCells - CeresFlightCharacters.Of(flight).FloorMaps.Length)]
             .CopyTo(views.AsSpan(CeresFlightCharacters.Of(flight).FloorMaps.Length));
-        byte[] pixels = characters[..CeresFlightArtworkFormat.FloorByteCount].ToArray();
+        byte[] pixels = characters[..CeresFlightArtworkFileFormat.FloorByteCount].ToArray();
         byte[] station = Blank();
         views.AsSpan(CeresFloorShotDefinitions.StationStart, CeresFloorShotDefinitions.StationCells).CopyTo(station);
         // The final explosion shows the front gunship in the upper view, or a blank view with Samus still aboard, over a
@@ -184,8 +185,8 @@ internal static class FrontendFloorSheetComposer
     /// <exception cref="InvalidDataException">The icon's artwork is shorter than its chunks load.</exception>
     private static ComposedSpriteSheet RewardIcon(EndingFloorArtwork mode7, EndingPaletteSet palettes)
     {
-        ReadOnlySpan<byte> words = EndingRewardIconCharacters.Of(Ensure.NotNull(mode7).RewardIcon).Bytes.Span;
-        ReadOnlySpan<byte> map = mode7.RewardIcon.Map.Span;
+        ReadOnlySpan<byte> words = EndingRewardIconCharacters.Of(EndingFloorCharacters.RewardIconOf(mode7)).Bytes.Span;
+        ReadOnlySpan<byte> map = EndingFloorCharacters.RewardIconOf(mode7).Map.Span;
         if (map.Length < FloorSheetComposer.CellCount || words.Length < FloorSheetComposer.TileSetBytes * sizeof(ushort))
             throw new InvalidDataException("The reward icon's artwork is shorter than its chunks load.");
         var pixels = new byte[FloorSheetComposer.TileSetBytes];

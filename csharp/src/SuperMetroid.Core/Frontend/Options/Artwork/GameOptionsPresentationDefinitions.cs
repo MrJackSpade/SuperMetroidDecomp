@@ -1,27 +1,14 @@
 using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Frontend.Options.Artwork;
 
-/// <summary>Schema names and geometry for <c>options-menu.json</c>.</summary>
+/// <summary>The options menu's pages, controller labels and the names its pieces are pictured under.</summary>
 public static class GameOptionsPresentationDefinitions
 {
-    /// <summary>Supported options-menu presentation JSON schema version.</summary>
-    public const int Version = 1;
-    /// <summary>Extracted JSON filename for options artwork, highlight regions, sprite compositions, and anchors.</summary>
-    public const string FileName = "options-menu.json";
-    /// <summary>The JSON name of the common BG2 background page, separate from the foreground option pages.</summary>
-    public const string BackgroundPageName = "Background";
-
-    /// <summary>The foreground option pages in document order: primary, then English and Japanese controller and special pages.</summary>
-    public static IReadOnlyList<GameOptionsScreen> Tilemaps { get; } = Enum.GetValues<GameOptionsScreen>();
     /// <summary>The three menu layouts headings and cursors are anchored by, in primary, controller and special order.</summary>
     internal static IReadOnlyList<GameOptionsPage> MenuPages { get; } = Enum.GetValues<GameOptionsPage>();
     /// <summary>The assignable buttons whose glyphs the controller page shows, in selector order: X, A, B, Select, Y, L, R.</summary>
     public static IReadOnlyList<ControllerButton> ControllerLabelButtons { get; } =
         [ControllerButton.X, ControllerButton.A, ControllerButton.B, ControllerButton.Select, ControllerButton.Y, ControllerButton.L, ControllerButton.R];
-    /// <summary>The two special settings, icon cancel then moonwalk.</summary>
-    public static IReadOnlyList<GameOptionsToggle> Toggles { get; } = Enum.GetValues<GameOptionsToggle>();
-    /// <summary>The missile cursor's looping animation frames.</summary>
-    public const int CursorFrameCount = 4;
     /// <summary>The JSON names of the cursor frame sprites, by frame.</summary>
     internal static readonly string[] CursorSpriteNames = ["Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];
 

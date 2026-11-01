@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -34,7 +35,7 @@ internal static class MapSpritesVerification
         var native = new OamBuffer();
         var installed = new OamBuffer();
         var authored = ScreenSpritesFixtures.Blank();
-        Suite(nameof(VerifyMapSpriteNativeCompositions), () => VerifyMapSpriteNativeCompositions(bus, original.Sprites));
+        Suite(nameof(VerifyMapSpriteNativeCompositions), () => VerifyMapSpriteNativeCompositions(bus, InstalledAreaMapPresentation.SpritesOf(original)));
         // Independent coordinate oracle: the native carry/sign test parks wrapped
         // Y at $180/$E0, rather than letting it reappear on the opposite screen edge.
         for (int origin = 0; origin < 256; origin++)
@@ -50,7 +51,7 @@ internal static class MapSpritesVerification
             AssertEqual(hidden ? (byte)224 : (byte)sum, installed.LowTable[1], "typed sprite Y clipping");
             AssertEqual((byte)3, (byte)(installed.HighTable[0] & 3), "typed sprite preserves high X and large size");
         }
-        var vram = new SnesVram(); original.Sprites.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(MenuVramLayout.MapSpriteByteAddress / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
+        var vram = new SnesVram(); InstalledAreaMapPresentation.SpritesOf(original).LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(MenuVramLayout.MapSpriteByteAddress / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(MenuVramLayout.MapSpriteByteAddress, MapSpriteFormat.ByteCount).SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount)), "map OBJ PNG round-trips native characters exactly");
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, original));
@@ -70,7 +71,7 @@ internal static class MapSpritesVerification
         // Every colouring the map draws in.
         foreach (ScreenColourGroup colouring in new[] { ScreenColourGroup.MapLabels, ScreenColourGroup.MapDimLabels, ScreenColourGroup.MapHighlight, ScreenColourGroup.MapDefeatedBossMarker, ScreenColourGroup.MapMarkers })
         {
-            authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited.Sprites), MapSpriteId.MarkerBoss, authored, new(100, 100), colouring); authored.FinishFrame();
+            authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(edited)), MapSpriteId.MarkerBoss, authored, new(100, 100), colouring); authored.FinishFrame();
             AssertEqual((byte)112, authored.LowTable[0], "authored horizontal offset reaches OAM");
             AssertEqual((byte)96, authored.LowTable[1], "authored vertical offset reaches OAM");
             var attributes = new SnesObjAttributeWord(LittleEndianBytes.Word(authored.LowTable[2], authored.LowTable[3]));
@@ -82,7 +83,7 @@ internal static class MapSpritesVerification
         }
         frames["Marker.Boss"] = [];
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
-        authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(MapPresentationFiles.Load(stock, overrides).Sprites), MapSpriteId.MarkerBoss, authored, new(0, 0), ScreenColourGroup.MapLabels); authored.FinishFrame();
+        authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(MapPresentationFiles.Load(stock, overrides))), MapSpriteId.MarkerBoss, authored, new(0, 0), ScreenColourGroup.MapLabels); authored.FinishFrame();
         AssertEqual(0, authored.LastFinalizedSpriteCount, "authored empty visual frame is valid");
         frames.Remove("Marker.Boss");
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
@@ -156,7 +157,7 @@ internal static class MapSpritesVerification
         var forbidden = new HashSet<int>();
         Add(MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount);
         Add(MapSourceDefinitions.FileSelectMap.LabelSpritemaps, 2);
-        foreach (var frame in MapSpriteNames.Frames)
+        foreach (var frame in MapSpriteArtwork.FrameNames)
         {
             int entry = MapSourceDefinitions.Menu.SpritemapPointers + (int)frame.Id * 2;
             int pointer = MapSourceDefinitions.Menu.ObjectBank | RomDataReader.ReadWordFixedBank(cartridge, entry);

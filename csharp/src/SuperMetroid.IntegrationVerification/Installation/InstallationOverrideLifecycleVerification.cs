@@ -234,8 +234,8 @@ internal static class InstallationOverrideLifecycleVerification
             checked((ushort)((RoomCharacterAtlasFormat.ValidateTileCount(StandardObjectArtworkFormat.ByteCount) +
                 RoomCharacterAtlasFormat.TileColumns - 1) / RoomCharacterAtlasFormat.TileColumns * 8))), 4)
             .AsSpan(0, StandardObjectArtworkFormat.ByteCount).ToArray();
-        byte[] font = EditPng(Path.Combine(installation.MapOverrideDirectory, IntroFontAtlasFormat.FileName),
-            new(checked(IntroFontAtlasFormat.Width), checked(IntroFontAtlasFormat.Height)),
+        byte[] font = EditPng(Path.Combine(installation.MapOverrideDirectory, IntroFontCharacters.FileName),
+            new(checked(IntroFontCharacters.Width), checked(IntroFontCharacters.Height)),
             IntroFontAtlasFormat.BitsPerPixel);
         string palettePath = Path.Combine(installation.GameplayBasePaletteOverrideDirectory, GameplayBasePaletteFormat.ArtworkFileName);
         GameplayBasePaletteDocument palette = RequiredJson.Deserialize<GameplayBasePaletteDocument>(

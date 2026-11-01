@@ -31,7 +31,7 @@ internal static class PauseSelectorsVerification
     internal static void VerifyPauseSelectors(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation catalog)
     {
         Directory.CreateDirectory(overrides);
-        string stockPath = Path.Combine(stock, PauseSelectorDefinitions.FileName), path = Path.Combine(overrides, PauseSelectorDefinitions.FileName);
+        string stockPath = Path.Combine(stock, PauseSelectorFormat.FileName), path = Path.Combine(overrides, PauseSelectorFormat.FileName);
         byte[] bytes = File.ReadAllBytes(stockPath);
         var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
         var guard = NewPauseSelectorReadGuard(bus);

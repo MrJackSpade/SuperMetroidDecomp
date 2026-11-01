@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 

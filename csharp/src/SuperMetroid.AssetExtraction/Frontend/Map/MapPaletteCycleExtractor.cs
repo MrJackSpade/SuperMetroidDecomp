@@ -13,16 +13,16 @@ internal static class MapPaletteCycleExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var frames = new List<MapPaletteCycleFrame>();
-        for (int frame = 0; frame <= MapPaletteCycleFormat.MaximumFrames; frame++)
+        for (int frame = 0; frame <= MapPaletteCycleFile.MaximumFrames; frame++)
         {
             int duration = bus.ReadCartridgeByte(MapSourceDefinitions.Animation.PaletteTiming + frame * MapSourceDefinitions.Animation.PaletteTimingStride);
             if (duration == byte.MaxValue)
             {
                 using var json = new MemoryStream();
-                MapPaletteCycleFile.Write(json, new() { Version = MapPaletteCycleFormat.Version, Frames = frames.ToArray() });
+                MapPaletteCycleFile.Write(json, new() { Version = MapPaletteCycleFile.Version, Frames = frames.ToArray() });
                 return json.ToArray();
             }
-            if (frame == MapPaletteCycleFormat.MaximumFrames)
+            if (frame == MapPaletteCycleFile.MaximumFrames)
                 break;
             var colors = new PaletteRgb5[MapPaletteCycleFormat.ColorCount];
             for (int color = 0; color < colors.Length; color++)

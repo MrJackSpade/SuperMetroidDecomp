@@ -17,7 +17,7 @@ internal static class LookupRomOraclesVerification
         var narrationSources = IntroNarrationScriptSources.Pages.ToArray();
         AssertEqual(6, narrationSources.Length, "narration native registry has six pages");
         byte[] narrationJson = IntroNarrationExtractor.Extract(rom);
-        var narration = IntroNarrationPresentation.Load(new MemoryStream(narrationJson, writable: false));
+        var narration = IntroNarrationFile.Read(new MemoryStream(narrationJson, writable: false));
         for (int page = 0; page < narrationSources.Length; page++)
         {
             IntroNarrationScriptPage source = narrationSources[page];

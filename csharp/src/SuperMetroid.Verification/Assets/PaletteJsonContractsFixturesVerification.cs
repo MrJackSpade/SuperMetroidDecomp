@@ -1,3 +1,7 @@
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Assets.PaletteJsonContractsVerification;
@@ -5,12 +9,9 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -56,14 +57,14 @@ internal static class PaletteJsonContractsFixturesVerification
         }), json => _ = MapStaticPalettesFile.Read(json));
         yield return new("map cycle", PaletteContractDocument(new MapPaletteCycleDocument
         {
-            Version = MapPaletteCycleFormat.Version, Frames = Enumerable.Range(0, 3).Select(frame => new MapPaletteCycleFrame
+            Version = MapPaletteCycleFile.Version, Frames = Enumerable.Range(0, 3).Select(frame => new MapPaletteCycleFrame
             { DurationTicks = frame + 2, Colors = PaletteContractColors(MapPaletteCycleFormat.ColorCount, frame) }).ToArray(),
         }), json => _ = MapPaletteCycleFile.Read(json));
         yield return new("Ceres flight", PaletteContractDocument(new CeresFlightPaletteDocument
         { Version = CeresFlightPaletteFormat.Version, Colors = PaletteContractColors(SnesCgram.ColorCount) }),
             json => _ = CeresFlightPaletteFile.Read(json));
         yield return new("intro", PaletteContractDocument(new IntroCinematicPaletteDocument
-        { Version = IntroCinematicPaletteFormat.Version, Colors = PaletteContractColors(SnesCgram.ColorCount) }),
+        { Version = IntroCinematicPaletteFile.Version, Colors = PaletteContractColors(SnesCgram.ColorCount) }),
             json => _ = IntroCinematicPaletteFile.Read(json));
         foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
             yield return new($"ending {id}", PaletteContractDocument(new EndingPaletteDocument

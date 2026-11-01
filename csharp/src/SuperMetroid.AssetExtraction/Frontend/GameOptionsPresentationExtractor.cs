@@ -31,7 +31,7 @@ public static class GameOptionsPresentationExtractor
 
         var pages = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal)
         {
-            [GameOptionsPresentationDefinitions.BackgroundPageName] = Cells(
+            [GameOptionsPresentationFormat.BackgroundPageName] = Cells(
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.Background,
                     GameOptionsSourceDefinitions.TilemapByteCount)),
             [GameOptionsNames.TilemapName(GameOptionsScreen.Primary)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Primary]),
@@ -108,7 +108,7 @@ public static class GameOptionsPresentationExtractor
         using var output = new MemoryStream();
         GameOptionsSourcePresentation.Write(output, new()
         {
-            Version = GameOptionsPresentationDefinitions.Version,
+            Version = GameOptionsPresentationFormat.Version,
             Pages = pages,
             ControllerLabels = labels,
             ControllerLabelAnchors = controllerAnchors,

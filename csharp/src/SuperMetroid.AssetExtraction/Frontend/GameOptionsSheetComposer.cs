@@ -28,7 +28,7 @@ internal static class GameOptionsSheetComposer
     {
         Ensure.NotNull(options);
         Ensure.NotNull(maps);
-        SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
+        SpriteArtwork page = MapSpriteArtwork.Of(InstalledAreaMapPresentation.SpritesOf(maps)).Page;
         GameOptionsSourcePresentation source = GameOptionsSourcePresentation.Of(options);
         int palette = options.CursorPalette;
         var frames = new List<SheetFrameSource>();
@@ -37,7 +37,7 @@ internal static class GameOptionsSheetComposer
             string name = GameOptionsNames.HeadingSpriteName(menuPage);
             frames.Add(new(name, source.headingSprites[menuPage].ToFrame(name, 0), page, palette));
         }
-        for (int frame = 0; frame < GameOptionsPresentationDefinitions.CursorFrameCount; frame++)
+        for (int frame = 0; frame < GameOptionsPresentationFormat.CursorFrameCount; frame++)
         {
             string name = GameOptionsNames.CursorSpriteName(frame);
             frames.Add(new(name, source.cursorSprites[frame].ToFrame(name, 0), page, palette));

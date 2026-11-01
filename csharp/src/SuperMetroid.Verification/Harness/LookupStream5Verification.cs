@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
@@ -611,7 +612,7 @@ internal static class LookupStream5Verification
     internal static void VerifyLookupStream5MapLandmarkCases(SuperMetroidAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Map.MapLandmarkExtractor.Extract(rom);
-        MapLandmarkPositions layout = MapLandmarkPositions.Load(new MemoryStream(extracted));
+        MapLandmarkPositions layout = MapLandmarkFile.Read(new MemoryStream(extracted));
         var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(rom);
         MapSpriteCompositions sprites = MapSpriteArtwork.Read(new MemoryStream(artwork[MapSpriteFormat.JsonFile]), new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         int Read(int pointer) => ReadVerificationWord(rom, MapSourceDefinitions.Menu.ObjectBank | pointer);
@@ -620,12 +621,12 @@ internal static class LookupStream5Verification
             "Boss.Kraid", "Brinstar.Elevator.0", "Brinstar.Elevator.1", "Brinstar.Elevator.2", "Brinstar.Elevator.3", "Brinstar.Elevator.4",
             "Boss.Ridley", "Norfair.Elevator.0", "Boss.Phantoon", "WreckedShip.Elevator.0", "WreckedShip.Elevator.1",
             "Boss.Draygon", "Maridia.Elevator.0", "Maridia.Elevator.1", "Maridia.Elevator.2", "Tourian.Elevator.0", "Boss.CeresRidley", "Crateria.Gunship"];
-        AssertTrue(expectedIds.SequenceEqual(MapLandmarks.AllIds()), "Original public identity and manifest order");
+        AssertTrue(expectedIds.SequenceEqual(MapLandmarkFile.Ids()), "Original public identity and manifest order");
         using var editedBytes = new MemoryStream();
-        MapLandmarkPositions.Write(editedBytes, new MapLandmarkDocument { Version = MapLandmarkFormat.Version,
+        MapLandmarkFile.Write(editedBytes, new MapLandmarkDocument { Version = MapLandmarkFormat.Version,
             Markers = expectedIds.ToDictionary(id => id, id => layout.Get(id) with { X = (ushort)(layout.Get(id).X + 1), Y = (ushort)(layout.Get(id).Y + 1) }) });
         editedBytes.Position = 0;
-        MapLandmarkPositions editedLayout = MapLandmarkPositions.Load(editedBytes);
+        MapLandmarkPositions editedLayout = MapLandmarkFile.Read(editedBytes);
         int bossSlots = 0, elevatorSlots = 0;
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
@@ -1670,9 +1671,9 @@ internal static class LookupStream5Verification
         Check(flight, values =>
         {
             using var encoded = new MemoryStream();
-            CeresFlightActorPlacements.Write(encoded, new() { Version = 1, Actors = values });
+            CeresFlightActorLayoutFile.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
-            var layout = CeresFlightActorPlacements.Load(encoded);
+            var layout = CeresFlightActorLayoutFile.Read(encoded);
             return new LookupStream5Load<CeresFlightActorPlacement>(layout, layout.placements, index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y),
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
@@ -1686,9 +1687,9 @@ internal static class LookupStream5Verification
         Check(reveal, values =>
         {
             using var encoded = new MemoryStream();
-            CeresRevealActorPlacements.Write(encoded, new() { Version = 1, Actors = values });
+            CeresRevealActorLayoutFile.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
-            var layout = CeresRevealActorPlacements.Load(encoded);
+            var layout = CeresRevealActorLayoutFile.Read(encoded);
             return new LookupStream5Load<CeresRevealActorPlacement>(layout, layout.placements, index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y),
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
@@ -1701,9 +1702,9 @@ internal static class LookupStream5Verification
         Check(destruction, values =>
         {
             using var encoded = new MemoryStream();
-            CeresDestructionActorPlacements.Write(encoded, new() { Version = 1, Actors = values });
+            CeresDestructionActorLayoutFile.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
-            var layout = CeresDestructionActorPlacements.Load(encoded);
+            var layout = CeresDestructionActorLayoutFile.Read(encoded);
             return new LookupStream5Load<CeresDestructionActorPlacement>(layout, layout.placements, index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y),
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
@@ -1908,8 +1909,8 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => _ = stockColours[new ScreenColourCell(ScreenColourOwner.Sprites, ColourSets.SetCount, 0)], "Ceres palette upper set bound");
         AssertEqual(CgramPalettes.ByteCount, ScreenColourImage.Words(stockColours).Length, "Ceres palette serializes every colour of both owners");
         IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightArtworkExtractor.Extract(rom);
-        var catalog = CeresFlightCharacters.Read(Open(CeresFlightArtworkFormat.FloorFileName),
-            Open(CeresFlightArtworkFormat.MapFileName), Open(CeresFlightArtworkFormat.ObjectFileName),
+        var catalog = CeresFlightCharacters.Read(Open(CeresFlightArtworkFileFormat.FloorFileName),
+            Open(CeresFlightArtworkFileFormat.MapFileName), Open(CeresFlightArtworkFileFormat.ObjectFileName),
             CeresFlightPaletteFile.Read(Open(CeresFlightPaletteFormat.FileName)), Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));
         byte[] nativeBytes = new byte[CgramPalettes.ByteCount];
         for (int index = 0; index < nativeBytes.Length; index++) nativeBytes[index] = rom.ReadCartridgeByte(CeresCinematicSourceDefinitions.FlightPalette + index);

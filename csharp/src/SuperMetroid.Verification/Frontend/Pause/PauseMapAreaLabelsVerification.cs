@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -30,7 +31,7 @@ internal static class PauseMapAreaLabelsVerification
             var labels = new FileSelectMapIcons(system, area);
             var presentation = RetailPresentationFixture();
             labels.BindLandmarks(presentation.Landmarks);
-            labels.BindSprites(MenuSheetFixtures.MapSprites(presentation.Sprites));
+            labels.BindSprites(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(presentation)));
             var gated = ScreenSpritesFixtures.Blank(); gated.BeginFrame();
             labels.DrawElevatorLabels(gated, new(0, 0));
             gated.FinishFrame();

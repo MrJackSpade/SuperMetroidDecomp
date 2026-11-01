@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend;
 using System.Text.Json;
 using SuperMetroid.Core.Rendering;
@@ -62,10 +63,10 @@ internal static class EndingFlyawayArtworkVerification
         // Rebind the player's current front-view map after the first low-byte DMA.
         // The pending chunks must retain their native schedule, not upload early.
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory,
-            CeresFlightArtworkFormat.MapFileName);
+            CeresFlightArtworkFileFormat.MapFileName);
         CeresFlightMapDocument edited;
         using (var input = File.OpenRead(Path.Combine(installation.IntroCinematicDirectory,
-                   CeresFlightArtworkFormat.MapFileName)))
+                   CeresFlightArtworkFileFormat.MapFileName)))
             edited = JsonSerializer.Deserialize<CeresFlightMapDocument>(input,
                 ArtworkJson.Options)
                 ?? throw new InvalidDataException("Stock Ceres flight map is empty.");

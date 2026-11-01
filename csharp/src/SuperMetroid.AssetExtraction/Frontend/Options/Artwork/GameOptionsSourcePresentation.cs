@@ -54,7 +54,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
             region.HighlightWhenJapanese != GameOptionsPageCells.LanguagePaletteRegion(index).HighlightWhenJapanese ||
             !region.Cells.SequenceEqual(GameOptionsPageCells.LanguageCells(index))).Any()
             ? document.LanguageRegions : null;
-        Dictionary<GameOptionsToggle, GameOptionsToggleVisualDocument> toggles = GameOptionsPresentationDefinitions.Toggles.ToDictionary(
+        Dictionary<GameOptionsToggle, GameOptionsToggleVisualDocument> toggles = GameOptionsPresentationFormat.Toggles.ToDictionary(
             toggle => toggle, toggle => document.SpecialToggles[GameOptionsNames.ToggleName(toggle)]);
         specialToggles = toggles.Any(pair =>
             !pair.Value.EnabledCells.SequenceEqual(GameOptionsPageCells.ToggleCells(pair.Key, GameOptionsToggleState.Enabled)) ||
@@ -138,7 +138,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     {
         int width = GameOptionsDefinitions.MenuTilemapWidth;
         yield return ScreenPictureSubject.Page(GameOptionsNames.BackgroundFrame, background, width);
-        foreach (GameOptionsScreen tilemap in GameOptionsPresentationDefinitions.Tilemaps)
+        foreach (GameOptionsScreen tilemap in GameOptionsPresentationFormat.Tilemaps)
             yield return ScreenPictureSubject.Page(GameOptionsNames.PageFrame(tilemap), pages[tilemap], width, DynamicCells(tilemap));
         foreach (bool japanese in new[] { false, true })
         {
@@ -159,7 +159,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
             }
         }
         foreach (GameOptionsScreen special in new[] { GameOptionsScreen.SpecialEnglish, GameOptionsScreen.SpecialJapanese })
-        foreach (GameOptionsToggle toggle in GameOptionsPresentationDefinitions.Toggles)
+        foreach (GameOptionsToggle toggle in GameOptionsPresentationFormat.Toggles)
         foreach (bool enabled in new[] { false, true })
         {
             BackgroundTile[] page = CreatePage(special);
@@ -175,7 +175,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
         GameOptionsScreen.Primary => Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount).SelectMany(LanguageRegionCells),
         GameOptionsScreen.ControllerEnglish or GameOptionsScreen.ControllerJapanese =>
             Enumerable.Range(0, GameOptionsDefinitions.Rows.ControllerActionCount).SelectMany(action => ControllerLabelCells(action).Select(cell => cell.PageCell)),
-        GameOptionsScreen.SpecialEnglish or GameOptionsScreen.SpecialJapanese => GameOptionsPresentationDefinitions.Toggles.SelectMany(toggle =>
+        GameOptionsScreen.SpecialEnglish or GameOptionsScreen.SpecialJapanese => GameOptionsPresentationFormat.Toggles.SelectMany(toggle =>
             ToggleChoiceCells(toggle, GameOptionsToggleState.Enabled).Concat(ToggleChoiceCells(toggle, GameOptionsToggleState.Disabled))),
         _ => throw new ArgumentOutOfRangeException(nameof(tilemap), tilemap, "Undefined options page."),
     };
@@ -205,21 +205,21 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
             throw new InvalidDataException("Invalid options presentation JSON.", error);
         }
 
-        if (document.Version != GameOptionsPresentationDefinitions.Version)
+        if (document.Version != GameOptionsPresentationFormat.Version)
             throw new InvalidDataException(
-                $"Options presentation version must be {GameOptionsPresentationDefinitions.Version}.");
-        ValidateExactKeys(document.Pages, [GameOptionsPresentationDefinitions.BackgroundPageName,
-                .. GameOptionsPresentationDefinitions.Tilemaps.Select(GameOptionsNames.TilemapName)],
+                $"Options presentation version must be {GameOptionsPresentationFormat.Version}.");
+        ValidateExactKeys(document.Pages, [GameOptionsPresentationFormat.BackgroundPageName,
+                .. GameOptionsPresentationFormat.Tilemaps.Select(GameOptionsNames.TilemapName)],
             "options pages");
         ValidateExactKeys(document.ControllerLabels,
             [.. GameOptionsPresentationDefinitions.ControllerLabelButtons.Select(GameOptionsNames.ControllerLabelName)],
             "options controller labels");
         ValidateExactKeys(document.SpecialToggles,
-            [.. GameOptionsPresentationDefinitions.Toggles.Select(GameOptionsNames.ToggleName)],
+            [.. GameOptionsPresentationFormat.Toggles.Select(GameOptionsNames.ToggleName)],
             "options special toggles");
         ValidateExactKeys(document.Sprites,
             [.. GameOptionsPresentationDefinitions.MenuPages.Select(GameOptionsNames.HeadingSpriteName),
-                .. Enumerable.Range(0, GameOptionsPresentationDefinitions.CursorFrameCount).Select(GameOptionsNames.CursorSpriteName)],
+                .. Enumerable.Range(0, GameOptionsPresentationFormat.CursorFrameCount).Select(GameOptionsNames.CursorSpriteName)],
             "options sprites");
         string[] menuNames = [.. GameOptionsPresentationDefinitions.MenuPages.Select(GameOptionsNames.MenuName)];
         ValidateExactKeys(document.HeadingAnchors, menuNames, "options heading anchors");
@@ -238,9 +238,9 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
             throw new InvalidDataException("Options cursor frame duration must be 1..65535.");
         ValidatePoint(document.HiddenCursor, "hidden cursor", offscreenX: OffscreenX.Allowed);
 
-        var pages = GameOptionsPresentationDefinitions.Tilemaps.ToDictionary(tilemap => tilemap,
+        var pages = GameOptionsPresentationFormat.Tilemaps.ToDictionary(tilemap => tilemap,
             tilemap => CompilePage(document, GameOptionsNames.TilemapName(tilemap)));
-        BackgroundTile[] background = CompilePage(document, GameOptionsPresentationDefinitions.BackgroundPageName);
+        BackgroundTile[] background = CompilePage(document, GameOptionsPresentationFormat.BackgroundPageName);
 
         var labels = new Dictionary<ControllerButton, BackgroundTile[]>();
         foreach (ControllerButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
@@ -261,7 +261,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
                 throw new InvalidDataException("Each options language region requires cells.");
             ValidateCellSet(region.Cells, claimedLanguageCells, "language region");
         }
-        foreach (GameOptionsToggle option in GameOptionsPresentationDefinitions.Toggles)
+        foreach (GameOptionsToggle option in GameOptionsPresentationFormat.Toggles)
         {
             string name = GameOptionsNames.ToggleName(option);
             GameOptionsToggleVisualDocument? toggle = document.SpecialToggles[name];
@@ -276,7 +276,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
         var headingSprites = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(page => page,
             page => MenuHeadingBorder.CalculateIfMatching(Ensure.Listed(GameOptionsSpriteDefinitions.Headings, page),
                 MenuBorderParts.CalculateIfMatching(CompileSprite(document, GameOptionsNames.HeadingSpriteName(page)))));
-        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, GameOptionsPresentationDefinitions.CursorFrameCount)
+        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, GameOptionsPresentationFormat.CursorFrameCount)
             .Select(frame => MenuCursorParts.CalculateIfMatching(frame,
                 CompileSprite(document, GameOptionsNames.CursorSpriteName(frame))))];
         foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)

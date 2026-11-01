@@ -36,10 +36,10 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
         try { document = JsonAssetDocument.Read<PauseSelectorDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Pause selector document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause selector JSON.", error); }
-        if (document.Version != PauseSelectorDefinitions.Version || document.InitialDurationTicks is < 1 or > PauseSelectorDefinitions.MaximumDuration ||
-            (uint)document.Palette > 7 || document.Anchors is null || document.Anchors.Count != PauseSelectorDefinitions.AnchorCount ||
-            document.Frames is null || document.Frames.Count is < 1 or > PauseSelectorDefinitions.MaximumFrames ||
-            document.Animation is null || document.Animation.Length is < 1 or > PauseSelectorDefinitions.MaximumPhases)
+        if (document.Version != PauseSelectorFormat.Version || document.InitialDurationTicks is < 1 or > PauseSelectorFormat.MaximumDuration ||
+            (uint)document.Palette > 7 || document.Anchors is null || document.Anchors.Count != PauseSelectorFormat.AnchorCount ||
+            document.Frames is null || document.Frames.Count is < 1 or > PauseSelectorFormat.MaximumFrames ||
+            document.Animation is null || document.Animation.Length is < 1 or > PauseSelectorFormat.MaximumPhases)
             throw new InvalidDataException("Pause selectors require version 1, sixteen anchors, palette 0..7, valid named frames and positive bounded timing.");
         var anchorOverrides = new Dictionary<string, AnchorOverride>();
         foreach (var definition in PauseSelectorAnchors.Anchors())
@@ -61,7 +61,7 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
         for (int i = 0; i < document.Animation.Length; i++)
         {
             var phase = document.Animation[i];
-            if (phase is null || phase.DurationTicks is < 1 or > PauseSelectorDefinitions.MaximumDuration ||
+            if (phase is null || phase.DurationTicks is < 1 or > PauseSelectorFormat.MaximumDuration ||
                 phase.Reserve is null || !frames.ContainsKey(phase.Reserve) ||
                 phase.Beam is null || !frames.ContainsKey(phase.Beam) ||
                 phase.Equipment is null || !frames.ContainsKey(phase.Equipment))

@@ -25,7 +25,7 @@ internal static class CeresDestructionArtworkExtractor
         byte[] allCeresMaps = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
-        int firstDestructionByte = 2 * CeresFlightArtworkFormat.MapCellsPerView;
+        int firstDestructionByte = 2 * CeresFlightArtworkFileFormat.MapCellsPerView;
         if (allCeresMaps.Length < firstDestructionByte + CeresDestructionMapFormat.MapByteCount)
             throw new InvalidDataException("Ceres destruction lacks its three native map slices.");
         var views = new int[CeresDestructionMapFormat.ViewCount][];
@@ -99,7 +99,7 @@ internal static class CeresDestructionArtworkExtractor
             };
         }
         using var actorsJson = new MemoryStream();
-        CeresRevealActorPlacements.Write(actorsJson, new CeresRevealActorLayoutDocument
+        CeresRevealActorLayoutFile.Write(actorsJson, new CeresRevealActorLayoutDocument
         {
             Version = CeresRevealActorLayoutFormat.Version,
             Actors = placements,
@@ -123,7 +123,7 @@ internal static class CeresDestructionArtworkExtractor
             };
         }
         using var destructionActorsJson = new MemoryStream();
-        CeresDestructionActorPlacements.Write(destructionActorsJson,
+        CeresDestructionActorLayoutFile.Write(destructionActorsJson,
             new CeresDestructionActorLayoutDocument
             {
                 Version = CeresDestructionActorLayoutFormat.Version,
@@ -132,7 +132,7 @@ internal static class CeresDestructionArtworkExtractor
         byte[] destructionActorsFile = destructionActorsJson.ToArray();
 
         CeresDestructionMaps compiled = CeresDestructionMaps.Load(new MemoryStream(mapJson.ToArray(), writable: false));
-        _ = CeresDestructionArtwork.Load(
+        _ = CeresDestructionArtworkFile.Read(
             new MemoryStream(actorsFile, writable: false),
             new MemoryStream(destructionActorsFile, writable: false));
         ZebesRevealArtwork zebes = ZebesRevealArtwork.Load(new MemoryStream(zebesMapJson, writable: false),

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core;
@@ -24,7 +25,16 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
         Characters = Ensure.NotNull(sources.Characters);
         Messages = Ensure.NotNull(sources.Messages);
         RoomFxPages = Ensure.NotNull(sources.RoomFxPages);
+        Sprites = Ensure.NotNull(sources.Sprites);
     }
+
+    /// <summary>The installed map and menu sprites; the game draws them from the map sprite sheet, which the import composes from these (#1463).</summary>
+    public MapSpriteCompositions Sprites { get; }
+
+    /// <summary>The map and menu sprites the installed map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static MapSpriteCompositions SpritesOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.Sprites
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no map sprites.");
 
     /// <summary>The characters the map screens, the pause interface and the HUD are pictured from.</summary>
     public MapCharacterArtwork Characters { get; }

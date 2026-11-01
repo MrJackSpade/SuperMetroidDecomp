@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -40,7 +41,7 @@ internal static class MapArrowsVerification
         entries["Left"] = entries["Left"] with { X = entries["Left"].X + 8, DurationTicks = [9, 11] };
         Directory.CreateDirectory(overrides);
         string path = Path.Combine(overrides, MapArrowFormat.FileName);
-        using (var output = File.Create(path)) MapArrowPresentation.Write(output, document with { Arrows = entries });
+        using (var output = File.Create(path)) MapArrowFile.Write(output, document with { Arrows = entries });
         byte[] bytes = File.ReadAllBytes(path);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "arrow override affects selected content identity");
@@ -74,10 +75,10 @@ internal static class MapArrowsVerification
         foreach (int duration in new[] { 0, 255, -1 })
         {
             entries["Left"] = entries["Left"] with { DurationTicks = [duration] };
-            AssertThrows<InvalidDataException>(() => MapArrowPresentation.Write(new MemoryStream(), document with { Arrows = entries }), "invalid arrow duration rejected");
+            AssertThrows<InvalidDataException>(() => MapArrowFile.Write(new MemoryStream(), document with { Arrows = entries }), "invalid arrow duration rejected");
         }
         entries.Remove("Down");
-        AssertThrows<InvalidDataException>(() => MapArrowPresentation.Write(new MemoryStream(), document with { Arrows = entries }), "missing direction rejected");
+        AssertThrows<InvalidDataException>(() => MapArrowFile.Write(new MemoryStream(), document with { Arrows = entries }), "missing direction rejected");
         File.WriteAllText(path, "broken arrow override");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "broken arrow override fails loudly");
         AssertEqual("broken arrow override", File.ReadAllText(path), "broken override never replaced");
@@ -95,7 +96,7 @@ internal static class MapArrowsVerification
         byte[] Draw(FileSelectMapAnimations animation)
         {
             var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame();
-            animation.DrawArrows(oam, MenuSheetFixtures.MapSprites(original.Sprites));
+            animation.DrawArrows(oam, MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
             oam.FinalizeFrame();
             return oam.LowTable.ConcatToArray(oam.HighTable);
         }

@@ -1,5 +1,5 @@
 using System.Collections.Frozen;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using static SuperMetroid.AssetExtraction.Frontend.Intro.IntroNarrationGlyphTileDefinitions;
 
@@ -42,5 +42,5 @@ public static class IntroNarrationGlyphTiles
 
     /// <summary>Each supported character keyed by the tile <see cref="CompileGlyph"/> gives it.</summary>
     private static readonly FrozenDictionary<BackgroundTile, char> GlyphsByTile =
-        IntroNarrationDefinitions.Alphabet.ToFrozenDictionary(CompileGlyph, character => character);
+        IntroNarrationGlyphs.Alphabet.ToFrozenDictionary(CompileGlyph, character => character);
 }

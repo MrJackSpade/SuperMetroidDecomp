@@ -24,7 +24,7 @@ internal static class GameOverPresentationVerification
         string overrides,
         AreaMapPresentation original)
     {
-        string stockPath = Path.Combine(stock, GameOverPresentationDefinitions.FileName);
+        string stockPath = Path.Combine(stock, GameOverPresentationFormat.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed game-over JSON is the deterministic cartridge extraction");
@@ -100,7 +100,7 @@ internal static class GameOverPresentationVerification
             document.Sprites[GameOverPresentationNames.CursorFrameName(0)][0] with
             { FlipY = !document.Sprites[GameOverPresentationNames.CursorFrameName(0)][0].FlipY };
         Directory.CreateDirectory(overrides);
-        string replacement = Path.Combine(overrides, GameOverPresentationDefinitions.FileName);
+        string replacement = Path.Combine(overrides, GameOverPresentationFormat.FileName);
         using (var output = File.Create(replacement))
             GameOverSourcePresentation.Write(output, document);
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);

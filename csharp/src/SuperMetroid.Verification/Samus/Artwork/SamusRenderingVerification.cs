@@ -32,6 +32,7 @@ internal static class SamusRenderingVerification
 {
 
 /// <summary>Samus rendering, arm cannon, visor, hurt palette, and pose fixture verification.</summary>
+[PrivateInstallation("Runs SamusSuitColorExtractor over this fixture's own seeded test address space rather than the retail cartridge the repository installation was extracted from.")]
 internal static void VerifySamusRenderingSlice()
 {
     var bus = new TestAddressSpace();
@@ -634,6 +635,7 @@ internal static void VerifySamusArmCannon()
 /// Proves the byte-aliased `$0A72/$0A73` visor timer, all three room-cycle colors, normal-
 /// room reset, X-ray exclusion, and the inactive-charge call seam.
 /// </summary>
+[PrivateInstallation("Runs SamusVisorColorExtractor over this fixture's own seeded test address space rather than the retail cartridge the repository installation was extracted from.")]
 internal static void VerifySamusVisorPalette()
 {
     var bus = new TestAddressSpace();
@@ -725,6 +727,7 @@ internal static void VerifySamusVisorPalette()
 /// palette records. This intentionally verifies every call rather than three hand-picked
 /// frames: an off-by-one at seven, forty, or sixty would otherwise look visually plausible.
 /// </summary>
+[PrivateInstallation("Runs SamusHurtColorExtractor and SamusSuitColorExtractor over this fixture's own seeded test address space rather than the retail cartridge the repository installation was extracted from.")]
 internal static void VerifySamusHurtFlashPalette()
 {
     var bus = new TestAddressSpace();

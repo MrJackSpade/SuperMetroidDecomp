@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Map;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
@@ -88,7 +89,7 @@ internal static class ExploredMapPackingDefinitionsVerification
         AssertTrue(SaveRamCodec.Decode(image, RetailPresentationFixture()).ReadSlot(0)?.Progression.SameAs(restored.Progression) == true,
             "the packed field round-trips the kept exploration through the save image");
 
-        Suite(nameof(VerifyCalculatedMapPackingBindings), () => VerifyCalculatedMapPackingBindings(retail, explored));
+        Suite(nameof(VerifyCalculatedMapPackingBindings), () => VerifyCalculatedMapPackingBindings(explored));
 
         Console.WriteLine(
             "  Explored-map packing: six area records and all 327 exported byte indexes match the cartridge; production save/load round-trips with the native codec tables forbidden.");
@@ -98,15 +99,15 @@ internal static class ExploredMapPackingDefinitionsVerification
     private static byte ExploredMapPackingDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks that edited map artwork preserves SRAM layout and that debugger restoration requires artwork rebinding.</summary>
-    private static void VerifyCalculatedMapPackingBindings(ISnesAddressSpace native, PersistentProgress explored)
+    private static void VerifyCalculatedMapPackingBindings(PersistentProgress explored)
     {
         string parent = Path.GetFullPath(Path.Combine("csharp", "test-temp"));
         string root = Directory.CreateDirectory(Path.Combine(parent, "packing-bindings-" + Guid.NewGuid().ToString("N"))).FullName;
         try
         {
-            string stock = Path.Combine(root, "game", "maps");
+            // The shared installation's stock maps are only read; the blank artwork overrides go to the scratch root.
+            string stock = RepositoryInstallation.Installation.MapDirectory;
             string edits = Directory.CreateDirectory(Path.Combine(root, "edits")).FullName;
-            MapPresentationExtractor.Extract(native, stock, "test-provenance");
             var original = MapPresentationFiles.Load(stock, null);
             for (int area = 0; area < SaveRamLayoutConstants.PackedMapAreaCount; area++)
             {

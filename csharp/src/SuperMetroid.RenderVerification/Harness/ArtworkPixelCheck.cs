@@ -12,8 +12,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 /// <summary>Exact indexed-pixel oracle plus backend comparison for disk-authored replacements.</summary>
 internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRenderer renderer)
 {
-    /// <summary>Gives each stock or edited render packet a fresh frame identity.</summary>
-    private long sequence;
     /// <summary>Counts backend readbacks compared with the WARP reference's pixels.</summary>
     internal int Comparisons { get; private set; }
     /// <summary>Counts visible pixels changed by the indexed artwork substitution.</summary>
@@ -45,7 +43,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
         // detects stale renderer caches keyed only by reused VRAM destinations.
         Compare(a, first, context + " retained stock after replacement");
 
-        DisplayPacket Packet(SnesVram vram) => new(new(++sequence, 1, 0),
+        DisplayPacket Packet(SnesVram vram) => new(0,
             new LayeredScene(FramePaintConstants.CaptureFrontend(vram, colors, oam, 3),
                 [new SpritesLayer()], 15));
     }

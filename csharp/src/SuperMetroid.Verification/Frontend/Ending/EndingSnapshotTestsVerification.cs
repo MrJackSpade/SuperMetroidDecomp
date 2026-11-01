@@ -330,7 +330,8 @@ internal static class EndingSnapshotTestsVerification
                     {
 
                     }
-                    packet = new(new(++samples, 1, (ushort)tick), EndingCreditsPresentation.CaptureRenderSnapshot(captured));
+                    samples++;
+                    packet = new(tick, EndingCreditsPresentation.CaptureRenderSnapshot(captured));
                     AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                         $"ending reward {hours}, phase {legacy.Stage.Phase}, tick {tick} pixel parity");
                 }

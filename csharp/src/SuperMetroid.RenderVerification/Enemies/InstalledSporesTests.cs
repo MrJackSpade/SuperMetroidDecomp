@@ -154,7 +154,7 @@ internal static class InstalledSporesTests
                     Require(!layer.RevealBlocks && layer.Blend.Layers == (ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop) &&
                         layer.Window.IsClosed && layer.BlendPlane is not null,
                         "Spore capture does not blend the background, the sprites and the backdrop with the spores.");
-                    packets.Add(new(new(packets.Count + 1, 1, 0), new LayeredScene(
+                    packets.Add(new(packets.Count + 1, new LayeredScene(
                         FramePaint.FromNative(editedColors.Colors, []), [layer], 15)));
                 }
                 comparisons++;

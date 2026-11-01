@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Desktop.Diagnostics;
 

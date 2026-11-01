@@ -2,6 +2,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Runtime;
 namespace SuperMetroid.Verification.Audio;
 

@@ -195,7 +195,7 @@ internal static class Program
                 DisplayPacket? last = null;
                 for (int i = 0; i < 64; i++)
                 {
-                    last = new(new(i + 1, 1, 0), new RgbaPixel((byte)i, 73, 129));
+                    last = new(i, new RgbaPixel((byte)i, 73, 129));
                     renderer.Render(last);
                 }
                 PixelComparison.Verify((last ?? throw new InvalidOperationException("Verification requires last.")), DisplayRendering.Render((last)), renderer.Readback(),
@@ -216,7 +216,7 @@ internal static class Program
                 // A wrong-thread call must fail before issuing any D3D context operation.
                 Exception? wrongThread = Task.Run(() =>
                 {
-                    try { renderer.RenderForReadback(new(new(1, 1, 0), new RgbaPixel(0, 0, 0))); return null; }
+                    try { renderer.RenderForReadback(new(0, new RgbaPixel(0, 0, 0))); return null; }
                     catch (Exception exception) { return exception; }
                 }).GetAwaiter().GetResult();
                 if (wrongThread is not InvalidOperationException) throw new InvalidOperationException("Missing render-owner thread guard.");

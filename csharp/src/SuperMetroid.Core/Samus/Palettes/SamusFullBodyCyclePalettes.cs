@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// <summary>Which cycle palette the special full-body palette handlers select for a suit and cycle step.</summary>
 public static class SamusFullBodyCyclePalettes
 {
-    /// <summary>$91:D998: the cycle palette the special Super-palette flash alternates with normal suit colors, the Speed Booster family's last shade.</summary>
+    /// <summary>The cycle palette the special Super-palette flash alternates with normal suit colors, the Speed Booster family's last shade.</summary>
     /// <param name="suit">The suit Samus shows.</param>
     internal static SamusFullBodyCyclePalette SpeedBoostPalette(SamusSuit suit) =>
         new(SamusFullBodyCycleFamily.SpeedBooster, suit, SpeedBoostFlashShade);
@@ -36,12 +36,12 @@ public static class SamusFullBodyCyclePalettes
                 SamusFullBodyCycleFamily.SpeedBooster, PaletteCycleShape.Linear)),
         };
 
-    /// <summary>Resolves a stored-shine cycle step of the suit's own list ($91:DB10/$91:DB16) to a cycle palette.</summary>
+    /// <summary>Resolves a stored-shine cycle step of the suit's own list to a cycle palette.</summary>
     public static bool TryStoredShinePalette(SamusSuit suit, int step, out SamusFullBodyCyclePalette palette) =>
         TryPalette(suit, step, StoredShineSteps, SamusFullBodyCycleFamily.StoredShine, PaletteCycleShape.PingPong,
             out palette);
 
-    /// <summary>Resolves an active-shinespark cycle step of the suit's own list ($91:DB75/$91:DB7B) to a cycle palette.</summary>
+    /// <summary>Resolves an active-shinespark cycle step of the suit's own list to a cycle palette.</summary>
     public static bool TryActiveShinesparkPalette(SamusSuit suit, int step, out SamusFullBodyCyclePalette palette) =>
         TryPalette(suit, step, ActiveShinesparkSteps, SamusFullBodyCycleFamily.ActiveShinespark, PaletteCycleShape.Linear,
             out palette);
@@ -69,7 +69,7 @@ public static class SamusFullBodyCyclePalettes
     }
 
     /// <summary>
-    /// Reads the selected entry of a family's three consecutive suit lists. The cartridge adds the whole step to the
+    /// Reads the selected entry of a family's three consecutive suit lists. The game adds the whole step to the
     /// selected suit's list, so a step can run on into the next suit's list; a read that leaves the three lists selects
     /// no cycle palette.
     /// </summary>

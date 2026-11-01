@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Samus.Death;
 
-/// <summary>Game-state phases that own Samus after fatal damage has reached bank `$9B`.</summary>
+/// <summary>Game-state phases that own Samus after fatal damage has started the death sequence.</summary>
 public enum SamusDeathSequencePhase
 {
-    /// <summary>Normal gameplay owns Samus; no bank-$9B death sequence is active.</summary>
+    /// <summary>Normal gameplay owns Samus; no death sequence is active.</summary>
     Inactive,
     /// <summary>Game state $16 advances the fatal pose for sixteen calls before flashing.</summary>
     PreFlashing,

@@ -10,7 +10,7 @@ public static class SamusNormalSuitPalette
     /// <summary>Restores Samus's sixteen normal suit colours from installed artwork for the suit her equipment shows, without changing equipment or animation state.</summary>
     /// <param name="suit">Samus's suit colours, all sixteen of which change.</param>
     /// <param name="equippedItems">Samus's equipment; only the Gravity and Varia suits choose the suit shown.</param>
-    /// <param name="colors">Required installed suit-color catalog; displayed colours may differ from stock cartridge colors.</param>
+    /// <param name="colors">Required installed suit-color catalog; displayed colours may differ from the stock colors.</param>
     /// <exception cref="InvalidOperationException">Installed suit colors are absent.</exception>
     public static void Load(ColourRun suit, SamusEquipmentFlags equippedItems,
         InstalledSamusSuitColors? colors)

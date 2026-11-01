@@ -6,12 +6,12 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// </summary>
 /// <remarks>
 /// This is deliberately a presentation value, not part of Samus's kinematics. Retail
-/// temporarily replaces <c>$0AF6/$0AFA</c> with the transformed point, calculates the
+/// temporarily replaces Samus's world point with the transformed point, calculates the
 /// spritemap origin, and restores both world coordinates immediately afterward. Keeping
 /// the transform immutable makes it difficult for drawing code to accidentally rotate
 /// collision, camera tracking, or the following gameplay frame's starting position.
-/// The second diagonal term is absent because this particular cartridge routine uses A for both diagonal
-/// terms; B and C provide the two cross terms exactly as written by bank <c>$8B</c>.
+/// The second diagonal term is absent because this particular game routine uses A for both diagonal
+/// terms; B and C provide the two cross terms exactly as the shaft's routine writes them.
 /// </remarks>
 /// <param name="MatrixA">The rotation's step through room X per room X, also its step through room Y per room Y: a signed 8.8 fixed-point coefficient (256 is 1.0).</param>
 /// <param name="MatrixB">The rotation's step through room X per room Y: a signed 8.8 fixed-point coefficient.</param>
@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// <remarks>
 /// The coefficients are signed 8.8 values, -32768 through 32767, that the shaft's producers take from signed words and
 /// nothing wraps afterwards, so they are stored as integers. The wraps the transform reproduces are its own: each
-/// distance and each product is truncated to sixteen bits where the cartridge truncates it.
+/// distance and each product is truncated to sixteen bits where the game truncates it.
 /// </remarks>
 public readonly record struct TurningFloorTransform(
     int MatrixA,
@@ -29,12 +29,12 @@ public readonly record struct TurningFloorTransform(
     Position16<RoomPixels> Center)
 {
     /// <summary>
-    /// Applies the cartridge's signed 8.8 matrix math, including every intermediate
+    /// Applies the game's signed 8.8 matrix math, including every intermediate
     /// 16-bit truncation that can be observed near a coordinate or arithmetic wrap.
     /// </summary>
     public Position16<RoomPixels> Transform(Position16<RoomPixels> world)
     {
-        // `$8B:8A52` forms both distances with 16-bit subtraction before treating the
+        // // The rotation forms both distances with 16-bit subtraction before treating the
         // products as signed. In particular, vertical distance points upward: centre Y - Y.
         int horizontalDistance = CoordinateAxis.Wrap(world.X - Center.X);
         int verticalDistance = CoordinateAxis.Wrap(Center.Y - world.Y);
@@ -55,7 +55,7 @@ public readonly record struct TurningFloorTransform(
             CoordinateAxis.Wrap(Center.Y - transformedVerticalDistance));
     }
 
-    /// <summary>Multiplies a distance word, read as signed, by a signed coefficient and truncates the shifted result to the cartridge's 16-bit intermediate.</summary>
+    /// <summary>Multiplies a distance word, read as signed, by a signed coefficient and truncates the shifted result to the game's 16-bit intermediate.</summary>
     private static int MultiplySigned8Point8(int distance, int coefficient)
     {
         int product = CoordinateAxis.AsSigned(distance) * coefficient;

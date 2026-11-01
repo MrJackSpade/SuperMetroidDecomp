@@ -5,7 +5,7 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Palettes;
 
 /// <summary>
-/// Room visor-colour animation run by <c>HandleVisorPalette</c> at <c>$91:D83F-$91:D8A4</c>: a countdown of
+/// Room visor-colour animation run by <c>HandleVisorPalette</c>: a countdown of
 /// palette-handler calls and the visor shade shown next.
 /// </summary>
 /// <remarks>
@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// countdown and the shade are only ever set by this type: the reset installs countdown one at the cycle's first shade,
 /// and every expiry reloads the countdown to the frame delay and moves through the cycle's three shades. The countdown
 /// therefore holds one through the frame delay between calls and never decrements from zero, which is why the
-/// cartridge's word-wide decrement of the countdown and the shade beside it never borrows into the shade.
+/// game's word-wide decrement of the countdown and the shade beside it never borrows into the shade.
 /// </remarks>
 public sealed class SamusVisorPaletteState
 {
@@ -47,7 +47,7 @@ public sealed class SamusVisorPaletteState
     {
         Ensure.NotNull(colours);
 
-        // X-ray handler eight owns this same visor color. `$91:D842` returns immediately,
+        // // X-ray handler eight owns this same visor color. The visor handler returns immediately,
         // preserving the countdown and shade so ordinary room animation resumes where it stopped.
         if (specialSamusPaletteType == SamusSpecialPaletteType.Xray)
         {
@@ -70,7 +70,7 @@ public sealed class SamusVisorPaletteState
             return new SamusVisorPaletteStepResult();
         }
 
-        // `$91:D864` reloads the expired countdown to the frame delay and keeps the shade.
+        // // The visor handler reloads the expired countdown to the frame delay and keeps the shade.
         Timer = SamusPaletteDefinitions.Visor.FrameDelay;
         int shade = NextShade;
         colours.ShowVisor((PresentationColors ?? throw new InvalidDataException(
@@ -88,7 +88,7 @@ public sealed class SamusVisorPaletteState
 
     /// <summary>
     /// One call's countdown step. The countdown is one or more on every call (see the remarks), so the step never
-    /// reaches the cartridge's borrow into the shade; a zero countdown is a broken invariant and fails.
+    /// reaches the game's borrow into the shade; a zero countdown is a broken invariant and fails.
     /// </summary>
     private static int DecrementTimer(int timer)
     {

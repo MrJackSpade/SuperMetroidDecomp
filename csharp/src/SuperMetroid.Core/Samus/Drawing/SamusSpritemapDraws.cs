@@ -7,12 +7,12 @@ namespace SuperMetroid.Core.Samus.Drawing;
 public static class SamusSpritemapDraws
 {
     /// <summary>
-    /// Ports <c>AddSamusSpritemap</c> at <c>$81:89AE</c> for Samus's body as one pre-coloured draw (#1392, #1463): the
+    /// Ports <c>AddSamusSpritemap</c> for Samus's body as one pre-coloured draw (#1392, #1463): the
     /// picture <paramref name="frame"/> shows, with the half pictures it shows.
     /// </summary>
     /// <param name="sprites">The frame receiving the draw after everything already emitted.</param>
     /// <param name="frame">The pose half and animation frame whose picture is drawn.</param>
-    /// <param name="origin">Screen-space origin produced by bank $90.</param>
+    /// <param name="origin">Screen-space origin produced by Samus's draw.</param>
     /// <param name="spritemaps">The compositions each pose half shows.</param>
     /// <param name="sheets">The installed sheets.</param>
     /// <param name="pictures">The half pictures the body shows.</param>

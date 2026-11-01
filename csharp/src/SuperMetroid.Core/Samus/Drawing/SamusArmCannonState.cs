@@ -5,14 +5,13 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
-/// Exact state and one-OBJ renderer for Samus's opening arm cannon at
-/// <c>$90:C5C4-$90:C790</c>.
+/// Exact state and one-sprite renderer for Samus's opening arm cannon.
 /// </summary>
 /// <remarks>
 /// The cannon is not baked into every Samus body frame. Missile, Super Missile, and
 /// grapple HUD selections open a four-state cover, then the draw routine places the cover's
 /// direction- and frame-specific picture separately at the pose's placement (#1463).
-/// Keeping this independent from pose art preserves its native before/after-body priority.
+/// Keeping this independent from pose art preserves its before/after-body priority.
 /// </remarks>
 public sealed class SamusArmCannonState
 {
@@ -62,7 +61,7 @@ public sealed class SamusArmCannonState
 
     /// <summary>
     /// Runs the HUD selection stability update and `HandleArmCannonOpenState`. Calling once
-    /// per gameplay frame reproduces `$90:C519-$C534` followed later by `$90:C5C4`.
+    /// per gameplay frame reproduces the selection stability update followed later by the cover update.
     /// </summary>
     public SamusArmCannonUpdateResult Update(SamusState samus)
     {
@@ -100,7 +99,7 @@ public sealed class SamusArmCannonState
         Ensure.NotNull(samus);
 
         // The cannon shares Samus's invincibility flicker, and a closed frame performs
-        // neither OAM nor DMA work. Native returns before even consulting pose data.
+        // // neither sprite nor artwork work. The game returns before even consulting pose data.
         if (Frame == 0 || (!samus.InvincibilityTimer.IsZero && (frameCounter & 1) != 0))
             return new SamusArmCannonDrawResult();
 
@@ -118,7 +117,7 @@ public sealed class SamusArmCannonState
         bool spriteWritten = screenX >= 0 && screenX < 256 && screenY >= 0 && screenY < 256;
         if (spriteWritten)
         {
-            // Selector -> one of four orientation lists -> current cover frame. Natively `$90:C7DF` uploads that
+            // // Selector -> one of four orientation lists -> current cover frame. The game loads that
             // character to the tile the sprite names; the sheet frame is that cover as the sprite shows it. Frame
             // zero, the null entry, returned above.
             InstalledSpriteSheets sheets = samus.Presentation.BodyFrames.Sheets ?? throw new InvalidOperationException(
@@ -154,7 +153,7 @@ public sealed class SamusArmCannonState
         (Artwork ?? throw new InvalidOperationException(
             "Arm cannon requires installed drawing definitions.")).Placement(pose);
 
-    /// <summary>Moves the cover one native frame toward open three or closed zero, then clears the transition flag.</summary>
+    /// <summary>Moves the cover one frame toward open three or closed zero, then clears the transition flag.</summary>
     private void AdvanceFrame()
     {
         if (IsOpen)
@@ -180,7 +179,7 @@ public sealed class SamusArmCannonState
             Frame = 0;
         }
 
-        // `$90:C658` ends the transition while retaining the open state.
+        // // The cover ends the transition while retaining the open state.
         IsTransitioning = false;
     }
 

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Hud;
 /// <summary>What the HUD reads of Samus's movement and posture.</summary>
 internal static class SamusHudObservations
 {
-    /// <summary>$90:DD05: movement-state HUD admission dispatch, preserving all 28 native handler identities.</summary>
+    /// <summary>Movement-state HUD admission dispatch, preserving all 28 handler identities.</summary>
     internal static SamusHudHandler MovementHandler(SamusMovementType movement)
     {
         return movement switch

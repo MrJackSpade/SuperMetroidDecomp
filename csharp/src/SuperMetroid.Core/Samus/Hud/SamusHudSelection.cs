@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Hud;
 
-/// <summary>One frame of HandleSwitchingHudSelection ($90:C4B5): HUD item cycling and availability.</summary>
+/// <summary>One frame of HandleSwitchingHudSelection: HUD item cycling and availability.</summary>
 internal sealed class SamusHudSelection
 {
     /// <summary>
@@ -14,15 +14,15 @@ internal sealed class SamusHudSelection
     public int HudItemChangedThisFrame { get; set; }
 
     /// <summary>
-    /// Ports <c>HandleSwitchingHudSelection</c> at <c>$90:C4E7</c> for the retail default
+    /// Ports <c>HandleSwitchingHudSelection</c> for the retail default
     /// item-switch and item-cancel bindings.
     /// </summary>
     /// <remarks>
     /// The selected item is a six-entry index, not a bit field: zero is beams/nothing,
     /// one missiles, two Super Missiles, three Power Bombs, four Grapple, and five X-ray.
-    /// A new Select edge advances through that ring, calling each cartridge handler to
+    /// A new Select edge advances through that ring, calling each item's handler to
     /// skip unavailable ammo/equipment. Y cancels to zero. Holding Y while pressing Select
-    /// records the chosen item for native auto-cancel behavior.
+    /// records the chosen item for auto-cancel behavior.
     /// </remarks>
     /// <returns>Whether an item's switched-to handler ran.</returns>
     public HudSelectionOutcome HandleHudSelection(SamusState samus, 
@@ -43,7 +43,7 @@ internal sealed class SamusHudSelection
         }
         else if ((controllerNewInput & switchMask) != ControllerButton.None)
         {
-            // `$90:C51D-$C53A` wraps after X-ray and repeatedly invokes the selected
+            // // The selection ring wraps after X-ray and repeatedly invokes the selected
             // handler while it returns carry set. The loop always terminates because
             // entry zero is the unconditional Nothing handler.
             do
@@ -63,14 +63,14 @@ internal sealed class SamusHudSelection
         }
         else
         {
-            // Native saturates this word at two; it is a short stabilization counter,
+            // // The game saturates this word at two; it is a short stabilization counter,
             // never a general elapsed-time counter.
             HudItemChangedThisFrame = Math.Min(HudItemChangedThisFrame + 1, 2);
         }
         return new HudSelectionOutcome(itemHandlerAccepted);
     }
 
-    /// <summary>Applies the native switched-to handlers' ammo and equipment admission rules.</summary>
+    /// <summary>Applies the switched-to handlers' ammo and equipment admission rules.</summary>
     private static bool IsHudItemAvailable(SamusState samus, HudItem item) => item switch
     {
         HudItem.Beam => true,
@@ -80,6 +80,6 @@ internal sealed class SamusHudSelection
         HudItem.Grapple => samus.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam),
         HudItem.XRay => samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope),
         _ => throw new InvalidDataException(
-            $"HUD item {item} escaped the cartridge's six-entry switch table."),
+            $"HUD item {item} escaped the six-entry switch table."),
     };
 }

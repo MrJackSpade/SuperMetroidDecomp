@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Samus;
 
-/// <summary>Native transitions and the stored-word boundary of <see cref="HudItem"/>.</summary>
+/// <summary>Transitions and the stored-word boundary of <see cref="HudItem"/>.</summary>
 public static class HudItems
 {
-    /// <summary>The next entry of the <c>$90:C51D</c> selection ring, wrapping after X-ray.</summary>
+    /// <summary>The next entry of the selection ring, wrapping after X-ray.</summary>
     public static HudItem Next(HudItem item) => EnumOrder.NextWrapping(item);
 
     /// <summary>A stored word as a HUD item; any other word is corrupt.</summary>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Drawing;
 
-/// <summary>Fixed cartridge policy controlling the arm-cannon cover for each HUD item.</summary>
+/// <summary>Fixed policy controlling the arm-cannon cover for each HUD item.</summary>
 internal static class SamusArmCannonDefinitions
 {
     /// <summary>Whether each HUD item opens the cover; Opens looks it up.</summary>

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// <summary>Which splash or footstep effect Samus's movement and room produce.</summary>
 internal static class SamusAtmosphericEffects
 {
-    /// <summary>$90:81A4: grounded postures produce the paired surface splash; other movement dives.</summary>
+    /// <summary>Grounded postures produce the paired surface splash; other movement dives.</summary>
     internal static WaterSplashKind WaterSplashFor(SamusMovementType movementType)
     {
         return movementType switch
@@ -30,7 +30,7 @@ internal static class SamusAtmosphericEffects
         };
     }
 
-    /// <summary>$90:A424: one contact at phase two of each five-frame running step.</summary>
+    /// <summary>One contact at phase two of each five-frame running step.</summary>
     internal static bool IsRunningFootContact(int animationFrame)
     {
         if (animationFrame >= 10)
@@ -38,7 +38,7 @@ internal static class SamusAtmosphericEffects
         return animationFrame % 5 == 2;
     }
 
-    /// <summary>$90:EDC9 and $91:F0F3: room-specific landing/rain and wet-floor policies.</summary>
+    /// <summary>Room-specific landing/rain and wet-floor policies.</summary>
     internal static CrateriaAtmosphericEffectFlags ForCrateriaRoom(RoomIdentity room)
     {
         if (room.Area != AreaId.Crateria || room.RoomIndex >= CrateriaPolicyRooms)

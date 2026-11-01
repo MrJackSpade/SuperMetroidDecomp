@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// <summary>The frame count and timer of each atmospheric animation.</summary>
 internal static class SamusAtmosphericAnimations
 {
-    /// <summary>$90:8BEF..8BFE supplies each effect's native frame domain.</summary>
+    /// <summary>Each effect's frame domain.</summary>
     internal static int FrameCount(SamusAtmosphericEffectType type) => type switch
     {
         SamusAtmosphericEffectType.DivingSplash => Ensure.BetweenInclusive(0, byte.MaxValue, RetainedDivingSplashTimers.Length),

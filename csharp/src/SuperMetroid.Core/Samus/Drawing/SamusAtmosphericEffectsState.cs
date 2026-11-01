@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// </remarks>
 public sealed class SamusAtmosphericEffectsState
 {
-    /// <summary>Exactly $8000: a delayed-start timer, which reloads the current frame's duration and draws it.</summary>
+    /// <summary>Exactly 32768: a delayed-start timer, which reloads the current frame's duration and draws it.</summary>
     internal const int DelayedStartMarker = 1 << 15;
 
     /// <summary>How many atmospheric effects Samus can show at once.</summary>
@@ -65,8 +65,8 @@ public sealed class SamusAtmosphericEffectsState
     }
 
     /// <summary>
-    /// Empties a slot's effect, exactly like the landing-graphics delete paths at <c>$91:F0BE/$91:F1CC</c>. The
-    /// cartridge deliberately leaves the timer and coordinates behind; retaining that stale state matters when proving
+    /// Empties a slot's effect, exactly like the landing-graphics delete paths. The
+    /// game deliberately leaves the timer and coordinates behind; retaining that stale state matters when proving
     /// that a later producer really initialized every field it owns.
     /// </summary>
     /// <param name="slotIndex">The slot's ordinal; its timer and coordinates are not cleared.</param>
@@ -77,8 +77,8 @@ public sealed class SamusAtmosphericEffectsState
     }
 
     /// <summary>
-    /// Ports <c>Handle_AtmosphericEffects</c> at <c>$90:8A4C-$8C1E</c>, including timer
-    /// underflow, reverse slot order, per-type motion, clipping, and the two OAM paths.
+    /// Ports <c>Handle_AtmosphericEffects</c>, including timer
+    /// underflow, reverse slot order, per-type motion, clipping, and the two sprite paths.
     /// </summary>
     /// <param name="sprites">Frame receiving visible effects as draws, the highest slot first.</param>
     /// <param name="camera">Room-space camera X and Y origin in whole pixels.</param>
@@ -106,7 +106,7 @@ public sealed class SamusAtmosphericEffectsState
 
             if (slot.AnimationTimer.IsZero)
             {
-                // `$90:8A86` reloads using the OLD frame and only then advances the frame.
+                // // The effect reloads using the OLD frame and only then advances the frame.
                 // That ordering is why a newly created timer-three frame is visible for
                 // two calls before frame one begins.
                 slot.AnimationTimer =
@@ -121,8 +121,8 @@ public sealed class SamusAtmosphericEffectsState
             }
             else if (slot.AnimationTimer.IsNegative)
             {
-                // Negative timers suppress both drawing and motion. Exactly `$8000` is a
-                // delayed-start marker: reload the current frame's ROM duration and draw it.
+                // // Negative timers suppress both drawing and motion. Exactly 32768 is a
+                // // delayed-start marker: reload the current frame's authored duration and draw it.
                 if (!slot.AnimationTimer.IsAt(DelayedStartMarker))
                     continue;
                 slot.AnimationTimer =
@@ -168,7 +168,7 @@ public sealed class SamusAtmosphericEffectsState
         }
     }
 
-    /// <summary>Clips an eight-pixel effect to the 256-pixel OAM viewport, then draws the sheet frame of its installed attributes.</summary>
+    /// <summary>Clips an eight-pixel effect to the 256-pixel screen, then draws the sheet frame of its installed attributes.</summary>
     private static void DrawDirectSmallSprite(
         AtmosphereDrawing drawing,
         SamusAtmosphericEffectSlot slot,
@@ -181,7 +181,7 @@ public sealed class SamusAtmosphericEffectsState
         if (screenX < 0 || screenX >= 256 || screenY < 0 || screenY >= 256)
             return;
 
-        // Type two's native list pointer is zero, so bank $90 reads direct-page scratch as its sprite attributes. That
+        // // Type two's sprite list is missing, so the game reads unrelated scratch memory as its sprite attributes. That
         // needs direct-page emulation the port does not model; type two is exempt and draws nothing (owner decision
         // on #1318).
         if (type == SamusAtmosphericEffectDefinitions.ScratchListType)
@@ -190,7 +190,7 @@ public sealed class SamusAtmosphericEffectsState
             drawing.Frame(frame), new Position16<ScreenPixels>(CoordinateAxis.Wrap(screenX), CoordinateAxis.Wrap(screenY)), SpriteMirror.None));
     }
 
-    /// <summary>Draws splash/bubble frames of Samus's spritemap table, clipping Y's high byte while preserving native X wrap.</summary>
+    /// <summary>Draws splash/bubble frames of Samus's spritemap table, clipping Y's high byte while preserving X wrap.</summary>
     private static void DrawSamusTableSpritemap(
         AtmosphereDrawing drawing,
         SamusAtmosphericEffectSlot slot,
@@ -200,7 +200,7 @@ public sealed class SamusAtmosphericEffectsState
         int screenX = CoordinateAxis.Wrap(slot.Position.X - drawing.Camera.X);
         int screenY = CoordinateAxis.Wrap(slot.Position.Y - drawing.Camera.Y);
 
-        // `$90:8B83` rejects any nonzero high byte of Y. X is deliberately not clipped;
+        // // The draw rejects any nonzero high byte of Y. X is deliberately not clipped;
         if (ScreenConversions.IsOutsideSpriteRange(screenY))
             return;
 

@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.Core.Samus.Palettes;
 
-/// <summary>Immutable cartridge data and fixed hardware layout shared by Samus palettes.</summary>
+/// <summary>Immutable game data and fixed hardware layout shared by Samus palettes.</summary>
 /// <remarks>
 /// Palette state machines retain their mutable timers and phase transitions. This catalog
-/// names the ROM tables, object-program words, CGRAM ranges, and fixed-color endpoints those
+/// names the colour tables, object-program words, colour ranges, and fixed-color endpoints those
 /// machines consume, so a hexadecimal address never masquerades as gameplay behavior.
 /// </remarks>
 public static class SamusPaletteDefinitions
@@ -59,7 +59,7 @@ public static class SamusPaletteDefinitions
         public const int GravityGrappleCodeOverrunStep = 5;
     }
 
-    /// <summary>Bank-$8D palette object spawned with the Hyper Beam.</summary>
+    /// <summary>Palette object spawned with the Hyper Beam.</summary>
     public static class HyperBeamFx
     {
         /// <summary>Expected no-op setup callback in the object definition.</summary>
@@ -79,23 +79,23 @@ public static class SamusPaletteDefinitions
 
     /// <summary>Two independently timed palette streams used by Crystal Flash.</summary>
     /// <remarks>
-    /// The stock bank-$9B body colors are six ten-word subrows at
-    /// <c>$96C0 + $20*r</c>, <c>r = 0..5</c>. Color zero is always
-    /// <c>$3800</c>; colors 1..9 in each subrow are the same grayscale word
-    /// <c>$0421 * (16 + floor(11*min(r,6-r)/3))</c>. This yields channel
+    /// The stock body colors are six ten-word subrows,
+    /// <c>r = 0..5</c>. Color zero is always
+    /// 14336; colors 1..9 in each subrow are the same grayscale word
+    /// with every channel at <c>16 + floor(11*min(r,6-r)/3)</c>. This yields channel
     /// levels 16, 19, 23, 27, 23, 19 and matches all 60 words in the
-    /// pinned NTSC J/U v1.0 ROM. The body pointer program selects rows
+    /// original data. The body pointer program selects rows
     /// 0,1,2,3,4,5,4,3,2,1 and copies only ten colors per transition;
     /// the following six bubble colors have a separate cursor and timer.
-    /// Keep both streams live for ROM-backed presentation. Body-color
+    /// Keep both streams live for the stock presentation. Body-color
     /// investigation: #625 / #902.
-    /// The six bubble colors per row start at <c>$96D4 + $20*r</c>.
+    /// The six bubble colors follow each row's ten body colors.
     /// For bubble color <c>c = 0..5</c>, let
     /// <c>k = (c-r+6)%6</c> and <c>q = k + (k &gt;= 3 ? 1 : 0)</c>.
-    /// The stock BGR555 word is <c>$7FFF - $0420*q</c>, except
-    /// <c>r = 5, c = 0</c> is <c>$7FFF</c> rather than <c>$7BDF</c>.
-    /// All 36 words, including that authored exception, match the pinned
-    /// ROM and native listing. The bubble cursor visits rows 0..5 and wraps
+    /// The stock BGR555 word is 32767 less 1056 times <c>q</c>, except
+    /// <c>r = 5, c = 0</c> is 32767 rather than 31711.
+    /// All 36 words, including that authored exception, match the
+    /// original data. The bubble cursor visits rows 0..5 and wraps
     /// independently of the body records. Bubble-color investigation:
     /// #625 / #903.
     /// </remarks>

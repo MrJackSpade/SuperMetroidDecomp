@@ -12,7 +12,7 @@ internal static class SamusDeathExplosionTiming
         {
             throw new InvalidDataException(
                 $"Samus death-explosion timing index {index} is outside the " +
-                $"{RecordCount}-record native sequence.");
+                $"{RecordCount}-record explosion sequence.");
         }
 
         return Durations[index];

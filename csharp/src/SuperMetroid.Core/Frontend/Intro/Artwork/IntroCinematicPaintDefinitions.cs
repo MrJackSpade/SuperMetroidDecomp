@@ -43,7 +43,7 @@ internal static class IntroCinematicPaintDefinitions
     /// <summary>Blue-only outline intensity.</summary>
     internal const int PortraitOutlineBlue = 5;
 
-    /// <summary>The transparent colour of every sprite row: copied transparent compatibility word.</summary>
+    /// <summary>The transparent colour of every sprite colour set: copied transparent compatibility word.</summary>
     internal static readonly RgbColor ObjectZero = new(0, 0, 14);
     /// <summary>Shoulder/edge paint.</summary>
     internal static readonly RgbColor Shoulder = new(10, 13, 5);

@@ -103,11 +103,11 @@ internal sealed class IntroMotherBrainSpriteState
             return;
 
         bool normalPalette = hurtFlashTimer.IsInAlternatePhase(1);
-        ColourRun row = colours.Colours(ScreenColourGroup.IntroMotherBrain);
+        ColourRun motherBrainColours = colours.Colours(ScreenColourGroup.IntroMotherBrain);
         if (normalPalette)
-            row.CopyFrom(introPalette.Colours(ScreenColourGroup.IntroMotherBrain));
+            motherBrainColours.CopyFrom(introPalette.Colours(ScreenColourGroup.IntroMotherBrain));
         else
-            row.Fill(RgbColor.White);
+            motherBrainColours.Fill(RgbColor.White);
         hurtFlashTimer = hurtFlashTimer.Decrement().Remaining;
     }
 

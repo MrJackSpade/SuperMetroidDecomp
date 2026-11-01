@@ -105,7 +105,7 @@ internal static class IntroCinematicPaint
         RgbColor color = MotherBrainHealthPaintDefinitions.PlateHighlight;
         return Pack((color.Red) - PlateShade, (color.Green) - PlateShade, (color.Blue) - PlateShade);
     }
-    /// <summary>Selects authored neutral, sepia, plate, and warm materials for the intro scene row.</summary>
+    /// <summary>Selects authored neutral, sepia, plate, and warm materials for the intro scene colour set.</summary>
     private static RgbColor Scene(int ink) => ink switch
     {
         1 => Neutral(SceneHighlight), 2 => Sepia(4), 3 => Pack(SceneDark, SceneDark, SceneDarkBlue),
@@ -138,7 +138,7 @@ internal static class IntroCinematicPaint
         <= 8 => Sepia(ink), <= 12 => Pack(0, 0, (31 * (12 - ink) + CrossfadeBlueDark * (ink - 9)) / 3),
         13 => Pack(0, 31, 0), 14 => Pack(0, CrossfadeAccentGreen, CrossfadeAccentBlue), _ => RgbColor.Black,
     };
-    /// <summary>Reuses scene sepia and plate materials for the Mother Brain intro object row.</summary>
+    /// <summary>Reuses scene sepia and plate materials for the Mother Brain intro object colour set.</summary>
     private static RgbColor MotherBrain(int ink) => ink switch
     {
         1 or 13 or 14 => Sepia(1), 2 => Sepia(4), 3 => Neutral(Contour), 4 => Neutral(DeepContour),

@@ -17,7 +17,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
     {
         // State $13 deliberately completes one final state-eight pass under the
         // global freeze word, then snapshots the visible palette and makes every
-        // target row black except Samus's sixteen-color suit row.
+        // target colour set black except Samus's sixteen-color suit set.
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
         PrepareDeathPaletteFade();

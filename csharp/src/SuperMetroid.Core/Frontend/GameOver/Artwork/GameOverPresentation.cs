@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 /// </summary>
 public abstract class GameOverPresentation
 {
-    /// <summary>Installed idle and crying color sets for the Baby's fixed palette row.</summary>
+    /// <summary>Installed idle and crying color sets for the Baby's fixed sprite colour set.</summary>
     private readonly GameOverBabyPaint babyPalettes;
 
     /// <summary>Retains compiled artwork and screen anchors; the page's tiles are the import's, which pictures the page (#1467).</summary>
@@ -80,15 +80,15 @@ public abstract class GameOverPresentation
             new Position16<SpritePixels>(CursorX, selectNo ? NoCursorY : YesCursorY));
     }
 
-    /// <summary>Writes one selected sixteen-colour Baby animation palette over the Baby's sprite palette row.</summary>
+    /// <summary>Writes one selected sixteen-colour Baby animation palette over the Baby's sprite colour set.</summary>
     /// <param name="colours">The screen's colours.</param>
     /// <param name="palette">Idle or one of the three crying palettes selected by the compiled Baby sequence.</param>
     /// <exception cref="ArgumentOutOfRangeException">The palette identity is unsupported.</exception>
     public void ApplyBabyPalette(ScreenPalette colours, GameOverBabyPalette palette)
     {
         _ = GameOverPresentationNames.BabyPaletteName(palette);
-        ColourRun row = Ensure.NotNull(colours).Colours(ScreenColourGroup.GameOverBaby);
-        for (int index = 0; index < row.Count; index++)
-            row.Write(index, babyPalettes.Read(palette, index));
+        ColourRun babyColours = Ensure.NotNull(colours).Colours(ScreenColourGroup.GameOverBaby);
+        for (int index = 0; index < babyColours.Count; index++)
+            babyColours.Write(index, babyPalettes.Read(palette, index));
     }
 }

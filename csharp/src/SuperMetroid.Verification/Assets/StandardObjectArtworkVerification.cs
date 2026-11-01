@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
@@ -32,6 +33,7 @@ internal static class StandardObjectArtworkVerification
     }
 
     /// <summary>Compares every native OBJ byte, then checks the edited PNG, provenance, and the ROM-free setup selection.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Standard Object Artwork with GameplayBasePaletteFiles and StandardObjectArtworkFiles output read from the cartridge.")]
     internal static void VerifyStandardObjectArtwork(string sourceRom)
     {
         using var directoryScratch = new TestScratchDirectory("standard-objects");

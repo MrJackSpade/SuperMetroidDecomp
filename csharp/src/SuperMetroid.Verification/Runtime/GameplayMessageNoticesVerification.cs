@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -18,6 +19,7 @@ using SuperMetroid.AssetExtraction.Hud;
 internal static class GameplayMessageNoticesVerification
 {
     /// <summary>Compares notice tilemaps with the cartridge and checks selection redraw, live rebinding, and glyph rejection.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Gameplay Message Notices with GameplayMessageNoticeExtractor output read from the cartridge.")]
     internal static void VerifyGameplayMessageNotices(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -77,6 +79,7 @@ internal static class GameplayMessageNoticesVerification
     }
 
     /// <summary>Checks deterministic stock extraction and that an override changes rendered save text and content identity.</summary>
+    [PrivateInstallation("Checks the import pipeline's GameplayMessageNoticeExtractor on the cartridge: Gameplay Message Notice Assets.")]
     internal static void VerifyGameplayMessageNoticeAssets(
         ISnesAddressSpace bus,
         string stockDirectory,

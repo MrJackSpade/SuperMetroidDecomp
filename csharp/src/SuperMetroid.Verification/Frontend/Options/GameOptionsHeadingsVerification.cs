@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -15,6 +16,7 @@ using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 internal static class GameOptionsHeadingsVerification
 {
     /// <summary>Loads extracted presentation and checks each heading's native identity, parts, and screen anchor.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Game Options Headings with GameOptionsPresentationExtractor output read from the cartridge.")]
     internal static void VerifyGameOptionsHeadings()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

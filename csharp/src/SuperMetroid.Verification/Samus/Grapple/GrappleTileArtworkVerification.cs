@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -22,6 +23,7 @@ using SuperMetroid.Verification.Harness;
 internal static class GrappleTileArtworkVerification
 {
     /// <summary>Compares every angle's source selection and all uploaded bytes while preserving rope state and OAM.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Grapple Tile Artwork with GrappleTileExtractor output read from the cartridge.")]
     internal static void VerifyGrappleTileArtwork(SuperMetroidAddressSpace bus)
     {
         Suite(nameof(VerifyGrappleSpriteArtwork), () => VerifyGrappleSpriteArtwork(bus));

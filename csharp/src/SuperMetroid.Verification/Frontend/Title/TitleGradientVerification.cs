@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Input;
@@ -86,6 +87,7 @@ internal static class TitleGradientVerification
         AssertEqual(expected, StopCovering(gradient, expected.Line), description);
 
     /// <summary>Compares extracted title character and map transfers with their retail source streams and live title rendering.</summary>
+    [PrivateInstallation("Checks the import pipeline's TitleGradientExtractor and TitleGraphicsExtractor on the cartridge: Extracted Title Graphics.")]
     private static void VerifyExtractedTitleGraphics(ISnesAddressSpace bus)
     {
         _ = TitleCardOracle.CompareAll(bus);
@@ -251,6 +253,7 @@ internal static class TitleGradientVerification
     }
 
     /// <summary>Checks extracted title colors, skip colors, ambient loops, overrides, and installed CGRAM reads.</summary>
+    [PrivateInstallation("Checks the import pipeline's TitlePaletteExtractor on the cartridge: Extracted Title Palette.")]
     private static void VerifyExtractedTitlePalette(ISnesAddressSpace bus)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Title.TitlePaletteExtractor.Extract(bus);
@@ -423,6 +426,7 @@ internal static class TitleGradientVerification
     }
 
     /// <summary>Compares installed gradient variants with retail HDMA output and checks a production title frame avoids its source reads.</summary>
+    [PrivateInstallation("Checks the import pipeline's TitleGradientExtractor, TitleGraphicsExtractor and TitlePaletteExtractor on the cartridge: Extracted Title Gradient.")]
     private static void VerifyExtractedTitleGradient(ISnesAddressSpace bus)
     {
         var cartridgeReads = new HashSet<int>();

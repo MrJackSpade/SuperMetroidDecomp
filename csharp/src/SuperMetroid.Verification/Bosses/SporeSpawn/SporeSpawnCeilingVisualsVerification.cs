@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -23,6 +24,7 @@ using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 internal static class SporeSpawnCeilingVisualsVerification
 {
     /// <summary>Checks four stock frames, two edited two-by-two draws, override persistence, and strict asset rejection.</summary>
+    [PrivateInstallation("Checks the RoomPlmSporeSpawnCeilingVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     internal static void VerifySporeSpawnCeilingVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

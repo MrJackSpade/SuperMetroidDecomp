@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -78,6 +79,7 @@ internal static class ElevatorPlatformVisualsVerification
     private static readonly RoomTerrainBlock PlatformEdge = RoomTerrainBlock.Of(0x85, BlockMirroring.None, RoomCollisionType.SolidBlock);
 
     /// <summary>Checks extracted stock, override survival, and rejection of manifest corruption.</summary>
+    [PrivateInstallation("Checks the RoomPlmElevatorPlatformVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     private static void VerifyElevatorPlatformVisualInstallation()
     {
         using var testRootScratch = new TestScratchDirectory("elevator-platform-visual");

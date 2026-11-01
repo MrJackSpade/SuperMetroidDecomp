@@ -18,6 +18,7 @@ namespace SuperMetroid.Verification.Assets;
 internal static class SpriteSheetFilesVerification
 {
     /// <summary>Extracts the sheets into a scratch directory and checks loading, overrides and rejections.</summary>
+    [PrivateInstallation("Checks the import pipeline's SpriteSheetFiles on the cartridge: Sprite Sheet Files.")]
     internal static void VerifySpriteSheetFiles(ISnesAddressSpace bus)
     {
         DirectoryInfo scratch = Directory.CreateTempSubdirectory("sm-sprite-sheets-");

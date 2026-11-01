@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
@@ -17,6 +18,7 @@ namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 internal static class IntroScientistPartsVerification
 {
     /// <summary>Compares stock parts at visible and wrapped origins and preserves independent edits through the caret loader.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Intro Scientist Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyIntroScientistParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("Scientist", value.AppendIdentity);

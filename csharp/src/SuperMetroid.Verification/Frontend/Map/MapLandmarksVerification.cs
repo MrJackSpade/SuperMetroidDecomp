@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -21,6 +22,7 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapLandmarksVerification
 {
     /// <summary>Checks boss and elevator visibility across area state, then validates layout overrides and rebinds.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Map Landmarks with MapPresentationExtractor output read from the cartridge.")]
     internal static void VerifyMapLandmarks(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
         var guard = NewLandmarkGuard(bus);

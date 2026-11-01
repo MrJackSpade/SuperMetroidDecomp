@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -14,6 +15,7 @@ namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 internal static class IntroEggRemnantPartsVerification
 {
     /// <summary>Checks stock fields and visible/wrapped drawing while leaving any edited field or part count supplied.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Intro Egg Remnant Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyIntroEggRemnantParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("EggRemnant", value.AppendIdentity);

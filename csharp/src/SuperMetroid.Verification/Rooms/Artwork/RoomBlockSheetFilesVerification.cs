@@ -13,6 +13,7 @@ namespace SuperMetroid.Verification.Rooms.Artwork;
 internal static class RoomBlockSheetFilesVerification
 {
     /// <summary>Recomposes the room block sheets into a scratch directory and compares each file with the installed one.</summary>
+    [PrivateInstallation("Checks the import pipeline's RoomBlockSheetFiles on the cartridge: Room Block Sheet Files.")]
     internal static void VerifyRoomBlockSheetFiles()
     {
         DirectoryInfo scratch = Directory.CreateTempSubdirectory("sm-room-block-sheets-");

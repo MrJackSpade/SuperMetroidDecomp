@@ -151,6 +151,7 @@ internal static class RoomAssetRomDataVerification
     }
 
     /// <summary>Exercises every distinct room-character PNG against its native 4-bpp source.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Room Character Atlases with RoomCharacterAtlasExtractor output read from the cartridge.")]
     internal static void VerifyRoomCharacterAtlases()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Tooling;
@@ -170,6 +171,7 @@ internal static class MotherBrainBodyPresentationVerification
     }
 
     /// <summary>Invokes import-only parsers for the 17 statically inventoried body roots.</summary>
+    [PrivateInstallation("Checks the import pipeline's EnemyExtendedFrameFiles and MotherBrainBodyBg2FrameFiles on the cartridge: Mother Brain Body Stock Presentation.")]
     internal static void VerifyMotherBrainBodyStockPresentation()
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

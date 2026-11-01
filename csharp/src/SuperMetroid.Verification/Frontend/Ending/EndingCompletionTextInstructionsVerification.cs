@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -69,6 +70,7 @@ internal static class EndingCompletionTextInstructionsVerification
     }
 
     /// <summary>Checks calculated stock composition, on- and off-screen OAM, and retention of independent artwork edits.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Ending Completion Text Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     private static void VerifyEndingCompletionTextParts(ISnesAddressSpace bus, int frame, CinematicSpriteFrameDefinition definition)
     {
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name);

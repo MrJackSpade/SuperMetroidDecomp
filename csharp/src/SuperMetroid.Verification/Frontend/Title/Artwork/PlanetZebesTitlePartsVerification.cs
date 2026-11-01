@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -17,6 +18,7 @@ namespace SuperMetroid.Verification.Frontend.Title.Artwork;
 internal static class PlanetZebesTitlePartsVerification
 {
     /// <summary>Compares the stock title pose, altered part fields, custom counts, bounds, and visible or wrapped OAM origins.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Planet Zebes Title Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyPlanetZebesTitleParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("PlanetZebesTitle", value.AppendIdentity);

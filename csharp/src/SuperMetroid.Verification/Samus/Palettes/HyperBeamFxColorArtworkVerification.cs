@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Text;
@@ -22,6 +23,7 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 internal static class HyperBeamFxColorArtworkVerification
 {
     /// <summary>Compares all ten native timed frames with the ROM-free palette loop, then verifies shared-channel reconstruction, isolated edits and malformed document rejection.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Hyper Beam Fx Color Artwork with HyperBeamFxColorExtractor output read from the cartridge.")]
     internal static void VerifyHyperBeamFxColorArtwork(ISnesAddressSpace bus)
     {
         byte[] json = HyperBeamFxColorExtractor.Extract(bus);

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -17,6 +18,7 @@ using SuperMetroid.AssetExtraction.Samus;
 internal static class FullBodyPalettePointerListsVerification
 {
     /// <summary>Compares four native pointer families with the cartridge and checks runtime palette updates without table reads.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Full Body Palette Pointer Lists with SamusFullBodyCycleColorExtractor output read from the cartridge.")]
     internal static void VerifyFullBodyPalettePointerLists()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

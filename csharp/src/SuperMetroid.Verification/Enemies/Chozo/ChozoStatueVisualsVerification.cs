@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -20,6 +21,7 @@ namespace SuperMetroid.Verification.Enemies.Chozo;
 internal static class ChozoStatueVisualsVerification
 {
     /// <summary>Verifies stock words against the cartridge, then exercises edited slope art through the room tilemap.</summary>
+    [PrivateInstallation("Checks the RoomPlmChozoStatueVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     internal static void VerifyChozoStatueVisualInstallation(
         SuperMetroidAddressSpace rom)
     {

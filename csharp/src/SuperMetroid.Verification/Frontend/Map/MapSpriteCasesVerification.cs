@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
@@ -24,6 +25,7 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapSpriteCasesVerification
 {
     /// <summary>Compares stock and edited compositions while requiring every named map role.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Map Sprite Composition Cases with MapSpriteExtractor output read from the cartridge.")]
     internal static void VerifyMapSpriteCompositionCases(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);

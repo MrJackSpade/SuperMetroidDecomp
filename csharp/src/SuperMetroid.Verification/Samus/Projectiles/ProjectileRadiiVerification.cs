@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileInstructionsVerification;
@@ -14,6 +15,7 @@ using SuperMetroid.Verification.Harness;
 internal static class ProjectileRadiiVerification
 {
     /// <summary>Compares 805 bank 93 radius pairs and checks projectile and bomb frames under changed sprite bindings.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Projectile Radii with ProjectileFrameBindingExtractor output read from the cartridge.")]
     internal static void VerifyProjectileRadii(SuperMetroidAddressSpace rom)
     {
         // Independent address inventory from the pinned disassembly's timed-record fields.

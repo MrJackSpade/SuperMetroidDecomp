@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -13,6 +14,7 @@ namespace SuperMetroid.Verification.Hardware;
 internal static class HighlightTilePixelsVerification
 {
     /// <summary>Checks stock pixels, independently edited highlight colors, transfer bounds, and resulting planar bytes.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Highlight Tile Pixels with MapSpriteExtractor output read from the cartridge.")]
     internal static void VerifyHighlightTilePixels(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);

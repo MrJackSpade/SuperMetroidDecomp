@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
@@ -10,6 +11,7 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics.Artwork;
 internal static class CeresStarPointPartsVerification
 {
     /// <summary>Checks both reflected layouts, priority edits, translated points, and invalid indexes.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Ceres Star Point Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyCeresStarPointParts(ISnesAddressSpace rom)
     {
         foreach (bool reflected in new[] { false, true })

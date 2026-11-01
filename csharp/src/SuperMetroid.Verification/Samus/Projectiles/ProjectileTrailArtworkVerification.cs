@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -18,6 +19,7 @@ using SuperMetroid.Verification.Harness;
 internal static class ProjectileTrailArtworkVerification
 {
     /// <summary>Compares stock and edited trail appearance through production drawing while keeping timing, movement, and program control cartridge-owned.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Projectile Trail Artwork with ProjectileTrailExtractor output read from the cartridge.")]
     internal static void VerifyProjectileTrailArtwork(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailAtlas), () => VerifyProjectileTrailAtlas(bus));

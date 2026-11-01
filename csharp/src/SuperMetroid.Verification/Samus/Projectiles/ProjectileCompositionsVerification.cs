@@ -34,6 +34,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 internal static class ProjectileCompositionsVerification
 {
     /// <summary>Compares extracted bank-$93 sprites across coordinate wraps and verifies edits without draw-time ROM access.</summary>
+    [PrivateInstallation("Checks the import pipeline's ProjectileSpriteExtractor on the cartridge: Projectile Compositions.")]
     internal static void VerifyProjectileCompositions(SuperMetroidAddressSpace rom,
         bool compositionOnly = false)
     {
@@ -257,6 +258,7 @@ internal static class ProjectileCompositionsVerification
     }
 
     /// <summary>Checks stock digests, persistent overrides, invalid content, and stock repair in projectile installation.</summary>
+    [PrivateInstallation("Checks the import pipeline's ProjectilePresentationFiles on the cartridge: Projectile Files.")]
     private static void VerifyProjectileFiles(ISnesAddressSpace bus, byte[] editedJson)
     {
         using var rootScratch = new TestScratchDirectory("projectile-install");

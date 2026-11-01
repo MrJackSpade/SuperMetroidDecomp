@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
@@ -30,6 +31,7 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 internal static class EnemyTileArtworkTourianStatueColorsVerification
 {
     /// <summary>Checks entrance, eye, and grey-room palette writes, isolated edits, override persistence, and invalid file rejection.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Installed Tourian Statue Colors with EnemyTileArtworkFiles output read from the cartridge.")]
     internal static void VerifyInstalledTourianStatueColors(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

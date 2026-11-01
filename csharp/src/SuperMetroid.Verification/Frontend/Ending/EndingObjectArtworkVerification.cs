@@ -63,6 +63,7 @@ internal static class EndingObjectArtworkVerification
     }
 
     /// <summary>Compares the six cloud compositions and grids with native OAM.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Ending Cloud Definitions with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyEndingCloudDefinitions(ISnesAddressSpace bus)
     {
         string[] names = ["scene-b-upper-a", "scene-b-upper-b", "scene-b-lower-a", "scene-b-lower-b", "scene-a-right", "scene-a-left"];

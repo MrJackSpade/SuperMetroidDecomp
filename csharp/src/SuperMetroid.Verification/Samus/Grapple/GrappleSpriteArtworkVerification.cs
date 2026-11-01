@@ -14,6 +14,7 @@ using SuperMetroid.Verification.Harness;
 internal static class GrappleSpriteArtworkVerification
 {
     /// <summary>Compares native OAM across angles and animation ticks, then isolates tile and palette edits.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Grapple Sprite Artwork with GrappleSpriteExtractor and GrappleTileExtractor output read from the cartridge.")]
     internal static void VerifyGrappleSpriteArtwork(SuperMetroidAddressSpace bus)
     {
         byte[] json = GrappleSpriteExtractor.Extract(bus);

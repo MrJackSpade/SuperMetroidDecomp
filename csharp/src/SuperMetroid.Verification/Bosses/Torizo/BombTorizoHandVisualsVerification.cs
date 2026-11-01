@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -18,6 +19,7 @@ internal static class BombTorizoHandVisualsVerification
 {
     /// <summary>Extracts the native hand art into a scratch installation and
     /// confirms one edited block survives loading and stock replacement.</summary>
+    [PrivateInstallation("Checks the RoomPlmBombTorizoHandVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     internal static void VerifyBombTorizoHandVisualInstallation()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

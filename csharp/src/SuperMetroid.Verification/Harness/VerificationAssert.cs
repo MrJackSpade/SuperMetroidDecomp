@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Enemies.Alcoon;
 using SuperMetroid.Verification.Enemies.Powamp;
@@ -942,6 +943,7 @@ internal static class VerificationAssert
 
     /// <summary>Checks pause-menu border tiles and their drawing layout.</summary>
     [VerificationCommand("--lookup-stream3-menu-borders")]
+    [PrivateInstallation("Cartridge-oracle check: compares Menu Borders with FileSelectPresentationExtractor and GameOptionsPresentationExtractor output read from the cartridge.")]
     internal static int LookupStream3MenuBordersCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -1565,6 +1567,7 @@ internal static class VerificationAssert
 
     /// <summary>Checks file-select name glyphs and their tile placements.</summary>
     [VerificationCommand("--lookup-file-select-names")]
+    [PrivateInstallation("Cartridge-oracle check: compares File Select Names with FileSelectPresentationExtractor output read from the cartridge.")]
     internal static int LookupFileSelectNamesCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -1805,6 +1808,7 @@ internal static class VerificationAssert
 
     /// <summary>Checks ending gunship palette rows against source colors.</summary>
     [VerificationCommand("--lookup-ending-gunship-colors")]
+    [PrivateInstallation("Cartridge-oracle check: compares Ending Gunship Colors with RoomPaletteFxPresentationExtractor output read from the cartridge.")]
     internal static int LookupEndingGunshipColorsCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -1830,6 +1834,7 @@ internal static class VerificationAssert
 
     /// <summary>Checks visible logo glare color frames against native values.</summary>
     [VerificationCommand("--lookup-ending-logo-glare")]
+    [PrivateInstallation("Cartridge-oracle check: compares Ending Logo Glare with RoomPaletteFxPresentationExtractor output read from the cartridge.")]
     internal static int LookupEndingLogoGlareCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2699,6 +2704,7 @@ internal static class VerificationAssert
 
     /// <summary>Checks full-body Samus palette rows across suit variants.</summary>
     [VerificationCommand("--lookup-full-body-colors")]
+    [PrivateInstallation("Cartridge-oracle check: compares Full Body Colors with SamusFullBodyCycleColorExtractor output read from the cartridge.")]
     internal static int LookupFullBodyColorsCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2723,6 +2729,7 @@ internal static class VerificationAssert
 
     /// <summary>Checks loading-screen palette rows against native colors.</summary>
     [VerificationCommand("--lookup-loading-colors")]
+    [PrivateInstallation("Cartridge-oracle check: compares Loading Colors with RoomPaletteFxPresentationExtractor output read from the cartridge.")]
     internal static int LookupLoadingColorsCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2757,6 +2764,7 @@ internal static class VerificationAssert
 
     /// <summary>Checks heat-effect palette shades and their CGRAM destinations.</summary>
     [VerificationCommand("--lookup-heat-colors")]
+    [PrivateInstallation("Cartridge-oracle check: compares Heat Colors with RoomPaletteFxPresentationExtractor output read from the cartridge.")]
     internal static int LookupHeatColorsCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

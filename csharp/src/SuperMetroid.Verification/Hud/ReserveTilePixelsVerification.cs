@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -13,6 +14,7 @@ namespace SuperMetroid.Verification.Hud;
 internal static class ReserveTilePixelsVerification
 {
     /// <summary>Compares reserve tiles $47-$4F with retail planar art and preserves every pixel edit.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Reserve Tile Pixels with MapSpriteExtractor output read from the cartridge.")]
     internal static void VerifyReserveTilePixels(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);

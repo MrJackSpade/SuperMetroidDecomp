@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -15,6 +16,7 @@ using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 internal static class FileSelectGeometryLookupsVerification
 {
     /// <summary>Runs cartridge comparisons for the main, data, and helmet positions using the pinned ROM revision.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares File Select Geometry Lookups with FileSelectPresentationExtractor output read from the cartridge.")]
     internal static void VerifyFileSelectGeometryLookups()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

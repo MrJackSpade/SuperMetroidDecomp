@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
@@ -28,6 +29,7 @@ using SuperMetroid.Core.Gameplay;
 internal static class GrappleFlarePlacementVerification
 {
     /// <summary>Exercises authored launch poses and live artwork rebinding while comparing stock and offset-edited Samus state.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Grapple Flare Placement with GrappleFlarePlacementExtractor and GrappleSwingFrameExtractor output read from the cartridge.")]
     internal static void VerifyGrappleFlarePlacement(SuperMetroidAddressSpace rom)
     {
         byte[] json = GrappleFlarePlacementExtractor.Extract(rom);

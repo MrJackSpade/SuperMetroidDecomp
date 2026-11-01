@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -59,6 +60,7 @@ internal static class EndingRewardInstructionsVerification
     }
 
     /// <summary>Checks a reward frame's calculated layout against its extracted composition, including independent edits and OAM clipping.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Ending Reward Calculated Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     private static void VerifyEndingRewardCalculatedParts(ISnesAddressSpace bus, CinematicSpriteFrameDefinition definition)
     {
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus,

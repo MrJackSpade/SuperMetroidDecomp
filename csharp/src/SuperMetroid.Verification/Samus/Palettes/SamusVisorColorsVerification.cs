@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Verification.Samus.Artwork;
@@ -32,6 +33,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class SamusVisorColorsVerification
 {
     /// <summary>Compares six extracted colors with the cartridge and verifies guarded room and X-ray cycling.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Samus Visor Colors with SamusVisorColorExtractor output read from the cartridge.")]
     internal static void VerifySamusVisorColors()
     {
         if (!File.Exists("Super Metroid.smc"))

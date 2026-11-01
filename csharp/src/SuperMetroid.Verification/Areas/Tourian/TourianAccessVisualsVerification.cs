@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Areas.Escape;
@@ -24,6 +25,7 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 internal static class TourianAccessVisualsVerification
 {
     /// <summary>Extracts five layouts, applies visual overrides, and checks stock integrity and physical isolation.</summary>
+    [PrivateInstallation("Checks the RoomPlmTourianAccessVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     internal static void VerifyTourianAccessVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

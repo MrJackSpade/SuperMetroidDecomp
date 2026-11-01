@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Programs;
@@ -17,6 +18,7 @@ using SuperMetroid.Verification.Harness;
 internal static class ProjectileFrameBindingsVerification
 {
     /// <summary>Checks 805 native sprite references, both projectile handlers, and a visible override without ROM fallback.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Projectile Frame Bindings with ProjectileFrameBindingExtractor, ProjectilePresentationFiles and ProjectileSpriteExtractor output read from the cartridge.")]
     internal static void VerifyProjectileFrameBindings(ISnesAddressSpace rom)
     {
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);

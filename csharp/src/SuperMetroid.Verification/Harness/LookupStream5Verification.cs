@@ -427,6 +427,7 @@ internal static class LookupStream5Verification
         Console.WriteLine("Phantoon exposure: three native window lengths,210 actual countdown calls, exact collision/shot/close transitions and separate swoop hold pass.");
     }
     /// <summary>Compares Ceres overlay tile words and their installed draw order with retail data.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Ceres Overlay Words with CeresEscapeOverlayTilemapFiles output read from the cartridge.")]
     internal static void VerifyLookupStream5CeresOverlayWords(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlayTilemapFiles.Extract(rom);
@@ -598,6 +599,7 @@ internal static class LookupStream5Verification
         Console.WriteLine("Ceres source page cases: two character sheets/five overlays preserve exact identities, order, extents, enumeration and range domains.");
     }
     /// <summary>Checks authored area-map landmark tiles and their native reveal cases.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Map Landmark Cases with MapLandmarkExtractor and MapSpriteExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream5MapLandmarkCases(SuperMetroidAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Map.MapLandmarkExtractor.Extract(rom);
@@ -761,6 +763,7 @@ internal static class LookupStream5Verification
         Console.WriteLine("Phantoon collision: 22 native frames, 25 components, all seven rectangles/callbacks, actual full-body/eye selection and bounds pass.");
     }
     /// <summary>Compares Phantoon fade color rows and transition timing with cartridge palettes.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Phantoon Fade with PhantoonColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream5PhantoonFade(SuperMetroidAddressSpace rom)
     {
         byte[] bytes = SuperMetroid.AssetExtraction.Bosses.PhantoonColorExtractor.Extract(rom);
@@ -907,6 +910,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Compares Zebes starfield sprite positions and attributes with the native OAM composition.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Zebes Star Fields with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream5ZebesStarFields(SuperMetroidAddressSpace rom)
     {
         var frames = new Dictionary<string, SpriteVisualPart[]>();
@@ -989,6 +993,7 @@ internal static class LookupStream5Verification
         }
     }
     /// <summary>Checks Tourian statue palette ramps and their CGRAM destinations against native colors.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Statue Ramps with TourianStatueColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream5StatueRamps(SuperMetroidAddressSpace rom)
     {
         byte[] nativeJson = SuperMetroid.AssetExtraction.TourianStatueColorExtractor.Extract(rom);
@@ -1103,6 +1108,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks Magdollite's palette pulse frames and the eight-frame update cadence.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Magdollite Pulse with MagdollitePaletteCycleExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream5MagdollitePulse(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Enemies.MagdollitePaletteCycleExtractor.Extract(rom);
@@ -1152,6 +1158,7 @@ internal static class LookupStream5Verification
         }
     }
     /// <summary>Checks Zebetite color pulses against the installed frame sequence and CGRAM positions.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Zebetite Pulse with ZebetiteColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream5ZebetitePulse(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.ZebetiteColorExtractor.Extract(rom);
@@ -1826,6 +1833,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks the Ceres door quake's byte-indexed offsets against original ROM words.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Door Quake Decoding with EnemySpritemapFiles output read from the cartridge.")]
     internal static void VerifyLookupStream5DoorQuakeDecoding(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCeresDoorQuakeDefinitions), () => VerifyCeresDoorQuakeDefinitions(rom));
@@ -1865,6 +1873,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks the Ceres flight scene's transferred colors and CGRAM destinations.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Ceres Flight Palette with CeresFlightArtworkExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream5CeresFlightPalette(SuperMetroidAddressSpace rom)
     {
         var colors = new PaletteRgb5[SnesCgram.ColorCount];

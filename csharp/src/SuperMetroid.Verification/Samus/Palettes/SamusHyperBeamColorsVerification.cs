@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
@@ -30,6 +31,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 internal static class SamusHyperBeamColorsVerification
 {
     /// <summary>Checks extracted RGB5 endpoint sharing, native CGRAM rows and guarded rainbow playback against the supported cartridge.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Samus Hyper Beam Colors with SamusChargeColorExtractor and SamusHyperBeamColorExtractor output read from the cartridge.")]
     internal static void VerifySamusHyperBeamColors()
     {
         if (!File.Exists("Super Metroid.smc"))

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
@@ -20,6 +21,7 @@ using SuperMetroid.AssetExtraction.Samus;
 internal static class RoomPaletteFxDefinitionsVerification
 {
     /// <summary>Audits 63 entries and eight area lists, then checks spawns and room loads without metadata reads.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Room Palette Fx Definitions with HyperBeamFxColorExtractor output read from the cartridge.")]
     internal static void VerifyRoomPaletteFxDefinitions(SuperMetroidAddressSpace rom)
     {
 

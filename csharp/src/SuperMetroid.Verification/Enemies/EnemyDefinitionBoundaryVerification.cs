@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Assets;
@@ -233,6 +234,7 @@ internal static class EnemyDefinitionBoundaryVerification
     }
 
     /// <summary>Checks extracted RGB5 colors, editable override compilation, and invalid color and JSON rejection.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Enemy Auxiliary Colors with EnemyAuxiliaryColorFiles output read from the cartridge.")]
     private static void VerifyEnemyAuxiliaryColors(ISnesAddressSpace source)
     {
         byte[] json = EnemyAuxiliaryColorFiles.Extract(source);

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core;
@@ -26,6 +27,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class MotherBrainRoomColorsVerification
 {
     /// <summary>Compares installed colors with extracted retail rows through production enemy paths, then checks isolated edits, legacy migration, and malformed overrides.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Mother Brain Room Colors with MotherBrainRoomColorExtractor output read from the cartridge.")]
     internal static void VerifyMotherBrainRoomColors(ISnesAddressSpace rom, string stock,
         string overrides, AreaMapPresentation original,
         GameplayBasePalette initialPalettes)

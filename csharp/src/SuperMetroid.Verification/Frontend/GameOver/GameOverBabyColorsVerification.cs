@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
@@ -13,6 +14,7 @@ namespace SuperMetroid.Verification.Frontend.GameOver;
 internal static class GameOverBabyColorsVerification
 {
     /// <summary>Compares four sixteen-color native phases with installed CGRAM slots and verifies channel edits, phase bounds, and content identity.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Game Over Baby Colors with GameOverPresentationExtractor output read from the cartridge.")]
     internal static void VerifyGameOverBabyColors(ISnesAddressSpace rom)
     {
         var palettes = new Dictionary<GameOverBabyPalette, ushort[]>();

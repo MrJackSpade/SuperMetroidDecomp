@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
@@ -520,6 +521,7 @@ internal static class LookupStream3Verification
         }
     }
     /// <summary>Checks menu compositions against native OAM parts and preserves edited geometry and order.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Menu Sprite Geometry with FileSelectPresentationExtractor, GameOptionsPresentationExtractor and GameOverPresentationExtractor output read from the cartridge.")]
     internal static void VerifyStream3MenuSpriteGeometry(ISnesAddressSpace rom)
     {
         static Dictionary<string, SpriteComposition> Sprites(GameOverSourcePresentation presentation) => new(
@@ -727,6 +729,7 @@ internal static class LookupStream3Verification
         }
     }
     /// <summary>Checks game-over text words in VRAM for native and edited tilemap cells, including index bounds.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Game Over Text with GameOverPresentationExtractor output read from the cartridge.")]
     private static void VerifyStream3GameOverText(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(rom);
@@ -762,6 +765,7 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks options anchors, labels, language regions, toggles, and heading draw placement against ROM and edits.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Options Geometry with GameOptionsPresentationExtractor output read from the cartridge.")]
     private static void VerifyStream3OptionsGeometry(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(rom);
@@ -895,6 +899,7 @@ internal static class LookupStream3Verification
         }
     }
     /// <summary>Runs the stream-three ROM oracle for inline lookup tables and presentation boundaries.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares the definitions with CreditsPresentationExtractor, FileSelectPresentationExtractor, GrappleSpriteExtractor and GrappleSwingFrameExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream3(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyStream3GameOverText), () => VerifyStream3GameOverText(rom));
@@ -2234,6 +2239,7 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks Mother Brain's health tint from paint anchors without retaining native intermediate rows.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Health Tint with MotherBrainHealthPaletteExtractor output read from the cartridge.")]
     private static void VerifyStream3HealthTint(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteExtractor.Extract(rom);
@@ -2308,6 +2314,7 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks recovery-light colors and room-palette routing against ROM and independent edits.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Recovery Lights with MotherBrainRoomColorExtractor output read from the cartridge.")]
     internal static void VerifyStream3RecoveryLights(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2402,6 +2409,7 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks timed room-flash colors and mirrors without storing native output rows.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Room Flash with MotherBrainRoomColorExtractor output read from the cartridge.")]
     internal static void VerifyStream3RoomFlash(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2534,6 +2542,7 @@ internal static class LookupStream3Verification
             $"Door callback $8F:{pointer:X4} uses unsupported reference-audit opcode " +
             $"${opcode:X2} at ${SnesAddressMath.BankNumber(opcodeAddress):X2}:{SnesAddressMath.OffsetInBank(opcodeAddress):X4}.");
     /// <summary>Checks the phase-two rear-leg palette's CGRAM output against ROM and its calculated health basis.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Phase Two Rear Leg with MotherBrainRoomColorExtractor output read from the cartridge.")]
     internal static void VerifyStream3PhaseTwoRearLeg(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2771,6 +2780,7 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }
     /// <summary>Checks the phase-two attack palette's live colors and rear-leg routing without stored stock rows.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Mother Brain Attack Palette with MotherBrainRoomColorExtractor output read from the cartridge.")]
     internal static void VerifyStream3MotherBrainAttackPalette(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2821,6 +2831,7 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks final-room paint colors and dependent palette isolation against native and edited inputs.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Final Room Paints with MotherBrainRoomColorExtractor output read from the cartridge.")]
     internal static void VerifyStream3FinalRoomPaints(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2886,6 +2897,7 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks room-entry glass and tube colors, recovery independence, and legacy palette inheritance.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Room Entry Palettes with MotherBrainRoomColorExtractor output read from the cartridge.")]
     internal static void VerifyStream3RoomEntryPalettes(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2987,6 +2999,7 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks Baby Metroid's initial cutscene paints and their separation from live Shitroid colors.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Baby Initial Paints with BabyMetroidCutsceneColorExtractor and ShitroidColorExtractor output read from the cartridge.")]
     internal static void VerifyStream3BabyInitialPaints(ISnesAddressSpace rom)
     {
         var babyDocument = RequiredJson.Parse(SuperMetroid.AssetExtraction.Bosses.MotherBrain.BabyMetroidCutsceneColorExtractor.Extract(rom));
@@ -3047,6 +3060,7 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks the first narration tilemap against decompressed ROM words and the intro upload path.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Initial Narration Map with IntroFontAtlasExtractor output read from the cartridge.")]
     internal static void VerifyStream3InitialNarrationMap()
     {
         string source = Path.GetFullPath("Super Metroid.smc");
@@ -3103,6 +3117,7 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks file-select sprite compositions, border parts, and edited layout against native OAM data.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares File Select Sprites with FileSelectPresentationExtractor output read from the cartridge.")]
     internal static void VerifyStream3FileSelectSprites(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
@@ -3181,6 +3196,7 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks all 144 intro font tiles against decompressed ROM bytes and edited atlas uploads.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Intro Font with IntroFontAtlasExtractor output read from the cartridge.")]
     internal static void VerifyStream3IntroFont()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -3225,6 +3241,7 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks intro background map pages against decompressed ROM and loaded presentation edits.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Background Maps with IntroFontAtlasExtractor output read from the cartridge.")]
     internal static void VerifyStream3BackgroundMaps()
     {
         string source = Path.GetFullPath("Super Metroid.smc");
@@ -3367,6 +3384,7 @@ BranchesToSharedBody:true),
     }
 
     /// <summary>Checks the opening portrait tilemap against decompressed ROM and the actual VRAM upload.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Portrait Map with IntroFontAtlasExtractor output read from the cartridge.")]
     internal static void VerifyStream3PortraitMap()
     {
         string source = Path.GetFullPath("Super Metroid.smc");
@@ -3535,6 +3553,7 @@ BranchesToSharedBody:true),
 
     /// <summary>Runs the options-heading border and actual OAM draw checks.</summary>
     [VerificationCommand("--lookup-stream3-options-sprites")]
+    [PrivateInstallation("Cartridge-oracle check: compares Options Sprites with GameOptionsPresentationExtractor output read from the cartridge.")]
     internal static int LookupStream3OptionsSpritesCommand()
     {
         var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -3545,6 +3564,7 @@ BranchesToSharedBody:true),
 
     /// <summary>Runs the file-select border geometry, appearance, and ordering checks.</summary>
     [VerificationCommand("--lookup-stream3-file-select-borders")]
+    [PrivateInstallation("Cartridge-oracle check: compares File Select Borders with FileSelectPresentationExtractor output read from the cartridge.")]
     internal static int LookupStream3FileSelectBordersCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -3575,6 +3595,7 @@ BranchesToSharedBody:true),
 
     /// <summary>Runs the intro narration glyph-coordinate and line-layout comparison.</summary>
     [VerificationCommand("--lookup-narration-layout")]
+    [PrivateInstallation("Cartridge-oracle check: compares Narration Layout with IntroNarrationExtractor output read from the cartridge.")]
     internal static int LookupNarrationLayoutCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -3586,6 +3607,7 @@ BranchesToSharedBody:true),
 
     /// <summary>Runs file-select patch cell, edit-isolation, and tilemap placement checks.</summary>
     [VerificationCommand("--lookup-file-select-patches")]
+    [PrivateInstallation("Cartridge-oracle check: compares File Select Patches with FileSelectPresentationExtractor output read from the cartridge.")]
     internal static int LookupFileSelectPatchesCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

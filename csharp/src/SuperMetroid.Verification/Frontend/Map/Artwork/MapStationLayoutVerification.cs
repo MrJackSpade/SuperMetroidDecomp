@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
@@ -18,6 +19,7 @@ namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 internal static class MapStationLayoutVerification
 {
     /// <summary>Compares every discovery subset and confirms edited positions change pixels without changing exploration.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Map Station Layout with MapPresentationExtractor output read from the cartridge.")]
     internal static void VerifyMapStationLayout(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
         var guard = NewStationLayoutGuard(bus);

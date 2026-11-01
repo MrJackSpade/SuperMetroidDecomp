@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -16,6 +17,7 @@ using SuperMetroid.AssetExtraction.Samus;
 internal static class NormalSuitPalettePointersVerification
 {
     /// <summary>Compares four equipment selections and every installed Samus CGRAM color.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Normal Suit Palette Pointers with SamusSuitColorExtractor output read from the cartridge.")]
     internal static void VerifyNormalSuitPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

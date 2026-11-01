@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -80,6 +81,7 @@ internal static class StationVisualsVerification
     }
 
     /// <summary>Checks stock extraction, override survival, and rejection of corrupt or physical-bit edits.</summary>
+    [PrivateInstallation("Checks the RoomPlmStationVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     private static void VerifyStationVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("station-visual");

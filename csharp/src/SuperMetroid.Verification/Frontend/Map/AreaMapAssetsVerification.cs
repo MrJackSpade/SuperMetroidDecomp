@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -15,6 +16,7 @@ internal static class AreaMapAssetsVerification
     /// Compares every freshly exported lossless area-map artifact with its originating cartridge
     /// range and checks the station-visible and secret-only coverage counts.
     /// </summary>
+    [PrivateInstallation("Checks the import pipeline's MapAssetExtractor on the cartridge: Area Map Assets.")]
     internal static void VerifyAreaMapAssets()
     {
         using var scratch = new TestScratchDirectory("area-map-export");

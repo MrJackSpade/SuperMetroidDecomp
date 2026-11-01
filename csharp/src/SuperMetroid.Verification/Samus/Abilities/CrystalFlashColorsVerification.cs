@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
@@ -20,6 +21,7 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 internal static class CrystalFlashColorsVerification
 {
     /// <summary>Compares cartridge source words, then checks edited CGRAM, unchanged timers, and stock repair.</summary>
+    [PrivateInstallation("Checks the import pipeline's CrystalFlashColorExtractor and MapPresentationExtractor on the cartridge: Crystal Flash Color Override.")]
     internal static void VerifyCrystalFlashColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentation original, ISnesAddressSpace rom)
     {

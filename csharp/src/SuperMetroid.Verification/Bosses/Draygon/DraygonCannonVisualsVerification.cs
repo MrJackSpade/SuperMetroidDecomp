@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -16,6 +17,7 @@ namespace SuperMetroid.Verification.Bosses.Draygon;
 internal static class DraygonCannonVisualsVerification
 {
     /// <summary>Exercises all stock cannon layouts and verifies visual-only overrides survive stock replacement.</summary>
+    [PrivateInstallation("Checks the RoomPlmDraygonCannonVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     internal static void VerifyDraygonCannonVisualInstallation(
         SuperMetroidAddressSpace rom)
     {

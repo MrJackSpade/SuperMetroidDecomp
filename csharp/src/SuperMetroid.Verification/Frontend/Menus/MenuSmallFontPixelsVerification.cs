@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -17,6 +18,7 @@ internal static class MenuSmallFontPixelsVerification
 {
     /// <summary>Compares every small-font pixel with bank-$B6 tiles and checks
     /// isolated and full-sheet edits preserve adjacent glyph boundaries.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Menu Small Font Pixels with MapSpriteExtractor output read from the cartridge.")]
     internal static void VerifyMenuSmallFontPixels(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);

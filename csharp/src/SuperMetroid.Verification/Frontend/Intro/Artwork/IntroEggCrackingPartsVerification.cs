@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -14,6 +15,7 @@ namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 internal static class IntroEggCrackingPartsVerification
 {
     /// <summary>Compares six stock cracking frames, altered part fields, custom counts, bounds, and visible or wrapped OAM origins.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Intro Egg Cracking Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyIntroEggCrackingParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("EggCracking", value.AppendIdentity);

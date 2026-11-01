@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
@@ -330,6 +331,7 @@ internal static class MapPresentationVerification
     }
 
     /// <summary>Checks map catalog reload, override precedence and identity, stock replacement, and live runtime rebinding.</summary>
+    [PrivateInstallation("Checks the import pipeline's MapPresentationExtractor on the cartridge: Map Presentation Catalog.")]
     private static void VerifyMapPresentationCatalog()
     {
         using var fixture = new MapCatalogFixture();
@@ -740,6 +742,7 @@ internal static class MapPresentationVerification
     }
 
     /// <summary>Checks Mother Brain health-threshold palette edits, stock copies, schema validation, and identity restoration.</summary>
+    [PrivateInstallation("Checks the import pipeline's MotherBrainHealthPaletteExtractor on the cartridge: Mother Brain Health Palette Override.")]
     private static void VerifyMotherBrainHealthPaletteOverride(
         ISnesAddressSpace bus,
         string stock,

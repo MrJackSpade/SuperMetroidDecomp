@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -25,6 +26,7 @@ internal static class MapStaticPalettesVerification
 {
     /// <summary>Compares stock palettes with the cartridge, then checks edited
     /// colors survive state restoration, stock replacement, and an ongoing fade.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Map Static Palette Integration with MapPresentationExtractor output read from the cartridge.")]
     internal static void VerifyMapStaticPaletteIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentation original, ImportedAreaMap[] rules)
     {

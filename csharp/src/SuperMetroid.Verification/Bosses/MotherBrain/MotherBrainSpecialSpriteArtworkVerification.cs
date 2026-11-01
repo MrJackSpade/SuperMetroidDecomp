@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -197,6 +198,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     }
 
     /// <summary>Shows both escape-timer digit pages and compares the characters they show with the cartridge's pages.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Mother Brain Escape Timer Pages with EscapeTimerTileAtlasExtractor output read from the cartridge.")]
     private static void VerifyMotherBrainEscapeTimerPages(
         InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {

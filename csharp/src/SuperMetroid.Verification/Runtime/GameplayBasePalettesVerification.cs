@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
@@ -20,6 +21,7 @@ using SuperMetroid.AssetExtraction.Assets;
 internal static class GameplayBasePalettesVerification
 {
     /// <summary>Compares cartridge colors and exercises ROM-free runtime construction and override validation.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Gameplay Base Palettes with GameplayBasePaletteFiles output read from the cartridge.")]
     internal static void VerifyGameplayBasePalettes(string sourceRom)
     {
         using var directoryScratch = new TestScratchDirectory("gameplay-base-palettes");

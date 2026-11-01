@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
@@ -27,6 +28,7 @@ internal static class PauseReserveFramesVerification
          new ReserveFrameOracleResult("Fill3", 0x23), new ReserveFrameOracleResult("Fill4", 0x24), new ReserveFrameOracleResult("Fill5", 0x25), new ReserveFrameOracleResult("Fill6", 0x26), new ReserveFrameOracleResult("Fill7", 0x27)];
 
     /// <summary>Checks exact frame admission and that each edited reserve role changes only its selected OAM composition.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Pause Reserve Frame Cases with PauseReserveTankExtractor output read from the cartridge.")]
     internal static void VerifyPauseReserveFrameCases(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);

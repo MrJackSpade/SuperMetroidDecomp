@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -93,6 +94,7 @@ internal static class DownwardGateVisualsVerification
     }
 
     /// <summary>Checks extracted stock, override survival, and rejection of corrupt or physical-bit edits.</summary>
+    [PrivateInstallation("Checks the RoomPlmDownwardGateVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     private static void VerifyDownwardGateVisualInstallation()
     {
         using var testRootScratch = new TestScratchDirectory("downward-gate-visual");

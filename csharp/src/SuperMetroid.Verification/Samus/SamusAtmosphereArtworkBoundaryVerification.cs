@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
@@ -23,6 +24,7 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
     }
 
     /// <summary>Compares authored atmospheric frame attributes with cartridge words and checks missing-art rejection.</summary>
+    [PrivateInstallation("Checks the import pipeline's SamusAtmosphericArtworkFiles on the cartridge: Samus Atmosphere Artwork Boundary.")]
     internal static void VerifySamusAtmosphereArtworkBoundary(string sourceRom)
     {
         using var rootScratch = new TestScratchDirectory("samus-atmosphere-boundary");

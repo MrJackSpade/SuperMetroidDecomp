@@ -5,7 +5,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain encounter state shared across Tourian: the bank-$A9 state extension, the end of
+/// Mother Brain encounter state shared across Tourian: the state extension, the end of
 /// the tube effects the elevator observes, and the pages of artwork both Mother Brain and the
 /// cutscene Baby show their sprites.
 /// </summary>

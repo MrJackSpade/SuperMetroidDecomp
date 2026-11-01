@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// One call of Mother Brain's body walk helpers <c>$A9:C601/$C647</c>: the returned carry
+/// One call of Mother Brain's body walk helpers: the returned carry
 /// (target or arena limit reached) and whether this call installed a walking program.
 /// </summary>
 [IndependentFlag("independent outcomes of one walk step: whether the target was reached and whether a walk was requested")]

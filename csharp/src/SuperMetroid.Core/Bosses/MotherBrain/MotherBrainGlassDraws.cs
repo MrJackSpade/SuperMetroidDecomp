@@ -19,9 +19,9 @@ internal static class MotherBrainGlassDraws
         private bool Pane => Frame is MotherBrainGlassDraw.PaneDamage1 or MotherBrainGlassDraw.PaneDamage2;
         /// <summary>Whether the pane has shifted and uses separate inner-column runs.</summary>
         private bool Shifted => Frame is MotherBrainGlassDraw.ShiftedPane1 or MotherBrainGlassDraw.ShiftedPane2 or MotherBrainGlassDraw.ShiftedPane3;
-        /// <summary>Native draw-record count for the selected glass damage phase.</summary>
+        /// <summary>Draw-record count for the selected glass damage phase.</summary>
         internal int RunCount => MotherBrainGlassPlmDrawDefinitions.Cells[Frame].Length;
-        /// <summary>Rejects a run outside this frame's native draw-record count.</summary>
+        /// <summary>Rejects a run outside this frame's draw-record count.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
@@ -69,7 +69,7 @@ internal static class MotherBrainGlassDraws
         draw = owned ? new(PlmDraw.FrameOf<MotherBrainGlassDraw>(request, "MotherBrainGlassDraw")) : default;
         return owned;
     }
-    /// <summary>Materializes the eleven glass layouts in native pointer order.</summary>
+    /// <summary>Materializes the eleven glass layouts in pointer order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -104,7 +104,7 @@ internal static class MotherBrainGlassDraws
         list = default;
         return false;
     }
-    /// <summary>Maps a native glass draw pointer to its editable presentation frame name.</summary>
+    /// <summary>Maps a glass draw pointer to its editable presentation frame name.</summary>
     internal static string VisualId(PlmDraw request) =>
         MotherBrainGlassPlmDrawDefinitions.VisualIds.TryGetValue(
             PlmDraw.FrameOf<MotherBrainGlassDraw>(request, "Mother Brain glass draw"), out string? id)

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Compiled instruction selectors for Mother Brain's body-relative death explosions.</summary>
 internal static class MotherBrainDeathExplosionDefinitions
 {
-    /// <summary>Seven four-anchor groups selected in reverse order by $A9:B03E.</summary>
+    /// <summary>Seven four-anchor groups selected in reverse order by the death explosions.</summary>
     internal const int GroupCount = 7;
 
     /// <summary>Four interleaved X/Y pairs per group.</summary>
@@ -13,8 +13,8 @@ internal static class MotherBrainDeathExplosionDefinitions
 
     /// <summary>
     /// Twenty-eight authored decorative positions read before RNG selects
-    /// explosion type. $86:C8F5/$C914 adds these offsets to the moving body without
-    /// velocity integration; the $86:CB13 projectile has zero hitbox radii and cannot
+    /// explosion type. The explosion's initializer adds these offsets to the moving body without
+    /// velocity integration; the explosion projectile has zero hitbox radii and cannot
     /// damage Samus. Only these coordinates are chosen visual scatter, not the group
     /// indexing, cadence, types, or other offsets.
     /// </summary>
@@ -29,11 +29,11 @@ internal static class MotherBrainDeathExplosionDefinitions
         new Offset16<RoomPixels>(10, -31), new Offset16<RoomPixels>(-20, -8), new Offset16<RoomPixels>(0, 23), new Offset16<RoomPixels>(30, 61),
     ];
 
-    /// <summary>Reads one of the 28 body-relative decorative offsets in native group order.</summary>
+    /// <summary>Reads one of the 28 body-relative decorative offsets in group order.</summary>
     internal static Offset16<RoomPixels> Anchor(int index) => DecorativeAnchors[index];
 
     /// <summary>
-    /// The three programs the native table selects by projectile parameter zero through two:
+    /// The three programs the table selects by projectile parameter zero through two:
     /// the shared misc-dust small explosion, smoke and big explosion.
     /// </summary>
     internal static readonly MiscDustProjectileProgram[] Programs =

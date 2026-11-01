@@ -12,7 +12,7 @@ internal static class MotherBrainShotReaction
         MotherBrainProjectileType projectileType,
         MotherBrainWalkCredit walkCredit)
     {
-        // `$B58E` masks the projectile type to three bits before indexing an eight-byte
+        // The shot reaction masks the projectile type to three bits before indexing an eight-byte
         // table. Validate the host enum so a caller cannot smuggle a larger value past it.
         if (!Enum.IsDefined(projectileType))
             throw new ArgumentOutOfRangeException(nameof(projectileType));
@@ -41,8 +41,8 @@ internal static class MotherBrainShotReaction
         }
 
         // DEC turns reaction one into zero, sending either missile kind directly to the
-        // zero label; only that zero is tested. Reaction zero wraps to `$FFFF` and reaction
-        // two outside form four leaves one: both nonzero cases subtract `$0100` and clamp
+        // zero label; only that zero is tested. Reaction zero wraps to -1 and reaction
+        // two outside form four leaves one: both nonzero cases subtract 256 and clamp
         // signed underflow to zero.
         if (reactionType == 1)
             return new MotherBrainShotReactionResult(MotherBrainWalkCredit.Empty, HyperBeamRecoil: false);

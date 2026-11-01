@@ -6,8 +6,8 @@ internal static class MotherBrainGlassPaintDefinitions
 {
     /// <summary>
     /// Palette_MotherBrain_GlassShards index four: bright triangular face
-    /// in maps $8D:9750/976C. Init $86:CDF0 supplies graphics $0640, selecting
-    /// head-sheet tiles $162/$165 and OBJ palette three; this is a fixed painted tint.
+    /// in the glass shard frames. The shard initializer selects its graphics, selecting
+    /// head-sheet tiles 354/357 and sprite palette three; this is a fixed painted tint.
     /// </summary>
     internal static readonly RgbColor FaceHighlight = new(11, 28, 31);
 }

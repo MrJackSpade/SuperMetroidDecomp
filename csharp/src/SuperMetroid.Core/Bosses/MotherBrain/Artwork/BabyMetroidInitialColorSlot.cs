@@ -21,16 +21,16 @@ internal enum BabyMetroidInitialColorSlot
     InnardDarkShade = 7,
     /// <summary>Organ dark.</summary>
     InnardDark = 8,
-    /// <summary>CGRAM slot10: initial fang light color, independently chosen paint.</summary>
+    /// <summary>Palette slot10: initial fang light color, independently chosen paint.</summary>
     FangLight = 9,
-    /// <summary>CGRAM slot11: per-channel floor midpoint of fang light/dark slots10/12.</summary>
+    /// <summary>Palette slot11: per-channel floor midpoint of fang light/dark slots10/12.</summary>
     FangMiddle = 10,
-    /// <summary>CGRAM slot12: initial fang dark color, independently chosen paint.</summary>
+    /// <summary>Palette slot12: initial fang dark color, independently chosen paint.</summary>
     FangDark = 11,
     /// <summary>Fang outline, visible ink13.</summary>
     FangOutline = 12,
-    /// <summary>CGRAM slot14: full-intensity RGB5 white.</summary>
+    /// <summary>Palette slot14: full-intensity RGB5 white.</summary>
     White = 13,
-    /// <summary>CGRAM slot15: zero-intensity RGB5 black.</summary>
+    /// <summary>Palette slot15: zero-intensity RGB5 black.</summary>
     Black = 14,
 }

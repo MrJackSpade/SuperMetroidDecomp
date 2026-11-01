@@ -106,7 +106,7 @@ public sealed class MotherBrainRoomColorPresentation
     }
 
     /// <summary>FadeOutBackgroundForBabyMetroidDeathSequence: immediately blacks
-    /// out colors 1..E of BG palettes 3 and 5, the same slices later restored by $AD:F24B.</summary>
+    /// out colors 1..14 of background palettes 3 and 5, the same slices the recovery lights later restore.</summary>
     /// <param name="gameplayColours">Destination color memory; all entries outside indices 49..62 and 81..94 remain unchanged.</param>
     /// <exception cref="ArgumentNullException"><paramref name="gameplayColours"/> is null.</exception>
     public static void ApplyBabyMetroidDeathBlackout(GameplayColours gameplayColours)
@@ -121,7 +121,7 @@ public sealed class MotherBrainRoomColorPresentation
 
     /// <summary>Applies one room-light image after the Baby Metroid cutscene.</summary>
     /// <param name="gameplayColours">Destination color memory receiving fourteen-color slices at indices 49..62 and 81..94.</param>
-    /// <param name="frame">Recovery image 0..6 in playback order, corresponding to native source $AD:F3D3 - frame * $38; this call does not advance the cutscene's timer.</param>
+    /// <param name="frame">Recovery image 0..6 in playback order; this call does not advance the cutscene's timer.</param>
     /// <exception cref="ArgumentNullException"><paramref name="gameplayColours"/> is null.</exception>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is outside the seven authored images.</exception>
     public void ApplyRecoveryLights(GameplayColours gameplayColours, int frame)
@@ -188,7 +188,7 @@ public sealed class MotherBrainRoomColorPresentation
             for (int step = 0; step < MotherBrainRoomColorDefinitions.RoomWallCount; step++)
                 stock[MotherBrainRoomColorDefinitions.RoomWallFirst + step] = InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.WallLight,
                     MotherBrainFinalRoomPaintDefinitions.WallDark, step, MotherBrainRoomColorDefinitions.RoomWallCount - 1);
-            // Native shadow red is5,4,3,1: ceiling interpolation. Green7,5,4,2
+            // Shadow red is5,4,3,1: ceiling interpolation. Green7,5,4,2
             // and blue8,6,4,2 use nearest interpolation. This is an exact sequence
             // relationship, not a claim about a historical palette tool.
             RgbColor recessedShadow = InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight, RgbColor.Black,

@@ -49,13 +49,13 @@ internal sealed class MotherBrainCombat
         {
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                // Every body rectangle's shot callback is `$A9:B503`, exactly CreateDudShot;
+                // Every body rectangle's shot callback is exactly CreateDudShot;
                 // only the dummy root's head-callback list could select anything else.
                 if (c.HitboxShotAi != EnemyReaction.MotherBrainBodyShot)
                 {
                     throw new InvalidDataException(
                         $"Mother Brain's body selected shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} from " +
-                        $"frame $A9:{c.Enemy.Frame}; only $A9:B503 is ported.");
+                        $"frame {c.Enemy.Frame}; only the dud-shot callback is ported.");
                 }
                 // The common collision prelude still owns Super-Missile quake first.
                 c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
@@ -76,7 +76,7 @@ internal sealed class MotherBrainCombat
     }
 
     /// <summary>
-    /// Ports the first-form branch of head shot AI <c>$A9:B507</c>. The glass encounter
+    /// Runs the first-form branch of the head's shot AI. The glass encounter
     /// accepts only missile families; beams pass through without being converted into an
     /// impact, while every accepted missile increments the room PLM argument before common
     /// vulnerability damage is applied without the ordinary enemy-deletion tail.
@@ -108,22 +108,22 @@ internal sealed class MotherBrainCombat
             return;
         }
 
-        // The bank-$A0 walker has marked every overlapping family before this callback;
+        // The walker has marked every overlapping family before this callback;
         // the next projectile pass consumes the marker, removing a Super Missile's pair too.
         projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
             projectile.SlotIndex,
             head.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                 !projectileType.BeamCombination.HasPlasma);
-        // `$A9:B519` lets only missiles and Super Missiles reach the glass.
+        // The head's shot AI lets only missiles and Super Missiles reach the glass.
         if (family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile))
             return;
 
         _room.Services.MotherBrain.IncrementGlassRoomArgument();
         _audio.QueueEnemySound(Library2Sound.ShotMotherBrain, priority: SoundRequestPriority.Normal);
 
-        // `$B52D-$B539` deliberately alternates odd/even flash parity when a second hit
+        // The flash step deliberately alternates odd/even flash parity when a second hit
         // arrives during the existing flash. The common no-death damage helper then owns
-        // health, hurt-AI, and the final ROM-authored hurt duration.
+        // health, hurt-AI, and the final authored hurt duration.
         head.FlashTimer = WrappingCountdown.FromRaw(!head.FlashTimer.IsZero && head.FlashTimer.IsInAlternatePhase(1)
             ? 14
             : 13);
@@ -152,7 +152,7 @@ internal sealed class MotherBrainCombat
     }
 
     /// <summary>
-    /// Ports <c>$A9:B54E-B5C4</c> plus the phase-two/three common no-death damage tail.
+    /// Runs the later forms of the head's shot AI plus the phase-two/three common no-death damage tail.
     /// Form one (the fake-death interval) still runs the recoil bookkeeping but converts the
     /// projectile into a dud. Forms two and later apply ordinary vulnerability damage while
     /// deliberately leaving the multipart boss records alive at zero health for body AI.
@@ -165,14 +165,14 @@ internal sealed class MotherBrainCombat
         SamusProjectileType projectileType,
         int projectileDamage)
     {
-        // The bank-$A0 walker marked the projectile before dispatching this callback.
+        // The walker marked the projectile before dispatching this callback.
         projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
             projectile.SlotIndex,
             head.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                 !projectileType.BeamCombination.HasPlasma);
 
-        // `$B58E` reads its eight-row reaction table at the family's row wrapped to eight
-        // rows, so missile explosions alias beams exactly as natively.
+        // The reaction step reads its eight-row reaction table at the family's row wrapped to eight
+        // rows, so missile explosions alias beams exactly as in the original game.
         MotherBrainProjectileType reactionProjectile = projectileType.Family switch
         {
             SamusProjectileFamily.Beam or SamusProjectileFamily.MissileExplosion => MotherBrainProjectileType.Beam,
@@ -185,8 +185,8 @@ internal sealed class MotherBrainCombat
         };
         if (state.RainbowBeamSequence is { } sequence)
         {
-            // The attached sequence shares walk counter `$7E:780E` with the encounter. `$B5BA/$B5BD`
-            // clears the body function timer on recoil underflow and `$B5C0` stores the counter
+            // The attached sequence shares the walk counter with the encounter. The recoil
+            // clears the body function timer on recoil underflow and stores the counter
             // immediately, before common projectile damage runs.
             sequence.ApplyPhase2Or3ShotReaction(reactionProjectile);
             state.FunctionTimer = sequence.State.FunctionTimer;
@@ -209,7 +209,7 @@ internal sealed class MotherBrainCombat
             return;
         }
 
-        // The native callback tail-calls common no-death shot damage. In particular,
+        // The callback tail-calls common no-death shot damage. In particular,
         // charged beams use the separate charged vulnerability byte after the ordinary
         // beam freeze check; Hyper would otherwise inherit the immune plasma entry.
         EnemyCollision.NormalShotVulnerability vulnerability = EnemyCollision.ReadNormalShotVulnerability(head, projectileType);
@@ -230,7 +230,7 @@ internal sealed class MotherBrainCombat
 
         head.FlashTimer = WrappingCountdown.Start(head.HurtFlashFrames + 8);
         head.AiStates = head.AiStates | EnemyAiStates.Hurt;
-        // The shared native no-death tail still grants Plasma's hit immunity.
+        // The shared no-death tail still grants Plasma's hit immunity.
         // A surviving penetrating beam cannot damage this head again every frame.
         if (projectileType.BeamCombination.HasPlasma)
             head.InvincibilityTimer = WrappingCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
@@ -240,12 +240,12 @@ internal sealed class MotherBrainCombat
     }
 
     /// <summary>
-    /// Ports family <c>$0500</c> through Mother Brain brain callback <c>$A9:B507</c>.
+    /// Runs a normal bomb through Mother Brain's brain callback.
     /// The first form's eight-entry projectile-family table rejects bombs outright. Later
-    /// forms always run <c>$B562</c>: family five selects reaction zero, subtracting
-    /// <c>$0100</c> from the walk/recoil accumulator with a signed-zero clamp. Fake-death
+    /// forms always run the recoil step: family five selects reaction zero, subtracting
+    /// 256 from the walk/recoil accumulator with a signed-zero clamp. Fake-death
     /// form one then creates only a dud, while forms two and later enter common no-death
-    /// damage. The bank-$A0 multibox caller already owns the bomb collision mark.
+    /// damage. The multibox caller already owns the bomb collision mark.
     /// </summary>
     private void ResolveMotherBrainHeadNormalBomb(
         RoomEnemySlot head,
@@ -278,8 +278,8 @@ internal sealed class MotherBrainCombat
                                EnemyCollision.TouchAi(slot) == EnemyReaction.MotherBrainHeadTouch,
             context =>
             {
-                // `$A9:B5C6` is not ordinary touch damage. A spin-jumping Samus toggles
-                // the head's visible flash length between the cartridge's 13/14-frame
+                // The brain's touch is not ordinary touch damage. A spin-jumping Samus toggles
+                // the head's visible flash length between the game's 13/14-frame
                 // cadence; every other movement type returns without changing either actor.
                 RoomEnemySlot slot = context.Slot;
                 if (SamusPoseMetadata.ReadMovementType(context.Samus) == SamusMovementType.SpinJumping)
@@ -289,8 +289,8 @@ internal sealed class MotherBrainCombat
             });
     }
 
-    /// <summary>Registers body bomb reactions in the native AI dispatch table.</summary>
-    /// <remarks>`$A9:B503` is `CreateDudShot`. The multibox bomb walker has already marked the physical explosion, and
+    /// <summary>Registers body bomb reactions in the AI dispatch table.</summary>
+    /// <remarks>The body callback is `CreateDudShot`. The multibox bomb walker has already marked the physical explosion, and
     /// the body callback performs no health, phase, or multipart-state work of its own.</remarks>
     internal static void AddMotherBrainBodyBombReactions(EnemySharedReactions table)
     {
@@ -306,7 +306,7 @@ internal sealed class MotherBrainCombat
         if (enemy.DefinitionId is not (EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead))
             return null;
 
-        // Body and head walk the same bank-$A9 roots; the head's dummy list keeps $A320.
+        // Body and head walk the same roots; the head's dummy list keeps its dummy root.
         foreach (EnemyCollisionComponent component in
                  MotherBrainCollision.ComponentsAt(enemy.Frame))
         {

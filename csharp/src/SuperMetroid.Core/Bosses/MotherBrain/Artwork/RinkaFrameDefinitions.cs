@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
-/// The presentation boundary of the Rinkas' programs (#641): the bank-$A2 spritemap each
+/// The presentation boundary of the Rinkas' programs (#641): the spritemap each
 /// <see cref="RinkaFrame"/> pose shows, in ascending spritemap order.
 /// </summary>
 internal static class RinkaFrameDefinitions

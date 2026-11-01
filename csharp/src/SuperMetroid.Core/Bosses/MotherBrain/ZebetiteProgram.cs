@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public enum ZebetiteProgram
 {
-    /// <summary><c>InstList_Big_HealthGreaterThanEqualTo800</c>: large barrier, health 800 or more.</summary>
+    /// <summary>Large barrier, health 800 or more.</summary>
     LargeAtLeast800,
     /// <summary>Large barrier, health 600 to 799.</summary>
     LargeAtLeast600,

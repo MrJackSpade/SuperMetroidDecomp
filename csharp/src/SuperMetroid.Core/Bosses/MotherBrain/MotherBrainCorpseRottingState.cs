@@ -39,7 +39,7 @@ public sealed class MotherBrainCorpseRottingState
         bool stillRotting = Schedule.Step(
             rowFallen: _ =>
             {
-                // `$B223` samples the already-existing global seed; it does not advance
+                // The rotting step samples the already-existing global seed; it does not advance
                 // RNG. One dust projectile is emitted for every fallen row.
                 FinishedEntryCount++;
                 dustRequests.Add(new MotherBrainCorpseDustRequest(
@@ -61,7 +61,7 @@ public sealed class MotherBrainCorpseRottingState
                 DustRequests: dustRequests);
         }
 
-        // Carry set reaches `$B1DD`, which shows every row each time.
+        // Carry set reaches the full redraw, which shows every row each time.
         return new MotherBrainCorpseRottingStepResult(
             StillRotting: true,
             ShownRotStep: checked((int)ProcessCallCount),

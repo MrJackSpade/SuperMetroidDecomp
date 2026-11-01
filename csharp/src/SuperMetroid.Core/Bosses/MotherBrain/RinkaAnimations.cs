@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Bosses.MotherBrain.RinkaProgram;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The ordinary and Mother Brain Rinkas' hide, fire and spin animations as typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// The ordinary and Mother Brain Rinkas' hide, fire and spin animations as typed programs (#641), in place of their lists. Generated from the verified lists: each
 /// frame shows a <see cref="RinkaFrame"/> pose and each callback becomes a <see cref="RinkaCue"/> with its typed operands.
 /// </summary>
 internal static class RinkaAnimations

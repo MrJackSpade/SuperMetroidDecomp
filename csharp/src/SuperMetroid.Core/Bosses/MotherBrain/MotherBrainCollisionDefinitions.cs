@@ -4,83 +4,83 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Cartridge-owned collision for Mother Brain's extended frames, read by
-/// <c>$A0:9B7F</c>/<c>$A0:9A5A</c> for both the body and the head, whose dummy list keeps
-/// root <c>$A320</c> for life. Each root lists component offsets, each with the hitbox list
-/// holding its rectangles; the BG2/OAM art the same roots reference is replaceable.
+/// Owned collision for Mother Brain's extended frames, read by the
+/// shot and contact collision walkers for both the body and the head, whose dummy list keeps
+/// its dummy root for life. Each root lists component offsets, each with the hitbox list
+/// holding its rectangles; the sprite and body-layer art the same roots reference is replaceable.
 /// </summary>
 internal static class MotherBrainCollisionDefinitions
 {
 
-    /// <summary><c>Hitbox_MotherBrainBody_0</c>.</summary>
+    /// <summary>Mother Brain body hitbox 0.</summary>
     internal static readonly EnemyCollisionHitbox[] ListA4AC =
     [
         new(-20, -21, 16, 23, EnemyReaction.MotherBrainHeadTouch, EnemyReaction.MotherBrainHeadShot),
     ];
 
-    /// <summary><c>Hitbox_MotherBrainBody_2</c>.</summary>
+    /// <summary>Mother Brain body hitbox 2.</summary>
     internal static readonly EnemyCollisionHitbox[] ListA4C8 =
         [];
 
-    /// <summary><c>Hitbox_MotherBrainBody_3</c>.</summary>
+    /// <summary>Mother Brain body hitbox 3.</summary>
     internal static readonly EnemyCollisionHitbox[] ListA4CA =
     [
         new(-23, -1, 23, 7, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
     ];
 
-    /// <summary><c>Hitbox_MotherBrainBody_4</c>.</summary>
+    /// <summary>Mother Brain body hitbox 4.</summary>
     internal static readonly EnemyCollisionHitbox[] ListA4D8 =
         [];
 
-    /// <summary><c>Hitbox_MotherBrainBody_5</c>.</summary>
+    /// <summary>Mother Brain body hitbox 5.</summary>
     internal static readonly EnemyCollisionHitbox[] ListA4DA =
     [
         new(-23, -2, 23, 7, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
     ];
 
-    /// <summary><c>Hitbox_MotherBrainBody_6</c>.</summary>
+    /// <summary>Mother Brain body hitbox 6.</summary>
     internal static readonly EnemyCollisionHitbox[] ListA4E8 =
     [
         new(-32, -24, 20, 52, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
         new(-24, -42, 13, -25, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
     ];
 
-    /// <summary><c>Hitbox_MotherBrainBody_8</c>.</summary>
+    /// <summary>Mother Brain body hitbox 8.</summary>
     internal static readonly EnemyCollisionHitbox[] ListA504 =
     [
         new(4, -59, 28, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
         new(28, -41, 57, -30, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
     ];
 
-    /// <summary><c>Hitbox_MotherBrainBody_9</c>.</summary>
+    /// <summary>Mother Brain body hitbox 9.</summary>
     internal static readonly EnemyCollisionHitbox[] ListA51E =
     [
         new(4, -59, 28, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
         new(28, -41, 54, -30, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
     ];
 
-    /// <summary><c>Hitbox_MotherBrainBody_A</c>.</summary>
+    /// <summary>Mother Brain body hitbox: a.</summary>
     internal static readonly EnemyCollisionHitbox[] ListA538 =
     [
         new(4, -59, 28, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
         new(29, -43, 45, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
     ];
 
-    /// <summary><c>Hitbox_MotherBrainBody_B</c>.</summary>
+    /// <summary>Mother Brain body hitbox: b.</summary>
     internal static readonly EnemyCollisionHitbox[] ListA552 =
     [
         new(4, -59, 28, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
         new(29, -48, 68, -40, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
     ];
 
-    /// <summary><c>Hitbox_MotherBrainBody_C</c>.</summary>
+    /// <summary>Mother Brain body hitbox: c.</summary>
     internal static readonly EnemyCollisionHitbox[] ListA56C =
     [
         new(4, -59, 28, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
         new(28, -41, 58, -31, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Standing</c>.</summary>
+    /// <summary>Mother Brain body standing frame.</summary>
     internal static readonly EnemyCollisionComponent[] Frame9FA0 =
     [
         new(new(18, 58), ListA4CA),
@@ -94,7 +94,7 @@ internal static class MotherBrainCollisionDefinitions
         new(new(2, 29), ListA4D8),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_0</c>.</summary>
+    /// <summary>Mother Brain body walking, frame 0.</summary>
     internal static readonly EnemyCollisionComponent[] Frame9FEA =
     [
         new(new(28, 47), ListA4CA),
@@ -109,7 +109,7 @@ internal static class MotherBrainCollisionDefinitions
         new(new(-25, -3), ListA4D8),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_1</c>.</summary>
+    /// <summary>Mother Brain body walking, frame 1.</summary>
     internal static readonly EnemyCollisionComponent[] FrameA03C =
     [
         new(new(40, 48), ListA4CA),
@@ -124,7 +124,7 @@ internal static class MotherBrainCollisionDefinitions
         new(new(-26, -3), ListA4D8),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_2</c>.</summary>
+    /// <summary>Mother Brain body walking, frame 2.</summary>
     internal static readonly EnemyCollisionComponent[] FrameA08E =
     [
         new(new(40, 51), ListA4CA),
@@ -139,7 +139,7 @@ internal static class MotherBrainCollisionDefinitions
         new(new(-26, -4), ListA4D8),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_3</c>.</summary>
+    /// <summary>Mother Brain body walking, frame 3.</summary>
     internal static readonly EnemyCollisionComponent[] FrameA0E0 =
     [
         new(new(36, 58), ListA4CA),
@@ -153,7 +153,7 @@ internal static class MotherBrainCollisionDefinitions
         new(new(-4, 30), ListA4D8),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_4</c>.</summary>
+    /// <summary>Mother Brain body walking, frame 4.</summary>
     internal static readonly EnemyCollisionComponent[] FrameA12A =
     [
         new(new(21, 60), ListA4CA),
@@ -167,7 +167,7 @@ internal static class MotherBrainCollisionDefinitions
         new(new(-5, 28), ListA4D8),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_5</c>.</summary>
+    /// <summary>Mother Brain body walking, frame 5.</summary>
     internal static readonly EnemyCollisionComponent[] FrameA174 =
     [
         new(new(15, 64), ListA4CA),
@@ -181,7 +181,7 @@ internal static class MotherBrainCollisionDefinitions
         new(new(-1, 24), ListA4D8),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_6</c>.</summary>
+    /// <summary>Mother Brain body walking, frame 6.</summary>
     internal static readonly EnemyCollisionComponent[] FrameA1BE =
     [
         new(new(17, 60), ListA4CA),
@@ -195,7 +195,7 @@ internal static class MotherBrainCollisionDefinitions
         new(new(3, 23), ListA4D8),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_7</c>.</summary>
+    /// <summary>Mother Brain body walking, frame 7.</summary>
     internal static readonly EnemyCollisionComponent[] FrameA208 =
     [
         new(new(18, 58), ListA4CA),
@@ -209,7 +209,7 @@ internal static class MotherBrainCollisionDefinitions
         new(new(2, 31), ListA4D8),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Crouched</c>.</summary>
+    /// <summary>Mother Brain body crouched frame.</summary>
     internal static readonly EnemyCollisionComponent[] FrameA252 =
     [
         new(new(18, 20), ListA4CA),
@@ -221,7 +221,7 @@ internal static class MotherBrainCollisionDefinitions
         new(new(-10, 18), ListA4DA),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Uncrouching</c>.</summary>
+    /// <summary>Mother Brain body uncrouching frame.</summary>
     internal static readonly EnemyCollisionComponent[] FrameA28C =
     [
         new(new(18, 30), ListA4CA),
@@ -235,7 +235,7 @@ internal static class MotherBrainCollisionDefinitions
         new(new(2, 1), ListA4D8),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBody_LeaningDown</c>.</summary>
+    /// <summary>Mother Brain body leaning down frame.</summary>
     internal static readonly EnemyCollisionComponent[] FrameA2D6 =
     [
         new(new(18, 46), ListA4CA),
@@ -249,13 +249,13 @@ internal static class MotherBrainCollisionDefinitions
         new(new(2, 17), ListA4D8),
     ];
 
-    /// <summary><c>UNUSED_ExtendedSpritemap_MotherBrainBrain_A9A320</c>.</summary>
+    /// <summary>Unused Mother Brain Brain frame.</summary>
     internal static readonly EnemyCollisionComponent[] FrameA320 =
     [
         new(new(0, 0), ListA4AC),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBrain_DeathBeamMode_0</c>.</summary>
+    /// <summary>Mother Brain Brain death beam mode, frame 0.</summary>
     internal static readonly EnemyCollisionComponent[] FrameA384 =
     [
         new(new(18, 58), ListA4CA),
@@ -269,7 +269,7 @@ internal static class MotherBrainCollisionDefinitions
         new(new(2, 29), ListA4D8),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBrain_DeathBeamMode_1</c>.</summary>
+    /// <summary>Mother Brain Brain death beam mode, frame 1.</summary>
     internal static readonly EnemyCollisionComponent[] FrameA3CE =
     [
         new(new(18, 58), ListA4CA),
@@ -283,7 +283,7 @@ internal static class MotherBrainCollisionDefinitions
         new(new(2, 29), ListA4D8),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBrain_DeathBeamMode_2</c>.</summary>
+    /// <summary>Mother Brain Brain death beam mode, frame 2.</summary>
     internal static readonly EnemyCollisionComponent[] FrameA418 =
     [
         new(new(18, 58), ListA4CA),
@@ -297,7 +297,7 @@ internal static class MotherBrainCollisionDefinitions
         new(new(2, 29), ListA4D8),
     ];
 
-    /// <summary><c>ExtendedSpritemap_MotherBrainBrain_DeathBeamMode_3</c>.</summary>
+    /// <summary>Mother Brain Brain death beam mode, frame 3.</summary>
     internal static readonly EnemyCollisionComponent[] FrameA462 =
     [
         new(new(18, 58), ListA4CA),

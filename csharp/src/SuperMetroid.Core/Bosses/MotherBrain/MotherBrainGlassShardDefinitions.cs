@@ -12,8 +12,8 @@ internal static class MotherBrainGlassShardDefinitions
     internal static SpriteGraphics Graphics { get; } = new(EnemyTileBaseDefinitions.MotherBrainObjectCharacters, new EncounterSpriteColouring(MotherBrainColourDefinitions.GlassShards));
 
     /// <summary>
-    /// The three horizontal emitter positions on the glass: $86:CE61 right, half a block right of the PLM origin;
-    /// $86:CE63 left, two and a half blocks left; $86:CE65 centre, one block left.
+    /// The three horizontal emitter positions on the glass: right, half a block right of the PLM origin;
+    /// left, two and a half blocks left; centre, one block left.
     /// </summary>
     internal static readonly Dictionary<MotherBrainGlassShard, int> EmitterXs = new()
     {

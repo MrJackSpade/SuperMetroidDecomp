@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
-/// <summary>Mutually exclusive material-channel profiles in the native body rainbow phases.</summary>
+/// <summary>Mutually exclusive material-channel profiles in the body rainbow phases.</summary>
 internal enum MotherBrainRainbowShadeProfile
 {
     /// <summary>Phase1 green, with ceiling plate and nearest-up tissue shades.</summary>

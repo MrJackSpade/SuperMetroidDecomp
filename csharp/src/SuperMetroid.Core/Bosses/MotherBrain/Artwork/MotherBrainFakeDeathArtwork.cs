@@ -29,7 +29,7 @@ internal static class MotherBrainFakeDeathArtwork
             }
         });
 
-    /// <summary>Resolves a fake-death room block's selected appearance, projecting native run-local indices into its flattened authored layout.</summary>
+    /// <summary>Resolves a fake-death room block's selected appearance, projecting run-local indices into its flattened authored layout.</summary>
     /// <exception cref="InvalidDataException">The draw is not a supported fake-death layout.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the compiled draw shape.</exception>
     internal static RoomBlockAppearance Appearance(PlmVisualOverrides customAppearances, PlmDraw draw, int runIndex, int blockIndex)

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// The routines Shitroid's main AI dispatches.
-/// Its values are arbitrary; verification's native view names each member's cartridge routine (#1413).
+/// Its values are arbitrary; verification's catalog names each member's original routine (#1413).
 /// </summary>
 public enum ShitroidAiFunction
 {

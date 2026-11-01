@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
-/// <summary>$A9:9534-954F exploded-door opaque inks1..14, copied by B275-B27E.
+/// <summary>Exploded-door opaque inks1..14, copied when the escape opens the door.
 /// Reviewed categorical hue/intensity and gamma composition; mechanics, timing and pixels are excluded.</summary>
 internal static class MotherBrainExplodedDoorPaintDefinitions
 {

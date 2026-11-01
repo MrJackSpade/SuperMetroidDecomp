@@ -1,15 +1,15 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Native function pointers stored in the head record's secondary Mother Brain dispatcher.
+/// Function pointers stored in the head record's secondary Mother Brain dispatcher.
 /// During fake death this independent state machine serializes the physical tube actors,
-/// ceiling projectiles, and one-frame bank-$84 room mutations.
+/// ceiling projectiles, and one-frame room mutations.
 /// </summary>
 public enum MotherBrainTubeCollapseFunction
 {
     /// <summary>Admits collapse when four projectile slots are free, then requests physical bottom-left tube enemy 0.</summary>
     WaitForFourFreeProjectileSlots = 1,
-    /// <summary>Requests the bank-$84 removal at block (5,9) and seeds the 32-count top-right delay.</summary>
+    /// <summary>Requests the removal at block (5,9) and seeds the 32-count top-right delay.</summary>
     ClearBottomLeftTube,
     /// <summary>After timer underflow requests the ceiling projectile at pixel (152,47).</summary>
     SpawnTopRightTube,
@@ -41,8 +41,8 @@ public enum MotherBrainTubeCollapseFunction
     ClearBottomMiddleRightTube,
     /// <summary>After timer underflow requests the main falling-tube enemy whose descent carries the head into ascent setup.</summary>
     SpawnMainTube,
-    /// <summary>Removes the remaining tubes at block (7,7) and installs its own RTS as the terminal subfunction.</summary>
+    /// <summary>Removes the remaining tubes at block (7,7) and installs its own empty step as the terminal subfunction.</summary>
     ClearBottomMiddleTubes,
-    /// <summary><c>$A9:8AE4 Function_MotherBrainBody_ClearBottomMiddleTubes.return</c>: inert tube-subfunction endpoint while physical falling actors continue independently.</summary>
+    /// <summary>Inert tube-subfunction endpoint while physical falling actors continue independently.</summary>
     Finished,
 }

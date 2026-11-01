@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
-/// Selected red barrier-core paint, copied to OBJ palette2 inksC/D
-/// by $A6:FD7C-82. Native $A6:FE08 and the Rinka sheet $AE:B800 use these inks for
+/// Selected red barrier-core paint, copied to sprite palette2 inks 12 and 13
+/// by the Zebetite palette animation. The Zebetite frames and the Rinka sheet use these inks for
 /// adjacent bright/dark core facets. Exact hue, shade ratio and symmetric pulse
 /// are chosen illumination content; no health, collision or cadence is defined here.
 /// </summary>
 internal static class ZebetitePulsePaintDefinitions
 {
-    /// <summary>Upper bound of each SNES five-bit color channel.</summary>
+    /// <summary>Upper bound of each five-bit color channel.</summary>
     internal const int ChannelMaximum = 31;
     /// <summary>Warm-green bias2 on the saturated-red core.
     /// The neighboring darker facet uses half this green bias.</summary>

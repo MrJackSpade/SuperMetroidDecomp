@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Movement index of one Mother Brain neck joint: the word (lower) or
-/// <c>$7E:8066</c> (upper) that <c>$A9:9072</c> and <c>$A9:9109</c> use as an offset into
+/// Movement index of one Mother Brain neck joint: the value the lower and upper neck
+/// motion dispatchers use as an index into
 /// their five-entry jump tables. Both joints share the same table layout.
 /// </summary>
 public enum MotherBrainNeckMovement

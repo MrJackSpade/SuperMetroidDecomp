@@ -3,16 +3,16 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
-/// The cutscene Baby's fade to black. $AD:E90C-E9B3 displays the separately identified final-health paints at
+/// The cutscene Baby's fade to black. The Baby's fade displays the separately identified final-health paints at
 /// five-sevenths down to zero intensity. Supplied edits remain independent; no latent RGB8 endpoint reconstruction or
 /// stored stock sample is needed.
 /// </summary>
 internal sealed class BabyMetroidFade
 {
-    /// <summary>Stores edited rows only when they differ from the native final-health fade formula.</summary>
+    /// <summary>Stores edited rows only when they differ from the final-health fade formula.</summary>
     internal readonly RgbColor[][]? supplied;
 
-    /// <summary>Uses the native composition for stock rows and retains any independently authored edits.</summary>
+    /// <summary>Uses the composition for stock rows and retains any independently authored edits.</summary>
     internal BabyMetroidFade(RgbColor[][] frames)
     {
         for (int frame = 0; frame < frames.Length; frame++)
@@ -43,13 +43,13 @@ internal sealed class BabyMetroidFade
             : throw new ArgumentOutOfRangeException(nameof(paletteIndex),
                 $"Cutscene Baby fade index {paletteIndex}, color {color} is outside the authored images.");
 
-    /// <summary>Retrieves one displayed color from edited rows or the native composition.</summary>
+    /// <summary>Retrieves one displayed color from edited rows or the composition.</summary>
     internal RgbColor Resolve(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
     /// <summary>Looks up the matching final-health paint before applying fade intensity.</summary>
     internal static RgbColor Endpoint(int color) => BabyMetroidFinalHealthPaint.Color(color);
 
-    /// <summary>Scales each RGB5 channel by the native remaining-sevenths intensity.</summary>
+    /// <summary>Scales each RGB5 channel by the remaining-sevenths intensity.</summary>
     private static RgbColor Calculate(int frame, int color)
     {
         int remaining = BabyMetroidCutsceneColorDefinitions.FadeFrameCount - 1 - frame;
@@ -57,7 +57,7 @@ internal sealed class BabyMetroidFade
         return Endpoint(color).Map((_, channel) => channel * remaining / intervals);
     }
 
-    /// <summary>Hashes the six resolved rows so native and equivalent supplied artwork share an identity.</summary>
+    /// <summary>Hashes the six resolved rows so and equivalent supplied artwork share an identity.</summary>
     internal void AppendIdentity(SelectedPresentationHash content)
     {
         content.Append("fade", BabyMetroidCutsceneColorDefinitions.FadeFrameCount);

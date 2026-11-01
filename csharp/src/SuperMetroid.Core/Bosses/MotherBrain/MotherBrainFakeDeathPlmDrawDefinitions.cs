@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Mother Brain fake-death room physical PLM draws.</summary>
 internal static class MotherBrainFakeDeathPlmDrawDefinitions
 {
-    /// <summary>The stable visual document name of each draw in the closed bank-$84 draw domain.</summary>
+    /// <summary>The stable visual document name of each draw in the closed draw domain.</summary>
     internal static readonly Dictionary<MotherBrainFakeDeathDraw, string> VisualIds = new()
     {
         [MotherBrainFakeDeathDraw.FillWall] = "fill-wall",
@@ -33,7 +33,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     };
 
     /// <summary>
-    /// Native 84:966D..9716: the shapes of the two thirteen-cell solid fill rows and six tube clears. The middle pair
+    /// 84:966D..9716: the shapes of the two thirteen-cell solid fill rows and six tube clears. The middle pair
     /// duplicates a seven-cell column; side tubes clear one extra cell toward the center using signed origin-relative X.
     /// </summary>
     internal static readonly Dictionary<MotherBrainFakeDeathDraw, MotherBrainFakeDeathDraws.RegularDraw> RegularShapes = new()

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Six independently chosen Mother Brain body paint anchors shared by calculated palette effects.</summary>
 internal static class MotherBrainHealthPaintDefinitions
 {
-    /// <summary>Chosen bright cortex patches on the native head artwork.</summary>
+    /// <summary>Chosen bright cortex patches on the head artwork.</summary>
     internal static readonly RgbColor CortexHighlight = new(31, 20, 9);
     /// <summary>Chosen orange cortex middle tones.</summary>
     internal static readonly RgbColor CortexMidtone = new(25, 10, 0);

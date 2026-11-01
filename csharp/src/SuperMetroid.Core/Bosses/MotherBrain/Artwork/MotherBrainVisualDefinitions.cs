@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
-/// Ordinary bank-$A9 OAM layouts selected by Mother Brain's head hook and
+/// Ordinary sprite layouts selected by Mother Brain's head hook and
 /// falling-tube programs. These identities name artwork, not encounter timing.
 /// </summary>
 internal static class MotherBrainVisualDefinitions

@@ -17,9 +17,9 @@ internal static class MotherBrainRecoveryPaintDefinitions
     internal static readonly RgbColor DoorwayRimDark = new(3, 3, 17);
 
     /// <summary>
-    /// Duplicate full-light BG palette5 slots1/2. The same paint is
-    /// the attack bomb-casing glint (map $8D:830C, index11) and the two
-    /// tube highlights/F6. Only these exact aliases share this choice;
+    /// Duplicate full-light background palette5 slots1/2. The same paint is
+    /// the attack bomb-casing glint (index11 of the bomb frames) and the two
+    /// tube highlights. Only these exact aliases share this choice;
     /// each independently edited installed output remains independent.
     /// </summary>
     internal static readonly RgbColor SharedCasingHighlight = new(24, 24, 24);

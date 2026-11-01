@@ -3,7 +3,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.B
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's typed glass programs (#641), in place of their bank-$86 instruction lists.</summary>
+/// <summary>Mother Brain's typed glass programs (#641), in place of their instruction lists.</summary>
 internal static class MotherBrainGlassAnimations
 {
     /// <summary>Frames in each shard loop.</summary>
@@ -42,7 +42,7 @@ internal static class MotherBrainGlassAnimations
     };
 
     /// <summary>
-    /// <c>$86:CE41</c> maps one of sixteen random angle bins to its shard group; the bin widths 1, 2, 3, 2 repeat in
+    /// The shard initializer maps one of sixteen random angle bins to its shard group; the bin widths 1, 2, 3, 2 repeat in
     /// the opposite half-turn.
     /// </summary>
     internal static MotherBrainGlassProgram ShardProgram(int angleBin) => angleBin switch

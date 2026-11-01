@@ -29,6 +29,6 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
     /// <summary>Glint retains organ-light red and adds half the reviewed initial glint17,
     /// green rounded up and blue down. The asymmetric half-light policy is selected paint composition.</summary>
     internal const int GlintDivisor = 2;
-    /// <summary>Fang contour is three quarters of initial$A9:94EC, nearest rounding with ties toward dark.</summary>
+    /// <summary>Fang contour is three quarters of the initial fang contour, nearest rounding with ties toward dark.</summary>
     internal const int ContourNumerator = 3, ContourDenominator = 4;
 }

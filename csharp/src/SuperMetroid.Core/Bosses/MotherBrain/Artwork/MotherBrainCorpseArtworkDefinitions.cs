@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Editable source characters for Mother Brain's row-by-row corpse decay.</summary>
 public static class MotherBrainCorpseArtworkDefinitions
 {
-    /// <summary>$0C00 bytes, covering every initial corpse copy through $B7:D99F.</summary>
+    /// <summary>3072 bytes, covering every initial corpse copy.</summary>
     public const int ByteCount = 3072;
 
     /// <summary>Indexed four-bit tile sheet independent of the ordinary ED7F enemy sheet.</summary>
@@ -12,19 +12,19 @@ public static class MotherBrainCorpseArtworkDefinitions
     /// <summary>Each of the six corpse pages shows $1C0 bytes, leaving out its source page's last two tile rows.</summary>
     public const int PageByteCount = 448;
 
-    /// <summary>$A9:E08B-$E130 extracts six tile rows of the right-hand corpse frame.</summary>
+    /// <summary>The corpse copy extracts six tile rows of the right-hand corpse frame.</summary>
     public const int RowCount = 6;
     /// <summary>The corpse's visible pixel rows, eight to each tile row; its rot schedule drops every one.</summary>
     public const int PixelRowCount = RowCount * 8;
-    /// <summary>$A9:EA40/$EB0B address seven 32-byte 4bpp tile columns per staging row.</summary>
+    /// <summary>The rotting steps address seven 32-byte 4bpp tile columns per staging row.</summary>
     public const int ColumnCount = 7;
-    /// <summary>One SNES 4bpp 8-by-8 tile occupies 32 bytes in the corpse staging image.</summary>
+    /// <summary>One 4bpp 8-by-8 tile occupies 32 bytes in the corpse staging image.</summary>
     public const int TileBytes = 32;
-    /// <summary>$A9:E262 advances seven tiles ($E0 bytes) per corpse tile row.</summary>
+    /// <summary>The corpse copy advances seven tiles (224 bytes) per corpse tile row.</summary>
     public const int RowBytes = ColumnCount * TileBytes;
-    /// <summary>$A9:E08B reads six-tile-offset right-hand artwork, beginning.</summary>
+    /// <summary>The corpse copy reads six-tile-offset right-hand artwork, beginning.</summary>
     public const int RightFrameColumn = 6;
-    /// <summary>$A9:E08B source artwork advances one sixteen-tile ($200-byte) page per row.</summary>
+    /// <summary>The corpse copy's source artwork advances one sixteen-tile (512-byte) page per row.</summary>
     public const int SourcePageBytes = 16 * TileBytes;
     /// <summary>The sprite character the first corpse page shows from; each later page follows the one before.</summary>
     public const int FirstPageCharacter = 416;
@@ -45,7 +45,7 @@ public static class MotherBrainCorpseArtworkDefinitions
         new(Row: 5, FirstColumn: 0, ColumnCount: 7),
     ];
 
-    /// <summary>$A9:EA40/$EB0B skip absent upper pixels at the outline's outer columns: each column's first drawn row.</summary>
+    /// <summary>The rotting steps skip absent upper pixels at the outline's outer columns: each column's first drawn row.</summary>
     public static readonly int[] ColumnMinimumYs = [16, 8, 0, 0, 0, 8, 32];
 
     /// <summary>The first four source rows end with an empty tile the initial copy leaves out.</summary>

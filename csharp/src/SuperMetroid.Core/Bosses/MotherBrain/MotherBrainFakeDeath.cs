@@ -82,7 +82,7 @@ internal sealed class MotherBrainFakeDeath
             {
                 // Fake-death fade replaces colors 145..147 only. Copying a convenient
                 // whole palette would visibly alter unrelated room art and is not what
-                // `$AD:ED5A` does.
+                // the fake-death fade does.
                 if (_bossArtwork.MotherBrainRainbowColors is { } colors)
                     colors.ApplyFakeDeathToGrey(_presentation.Colours, step);
                 else throw new InvalidOperationException(
@@ -90,7 +90,7 @@ internal sealed class MotherBrainFakeDeath
             }
         }
 
-        // `$A9:88CF` is an unconditional tail-call. Tube sequencing and dust therefore
+        // The grey fade's last step is an unconditional tail-call. Tube sequencing and dust therefore
         // begin during the grey fade rather than waiting for the eighth palette entry.
         RunMotherBrainTubeCollapse(state);
         RunMotherBrainFakeDeathExplosion(state);
@@ -120,7 +120,7 @@ internal sealed class MotherBrainFakeDeath
             MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length;
         Position16<RoomPixels> explosion = MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions[state.FakeDeathExplosionIndex];
 
-        // `$A9:8904` samples the existing RNG word and never advances it. A host random
+        // The tube dust samples the existing RNG word and never advances it. A host random
         // call here would desynchronize every later Rinka and phase-two attack decision.
         int sampledRandom = _room.Random.Read();
         MiscDustAnimation animation = sampledRandom < 16384 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion;
@@ -251,7 +251,7 @@ internal sealed class MotherBrainFakeDeath
         return timer.IsNegative;
     }
 
-    /// <summary>Queues the room tile change at the tube's native location.</summary>
+    /// <summary>Queues the room tile change at the tube's location.</summary>
     private void RequestMotherBrainTubePlm(
         MotherBrainEnemyState state,
         Position16<RoomBlocks> block,
@@ -282,7 +282,7 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Creates the falling tube enemy of <paramref name="piece"/>.</summary>
     internal void SpawnMotherBrainFallingTube(MotherBrainTubePiece piece)
     {
-        // The bound source supplies the fixed cutscene placement; retail rooms resolve it without touching bank $A9.
+        // The bound source supplies the fixed cutscene placement; retail rooms resolve it without touching the original data.
         RoomEnemyPopulationRecord population = _room.LoadedDefinitions.ReadFallingTubePopulation(piece);
         if (population.DefinitionId != EnemyDefinitionId.MotherBrainTubes)
         {
@@ -291,14 +291,14 @@ internal sealed class MotherBrainFakeDeath
                 $"{population.DefinitionId}, not the falling tube.");
         }
 
-        // SpawnEnemy silently fails when all 32 native records are occupied.
+        // SpawnEnemy silently fails when all 32 records are occupied.
         if (_dispatch.SpawnEnemy(population) is null)
             return;
         if (_motherBrainEncounter.MotherBrain is not null)
             _motherBrainEncounter.MotherBrain.SpawnedFallingTubeCount++;
     }
 
-    /// <summary>Ports falling-tube initialization $A9:8B35.</summary>
+    /// <summary>Initializes a falling tube.</summary>
     internal static void InitializeMotherBrainFallingTube(RoomEnemySlot tube)
     {
         MotherBrainTubeSpawnSettings settings = tube.Spawn.Population.SpawnSettingsOf<MotherBrainTubeSpawnSettings>();
@@ -317,7 +317,7 @@ internal sealed class MotherBrainFakeDeath
         tube.SetSpeciesState(state, state.ClearWithRecord);
     }
 
-    /// <summary>Ports the $A9:8B85 function-pointer dispatcher for physical tube enemies.</summary>
+    /// <summary>Runs the function dispatcher for physical tube enemies.</summary>
     internal void RunMotherBrainFallingTubeMain(RoomEnemySlot tube)
     {
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
@@ -368,7 +368,7 @@ internal sealed class MotherBrainFakeDeath
     {
         AccelerateMotherBrainTube(tube);
 
-        // Hiding the tube and moving the brain are independent native branches.
+        // Hiding the tube and moving the brain are independent branches.
         // The brain follows the tube throughout its descent, including before hiding.
         if (tube.Position.Y.Whole >= 244)
             tube.Properties = tube.Properties.With(EnemyProperties.Invisible);
@@ -390,8 +390,8 @@ internal sealed class MotherBrainFakeDeath
         state.Head.Position = state.Head.Position.WithWholeY(196);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
 
-        // `$A9:903F` is part of the main-tube landing path, not phase-two setup. These
-        // lengths and starting angles must exist before `$87A2` gets installed several
+        // The main tube's landing initializes the neck, not phase-two setup. These
+        // lengths and starting angles must exist before the ascent gets installed several
         // frames later or the first visible neck frame collapses every joint onto zero.
         MotherBrainNeckJointDefinitions.InitialDistances.CopyTo(state.NeckJointDistances);
         state.LowerNeckAngle = RotationAngle.FromRaw(18432);

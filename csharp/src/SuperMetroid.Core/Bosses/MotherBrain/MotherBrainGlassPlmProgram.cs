@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's glass PLM programs (#1296), in place of its bank-$84 lists.</summary>
+/// <summary>Mother Brain's glass PLM programs (#1296), in place of its lists.</summary>
 internal enum MotherBrainGlassPlmProgram
 {
     /// <summary>Picks the glass's state on entry and arms the hit wake.</summary>

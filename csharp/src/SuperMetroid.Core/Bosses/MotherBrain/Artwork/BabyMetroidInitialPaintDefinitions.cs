@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
-/// <summary>Reviewed initial Baby Metroid paints and their live aliases
-/// $A9:F8E8-F904. Only this dome/organ/fang composition is covered, not later health or pulse colors.</summary>
+/// <summary>Reviewed initial Baby Metroid paints and their live aliases.
+/// Only this dome/organ/fang composition is covered, not later health or pulse colors.</summary>
 internal static class BabyMetroidInitialPaintDefinitions
 {
     /// <summary>Visible ink1: pale green dome highlight.</summary>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The bank-$A9 enemy-instruction state needed by Mother Brain's locomotion and posture
+/// The enemy-instruction state needed by Mother Brain's locomotion and posture
 /// animations.
 /// </summary>
 /// <remarks>
@@ -19,7 +19,7 @@ public sealed class MotherBrainBodyAnimationState
     public Position16<RoomPixels> Position { get; set; }
 
     /// <summary>
-    /// Native body pose word. The admitted programs publish standing, walking, the
+    /// Body pose word. The admitted programs publish standing, walking, the
     /// posture transition, crouched and leaning down.
     /// </summary>
     public MotherBrainBodyPose Pose { get; set; }
@@ -31,8 +31,8 @@ public sealed class MotherBrainBodyAnimationState
     public MotherBrainBodyProgram? Program { get; private set; }
 
     /// <summary>
-    /// Equivalent of `$A9:C42D`: requests a body program; the physical body slot starts it on the next enemy
-    /// instruction-processing stage.
+    /// Requests a body program; the physical body slot starts it on the next enemy
+    /// animation-script stage.
     /// </summary>
     public void SetProgram(MotherBrainBodyProgram program) => Program = program;
 }

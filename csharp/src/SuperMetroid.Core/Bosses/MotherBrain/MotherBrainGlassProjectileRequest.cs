@@ -2,7 +2,7 @@
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>One <c>SpawnEprojWithRoomGfx($CEFC, parameter)</c> emitted by glass bytecode.</summary>
+/// <summary>One shard projectile the glass's animation script spawns.</summary>
 /// <param name="Kind">The projectile the glass spawns.</param>
 /// <param name="Shard">Which way the shard flies, selecting its emitter on the glass.</param>
 /// <param name="PlmBlock">The glass PLM's block, the origin of the emitters.</param>

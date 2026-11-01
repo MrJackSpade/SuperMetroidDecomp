@@ -9,7 +9,7 @@ public static class ZebetiteColorFormat
     public const string FileName = "zebetite-colors.json";
     /// <summary>Supported revision of the eight-row, two-color RGB5 JSON schema.</summary>
     public const int Version = 1;
-    /// <summary>Eight pulse rows selected by the native shared counter masked with <c>$0007</c>; these are palette steps rather than independent video-refresh timing data.</summary>
+    /// <summary>Eight pulse rows selected by the shared counter's low three bits; these are palette steps rather than independent video-refresh timing data.</summary>
     public const int FrameCount = 8;
     /// <summary>Two adjacent barrier-core colors copied per pulse step to OBJ palette 2 colors 12 and 13.</summary>
     public const int ColorsPerFrame = 2;

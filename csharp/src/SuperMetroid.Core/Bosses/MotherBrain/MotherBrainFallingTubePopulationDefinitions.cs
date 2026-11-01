@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The five fixed bank-$A9 enemy placements spawned during Mother Brain's
+/// The five fixed enemy placements spawned during Mother Brain's
 /// glass-tube collapse. They are separate from room population lists because
 /// the cutscene selects one record at a time after the initial room load.
 /// </summary>
@@ -23,7 +23,7 @@ internal static class MotherBrainFallingTubePopulationDefinitions
     /// This chosen placement baseline remains required, independent of installed artwork edits.</summary>
     internal const int BottomBaseline = 215;
     /// <summary>Outer tube compositions reach y28+8=36 below their origin.
-    /// Native geometry input remains required; not inferred from an editable presentation instance.</summary>
+    /// Geometry input remains required; not inferred from an editable presentation instance.</summary>
     internal const int OuterBottom = 36;
     /// <summary>Inner tube compositions reach y20+8=28 below their origin; required geometry.</summary>
     internal const int InnerBottom = 28;

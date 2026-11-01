@@ -25,7 +25,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Initializes newly spawned Zebetite slots through the common enemy dispatch path.</summary>
     private readonly IEnemyDispatch _dispatch;
-    /// <summary>Supplies room artwork, cartridge data, and event services used by Zebetites.</summary>
+    /// <summary>Supplies room artwork, data, and event services used by Zebetites.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates the explosion projectile when a Zebetite half dies.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -71,7 +71,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId ZebetiteShotSound = Library3Sound.MissileDoorHit;
 
     /// <summary>
-    /// Native <c>palette_change_num</c>, the count of scripted palette fades in progress. A
+    /// <c>palette_change_num</c>, the count of scripted palette fades in progress. A
     /// nonzero count suppresses the Zebetite's private two-color cycle; normal gameplay leaves
     /// this at zero.
     /// </summary>
@@ -107,7 +107,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
                 SharedPaletteCycle = 0;
         });
 
-        // $8000 is still unnamed globally: its wider engine meaning is not proven. Keep it
+        // One more property bit is still unnamed globally: its wider engine meaning is not proven. Keep it
         // raw while naming only the independently verified instruction-processing bit.
         slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
@@ -180,7 +180,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts active AI on the first update after the shared elevator door transition clears.</summary>
     private void RunZebetiteWaitForDoorTransition(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
-        // WRAM $0795 is shared with normal elevator transitions. Native holds the barrier
+        // The door-transition flag is shared with normal elevator transitions. Holds the barrier
         // inert during door loading and enters its active body on the first clear frame.
         if (_elevatorBehavior.ElevatorDoorTransitionActive)
             return;
@@ -214,7 +214,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             SpawnZebetite(ZebetiteHalf.Primary);
     }
 
-    /// <summary>Applies the shared two-color cycle using physical slot zero's native counter when no fade suppresses it.</summary>
+    /// <summary>Applies the shared two-color cycle using physical slot zero's counter when no fade suppresses it.</summary>
     internal void CycleZebetitePalette(RoomEnemySlot slot)
     {
         if (PaletteChangeNumber != 0 || slot.RequireSpeciesState<ZebetiteEnemyState>().IsSecondaryHalf)
@@ -321,7 +321,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs a half's health program where the enemy instruction interpreter would: its pose shows on the update the
-    /// native timer expires, raising the new-frame flag, and the native sleep then keeps it.
+    /// timer expires, raising the new-frame flag, and the script's sleep then keeps it.
     /// </summary>
     internal static void AdvanceZebetiteAnimation(RoomEnemySlot slot)
     {
@@ -348,7 +348,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvance<ZebetiteFrame>.Hold:
-                // The native sleep: the timer wraps from zero and the pose stays.
+                // The script's sleep: the timer wraps from zero and the pose stays.
                 return;
             default:
                 throw new InvalidOperationException($"Zebetite programs have no {advance} step.");

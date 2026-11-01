@@ -11,20 +11,20 @@ internal sealed class MotherBrainLateFightState
 
     /// <summary>
     /// Body enemy-slot animation state. The caller advances its enemy-instruction stage
-    /// after <see cref="MotherBrainRainbowBeamAttackSequence.Step"/>, matching the native AI-then-instruction order.
+    /// after <see cref="MotherBrainRainbowBeamAttackSequence.Step"/>, matching the AI-then-instruction order.
     /// </summary>
     public MotherBrainBodyAnimationState Body { get; } = new();
 
     /// <summary>Current body-function equivalent.</summary>
     public MotherBrainBodyFunction? Phase { get; internal set; }
 
-    /// <summary>Mother Brain brain-slot room position used by `$A9:BB82/$BB8F`'s aim vector.</summary>
+    /// <summary>Mother Brain brain-slot room position used by the final beam's aim vector.</summary>
     public Position16<RoomPixels> BrainPosition { get; set; }
 
-    /// <summary>Current brain program installed through `$A9:C447`, or null before the first request.</summary>
+    /// <summary>Current brain program installed through the brain-program request, or null before the first request.</summary>
     public MotherBrainHeadProgram? HeadProgram { get; private set; }
 
-    /// <summary>Neck angular speed in 8.8 angle units (Mother Brain body extra word `$0FBC`); every producer writes a positive speed of at most $0900.</summary>
+    /// <summary>Neck angular speed in 8.8 angle units; every producer writes a positive speed of at most 2304.</summary>
     public int NeckAngleDelta { get; internal set; }
 
     /// <summary>Whether articulated neck angle dispatch runs on the brain's turn.</summary>
@@ -36,16 +36,16 @@ internal sealed class MotherBrainLateFightState
     /// <summary>Upper neck movement index selected by the current actor phase.</summary>
     public MotherBrainNeckMovement UpperNeckMovementIndex { get; internal set; }
 
-    /// <summary>Native body function timer at enemy word <c>$0FB0</c>.</summary>
+    /// <summary>Body function timer.</summary>
     public WrappingCountdown FunctionTimer { get; internal set; }
 
-    /// <summary>Native rainbow-beam SFX-playing flag.</summary>
+    /// <summary>Rainbow-beam SFX-playing flag.</summary>
     public bool RainbowBeamSoundPlaying { get; internal set; }
 
-    /// <summary>Main brain-shake timer seeded to fifty by <c>$A9:BE96</c> when clear.</summary>
+    /// <summary>Main brain-shake timer seeded to fifty by the rainbow step when clear.</summary>
     public WrappingCountdown BrainMainShakeTimer { get; internal set; }
 
-    /// <summary>Native brain-palette handling flag cleared when the rainbow beam expires.</summary>
+    /// <summary>Brain-palette handling flag cleared when the rainbow beam expires.</summary>
     public bool BrainPaletteHandlingEnabled { get; internal set; } = true;
 
     /// <summary>Drool generation flag cleared as Mother Brain enters low-power mode.</summary>
@@ -56,12 +56,12 @@ internal sealed class MotherBrainLateFightState
 
     /// <summary>
     /// Count of body-AI writes to <see cref="SmallPurpleBreathGenerationEnabled"/>. The live
-    /// flag has a second native writer, the brain-list opcode $A9:9F8E, so the live state
+    /// flag has a second writer, a brain-list step, so the live state
     /// publishes this flag only when the body actually wrote it.
     /// </summary>
     public uint SmallPurpleBreathGenerationWriteCount { get; internal set; }
 
-    /// <summary>Stops the small purple breath, counting the native write as <see cref="MotherBrainRevivalPhases.EnableSmallPurpleBreathGeneration"/> does.</summary>
+    /// <summary>Stops the small purple breath, counting the write as <see cref="MotherBrainRevivalPhases.EnableSmallPurpleBreathGeneration"/> does.</summary>
     internal void DisableSmallPurpleBreathGeneration()
     {
         SmallPurpleBreathGenerationEnabled = false;
@@ -69,13 +69,13 @@ internal sealed class MotherBrainLateFightState
     }
 
     /// <summary>
-    /// Native Mother Brain health-based body-palette flag. Revival writes one only after
+    /// Mother Brain health-based body-palette flag. Revival writes one only after
     /// the walk to X `$50` has really completed; it is not synonymous with the separate
     /// brain-slot palette handler above.
     /// </summary>
     public bool HealthBasedPaletteHandlingEnabled { get; internal set; }
 
-    /// <summary>Palette-transition record index at WRAM <c>$7E:802E</c>.</summary>
+    /// <summary>Palette-transition record index.</summary>
     public int GreyTransitionCounter { get; internal set; }
 
     /// <summary>
@@ -105,13 +105,13 @@ internal sealed class MotherBrainLateFightState
     /// </summary>
     public int BabyMetroidPagesShown { get; internal set; }
 
-    /// <summary>True once `$A9:BE1B` has requested the cutscene Baby enemy population entry.</summary>
+    /// <summary>True once the final beam's Baby spawn has requested the cutscene Baby enemy population entry.</summary>
     public bool BabyMetroidSpawned { get; internal set; }
 
     /// <summary>Restarts the separate brain instruction stream and publishes a new head-list request serial.</summary>
     internal void SetHeadProgram(MotherBrainHeadProgram program)
     {
-        // `$A9:C447` restarts the separate brain program and its timer. Unlike ordinary
+        // The brain-program request restarts the separate brain program and its timer. Unlike ordinary
         // enemy programs it has no loop-counter write here.
         HeadProgram = program;
         HeadAnimationScriptRequestSerial++;
@@ -120,14 +120,14 @@ internal sealed class MotherBrainLateFightState
     /// <summary>Sets the NTSC neck angle and opposed raise/lower indices for retreat after the attack.</summary>
     internal void RetractHead()
     {
-        // NTSC takes `$0050` from the regional `$0050/$0063` constant.
+        // NTSC takes 80 from the regional constant pair of 80 and 99.
         NeckAngleDelta = 80;
         NeckMovementEnabled = true;
         LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
         UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
     }
 
-    /// <summary>Selects the forward body list for the native animation delay and applies the forward target rules.</summary>
+    /// <summary>Selects the forward body list for the animation delay and applies the forward target rules.</summary>
     internal MotherBrainWalkResult RequestWalkForward(int targetX, int animationDelay)
     {
         MotherBrainBodyProgram program = animationDelay switch
@@ -143,7 +143,7 @@ internal sealed class MotherBrainLateFightState
         return MakeBodyWalkForwards(targetX, program);
     }
 
-    /// <summary>Selects the backward body list for the native animation delay and applies the backward target rules.</summary>
+    /// <summary>Selects the backward body list for the animation delay and applies the backward target rules.</summary>
     internal MotherBrainWalkResult RequestWalkBackward(int targetX, int animationDelay)
     {
         MotherBrainBodyProgram program = animationDelay switch
@@ -164,9 +164,9 @@ internal sealed class MotherBrainLateFightState
         MakeBodyWalkBackwards(targetX, MotherBrainBodyProgram.WalkBackwardReallySlow);
 
     /// <summary>
-    /// Ports <c>$A9:C601</c>. A signed overshoot of the target reports carry first; at
+    /// Makes the body walk forwards. A signed overshoot of the target reports carry first; at
     /// equality the walk is still requested. A body still mid-pose then reports no carry,
-    /// ahead of the <c>$80</c> arena limit that also reports carry. Only a standing body
+    /// ahead of the 128 arena limit that also reports carry. Only a standing body
     /// inside both limits installs the walk.
     /// </summary>
     internal MotherBrainWalkResult MakeBodyWalkForwards(int targetX, MotherBrainBodyProgram program)
@@ -182,9 +182,9 @@ internal sealed class MotherBrainLateFightState
     }
 
     /// <summary>
-    /// Ports <c>$A9:C647</c>. Reaching or passing the target reports carry first, so a walk
-    /// can complete the AI phase on the frame its movement opcode arrives. A body still
-    /// mid-pose then reports no carry, ahead of the <c>$30</c> arena limit that also reports
+    /// Makes the body walk backwards. Reaching or passing the target reports carry first, so a walk
+    /// can complete the AI phase on the frame its movement step arrives. A body still
+    /// mid-pose then reports no carry, ahead of the 48 arena limit that also reports
     /// carry. Only a standing body inside both limits installs the walk.
     /// </summary>
     internal MotherBrainWalkResult MakeBodyWalkBackwards(int targetX, MotherBrainBodyProgram program)
@@ -202,8 +202,8 @@ internal sealed class MotherBrainLateFightState
     /// <summary>Uses the random low byte at or above $C0 to toggle a standing or leaning body list.</summary>
     internal bool MaybeRequestStandUpOrLeanDown(MotherBrainRandomSample randomNumberSeed)
     {
-        // `$A9:C1A7` ignores every pose except standing (zero) and leaning (six), and its
-        // low-byte threshold is inclusive at `$C0`. A request still executes as body
+        // The lean helper ignores every pose except standing (zero) and leaning (six), and its
+        // low-byte threshold is inclusive at 192. A request still executes as body
         // instruction bytecode later in the enemy-processing stage.
         if (randomNumberSeed.LowByte < 192)
             return false;
@@ -247,7 +247,7 @@ internal sealed class MotherBrainLateFightState
         return false;
     }
 
-    /// <summary>Whether <paramref name="value"/> is at least <paramref name="threshold"/> by the sign of their 16-bit difference, as the cartridge compares positions.</summary>
+    /// <summary>Whether <paramref name="value"/> is at least <paramref name="threshold"/> by the sign of their 16-bit difference, as the original game compares positions.</summary>
     internal static bool AtLeastBySignedDifference(int value, int threshold) =>
         WordWrap.Signed(value - threshold) >= 0;
 

@@ -75,9 +75,9 @@ internal sealed class MotherBrainGlassPlms
     }
 
     /// <summary>
-    /// Implements Mother Brain head shot AI's direct <c>INC $1DC7</c>. This is intentionally
-    /// separate from the block-hit pre-instruction: a missile can overlap the brain record
-    /// before its terrain probe reaches the glass block, and native code counts that hit
+    /// Implements Mother Brain head shot AI's direct increment of the glass PLM's hit count. This is intentionally
+    /// separate from the block-hit frame behaviour: a missile can overlap the brain record
+    /// before its terrain probe reaches the glass block, and code counts that hit
     /// immediately in the enemy collision pass.
     /// </summary>
     public void IncrementMotherBrainGlassRoomArgument()
@@ -85,7 +85,7 @@ internal sealed class MotherBrainGlassPlms
         if (!MotherBrainGlassWasLoaded)
         {
             throw new InvalidOperationException(
-                "Mother Brain head damage requires loaded room PLM $D6DE.");
+                "Mother Brain head damage requires Mother Brain's glass PLM to be loaded.");
         }
 
         if (TryGetMotherBrainGlassSlot(out PlmSlot? slot))
@@ -116,7 +116,7 @@ internal sealed class MotherBrainGlassPlms
     internal void SpawnShards(PlmSlot slot, IReadOnlyList<MotherBrainGlassShard> shards)
     {
         _sounds.Queue(Library3Sound.MotherBrainGlassShatter, Priority: ShatterSoundPriority);
-        // The native fragment spawn carries both block coordinates as bytes.
+        // The fragment spawn carries both block coordinates as bytes.
         Position16<RoomBlocks> glassBlock = new(slot.BlockIndex % _motherBrainGlassRoomWidth,
             slot.BlockIndex / _motherBrainGlassRoomWidth);
         foreach (MotherBrainGlassShard shard in shards)

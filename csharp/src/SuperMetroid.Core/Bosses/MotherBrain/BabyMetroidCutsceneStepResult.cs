@@ -20,7 +20,7 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     public bool FatalBlowStarted => PhaseBefore == BabyMetroidCutscenePhase.FinalCharge &&
         PhaseAfter == BabyMetroidCutscenePhase.TakeFinalBlow;
 
-    /// <summary>The $A9:CC60 timer expiry queues the theme before entering Hyper Beam preparation.</summary>
+    /// <summary>The theme timer's expiry queues the theme before entering Hyper Beam preparation.</summary>
     public bool SamusThemeStarted => PhaseBefore == BabyMetroidCutscenePhase.PlaySamusTheme &&
         PhaseAfter == BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
 }

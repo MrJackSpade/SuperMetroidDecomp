@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Paired forward/backward stages of Mother Brain's drained stagger.</summary>
 internal static class MotherBrainPainfulWalkingDefinitions
 {
-    /// <summary>$A9:BEEE/$BEFE/$C049 each describe eight stages, paired by walking direction.</summary>
+    /// <summary>The painful-walk tables each describe eight stages, paired by walking direction.</summary>
     internal const int StageCount = 8;
 
     /// <summary>Each forward/backward pair of stages shares one timing record.</summary>

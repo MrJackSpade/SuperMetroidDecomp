@@ -31,9 +31,9 @@ internal enum MotherBrainFakeDeathDraw
     BackgroundRowC,
     /// <summary>Background row d.</summary>
     BackgroundRowD,
-    /// <summary>Cartridge-unused background row E.</summary>
+    /// <summary>Unused background row E.</summary>
     BackgroundRowEUnused,
-    /// <summary>Cartridge-unused background row F.</summary>
+    /// <summary>Unused background row F.</summary>
     BackgroundRowFUnused,
     /// <summary>Clear ceiling block.</summary>
     ClearCeilingBlock,

@@ -20,18 +20,18 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Saturating `$00-$0C` counter incremented by head instruction `$A9:9EA3` at the start
+    /// Saturating 0..12 counter incremented by the head's attack-counter step at the start
     /// of each four-ring attack against the Baby. It also selects the intended cry pitch.
     /// </summary>
     public int BabyMetroidAttackCounter { get; internal set; }
 
     /// <summary>
-    /// Runs the second phase revive inanimate grey body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase revive inanimate grey body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseReviveInanimateGrey()
     {
-        // `$C059` only installs the next function and its `$0300` timer. It does not
+        // The inanimate setup only installs the next function and its 768-frame timer. It does not
         // fall through, so the first pre-decrement belongs to the following call.
         _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveShowSignsOfLife;
         _state.FunctionTimer = WrappingCountdown.Start(768);
@@ -39,14 +39,14 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive show signs of life body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase revive show signs of life body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseReviveShowSignsOfLife()
     {
         // BPL accepts zero: 768 reaches zero without advancing and only the 769th
-        // call underflows to `$FFFF`. Revival then re-enables both breath producers,
-        // seeds `$E0`, and falls through two function installations to `$C08F`.
+        // call underflows to -1. Revival then re-enables both breath producers,
+        // seeds 224, and falls through two function installations to the transition from grey.
         _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
         if (_state.FunctionTimer.IsNegative)
         {
@@ -61,7 +61,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive transition from grey body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase revive transition from grey body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseReviveTransitionFromGrey(MotherBrainRainbowBeamStepRequests requests)
@@ -71,7 +71,7 @@ internal sealed class MotherBrainRevivalPhases
         {
             _state.FunctionTimer = WrappingCountdown.Start(16);
 
-            // `$AD:ED9C` reverses the same eight grey palettes used by the corpse
+            // The revival palette list reverses the same eight grey palettes used by the corpse
             // transition and follows them with zero. The body counter is incremented
             // before the old index is passed, so index eight is a terminating probe
             // with no copy. The existing result flag exposes each real copy cadence.
@@ -89,13 +89,13 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive wake up body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase revive wake up body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseReviveWakeUp(MotherBrainRainbowBeamStepRequests requests)
     {
-        // `$C670` returns carry only when pose zero was already visible at entry.
-        // A corpse pose therefore installs `$99C6` and waits for the ordinary body
+        // The standing helper returns carry only when pose zero was already visible at entry.
+        // A corpse pose therefore installs the stand-up list and waits for the ordinary body
         // instruction stage to publish standing before setting the neck/timer words.
         bool stoodUp = _state.MakeBodyStandUp(out bool postureRequested);
         requests.BodyPostureRequested = postureRequested;
@@ -113,7 +113,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive wake up stretch body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase revive wake up stretch body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseReviveWakeUpStretch()
@@ -130,7 +130,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive walk up to baby body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase revive walk up to baby body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseReviveWalkUpToBaby(MotherBrainRainbowBeamStepRequests requests)
@@ -154,12 +154,12 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive prepare neck for baby death body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase revive prepare neck for baby death body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRevivePrepareNeckForBabyDeath()
     {
-        // `$C11E` is a one-call setup function which immediately falls into `$C147`.
+        // The walk-up setup is a one-call setup function which immediately falls into the walk.
         // The separate body instruction stage may still be finishing the last walk.
         BabyMetroidAttackCounter = 0;
         _state.NeckMovementEnabled = true;
@@ -171,7 +171,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive finish preparing for baby death body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase revive finish preparing for baby death body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseReviveFinishPreparingForBabyDeath(MotherBrainRainbowBeamStepRequests requests)
@@ -188,7 +188,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase murder baby attack body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase murder baby attack body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseMurderBabyAttack(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -196,7 +196,7 @@ internal sealed class MotherBrainRevivalPhases
         requests.BodyPostureRequested = _state.MaybeRequestStandUpOrLeanDown(frame.RandomNumberSeed);
         if (frame.RandomNumberSeed.IsNegative)
         {
-            // A nonzero Baby enemy index selects `$9DB1`; zero instead targets Samus.
+            // A nonzero Baby enemy index selects the Baby-targeted volley; zero instead targets Samus.
             // This translated cutscene owns a spawned Baby, so retain the live actor
             // condition instead of unconditionally substituting the desired list.
             _state.SetHeadProgram(_state.BabyMetroidSpawned
@@ -209,7 +209,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase murder baby attack cooldown body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase murder baby attack cooldown body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseMurderBabyAttackCooldown()
@@ -221,12 +221,12 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase prepare for final baby attack body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase prepare for final baby attack body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhasePrepareForFinalBabyAttack(MotherBrainRainbowBeamStepRequests requests)
     {
-        // This native function has no state transition. It requests stand-up and a
+        // This function has no state transition. It requests stand-up and a
         // fast backward walk toward `$40` every call until the Baby overwrites it.
         _state.MakeBodyStandUp(out bool postureRequested);
         requests.BodyPostureRequested = postureRequested;
@@ -235,7 +235,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase execute final baby attack body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase execute final baby attack body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseExecuteFinalBabyAttack()
@@ -246,12 +246,12 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase final baby attack holding body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase final baby attack holding body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal static bool RunSecondPhaseFinalBabyAttackHolding()
     {
-        // `$C1A6` is the installed RTS. The last ring volley owns the remaining
+        // The final attack's holding step is empty. The last ring volley owns the remaining
         // health reduction and the Baby actor owns its death/recovery sequence.
         return false;
     }

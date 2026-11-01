@@ -202,15 +202,15 @@ internal sealed class MotherBrainRainbowAndDeath
     {
         MiscDustProjectileProgram program = MotherBrainDeathExplosions.Program(request.ProjectileParameter);
         var projectile = _projectiles.AllocateEnemyProjectile();
-        if (projectile is null) return; // Native shared-pool exhaustion drops the spawn.
+        if (projectile is null) return; // Shared-pool exhaustion drops the spawn.
         MotherBrainProjectileStarts.Initialize(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion, graphics: default);
         projectile.StartAnimation(new MiscDustProjectileAnimation(program));
-        // The native initializer keeps the body-relative offset in the velocity words.
+        // The initializer keeps the body-relative offset in the velocity words.
         projectile.Velocity = new EightEightVector<RoomPixels>(request.Offset.X, request.Offset.Y);
         _projectileAttacks.RunMotherBrainDeathExplosion(projectile);
     }
 
-    /// <summary>Spawns a falling door fragment from the native parameter identity.</summary>
+    /// <summary>Spawns a falling door fragment from the parameter identity.</summary>
     internal void SpawnMotherBrainDoorFragment(int parameter)
     {
         MotherBrainDoorFragmentDefinition definition =
@@ -227,7 +227,7 @@ internal sealed class MotherBrainRainbowAndDeath
     private void WriteZebesTypewriterGlyph(EscapeTypewriterGlyph glyph) =>
         _room.Services.WriteBg2Picture(new WrittenPicture(glyph.Picture, glyph.Cell));
 
-    /// <summary>Runs one native body-function call through the shared verified sequence.</summary>
+    /// <summary>Runs one body-function call through the shared verified sequence.</summary>
     internal void RunLiveMotherBrainRainbowBeam(
         MotherBrainEnemyState state,
         SamusState samus,
@@ -240,7 +240,7 @@ internal sealed class MotherBrainRainbowAndDeath
 
         // Body bytecode and articulated-head AI ran through the physical room records on
         // previous frames. Import those words before dispatch so walk completion and neck
-        // aiming are decided from the same state the 65816 would read from WRAM.
+        // aiming are decided from the same state the original game would read.
         SynchronizeLiveMotherBrainRainbowActor(state, sequence);
 
         bool typewriterFinished = false;
@@ -282,7 +282,7 @@ internal sealed class MotherBrainRainbowAndDeath
     {
         RoomEnemySlot head = state.Head;
 
-        // `$A9:C447` resets the physical list timer only when body AI requests a new list.
+        // The brain-program request resets the physical list timer only when body AI requests a new list.
         // The dedicated latch is essential because the running program advances away from
         // the list origin while the request itself remains unchanged.
         if (sequence.State.HeadProgram is { } headProgram &&
@@ -310,8 +310,8 @@ internal sealed class MotherBrainRainbowAndDeath
         if (sequence.ThirdPhaseFight.Phase3NeckPhase == MotherBrainPhase3NeckPhase.HyperBeamRecoil &&
             sequence.ThirdPhaseFight.Phase3NeckFunctionTimer.IsAt(10))
         {
-            // `$C395` loads `$32` during the one-shot setup call, immediately before the
-            // fallthrough decrements neck timer `$0B` to `$0A`. The physical draw hook owns
+            // The rainbow setup loads fifty during the one-shot setup call, immediately before the
+            // fallthrough decrements neck timer eleven to ten. The physical draw hook owns
             // subsequent shake decrements, so publish this event only on that exact setup
             // result rather than copying the sequence's retained word every enemy frame.
             state.BrainMainShakeTimer = WrappingCountdown.Start(50);
@@ -324,7 +324,7 @@ internal sealed class MotherBrainRainbowAndDeath
         head.Properties = sequence.ThirdPhaseDeath.BrainProperties;
         head.ExtraProperties = sequence.ThirdPhaseDeath.BrainProperties2;
         // The live word begins at two, while the reusable sequence needs only its Boolean
-        // branch meaning. Preserve every nonzero cartridge value; only a translated clear
+        // branch meaning. Preserve every nonzero value; only a translated clear
         // is allowed to collapse it to zero.
         if (!sequence.ThirdPhaseDeath.HitboxesEnabled)
             state.HitboxesEnabled = MotherBrainHitboxParts.None;
@@ -349,8 +349,8 @@ internal sealed class MotherBrainRainbowAndDeath
             current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding)
             state.RainbowPaletteCursor = 0;
         ApplyMotherBrainRainbowPalette(state, current);
-        // $A9:D1E4 runs after body AI. Its health handler is enabled during revival,
-        // but $AD:E3D5 waits until the corpse-state word reaches final-combat state 2.
+        // The brain-slot handler runs after body AI. Its health handler is enabled during revival,
+        // but the health palette waits until the corpse-state value reaches final-combat state 2.
         if (sequence.State.HealthBasedPaletteHandlingEnabled && sequence.State.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
             MotherBrainHealthPalette.Apply(_presentation.Colours, state.Head.Health, _bossArtwork.MotherBrainHealthColors);
         ApplyLiveMotherBrainDeath(state, sequence, current);
@@ -365,8 +365,8 @@ internal sealed class MotherBrainRainbowAndDeath
         if (current.Explosion is not null)
             _motherBrainEncounter.RequestBodySound(Library2Sound.SmallExplosion);
 
-        // `$BA0F` seeds the short quake, `$BA27` replaces it with the full drain duration,
-        // and `$BA93` clears it when the beam contracts below its minimum width.
+        // The rainbow start seeds the short quake, the drain start replaces it with the full drain duration,
+        // and the finish clears it when the beam contracts below its minimum width.
         if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay &&
             current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus)
         {
@@ -410,16 +410,16 @@ internal sealed class MotherBrainRainbowAndDeath
             _roomActors.SpawnBabyMetroid(state);
         if (current.Explosion is { } explosion)
         {
-            // `$BC76` runs before `$B9F1/$BA0C/$BA4F` moves Samus. The reusable sequence
+            // The rainbow explosion spawn runs before the rainbow's movement steps move Samus. The reusable sequence
             // captures that pre-move point in its typed movement result, so use it for the
-            // initializer and let `$C94C` attach to the current position on the later bank-
-            // $86 pass. Finish-firing has no movement and therefore uses the unchanged actor.
+            // initializer and let the explosion attach to the current position on the later
+            // projectile pass. Finish-firing has no movement and therefore uses the unchanged actor.
             Position16<RoomPixels> samusBeforeMovement = current.Movement?.Before.Whole ?? samus.Position.Whole;
             SpawnMotherBrainRainbowExplosion(samusBeforeMovement, explosion);
         }
     }
 
-    /// <summary>Ports `$86:C92F-$C960`; the signed offsets remain in velocity words.</summary>
+    /// <summary>Spawns a rainbow explosion; the signed offsets remain in velocity words.</summary>
     internal void SpawnMotherBrainRainbowExplosion(
         Position16<RoomPixels> samusBeforeMovement,
         MotherBrainRainbowExplosionRequest request)
@@ -437,7 +437,7 @@ internal sealed class MotherBrainRainbowAndDeath
         projectile.Position = projectile.Position.WithWhole(samusBeforeMovement + request.Offset);
     }
 
-    /// <summary>Runs $A9:BCFD at the body-frame cadence, then $BD1D's three literal copies.</summary>
+    /// <summary>Runs the rainbow palette step at the body-frame cadence, then its three literal copies.</summary>
     private void ApplyMotherBrainRainbowPalette(MotherBrainEnemyState state,
         MotherBrainRainbowBeamAttackStepResult step)
     {
@@ -446,7 +446,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if ((draining || reviving) && step.PaletteRequested)
         {
             // The sequence increments before publishing this request. Keep the distinct
-            // native copy lengths: revival intentionally preserves two brain/body colors.
+            // copy lengths: revival intentionally preserves two brain/body colors.
             int index = MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).State.GreyTransitionCounter - 1;
             var installed = _bossArtwork.MotherBrainRainbowColors ?? throw new InvalidDataException(
                 "Mother Brain's grey transition requires installed palette artwork.");

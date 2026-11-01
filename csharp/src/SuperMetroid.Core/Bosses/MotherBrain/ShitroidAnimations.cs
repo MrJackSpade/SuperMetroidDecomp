@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The Shitroid's typed programs (#641), in place of its bank-$A9 instruction lists.</summary>
+/// <summary>The Shitroid's typed programs (#641), in place of its instruction lists.</summary>
 internal static class ShitroidAnimations
 {
     /// <summary>Every Shitroid program.</summary>

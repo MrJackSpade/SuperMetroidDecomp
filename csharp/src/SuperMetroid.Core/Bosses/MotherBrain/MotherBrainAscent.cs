@@ -41,10 +41,10 @@ internal sealed class MotherBrainAscent
         _motherBrainEncounter = motherBrainEncounter;
     }
 
-    /// <summary>Stages the phase-two body tilemap and requests its first VRAM transfer.</summary>
+    /// <summary>Stages the phase-two body tilemap and requests its first artwork transfer.</summary>
     internal void SetupMotherBrainPhaseTwoGraphics(MotherBrainEnemyState state)
     {
-        // `$A9:8D11` installs colors 1..15 of the attack and back-leg palettes. Color zero
+        // The ascent installs colors 1..15 of the attack and back-leg palettes. Color zero
         // belongs to the room backdrop and must remain untouched.
         (_bossArtwork.MotherBrainRoomColors ?? throw new InvalidOperationException(
             "Mother Brain phase two requires installed room colors."))
@@ -69,7 +69,7 @@ internal sealed class MotherBrainAscent
         state.BrainFunction = MotherBrainBrainFunction.SetupBrainAndNeckToBeDrawn;
 
         // Both records become tangible before the suspense pause, but remain invisible for
-        // their separate native reasons: the body waits for `$8DEC`, while the head's $0100
+        // their separate reasons: the body waits for its leg tiles, while the head's hide-drawing
         // bit deliberately selects the custom articulated draw hook.
         state.Body.Properties =
             state.Body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
@@ -79,8 +79,8 @@ internal sealed class MotherBrainAscent
         state.Function = MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense;
         state.FunctionTimer = WrappingCountdown.Start(128);
 
-        // `$8D49` falls directly into `$8D79`; the freshly written timer is observed as
-        // $007F before another enemy slot can run.
+        // The setup falls directly into the suspense wait; the freshly written timer is observed as
+        // 127 before another enemy slot can run.
         PauseBeforeMotherBrainRises(state);
     }
 
@@ -103,7 +103,7 @@ internal sealed class MotherBrainAscent
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
             return;
 
-        // Bank $88 installs a fixed per-scanline main-screen table that prevents the newly
+        // The display installs a fixed per-scanline main-screen table that prevents the newly
         // loaded leg sprites from appearing over the floor. The renderer consumes this
         // typed lifetime rather than pretending it is a body-visibility flag.
         state.RisingFloorClipActive = true;
@@ -127,8 +127,8 @@ internal sealed class MotherBrainAscent
 
         state.Function = MotherBrainBodyFunction.FakeDeathAscentContinuePausing;
 
-        // `$8DBD` has no return between the state write and `$8DC3`; the still-$0100 timer
-        // loses its first tick on the final DMA frame.
+        // The final transfer has no return between the state write and the next step; the still-256 timer
+        // loses its first tick on the final transfer frame.
         ContinueMotherBrainAscentPause(state);
     }
 
@@ -144,7 +144,7 @@ internal sealed class MotherBrainAscent
             ? MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Legs, index)
             : MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Attack, index - legPages));
 
-        // Native checks the next record's zero terminator on the same call as
+        // Checks the next record's zero terminator on the same call as
         // page eleven. Preserve that same-frame completion and list reset.
         if (index + 1 == MotherBrainEnemyState.LegLoadPageCount)
         {

@@ -21,7 +21,7 @@ internal sealed class MotherBrainEncounterAccess
         _motherBrainEncounter = motherBrainEncounter;
     }
 
-    /// <summary>Requests a bank-$84 PLM spawn at a foreground room-block coordinate for this pass.</summary>
+    /// <summary>Requests a PLM spawn at a foreground room-block coordinate for this pass.</summary>
     internal void RequestMotherBrainPlm(Position16<RoomBlocks> block, PlmHeaderId header) =>
         _frameResults.MotherBrainPlms.Add(new PlmSpawnRequest(block, header));
 
@@ -39,7 +39,7 @@ internal sealed class MotherBrainEncounterAccess
         throw new InvalidDataException(
             "Mother Brain's brain program requires the live rainbow/Baby sequence.");
 
-    /// <summary>Requires a body and head pair initialized in their native enemy slots.</summary>
+    /// <summary>Requires a body and head pair initialized in their enemy slots.</summary>
     internal MotherBrainEnemyState RequireCompleteMotherBrainState(RoomEnemySlot slot)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ??
@@ -50,7 +50,7 @@ internal sealed class MotherBrainEncounterAccess
     }
 
     /// <summary>
-    /// Native timers expire only after unsigned decrement produces a negative signed word.
+    /// Timers expire only after unsigned decrement produces a negative signed word.
     /// A zero timer therefore expires immediately, while a value N remains live for N ticks.
     /// </summary>
     internal static bool DecrementMotherBrainTimerPastZero(MotherBrainEnemyState state)
@@ -60,7 +60,7 @@ internal sealed class MotherBrainEncounterAccess
         return timer.IsNegative;
     }
 
-    /// <summary>Ports <c>$A9:C42D</c>: restarts the body enemy on <paramref name="program"/> with its initial timer.</summary>
+    /// <summary>Restarts the body enemy on <paramref name="program"/> with its initial timer.</summary>
     internal static void SetMotherBrainBodyProgram(MotherBrainEnemyState state, MotherBrainBodyProgram program)
     {
         state.BodyCursor = AnimationProgramCursor<MotherBrainBodyProgram>.Start(program);

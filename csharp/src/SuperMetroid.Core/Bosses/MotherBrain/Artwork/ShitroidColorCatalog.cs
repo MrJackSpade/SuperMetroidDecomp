@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
-/// <summary>Editable live-Shitroid RGB5 images; native timer and fade destinations stay compiled.</summary>
+/// <summary>Editable live-Shitroid RGB5 images; timer and fade destinations stay compiled.</summary>
 public sealed class ShitroidColorCatalog
 {
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
@@ -25,9 +25,9 @@ public sealed class ShitroidColorCatalog
         selection = new(new ShitroidColorPulse(normal, shitroid), new SidehopperInitialPalette(sidehopper), shitroid,
             shitroidTransparentSlot, new SidehopperCorpsePalette(deadSidehopper));
 
-    /// <summary>Gets a packed RGB5 ink from normal pulse phase 0–7 and ink 0–3, corresponding to $A9:F6D1 and written to CGRAM colors 165–168; phase cadence and cries remain actor behavior.</summary>
+    /// <summary>Gets a packed RGB5 ink from normal pulse phase 0–7 and ink 0–3, written to colours 165–168; phase cadence and cries remain actor behavior.</summary>
     public RgbColor NormalColor(int frame, int color) => ShitroidColors.NormalColor(selection.Normal, frame, color);
 
-    /// <summary>Gets packed RGB5 color 0–15 from a selected initialization target, including its retained transparent-slot word; the actor copies targets to its palette image and current CGRAM during setup.</summary>
+    /// <summary>Gets packed RGB5 color 0–15 from a selected initialization target, including its retained transparent-slot value; the actor copies targets to its palette image and current colours during setup.</summary>
     public RgbColor TargetColor(ShitroidColorTarget target, int color) => ShitroidColors.TargetColor(this, target, color);
 }

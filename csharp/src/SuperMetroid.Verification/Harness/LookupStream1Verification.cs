@@ -1360,7 +1360,7 @@ internal static class LookupStream1Verification
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         AssertEqual(0, stock.offsets.Count, "Beam flare stock has zero stored fallback origins");
         for (int mode = 0; mode < 2; mode++)
-        for (int direction = 0; direction < 16; direction++)
+        for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
         {
             var expected = new ChargeFlareOffset { X = Word((mode == 0 ? 0x90c1a8 : 0x90c1dc) + 2 * direction),
                 Y = Word((mode == 0 ? 0x90c1c2 : 0x90c1f0) + 2 * direction) };
@@ -1375,7 +1375,7 @@ internal static class LookupStream1Verification
                 var edited = ChargeFlarePlacements.Load(new MemoryStream(ChargeFlarePlacements.Write(document)));
                 AssertEqual(1, edited.offsets.Count, "One independent origin edit stores exactly one override");
                 for (int selectedMode = 0; selectedMode < 2; selectedMode++)
-                for (int selectedDirection = 0; selectedDirection < 16; selectedDirection++)
+                for (int selectedDirection = 0; selectedDirection < ChargeFlarePlacementDefinitions.DirectionCount; selectedDirection++)
                     AssertEqual(document.Offsets[ChargeFlarePlacementOffsets.Key(selectedMode != 0, selectedDirection)].Offset,
                         edited.Resolve(selectedMode != 0, selectedDirection), "Editing a source origin does not edit an independently supplied adjacent alias");
             }
@@ -1384,7 +1384,7 @@ internal static class LookupStream1Verification
         var grapple = ChargeFlarePlacements.LoadGrapple(new MemoryStream(ChargeFlarePlacements.Write(grappleDocument)));
         AssertEqual(0, grapple.offsets.Count, "Grapple stock has zero stored fallback origins");
         for (int mode = 0; mode < 2; mode++)
-        for (int direction = 0; direction < 16; direction++)
+        for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
         {
             var expected = new ChargeFlareOffset { X = Word((mode == 0 ? 0x9bc14a : 0x9bc19a) + direction * 2),
                 Y = Word((mode == 0 ? 0x9bc15e : 0x9bc1ae) + direction * 2) };
@@ -1399,12 +1399,12 @@ internal static class LookupStream1Verification
                 var edited = ChargeFlarePlacements.LoadGrapple(new MemoryStream(ChargeFlarePlacements.Write(document)));
                 AssertEqual(1, edited.offsets.Count, "Grapple independent edit stores exactly one override");
                 for (int selectedMode = 0; selectedMode < 2; selectedMode++)
-                for (int selectedDirection = 0; selectedDirection < 16; selectedDirection++)
+                for (int selectedDirection = 0; selectedDirection < ChargeFlarePlacementDefinitions.DirectionCount; selectedDirection++)
                     AssertEqual(document.Offsets[ChargeFlarePlacementOffsets.Key(selectedMode != 0, selectedDirection)].Offset, edited.Resolve(selectedMode != 0, selectedDirection),
                         "Grapple edits preserve every other independent origin and alias");
             }
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+        foreach (int invalid in new[] { int.MinValue, -1, ChargeFlarePlacementDefinitions.DirectionCount, 15, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(false, invalid), "Flare placement catalog bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(true, invalid), "Grapple catalog bounds");

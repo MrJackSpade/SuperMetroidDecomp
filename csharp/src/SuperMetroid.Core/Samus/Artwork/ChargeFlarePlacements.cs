@@ -26,9 +26,9 @@ public sealed class ChargeFlarePlacements
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
     };
-    /// <summary>Resolves an independently editable visual muzzle offset for the requested movement mode and full low-nibble direction domain, using the beam or Grapple source contract selected at import.</summary>
+    /// <summary>Resolves an independently editable visual muzzle offset for the requested movement mode and named aiming direction, using the beam or Grapple source contract selected at import.</summary>
     /// <param name="running">True for running placement; false for the standing/default row.</param>
-    /// <param name="direction">Direction selector 0..15, including adjacent-row selections beyond the named aiming directions.</param>
+    /// <param name="direction">One of the ten named aiming directions, 0..9; no flare draw selects a row past them (#1500).</param>
     /// <returns>The signed whole-pixel placement offset, without camera or pose-graphics Y adjustments.</returns>
     public Offset16<RoomPixels> Resolve(bool running, int direction)
     {
@@ -41,12 +41,12 @@ public sealed class ChargeFlarePlacements
         ? ChargeFlarePlacementOffsets.GrappleOffset(running, direction)
         : ChargeFlarePlacementOffsets.BeamOffset(running, direction);
 
-    /// <summary>Loads beam-charge flare placements, requiring the supported version and all 32 standing/running keys while rejecting duplicate or unknown JSON properties.</summary>
+    /// <summary>Loads beam-charge flare placements, requiring the supported version and all twenty standing/running keys while rejecting duplicate or unknown JSON properties.</summary>
     /// <param name="json">UTF-8 JSON stream containing signed 16-bit X/Y offsets for every direction in both modes.</param>
-    /// <returns>The immutable beam-flare placement catalog; use <see cref="LoadGrapple"/> for Grapple's distinct adjacent-row source contract.</returns>
+    /// <returns>The immutable beam-flare placement catalog; use <see cref="LoadGrapple"/> for Grapple's source contract.</returns>
     public static ChargeFlarePlacements Load(Stream json) => Load(json, ChargeFlareSource.Beam);
     /// <summary>Imports the Grapple placement resource with its distinct adjacent-row owners.</summary>
-    /// <param name="json">UTF-8 JSON stream containing the same 32-key placement schema for Grapple flare origins.</param>
+    /// <param name="json">UTF-8 JSON stream containing the same twenty-key placement schema for Grapple flare origins.</param>
     /// <returns>The immutable placement catalog interpreted with Grapple's origin and adjacent-row definitions.</returns>
     public static ChargeFlarePlacements LoadGrapple(Stream json) => Load(json, ChargeFlareSource.Grapple);
     /// <summary>Validates all standing/running direction keys and binds their offsets to the import-selected source kind.</summary>
@@ -69,7 +69,7 @@ public sealed class ChargeFlarePlacements
         }
         int count = ChargeFlarePlacementDefinitions.DirectionCount;
         if (document.Version != ChargeFlarePlacementDefinitions.Version || document.Offsets is null || document.Offsets.Count != count * 2)
-            throw new InvalidDataException("Charge-flare placement requires version 1 and all standing/running directions.");
+            throw new InvalidDataException($"Charge-flare placement requires version {ChargeFlarePlacementDefinitions.Version} and all standing/running directions.");
         var offsets = new Offset16<RoomPixels>[count * 2];
         for (int mode = 0; mode < 2; mode++)
         for (int direction = 0; direction < count; direction++)

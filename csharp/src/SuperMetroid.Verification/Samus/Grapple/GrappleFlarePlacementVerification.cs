@@ -34,7 +34,7 @@ internal static class GrappleFlarePlacementVerification
         var stock = ChargeFlarePlacements.Load(new MemoryStream(json));
         var document = RequiredJson.Parse(json);
         foreach (bool running in new[] { false, true })
-        for (int direction = 0; direction < 16; direction++)
+        for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
         {
             var offset = stock.Resolve(running, direction);
             int x = running ? SamusSourceDefinitions.GrappleRunningFlareX.Value : SamusSourceDefinitions.GrappleDefaultFlareX.Value;

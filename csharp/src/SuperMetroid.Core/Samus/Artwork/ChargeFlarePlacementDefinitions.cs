@@ -1,26 +1,19 @@
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Visual flare placement resource contract, including low-nibble overread selections.</summary>
+/// <summary>Visual flare placement resource contract: one placement per named aiming direction and movement mode.</summary>
 public static class ChargeFlarePlacementDefinitions
 {
-    /// <summary>Required revision of the shared beam/Grapple placement schema, containing all sixteen standing and sixteen running direction keys.</summary>
-    public const int Version = 1;
-    /// <summary>The renderer retains all four direction bits, including values beyond named directions.</summary>
-    public const int DirectionCount = 16;
-    /// <summary>The three standing turn rows that follow the ten named aiming directions.</summary>
-    internal enum StandingTurnDirection
-    {
-        /// <summary>Standing turn aiming up or diagonally up.</summary>
-        Up,
-        /// <summary>Standing turn with neutral aim.</summary>
-        Neutral,
-        /// <summary>Standing turn aiming down or diagonally down.</summary>
-        Down,
-    }
-    /// <summary>The standing turn rows in table order after the named aiming directions.</summary>
-    internal static readonly StandingTurnDirection[] StandingTurnRows =
-        [StandingTurnDirection.Up, StandingTurnDirection.Neutral, StandingTurnDirection.Down];
-    /// <summary>The standing rows have thirteen named origins; the running rows have ten.</summary>
-    internal const int StandingDirectionCount = 13;
+    /// <summary>
+    /// Required revision of the shared beam/Grapple placement schema. Revision two holds the ten named directions of each
+    /// movement mode; revision one also held the selections past them, which no flare draw reaches (#1500).
+    /// </summary>
+    public const int Version = 2;
+
+    /// <summary>
+    /// The directions each movement mode places the flare for: the ten named aiming directions. The beam flare draws only
+    /// for a pose whose shot direction is one of them, and the Grapple flare takes its typed firing direction, so no
+    /// placement past them is read (#1500).
+    /// </summary>
+    public const int DirectionCount = 10;
 }

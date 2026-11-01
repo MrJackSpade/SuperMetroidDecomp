@@ -28,8 +28,8 @@ internal static class ProjectilePresentationContractChecks
                     ChargeFlareSprites flare, InstalledProjectileTrails trails,
                     InstalledProjectileFrameBindings bindings, InstalledGrappleSprites grapple,
                     InstalledGrappleSwingFrames swing, InstalledProjectileSprites sprites, SuperMetroid.Core.Assets.ScreenSprites oam) {
-                    placement.Resolve(false, 15);
-                    placement.Resolve(true, 16);
+                    placement.Resolve(false, 9);
+                    placement.Resolve(true, 10);
                     flare.Frame(53);
                     flare.Frame(54);
                     trails.Resolve(ProjectileTrailFrame.LeftIce0);

@@ -42,7 +42,7 @@ internal static class GrappleFiringDefinitionsVerification
             ChargeFlarePlacements.Write(new()
             {
                 Version = ChargeFlarePlacementDefinitions.Version,
-                Offsets = RunningStates.SelectMany(running => Enumerable.Range(0, 16)
+                Offsets = RunningStates.SelectMany(running => Enumerable.Range(0, ChargeFlarePlacementDefinitions.DirectionCount)
                     .Select(direction => new EditedFlare(running, direction))).ToDictionary(
                         entry => ChargeFlarePlacementOffsets.Key(entry.Running, entry.Direction),
                         _ => new ChargeFlareOffset { X = 0x55aa, Y = 0x55aa }),

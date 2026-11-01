@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Desktop.Diagnostics;
 using SuperMetroid.Diagnostics.Configuration;
 
@@ -16,12 +15,16 @@ internal sealed class GameForm : Form
     internal bool rendererStopped;
 
     /// <summary>The normal ROM-independent host path after asset installation.</summary>
-    public GameForm(
+    /// <param name="installation">The installed content and player data directory.</param>
+    /// <param name="hostOptions">Host options retained through in-window restarts.</param>
+    /// <param name="driver">A recorded timeline that drives the game and its input, or null for live play.</param>
+    /// <param name="errorReporter">Recoverable error reporter, or null to fail at the first frame error.</param>
+    internal GameForm(
         GameInstallation installation,
         HostOptions hostOptions,
-        ControllerInputRecording? replay = null,
+        IHostFrameDriver? driver = null,
         GitHubErrorReporter? errorReporter = null)
-        : this(new PlayableGameControl(installation, hostOptions, replay, errorReporter))
+        : this(new PlayableGameControl(installation, hostOptions, driver, errorReporter))
     {
     }
 

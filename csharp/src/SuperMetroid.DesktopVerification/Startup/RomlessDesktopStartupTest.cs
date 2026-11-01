@@ -85,7 +85,7 @@ internal static class RomlessDesktopStartupTest
                 {
                     AudioEnabled = false,
                 },
-                replay: recordedReset);
+                driver: new RecordingFrameDriver(recordedReset));
             for (int frame = 0; frame < 6; frame++)
                 replayHost.StepFrame(null);
             var replayMemory = replayHost.addressSpace ?? throw new InvalidOperationException(

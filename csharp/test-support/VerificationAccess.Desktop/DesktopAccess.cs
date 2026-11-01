@@ -3,7 +3,6 @@ using System.Diagnostics;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Desktop;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Desktop.Audio;
 using SuperMetroid.Desktop.Diagnostics;
 using SuperMetroid.Desktop.Window;
@@ -86,11 +85,11 @@ internal static class DesktopAccess
     internal static PlayableGameControl CreateGameControl(
         string romPath,
         HostOptions hostOptions,
-        ControllerInputRecording? replay = null,
+        IHostFrameDriver? driver = null,
         GitHubErrorReporter? errorReporter = null,
         string? audioDirectory = null,
         string? dataDirectory = null) =>
-        new(InstallationFor(romPath, dataDirectory), hostOptions, replay, errorReporter, audioDirectory);
+        new(InstallationFor(romPath, dataDirectory), hostOptions, driver, errorReporter, audioDirectory);
 
     /// <summary>Directory beside a ROM where <see cref="InstallationFor"/> opens or creates its installation.</summary>
     internal const string InstallationDirectoryName = "SuperMetroid-installed";

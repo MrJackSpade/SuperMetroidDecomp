@@ -238,7 +238,7 @@ internal static class SpacetimeBeamVerification
             restartSaves.SelectSlot(0);
             var game = CreateRetailGameFixture(
                 restartSaves,
-                new SuperMetroidGameOptions { SkipOpeningCinematic = skipOpening },
+                new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = skipOpening },
                 renderGameplayFrames: false);
             game.BindArtwork(game.Artwork with
             {

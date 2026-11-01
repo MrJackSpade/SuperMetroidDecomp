@@ -47,9 +47,9 @@ internal static class FrontendRomFreeGoldenTorizoVerification
                     // Long neutral probes otherwise end at the frontend death
                     // screen, obscuring later enemy-list boundaries. Both
                     // references use the same player-facing host option.
-                    var options = new SuperMetroidGameOptions { Invincibility = true };
-                    nativeRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
-                    installedRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
+                    var options = new SuperMetroid.Core.Gameplay.GameplayAssists { SamusCannotDie = true };
+                    nativeRoom.GameplayRuntimeForVerification.ApplyAssists(options);
+                    installedRoom.GameplayRuntimeForVerification.ApplyAssists(options);
                     ForceGoldenTorizoLeftTurn(nativeRoom, installedRoom,
                         TorizoBodyProgram.GoldenDodgeTurningLeft);
                 }, golden: new GoldenTorizoForcing { ForcedGoldenLeftTurnStart = TorizoBodyProgram.GoldenDodgeTurningLeft }, heldInput: heldInput);

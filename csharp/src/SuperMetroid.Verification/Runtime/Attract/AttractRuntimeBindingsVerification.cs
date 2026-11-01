@@ -30,10 +30,10 @@ internal static class AttractRuntimeBindingsVerification
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         // Exact cause of #1171: the previous attract path constructed this owner
         // without passing its already-installed palette catalog.
-        AssertThrows<InvalidOperationException>(() => _ = SuperMetroidRuntime.Create(HostGameplayOverrides.None, InstalledFixtures.SamusOverreads, initialPaletteArt: null),
+        AssertThrows<InvalidOperationException>(() => _ = SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, initialPaletteArt: null),
             "omitting installed palettes reproduces the attract runtime construction failure");
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions
-            { Invincibility = true, InfiniteAmmo = true, PreventEscapeTimeout = true });
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new GameplayAssists
+            { SamusCannotDie = true, AmmoNeverRunsOut = true, EscapeTimerHoldsAtOneSecond = true });
         game.BindArtwork(game.Artwork with
         {
             GameplayBasePalettes = palettes,
@@ -48,14 +48,14 @@ internal static class AttractRuntimeBindingsVerification
         AssertTrue(demo.Colours.Colors.SequenceEqual(palettes.Initial), "attract runtime loads all installed initial colors");
         AssertTrue(ReferenceEquals(enemyArtwork.Enemies, demo.EnemySession.TileArtwork), "attract runtime binds installed enemy artwork");
         AssertEqual(incomingRandom, demo.System.RandomNumber, "attract runtime preserves frontend random state");
-        AssertTrue(!demo.Options.PlayerInvincibilityEnabled && !demo.Options.InfiniteAmmoEnabled && !demo.Options.PreventEscapeTimeout,
-            "attract runtime ignores host cheats");
+        AssertTrue(ReferenceEquals(demo.Assists.Current, GameplayAssists.None),
+            "attract runtime plays unassisted");
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var selected = game.GameplayRuntimeForVerification;
         AssertTrue(!ReferenceEquals(demo, selected), "selected play and attract playback own separate runtimes");
         AssertTrue(selected.Colours.Colors.SequenceEqual(palettes.Initial), "selected runtime retains installed palette binding");
-        AssertTrue(selected.Options.PlayerInvincibilityEnabled && selected.Options.InfiniteAmmoEnabled && selected.Options.PreventEscapeTimeout,
-            "selected runtime retains host options");
+        AssertTrue(selected.Assists.Current is { SamusCannotDie: true, AmmoNeverRunsOut: true, EscapeTimerHoldsAtOneSecond: true },
+            "selected runtime plays under the session's assists");
 
         // #1330: one random-number word per session. Each runtime reads and advances the session's instance, so a
         // release to the menu and a recreation keep the exact word with no copy.

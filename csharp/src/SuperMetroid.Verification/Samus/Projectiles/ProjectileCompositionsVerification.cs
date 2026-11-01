@@ -185,7 +185,7 @@ internal static class ProjectileCompositionsVerification
         MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentation maps)
     {
         var random = new SharedRandom();
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), InstalledFixtures.SamusOverreads, initialPaletteArt: roomAssets.InitialPalettes, random: random);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.SamusOverreads, initialPaletteArt: roomAssets.InitialPalettes, random: random);
         runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.SpriteSheets = sheets;

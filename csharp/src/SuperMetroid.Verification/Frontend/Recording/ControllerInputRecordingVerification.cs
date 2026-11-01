@@ -22,7 +22,7 @@ internal static class ControllerInputRecordingVerification
             StartedUtc = new DateTimeOffset(2026, 9, 1, 12, 34, 56, TimeSpan.Zero),
             RomSha256 = digest,
             InitialSaveRam = saveRam,
-            GameOptions = new SuperMetroidGameOptions
+            GameOptions = new SuperMetroid.Diagnostics.Configuration.SuperMetroidGameOptions
             {
                 SkipOpeningCinematic = true,
                 Invincibility = true,

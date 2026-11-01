@@ -26,7 +26,7 @@ public static class PauseAudioSmokeTest
         SaveSlotStore saves = SeedCrateriaSave(bus);
         var game = new SuperMetroidGame(
             saves,
-            new SuperMetroidGameOptions { SkipOpeningCinematic = true });
+            new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true });
         // A bare game draws the title and file screens from installed artwork, as the hosts bind it.
         InstalledGameBindings.Create(RepositoryInstallation.Installation)(game);
         game.BindAudio(RepositoryInstallation.Installation.LoadAudioClips());

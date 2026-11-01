@@ -24,16 +24,17 @@ internal static class RetailRuntimeFixtureVerification
     internal static SamusBombProjectileSystem CreateBombFixture() => InstalledFixtures.CreateBombSystem();
     /// <summary>Binds installed presentation data to a Samus state used in retail gameplay verification.</summary>
     internal static SamusState PrepareRetailSamusFixture(SamusState samus) => InstalledFixtures.BindSamus(samus);
-    /// <summary>Creates an isolated retail runtime with the host's installed presentation contract and requested gameplay options.</summary>
+    /// <summary>Creates an isolated retail runtime with the installed presentation contract and the requested assists.</summary>
     /// <remarks>Each fixture retains its own bus and mutable runtime.</remarks>
     internal static SuperMetroidRuntime CreateRetailRuntimeFixture(
         bool playerInvincibilityEnabled = false,
         bool infiniteAmmoEnabled = false,
         MapRevealMode mapRevealMode = MapRevealMode.None,
         bool preventEscapeTimeout = false,
-        SuperMetroid.Core.Compatibility.SharedRandom? random = null) =>
+        SuperMetroid.Core.Compatibility.SharedRandom? random = null,
+        SuperMetroid.Core.Gameplay.SavedEncounterReset? encounterResetOnLoad = null) =>
         RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled,
-            infiniteAmmoEnabled, mapRevealMode, preventEscapeTimeout, random);
+            infiniteAmmoEnabled, mapRevealMode, preventEscapeTimeout, random, encounterResetOnLoad);
 
     /// <summary>Binds the shared installation's runtime catalogs to a restored or bare runtime.</summary>
     internal static void BindRetailRuntimeFixture(SuperMetroidRuntime runtime) =>

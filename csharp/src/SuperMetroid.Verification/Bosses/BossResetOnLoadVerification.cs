@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Frontend.GameConfigurationVerification;
@@ -55,8 +54,9 @@ internal static class BossResetOnLoadVerification
         ushort[] eyeBits = [0x45, 0x5c, 0x85, 0x9b, 0xa8];
         foreach (bool enabled in new[] { false, true })
         {
-            var runtime = CreateRetailRuntimeFixture();
-            runtime.RoomLoader.InitializeSavedGame(slot, resetBossesOnLoad: enabled);
+            var runtime = CreateRetailRuntimeFixture(
+                encounterResetOnLoad: new SuperMetroidGameOptions { ResetBossesOnLoad = enabled }.ToAssists().EncounterResetOnLoad);
+            runtime.RoomLoader.InitializeSavedGame(slot);
             for (int area = 0; area < AreaIds.RetailCount; area++)
             {
                 bool resetArea = enabled && AreaIds.At(area) != AreaId.Tourian;

@@ -42,9 +42,9 @@ internal static class FrontendRomFreeDirectRoomVerification
         PrepareRomFreeBindings(installation)(installed, false);
         native.InitializeDirectRoomVerification();
         installed.InitializeDirectRoomVerification();
-        var options = new SuperMetroidGameOptions { Invincibility = true };
-        native.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
-        installed.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
+        var options = new SuperMetroid.Core.Gameplay.GameplayAssists { SamusCannotDie = true };
+        native.GameplayRuntimeForVerification.ApplyAssists(options);
+        installed.GameplayRuntimeForVerification.ApplyAssists(options);
         VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = room, RoomName = $"direct retail room {room.Name}, input ${heldInput:X}" }, frameCount, heldInput: heldInput);
     }
 

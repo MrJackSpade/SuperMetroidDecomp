@@ -15,8 +15,8 @@ internal static class RenderRetailFixture
 
     /// <summary>Creates a retail-backed game over <paramref name="saves"/> with the requested gameplay-frame capture setting.</summary>
     internal static SuperMetroidGame CreateGame(SuperMetroid.Core.Saves.SaveSlotStore saves,
-        SuperMetroidGameOptions? gameOptions = null, bool renderGameplayFrames = true) =>
-        InstalledFixtures.CreateGame(saves, gameOptions, renderGameplayFrames);
+        SuperMetroid.Core.Gameplay.GameplayAssists? assists = null, bool renderGameplayFrames = true) =>
+        InstalledFixtures.CreateGame(saves, assists, renderGameplayFrames);
 
     /// <summary>Creates the title sequence from the shared retail fixture installation.</summary>
     internal static TitleSequenceState CreateTitle() => InstalledFixtures.CreateTitle();

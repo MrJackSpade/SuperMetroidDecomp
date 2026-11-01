@@ -257,7 +257,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         invincible.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
         invincible.Shinespark.BeginWindup(invincible);
         invincible.Shinespark.BeginDirectionalLaunch(invincible, targetPose);
-        invincible.Shinespark.Step(new SamusTerrain { Level = directionLevel }, invincible, new ShinesparkFrame { FrameCounter = 0, PlayerInvincibilityEnabled = true });
+        invincible.Shinespark.Step(new SamusTerrain { Level = directionLevel }, invincible, new ShinesparkFrame { FrameCounter = 0, SamusCannotDie = true });
         AssertTrue(invincible.Shinespark.Phase is not ShinesparkPhase.Crash,
             $"invincible pose {(int)SamusPoseNumbering.Number(targetPose):X2} continues at {energy} energy");
         AssertTrue(invincible.Position.X.Whole != 160 || invincible.Position.Y.Whole != 160,

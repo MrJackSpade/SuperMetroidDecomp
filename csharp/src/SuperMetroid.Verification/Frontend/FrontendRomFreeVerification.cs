@@ -329,9 +329,9 @@ internal static class FrontendRomFreeVerification
                         // Keep the fight actor alive through the long neutral
                         // comparison without letting damage switch the frontend
                         // into a death screen before the next room is loaded.
-                        var options = new SuperMetroidGameOptions { Invincibility = true };
-                        nativeRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
-                        installedRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
+                        var options = new SuperMetroid.Core.Gameplay.GameplayAssists { SamusCannotDie = true };
+                        nativeRoom.GameplayRuntimeForVerification.ApplyAssists(options);
+                        installedRoom.GameplayRuntimeForVerification.ApplyAssists(options);
                     });
                 // Cross the wake/combat handoff into the first linked walking
                 // lists. The older 700-frame low-health check reached Game Over
@@ -346,9 +346,9 @@ internal static class FrontendRomFreeVerification
                         // against so earlier frontend timing cannot change which attacks occur.
                         nativeRoom.GameplayRuntimeForVerification.System.SetRandomNumber(0x23fc);
                         installedRoom.GameplayRuntimeForVerification.System.SetRandomNumber(0x23fc);
-                        var options = new SuperMetroidGameOptions { Invincibility = false };
-                        nativeRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
-                        installedRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
+                        var options = new SuperMetroid.Core.Gameplay.GameplayAssists { SamusCannotDie = false };
+                        nativeRoom.GameplayRuntimeForVerification.ApplyAssists(options);
+                        installedRoom.GameplayRuntimeForVerification.ApplyAssists(options);
                     });
                 VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.GoldenTorizo, RoomName = "Golden Torizo left-foot right-sonic program" }, frameCount: 90, setup: (nativeRoom, installedRoom) =>
                     {

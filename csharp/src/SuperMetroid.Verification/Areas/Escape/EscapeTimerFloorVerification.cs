@@ -29,7 +29,7 @@ internal static class EscapeTimerFloorVerification
             bool reachedFloor = false;
             for (ushort frame = 0; frame < 12000; frame++)
             {
-                bool expired = guarded.Process(frame, preventEscapeTimeout: true);
+                bool expired = guarded.Process(frame, holdAtOneSecond: true);
                 retail.Process(frame);
                 AssertTrue(!expired, "guarded escape never publishes expiration");
                 AssertEqual(new VerifyEscapeTimerFloorCase(retail.Phase, retail.IsActive), new VerifyEscapeTimerFloorCase(guarded.Phase, guarded.IsActive), "escape phase unchanged by floor");

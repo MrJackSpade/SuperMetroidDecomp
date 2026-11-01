@@ -25,7 +25,7 @@ internal static class SpringBallEquipmentJumpVerification
         foreach (bool left in new[] { false, true })
         {
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions { Invincibility = true }, SuperMetroidGameHostServices.Default with { GameplayFrames = RetainedGameplayFrames.Instance }, new SharedRandom());
+            var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroid.Core.Gameplay.GameplayAssists { SamusCannotDie = true }, SuperMetroidGameHostServices.Default with { GameplayFrames = RetainedGameplayFrames.Instance }, new SharedRandom());
             PrepareRomFreeBindings(installation)(game, false);
             game.InitializeDirectRoomVerification();
             var runtime = game.GameplayRuntimeForVerification;

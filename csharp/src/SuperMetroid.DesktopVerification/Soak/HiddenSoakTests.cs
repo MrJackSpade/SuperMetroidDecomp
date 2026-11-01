@@ -27,7 +27,7 @@ internal static class HiddenSoakTests
         foreach (bool paused in new[] { false, true })
         {
             var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(),
-                new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
+                new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true, SamusCannotDie = true });
             game.BindAudio(DesktopAccess.LoadAudioClips());
             var audio = new short[AudioSession.PcmSamplesPerFrame];
             long sequence = 0;

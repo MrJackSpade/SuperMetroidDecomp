@@ -15,6 +15,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.World;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 
 /// <summary>Checks extracted Chozo statue draw data, editable visual overrides, and compiled PLM execution.</summary>

@@ -11,6 +11,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
 /// <summary>Checks Draygon cannon visual extraction, installation, overrides, and stock integrity.</summary>

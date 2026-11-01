@@ -11,6 +11,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 
 /// <summary>Checks Bomb Torizo hand draw-list extraction, installed overrides,

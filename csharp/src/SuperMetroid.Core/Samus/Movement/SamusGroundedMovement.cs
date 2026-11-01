@@ -373,7 +373,7 @@ public static class SamusGroundedMovement
 
         // Cancels speed boost and clears both run/base components plus
         // acceleration mode on every frame. The speed-booster counters themselves remain
-        // outside this slice; the five movement words are exact and debugger-visible.
+        // outside this slice; the five movement values are exact.
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         return new GroundedMovementResult(horizontal, vertical);
     }

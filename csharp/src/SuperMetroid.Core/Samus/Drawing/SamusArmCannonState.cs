@@ -18,7 +18,7 @@ public sealed class SamusArmCannonState
     /// <summary>Previous HUD selection used to delay cover transitions until the choice stabilizes.</summary>
     internal HudItem PreviousSelectedHudItem { get; set; }
 
-    /// <summary>Host-owned visual data; rebound after a restored debugger state.</summary>
+    /// <summary>Installed arm-cannon artwork: installed content, not game state, bound again when a game is restored.</summary>
     [field: NonSerialized]
     public InstalledSamusArmCannonArtwork? Artwork { get; set; }
 

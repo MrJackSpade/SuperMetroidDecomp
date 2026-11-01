@@ -20,7 +20,7 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>Whether the explosion is active, as rooms and FX read it.</summary>
     internal IActivePowerBomb Activity => field ??= new SamusPowerBombActivity(this);
 
-    /// <summary>Current host-owned explosion colors; excluded from debugger-state serialization.</summary>
+    /// <summary>Installed explosion colors: installed content, not game state, bound again when a game is restored.</summary>
     [field: NonSerialized]
     public InstalledPowerBombFixedColors? PresentationColors { get; set; }
 
@@ -311,7 +311,7 @@ public sealed class SamusPowerBombExplosionState
             return;
 
         // CallFar initializes the actual damaging radius before the next frame's
-        // ExplosionYellow pre-instruction. PreExplosionRadius remains debugger-visible.
+        // ExplosionYellow pre-instruction. PreExplosionRadius keeps its own value.
         ExplosionRadius = PowerBombRadius.FromRaw(PowerBombExplosionDefinitions.InitialRadius);
         RadiusSpeed = PowerBombRadius.Zero;
         Phase = PowerBombExplosionPhase.ExplosionYellow;

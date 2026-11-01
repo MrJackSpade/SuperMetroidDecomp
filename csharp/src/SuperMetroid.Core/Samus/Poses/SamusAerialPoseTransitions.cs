@@ -153,8 +153,8 @@ internal static class SamusAerialPoseTransitions
         }
 
         // These are literal copies of the two aerial turn tables. Directions four and five
-        // are not typos: compact down-aim sources reuse `$91/$92` or `$95/$96` according to
-        // facing. Retaining all ten entries is essential for a debugger to preserve aim.
+        // are not typos: compact down-aim sources reuse the jumping or falling down-aim turns
+        // according to facing. Retaining all ten entries preserves aim through the turn.
         int shotDirection = SamusPoseMetadata.ReadShotDirection(samus);
         SamusPoseId selectedTurnPose = jumping
             ? shotDirection switch

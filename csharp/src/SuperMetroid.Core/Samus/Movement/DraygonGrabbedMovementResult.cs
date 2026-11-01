@@ -1,4 +1,4 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>Debugger-visible result of the otherwise one-instruction grabbed movement handler.</summary>
+/// <summary>The outcome of the grabbed movement handler, which only clears one speed.</summary>
 public readonly record struct DraygonGrabbedMovementResult();

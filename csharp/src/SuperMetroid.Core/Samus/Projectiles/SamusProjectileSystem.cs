@@ -19,9 +19,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <remarks>
 /// This class is deliberately a field-for-field translation rather than a desktop particle
 /// effect. Firing, damage and animation records, and terrain movement each keep
-/// their own seam. Keeping those seams visible makes every value
-/// inspectable in a C# debugger and prevents a convenient host sprite from replacing the
-/// actual projectile lifecycle.
+/// their own seam. Keeping those seams separate prevents a convenient host sprite from
+/// replacing the actual projectile lifecycle.
 ///
 /// The implemented producer covers ordinary and charged plain power beams. The shared slot
 /// model and interpreter are intentionally general enough for the remaining beam
@@ -140,7 +139,7 @@ public sealed class SamusProjectileSystem
         private set => Charge.LastVisorPaletteStep = value;
     }
 
-    /// <summary>The last alpha-pass result, retained for debugger watches and verification.</summary>
+    /// <summary>The last alpha-pass result.</summary>
     public SamusProjectileFrameResult LastFrameResult { get; private set; }
 
     /// <summary>

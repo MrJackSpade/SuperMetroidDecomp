@@ -245,7 +245,7 @@ internal sealed class BeamFiring
         if (slotIndex < 0)
         {
             // Consistent state cannot arrive here. Match the producer's defensive rollback
-            // so a debugger mutation does not leave the count permanently above five.
+            // so an inconsistent count does not stay permanently above five.
             _slotTable.ProjectileCounter = WrappingCounter.DecrementWord(_slotTable.ProjectileCounter);
             return new BeamShot(null, null);
         }

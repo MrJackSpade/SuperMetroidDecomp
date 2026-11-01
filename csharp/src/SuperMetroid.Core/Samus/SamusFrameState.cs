@@ -97,16 +97,16 @@ internal sealed class SamusFrameState
     /// </summary>
     public GroundedMovementResult? LastGroundedSamusMovement { get; internal set; }
 
-    /// <summary>Most recent ordinary-air collision result, exposed for debugger watches.</summary>
+    /// <summary>Most recent ordinary-air collision result.</summary>
     public AerialMovementResult? LastAerialSamusMovement { get; internal set; }
 
-    /// <summary>Most recent ordinary Morph-Ball collision result, exposed for debugger watches.</summary>
+    /// <summary>Most recent ordinary Morph-Ball collision result.</summary>
     public MorphBallMovementResult? LastMorphBallMovement { get; internal set; }
 
-    /// <summary>Most recent special bomb-jump handler result, exposed for debugger watches.</summary>
+    /// <summary>Most recent special bomb-jump handler result.</summary>
     public BombJumpMovementResult? LastBombJumpMovement { get; internal set; }
 
-    /// <summary>Most recent special knockback-handler result, exposed for debugger watches.</summary>
+    /// <summary>Most recent special knockback-handler result.</summary>
     public KnockbackMovementResult? LastKnockbackMovement { get; internal set; }
 
 
@@ -138,7 +138,7 @@ internal sealed class SamusFrameState
     public DraygonEscapeResult? LastDraygonEscape { get; internal set; }
 
     /// <summary>
-    /// Explicit debugger substitute for the untranslated HUD item selector. When enabled,
+    /// Selects the grapple without the HUD item selector. When enabled,
     /// a new Shoot edge starts grapple firing from the current pose. Normal scenarios leave
     /// this false, so X retains its existing bomb/projectile meaning.
     /// </summary>

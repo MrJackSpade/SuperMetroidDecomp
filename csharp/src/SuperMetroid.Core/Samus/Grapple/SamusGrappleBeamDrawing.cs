@@ -114,8 +114,8 @@ public static class SamusGrappleBeamDrawing
     internal static void InitializeBeamAnimation(SamusGrappleState grapple)
     {
         // Firing installs counter one after initializing the rope animation slots.
-        // The debugger's already-connected seam has no preceding firing history, so it
-        // begins at the same authentic first flare state rather than inventing a static OBJ.
+        // A beam that starts already connected has no preceding firing history, so it
+        // begins at the same first flare state rather than inventing a static flare.
         grapple.FlareCounter = 1;
         grapple.FlareAnimationFrame = 0;
         grapple.FlareAnimationTimer = WrappingCountdown.Start(0);

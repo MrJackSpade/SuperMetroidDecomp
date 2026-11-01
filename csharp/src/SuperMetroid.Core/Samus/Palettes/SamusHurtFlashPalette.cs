@@ -79,7 +79,7 @@ public static class SamusHurtFlashPalette
 
         // The game stores the increment before either comparison. The signed branch against
         // sixty is preserved rather than simplified to an unsigned host range, retaining
-        // the exact wrap behavior for manually corrupted/debugger-written counters.
+        // the exact wrap behavior for counters already past sixty.
         int counterAfter = (counterBefore + 1) % HurtFlashCounterPeriod;
         samus.HurtFlashCounter = counterAfter;
 

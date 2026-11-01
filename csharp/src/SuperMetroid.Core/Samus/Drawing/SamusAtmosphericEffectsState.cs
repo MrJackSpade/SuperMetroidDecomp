@@ -42,8 +42,7 @@ public sealed class SamusAtmosphericEffectsState
     }
 
     /// <summary>
-    /// Starts an effect in a slot. Public visibility is intentional: deterministic tests and debugger experiments can
-    /// seed exact state without a fake water room.
+    /// Starts an effect in a slot, independently of the liquid that ordinarily starts it.
     /// </summary>
     /// <param name="slotIndex">The slot's ordinal, 0 through <see cref="SlotCount"/> - 1.</param>
     /// <param name="type">The effect; an inactive effect with frame zero leaves the slot empty.</param>
@@ -181,9 +180,9 @@ public sealed class SamusAtmosphericEffectsState
         if (screenX < 0 || screenX >= 256 || screenY < 0 || screenY >= 256)
             return;
 
-        // Type two's sprite list is missing, so the game reads unrelated scratch memory as its sprite attributes. That
-        // needs direct-page emulation the port does not model; type two is exempt and draws nothing (owner decision
-        // on #1318).
+        // Type two has no sprite list of its own, so the game draws it from whatever unrelated values happen to be
+        // left over. That appearance is not part of the game's design; type two draws nothing (owner decision on
+        // #1318).
         if (type == SamusAtmosphericEffectDefinitions.ScratchListType)
             return;
         drawing.Sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, slotIndex),

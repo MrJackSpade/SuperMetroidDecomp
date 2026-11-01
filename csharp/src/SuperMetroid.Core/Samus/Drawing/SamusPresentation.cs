@@ -35,11 +35,11 @@ internal sealed class SamusPresentation
     /// <summary>Which body definitions the body shows, and the installed artwork they are drawn from.</summary>
     public SamusBodyFrameState BodyFrames { get; } = new();
 
-    /// <summary>Host-bound normal suit colors; excluded from debugger-state graphs.</summary>
+    /// <summary>Installed normal suit colors: installed content, not game state, bound again when a game is restored.</summary>
     [field: NonSerialized]
     public InstalledSamusSuitColors? SuitColors { get; set; }
 
-    /// <summary>Host-bound animation colors; excluded from debugger-state graphs.</summary>
+    /// <summary>Installed full-body cycle colors: installed content, not game state, bound again when a game is restored.</summary>
     [field: NonSerialized]
     public SamusFullBodyCycleColours? FullBodyCycleColors { get; set; }
 
@@ -161,7 +161,7 @@ internal sealed class SamusPresentation
     /// <remarks>
     /// The FX dispatcher publishes water/lava delay buffering, remembered medium,
     /// atmospheric slots, sound requests, and periodic-damage words before the timer
-    /// decrement. The historical name remains as a source-compatible debugger API.
+    /// decrement.
     /// </remarks>
     public static void AnimateNoFx(SamusState samus, SamusAnimationStep step)
     {

@@ -1,5 +1,5 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>Debugger-readable winning six-byte transition-table record.</summary>
+/// <summary>The transition-table entry that won.</summary>
 public readonly record struct SamusPoseTransition(
     SamusPoseId ProspectivePose);

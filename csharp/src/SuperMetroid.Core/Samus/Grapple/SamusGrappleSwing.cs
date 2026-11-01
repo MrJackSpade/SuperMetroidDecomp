@@ -30,7 +30,7 @@ public static class SamusGrappleSwing
         grapple.RopeStart = ropeStart.Pixel;
 
         // The swing copies Start to Flare during swinging. BeamStart retains
-        // the older public name because the renderer and debugger already consume it, but
+        // the older public name because the renderer consumes it, but
         // it semantically represents the Flare/draw origin throughout this translation.
         grapple.BeamStart = ropeStart.Pixel;
 

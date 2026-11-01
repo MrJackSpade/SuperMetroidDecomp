@@ -1,4 +1,4 @@
 namespace SuperMetroid.Core.Samus.Drawing;
 
-/// <summary>Debugger witness from one optional arm-cannon OBJ/tile upload.</summary>
+/// <summary>The outcome of one optional arm-cannon draw.</summary>
 public readonly record struct SamusArmCannonDrawResult();

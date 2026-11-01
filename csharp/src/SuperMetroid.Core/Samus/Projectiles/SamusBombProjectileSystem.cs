@@ -355,8 +355,8 @@ public sealed class SamusBombProjectileSystem
             return;
 
         // The cooldown also clamps already-negative/crossed-negative values to zero. Normal
-        // bomb cooldowns are small positive words, but retaining the signed edge keeps a
-        // debugger mutation from producing a permanently locked firing state.
+        // bomb cooldowns are small positive values, but retaining the signed edge keeps an
+        // out-of-range cooldown from producing a permanently locked firing state.
         if (CooldownTimer.IsNegative)
         {
             CooldownTimer = WrappingCountdown.Start(0);
@@ -404,7 +404,7 @@ public sealed class SamusBombProjectileSystem
 
         // Retail HUD selection cannot normally point at an empty ammo class. Preserve the
         // game's ordering nonetheless: helper two has already incremented the aggregate
-        // counter if a debugger forces selected item three with zero power bombs.
+        // counter if Power Bombs are selected with none left.
         if (placingPowerBomb && samus.PowerBombs == 0)
             return null;
 

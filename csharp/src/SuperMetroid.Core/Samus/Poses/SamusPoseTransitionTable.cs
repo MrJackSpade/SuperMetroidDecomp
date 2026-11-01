@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// This matcher deliberately stops before applying a prospective pose. The runtime owns the
 /// transition side effects. Authored conditions are compiled; non-authored pose indexes fail
 /// explicitly instead of parsing adjacent code as a transition list. The returned
-/// record remains valuable debugger state: it proves which transition entry won for a precise
+/// record states which transition entry won for a precise
 /// held/newly-pressed input chord.
 /// </remarks>
 public static class SamusPoseTransitionTable

@@ -1,5 +1,6 @@
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -36,9 +37,9 @@ internal static class MapWindowMotionDefinitionsVerification
             editedAreas[((AreaId)area).ToString()] = vertical
                 ? installed with { Y = editedCoordinate } : installed with { X = editedCoordinate };
             using var json = new MemoryStream();
-            WorldMapLabelPositions.Write(json, new() { Version = 1, Areas = editedAreas });
+            WorldMapLabelFile.Write(json, new() { Version = 1, Areas = editedAreas });
             json.Position = 0;
-            WorldMapLabelPositions edited = WorldMapLabelPositions.Load(json);
+            WorldMapLabelPositions edited = WorldMapLabelFile.Read(json);
             for (int identity = 0; identity < 6; identity++)
                 AssertEqual(editedAreas[((AreaId)identity).ToString()], edited.Get(identity),
                     "named selection preserves edited and untouched coordinate fields");

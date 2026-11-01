@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -17,7 +18,7 @@ internal static class MapArrowCasesVerification
     internal static void VerifyMapArrowCases(ISnesAddressSpace rom)
     {
         byte[] bytes = MapArrowExtractor.Extract(rom);
-        var original = MapArrowPresentation.Load(new MemoryStream(bytes));
+        var original = MapArrowFile.Read(new MemoryStream(bytes));
         Suite(nameof(VerifyMapArrowXSelection), () => VerifyMapArrowXSelection(rom, original));
         Suite(nameof(VerifyMapArrowYSelection), () => VerifyMapArrowYSelection(rom, original));
         Suite(nameof(VerifyMapArrowShapeCases), () => VerifyMapArrowShapeCases(rom));
@@ -29,8 +30,8 @@ internal static class MapArrowCasesVerification
             var entries = new Dictionary<string, MapArrowEntry>(document.Arrows);
             entries[direction.ToString()] = new() { X = 250 + selected, Y = 220 - selected, DurationTicks = [selected, 254] };
             using var json = new MemoryStream();
-            MapArrowPresentation.Write(json, document with { Arrows = entries }); json.Position = 0;
-            var edited = MapArrowPresentation.Load(json);
+            MapArrowFile.Write(json, document with { Arrows = entries }); json.Position = 0;
+            var edited = MapArrowFile.Read(json);
             for (int other = 1; other <= 4; other++)
             {
                 var actual = edited.Get((MapScrollDirection)other);
@@ -48,7 +49,7 @@ internal static class MapArrowCasesVerification
         {
             var missing = new Dictionary<string, MapArrowEntry>(document.Arrows);
             missing.Remove(name);
-            AssertThrows<InvalidDataException>(() => MapArrowPresentation.Write(new MemoryStream(), document with { Arrows = missing }),
+            AssertThrows<InvalidDataException>(() => MapArrowFile.Write(new MemoryStream(), document with { Arrows = missing }),
                 "all four named directions remain required");
         }
     }

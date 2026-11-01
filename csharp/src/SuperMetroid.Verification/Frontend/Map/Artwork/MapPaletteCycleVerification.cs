@@ -35,7 +35,7 @@ internal static class MapPaletteCycleVerification
         var arrows = new FileSelectMapAnimations(original.Arrows);
         arrows.StepArrows(_ => true);
         var arrowOam = ScreenSpritesFixtures.Blank();
-        arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam, MenuSheetFixtures.MapSprites(original.Sprites)); arrowOam.FinishFrame();
+        arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam, MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original))); arrowOam.FinishFrame();
         ushort nativeArrowPalette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapAnimationNativeSources.AnimatedSpritePalette);
         AssertTrue(arrowOam.NextByteOffset > 0, "arrow palette test draws actual sprites");
         for (int offset = 0; offset < arrowOam.NextByteOffset; offset += 4)
@@ -58,13 +58,13 @@ internal static class MapPaletteCycleVerification
         AssertTrue(loops > 5, "highlight parity crosses multiple loop boundaries");
 
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = RequiredJson.Deserialize<MapPaletteCycleDocument>(File.ReadAllBytes(Path.Combine(stock, MapPaletteCycleFormat.FileName)), options);
+        var document = RequiredJson.Deserialize<MapPaletteCycleDocument>(File.ReadAllBytes(Path.Combine(stock, MapPaletteCycleFile.FileName)), options);
         var replacementDocument = document with { Frames = document.Frames.Select(f => f with
         {
             Colors = f.Colors.Select(c => new PaletteRgb5 { Red = 31 - c.Red, Green = 31 - c.Green, Blue = 31 - c.Blue }).ToArray()
         }).ToArray() };
         Directory.CreateDirectory(overrides);
-        string replacement = Path.Combine(overrides, MapPaletteCycleFormat.FileName);
+        string replacement = Path.Combine(overrides, MapPaletteCycleFile.FileName);
         using (var output = File.Create(replacement)) MapPaletteCycleFile.Write(output, replacementDocument);
         byte[] editedBytes = File.ReadAllBytes(replacement);
         var edited = MapPresentationFiles.Load(stock, overrides);

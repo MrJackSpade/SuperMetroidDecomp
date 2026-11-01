@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
@@ -67,7 +68,7 @@ internal static class MapSaveMarkersVerification
             }
         }
         AssertEqual(34, expectedIds.Count, "all original marker identities");
-        AssertTrue(expectedIds.SequenceEqual(MapSaveMarkers.AllIds()), "full marker identity enumeration order");
+        AssertTrue(expectedIds.SequenceEqual(MapSaveMarkerFile.Ids()), "full marker identity enumeration order");
         foreach (AreaId invalid in new[] { AreaId.Ceres, (AreaId)7, (AreaId)255 })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = MapSaveMarkers.Indices(invalid); },
@@ -123,7 +124,7 @@ internal static class MapSaveMarkersVerification
         points["Maridia.Save.0"] = points["Maridia.Save.0"] with { X = (ushort)(points["Maridia.Save.0"].X + 8) };
         Directory.CreateDirectory(overrides);
         string path = Path.Combine(overrides, MapSaveMarkerFormat.FileName);
-        using (var output = File.Create(path)) MapSaveMarkerPositions.Write(output, document with { Markers = points });
+        using (var output = File.Create(path)) MapSaveMarkerFile.Write(output, document with { Markers = points });
         byte[] bytes = File.ReadAllBytes(path);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "save marker edit changes content identity");
@@ -164,7 +165,7 @@ internal static class MapSaveMarkersVerification
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(path)), "save marker override bytes preserved");
         foreach (var bad in new[] { document with { Version = 2 }, document with { Markers = new() },
             document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { X = ushort.MaxValue }) } })
-            AssertThrows<InvalidDataException>(() => MapSaveMarkerPositions.Write(new MemoryStream(), bad), "invalid save marker layout rejected");
+            AssertThrows<InvalidDataException>(() => MapSaveMarkerFile.Write(new MemoryStream(), bad), "invalid save marker layout rejected");
         File.WriteAllText(path, "{bad save markers");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad save marker override cannot fall back");
         AssertEqual("{bad save markers", File.ReadAllText(path), "bad save marker override preserved");
@@ -178,7 +179,7 @@ internal static class MapSaveMarkersVerification
         byte[] Draw(FileSelectStationMarker marker)
         {
             var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame();
-            marker.Draw(oam, new(24, 8), MenuSheetFixtures.MapSprites(original.Sprites));
+            marker.Draw(oam, new(24, 8), MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
             oam.FinalizeFrame();
             return oam.LowTable.ConcatToArray(oam.HighTable);
         }

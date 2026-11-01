@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
 using System.Text.Json;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -153,7 +153,7 @@ public sealed class MapSpriteArtwork : MapSpriteCompositions
         try { document = JsonAssetDocument.Read<MapSpriteDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Map sprite document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map sprite JSON.", error); }
-        if (document.Version != MapSpriteFormat.Version || document.Frames is null || document.Frames.Count != MapSpriteDefinitions.Count)
+        if (document.Version != MapSpriteFormat.Version || document.Frames is null || document.Frames.Count != MapSpriteFormat.FrameCount)
             throw new InvalidDataException("Map sprite content requires version 1 and all 26 named frames.");
         return new FrameSet(
             Require("Arrow.Right", MapSpriteId.ArrowRight),
@@ -194,6 +194,13 @@ public sealed class MapSpriteArtwork : MapSpriteCompositions
             return WorldMapLabelComposition.Compile(id, parts, name);
         }
     }
+
+    /// <summary>Enumerates the named map sprite roles in the installed document's order.</summary>
+    public static IEnumerable<MapSpriteFrameName> FrameNames =>
+        MapSpriteFormat.FrameOrder.Select(id => new MapSpriteFrameName(id, MapSpriteNames.Name(id)));
+
+    /// <summary>The map sprite sheet's frames, one per named role.</summary>
+    public static IEnumerable<string> SheetFrames => FrameNames.Select(frame => frame.Name);
 
     /// <summary>The artwork <paramref name="catalog"/> was read with.</summary>
     /// <exception cref="InvalidDataException">The catalog was not read from installed artwork.</exception>

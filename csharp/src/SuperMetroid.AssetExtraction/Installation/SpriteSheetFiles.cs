@@ -128,7 +128,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.GameOver => GameOverPresentationDefinitions.SpriteNames.ToArray(),
         SpriteSheetId.FileSelect => FileSelectParts.SheetFrames,
         SpriteSheetId.GameOptions => GameOptionsNames.SheetFrames,
-        SpriteSheetId.MapSprites => MapSpriteNames.SheetFrames,
+        SpriteSheetId.MapSprites => MapSpriteArtwork.SheetFrames,
         SpriteSheetId.PauseSprites => PauseSheetComposer.FrameNames(maps.Value),
         SpriteSheetId.PauseHud => HudImageSheet.PauseFrameNames(maps.Value),
         SpriteSheetId.MenuPictures => MenuPictureSheet.FrameNames(maps.Value),

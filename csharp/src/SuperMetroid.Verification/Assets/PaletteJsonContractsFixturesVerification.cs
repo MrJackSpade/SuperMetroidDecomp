@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
@@ -56,7 +57,7 @@ internal static class PaletteJsonContractsFixturesVerification
         }), json => _ = MapStaticPalettesFile.Read(json));
         yield return new("map cycle", PaletteContractDocument(new MapPaletteCycleDocument
         {
-            Version = MapPaletteCycleFormat.Version, Frames = Enumerable.Range(0, 3).Select(frame => new MapPaletteCycleFrame
+            Version = MapPaletteCycleFile.Version, Frames = Enumerable.Range(0, 3).Select(frame => new MapPaletteCycleFrame
             { DurationTicks = frame + 2, Colors = PaletteContractColors(MapPaletteCycleFormat.ColorCount, frame) }).ToArray(),
         }), json => _ = MapPaletteCycleFile.Read(json));
         yield return new("Ceres flight", PaletteContractDocument(new CeresFlightPaletteDocument

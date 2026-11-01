@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -26,9 +27,9 @@ internal static class FileSelectMapWindowVerification
         var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Progression.AreaId)area).ToString(),
             _ => label);
         using var stream = new MemoryStream();
-        WorldMapLabelPositions.Write(stream, new() { Version = 1, Areas = points });
+        WorldMapLabelFile.Write(stream, new() { Version = 1, Areas = points });
         stream.Position = 0;
-        return WorldMapLabelPositions.Load(stream);
+        return WorldMapLabelFile.Read(stream);
     }
     /// <summary>Checks fractional clamping, native area durations and bounds, rendering composition, and label anchors.</summary>
     internal static void VerifyFileSelectMapWindow()

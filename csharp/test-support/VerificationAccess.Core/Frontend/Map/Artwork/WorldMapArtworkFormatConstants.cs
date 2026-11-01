@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Frontend.Map.Artwork;
+﻿using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
+
+namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Cartridge values and helpers of <see cref="WorldMapArtworkFormat"/> that only verification reads.</summary>
 internal static class WorldMapArtworkFormatConstants

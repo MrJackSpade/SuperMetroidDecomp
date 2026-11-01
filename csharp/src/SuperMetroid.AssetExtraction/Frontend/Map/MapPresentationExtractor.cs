@@ -1,13 +1,13 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using System.Security.Cryptography;
 using System.Text.Json;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
@@ -102,9 +102,9 @@ public static class MapPresentationExtractor
             file.Write(hudBytes);
         hashes.Add(HudTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(hudBytes)));
         byte[] cycleBytes = MapPaletteCycleExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, MapPaletteCycleFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, MapPaletteCycleFile.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(cycleBytes);
-        hashes.Add(MapPaletteCycleFormat.FileName, Convert.ToHexString(SHA256.HashData(cycleBytes)));
+        hashes.Add(MapPaletteCycleFile.FileName, Convert.ToHexString(SHA256.HashData(cycleBytes)));
         byte[] paletteBytes = MapStaticPalettesExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, MapStaticPalettesFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(paletteBytes);
@@ -117,7 +117,7 @@ public static class MapPresentationExtractor
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
         }
         using var labels = new MemoryStream();
-        WorldMapLabelPositions.Write(labels, new() { Version = WorldMapLabelFormat.Version, Areas = labelPoints });
+        WorldMapLabelFile.Write(labels, new() { Version = WorldMapLabelFormat.Version, Areas = labelPoints });
         byte[] labelBytes = labels.ToArray();
         using (var file = new FileStream(Path.Combine(directory, WorldMapLabelFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(labelBytes);

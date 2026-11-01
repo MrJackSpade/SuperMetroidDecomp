@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Fx;
@@ -90,13 +91,13 @@ public static class MapPresentationFiles
         // Each resource below is framed into the identity in this fixed order.
         MapTileCharacters tiles = Resource(MapTileAtlasFormat.FileName, "map tile atlas", s => MapTileCharacters.Read(s));
         HudTileAtlas hudTiles = Resource(HudTileAtlasFormat.FileName, "HUD tile atlas", s => HudTileAtlasPng.Read(s));
-        MapPaletteCycle cycle = Resource(MapPaletteCycleFormat.FileName, "map highlight cycle", s => MapPaletteCycleFile.Read(s));
+        MapPaletteCycle cycle = Resource(MapPaletteCycleFile.FileName, "map highlight cycle", s => MapPaletteCycleFile.Read(s));
         MapStaticPalettes palettes = Resource(MapStaticPalettesFormat.FileName, "map palettes", s => MapStaticPalettesFile.Read(s));
-        WorldMapLabelPositions labels = Resource(WorldMapLabelFormat.FileName, "world-map labels", s => WorldMapLabelPositions.Load(s));
-        MapStationPositions stations = Resource(MapStationLayoutFormat.FileName, "map station labels", s => MapStationPositions.Load(s));
-        MapLandmarkPositions landmarks = Resource(MapLandmarkFormat.FileName, "map landmarks", s => MapLandmarkPositions.Load(s));
-        MapSaveMarkerPositions saveMarkers = Resource(MapSaveMarkerFormat.FileName, "save markers", s => MapSaveMarkerPositions.Load(s));
-        MapArrowPresentation arrows = Resource(MapArrowFormat.FileName, "map arrows", s => MapArrowPresentation.Load(s));
+        WorldMapLabelPositions labels = Resource(WorldMapLabelFormat.FileName, "world-map labels", s => WorldMapLabelFile.Read(s));
+        MapStationPositions stations = Resource(MapStationLayoutFormat.FileName, "map station labels", s => MapStationLayoutFile.Read(s));
+        MapLandmarkPositions landmarks = Resource(MapLandmarkFormat.FileName, "map landmarks", s => MapLandmarkFile.Read(s));
+        MapSaveMarkerPositions saveMarkers = Resource(MapSaveMarkerFormat.FileName, "save markers", s => MapSaveMarkerFile.Read(s));
+        MapArrowPresentation arrows = Resource(MapArrowFormat.FileName, "map arrows", s => MapArrowFile.Read(s));
         MapScreenPresentation screens = Resource(MapScreenDefinitions.FileName, "map screens", s => MapScreenPresentation.Load(s));
         WorldMapArtwork artwork = MultiFileResource<WorldMapArtwork>([WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile],
             "world-map PNG artwork", (s, _) => WorldMapCharacters.Read(s[0], s[1]));
@@ -158,10 +159,10 @@ public static class MapPresentationFiles
         CeresRidleyGetawayBoostDelays ceresRidleyGetawayBoostDelays = Resource(CeresRidleyGetawayBoostDelayFormat.FileName, "Ceres Ridley getaway boost delays", s => CeresRidleyGetawayBoostDelayFiles.Read(s));
         SamusHyperBeamColours samusHyperBeamColors = Resource(SamusHyperBeamColorFormat.FileName, "Samus Hyper Beam colors", s => SamusHyperBeamColorFile.Read(s).ToColours());
         stock.RequireAllManifestFilesRead();
-        var catalog = new InstalledAreaMapPresentation(new AreaMapPresentationParts { Areas = areas, HiddenCells = new(MapTileWords.PauseBlank.ToCell(), MapTileWords.FileSelectUndownloadedBlank.ToCell()), ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), HighlightCycle = cycle, Palettes = palettes, Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, WorldArtwork = artwork, Sprites = sprites, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, PauseReserveArrow = pauseReserveUi.ArrowColours, EscapeTimer = escapeTimer, EscapeTimerTiles = escapeTimerTiles, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, IntroFont = introFont, EndingText = endingText.Typewriter(), EndingFont = endingFont, TitleGraphics = titleGraphics, TitlePalette = titlePalette, TitleGradient = titleGradient, RoomPaletteFx = roomPaletteFx, MotherBrainHealthPalette = motherBrainHealthPalette, MotherBrainRainbowPalette = motherBrainRainbowPalette, MotherBrainRoomColors = motherBrainRoomColors, RoomFxAnimatedTiles = roomFxAnimatedTiles, RoomFxPaletteBlends = roomFxPaletteBlends, PowerBombFixedColors = powerBombFixedColors, SamusVisorColors = samusVisorColors, SamusHurtColors = samusHurtColors, SamusSuitColors = samusSuitColors, SamusFullBodyCycleColors = samusFullBodyCycleColors, CrystalFlashColors = crystalFlashColors, SamusChargeColors = samusChargeColors, CeresRidleyColors = ceresRidleyColors, CeresRidleyFloorColors = ceresRidleyFloorColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays, SamusHyperBeamColors = samusHyperBeamColors },
+        var catalog = new InstalledAreaMapPresentation(new AreaMapPresentationParts { Areas = areas, HiddenCells = new(MapTileWords.PauseBlank.ToCell(), MapTileWords.FileSelectUndownloadedBlank.ToCell()), ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), HighlightCycle = cycle, Palettes = palettes, Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, WorldArtwork = artwork, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, PauseReserveArrow = pauseReserveUi.ArrowColours, EscapeTimer = escapeTimer, EscapeTimerTiles = escapeTimerTiles, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, IntroFont = introFont, EndingText = endingText.Typewriter(), EndingFont = endingFont, TitleGraphics = titleGraphics, TitlePalette = titlePalette, TitleGradient = titleGradient, RoomPaletteFx = roomPaletteFx, MotherBrainHealthPalette = motherBrainHealthPalette, MotherBrainRainbowPalette = motherBrainRainbowPalette, MotherBrainRoomColors = motherBrainRoomColors, RoomFxAnimatedTiles = roomFxAnimatedTiles, RoomFxPaletteBlends = roomFxPaletteBlends, PowerBombFixedColors = powerBombFixedColors, SamusVisorColors = samusVisorColors, SamusHurtColors = samusHurtColors, SamusSuitColors = samusSuitColors, SamusFullBodyCycleColors = samusFullBodyCycleColors, CrystalFlashColors = crystalFlashColors, SamusChargeColors = samusChargeColors, CeresRidleyColors = ceresRidleyColors, CeresRidleyFloorColors = ceresRidleyFloorColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays, SamusHyperBeamColors = samusHyperBeamColors },
             new InstalledPresentationSources(new MapCharacterArtwork(tiles, hudTiles, pauseTiles),
                 new GameplayMessageArtwork(gameplayMessageTitles, gameplayMessagePanels, gameplayMessageNotices), roomFxLayer3Tilemaps, staffCredits,
-                endingText, screens, new PauseScreenArtwork(pauseBackdrops, pauseWireframes, pauseEquipmentBase, pauseEquipmentLabels, pauseReserveUi)));
+                endingText, screens, new PauseScreenArtwork(pauseBackdrops, pauseWireframes, pauseEquipmentBase, pauseEquipmentLabels, pauseReserveUi), sprites));
         return catalog;
 
         T Resource<T>(string file, string description, Func<Stream, T> compile) where T : class =>

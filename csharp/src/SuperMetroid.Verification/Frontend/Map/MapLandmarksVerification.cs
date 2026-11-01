@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
@@ -36,9 +37,9 @@ internal static class MapLandmarksVerification
             var native = new FileSelectMapIcons(system, area);
             var installed = new FileSelectMapIcons(system, area);
             native.BindLandmarks(original.Landmarks);
-            native.BindSprites(MenuSheetFixtures.MapSprites(original.Sprites));
+            native.BindSprites(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
             installed.BindLandmarks(original.Landmarks);
-            installed.BindSprites(MenuSheetFixtures.MapSprites(original.Sprites));
+            installed.BindSprites(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
             AssertTrue(Draw(native, area).SequenceEqual(Draw(installed, area)), $"landmark OAM {area}/{bits}/{downloaded}");
             AssertEqual((BossBits)bits, system.GetBossBits(area), "landmark drawing preserves boss state");
             AssertEqual(downloaded, system.HasAreaMap(area), "landmark drawing preserves map acquisition");
@@ -49,14 +50,14 @@ internal static class MapLandmarksVerification
         var points = document.Markers.ToDictionary(pair => pair.Key, pair => pair.Value with { X = (ushort)(pair.Value.X + 8) });
         Directory.CreateDirectory(overrides);
         string path = Path.Combine(overrides, MapLandmarkFormat.FileName);
-        using (var stream = File.Create(path)) MapLandmarkPositions.Write(stream, document with { Markers = points });
+        using (var stream = File.Create(path)) MapLandmarkFile.Write(stream, document with { Markers = points });
         byte[] bytes = File.ReadAllBytes(path);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "landmark edit changes content identity");
         // An undiscovered living boss remains invisible even after its visual is moved.
         var unknown = new SharedGameState();
         var hidden = new FileSelectMapIcons(unknown, AreaId.WreckedShip);
-        hidden.BindSprites(MenuSheetFixtures.MapSprites(original.Sprites));
+        hidden.BindSprites(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
         hidden.BindLandmarks(original.Landmarks); byte[] hiddenBefore = Draw(hidden, AreaId.WreckedShip);
         hidden.BindLandmarks(edited.Landmarks);
         AssertTrue(hiddenBefore.SequenceEqual(Draw(hidden, AreaId.WreckedShip)), "landmark edit cannot reveal living boss/elevators without map download");
@@ -94,7 +95,7 @@ internal static class MapLandmarksVerification
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(path)), "landmark override bytes preserved");
         foreach (var bad in new[] { document with { Version = 0 }, document with { Markers = new() },
             document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { Y = ushort.MaxValue }) } })
-            AssertThrows<InvalidDataException>(() => MapLandmarkPositions.Write(new MemoryStream(), bad), "invalid landmark schema/identity/position rejected");
+            AssertThrows<InvalidDataException>(() => MapLandmarkFile.Write(new MemoryStream(), bad), "invalid landmark schema/identity/position rejected");
         File.WriteAllText(path, "{bad landmarks");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad landmark override cannot fall back");
         AssertEqual("{bad landmarks", File.ReadAllText(path), "bad landmark override preserved for repair");

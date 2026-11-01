@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Progression;
-using static SuperMetroid.Core.Frontend.Map.MapLandmarkDefinitions;
 
 namespace SuperMetroid.Core.Frontend.Map;
 
@@ -53,8 +52,6 @@ public static class MapLandmarks
         internal ElevatorSequence(AreaId area, int count) { this.area = area; this.count = count; }
         /// <summary>Gets the number of elevator label records for the area.</summary>
         public int Count => count;
-        /// <summary>Gets the sequence length for array-style consumers.</summary>
-        public int Length => Count;
         /// <summary>Gets the stable label identity and physical destination for one record.</summary>
         /// <param name="index">Zero-based record index within the source area.</param>
         public MapElevatorLabel this[int index]
@@ -94,16 +91,4 @@ public static class MapLandmarks
         _ => throw new ArgumentOutOfRangeException(nameof(destination))
     };
 
-    /// <summary>Enumerates every published boss, elevator, and gunship landmark identity.</summary>
-    /// <returns>All non-reserved landmark IDs in area and slot order.</returns>
-    public static IEnumerable<string> AllIds()
-    {
-        foreach (AreaId area in Enum.GetValues<AreaId>())
-        {
-            foreach (string? id in Bosses(area)) if (id is not null) yield return id;
-            if (area != AreaId.Ceres)
-                foreach (var label in Elevators(area)) yield return label.Id;
-        }
-        yield return Gunship;
-    }
 }

@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.Pause;
@@ -81,7 +82,6 @@ internal static class PauseMenuFixtureVerification
             SaveMarkers = stock.SaveMarkers,
             Arrows = stock.Arrows,
             WorldArtwork = stock.WorldArtwork,
-            Sprites = MapSpriteArtwork.Read(spriteJson, spritePng),
             PauseSelectors = PauseSelectorSourcePresentation.Load(selectorJson),
             PauseReserveTanks = PauseReserveTankSourcePresentation.Load(reserveJson),
             PauseReserveArrow = stock.PauseReserveArrow,
@@ -125,6 +125,6 @@ internal static class PauseMenuFixtureVerification
             InstalledAreaMapPresentation.EndingTextOf(stock), InstalledAreaMapPresentation.ScreensOf(stock),
             new PauseScreenArtwork(backdrops, InstalledAreaMapPresentation.PauseOf(stock).Wireframes,
                 InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels,
-                InstalledAreaMapPresentation.PauseOf(stock).ReserveUi)));
+                InstalledAreaMapPresentation.PauseOf(stock).ReserveUi), MapSpriteArtwork.Read(spriteJson, spritePng)));
     }
 }

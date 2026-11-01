@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;

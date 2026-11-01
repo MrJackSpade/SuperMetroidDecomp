@@ -7,6 +7,18 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <summary>Reads and writes the installed map highlight cycle document.</summary>
 public static class MapPaletteCycleFile
 {
+    /// <summary>JSON presentation filename used by pause and file-select map highlight animation.</summary>
+    public const string FileName = "map-highlight-cycle.json";
+
+    /// <summary>Required cycle-document schema revision.</summary>
+    public const int Version = 1;
+
+    /// <summary>Maximum selected frame count, 255, preserving the animation owner's byte-sized frame cursor.</summary>
+    public const int MaximumFrames = 255;
+
+    /// <summary>Maximum authored frame hold, 254 ticks; zero is invalid and a duration of 255 marks stream termination rather than a hold.</summary>
+    public const int MaximumDuration = 254;
+
     /// <summary>Compiles an editable ordered color-and-duration document into an immutable map-highlight cycle.</summary>
     /// <param name="json">Caller-owned readable JSON stream, consumed from its current position without being disposed.</param>
     /// <returns>A cycle owning copied native-precision colors and holds; it contains no playback timer, CGRAM destination, or loop-sound command.</returns>
@@ -17,15 +29,15 @@ public static class MapPaletteCycleFile
     {
         MapPaletteCycleDocument document = JsonAssetDocument.Read<MapPaletteCycleDocument>(
             json, ArtworkJson.Options, "map highlight cycle");
-        if (document.Version != MapPaletteCycleFormat.Version || document.Frames is null ||
-            document.Frames.Length is < 1 or > MapPaletteCycleFormat.MaximumFrames)
+        if (document.Version != MapPaletteCycleFile.Version || document.Frames is null ||
+            document.Frames.Length is < 1 or > MapPaletteCycleFile.MaximumFrames)
             throw new InvalidDataException("Map highlight cycle requires version 1 and 1-255 frames.");
         var durations = new byte[document.Frames.Length];
         var colors = new RgbColor[document.Frames.Length][];
         for (int frame = 0; frame < durations.Length; frame++)
         {
             var entry = document.Frames[frame];
-            if (entry is null || entry.DurationTicks is < 1 or > MapPaletteCycleFormat.MaximumDuration ||
+            if (entry is null || entry.DurationTicks is < 1 or > MapPaletteCycleFile.MaximumDuration ||
                 entry.Colors is null || entry.Colors.Length != MapPaletteCycleFormat.ColorCount)
                 throw new InvalidDataException($"Map highlight frame {frame} requires 1-254 ticks and sixteen colors.");
             durations[frame] = (byte)entry.DurationTicks;

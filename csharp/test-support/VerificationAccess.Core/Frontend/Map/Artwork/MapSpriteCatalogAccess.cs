@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;

@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
@@ -607,7 +608,7 @@ internal static class LookupStream5Verification
     internal static void VerifyLookupStream5MapLandmarkCases(SuperMetroidAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Map.MapLandmarkExtractor.Extract(rom);
-        MapLandmarkPositions layout = MapLandmarkPositions.Load(new MemoryStream(extracted));
+        MapLandmarkPositions layout = MapLandmarkFile.Read(new MemoryStream(extracted));
         var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(rom);
         MapSpriteCompositions sprites = MapSpriteArtwork.Read(new MemoryStream(artwork[MapSpriteFormat.JsonFile]), new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         int Read(int pointer) => ReadVerificationWord(rom, MapSourceDefinitions.Menu.ObjectBank | pointer);
@@ -616,12 +617,12 @@ internal static class LookupStream5Verification
             "Boss.Kraid", "Brinstar.Elevator.0", "Brinstar.Elevator.1", "Brinstar.Elevator.2", "Brinstar.Elevator.3", "Brinstar.Elevator.4",
             "Boss.Ridley", "Norfair.Elevator.0", "Boss.Phantoon", "WreckedShip.Elevator.0", "WreckedShip.Elevator.1",
             "Boss.Draygon", "Maridia.Elevator.0", "Maridia.Elevator.1", "Maridia.Elevator.2", "Tourian.Elevator.0", "Boss.CeresRidley", "Crateria.Gunship"];
-        AssertTrue(expectedIds.SequenceEqual(MapLandmarks.AllIds()), "Original public identity and manifest order");
+        AssertTrue(expectedIds.SequenceEqual(MapLandmarkFile.Ids()), "Original public identity and manifest order");
         using var editedBytes = new MemoryStream();
-        MapLandmarkPositions.Write(editedBytes, new MapLandmarkDocument { Version = MapLandmarkFormat.Version,
+        MapLandmarkFile.Write(editedBytes, new MapLandmarkDocument { Version = MapLandmarkFormat.Version,
             Markers = expectedIds.ToDictionary(id => id, id => layout.Get(id) with { X = (ushort)(layout.Get(id).X + 1), Y = (ushort)(layout.Get(id).Y + 1) }) });
         editedBytes.Position = 0;
-        MapLandmarkPositions editedLayout = MapLandmarkPositions.Load(editedBytes);
+        MapLandmarkPositions editedLayout = MapLandmarkFile.Read(editedBytes);
         int bossSlots = 0, elevatorSlots = 0;
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {

@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Progression;
 
@@ -39,20 +39,20 @@ public static class MapLandmarkExtractor
             if (area == AreaId.Ceres) continue;
             int elevator = Pointer(SnesAddress.FromBusAddress(MapSourceDefinitions.Landmarks.ElevatorLists), area);
             var elevators = MapLandmarks.Elevators(area);
-            for (int i = 0; i < elevators.Length; i++)
+            for (int i = 0; i < elevators.Count; i++)
             {
                 var label = elevators[i];
                 if (Read(elevator + i * 6 + 4) != MapSpriteOrdinals.Spritemaps.Word(MapLandmarks.ElevatorSpritemap(label.Destination)))
                     throw new InvalidDataException($"Elevator label destination differs from cartridge: {label.Id}.");
                 points.Add(label.Id, new(Read(elevator + i * 6), Read(elevator + i * 6 + 2)));
             }
-            if (Read(elevator + elevators.Length * 6) != ushort.MaxValue)
+            if (Read(elevator + elevators.Count * 6) != ushort.MaxValue)
                 throw new InvalidDataException($"Unexpected {area} elevator labels.");
         }
         int ship = Pointer(FrontendSourceDefinitions.SavePointMapPointers, AreaId.Crateria);
         points.Add(MapLandmarkDefinitions.Gunship, new(Read(ship), Read(ship + 2)));
         using var stream = new MemoryStream();
-        MapLandmarkPositions.Write(stream, new() { Version = MapLandmarkFormat.Version, Markers = points });
+        MapLandmarkFile.Write(stream, new() { Version = MapLandmarkFormat.Version, Markers = points });
         return stream.ToArray();
 
         ushort Pointer(SnesAddress table, AreaId area) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table.AddWithinBank(AreaIds.ToIndex(area) * 2));

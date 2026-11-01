@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Video;

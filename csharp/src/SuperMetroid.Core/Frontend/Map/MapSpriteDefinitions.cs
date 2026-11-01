@@ -5,40 +5,6 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// <summary>Presentation keys for the <see cref="MapSpriteId"/> map compositions.</summary>
 public static class MapSpriteDefinitions
 {
-    /// <summary>Required named compositions in the map-sprite presentation document, one per <see cref="MapSpriteId"/>.</summary>
-    public const int Count = 26;
-
-    /// <summary>The named roles in the established presentation-document order.</summary>
-    internal static readonly MapSpriteId[] FrameOrder =
-    [
-        MapSpriteId.ArrowRight,
-        MapSpriteId.ArrowLeft,
-        MapSpriteId.ArrowUp,
-        MapSpriteId.ArrowDown,
-        MapSpriteId.MarkerBoss,
-        MapSpriteId.StationEnergy,
-        MapSpriteId.StationMissile,
-        MapSpriteId.StationMap,
-        MapSpriteId.MarkerDefeatedBoss,
-        MapSpriteId.MarkerGunship,
-        MapSpriteId.IndicatorBacking,
-        MapSpriteId.IndicatorFrame0,
-        MapSpriteId.IndicatorFrame1,
-        MapSpriteId.IndicatorFrame2,
-        MapSpriteId.ElevatorCrateria,
-        MapSpriteId.ElevatorBrinstar,
-        MapSpriteId.ElevatorNorfair,
-        MapSpriteId.ElevatorWreckedShip,
-        MapSpriteId.ElevatorMaridia,
-        MapSpriteId.WorldTitle,
-        MapSpriteId.WorldCrateria,
-        MapSpriteId.WorldBrinstar,
-        MapSpriteId.WorldNorfair,
-        MapSpriteId.WorldWreckedShip,
-        MapSpriteId.WorldMaridia,
-        MapSpriteId.WorldTourian,
-    ];
-
     /// <summary>Selects the world-map label naming each key.</summary>
     internal static readonly IReadOnlyDictionary<AreaId, MapSpriteId> WorldLabels =
         new Dictionary<AreaId, MapSpriteId>

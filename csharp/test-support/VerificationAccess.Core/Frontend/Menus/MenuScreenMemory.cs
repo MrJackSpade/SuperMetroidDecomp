@@ -23,7 +23,7 @@ internal static class MenuScreenMemory
         // The menu's map characters and sprite page are installed artwork, the same for every menu screen (#1463, #1466).
         MapCharacterArtwork.Of(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps).Map
             .LoadTo(new VramRegion(image, MenuVramLayout.MapCharacters));
-        SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.Sprites
+        InstalledAreaMapPresentation.SpritesOf(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps)
             .LoadArtworkTo(new VramRegion(image, MenuVramLayout.ObjectCharacters));
         return image.CaptureImage();
     }

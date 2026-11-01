@@ -1,8 +1,8 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.ResourceAudit.Resources;

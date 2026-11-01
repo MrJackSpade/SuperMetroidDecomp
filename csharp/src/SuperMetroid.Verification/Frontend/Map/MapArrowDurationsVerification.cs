@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -19,7 +20,7 @@ internal static class MapArrowDurationsVerification
         byte[] bytes = MapArrowExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<MapArrowDocument>(bytes,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        var stock = MapArrowPresentation.Load(new MemoryStream(bytes));
+        var stock = MapArrowFile.Read(new MemoryStream(bytes));
         for (int index = 0; index < 4; index++)
         {
             int animation = ReadVerificationWord(rom, 0x81af36 + 10 * index);
@@ -67,8 +68,8 @@ internal static class MapArrowDurationsVerification
         MapArrowPresentation Load(Dictionary<string, MapArrowEntry> entries)
         {
             using var json = new MemoryStream();
-            MapArrowPresentation.Write(json, document with { Arrows = entries }); json.Position = 0;
-            return MapArrowPresentation.Load(json);
+            MapArrowFile.Write(json, document with { Arrows = entries }); json.Position = 0;
+            return MapArrowFile.Read(json);
         }
     }
 

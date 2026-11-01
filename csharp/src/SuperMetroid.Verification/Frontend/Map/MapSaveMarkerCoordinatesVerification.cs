@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -31,7 +32,7 @@ internal static class MapSaveMarkerCoordinatesVerification
         var original = new MapSaveMarkerDocument { Version = 1, Markers = points };
         byte[] extracted = MapSaveMarkerExtractor.Extract(rom);
         using var serialized = new MemoryStream();
-        MapSaveMarkerPositions.Write(serialized, original);
+        MapSaveMarkerFile.Write(serialized, original);
         AssertTrue(extracted.SequenceEqual(serialized.ToArray()), "original marker JSON names, order and values preserved");
         Suite(nameof(VerifyMapSaveMarkerX), () => VerifyMapSaveMarkerX(original, extracted));
         Suite(nameof(VerifyMapSaveMarkerY), () => VerifyMapSaveMarkerY(original, extracted));
@@ -47,7 +48,7 @@ internal static class MapSaveMarkerCoordinatesVerification
     /// <summary>Round trips single-axis and full-corpus edits while rejecting out-of-range positions.</summary>
     private static void VerifyMapSaveMarkerCoordinateField(MapSaveMarkerDocument original, byte[] extracted, bool vertical)
     {
-        MapSaveMarkerPositions stock = MapSaveMarkerPositions.Load(new MemoryStream(extracted, writable: false));
+        MapSaveMarkerPositions stock = MapSaveMarkerFile.Read(new MemoryStream(extracted, writable: false));
         AssertEqual(0, stock.StoredCoordinateComponentCount, "stock marker coordinates are calculated, not cached");
         Check(original, stock);
         foreach (string id in original.Markers.Keys)
@@ -99,9 +100,9 @@ internal static class MapSaveMarkerCoordinatesVerification
         static MapSaveMarkerPositions RoundTrip(MapSaveMarkerDocument document)
         {
             using var stream = new MemoryStream();
-            MapSaveMarkerPositions.Write(stream, document);
+            MapSaveMarkerFile.Write(stream, document);
             stream.Position = 0;
-            return MapSaveMarkerPositions.Load(stream);
+            return MapSaveMarkerFile.Read(stream);
         }
     }
 }

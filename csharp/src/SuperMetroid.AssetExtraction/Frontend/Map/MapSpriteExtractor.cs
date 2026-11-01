@@ -1,8 +1,8 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using System.Text.Json;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -25,7 +25,7 @@ public static class MapSpriteExtractor
         if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.LabelSpritemaps) != MapSpriteOrdinals.Spritemaps.Word(MapSpriteId.WorldTitle))
             throw new InvalidDataException("Unexpected native world-title sprite binding.");
         var frames = new Dictionary<string, SpriteVisualPart[]>();
-        foreach (var definition in MapSpriteNames.Frames)
+        foreach (var definition in MapSpriteArtwork.FrameNames)
             frames.Add(definition.Name, MenuSpriteExtractor.Read(bus, MapSpriteOrdinals.Spritemaps.Word(definition.Id)));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount),
             4, MapSpriteFormat.TileColumns, out Extent16<ImagePixels> size);

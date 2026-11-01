@@ -22,7 +22,7 @@ internal static class MenuVramLayout
 
     /// <summary>VMADD $6000-$6FFF (byte $C000): the map-object OBJ characters uploaded from <c>$B6:C000</c>.</summary>
     public static readonly PpuLayoutCell ObjectCharacters = new(nameof(ObjectCharacters), PpuLayoutRegion.Vram,
-        MapSpriteByteAddress / sizeof(ushort), SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteFormat.ByteCount / sizeof(ushort),
+        MapSpriteByteAddress / sizeof(ushort), SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSpriteFormat.ByteCount / sizeof(ushort),
         "4-bpp OBJ characters (map objects)", PpuMemoryLayout.Vram);
 
     /// <summary>File-select OBSEL=$03 places the shared menu OBJ characters at VRAM byte $C000.</summary>

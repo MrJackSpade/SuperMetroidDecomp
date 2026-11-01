@@ -16,6 +16,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
@@ -137,54 +138,42 @@ internal static class EscapeGateVisualsVerification
     /// <summary>Checks extraction, override reload after stock refresh, and tampered stock rejection.</summary>
     private static void VerifyEscapeGateVisualInstallation(SuperMetroidAddressSpace rom)
     {
-        using var testRootScratch = new TestScratchDirectory("escape-gate-visual");
-        string testRoot = testRootScratch.Root;
-        try
-        {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmEscapeGateVisualFiles.Extract(rom,
-                installation.RoomPlmEscapeGateVisualDirectory,
-                SupportedCartridge.Sha256);
-            RoomPlmEscapeGateVisualFiles.ValidateStock(
-                installation.RoomPlmEscapeGateVisualDirectory);
-            VerifyEscapeGateStockMapping(rom, installation.LoadRoomPlmEscapeGateVisuals());
-            string stockPath = Path.Combine(
-                installation.RoomPlmEscapeGateVisualDirectory,
-                RoomPlmEscapeGateVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted escape-gate JSON is empty.");
-            JsonNode closed = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "closed");
-            closed.Required("blocks")[0] = InstalledAppearanceJson.Cell(0x53);
-            Directory.CreateDirectory(
-                installation.RoomPlmEscapeGateVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmEscapeGateVisualOverrideDirectory,
-                RoomPlmEscapeGateVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual(RoomBlockAppearance.Of(0x53),
-                installation.LoadRoomPlmEscapeGateVisuals().GetAppearance(
-                    PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
-                "installed escape-gate override changes selected frame");
+        // A private installation copy, whose override is written and whose stock file is tampered below.
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        GameInstallation installation = copy.Installation;
+        RoomPlmEscapeGateVisualFiles.ValidateStock(
+            installation.RoomPlmEscapeGateVisualDirectory);
+        VerifyEscapeGateStockMapping(rom, installation.LoadRoomPlmEscapeGateVisuals());
+        string stockPath = Path.Combine(
+            installation.RoomPlmEscapeGateVisualDirectory,
+            RoomPlmEscapeGateVisualFiles.VisualFileName);
+        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
+            ?? throw new InvalidDataException("Extracted escape-gate JSON is empty.");
+        JsonNode closed = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+            entry.Required("id").GetValue<string>() == "closed");
+        closed.Required("blocks")[0] = InstalledAppearanceJson.Cell(0x53);
+        Directory.CreateDirectory(
+            installation.RoomPlmEscapeGateVisualOverrideDirectory);
+        string overridePath = Path.Combine(
+            installation.RoomPlmEscapeGateVisualOverrideDirectory,
+            RoomPlmEscapeGateVisualFiles.VisualFileName);
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertEqual(RoomBlockAppearance.Of(0x53),
+            installation.LoadRoomPlmEscapeGateVisuals().GetAppearance(
+                PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
+            "installed escape-gate override changes selected frame");
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmEscapeGateVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
-            AssertEqual(RoomBlockAppearance.Of(0x53),
-                RoomPlmEscapeGateVisualFiles.Load(refreshed,
-                    installation.RoomPlmEscapeGateVisualOverrideDirectory).GetAppearance(
-                    PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
-                "escape-gate override survives stock replacement");
-            File.WriteAllText(stockPath, "{}");
-            AssertThrows<InvalidDataException>(
-                () => RoomPlmEscapeGateVisualFiles.ValidateStock(
-                    installation.RoomPlmEscapeGateVisualDirectory),
-                "tampered escape-gate stock fails manifest validation");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
-        }
+        // The shared installation's stock directory stands for a stock directory the installer replaced.
+        string refreshed = RepositoryInstallation.Installation.RoomPlmEscapeGateVisualDirectory;
+        AssertEqual(RoomBlockAppearance.Of(0x53),
+            RoomPlmEscapeGateVisualFiles.Load(refreshed,
+                installation.RoomPlmEscapeGateVisualOverrideDirectory).GetAppearance(
+                PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
+            "escape-gate override survives stock replacement");
+        File.WriteAllText(stockPath, "{}");
+        AssertThrows<InvalidDataException>(
+            () => RoomPlmEscapeGateVisualFiles.ValidateStock(
+                installation.RoomPlmEscapeGateVisualDirectory),
+            "tampered escape-gate stock fails manifest validation");
     }
 }

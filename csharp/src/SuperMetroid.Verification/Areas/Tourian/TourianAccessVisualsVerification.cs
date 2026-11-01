@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
@@ -30,14 +31,10 @@ internal static class TourianAccessVisualsVerification
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tourian stock native oracle revision");
-        using var testRootScratch = new TestScratchDirectory("tourian-access-visual");
-        string testRoot = testRootScratch.Root;
-        try
+        // A private installation copy, whose override is written and whose stock file is tampered below.
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
         {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmTourianAccessVisualFiles.Extract(rom,
-                installation.RoomPlmTourianAccessVisualDirectory,
-                SupportedCartridge.Sha256);
+            GameInstallation installation = copy.Installation;
             RoomPlmTourianAccessVisualFiles.ValidateStock(
                 installation.RoomPlmTourianAccessVisualDirectory);
             VerifyTourianAccessStockMapping(rom, installation.LoadRoomPlmTourianAccessVisuals());
@@ -72,9 +69,8 @@ internal static class TourianAccessVisualsVerification
             VerifyTourianAccessVisualSeparation(rom, edited, clear: false);
             VerifyTourianAccessVisualSeparation(rom, edited, clear: true);
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmTourianAccessVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
+            // The shared installation's stock directory stands for a stock directory the installer replaced.
+            string refreshed = RepositoryInstallation.Installation.RoomPlmTourianAccessVisualDirectory;
             AssertEqual(RoomBlockAppearance.Of(0x058),
                 RoomPlmTourianAccessVisualFiles.Load(refreshed,
                     installation.RoomPlmTourianAccessVisualOverrideDirectory)
@@ -91,11 +87,6 @@ internal static class TourianAccessVisualsVerification
                 () => RoomPlmTourianAccessVisualFiles.ValidateStock(
                     installation.RoomPlmTourianAccessVisualDirectory),
                 "tampered Tourian stock fails manifest validation");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
         }
         Console.WriteLine(
             "Tourian access visuals: five native layouts, live crumble/clear edits, physical isolation, stock repair and strict failures pass.");

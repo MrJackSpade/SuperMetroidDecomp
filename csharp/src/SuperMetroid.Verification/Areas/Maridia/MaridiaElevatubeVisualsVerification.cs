@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Maridia;
 using SuperMetroid.Verification.Harness;
@@ -26,14 +27,10 @@ internal static class MaridiaElevatubeVisualsVerification
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Elevatube stock oracle revision");
-        using var testRootScratch = new TestScratchDirectory("maridia-elevatube-visual");
-        string testRoot = testRootScratch.Root;
-        try
+        // A private installation copy, whose override is written and whose stock file is tampered below.
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
         {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmMaridiaElevatubeVisualFiles.Extract(rom,
-                installation.RoomPlmMaridiaElevatubeVisualDirectory,
-                SupportedCartridge.Sha256);
+            GameInstallation installation = copy.Installation;
             RoomPlmMaridiaElevatubeVisualFiles.ValidateStock(
                 installation.RoomPlmMaridiaElevatubeVisualDirectory);
             VerifyElevatubeStockMapping(rom, installation.LoadRoomPlmMaridiaElevatubeVisuals());
@@ -87,9 +84,8 @@ internal static class MaridiaElevatubeVisualsVerification
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 "edited elevatube reads no compiled source bytes");
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmMaridiaElevatubeVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
+            // The shared installation's stock directory stands for a stock directory the installer replaced.
+            string refreshed = RepositoryInstallation.Installation.RoomPlmMaridiaElevatubeVisualDirectory;
             AssertEqual(RoomBlockAppearance.Of(0x058),
                 RoomPlmMaridiaElevatubeVisualFiles.Load(refreshed,
                     installation.RoomPlmMaridiaElevatubeVisualOverrideDirectory)
@@ -105,11 +101,6 @@ internal static class MaridiaElevatubeVisualsVerification
                 () => RoomPlmMaridiaElevatubeVisualFiles.ValidateStock(
                     installation.RoomPlmMaridiaElevatubeVisualDirectory),
                 "tampered elevatube stock fails manifest validation");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
         }
         Console.WriteLine(
             "Maridia elevatube visuals: native tile, live edit, physical/sound isolation, stock repair and strict failures pass.");

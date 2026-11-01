@@ -27,10 +27,20 @@ public static class PowerBombFixedColorFile
         document = JsonAssetDocument.Read<PowerBombFixedColorDocument>(json, ArtworkJson.Options, "Power Bomb fixed-color");
         if (document.Version != Version)
             throw new InvalidDataException("Power Bomb fixed colors require the supported version.");
-        return new(Compile(document.PreExplosion,
-                SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount, "pre-explosion"),
-            Compile(document.Explosion,
-                SamusPaletteDefinitions.PowerBomb.ExplosionColorCount, "explosion"));
+        return new(Edits(Compile(document.PreExplosion,
+                SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount, "pre-explosion"), PowerBombFixedColorSequence.PreExplosion),
+            Edits(Compile(document.Explosion,
+                SamusPaletteDefinitions.PowerBomb.ExplosionColorCount, "explosion"), PowerBombFixedColorSequence.Explosion));
+    }
+
+    /// <summary>Keeps the entries that differ from the calculated stock sequence, and every entry stock does not calculate.</summary>
+    private static Dictionary<ColourCell, RgbColor> Edits(RgbColor[] supplied, PowerBombFixedColorSequence sequence)
+    {
+        var colors = new Dictionary<ColourCell, RgbColor>();
+        for (int index = 0; index < supplied.Length; index++)
+            if (!PowerBombFixedColorFormat.TryCalculateStock(sequence, index, out var calculated) || supplied[index] != calculated)
+                colors.Add(new ColourCell(0, index), supplied[index]);
+        return colors;
     }
 
     /// <summary>Serializes the editable sequences to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Read"/>.</summary>

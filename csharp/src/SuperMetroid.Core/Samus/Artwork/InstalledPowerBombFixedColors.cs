@@ -11,22 +11,12 @@ public sealed class InstalledPowerBombFixedColors
     internal readonly Dictionary<ColourCell, RgbColor> explosion;
 
     /// <summary>Retains the selected colours that differ from the calculated stock, separately for the two radius-selected sequences.</summary>
-    /// <param name="preExplosion">The selected pre-explosion colours.</param>
-    /// <param name="explosion">The selected explosion colours.</param>
-    internal InstalledPowerBombFixedColors(RgbColor[] preExplosion, RgbColor[] explosion)
+    /// <param name="preExplosion">The pre-explosion colours the import found differing from, or missing in, the calculated stock.</param>
+    /// <param name="explosion">The explosion colours the import found differing from, or missing in, the calculated stock.</param>
+    internal InstalledPowerBombFixedColors(Dictionary<ColourCell, RgbColor> preExplosion, Dictionary<ColourCell, RgbColor> explosion)
     {
-        this.preExplosion = Edits(preExplosion, PowerBombFixedColorSequence.PreExplosion);
-        this.explosion = Edits(explosion, PowerBombFixedColorSequence.Explosion);
-    }
-
-    /// <summary>Keeps the entries that differ from the calculated stock sequence, and every entry stock does not calculate.</summary>
-    private static Dictionary<ColourCell, RgbColor> Edits(RgbColor[] supplied, PowerBombFixedColorSequence sequence)
-    {
-        var colors = new Dictionary<ColourCell, RgbColor>();
-        for (int index = 0; index < supplied.Length; index++)
-            if (!PowerBombFixedColorFormat.TryCalculateStock(sequence, index, out var calculated) || supplied[index] != calculated)
-                colors.Add(new ColourCell(0, index), supplied[index]);
-        return colors;
+        this.preExplosion = preExplosion;
+        this.explosion = explosion;
     }
 
     /// <summary>Returns authored display color; phase and radius indexing remain engine-owned.</summary>

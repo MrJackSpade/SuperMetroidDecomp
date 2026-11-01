@@ -24,8 +24,18 @@ public static class SamusSuitColorFile
         document = JsonAssetDocument.Read<SamusSuitColorDocument>(json, ArtworkJson.Options, "Samus suit color");
         if (document.Version != Version)
             throw new InvalidDataException("Samus suit colors require the supported version.");
-        return new(Compile(document.Power, "Power"), Compile(document.Varia, "Varia"),
-            Compile(document.Gravity, "Gravity"));
+        RgbColor[] power = Compile(document.Power, "Power");
+        return new(power, Differences(Compile(document.Varia, "Varia"), power),
+            Differences(Compile(document.Gravity, "Gravity"), power));
+    }
+
+    /// <summary>Finds independently selected suit inks while omitting slots that reuse the Power palette word.</summary>
+    private static Dictionary<ColourCell, RgbColor> Differences(RgbColor[] supplied, RgbColor[] power)
+    {
+        var differences = new Dictionary<ColourCell, RgbColor>();
+        for (int index = 0; index < supplied.Length; index++)
+            if (supplied[index] != power[index]) differences.Add(new ColourCell(0, index), supplied[index]);
+        return differences;
     }
 
     /// <summary>Validates and serializes a suit-color document as UTF-8 JSON.</summary>

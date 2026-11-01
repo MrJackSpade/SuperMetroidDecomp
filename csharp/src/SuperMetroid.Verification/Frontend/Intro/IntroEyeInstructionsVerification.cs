@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -22,7 +21,7 @@ internal static class IntroEyeInstructionsVerification
     /// <summary>Plays both eye programs through the production objects beside a reader of the native lists.</summary>
     internal static void VerifyIntroEyeInstructions(ISnesAddressSpace rom)
     {
-        var narration = IntroNarrationPresentation.Load(
+        var narration = IntroNarrationFile.Read(
             new MemoryStream(IntroNarrationExtractor.Extract(rom), writable: false));
         var objects = new IntroCinematicObjectSystem(new IntroNarrationText(),
             new IntroJapaneseSubtitles(enabled: false), narrationPresentation: narration);

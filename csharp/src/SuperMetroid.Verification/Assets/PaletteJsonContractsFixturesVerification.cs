@@ -8,7 +8,6 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
@@ -64,7 +63,7 @@ internal static class PaletteJsonContractsFixturesVerification
         { Version = CeresFlightPaletteFormat.Version, Colors = PaletteContractColors(SnesCgram.ColorCount) }),
             json => _ = CeresFlightPaletteFile.Read(json));
         yield return new("intro", PaletteContractDocument(new IntroCinematicPaletteDocument
-        { Version = IntroCinematicPaletteFormat.Version, Colors = PaletteContractColors(SnesCgram.ColorCount) }),
+        { Version = IntroCinematicPaletteFile.Version, Colors = PaletteContractColors(SnesCgram.ColorCount) }),
             json => _ = IntroCinematicPaletteFile.Read(json));
         foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
             yield return new($"ending {id}", PaletteContractDocument(new EndingPaletteDocument

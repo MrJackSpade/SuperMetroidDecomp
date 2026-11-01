@@ -8,7 +8,6 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
@@ -223,14 +222,14 @@ public static class MapPresentationExtractor
         hashes.Add(EscapeTypewriterDefinitions.FileName,
             Convert.ToHexString(SHA256.HashData(escapeTypewriterBytes)));
         byte[] introNarrationBytes = IntroNarrationExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, IntroNarrationDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, IntroNarrationFile.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(introNarrationBytes);
-        hashes.Add(IntroNarrationDefinitions.FileName,
+        hashes.Add(IntroNarrationFile.FileName,
             Convert.ToHexString(SHA256.HashData(introNarrationBytes)));
         byte[] introFontBytes = IntroFontAtlasExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, IntroFontAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, IntroFontCharacters.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(introFontBytes);
-        hashes.Add(IntroFontAtlasFormat.FileName,
+        hashes.Add(IntroFontCharacters.FileName,
             Convert.ToHexString(SHA256.HashData(introFontBytes)));
         byte[] endingTextBytes = EndingTextExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, EndingTextDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Intro;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Where the opening cinematic's artwork sits among each of its layers' tile numbers (#1404).</summary>
 internal static class IntroTileSetDefinitions

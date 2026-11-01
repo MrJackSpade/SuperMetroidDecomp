@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Defines all six editable opening-narration pages.</summary>
 public sealed record IntroNarrationDocument

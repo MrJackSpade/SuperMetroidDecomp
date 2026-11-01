@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Defines the ordered lines displayed on one opening-narration page.</summary>
 public sealed record IntroNarrationPage

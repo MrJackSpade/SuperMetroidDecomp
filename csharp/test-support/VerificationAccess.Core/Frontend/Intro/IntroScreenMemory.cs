@@ -24,15 +24,15 @@ internal static class IntroScreenMemory
         ReadOnlySpan<byte> font = IntroFontCharacters.Of(installedFont).Characters.Span;
         var vram = new SnesVram();
         var intro = new IntroVram(vram);
-        intro.BackgroundCharacters.Load(sources.BackgroundCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes]);
+        intro.BackgroundCharacters.Load(sources.BackgroundCharacters.Characters.Span[..IntroArtworkExtentDefinitions.BackgroundCharacterBytes]);
         intro.FontOne.Load(font);
         if (japaneseGlyphsBlanked)
         {
             // BlankOut_JapanText_Tiles writes the same 16-byte 2-bpp character 96 times and DMA copies the $600 bytes
             // to VMADD $4180. BTS[$1E8E-$1E9D] aliases the resident font, so the repeated character is the font's own.
-            ReadOnlySpan<byte> blank = font.Slice(IntroCinematicDefinitions.Text.JapaneseBlankSourceOffset,
+            ReadOnlySpan<byte> blank = font.Slice(IntroArtworkExtentDefinitions.JapaneseBlankSourceOffset,
                 IntroJapaneseBlankGlyph.ByteCount);
-            var blanked = new byte[IntroCinematicDefinitions.Artwork.JapaneseBlankCharactersByteCount];
+            var blanked = new byte[IntroArtworkExtentDefinitions.JapaneseBlankCharactersByteCount];
             for (int offset = 0; offset < blanked.Length; offset += blank.Length)
                 blank.CopyTo(blanked.AsSpan(offset));
             intro.JapaneseBlankCharacters.Load(blanked);
@@ -65,7 +65,7 @@ internal static class IntroScreenMemory
         var tiles = new BackgroundTile[IntroCinematicDefinitionsPlanesConstants.TextTilemapWordCount];
         if (text.FirstCardShown)
         {
-            IntroCinematicSourceArtwork.Of(artwork).InitialNarrationTilemap.Span[..IntroCinematicDefinitions.Artwork.NarrationTilemapCells].CopyTo(tiles);
+            IntroCinematicSourceArtwork.Of(artwork).InitialNarrationTilemap.Span[..IntroArtworkExtentDefinitions.NarrationTilemapCells].CopyTo(tiles);
             return tiles;
         }
         Array.Fill(tiles, IntroNarrationTilemapConstants.Blank);
@@ -74,7 +74,7 @@ internal static class IntroScreenMemory
             tiles[index] = IntroFinalLineTilemapFormat.MarginTile;
             tiles[index + IntroNarrationTilemapConstants.JapaneseBlankBottomDelta] = IntroFinalLineTilemapFormat.MarginTile;
         }
-        IntroCinematicSourceArtwork.Of(artwork).FinalLine.Tiles.Span[..IntroCinematicDefinitions.Text.FinalLineWordCount].CopyTo(tiles.AsSpan(IntroCinematicDefinitions.Text.FinalLineFirstCell));
+        IntroCinematicSourceArtwork.Of(artwork).FinalLine.Tiles.Span[..IntroArtworkExtentDefinitions.FinalLineWordCount].CopyTo(tiles.AsSpan(IntroCinematicDefinitions.Text.FinalLineFirstCell));
         tiles[IntroNarrationTilemapConstants.FinalBlankLeftIndex] = IntroNarrationTilemapConstants.FinalBlank;
         tiles[IntroNarrationTilemapConstants.FinalBlankRightIndex] = IntroNarrationTilemapConstants.FinalBlank;
         for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)
@@ -101,7 +101,7 @@ internal static class IntroScreenMemory
             return portrait;
         ReadOnlySpan<BackgroundTile> rectangle = sources.EyeFrames.FrameTiles((int)frame);
         Position16<TilemapCells> corner = IntroEyeAnimationDefinitions.PortraitCell;
-        Extent16<TilemapCells> size = IntroEyeAnimationDefinitions.FrameSize;
+        Extent16<TilemapCells> size = IntroArtworkExtentDefinitions.EyeFrameSize;
         for (int cell = 0; cell < rectangle.Length; cell++)
             portrait[(corner.Y + cell / size.X) * IntroCinematicDefinitions.Planes.Width + corner.X + cell % size.X] = rectangle[cell];
         return portrait;

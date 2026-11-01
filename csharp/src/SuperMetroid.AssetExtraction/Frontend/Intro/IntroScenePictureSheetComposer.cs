@@ -17,6 +17,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// </summary>
 internal static class IntroScenePictureSheetComposer
 {
+    /// <summary>The name of every picture the sheet holds.</summary>
+    internal static IEnumerable<string> FrameNames =>
+        [.. Enum.GetValues<IntroScenePage>().Select(IntroScenePictures.Page), IntroScenePictures.Portrait, .. Enum.GetValues<IntroEyeFrame>().Select(IntroScenePictures.Eye)];
+
     /// <summary>Pixels along each side of a character.</summary>
     private const int CharacterPixels = RoomTileCanvas.CharacterPixels;
 
@@ -24,13 +28,13 @@ internal static class IntroScenePictureSheetComposer
     internal static ComposedSpriteSheet Compose(IntroCinematicArtwork intro)
     {
         Ensure.NotNull(intro);
-        byte[] characters = IntroCinematicSourceArtwork.Of(intro).BackgroundCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes].ToArray();
+        byte[] characters = IntroCinematicSourceArtwork.Of(intro).BackgroundCharacters.Characters.Span[..IntroArtworkExtentDefinitions.BackgroundCharacterBytes].ToArray();
         RgbColor[] colours = ScreenColourImage.Encode(intro.Palette.Colours)[..SpriteImage.SpriteColourCount].ToArray();
         int cells = IntroScenePictures.PlaneCells;
         int planeCells = cells * cells;
         IntroScenePage[] pages = Enum.GetValues<IntroScenePage>();
         IntroEyeFrame[] eyes = Enum.GetValues<IntroEyeFrame>();
-        Extent16<TilemapCells> eye = IntroEyeAnimationDefinitions.FrameSize;
+        Extent16<TilemapCells> eye = IntroArtworkExtentDefinitions.EyeFrameSize;
         int width = Math.Max(cells, eyes.Length * eye.X) * CharacterPixels;
         int height = ((pages.Length + 1) * cells + eye.Y) * CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)height)));

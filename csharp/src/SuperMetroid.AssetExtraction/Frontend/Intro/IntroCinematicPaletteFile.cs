@@ -10,6 +10,12 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// <summary>Reads and writes the installed opening palette document.</summary>
 public static class IntroCinematicPaletteFile
 {
+    /// <summary>Supported revision of the complete 256-color RGB5 opening-palette schema.</summary>
+    public const int Version = 1;
+
+    /// <summary>Editable JSON filename for the opening narration's complete full-precision palette.</summary>
+    public const string FileName = "intro-narration-palette.json";
+
     /// <summary>Validates 256 ordered RGB5 colors and compiles their little-endian BGR555 image, calculating stock/shared shade relationships only when supplied colors match them.</summary>
     /// <param name="json">Caller-owned stream containing the supported editable opening-palette document.</param>
     /// <returns>The installed palette used for opening setup and subsequent cinematic fade targets, without changing fade scheduling.</returns>
@@ -18,7 +24,7 @@ public static class IntroCinematicPaletteFile
     {
         IntroCinematicPaletteDocument document = JsonAssetDocument.Read<IntroCinematicPaletteDocument>(
             json, ArtworkJson.Options, "opening palette");
-        if (document.Version != IntroCinematicPaletteFormat.Version ||
+        if (document.Version != IntroCinematicPaletteFile.Version ||
             document.Colors is not { Length: ScreenColourImage.ColorCount })
             throw new InvalidDataException("Opening palette requires 256 RGB5 colors.");
 

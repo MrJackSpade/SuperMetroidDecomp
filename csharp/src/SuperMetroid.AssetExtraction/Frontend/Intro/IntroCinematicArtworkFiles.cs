@@ -150,14 +150,14 @@ public static class IntroCinematicArtworkFiles
             using var json = new MemoryStream();
             IntroCinematicPaletteFile.Write(json, new IntroCinematicPaletteDocument
             {
-                Version = IntroCinematicPaletteFormat.Version,
+                Version = IntroCinematicPaletteFile.Version,
                 Colors = colors,
             });
             byte[] encoded = json.ToArray();
             if (!ScreenColourImage.Words(IntroCinematicPaletteFile.Read(new MemoryStream(encoded, writable: false))
                 .Colours).SequenceEqual(native))
                 throw new InvalidDataException("Opening palette JSON did not round-trip cartridge colors.");
-            string name = IntroCinematicPaletteFormat.FileName;
+            string name = IntroCinematicPaletteFile.FileName;
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
@@ -484,7 +484,7 @@ public static class IntroCinematicArtworkFiles
 
         IntroCinematicPalette LoadPalette()
         {
-            (string path, byte[] selected) = ReadSelected(IntroCinematicPaletteFormat.FileName);
+            (string path, byte[] selected) = ReadSelected(IntroCinematicPaletteFile.FileName);
             try
             {
                 return IntroCinematicPaletteFile.Read(new MemoryStream(selected, writable: false));
@@ -719,7 +719,7 @@ public static class IntroCinematicArtworkFiles
         IntroScientistSpriteFormat.FileName,
         .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
             .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
-        IntroCinematicPaletteFormat.FileName,
+        IntroCinematicPaletteFile.FileName,
         CeresFlightArtworkFormat.FloorFileName,
         CeresFlightArtworkFormat.MapFileName,
         CeresFlightArtworkFormat.ObjectFileName,

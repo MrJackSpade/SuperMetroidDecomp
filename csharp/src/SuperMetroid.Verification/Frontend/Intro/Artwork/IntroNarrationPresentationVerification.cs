@@ -26,7 +26,7 @@ internal static class IntroNarrationPresentationVerification
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Intro.IntroNarrationExtractor.Extract(nativeBus);
-        IntroNarrationPresentation presentation = IntroNarrationPresentation.Load(
+        IntroNarrationPresentation presentation = IntroNarrationFile.Read(
             new MemoryStream(extracted, writable: false));
         ISnesAddressSpace installedBus = NewIntroNarrationGuard(nativeBus);
 
@@ -72,7 +72,7 @@ internal static class IntroNarrationPresentationVerification
             "TEST";
         byte[] editedBytes = Encoding.UTF8.GetBytes(
             editedDocument.ToJsonString(ArtworkJson.Options));
-        IntroNarrationPresentation edited = IntroNarrationPresentation.Load(
+        IntroNarrationPresentation edited = IntroNarrationFile.Read(
             new MemoryStream(editedBytes, writable: false));
         var editedText = PagesText();
         var editedState = new IntroCinematicObjectSystem(
@@ -116,13 +116,13 @@ internal static class IntroNarrationPresentationVerification
             "lowercase";
         byte[] malformed = Encoding.UTF8.GetBytes(
             editedDocument.ToJsonString(ArtworkJson.Options));
-        AssertThrows<InvalidDataException>(() => IntroNarrationPresentation.Load(
+        AssertThrows<InvalidDataException>(() => IntroNarrationFile.Read(
             new MemoryStream(malformed, writable: false)),
             "opening narration rejects glyphs absent from the documented font mapping");
 
         IndexedPngImage editableFont = IndexedPng.Read(
             new MemoryStream(fontPng, writable: false),
-            new(IntroFontAtlasFormat.Width, IntroFontAtlasFormat.Height));
+            new(IntroFontCharacters.Width, IntroFontCharacters.Height));
         editableFont.Pixels[0] ^= 1;
         using var editedFontPng = new MemoryStream();
         IndexedPng.Write(editedFontPng, new(editableFont.Size.X, editableFont.Size.Y),
@@ -201,7 +201,7 @@ internal static class IntroNarrationPresentationVerification
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Intro.IntroNarrationExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
-            Path.Combine(stockDirectory, IntroNarrationDefinitions.FileName))),
+            Path.Combine(stockDirectory, IntroNarrationFile.FileName))),
             "installed opening narration is the deterministic cartridge extraction");
 
         Directory.CreateDirectory(overrideDirectory);
@@ -209,7 +209,7 @@ internal static class IntroNarrationPresentationVerification
         document.Required("pages").Required(IntroNarrationPageId.Page1.ToString()).Required("lines").Required(0)["text"] =
             "TEST";
         string replacement = Path.Combine(
-            overrideDirectory, IntroNarrationDefinitions.FileName);
+            overrideDirectory, IntroNarrationFile.FileName);
         File.WriteAllText(replacement,
             document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentation edited = MapPresentationFiles.Load(
@@ -236,14 +236,14 @@ internal static class IntroNarrationPresentationVerification
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
-            Path.Combine(stockDirectory, IntroFontAtlasFormat.FileName))),
+            Path.Combine(stockDirectory, IntroFontCharacters.FileName))),
             "installed opening font is the deterministic cartridge extraction");
         IndexedPngImage image = IndexedPng.Read(
             new MemoryStream(deterministic, writable: false),
-            new(IntroFontAtlasFormat.Width, IntroFontAtlasFormat.Height));
+            new(IntroFontCharacters.Width, IntroFontCharacters.Height));
         image.Pixels[0] ^= 1;
         Directory.CreateDirectory(overrideDirectory);
-        string replacement = Path.Combine(overrideDirectory, IntroFontAtlasFormat.FileName);
+        string replacement = Path.Combine(overrideDirectory, IntroFontCharacters.FileName);
         using (var output = File.Create(replacement))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         AreaMapPresentation edited = MapPresentationFiles.Load(

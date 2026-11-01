@@ -13,7 +13,7 @@ internal static class TextAndMapClosedContractDefinitions
         new("SuperMetroid.Core.Frontend.Intro.Artwork.IntroNarrationPresentation", "narration-complete-compiled-pages", ["GetLines", "Compile"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroNarrationPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroNarrationDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroNarrationGlyphs.cs")]),
+             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Intro/Artwork/IntroNarrationGlyphs.cs")]),
         new("SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextPresentation", "ending-text-complete-panels-and-sequences", ["BuildResultPanel", "BuildCopyrightPanel"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingTextLayoutDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingTextPanels.cs"),

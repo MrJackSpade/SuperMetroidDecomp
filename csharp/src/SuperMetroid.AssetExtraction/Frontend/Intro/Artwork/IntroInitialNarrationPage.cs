@@ -1,5 +1,4 @@
 using static SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroInitialNarrationTilemapDefinitions;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
@@ -29,7 +28,7 @@ internal static class IntroInitialNarrationPage
                     else
                     {
                         int ordinal = letter - 'A';
-                        int tile = FirstLetterTile + ordinal + (ordinal / IntroFontAtlasFormat.TilesPerRow + half) * IntroFontAtlasFormat.TilesPerRow;
+                        int tile = FirstLetterTile + ordinal + (ordinal / IntroFontCharacters.TilesPerRow + half) * IntroFontCharacters.TilesPerRow;
                         value = new BackgroundTile(tile, LetterPalette, highPriority: false);
                     }
                     int row = FirstRow + line * (GlyphRows + Leading) + half;

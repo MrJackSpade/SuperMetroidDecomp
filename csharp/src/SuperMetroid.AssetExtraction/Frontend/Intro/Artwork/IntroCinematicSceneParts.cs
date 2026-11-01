@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>The opening cinematic's palette and Ceres artwork the game binds (#633, #1463); its tilemaps are the import's (#1467).</summary>
 public record IntroCinematicSceneParts

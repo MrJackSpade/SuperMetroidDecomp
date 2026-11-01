@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.Intro;
@@ -18,9 +17,6 @@ public static class IntroNarrationPictures
     /// <summary>The name of the final line's picture.</summary>
     public const string FinalLine = "final-line";
 
-    /// <summary>The colour variants a letter shows: the variant it is typed in and each its glow gives it.</summary>
-    public const int LetterColourVariants = CinematicTextGlowDefinitions.FinalPalette + 1;
-
     /// <summary>The cells along each side of the narration plane.</summary>
     internal const int PlaneCells = IntroCinematicDefinitions.Planes.Width;
 
@@ -29,16 +25,6 @@ public static class IntroNarrationPictures
 
     /// <summary>The name of <paramref name="letter"/>'s picture in colour variant <paramref name="colourVariant"/>.</summary>
     internal static string Letter(char letter, int colourVariant) => $"letter-{(int)letter:x2}-{colourVariant}";
-
-    /// <summary>Each letter the narration types: its alphabet without the space, which types none.</summary>
-    internal static IEnumerable<char> Letters => IntroNarrationDefinitions.Alphabet.Where(static letter => letter != ' ');
-
-    /// <summary>The name of every picture the sheet holds.</summary>
-    public static IEnumerable<string> FrameNames =>
-    [
-        FirstCard, FinalLine,
-        .. Letters.SelectMany(static letter => Enumerable.Range(0, LetterColourVariants).Select(variant => Letter(letter, variant))),
-    ];
 
     /// <summary>The plane showing the first card.</summary>
     internal static PicturedPlane FirstCardPlane(InstalledSpriteSheets sheets) =>

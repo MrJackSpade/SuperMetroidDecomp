@@ -34,11 +34,11 @@ public static class IntroFontAtlasExtractor
         byte[] pixels = SnesGraphics.DecodePlanarTiles(
             decoded.AsSpan(0, IntroFontAtlasFormat.ByteCount),
             IntroFontAtlasFormat.BitsPerPixel,
-            IntroFontAtlasFormat.TilesPerRow,
+            IntroFontCharacters.TilesPerRow,
             out Extent16<ImagePixels> size);
         using var output = new MemoryStream();
         IndexedPng.Write(output, size, pixels,
-            SnesGraphics.DiagnosticPalette(IntroFontAtlasFormat.ColorCount));
+            SnesGraphics.DiagnosticPalette(IntroFontCharacters.ColorCount));
         return output.ToArray();
     }
 }

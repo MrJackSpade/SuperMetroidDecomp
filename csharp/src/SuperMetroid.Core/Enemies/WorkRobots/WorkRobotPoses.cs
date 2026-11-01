@@ -12,7 +12,8 @@ internal static class WorkRobotPoses
             return WorkRobotInitializationDefinitions.InitialPrograms[parameter];
         if (parameter == WorkRobotInitializationDefinitions.InitialPrograms.Length)
             throw new InvalidDataException(
-                "Work Robot parameter 3 reads past the three-entry animation table; no retail population uses it.");
+                "Work Robot parameter 3 reads past the three-entry animation table into the robot's behaviour; the four " +
+                "retail unpowered robots, in the Wrecked Ship's basement and east super missile room, use poses 0, 1, 0 and 2.");
         throw new ArgumentOutOfRangeException(nameof(parameter));
     }
 }

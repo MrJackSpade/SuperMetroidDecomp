@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Installed resource identity and supported schema version for Dachora's default and animated RGB5 palettes.</summary>
 public static class DachoraColorFormat

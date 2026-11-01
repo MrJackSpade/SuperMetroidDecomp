@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Installed-resource identity and schema revision for Magdollite's four-color glow artwork.</summary>
 public static class MagdollitePaletteCycleFormat

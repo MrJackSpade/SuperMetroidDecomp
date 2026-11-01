@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
+
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// The enemies each enemy's encounter spawns into its room beyond the room's own population (#1435), which the room's

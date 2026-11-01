@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Installed filename and supported schema revision for the three bounded editable tube/statue color images.</summary>
 public static class ChozoAndTubeColorFormat

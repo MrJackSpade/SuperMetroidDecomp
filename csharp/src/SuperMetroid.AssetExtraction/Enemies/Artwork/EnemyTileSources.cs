@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies;
+
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Finds the tile and colour sources the compiled retail graphics sets require.</summary>
 internal static class EnemyTileSources

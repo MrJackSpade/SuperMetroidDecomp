@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Immutable required tile/color identities from all compiled retail graphics sets.</summary>
 public static class EnemyTileSourceDefinitions

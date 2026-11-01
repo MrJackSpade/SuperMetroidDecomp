@@ -12,6 +12,7 @@ namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>
 /// Checks #1343's enemy-format draws as #1392 draws them: an ordinary enemy and each visible component of an extended

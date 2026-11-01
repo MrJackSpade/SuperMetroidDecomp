@@ -1,5 +1,5 @@
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Host-file geometry for four-bit enemy tile sheets.</summary>
 public static class EnemyTileArtworkFormat

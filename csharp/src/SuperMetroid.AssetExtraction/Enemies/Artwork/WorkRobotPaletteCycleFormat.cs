@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Defines the installed Work Robot palette-cycle resource contract.</summary>
 public static class WorkRobotPaletteCycleFormat

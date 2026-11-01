@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Installed auxiliary-palette document identity, separate from its consumer.</summary>
 public static class EnemyAuxiliaryColorFormat

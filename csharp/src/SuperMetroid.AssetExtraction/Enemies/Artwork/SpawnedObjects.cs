@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>What a spawner can spawn (#1392): enemy projectile frames and room sprite-object kinds.</summary>
 /// <param name="Projectiles">The projectile frames it can show.</param>

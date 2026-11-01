@@ -88,6 +88,7 @@ public sealed class EndingFloorSceneCharacters : EndingFloorSceneArtwork
             document.Width != EndingFloorArtworkFormat.MapWidth ||
             document.Height != EndingFloorArtworkFormat.MapHeight ||
             document.Tiles is not { Length: EndingFloorArtworkFormat.MapByteCount } ||
+            document.Tiles.Length != document.Width * document.Height ||
             document.Tiles.Any(tile => (uint)tile > byte.MaxValue))
             throw new InvalidDataException(
                 "Ending Mode-7 map requires 128x64 ordered eight-bit tile indexes.");

@@ -66,6 +66,7 @@ public class EndingRewardIconArtwork
             map.Width != EndingRewardIconArtworkFormat.MapWidth ||
             map.Height != EndingRewardIconArtworkFormat.MapHeight ||
             map.Tiles is not { Length: EndingRewardIconArtworkFormat.MapBytes } ||
+            map.Tiles.Length != map.Width * map.Height ||
             map.Tiles.Any(tile => (uint)tile > byte.MaxValue))
             throw new InvalidDataException(
                 "Reward icon map requires 128x128 ordered eight-bit tile indexes.");

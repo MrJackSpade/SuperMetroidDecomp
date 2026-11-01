@@ -8,10 +8,10 @@ internal sealed record CeresRidleyColorSelection
     /// <summary>Startup colors also supply the unchanged retreat door/container entries.</summary>
     public required CeresRidleyStartColors Start { get; init; }
 
-    /// <summary>Three-color fade rows used by the eyes and the retreat background composition.</summary>
+    /// <summary>Three-color fade shades used by the eyes and the retreat background composition.</summary>
     public required CeresRidleyFade EyeFade { get; init; }
 
-    /// <summary>Eleven-color fade rows shared by the body shadow and retreat background.</summary>
+    /// <summary>Eleven-color fade shades shared by the body shadow and retreat background.</summary>
     public required CeresRidleyFade BodyFade { get; init; }
 
     /// <summary>Health paint resolves its unchanged colors through the body and eye fade families.</summary>

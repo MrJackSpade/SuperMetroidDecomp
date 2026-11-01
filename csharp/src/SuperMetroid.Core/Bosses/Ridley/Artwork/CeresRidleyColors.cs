@@ -4,28 +4,28 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
-/// Ceres Ridley's installed colours at work: building them from their rows, composing and resolving the retreat
+/// Ceres Ridley's installed colours at work: building them from their supplied families, composing and resolving the retreat
 /// colours, and installing each family in its place among the colours.
 /// </summary>
 internal static class CeresRidleyColors
 {
-    /// <summary>Builds the selected Ceres Ridley colours from their rows; a missing alarm or Baby family, which older overrides predate, is taken from <paramref name="stock"/>.</summary>
-    /// <param name="rows">The selected colour rows.</param>
+    /// <summary>Builds the selected Ceres Ridley colours from their supplied families; a missing alarm or Baby family, which older overrides predate, is taken from <paramref name="stock"/>.</summary>
+    /// <param name="supplied">The supplied colour families.</param>
     /// <param name="stock">The current stock colours a missing family is inherited from.</param>
-    internal static CeresRidleyColorCatalog Create(CeresRidleyColorRows rows, CeresRidleyColorCatalog? stock)
+    internal static CeresRidleyColorCatalog Create(CeresRidleySuppliedColors supplied, CeresRidleyColorCatalog? stock)
     {
-        Ensure.NotNull(rows);
-        var compiledBody = new CeresRidleyFade(CeresRidleyFadeKind.Body, rows.BodyFade);
+        Ensure.NotNull(supplied);
+        var compiledBody = new CeresRidleyFade(CeresRidleyFadeKind.Body, supplied.BodyFade);
         return new(new CeresRidleyColorParts
         {
-            Start = rows.Start,
-            EyeFade = new CeresRidleyFade(CeresRidleyFadeKind.Eyes, rows.EyeFade),
+            Start = supplied.Start,
+            EyeFade = new CeresRidleyFade(CeresRidleyFadeKind.Eyes, supplied.EyeFade),
             BodyFade = compiledBody,
-            Health = rows.Health,
-            Alarm = rows.Alarm is null ? Ensure.NotNull(stock).selection.Alarm : new CeresRidleyAlarmColors(rows.Alarm),
-            RetreatBg = rows.RetreatBg,
-            RetreatShared = rows.RetreatShared,
-            Baby = rows.Baby is null ? Ensure.NotNull(stock).selection.Baby : new CeresBabyPaint(rows.Baby, compiledBody),
+            Health = supplied.Health,
+            Alarm = supplied.Alarm is null ? Ensure.NotNull(stock).selection.Alarm : new CeresRidleyAlarmColors(supplied.Alarm),
+            RetreatBg = supplied.RetreatBg,
+            RetreatShared = supplied.RetreatShared,
+            Baby = supplied.Baby is null ? Ensure.NotNull(stock).selection.Baby : new CeresBabyPaint(supplied.Baby, compiledBody),
         });
     }
 
@@ -62,7 +62,7 @@ internal static class CeresRidleyColors
             : CalculateRetreatBg(colors.selection.BodyFade, colors.selection.EyeFade, color);
     }
 
-    /// <summary>Composes the retreat background from body-fade row one, eye-fade row fourteen, and its neutral final color.</summary>
+    /// <summary>Composes the retreat background from body-fade shade one, eye-fade shade fourteen, and its neutral final color.</summary>
     private static RgbColor CalculateRetreatBg(CeresRidleyFade bodyFade, CeresRidleyFade eyeFade, int color) =>
         color < 11 ? bodyFade.Resolve(1, color)
             : color < 14 ? eyeFade.Resolve(14, color - 11) : CeresRidleyFloorPaint.RetreatNeutral;
@@ -86,7 +86,7 @@ internal static class CeresRidleyColors
     /// <summary>Shows eye-fade shade <paramref name="shade"/>, 0..15, in Ceres Ridley's eye colours.</summary>
     internal static void ApplyEyeFade(CeresRidleyColorCatalog colors, GameplayColours colours, int shade)
     {
-        colors.selection.EyeFade.ValidateRow(shade);
+        colors.selection.EyeFade.ValidateShade(shade);
         Ensure.NotNull(colours);
         for (int color = 0; color < CeresRidleyPaletteDefinitions.EyeFadeColorCount; color++)
             new RidleyColours(colours).CeresEyeFade.Write(color, colors.selection.EyeFade.Resolve(shade, color));
@@ -95,7 +95,7 @@ internal static class CeresRidleyColors
     /// <summary>Shows body-fade shade <paramref name="shade"/>, 0..15, in both the background and the sprite body colours.</summary>
     internal static void ApplyBodyFade(CeresRidleyColorCatalog colors, GameplayColours colours, int shade)
     {
-        colors.selection.BodyFade.ValidateRow(shade);
+        colors.selection.BodyFade.ValidateShade(shade);
         Ensure.NotNull(colours);
         for (int color = 0; color < CeresRidleyPaletteDefinitions.BodyFadeColorCount; color++)
             new RidleyColours(colours).CeresBodyFadeShadow.Write(color, colors.selection.BodyFade.Resolve(shade, color));

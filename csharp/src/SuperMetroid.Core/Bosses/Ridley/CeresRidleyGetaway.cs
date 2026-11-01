@@ -394,6 +394,6 @@ internal sealed class CeresRidleyGetaway
         if (_bossArtwork.CeresRidleyColors is { } colors)
             colors.ApplyAlarm(_presentation.Colours, state.CeresEscapePaletteFrame);
         else throw new InvalidOperationException(
-            "Ceres alarm requires installed Ridley color rows.");
+            "Ceres alarm requires installed Ridley alarm colors.");
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -43,7 +44,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         var executedOperands = new HashSet<ushort>();
         var guard = NewSpacePirateProjectileInstructionReadGuard(rom);
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
-            SpacePirateProjectileAnimationsVerification.Family.NativePointers(CartridgeImportSource.Require(rom));
+            SpacePirateProjectileNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
 
         foreach ((bool movingRight, ushort program, ushort loop,
                   EnemyProjectileFrameBehavior movement, ushort expectedX) in new[]

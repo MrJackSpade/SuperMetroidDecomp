@@ -1,8 +1,9 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainBeamWindowVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainDeathHandoffVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainNativeListAddresses;
+using static SuperMetroid.TestSupport.MovieReplay.MotherBrainNativeListAddresses;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainRainbowVerification;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Samus.SamusDamageAndGrabVerification;
@@ -13,7 +14,6 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
-using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 

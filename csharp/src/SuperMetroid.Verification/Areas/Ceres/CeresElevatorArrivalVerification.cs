@@ -1,8 +1,9 @@
+using SuperMetroid.TestSupport.Assertions;
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -37,7 +38,7 @@ internal static class CeresElevatorArrivalVerification
         // With tile base zero in the common colours, whose row is zero, each actor shows its composition at tile base zero
         // in the parts' own palettes; leaked enemy graphics would add a base tile and select other colours.
         var noGraphics = SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.Common);
-        VerificationAssert.AssertTrue(arrival.pad.Graphics == noGraphics && arrival.platform.Graphics == noGraphics,
+        VerificationAssertions.AssertTrue(arrival.pad.Graphics == noGraphics && arrival.platform.Graphics == noGraphics,
             "Ceres arrival actors draw with tile base zero in the common sprite colours");
         var oam = new OamBuffer();
         oam.BeginFrame();
@@ -49,15 +50,15 @@ internal static class CeresElevatorArrivalVerification
             expected.AddEnemySpritemap(artwork.Get(CeresElevatorArrivalAnimations.Frame(actor.Pose
                     ?? throw new InvalidOperationException("Verification requires a shown arrival pose."))).Span,
                 actor.Position.ToScreen(Position16<RoomPixels>.Zero).ToSpritePosition(), 0, 0);
-        VerificationAssert.AssertTrue(expected.NextByteOffset > 0 && expected.ImageEquals(oam),
+        VerificationAssertions.AssertTrue(expected.NextByteOffset > 0 && expected.ImageEquals(oam),
             "Ceres pad and level-data concealer draw their compositions at tile base zero in their own palettes");
 
         int frames = 1;
         while (!arrival.IsComplete && frames++ < 200)
             arrival.Step(samus);
-        VerificationAssert.AssertTrue(arrival.IsComplete,
+        VerificationAssertions.AssertTrue(arrival.IsComplete,
             "Ceres arrival's compiled instruction programs delete both projectiles");
-        VerificationAssert.AssertEqual(
+        VerificationAssertions.AssertEqual(
             CeresElevatorArrivalDefinitions.LandingSamusY,
             samus.Position.Y.Whole,
             "Ceres arrival retains the native landing coordinate");
@@ -77,7 +78,7 @@ internal static class CeresElevatorArrivalVerification
         })
         {
             int address = CeresElevatorArrivalDefinitions.BankBase | definitionPointer;
-            VerificationAssert.AssertEqual(cartridge.ReadCartridgeWord(address + 4),
+            VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(address + 4),
                 NativeEnemyProgramOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, definition.Program),
                 "Ceres elevator definition names its program's native list");
         }
@@ -96,22 +97,22 @@ internal static class CeresElevatorArrivalVerification
                 string at = $"Ceres elevator {program} at $86:{cursor:X4}";
                 if (word == CeresElevatorArrivalDefinitions.DeleteOpcode)
                 {
-                    VerificationAssert.AssertTrue(step is AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.StopStep, $"{at}: delete");
+                    VerificationAssertions.AssertTrue(step is AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.StopStep, $"{at}: delete");
                     break;
                 }
                 if (word == CeresElevatorArrivalDefinitions.GotoOpcode)
                 {
-                    var goTo = VerificationAssert.AssertIs<AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.GoToStep>(step, $"{at}: goto");
-                    VerificationAssert.AssertEqual(operand,
+                    var goTo = VerificationAssertions.AssertIs<AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.GoToStep>(step, $"{at}: goto");
+                    VerificationAssertions.AssertEqual(operand,
                         NativeEnemyProgramOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, goTo.Target), $"{at}: goto target");
                     break;
                 }
-                var show = VerificationAssert.AssertIs<AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.ShowStep>(step, $"{at}: frame");
-                VerificationAssert.AssertEqual(word, show.Duration, $"{at}: duration");
-                VerificationAssert.AssertEqual(operand, EnemyProjectileCompositionSources.Spritemap(CeresElevatorArrivalAnimations.Frame(show.Frame)), $"{at}: spritemap");
+                var show = VerificationAssertions.AssertIs<AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.ShowStep>(step, $"{at}: frame");
+                VerificationAssertions.AssertEqual(word, show.Duration, $"{at}: duration");
+                VerificationAssertions.AssertEqual(operand, EnemyProjectileCompositionSources.Spritemap(CeresElevatorArrivalAnimations.Frame(show.Frame)), $"{at}: spritemap");
                 cursor = unchecked((ushort)(cursor + 4));
             }
-            VerificationAssert.AssertEqual(steps.Count, index, $"Ceres elevator {program} ends where its native list does");
+            VerificationAssertions.AssertEqual(steps.Count, index, $"Ceres elevator {program} ends where its native list does");
         }
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hud;
@@ -19,7 +20,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Hardware;
 

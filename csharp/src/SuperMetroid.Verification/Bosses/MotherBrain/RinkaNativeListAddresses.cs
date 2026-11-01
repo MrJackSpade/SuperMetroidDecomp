@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Bosses.MotherBrain;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;

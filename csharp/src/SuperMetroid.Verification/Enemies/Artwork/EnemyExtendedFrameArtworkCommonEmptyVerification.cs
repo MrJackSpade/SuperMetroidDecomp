@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyExtendedFrameArtworkVerification;

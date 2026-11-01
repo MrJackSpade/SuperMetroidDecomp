@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Choot.ChootNativeListAddresses;
 using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.Core.Enemies.Choot.Artwork;

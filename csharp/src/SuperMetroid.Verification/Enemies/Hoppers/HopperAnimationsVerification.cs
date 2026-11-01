@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Audio;
 using static SuperMetroid.Verification.Enemies.Hoppers.HopperNativeListAddresses;
 using SuperMetroid.Core.Enemies.Hoppers;

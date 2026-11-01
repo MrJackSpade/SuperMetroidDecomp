@@ -1,5 +1,5 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Audio;
-using SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;

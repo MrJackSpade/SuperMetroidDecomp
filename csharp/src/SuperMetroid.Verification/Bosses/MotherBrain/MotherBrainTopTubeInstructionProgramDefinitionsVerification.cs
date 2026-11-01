@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -41,7 +42,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         var executedOperands = new HashSet<ushort>();
         var guard = NewMotherBrainTopTubeInstructionReadGuard(rom);
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
-            MotherBrainTopTubeAnimationsVerification.Family.NativePointers(CartridgeImportSource.Require(rom));
+            MotherBrainTopTubeNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
 
         foreach (TopTubeLaunchCase item in
                  new TopTubeLaunchCase[]

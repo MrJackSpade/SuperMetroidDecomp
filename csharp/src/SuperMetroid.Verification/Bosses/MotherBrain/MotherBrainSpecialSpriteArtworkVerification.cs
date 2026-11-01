@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hardware;
@@ -190,7 +191,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             () => state.NextLegTilePage = MotherBrainEnemyState.LegLoadPageCount,
             "Mother Brain's ascent has no page past the twelfth");
         AssertThrows<InvalidDataException>(
-            () => NativeSnapshotImportMotherBrainVerification.DecodeLegTilePage(unchecked(
+            () => NativeSnapshotMotherBrainImport.DecodeLegTilePage(unchecked(
                 MotherBrainLegLoadListConstants.NativeListPointer + 1)),
             "a misaligned snapshot leg-loading pointer is rejected at the import");
     }

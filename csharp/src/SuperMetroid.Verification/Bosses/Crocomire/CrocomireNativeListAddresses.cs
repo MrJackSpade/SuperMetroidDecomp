@@ -1,8 +1,8 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
-using SuperMetroid.Verification.Enemies;
 
 /// <summary>
 /// The native bank-$A4 and bank-$86 lists the Crocomire ROM oracle (#1282) walks: list entry points, callbacks,

@@ -1,7 +1,4 @@
-using SuperMetroid.AssetExtraction.Enemies;
-using static SuperMetroid.Verification.Enemies.SpacePirates.SpacePirateProjectileNativeListAddresses;
-using SuperMetroid.Core.Enemies.SpacePirates;
-using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+using static SuperMetroid.TestSupport.MovieReplay.SpacePirateProjectileNativeListAddresses;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
@@ -9,10 +6,6 @@ namespace SuperMetroid.Verification.Enemies.SpacePirates;
 /// <summary>#641: the laser and claw typed programs, each matched step by step to its native bank-$86 list.</summary>
 internal static class SpacePirateProjectileAnimationsVerification
 {
-    /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, SpacePirateProjectileAnimations.Programs,
-        frame => EnemyProjectileProgramFrameSources.Operand(SpacePirateProjectileFrameDefinitions.ShownProjectileFrames[frame]), SpacePirateProjectileCueRules.Rules);
-
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifySpacePirateProjectileAnimations(SuperMetroidAddressSpace rom)
     {

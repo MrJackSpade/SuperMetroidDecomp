@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Platforms.PlatformNativeListAddresses;
 using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Enemies.Platforms.Artwork;

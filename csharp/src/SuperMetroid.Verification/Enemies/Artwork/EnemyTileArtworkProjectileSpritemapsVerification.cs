@@ -1,9 +1,9 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Deaths.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
-using SuperMetroid.Verification.Enemies.Skree;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;

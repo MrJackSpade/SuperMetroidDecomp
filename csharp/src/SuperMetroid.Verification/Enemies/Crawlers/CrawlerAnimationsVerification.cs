@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Crawlers.CrawlerNativeListAddresses;
 using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Enemies.Crawlers.Artwork;

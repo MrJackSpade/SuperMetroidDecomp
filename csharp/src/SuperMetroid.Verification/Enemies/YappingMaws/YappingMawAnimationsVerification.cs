@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawNativeListAddresses;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Enemies.YappingMaws.Artwork;

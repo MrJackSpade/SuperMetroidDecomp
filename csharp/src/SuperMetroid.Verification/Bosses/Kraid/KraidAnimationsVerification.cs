@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidArmCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidFootCollisionDefinitionsVerification;
@@ -9,7 +10,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Kraid;
-using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleNativeListAddresses;
 using SuperMetroid.Core.Enemies.Nuclear;
 using SuperMetroid.Core.Enemies.Nuclear.Artwork;

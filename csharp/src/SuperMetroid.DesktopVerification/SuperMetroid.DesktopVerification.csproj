@@ -24,6 +24,10 @@
   <Import Project="../../test-support/FrameCapture.projitems" />
   <Import Project="../../test-support/FrameRendering.projitems" />
   <Import Project="../../test-support/SaveMapFixtures.projitems" />
+  <Import Project="../../test-support/ScenarioFixtures.projitems" />
+  <Import Project="../../test-support/VerificationImporters.projitems" />
+  <Import Project="../../test-support/Assertions.projitems" />
+  <Import Project="../../test-support/MovieReplay.projitems" />
   <ItemGroup>
     <Using Include="SuperMetroid.Core.Audio" />
     <Using Include="SuperMetroid.Core.Compatibility" />

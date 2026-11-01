@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Runtime.GameplayDisplayFrameTestsVerification;
@@ -440,7 +441,7 @@ internal static class FullRunSuitesVerification
     internal static RegisteredSuite[] FullRunSuites() =>
     [
         // The six SMV parity replays, each from its committed compact trace (docs/smv-gameplay-parity.md).
-        new(nameof(VerifyRidleyFullMovie), () => VerifyRidleyFullMovie(Path.GetFullPath(RidleyTraceDirectory))),
+        new(nameof(VerifyRidleyFullMovie), () => VerifyRidleyFullMovie(Path.GetFullPath(ReplayMovieFixture.Ridley.TraceDirectory))),
         new(nameof(VerifyMotherBrainGlitchMovie), () => VerifyMotherBrainGlitchMovie("csharp/test-fixtures/replay-traces/mother-brain-glitch")),
         new(nameof(VerifyLowPercentPlaythroughMovie), () => VerifyLowPercentPlaythroughMovie("csharp/test-fixtures/replay-traces/low-13-percent")),
         new(nameof(VerifyFullPlaythroughMovie), () => VerifyFullPlaythroughMovie("csharp/test-fixtures/replay-traces/full-100-percent")),

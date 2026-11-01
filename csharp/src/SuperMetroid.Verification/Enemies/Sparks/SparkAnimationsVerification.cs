@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Sparks.SparkNativeListAddresses;
 using SuperMetroid.Core.Enemies.Sparks;
 using SuperMetroid.Core.Enemies.Sparks.Artwork;

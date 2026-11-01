@@ -1,7 +1,7 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
-using SuperMetroid.Verification.Enemies.Deaths;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;

@@ -1,0 +1,27 @@
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Enemies.Stoke.Artwork;
+using SuperMetroid.Core.Enemies.Stoke;
+
+namespace SuperMetroid.TestSupport.MovieReplay;
+
+/// <summary>
+/// The native bank-$86 lists the Stoke projectile ROM oracle (#641) walks: each program's entry point. Only verification
+/// reads them; the port runs typed programs.
+/// </summary>
+internal static class StokeProjectileNativeListAddresses
+{
+    /// <summary>Each typed program's native entry point, in authored order.</summary>
+    internal static readonly NativeProgramEntry<StokeProjectileProgram>[] Entries =
+    [
+        new NativeProgramEntry<StokeProjectileProgram>(StokeProjectileProgram.Initial, 0xdb0c),
+    ];
+
+    /// <summary>The bank-$86 bytes from the first list to the end of the last, $86:DB0C-DB17, which production must never read.</summary>
+    internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xdb0c, 0xdb18);
+
+    /// <summary>The native entry of <paramref name="program"/>.</summary>
+    internal static ushort Entry(StokeProjectileProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
+
+    /// <summary>The family's typed programs beside their native lists.</summary>
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, StokeProjectileAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(StokeProjectileFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
+}

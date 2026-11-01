@@ -1,16 +1,14 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Audio;
-using SuperMetroid.Verification.Enemies;
-using SuperMetroid.Verification.Bosses.MotherBrain;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Progression;
-using static SuperMetroid.Verification.Rooms.Plms.NativePlmListDefinitions;
+using static SuperMetroid.TestSupport.MovieReplay.NativePlmListDefinitions;
 using static SuperMetroid.Verification.Rooms.Plms.RoomPlmNativeListAddresses;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
@@ -483,7 +481,7 @@ internal static class RoomPlmProgramsVerification
     {
         (bool known, cue, length) = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
         {
-            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => new BlueDoorCueAtCase(true, DoorSoundCue(QueuedLibrary3Sound(cartridge, cursor), BlueDoorCue.QueueOpenSound, BlueDoorCue.QueueCloseSound), 3),
+            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => new BlueDoorCueAtCase(true, DoorPlmNativeProgramOracle.DoorSoundCue(DoorPlmNativeProgramOracle.QueuedLibrary3Sound(cartridge, cursor), BlueDoorCue.QueueOpenSound, BlueDoorCue.QueueCloseSound), 3),
             RoomPlmInstruction.SetPlmBtsFromByte => new BlueDoorCueAtCase(true, BlueDoorCue.RestoreBlueBehavior, 3),
             RoomPlmInstruction.SetGreyDoorFrameBehavior or
                 RoomPlmInstruction.Sleep or
@@ -543,16 +541,6 @@ internal static class RoomPlmProgramsVerification
         };
         return known;
     }
-
-    /// <summary>The library-3 sound a queue-sound instruction at <paramref name="cursor"/> names.</summary>
-    private static SoundEffectId QueuedLibrary3Sound(IImportCartridgeSource cartridge, int cursor) =>
-        SoundEffectCommands.Decode(SoundEffectLibrary.Library3, ReadOperandByte(cartridge, cursor + 2));
-
-    /// <summary>A door sound as its cue: the open or the close sound.</summary>
-    private static TCue DoorSoundCue<TCue>(SoundEffectId sound, TCue open, TCue close) =>
-        sound == BlueDoorPlmProgramDefinitions.OpenSound ? open :
-        sound == BlueDoorPlmProgramDefinitions.CloseSound ? close :
-        throw new InvalidOperationException($"Door sound {sound} is neither the open nor the close sound.");
 
     /// <summary>Every coloured cap's programs equal their native lists.</summary>
     internal static void VerifyColoredDoorPrograms(ISnesAddressSpace rom)
@@ -615,10 +603,10 @@ internal static class RoomPlmProgramsVerification
                 length = 5;
                 return true;
             case RoomPlmInstruction.QueueSoundLibrary3Maximum6:
-                SoundEffectId sound = QueuedLibrary3Sound(cartridge, cursor);
+                SoundEffectId sound = DoorPlmNativeProgramOracle.QueuedLibrary3Sound(cartridge, cursor);
                 cue = sound == ColoredDoorPlmProgramDefinitions.RedHitSound
                     ? ColoredDoorCue.QueueHitSound
-                    : DoorSoundCue(sound, ColoredDoorCue.QueueOpenSound, ColoredDoorCue.QueueCloseSound);
+                    : DoorPlmNativeProgramOracle.DoorSoundCue(sound, ColoredDoorCue.QueueOpenSound, ColoredDoorCue.QueueCloseSound);
                 length = 3;
                 return true;
             case RoomPlmInstruction.SetGreyDoorFrameBehavior:
@@ -686,123 +674,11 @@ internal static class RoomPlmProgramsVerification
         int steps = 0;
         foreach (GreyDoorVariant variant in DoorPlmNativeListAddresses.GreyVariants)
             steps += CompareProgramSet(cartridge, GreyDoorPlmProgramDefinitions.Sets[variant], DoorPlmNativeListAddresses.GreyEntries(variant),
-                frame => GreyCapDraw(variant.Orientation, frame),
+                frame => DoorPlmNativeProgramOracle.GreyCapDraw(variant.Orientation, frame),
                 (IImportCartridgeSource source, ushort cursor, out GreyDoorCue cue, out int length) =>
-                    GreyDoorCueAt(source, cursor, variant, out cue, out length),
+                    DoorPlmNativeProgramOracle.GreyDoorCueAt(source, cursor, variant, out cue, out length),
                 variant.BombTorizo ? "Bomb Torizo door" : $"grey {variant.Orientation} door");
         Console.WriteLine($"  Grey door programs: {steps} typed steps match bank $84.");
-    }
-
-    /// <summary>The draw list a grey cap's frame draws.</summary>
-    private static PlmDraw GreyCapDraw(ColoredDoorOrientation orientation, DoorCapFrame frame) => frame switch
-    {
-        DoorCapFrame.Clear => DoorCaps.Clear(orientation),
-        DoorCapFrame.Closed0 => DoorCaps.Grey(orientation, 0),
-        DoorCapFrame.Closed1 => DoorCaps.Grey(orientation, 1),
-        DoorCapFrame.Closed2 => DoorCaps.Grey(orientation, 2),
-        DoorCapFrame.Closed3 => DoorCaps.Grey(orientation, 3),
-        DoorCapFrame.BlueFlash => DoorCaps.Blue(orientation, 0),
-        _ => throw new InvalidOperationException($"Undefined {nameof(DoorCapFrame)} {frame}."),
-    };
-
-    /// <summary>A grey cap's branch, link, wake, hit-count, sound and Bombs-wait instructions with their operands.</summary>
-    private static bool GreyDoorCueAt(IImportCartridgeSource cartridge, ushort cursor, GreyDoorVariant variant, out GreyDoorCue cue, out int length)
-    {
-        ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
-        var entries = DoorPlmNativeListAddresses.GreyEntries(variant);
-        ushort EntryOf(GreyDoorProgram program) => entries.Single(entry => entry.Program == program).Entry;
-        switch (InstructionAt<RoomPlmInstruction>(cartridge, cursor))
-        {
-            case RoomPlmInstruction.GotoIfDoorBitSet:
-                AssertEqual(DoorPlmNativeListAddresses.BlueEntries.Single(e => e.Program == BlueDoorPlmProgramDefinitions.ClosedPrograms[variant.Orientation]).Entry,
-                    Word(2), $"grey {variant} becomes its blue cap");
-                cue = GreyDoorCue.BranchIfOpened;
-                length = 4;
-                return true;
-            case RoomPlmInstruction.LinkInstruction:
-                ushort target = Word(2);
-                AssertTrue(target == EntryOf(GreyDoorProgram.Activate) || target == EntryOf(GreyDoorProgram.Hit), $"grey {variant} link target");
-                cue = target == EntryOf(GreyDoorProgram.Activate) ? GreyDoorCue.LinkActivate : GreyDoorCue.LinkHit;
-                length = 4;
-                return true;
-            case RoomPlmInstruction.SetGreyDoorFrameBehavior:
-                cue = GreyDoorCue.ArmCondition;
-                length = 2;
-                return true;
-            case RoomPlmInstruction.InstallFrameBehavior:
-                AssertEqual(DoorsNativeWords.GreyDoorFrameBehaviors.Word(GreyDoorFrameBehavior.WakeWhenShot), Word(2), $"grey {variant} shot wake");
-                cue = GreyDoorCue.ArmShotWake;
-                length = 4;
-                return true;
-            case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:
-                AssertEqual(GreyDoorPlmProgramDefinitions.HitThreshold, ReadOperandByte(cartridge, cursor + 2), "grey door hit threshold");
-                AssertEqual(EntryOf(GreyDoorProgram.Open), Word(3), $"grey {variant} opens at its threshold");
-                cue = GreyDoorCue.CountHit;
-                length = 5;
-                return true;
-            case RoomPlmInstruction.QueueSoundLibrary3Maximum6:
-                cue = DoorSoundCue(QueuedLibrary3Sound(cartridge, cursor), GreyDoorCue.QueueOpenSound, GreyDoorCue.QueueCloseSound);
-                length = 3;
-                return true;
-            case RoomPlmInstruction.GotoIfSamusHasNoBombs:
-                AssertEqual(EntryOf(GreyDoorProgram.Closing), Word(2), "Bomb Torizo door repeats its closing");
-                cue = GreyDoorCue.RepeatUntilSamusHasBombs;
-                length = 4;
-                return true;
-            case RoomPlmInstruction.Sleep:
-            case RoomPlmInstruction.Delete:
-            case RoomPlmInstruction.ClearFrameBehavior:
-            case RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
-            case RoomPlmInstruction.GotoIfSamusNear:
-            case RoomPlmInstruction.Goto:
-            case RoomPlmInstruction.DecrementTimerAndGoto:
-            case RoomPlmInstruction.SetEightBitTimer:
-            case RoomPlmInstruction.CopyFromRamToVram:
-            case RoomPlmInstruction.GotoIfAreaBossBitSet:
-            case RoomPlmInstruction.GotoIfEventSet:
-            case RoomPlmInstruction.SetEvent:
-            case RoomPlmInstruction.SetPlmBtsFromByte:
-            case RoomPlmInstruction.DrawPlmBlock:
-            case RoomPlmInstruction.DrawPlmBlockClone:
-            case RoomPlmInstruction.QueueSoundLibrary2Maximum6:
-            case RoomPlmInstruction.ClearDownwardGateTrigger:
-            case RoomPlmInstruction.SpawnDownwardGateProjectile:
-            case RoomPlmInstruction.WakeDownwardGateProjectile:
-            case RoomPlmInstruction.ShootEyeDoorProjectile:
-            case RoomPlmInstruction.SpawnEyeDoorSweat:
-            case RoomPlmInstruction.SpawnTwoEyeDoorSmoke:
-            case RoomPlmInstruction.SpawnEyeDoorSmoke:
-            case RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingRight:
-            case RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingLeft:
-            case RoomPlmInstruction.DamageDraygonCannonFacingRight:
-            case RoomPlmInstruction.DamageDraygonCannonFacingLeft:
-            case RoomPlmInstruction.QueueSoundLibrary2Maximum3:
-            case RoomPlmInstruction.QueueSoundLibrary2Maximum1:
-            case RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct:
-            case RoomPlmInstruction.SetPlmBtsToOne:
-            case RoomPlmInstruction.GotoIfRoomArgumentLess:
-            case RoomPlmInstruction.SpawnFourMotherBrainGlassShards:
-            case RoomPlmInstruction.SpawnTorizoStatueBreaking:
-            case RoomPlmInstruction.QueueSongOneMusicTrack:
-            case RoomPlmInstruction.EnableNoobTubeWaterPhysics:
-            case RoomPlmInstruction.SpawnNoobTubeCrack:
-            case RoomPlmInstruction.TriggerNoobTubeEarthquake:
-            case RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles:
-            case RoomPlmInstruction.LockSamus:
-            case RoomPlmInstruction.UnlockSamus:
-            case RoomPlmInstruction.MoveRightFourBlocks:
-            case RoomPlmInstruction.SetAnimalsEscapedEvent:
-            case RoomPlmInstruction.SamusEaterDamage:
-            case RoomPlmInstruction.SamusEaterReleaseImmunity:
-            case RoomPlmInstruction.MoveTourianAccessDown:
-            case RoomPlmInstruction.TransformSpikesToSlopes:
-            case RoomPlmInstruction.RevertSlopesToSpikes:
-            case RoomPlmInstruction.SetLoweredAcidHeight:
-            default:
-                cue = default;
-                length = 0;
-                return false;
-        }
     }
 
     /// <summary>Every eye-door component's programs, both facings, equal their native lists.</summary>
@@ -995,34 +871,6 @@ internal static class RoomPlmProgramsVerification
                 length = 0;
                 return false;
         }
-    }
-
-    /// <summary>Each grey cap's step addresses, walked once.</summary>
-    private static readonly Dictionary<GreyDoorVariant, IReadOnlyDictionary<ProgramStep<GreyDoorProgram>, ushort>> greyDoorAddresses = [];
-
-    /// <summary>
-    /// The native instruction pointer a grey cap's typed program stands for: the native instruction its cursor rests on,
-    /// for comparisons with native movie snapshots.
-    /// </summary>
-    internal static ushort GreyDoorNativeInstruction(ISnesAddressSpace rom, GreyDoorPlmAnimation door) =>
-        GreyDoorAddresses(rom, door.Variant)[new ProgramStep<GreyDoorProgram>(door.Cursor.Program, door.Cursor.Position)];
-
-    /// <summary>The native list a grey cap's typed program begins at.</summary>
-    internal static ushort GreyDoorNativeEntry(GreyDoorVariant variant, GreyDoorProgram program) =>
-        DoorPlmNativeListAddresses.GreyEntries(variant).Single(entry => entry.Program == program).Entry;
-
-    /// <summary>Grey cap <paramref name="variant"/>'s step addresses.</summary>
-    private static IReadOnlyDictionary<ProgramStep<GreyDoorProgram>, ushort> GreyDoorAddresses(ISnesAddressSpace rom, GreyDoorVariant variant)
-    {
-        if (!greyDoorAddresses.TryGetValue(variant, out var addresses))
-        {
-            addresses = StepAddresses(CartridgeImportSource.Require(rom), GreyDoorPlmProgramDefinitions.Sets[variant],
-                DoorPlmNativeListAddresses.GreyEntries(variant), frame => GreyCapDraw(variant.Orientation, frame),
-                (IImportCartridgeSource source, ushort cursor, out GreyDoorCue cue, out int length) => GreyDoorCueAt(source, cursor, variant, out cue, out length),
-                $"grey {variant}");
-            greyDoorAddresses[variant] = addresses;
-        }
-        return addresses;
     }
 
     /// <summary>The Brinstar plants' programs equal their native lists.</summary>

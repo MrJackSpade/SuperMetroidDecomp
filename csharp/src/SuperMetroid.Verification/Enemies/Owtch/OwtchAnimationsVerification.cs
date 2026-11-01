@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Owtch.OwtchNativeListAddresses;
 using SuperMetroid.Core.Enemies.Owtch;
 using SuperMetroid.Core.Enemies.Owtch.Artwork;

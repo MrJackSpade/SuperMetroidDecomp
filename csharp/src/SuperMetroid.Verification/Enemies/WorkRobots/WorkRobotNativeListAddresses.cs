@@ -1,4 +1,4 @@
-using SuperMetroid.Verification.Bosses.MotherBrain;
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Enemies.WorkRobots;
 
 namespace SuperMetroid.Verification.Enemies.WorkRobots;

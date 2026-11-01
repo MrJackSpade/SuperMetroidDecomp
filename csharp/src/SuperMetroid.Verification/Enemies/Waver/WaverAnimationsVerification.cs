@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Waver.WaverNativeListAddresses;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Core.Enemies.Waver.Artwork;

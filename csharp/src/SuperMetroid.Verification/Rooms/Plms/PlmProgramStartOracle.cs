@@ -1,5 +1,5 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Verification.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
 

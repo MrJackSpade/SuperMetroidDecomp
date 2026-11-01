@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Rios.NorfairRioNativeListAddresses;
 using SuperMetroid.Core.Enemies.Rios;
 using SuperMetroid.Core.Enemies.Rios.Artwork;

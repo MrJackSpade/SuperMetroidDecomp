@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.LavaJumpers.NorfairLavaJumperNativeListAddresses;
 using SuperMetroid.Core.Enemies.LavaJumpers;
 using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;

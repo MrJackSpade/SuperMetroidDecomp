@@ -1,4 +1,4 @@
-using SuperMetroid.Verification.Bosses.MotherBrain;
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Enemies.WreckedShip;
 
 namespace SuperMetroid.Verification.Enemies.WreckedShip;

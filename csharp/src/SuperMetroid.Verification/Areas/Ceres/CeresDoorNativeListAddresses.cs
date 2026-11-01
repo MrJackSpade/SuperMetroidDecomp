@@ -1,4 +1,4 @@
-using SuperMetroid.Verification.Bosses.MotherBrain;
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Verification.Areas.Ceres;

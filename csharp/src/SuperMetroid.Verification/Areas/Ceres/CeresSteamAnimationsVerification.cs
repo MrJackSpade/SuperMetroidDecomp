@@ -1,8 +1,8 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Areas.Ceres.CeresSteamNativeListAddresses;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterNativeListAddresses;
 using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Enemies.Shutters.Artwork;

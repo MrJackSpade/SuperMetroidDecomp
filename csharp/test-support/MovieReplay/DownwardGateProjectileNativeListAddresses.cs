@@ -1,0 +1,38 @@
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Projectiles.Artwork;
+using SuperMetroid.Core.Rooms.Plms;
+
+namespace SuperMetroid.TestSupport.MovieReplay;
+
+/// <summary>
+/// The native bank-$86 lists the downward gate ROM oracle (#641) walks: each program's entry point. Only verification
+/// reads them; the port runs typed programs.
+/// </summary>
+internal static class DownwardGateProjectileNativeListAddresses
+{
+    /// <summary>Each typed program's native entry point, in authored order.</summary>
+    internal static readonly NativeProgramEntry<DownwardGateProjectileProgram>[] Entries =
+    [
+        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.Moving, 0xe53c),
+        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.MovingStep2, 0xe54a),
+        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.MovingStep3, 0xe550),
+        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.MovingStep4, 0xe556),
+        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.MovingStep5, 0xe55c),
+        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.Closed, 0xe55e),
+        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.ClosedStep2, 0xe568),
+        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.ClosedStep3, 0xe572),
+        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.ClosedStep4, 0xe578),
+        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.ClosedStep5, 0xe57e),
+        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.ClosedStep6, 0xe584),
+    ];
+
+    /// <summary>The bank-$86 bytes from the first list to the end of the last, $86:E53C-E585, which production must never read.</summary>
+    internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xe53c, 0xe586);
+
+    /// <summary>The native entry of <paramref name="program"/>.</summary>
+    internal static ushort Entry(DownwardGateProjectileProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
+
+    /// <summary>The family's typed programs beside their native lists.</summary>
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, DownwardGateProjectileAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(DownwardGateProjectileFrameDefinitions.ShownProjectileFrames[frame])), DownwardGateProjectileCueRules.Rules);
+}

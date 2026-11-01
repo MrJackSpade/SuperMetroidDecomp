@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
@@ -5,7 +6,6 @@ using static SuperMetroid.Verification.Bosses.Torizo.TorizoNativeListAddresses;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Verification.Enemies;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -167,28 +168,28 @@ internal static class MotherBrainEncodingDomainsVerification
     private static void VerifySnapshotDecodesRejectUndefinedWords()
     {
         foreach (MotherBrainForm form in Enum.GetValues<MotherBrainForm>())
-            AssertEqual(form, NativeSnapshotImportMotherBrainVerification.DecodeForm((ushort)form), $"form {form} decodes");
-        AssertThrows<InvalidDataException>(() => NativeSnapshotImportMotherBrainVerification.DecodeForm(5),
+            AssertEqual(form, NativeSnapshotMotherBrainImport.DecodeForm((ushort)form), $"form {form} decodes");
+        AssertThrows<InvalidDataException>(() => NativeSnapshotMotherBrainImport.DecodeForm(5),
             "a form word past the final phase is rejected");
 
         foreach (MotherBrainPhase2CorpseState corpse in Enum.GetValues<MotherBrainPhase2CorpseState>())
         {
-            AssertEqual(corpse, NativeSnapshotImportMotherBrainVerification.DecodePhase2CorpseState((ushort)corpse),
+            AssertEqual(corpse, NativeSnapshotMotherBrainImport.DecodePhase2CorpseState((ushort)corpse),
                 $"corpse state {corpse} decodes");
         }
-        AssertThrows<InvalidDataException>(() => NativeSnapshotImportMotherBrainVerification.DecodePhase2CorpseState(3),
+        AssertThrows<InvalidDataException>(() => NativeSnapshotMotherBrainImport.DecodePhase2CorpseState(3),
             "a corpse-handshake word past revived is rejected");
 
-        AssertEqual(0, NativeSnapshotImportMotherBrainVerification.DecodeLegTilePage(0),
+        AssertEqual(0, NativeSnapshotMotherBrainImport.DecodeLegTilePage(0),
             "a leg-transfer list that is not running starts from the first page");
         for (int page = 0; page < MotherBrainEnemyState.LegLoadPageCount; page++)
         {
             ushort pointer = checked((ushort)(MotherBrainLegLoadListConstants.NativeListPointer +
                 page * MotherBrainLegLoadListConstants.RecordByteCount));
-            AssertEqual(page, NativeSnapshotImportMotherBrainVerification.DecodeLegTilePage(pointer),
+            AssertEqual(page, NativeSnapshotMotherBrainImport.DecodeLegTilePage(pointer),
                 $"leg-transfer record {page} decodes to its page");
         }
-        AssertThrows<InvalidDataException>(() => NativeSnapshotImportMotherBrainVerification.DecodeLegTilePage(
+        AssertThrows<InvalidDataException>(() => NativeSnapshotMotherBrainImport.DecodeLegTilePage(
                 checked((ushort)(MotherBrainLegLoadListConstants.NativeListPointer +
                     MotherBrainEnemyState.LegLoadPageCount * MotherBrainLegLoadListConstants.RecordByteCount))),
             "the leg-transfer terminator is not a page");

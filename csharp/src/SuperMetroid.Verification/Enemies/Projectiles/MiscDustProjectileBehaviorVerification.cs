@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileProgramOracleVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -89,7 +90,7 @@ internal static class MiscDustProjectileBehaviorVerification
     /// <summary>A guard rejecting every byte of the misc-dust and Mother Brain effect lists, which share their explosions.</summary>
     internal static CartridgeReadGuard ForbiddingSharedLists(ISnesAddressSpace rom) =>
         NativeEnemyProjectileListGuard.Forbidding(rom, MiscDustProjectileNativeListAddresses.Extent, "misc dust")
-            .AlsoForbidding(SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainEffectNativeListAddresses.Extent, "Mother Brain effect");
+            .AlsoForbidding(SuperMetroid.TestSupport.MovieReplay.MotherBrainEffectNativeListAddresses.Extent, "Mother Brain effect");
 
     /// <summary>A room enemy system whose random reads and draws return zero.</summary>
     internal static RoomEnemySystem CreateRoomEnemySystem()

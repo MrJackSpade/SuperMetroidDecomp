@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
@@ -25,7 +26,6 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.AssetExtraction.Artwork;
 
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;

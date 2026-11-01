@@ -1,7 +1,4 @@
-using SuperMetroid.AssetExtraction.Enemies;
-using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBodyProjectileNativeListAddresses;
-using SuperMetroid.Core.Enemies.YappingMaws;
-using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
+using static SuperMetroid.TestSupport.MovieReplay.YappingMawBodyProjectileNativeListAddresses;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.YappingMaws;
@@ -9,9 +6,6 @@ namespace SuperMetroid.Verification.Enemies.YappingMaws;
 /// <summary>#641: the Yapping Maw's body links typed programs, each matched step by step to its native bank-$86 list.</summary>
 internal static class YappingMawBodyProjectileAnimationsVerification
 {
-    /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, YappingMawBodyProjectileAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(YappingMawBodyProjectileFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
-
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyYappingMawBodyProjectileAnimations(SuperMetroidAddressSpace rom)
     {

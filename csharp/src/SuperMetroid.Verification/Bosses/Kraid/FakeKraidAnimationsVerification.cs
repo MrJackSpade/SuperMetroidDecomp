@@ -1,8 +1,8 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidNativeListAddresses;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 

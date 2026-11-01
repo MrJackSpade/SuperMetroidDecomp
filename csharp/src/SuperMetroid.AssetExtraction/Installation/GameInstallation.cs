@@ -410,7 +410,6 @@ public sealed record GameInstallation(string Root)
         {
             MapPresentation = maps,
             GameplayBasePalettes = LoadGameplayBasePalettes(),
-            StandardObjectArt = LoadStandardObjects(),
             IntroCinematicArt = LoadIntroCinematicArt(),
             SamusBodyArt = LoadSamusBodyArt(),
             EndingFloorArt = LoadEndingMode7Art(),

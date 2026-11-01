@@ -126,7 +126,6 @@ internal static class FrontendRomFreeVerification
         var palettes = installation.LoadGameplayBasePalettes();
         var overreads = installation.LoadSamusOverreads();
         var enemies = enemyArtwork ?? installation.LoadEnemyTiles();
-        var objects = installation.LoadStandardObjects();
         var intro = installation.LoadIntroCinematicArt();
         var samus = installation.LoadSamusBodyArt();
         var roomPalettes = installation.LoadRoomPalettes();
@@ -174,7 +173,6 @@ internal static class FrontendRomFreeVerification
                 SpriteSheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets,
                 BossArtwork = enemies.Bosses,
                 AreaArtwork = enemies.Areas,
-                StandardObjectArt = objects,
                 RoomPlmShotBlockVisuals = assetRoomPlmShotBlockVisuals,
                 RoomPlmGrappleBlockVisuals = assetRoomPlmGrappleBlockVisuals,
                 RoomPlmStationVisuals = assetRoomPlmStationVisuals,

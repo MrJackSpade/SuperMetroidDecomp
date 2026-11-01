@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Rooms;
 
@@ -13,9 +14,12 @@ namespace SuperMetroid.AssetExtraction.Installation;
 public static class InstalledArtworkIdentity
 {
     /// <summary>Fingerprints an already loaded set; nothing is read here. Every catalog must be bound.</summary>
-    public static IEnumerable<KeyValuePair<string, string>> Create(GameArtwork artwork)
+    /// <param name="artwork">The bound artwork set.</param>
+    /// <param name="standardObjects">The installed standard object characters, which only the import reads (#1484).</param>
+    public static IEnumerable<KeyValuePair<string, string>> Create(GameArtwork artwork, RoomCharacterAtlas standardObjects)
     {
         Ensure.NotNull(artwork);
+        Ensure.NotNull(standardObjects);
         return RoomPresentationIdentity.Create(Require(artwork.RoomPaletteArt), Require(artwork.RoomVisualLayouts))
             .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, Require(artwork.SamusBodyArt).ContentIdentity))
             .Concat(RoomPlmPresentationIdentity.Create(new RoomPlmVisualCatalogSet
@@ -47,7 +51,7 @@ public static class InstalledArtworkIdentity
                 MotherBrainFakeDeath = Require(artwork.RoomPlmMotherBrainFakeDeathVisuals),
                 Collectible = Require(artwork.RoomPlmCollectibleVisuals),
             }))
-            .Concat(GameplayPresentationIdentity.Create(Require(artwork.GameplayBasePalettes), Require(artwork.StandardObjectArt),
+            .Concat(GameplayPresentationIdentity.Create(Require(artwork.GameplayBasePalettes), standardObjects,
                 Require(artwork.XrayRevealVisuals)))
             .Concat(EndingPresentationIdentity.Create(Require(artwork.EndingFloorArt), Require(artwork.EndingObjectArt),
                 Require(artwork.EndingPaletteArt)))

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
@@ -26,14 +27,10 @@ internal static class MotherBrainFakeDeathVisualsVerification
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain stock oracle revision");
-        using var testRootScratch = new TestScratchDirectory("mother-brain-fake-death-visual");
-        string testRoot = testRootScratch.Root;
-        try
+        // A private installation copy, whose override is written and whose stock file is tampered below.
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
         {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmMotherBrainFakeDeathVisualFiles.Extract(rom,
-                installation.RoomPlmMotherBrainFakeDeathVisualDirectory,
-                SupportedCartridge.Sha256);
+            GameInstallation installation = copy.Installation;
             RoomPlmMotherBrainFakeDeathVisualFiles.ValidateStock(
                 installation.RoomPlmMotherBrainFakeDeathVisualDirectory);
             RoomPlmMotherBrainFakeDeathVisualCatalog stock =
@@ -73,9 +70,8 @@ internal static class MotherBrainFakeDeathVisualsVerification
                 new(12, 0), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope).Appearance,
                 null);
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmMotherBrainFakeDeathVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
+            // The shared installation's stock directory stands for a stock directory the installer replaced.
+            string refreshed = RepositoryInstallation.Installation.RoomPlmMotherBrainFakeDeathVisualDirectory;
             AssertEqual(RoomBlockAppearance.Of(0x59),
                 RoomPlmMotherBrainFakeDeathVisualFiles.Load(refreshed,
                     installation.RoomPlmMotherBrainFakeDeathVisualOverrideDirectory)
@@ -92,11 +88,6 @@ internal static class MotherBrainFakeDeathVisualsVerification
 
             JsonNode Entry(string id) => document.Required("entries").AsArray().RequiredElements()
                 .Single(entry => entry.Required("id").GetValue<string>() == id);
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
         }
         Console.WriteLine(
             "Mother Brain fake-death visuals: 22 stock draws, live row/tube edits, collision isolation, override persistence and strict failures pass.");

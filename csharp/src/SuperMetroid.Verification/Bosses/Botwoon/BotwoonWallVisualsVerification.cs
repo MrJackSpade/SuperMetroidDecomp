@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Verification.Harness;
@@ -68,16 +69,10 @@ internal static class BotwoonWallVisualsVerification
     /// <summary>Checks extraction, installed overrides, stock repair, and rejection of physical-bit edits.</summary>
     internal static void VerifyBotwoonWallVisuals()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
-            Path.GetFullPath("Super Metroid.smc"));
-        using var testRootScratch = new TestScratchDirectory("botwoon-wall-visual");
-        string testRoot = testRootScratch.Root;
-        try
+        // A private installation copy, whose override is written and whose stock file is tampered below.
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
         {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmBotwoonWallVisualFiles.Extract(rom,
-                installation.RoomPlmBotwoonWallVisualDirectory,
-                SupportedCartridge.Sha256);
+            GameInstallation installation = copy.Installation;
             RoomPlmBotwoonWallVisualFiles.ValidateStock(
                 installation.RoomPlmBotwoonWallVisualDirectory);
             InstalledRoomPlmBotwoonWallVisuals stock =
@@ -112,9 +107,8 @@ internal static class BotwoonWallVisualsVerification
                 "Botwoon wall override edits the fourth clear block");
             VerifyBotwoonWallVisualSeparation(edited);
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmBotwoonWallVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
+            // The shared installation's stock directory stands for a stock directory the installer replaced.
+            string refreshed = RepositoryInstallation.Installation.RoomPlmBotwoonWallVisualDirectory;
             AssertEqual(RoomBlockAppearance.Of(0x058),
                 RoomPlmBotwoonWallVisualFiles.Load(refreshed,
                     installation.RoomPlmBotwoonWallVisualOverrideDirectory)
@@ -131,11 +125,6 @@ internal static class BotwoonWallVisualsVerification
                 () => RoomPlmBotwoonWallVisualFiles.ValidateStock(
                     installation.RoomPlmBotwoonWallVisualDirectory),
                 "tampered Botwoon wall stock fails manifest validation");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
         }
         Console.WriteLine(
             "Botwoon wall visuals: native nine-tile clear, live art edit, physical/timing isolation, stock repair and strict failures pass.");

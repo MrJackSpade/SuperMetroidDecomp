@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
@@ -26,14 +27,10 @@ internal static class CrocomireArenaVisualsVerification
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Crocomire stock oracle revision");
-        using var testRootScratch = new TestScratchDirectory("crocomire-arena-visual");
-        string testRoot = testRootScratch.Root;
-        try
+        // A private installation copy, whose override is written and whose stock file is tampered below.
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
         {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmCrocomireVisualFiles.Extract(rom,
-                installation.RoomPlmCrocomireVisualDirectory,
-                SupportedCartridge.Sha256);
+            GameInstallation installation = copy.Installation;
             RoomPlmCrocomireVisualFiles.ValidateStock(
                 installation.RoomPlmCrocomireVisualDirectory);
             RoomPlmCrocomireVisualCatalog stock =
@@ -68,9 +65,8 @@ internal static class CrocomireArenaVisualsVerification
             VerifyCrocomireVisualDraw(PlmHeaderId.ClearCrocomireBridge,
                 new(9, 0), RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air), RoomBlockAppearance.Of(0x80), null);
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmCrocomireVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
+            // The shared installation's stock directory stands for a stock directory the installer replaced.
+            string refreshed = RepositoryInstallation.Installation.RoomPlmCrocomireVisualDirectory;
             AssertEqual(RoomBlockAppearance.Of(0x59),
                 RoomPlmCrocomireVisualFiles.Load(refreshed,
                     installation.RoomPlmCrocomireVisualOverrideDirectory)
@@ -86,11 +82,6 @@ internal static class CrocomireArenaVisualsVerification
 
             JsonNode Entry(string id) => document.Required("entries").AsArray().RequiredElements()
                 .Single(entry => entry.Required("id").GetValue<string>() == id);
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
         }
         Console.WriteLine("Crocomire arena visuals: five stock draws, bridge/wall edits, physical isolation, override persistence and strict failures pass.");
     }

@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Bosses.SporeSpawn;
@@ -29,14 +30,10 @@ internal static class SporeSpawnCeilingVisualsVerification
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Spore ceiling stock oracle revision");
-        using var testRootScratch = new TestScratchDirectory("spore-ceiling-visual");
-        string testRoot = testRootScratch.Root;
-        try
+        // A private installation copy, whose override is written and whose stock file is tampered below.
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
         {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmSporeSpawnCeilingVisualFiles.Extract(rom,
-                installation.RoomPlmSporeSpawnCeilingVisualDirectory,
-                SupportedCartridge.Sha256);
+            GameInstallation installation = copy.Installation;
             RoomPlmSporeSpawnCeilingVisualFiles.ValidateStock(
                 installation.RoomPlmSporeSpawnCeilingVisualDirectory);
             VerifySporeSpawnCeilingStockMapping(rom, installation.LoadRoomPlmSporeSpawnCeilingVisuals());
@@ -72,9 +69,8 @@ internal static class SporeSpawnCeilingVisualsVerification
             VerifySporeSpawnCeilingVisualSeparation(edited, clear: false);
             VerifySporeSpawnCeilingVisualSeparation(edited, clear: true);
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmSporeSpawnCeilingVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
+            // The shared installation's stock directory stands for a stock directory the installer replaced.
+            string refreshed = RepositoryInstallation.Installation.RoomPlmSporeSpawnCeilingVisualDirectory;
             AssertEqual(RoomBlockAppearance.Of(0x59),
                 RoomPlmSporeSpawnCeilingVisualFiles.Load(refreshed,
                     installation.RoomPlmSporeSpawnCeilingVisualOverrideDirectory)
@@ -86,11 +82,6 @@ internal static class SporeSpawnCeilingVisualsVerification
                 () => RoomPlmSporeSpawnCeilingVisualFiles.ValidateStock(
                     installation.RoomPlmSporeSpawnCeilingVisualDirectory),
                 "tampered Spore Spawn ceiling stock fails manifest validation");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
         }
         Console.WriteLine(
             "Spore Spawn ceiling visuals: four native frames, live 2x2 edits, physical/timing isolation, stock repair and strict failures pass.");

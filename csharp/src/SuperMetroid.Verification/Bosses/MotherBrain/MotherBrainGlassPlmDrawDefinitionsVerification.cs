@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
@@ -133,14 +134,10 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
     private static void VerifyMotherBrainGlassVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
-        using var testRootScratch = new TestScratchDirectory("mother-brain-glass-visual");
-        string testRoot = testRootScratch.Root;
-        try
+        // A private installation copy, whose override is written and whose stock file is tampered below.
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
         {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmMotherBrainGlassVisualFiles.Extract(rom,
-                installation.RoomPlmMotherBrainGlassVisualDirectory,
-                SupportedCartridge.Sha256);
+            GameInstallation installation = copy.Installation;
             RoomPlmMotherBrainGlassVisualFiles.ValidateStock(
                 installation.RoomPlmMotherBrainGlassVisualDirectory);
             VerifyMotherBrainGlassStockMapping(rom, installation.LoadRoomPlmMotherBrainGlassVisuals());
@@ -163,9 +160,8 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
                     .GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
                 "installed glass override changes the multi-run shatter tile");
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmMotherBrainGlassVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
+            // The shared installation's stock directory stands for a stock directory the installer replaced.
+            string refreshed = RepositoryInstallation.Installation.RoomPlmMotherBrainGlassVisualDirectory;
             AssertEqual(RoomBlockAppearance.Of(0x57),
                 RoomPlmMotherBrainGlassVisualFiles.Load(refreshed,
                     installation.RoomPlmMotherBrainGlassVisualOverrideDirectory)
@@ -176,11 +172,6 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmMotherBrainGlassVisuals(),
                 "tampered glass stock fails manifest validation");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
         }
     }
 

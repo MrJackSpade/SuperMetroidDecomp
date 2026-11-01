@@ -6,6 +6,7 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 using SuperMetroid.Core.Rooms.LevelData;
@@ -22,16 +23,10 @@ internal static class BombTorizoHandVisualsVerification
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        using var testRootScratch = new TestScratchDirectory("bomb-torizo-hand-visual");
-        string testRoot = testRootScratch.Root;
-        try
+        // A private installation copy, whose override is written and whose stock file is tampered below.
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
         {
-            var installation = new GameInstallation(testRoot);
-            // Extraction compares every native direction, word, and signed offset
-            // with the compiled lists before it writes a stock file.
-            RoomPlmBombTorizoHandVisualFiles.Extract(rom,
-                installation.RoomPlmBombTorizoHandVisualDirectory,
-                SupportedCartridge.Sha256);
+            GameInstallation installation = copy.Installation;
             RoomPlmBombTorizoHandVisualFiles.ValidateStock(
                 installation.RoomPlmBombTorizoHandVisualDirectory);
             AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -57,9 +52,8 @@ internal static class BombTorizoHandVisualsVerification
                     PlmDraw.Of(BombTorizoHandDraw.Intact), 0, 0),
                 "installed hand override selects its changed block");
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmBombTorizoHandVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
+            // The shared installation's stock directory stands for a stock directory the installer replaced.
+            string refreshed = RepositoryInstallation.Installation.RoomPlmBombTorizoHandVisualDirectory;
             AssertEqual(RoomBlockAppearance.Of(0x53),
                 RoomPlmBombTorizoHandVisualFiles.Load(refreshed,
                     installation.RoomPlmBombTorizoHandVisualOverrideDirectory)
@@ -71,11 +65,6 @@ internal static class BombTorizoHandVisualsVerification
                 () => RoomPlmBombTorizoHandVisualFiles.ValidateStock(
                     installation.RoomPlmBombTorizoHandVisualDirectory),
                 "tampered hand stock fails manifest validation");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
         }
     }
 }

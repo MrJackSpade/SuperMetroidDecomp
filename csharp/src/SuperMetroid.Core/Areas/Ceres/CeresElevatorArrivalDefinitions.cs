@@ -10,11 +10,11 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresElevatorArrivalDefinitions
 {
 
-    /// <summary>Moving pad spawned first into enemy-projectile slot $22.</summary>
+    /// <summary>Moving pad spawned first, into the last enemy-projectile slot.</summary>
     internal static readonly CeresElevatorProjectileDefinition MovingPad = new(
         Program: CeresElevatorArrivalProgram.Pad);
 
-    /// <summary>Stationary level-data concealer spawned into slot $20.</summary>
+    /// <summary>Stationary level-data concealer spawned second, into the slot before it.</summary>
     internal static readonly CeresElevatorProjectileDefinition StationaryPlatform = new(
         Program: CeresElevatorArrivalProgram.Platform);
 

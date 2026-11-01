@@ -1,4 +1,4 @@
-using SuperMetroid.Core;
+using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable eight-bit Mode-7 tilemap schema shared by 128x64 ending backdrops and the full 128x128 post-credits beam/icon map.</summary>

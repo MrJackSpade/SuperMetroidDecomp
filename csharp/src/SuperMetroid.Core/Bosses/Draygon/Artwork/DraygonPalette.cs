@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 /// </summary>
 internal static class DraygonPalette
 {
-    /// <summary>Hashes the opening, background, sprite and flash colours, then every health band's row.</summary>
+    /// <summary>Hashes the opening, background, sprite and flash colours, then every health band's colours.</summary>
     internal static string ContentIdentity(DraygonColorCatalog colors) =>
         SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
         {
@@ -26,11 +26,11 @@ internal static class DraygonPalette
             for (int color = 0; color < flash.Length; color++) flash[color] = colors.ResolveWhiteFlash(color);
             content.AppendColors("whiteFlash", flash);
             content.Append("healthBands", DraygonColorDefinitions.HealthBandCount);
-            Span<RgbColor> row = stackalloc RgbColor[DraygonColorDefinitions.HealthBandColorCount];
+            Span<RgbColor> bandColors = stackalloc RgbColor[DraygonColorDefinitions.HealthBandColorCount];
             for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
             {
-                for (int color = 0; color < row.Length; color++) row[color] = colors.ResolveHealthBand(band, color);
-                content.AppendColors("row", row);
+                for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.ResolveHealthBand(band, color);
+                content.AppendColors("row", bandColors);
             }
         });
 
@@ -51,7 +51,7 @@ internal static class DraygonPalette
         return edits.TryGetValue(new ColourCell(0, color), out RgbColor selected) ? selected : StockWhiteFlash(color);
     }
 
-    /// <summary>Gets one of the four selected colors in an eight-row health palette table.</summary>
+    /// <summary>Gets one of the four selected colors of one of Draygon's eight health bands.</summary>
     internal static RgbColor HealthBand(DraygonHealthPaint healthBands, int band, int color)
     {
         _ = CheckBand(band);
@@ -96,7 +96,7 @@ internal static class DraygonPalette
                 colors.ResolveHealthBand(band, color));
     }
 
-    /// <summary>Validates a health palette row before resolving one of its colors.</summary>
+    /// <summary>Validates a health band before resolving one of its colors.</summary>
     private static int CheckBand(int band) =>
         (uint)band < DraygonColorDefinitions.HealthBandCount
             ? band

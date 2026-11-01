@@ -13,11 +13,11 @@ internal sealed class DraygonHealthPaint
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Retains only differences from the four-shade, eight-band paint calculation.</summary>
-    internal DraygonHealthPaint(RgbColor[][] rows)
+    internal DraygonHealthPaint(RgbColor[][] healthBands)
     {
         for (int band = 0; band < Bands; band++)
             for (int shade = 0; shade < Shades; shade++)
-                if (rows[band][shade] != Calculate(band, shade)) edits.Add(new ColourCell(band, shade), rows[band][shade]);
+                if (healthBands[band][shade] != Calculate(band, shade)) edits.Add(new ColourCell(band, shade), healthBands[band][shade]);
     }
 
     /// <summary>Uses an extracted edit when present, otherwise interpolates the requested belly shade.</summary>

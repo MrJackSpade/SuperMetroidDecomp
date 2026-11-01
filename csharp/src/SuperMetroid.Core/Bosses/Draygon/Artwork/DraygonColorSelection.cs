@@ -7,6 +7,6 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 /// <param name="Background">Normal background material colors used outside white hurt flashes.</param>
 /// <param name="Sprite">Normal sprite material colors used outside white hurt flashes.</param>
 /// <param name="WhiteFlash">Only edited flash colors; stock entries are calculated on lookup.</param>
-/// <param name="HealthBands">Four selected colors for each of Draygon's eight health palette rows.</param>
+/// <param name="HealthBands">Four selected colors for each of Draygon's eight health bands.</param>
 internal sealed record DraygonColorSelection(DraygonIntroPaint Intro, DraygonMaterialPaint Background, DraygonMaterialPaint Sprite,
     Dictionary<ColourCell, RgbColor> WhiteFlash, DraygonHealthPaint HealthBands);

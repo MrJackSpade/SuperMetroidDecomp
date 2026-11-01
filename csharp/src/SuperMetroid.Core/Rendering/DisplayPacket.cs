@@ -59,9 +59,5 @@ public sealed class DisplayPacket
     }
 
     /// <summary>Records the frame number, which is never negative.</summary>
-    private DisplayPacket(int frameNumber)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegative(frameNumber);
-        FrameNumber = frameNumber;
-    }
+    private DisplayPacket(int frameNumber) => FrameNumber = Ensure.AtLeastZero(frameNumber);
 }

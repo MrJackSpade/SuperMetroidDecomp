@@ -27,16 +27,16 @@ public static class HyperBeamHues
     }
 
     /// <summary>Turns the red endpoint into magenta by raising blue to red.</summary>
-    /// <remarks>Original projectile frame8 ink1 ($8D:D9A8) derives from
-    /// frame0 ink3 ($D90C). Body-cycle frame1 also has blue=red,including
+    /// <remarks>Original projectile frame8 ink1 derives from
+    /// frame0 ink3. Body-cycle frame1 also has blue=red,including
     /// its independently edited shade-red channels. Red/green stay fixed; copying red into blue
     /// needs no rounding,saturation or overflow. Edits remain independent.</remarks>
     internal static RgbColor MagentaFromRed(RgbColor red) =>
         red.WithBlue(red.Red);
 
     /// <summary>Changes the green Hyper Beam hue into yellow by raising red to green.</summary>
-    /// <remarks>Every opaque original frame7 word ($9B:A280) equals frame5
-    /// ($9B:A2C0) with red replaced by green. Green/blue remain unchanged.
+    /// <remarks>Every opaque original frame7 word equals frame5
+    /// with red replaced by green. Green/blue remain unchanged.
     /// RGB5 component copying needs no rounding or saturation. Transparent
     /// payloads are outside the hue transform; differing asset values override it.</remarks>
     internal static RgbColor YellowFromGreen(RgbColor green) =>

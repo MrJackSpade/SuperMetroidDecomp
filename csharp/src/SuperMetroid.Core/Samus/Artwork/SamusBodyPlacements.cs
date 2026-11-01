@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 internal static class SamusBodyPlacements
 {
     /// <summary>
-    /// $91:B62D + pose*8: the stock visual origin shares the native real-pose byte
+    /// The pose's eighth descriptor byte: the stock visual origin shares the real-pose byte
     /// with the already calculated physical projectile correction. Installed visual
     /// overrides remain independent. FD..FF adjacent instruction observations are excluded.
     /// </summary>
@@ -24,7 +24,7 @@ internal static class SamusBodyPlacements
         return index == LandingDataBytes ? index : index / (2 * LandingPoseBytes) * (2 * LandingPoseBytes) + index % LandingPoseBytes;
     }
 
-    /// <summary>$90:8D28..8D38: named landing compression, standing recovery, inactive padding and adjacent instruction observation.</summary>
+    /// <summary>Named landing compression, standing recovery, inactive padding and adjacent instruction observation.</summary>
     internal static int DefaultLandingByte(int index)
     {
         int source = LandingSourceIndex(index);

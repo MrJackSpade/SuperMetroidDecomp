@@ -17,13 +17,13 @@ public sealed record SamusBodyArtworkContent
     /// <summary>Per-pose signed vertical art origins.</summary>
     public required int[] GraphicsYOffsets { get; init; }
 
-    /// <summary>Native landing vertical-offset bytes.</summary>
+    /// <summary>Landing vertical-offset bytes.</summary>
     public required int[] LandingYOffsets { get; init; }
 
-    /// <summary>Native posture-transition vertical offsets.</summary>
+    /// <summary>Posture-transition vertical offsets.</summary>
     public required sbyte[] PostureYOffsets { get; init; }
 
-    /// <summary>Native drained-state vertical offsets.</summary>
+    /// <summary>Drained-state vertical offsets.</summary>
     public required sbyte[] DrainedYOffsets { get; init; }
 
     /// <summary>Which body picture each pose half shows at each animation frame.</summary>

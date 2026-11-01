@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// picture it shows, and the cover's displacement from Samus at each animation frame.
 /// </summary>
 /// <remarks>
-/// The import pipeline decodes each pose's cartridge descriptor into this placement. A pose's displacements continue
-/// through the descriptors stored after its own, as the cartridge's per-frame read does, up to the end of the installed
+/// The import pipeline decodes each pose's stored descriptor into this placement. A pose's displacements continue
+/// through the descriptors stored after its own, as the game's per-frame read does, up to the end of the installed
 /// drawing window; an animation frame beyond them has no installed placement.
 /// </remarks>
 public sealed class SamusArmCannonPlacement

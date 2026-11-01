@@ -16,7 +16,7 @@ public sealed class InstalledGrappleSwingFrames
             { this.frames = frames; return; }
     }
     /// <summary>Selects the editable displayed orientation frame for one high angle byte, independently of the compiled body-placement frame and the runtime's separate straight-down animation handling.</summary>
-    /// <param name="angle">High byte of the mirrored native swing angle, representing one of 256 positions around a full turn.</param>
+    /// <param name="angle">High byte of the mirrored swing angle, representing one of 256 positions around a full turn.</param>
     /// <returns>A displayed orientation frame index from 0 through 31, within the current facing's swing artwork.</returns>
     public int Resolve(ByteAngle angle) => frames is null
         ? GrappleSwingFrameDefinitions.FrameForAngle(angle) : frames[angle.RawValue];

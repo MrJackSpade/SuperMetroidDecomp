@@ -2,7 +2,7 @@
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
-/// Five stock beam material palettes at $90:C3E1-C480. $90:ACCD-ACEF copies
+/// Five stock beam material palettes. The beam palette load copies
 /// the selected sixteen colors to OBJ palette6; charge/impact sprites and frozen
 /// enemy components also use this palette. The reviewed exact material channel
 /// choices and shade memberships are selected paint composition; generating them
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </summary>
 internal static class BeamPaintDefinitions
 {
-    /// <summary>Highest channel value in a five-bit SNES RGB component.</summary>
+    /// <summary>Highest channel value in a five-bit RGB component.</summary>
     internal const int Rgb5Maximum = (1 << 5) - 1;
-    /// <summary>$90:C3E1 and corresponding slot0 aliases copy this blue target despite OBJ transparency.</summary>
+    /// <summary>Every row's first colour and its slot0 aliases copy this blue target despite sprite transparency.</summary>
     internal const int ClearTargetBlue = 14;
 }

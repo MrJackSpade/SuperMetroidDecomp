@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </remarks>
 public abstract class InstalledSamusBodyArtwork
 {
-    /// <summary>Number of native Samus pose entries with body-art selectors.</summary>
+    /// <summary>Number of Samus pose entries with body-art selectors.</summary>
     public const int PoseCount = SamusPoseNumbering.RecordCount;
 
     /// <summary>Pose art-origin edits independent of physical collision offsets.</summary>
@@ -100,7 +100,7 @@ public abstract class InstalledSamusBodyArtwork
     public ReadOnlySpan<int> GraphicsYOffsets => graphicsYOffsetsTable ??= Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset(SamusPoseNumbering.FromNumber(index))).ToArray();
     /// <summary>The materialized <see cref="GraphicsYOffsets"/>; the installed tables never change after construction.</summary>
     private int[]? graphicsYOffsetsTable;
-    /// <summary>Native landing table, including the one adjacent byte read by an unaligned word.</summary>
+    /// <summary>The landing table, including the one adjacent byte read by an unaligned word.</summary>
     public ReadOnlySpan<int> LandingYOffsets => landingYOffsetsTable ??= Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount).Select(LandingByte).ToArray();
     /// <summary>The materialized <see cref="LandingYOffsets"/>; the installed tables never change after construction.</summary>
     private int[]? landingYOffsetsTable;
@@ -108,11 +108,11 @@ public abstract class InstalledSamusBodyArtwork
     public ReadOnlySpan<sbyte> PostureYOffsets => postureYOffsets;
     /// <summary>Gets the installed drained-state vertical-offset table.</summary>
     public ReadOnlySpan<sbyte> DrainedYOffsets => drainedYOffsets;
-    /// <summary>Resolves an edited landing byte or its native shared-source alias.</summary>
+    /// <summary>Resolves an edited landing byte or its shared-source alias.</summary>
     private int LandingByte(int index) => landingYOffsets.ContainsKey(index)
         ? landingYOffsets[index] : SamusBodyPlacements.LandingSourceIndex(index) == index
             ? SamusBodyPlacements.DefaultLandingByte(index) : LandingByte(SamusBodyPlacements.LandingSourceIndex(index));
-    /// <summary>Attempts to read the native unaligned landing-offset word at a byte index.</summary>
+    /// <summary>Attempts to read the unaligned landing-offset word at a byte index.</summary>
     /// <param name="index">The starting byte index.</param>
     /// <param name="value">Receives the little-endian landing-offset word.</param>
     /// <returns><see langword="true"/> when two bytes are available.</returns>

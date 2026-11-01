@@ -14,7 +14,7 @@ public static class SamusOverlaySheetDefinitions
     /// <summary>The chest cover's frame.</summary>
     public const string ChestCoverFrame = "ChestCover";
 
-    /// <summary>The arm cannon's cover in native direction <paramref name="direction"/> at cover frame <paramref name="frame"/>.</summary>
+    /// <summary>The arm cannon's cover in direction <paramref name="direction"/> at cover frame <paramref name="frame"/>.</summary>
     public static string ArmCannonFrame(int direction, int frame) => $"ArmCannon.{direction}.{frame}";
 
     /// <summary>Every frame the sheet holds.</summary>

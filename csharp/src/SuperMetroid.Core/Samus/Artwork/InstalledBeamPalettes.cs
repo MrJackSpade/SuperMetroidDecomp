@@ -22,7 +22,7 @@ public sealed class InstalledBeamPalettes
         palettes.TryGetValue(new ColourCell(selection.TableIndex, color), out RgbColor supplied)
             ? supplied : BeamPaint.Color(selection, color);
 
-    /// <summary>Copies all sixteen colors of an ordinary beam selection to CGRAM entries 224..239 (OBJ palette 6), matching native <c>Load_Beam_Palette_withStackPrepped</c> at <c>$90:ACCD</c>; does not run charge or Hyper Beam color animation.</summary>
+    /// <summary>Copies all sixteen colors of an ordinary beam selection to colours 224..239 (sprite palette 6), matching <c>Load_Beam_Palette_withStackPrepped</c>; does not run charge or Hyper Beam color animation.</summary>
     /// <param name="beam">The beam colours to change.</param>
     /// <param name="selection">Retail beam combination $0..$B.</param>
     public void LoadTo(ColourRun beam, SamusBeamCombination selection)

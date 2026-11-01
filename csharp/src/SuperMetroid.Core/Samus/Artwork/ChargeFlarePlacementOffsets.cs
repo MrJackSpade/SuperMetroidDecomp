@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public static class ChargeFlarePlacementOffsets
 {
     /// <summary>Formats the exact JSON identity for one movement-mode/direction placement; direction range validation belongs to catalog loading or lookup, not this formatter.</summary>
-    /// <param name="running">True for the running visual-origin table; false for standing, including the native turning/adjacent-row selections.</param>
-    /// <param name="direction">Full native low-nibble selector 0..15, including bounded overreads beyond the ten named aiming directions; formatted as two decimal digits rather than hexadecimal.</param>
+    /// <param name="running">True for the running visual-origin table; false for standing, including the turning/adjacent-row selections.</param>
+    /// <param name="direction">Full low-nibble selector 0..15, including bounded overreads beyond the ten named aiming directions; formatted as two decimal digits rather than hexadecimal.</param>
     /// <returns>A key such as <c>standing-00</c> or <c>running-15</c>.</returns>
     public static string Key(bool running, int direction) => $"{(running ? "running" : "standing")}-{direction:D2}";
 
     /// <summary>
-    /// $90:C1A8..C203 named visual muzzle origins, including exact adjacent-row aliases
+    /// The named visual muzzle origins, including exact adjacent-row aliases
     /// for the renderer's full low-nibble domain. Physical origins remain separate.
     /// </summary>
     internal static Offset16<RoomPixels> BeamOffset(bool running, int direction)
@@ -65,12 +65,12 @@ public static class ChargeFlarePlacementOffsets
             (true, SamusProjectileDirection.Left) => new Offset16<RoomPixels>(-20, -3),
             (true, SamusProjectileDirection.UpLeft) => new Offset16<RoomPixels>(-19, -20),
             (true, SamusProjectileDirection.UpFacingLeft) => new Offset16<RoomPixels>(-2, -32),
-            _ => throw new InvalidOperationException("Beam visual origin requires a named native direction."),
+            _ => throw new InvalidOperationException("Beam visual origin requires a named aiming direction."),
         };
     }
 
     /// <summary>
-    /// $9B:C14A/C15E and C19A/C1AE: Grapple's ten visual origins equal the beam origins.
+    /// Grapple's ten visual origins equal the beam origins.
     /// Overread directions use adjacent physical-origin and swing-selector row owners.
     /// </summary>
     internal static Offset16<RoomPixels> GrappleOffset(bool running, int direction)
@@ -83,6 +83,6 @@ public static class ChargeFlarePlacementOffsets
                 : GrappleFiring.Origin(adjacent, true).X);
     }
 
-    /// <summary>$9B:C1C2 GrappleSwingSamusXYOffsets: nearest eight-angle bucket, modulo32; its first twelve bytes bound the running-flare Y alias.</summary>
+    /// <summary>GrappleSwingSamusXYOffsets: nearest eight-angle bucket, modulo32; its first twelve bytes bound the running-flare Y alias.</summary>
     private static int SwingSelectorByte(int angle) => ((angle + 4) / 8) % 32;
 }

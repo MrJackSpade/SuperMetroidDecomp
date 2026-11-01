@@ -17,8 +17,8 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// shades are calculated; independent asset edits stay local.
 ///
 /// Suitless base ink0 at9BA120 is likewise an unused transparent payload:
-/// native9BB53A copies it to OBJ palette7 slot0,while OBJ rendering discards
-/// index-zero pixels before reading CGRAM. Its RGB is not a visible shade
+/// the death setup copies it to sprite palette7 slot0, while sprite rendering discards
+/// index-zero pixels before reading the colour. Its RGB is not a visible shade
 /// or an input to another opaque ink. Temporal fades preserve the selected
 /// word but do not make it visible. A numeric case or fitted expression for
 /// that arbitrary unused payload would only recite the data; retain this one
@@ -27,7 +27,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// The remaining13 visible suitless base components are artwork inputs:
 /// ink1 RGB,ink4 RG,ink6 RGB,ink7/9 blue,ink10 red/blue and ink11 intensity.
 /// They choose the warm/tinted endpoint colors and local shade contrast of
-/// categorical sprite inks. Native9BB53A and9BB5CE copy selected palette
+/// categorical sprite inks. The death setup and explosion copy selected palette
 /// rows; pixel indices select painted classes,not a measured illumination,
 /// material or hue coordinate that determines those choices. Linear warm,
 /// tint-balance,midpoint,gray and temporal shade relationships are calculated
@@ -42,7 +42,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// Explosion durations have their own independently documented disposition.</remarks>
 public sealed class InstalledSamusDeathPalettes
 {
-    /// <summary>Three suited families in $9B:B7D3's pointer-table order: Power, Varia, then Gravity.</summary>
+    /// <summary>Three suited families in pointer-table order: Power, Varia, then Gravity.</summary>
     public const int SuitCount = 3;
     /// <summary>Sixteen RGB5 words per OBJ palette row, including the transparent sprite ink at index zero.</summary>
     public const int ColorCount = SamusPaletteDefinitions.Common.ColoursPerRow;
@@ -72,12 +72,12 @@ public sealed class InstalledSamusDeathPalettes
     internal readonly Dictionary<int, ushort> explosionPaletteIndices = new();
 
     /// <summary>Captures selected death artwork as owned inputs and independent channel overrides; no caller arrays are retained or modified.</summary>
-    /// <param name="suited">Three suit families, each with ten rows of sixteen RGB5 words, in $9B:B7D3 pointer-table order.</param>
-    /// <param name="suitless">Ten rows of sixteen RGB5 words in $9B:B80F pointer-table order, separate from suited artwork.</param>
-    /// <param name="whiteout">Twenty-two RGB5 shades corresponding to ShadesOfWhite at $9B:B835, indexed by whiteout counter rather than explosion frame.</param>
-    /// <param name="explosionPaletteIndices">Nine row selectors 0..9 corresponding to the odd bytes at $9B:B824..B834; animation durations are not part of this input.</param>
+    /// <param name="suited">Three suit families, each with ten rows of sixteen RGB5 words, in pointer-table order.</param>
+    /// <param name="suitless">Ten rows of sixteen RGB5 words in pointer-table order, separate from suited artwork.</param>
+    /// <param name="whiteout">Twenty-two RGB5 shades corresponding to ShadesOfWhite, indexed by whiteout counter rather than explosion frame.</param>
+    /// <param name="explosionPaletteIndices">Nine row selectors 0..9 corresponding to the odd bytes; animation durations are not part of this input.</param>
     /// <exception cref="ArgumentNullException">A top-level input array is null.</exception>
-    /// <exception cref="InvalidDataException">An input has the wrong dimensions, a nested family or row is null, a color exceeds $7FFF, or an explosion selector exceeds 9.</exception>
+    /// <exception cref="InvalidDataException">An input has the wrong dimensions, a nested family or row is null, a color exceeds 32767, or an explosion selector exceeds 9.</exception>
     public InstalledSamusDeathPalettes(RgbColor[][][] suited, RgbColor[][] suitless,
         RgbColor[] whiteout, ushort[] explosionPaletteIndices)
     {
@@ -203,8 +203,8 @@ public sealed class InstalledSamusDeathPalettes
         content.AppendWords("explosion palette indices", selectors);
     });
 
-    /// <summary>Resolves the native suited palette view, calculating its seven whitening steps.</summary>
-    /// <remarks>Native9B:B7D3..B80D selects base at0, yellow flash at1,
+    /// <summary>Resolves the suited palette view, calculating its seven whitening steps.</summary>
+    /// <remarks>The suited pointer table selects base at0, yellow flash at1,
     /// eighth-step shades1..7 at indices2..8 and the final shared row at9.
     /// Original flash9B9420 repeats one yellow color across all sixteen inks
     /// and suits; final9BA220 repeats one gray color shared with suitless.
@@ -215,9 +215,9 @@ public sealed class InstalledSamusDeathPalettes
     /// Varia differs at2/10/11,Gravity at0/1/2/10/11/12. Independently supplied
     /// differences remain inputs,including source-only edits. Differing fade channels
     /// override shared arithmetic. Preserve the former array bounds exception.</remarks>
-    /// <param name="suit">Family index 0=Power, 1=Varia, 2=Gravity; not the native byte offsets 0, 2, and 4.</param>
+    /// <param name="suit">Family index 0=Power, 1=Varia, 2=Gravity; not the byte offsets 0, 2, and 4.</param>
     /// <param name="palette">Pointer-table row 0..9: base, flash, seven whitening steps, then final foreground row.</param>
-    /// <param name="color">Ink index 0..15, copied by the consumer to CGRAM 192..207; index-zero pixels remain transparent.</param>
+    /// <param name="color">Ink index 0..15, copied by the consumer to colours 192..207; index-zero pixels remain transparent.</param>
     /// <returns>The selected RGB5 word with red in bits 0..4, green in 5..9, and blue in 10..14; no palette is written.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Any index is outside its documented range.</exception>
     public RgbColor SuitedColor(int suit, int palette, int color)
@@ -238,15 +238,15 @@ public sealed class InstalledSamusDeathPalettes
         return suitedFadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
     /// <summary>Resolves the same eighth-step whitening for suitless Samus.</summary>
-    /// <remarks>Original9B:B80F..B822 repeats the base at indices0/1,
+    /// <remarks>The suitless pointer table repeats the base at indices0/1,
     /// selects shade1..7 at2..8 and a distinct final row at9. Independent
     /// edits, including the repeated base row, retain their supplied values.
     /// Base ink5 is full RGB5 white; resolve that named color directly and
     /// retain only independently edited channels. White stays white throughout
     /// the seven computed fade steps. No generated color cache is stored.</remarks>
     /// <param name="palette">Pointer-table row 0..9; stock rows 0 and 1 repeat the base, 2..8 whiten it, and 9 is the final foreground row.</param>
-    /// <param name="color">Ink index 0..15, copied by the consumer to CGRAM 240..255; index-zero pixels remain transparent.</param>
-    /// <returns>The selected RGB5 word without changing CGRAM or advancing the death sequence.</returns>
+    /// <param name="color">Ink index 0..15, copied by the consumer to colours 240..255; index-zero pixels remain transparent.</param>
+    /// <returns>The selected RGB5 word without changing the colours or advancing the death sequence.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Either index is outside its documented range.</exception>
     public RgbColor SuitlessColor(int palette, int color)
     {
@@ -300,7 +300,7 @@ public sealed class InstalledSamusDeathPalettes
         return suitlessFadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
     /// <summary>Preserves the tint ramp's green-minus-blue balance at its dark endpoint.</summary>
-    /// <remarks>All five native inks6..10 at9BA12C..A135 have G-B=6.
+    /// <remarks>All five suitless inks6..10 have G-B=6.
     /// The bright endpoint supplies that balance; the dark endpoint retains
     /// independent red/blue and calculates green=darkBlue+brightGreen-brightBlue.
     /// No fixed correction is embedded. Edited inputs may yield green outside
@@ -398,9 +398,9 @@ public sealed class InstalledSamusDeathPalettes
     /// is bounded0..31; bit replication needs no rounding or saturation.
     /// This converts channel duplication,not the separate intensity choices.</remarks>
     private static RgbColor Neutral(int intensity) => new(intensity, intensity, intensity);
-    /// <summary>Resolves a $9B:B835 ShadesOfWhite entry, retaining independent edits to the calculated two-rate whiteout.</summary>
+    /// <summary>Resolves a ShadesOfWhite entry, retaining independent edits to the calculated two-rate whiteout.</summary>
     /// <param name="index">Whiteout shade 0..21, not an explosion frame; the terminal call selects 21 explicitly.</param>
-    /// <returns>The RGB5 word used by the consumer to fill CGRAM 0..191 and 208..239, excluding suited and suitless Samus palettes.</returns>
+    /// <returns>The RGB5 word used by the consumer to fill colours 0..191 and 208..239, excluding suited and suitless Samus palettes.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside 0..21.</exception>
     public RgbColor WhiteoutColor(int index) => whiteout.Resolve(index);
 
@@ -413,7 +413,7 @@ public sealed class InstalledSamusDeathPalettes
         /// <summary>Only whiteout channels that differ from the calculated two-rate ramp.</summary>
         internal readonly Dictionary<int, LoadingPaletteInputView.Channels> inputs = new();
 
-        /// <summary>Captures independent shade edits while leaving native ramp values implicit.</summary>
+        /// <summary>Captures independent shade edits while leaving stock ramp values implicit.</summary>
         internal WhiteoutInputs(RgbColor[] source)
         {
             for (int index = 0; index < source.Length; index++)
@@ -437,7 +437,7 @@ public sealed class InstalledSamusDeathPalettes
     /// the first half of the brightness rise takes seven intervals,the second
     /// takes fourteen. First stage floors15*index/7 before adding1; second
     /// floors the remaining distance15*(21-index)/14 before subtracting from31.
-    /// This preserves the native quantization at the shared half-brightness
+    /// This preserves the quantization at the shared half-brightness
     /// boundary without special sample corrections. Numerators are at most210;
     /// there is no wrap,saturation,extrapolation or generated lookup cache.
     /// Native9BB710 skips explosion frame0,then reads counter0..20 before
@@ -456,12 +456,12 @@ public sealed class InstalledSamusDeathPalettes
         return Neutral(intensity);
     }
     /// <summary>Advances through death palettes while skipping the flash-only row.</summary>
-    /// <remarks>Original odd bytes9BB824..B834 select0,2..9 for frame0..8.
+    /// <remarks>The original odd selector bytes select0,2..9 for frame0..8.
     /// Index1 belongs to the preceding yellow-flash stage, not the explosion.
-    /// The native caller advances the explosion frame before selecting its
+    /// The caller advances the explosion frame before selecting its
     /// next palette and terminates at9 without another lookup. Edited asset
     /// selectors remain independent. Preserve the original array bounds exception.</remarks>
-    /// <param name="frame">Explosion drawing index 0..8, selecting one of the nine native timing/selector records.</param>
+    /// <param name="frame">Explosion drawing index 0..8, selecting one of the nine timing/selector records.</param>
     /// <returns>A row index 0..9 for both foreground palette families, not a RGB5 word or countdown duration.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside 0..8.</exception>
     public int ExplosionPaletteIndex(int frame)

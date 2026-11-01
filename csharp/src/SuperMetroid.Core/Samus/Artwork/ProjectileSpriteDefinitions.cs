@@ -1,20 +1,20 @@
 ﻿namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>The Samus projectile compositions native timed projectile records draw, by family.</summary>
+/// <summary>The Samus projectile compositions timed projectile records draw, by family.</summary>
 public static class ProjectileSpriteDefinitions
 {
     /// <summary>Supported projectile-composition JSON schema revision, two, naming every composition by family and index.</summary>
     public const int Version = 2;
-    /// <summary>Installed JSON resource filename for editable projectile OAM compositions, separate from their timing, damage, and collision mechanics.</summary>
+    /// <summary>Installed JSON resource filename for editable projectile sprite compositions, separate from their timing, damage, and collision mechanics.</summary>
     public const string FileName = "projectile-compositions.json";
-    /// <summary>Maximum OAM parts allowed in one authored composition, 128, matching the hardware OBJ entry capacity rather than an animation-frame count.</summary>
+    /// <summary>Maximum sprite parts allowed in one authored composition, 128, matching the screen's sprite capacity rather than an animation-frame count.</summary>
     public const int MaximumParts = 128;
     /// <summary>Sixteen columns and thirty-two rows in the logical OBJ character grid; row times sixteen plus column forms the nine-bit tile index, with large-part neighbors wrapping natively.</summary>
     public const int TileColumns = 16;
     /// <summary>Sixteen columns and thirty-two rows in the logical OBJ character grid; row times sixteen plus column forms the nine-bit tile index, with large-part neighbors wrapping natively.</summary>
     public const int TileRows = 32;
 
-    /// <summary>How many compositions each projectile family holds, in the cartridge's storage order.</summary>
+    /// <summary>How many compositions each projectile family holds, in the game's storage order.</summary>
     private static readonly ProjectileSpriteGroupSize[] Groups =
     [
         new(ProjectileSpriteGroup.Nothing, 1),
@@ -41,6 +41,6 @@ public static class ProjectileSpriteDefinitions
         new(ProjectileSpriteGroup.PlasmaStartup, 32),
     ];
 
-    /// <summary>The 417 compositions native timed projectile records draw, in the cartridge's storage order, including the zero-part Nothing composition.</summary>
+    /// <summary>The 417 compositions timed projectile records draw, in the game's storage order, including the zero-part Nothing composition.</summary>
     public static IReadOnlyList<ProjectileSpriteId> All { get; } = [.. Groups.SelectMany(group => group.Members)];
 }

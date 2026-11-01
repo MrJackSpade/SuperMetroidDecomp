@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Installed-resource identity, schema revision, and native sequence dimensions for explosion fixed-color artwork.</summary>
+/// <summary>Installed-resource identity, schema revision, and sequence dimensions for explosion fixed-color artwork.</summary>
 public static class PowerBombFixedColorFormat
 {
     /// <summary>JSON resource filename containing the pre-explosion and explosion RGB5 sequences.</summary>
@@ -13,7 +13,7 @@ public static class PowerBombFixedColorFormat
     public const int Version = 1;
 
 
-    /// <summary>Returns the number of radius-addressable RGB5 triplets in the selected native sequence.</summary>
+    /// <summary>Returns the number of radius-addressable RGB5 triplets in the selected sequence.</summary>
     /// <param name="sequence">Pre-explosion or explosion artwork domain; this is not an animation phase or composable bit mask.</param>
     /// <returns>Sixteen for pre-explosion or thirty-two for explosion, defining the exclusive upper index bound.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The sequence value is not defined.</exception>
@@ -24,8 +24,8 @@ public static class PowerBombFixedColorFormat
         _ => throw new ArgumentOutOfRangeException(nameof(sequence)),
     };
     /// <summary>
-    /// $88:9079 PowerBomb_PreExplosion_Colors: white-to-yellow rise and decline;
-    /// $88:8D85 PowerBombExplosion_Colors: yellow opening and grayscale white crest.
+    /// PowerBomb_PreExplosion_Colors: white-to-yellow rise and decline;
+    /// PowerBombExplosion_Colors: yellow opening and grayscale white crest.
     /// Calculates all sixteen pre-explosion colors and explosion colors zero through twenty.
     /// Later explosion colors remain independently supplied pending their own conversion.
     /// </summary>

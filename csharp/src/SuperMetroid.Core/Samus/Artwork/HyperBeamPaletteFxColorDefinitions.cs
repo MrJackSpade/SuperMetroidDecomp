@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Palettes;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
-/// Compiled control skeleton for Hyper Beam palette-FX program <c>$8D:D900</c>.
+/// Compiled control skeleton for the Hyper Beam palette-FX program.
 /// The ten eight-color payloads remain presentation data; this catalog owns the fixed
 /// entry command, timing, record terminators, loop command, and valid pointer domain.
 /// </summary>

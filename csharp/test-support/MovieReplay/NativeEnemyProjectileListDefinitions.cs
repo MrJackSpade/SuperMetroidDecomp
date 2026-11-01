@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.TestSupport.VerificationImporters;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 

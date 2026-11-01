@@ -11,8 +11,8 @@ internal sealed class EnemyRoomFx
     [field: NonSerialized] internal RoomLayer3FxState? Layer3Fx { get; private set; }
 
     /// <summary>
-    /// Binds the room's effect state before gameplay and after debugger restoration. Isolated
-    /// enemy audits may omit this owner and inspect the published diagnostic values.
+    /// Binds the room's effect state before gameplay and when a saved game state is restored.
+    /// A lone enemy without a room leaves it unbound.
     /// </summary>
     internal void BindRoomFx(RoomLayer3FxState roomFx) => Layer3Fx = roomFx;
 

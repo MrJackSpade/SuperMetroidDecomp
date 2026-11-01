@@ -17,29 +17,29 @@ public sealed class MaridiaLargeSnailEnemyState
     /// </summary>
     public int RequestedAnimationScriptIndex { get; internal set; }
 
-    /// <summary>Extra word $01: the last requested animation <c>SetOumInstList</c> installed, 0 through 7.</summary>
+    /// <summary>The last requested animation <c>SetOumInstList</c> installed, 0 through 7.</summary>
     public int InstalledAnimationScriptIndex { get; internal set; }
 
     /// <summary>Extra word two: set by the attack animation's cue when it ends.</summary>
     public bool AttackAnimationFinished { get; internal set; }
 
     /// <summary>
-    /// Extra word $03: set only during the rolling frames where Oum may turn into its next
+    /// Set only during the rolling frames where Oum may turn into its next
     /// attack. The name is "attack allowing rotation flag"; it is not a hitbox flag.
     /// </summary>
     public bool AttackAllowsRotation { get; internal set; }
 
-    /// <summary>Extra word $04: Samus is within the strict 24-by-32 proximity window.</summary>
+    /// <summary>Samus is within the strict 24-by-32 proximity window.</summary>
     public bool SamusInPushingRange { get; internal set; }
 
-    /// <summary>Extra word $05: one when Samus is to the left, zero when to the right.</summary>
+    /// <summary>One when Samus is to the left, zero when to the right.</summary>
     public bool SamusIsLeft { get; internal set; }
 
-    /// <summary>Extra words $06/$08: whole-pixel position captured before this frame's AI.</summary>
+    /// <summary>Whole-pixel position captured before this frame's AI.</summary>
     public Position16<RoomPixels> PreviousPosition { get; internal set; }
 
     /// <summary>
-    /// Extra word $0B: movement suppression produced after AI and consumed on the next frame.
+    /// Movement suppression produced after AI and consumed on the next frame.
     /// This one-frame pipeline is intentional game ordering, not input latency invented
     /// by the host translation.
     /// </summary>

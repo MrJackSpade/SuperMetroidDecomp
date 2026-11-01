@@ -149,8 +149,7 @@ internal sealed class MotherBrainAttacks
 
             case MotherBrainAttackPhase.Cooldown:
                 // The cooldown decrements before testing. The phase-zero initializer always
-                // writes 64, but unchecked arithmetic retains the zero-underflow
-                // behavior if a debugger edits this word while stopped here.
+                // writes 64; a cooldown of zero would wrap rather than end the attack.
                 state.AttackCooldown = state.AttackCooldown.Decrement().Remaining;
                 if (state.AttackCooldown.IsZero)
                     state.AttackPhase = MotherBrainAttackPhase.EndAttack;
@@ -339,8 +338,8 @@ internal sealed class MotherBrainAttacks
         state.Function = MotherBrainBodyFunction.SecondPhaseBombStandUp;
 
         // The wait falls directly into the stand-up, so a crouched body calls the helper twice on
-        // this frame. Reinstalling the same list/timer is observable to a debugger and must
-        // not be collapsed into a host-only transition delay.
+        // this frame. Both calls restart the same animation and timer, and the stand-up
+        // follows the wait in the same frame rather than a frame later.
         StandMotherBrainAfterBomb(state);
     }
 
@@ -422,9 +421,8 @@ internal sealed class MotherBrainAttacks
     {
         RoomEnemySlot head = state.Head;
 
-        // CMP/BPL tests the sign bit of the wrapped 16-bit subtraction. Normal arena
-        // coordinates cannot overflow signed range, but expressing the flag test
-        // explicitly keeps debugger-edited/wrapped coordinates faithful too.
+        // The comparison takes the sign of the wrapped 16-bit difference. Arena coordinates
+        // never leave the signed range, and a wrapped coordinate keeps the same answer.
         int headMinusSamus = CoordinateAxis.Difference(head.Position.Y.Whole, samus.Position.Y.Whole);
         MotherBrainNeckMovement targetIndex = headMinusSamus >= 0
             ? MotherBrainNeckMovement.Raise

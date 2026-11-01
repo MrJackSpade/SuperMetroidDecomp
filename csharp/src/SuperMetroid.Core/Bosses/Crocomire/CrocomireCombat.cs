@@ -299,7 +299,7 @@ internal sealed class CrocomireCombat
     {
         // The setup performs one horizontal collision move and deliberately ignores
         // carry. It also writes the graphics word of physical projectile slot zero rather
-        // than the current slot; retain that shipped indexing bug for debugger parity.
+        // than the current slot, as the game does.
         EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
         _projectiles.EnemyProjectiles[0].Graphics = SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles);
         projectile.GeneralTimer = WordWrap.Unsigned(

@@ -25,8 +25,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>
     /// Moves the enemy horizontally, treating non-square slopes as walls. Square slopes
-    /// retain their half-tile geometry; only non-square slopes consume direct-page
-    /// flag 0x4000 and become solid walls.
+    /// retain their half-tile geometry; only non-square slopes become solid walls.
     /// </summary>
     internal bool MoveEnemyHorizontallyTreatingSlopesAsWalls(
         RoomLevelData level,
@@ -601,7 +600,7 @@ internal sealed class EnemyTerrain
         SlopeHeights.Read(behavior.SlopeShape, xWithinBlock);
     /// <summary>
     /// The active frame's room PLM owner for enemy-breakable blocks. This synchronous call
-    /// context is not persisted; every enemy frame supplies it again after debugger restoration.
+    /// context belongs to one frame; every enemy frame supplies it again, including after a saved game state is restored.
     /// </summary>
     [NonSerialized] private EnemyBreakableTerrainPlms? _collisionPlms;
 

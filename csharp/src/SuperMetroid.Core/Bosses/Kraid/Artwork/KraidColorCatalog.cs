@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 /// <summary>Editable Kraid RGB5 sources; boss phase and fade arithmetic stay engine-owned.</summary>
 public sealed class KraidColorCatalog
 {
-    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    /// <summary>Identity of the selected colours, computed from them rather than kept with the game state.</summary>
     public string ContentIdentity => KraidColors.ContentIdentity(this);
 
     /// <summary>

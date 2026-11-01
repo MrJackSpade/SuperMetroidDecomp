@@ -72,7 +72,7 @@ internal sealed class EnemyAudioQueue
     public IReadOnlyList<DelayedMusicRequest> MusicRequests => _musicRequests;
 
     /// <summary>The music the loading room's enemies start, consumed in the same update outside the enemy pass.</summary>
-    /// <remarks>The requests do not survive an update boundary or enter debugger snapshots.</remarks>
+    /// <remarks>The requests do not outlive the update that makes them, so a saved game state never holds any.</remarks>
     [NonSerialized] private List<MusicRequest>? _roomEnemyStartMusic;
 
     /// <summary>

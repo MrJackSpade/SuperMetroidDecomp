@@ -624,9 +624,8 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal bool RunThirdPhaseDeathTypeOutZebesEscapeText(RainbowBeamAttackFrame frame)
     {
         // The typing step calls the independently owned typewriter with the escape text list.
-        // A request plus explicit completion input preserves that scheduler boundary:
-        // the boss never invents character cadence, yet its carry-dependent handoff
-        // remains directly testable and debuggable.
+        // The boss requests the typing and waits for the typewriter to report the text
+        // finished; the typewriter alone sets the character cadence.
         if (frame.TypewriterFinished)
         {
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathDoorExplodingStartTimer;

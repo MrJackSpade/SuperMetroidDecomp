@@ -41,37 +41,37 @@ public sealed class WreckedShipGhostEnemyState
     }
 
     /// <summary>
-    /// Extended word $00: the position about which the visible ghost oscillates; only its Y is meaningful. Positions
+    /// The position about which the visible ghost oscillates; only its Y is meaningful. Positions
     /// compare with it by the wrapped spatial difference.
     /// </summary>
     public Position16<RoomPixels> BobbingOrigin { get; internal set; }
 
     /// <summary>
-    /// Extended words $01 (fraction) and $02 (whole pixels): the visible ghost's signed 16.16 vertical speed in pixels
+    /// The visible ghost's signed 16.16 vertical speed in pixels
     /// per update, accelerating toward <see cref="BobbingOrigin"/> with the game's carry and wraparound.
     /// </summary>
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 
     /// <summary>
-    /// Extended word $05: Samus's horizontal movement class, 0 moving left, 1 stationary or 2 moving right. With
+    /// Samus's horizontal movement class, 0 moving left, 1 stationary or 2 moving right. With
     /// <see cref="SpawnRow"/> it selects one of the nine spawn offsets.
     /// </summary>
     public int SpawnColumn { get; internal set; }
 
-    /// <summary>Extended word $09: Samus's vertical movement class, 0 moving up, 1 stationary or 2 moving down.</summary>
+    /// <summary>Samus's vertical movement class, 0 moving up, 1 stationary or 2 moving down.</summary>
     public int SpawnRow { get; internal set; }
 
-    /// <summary>Extended words $06/$0A: Samus's previous whole-pixel position.</summary>
+    /// <summary>Samus's previous whole-pixel position.</summary>
     public Position16<RoomPixels> PreviousSamusPosition { get; internal set; }
-    /// <summary>Extended words $07/$0B: the inclusive lower corner of the nearly-still box (previous position -1).</summary>
+    /// <summary>The inclusive lower corner of the nearly-still box (previous position -1).</summary>
     public Position16<RoomPixels> SamusLowerBound { get; internal set; }
-    /// <summary>Extended words $08/$0C: the exclusive upper corner of the nearly-still box (previous position +1).</summary>
+    /// <summary>The exclusive upper corner of the nearly-still box (previous position +1).</summary>
     public Position16<RoomPixels> SamusUpperBound { get; internal set; }
 
-    /// <summary>Extended word $0D: 64-frame timer while Samus remains nearly still.</summary>
+    /// <summary>64-frame timer while Samus remains nearly still.</summary>
     public WrappingCountdown StablePositionTimer { get; internal set; }
 
-    /// <summary>Extended word $0E: 16-frame timer while Samus keeps one direction.</summary>
+    /// <summary>16-frame timer while Samus keeps one direction.</summary>
     public WrappingCountdown StableDirectionTimer { get; internal set; }
 
     /// <summary>

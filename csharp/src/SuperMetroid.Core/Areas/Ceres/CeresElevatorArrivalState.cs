@@ -50,16 +50,16 @@ public sealed class CeresElevatorArrivalState
     public bool IsComplete => !pad.Active && !platform.Active;
 
     /// <summary>
-    /// Executes <c>EprojRunAll</c>'s relative order for the two freshly spawned slots.
+    /// Runs the two freshly spawned projectiles in the projectile pass's order.
     /// </summary>
     /// <returns>True on and after the frame that calls Samus command <c>$0E</c>.</returns>
     public bool Step(SamusState samus)
     {
         Ensure.NotNull(samus);
 
-        // SpawnEprojInner takes the highest free physical slot. The pad is spawned first
-        // into slot $22, the platform second into $20, and EprojRunAll scans downward;
-        // therefore the pad pre-instruction must move Samus before the platform tests Y=72.
+        // Spawning takes the last free slot. The pad is spawned first into the last slot,
+        // the platform second into the one before it, and the projectile pass runs from the
+        // last slot down; therefore the pad must move Samus before the platform tests Y=72.
         if (pad.Active)
         {
             if (pad.WaitTimer.IsAbove(1))

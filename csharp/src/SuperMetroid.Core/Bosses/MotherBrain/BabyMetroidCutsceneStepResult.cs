@@ -2,7 +2,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>One-call debugger witness for the Baby entrance and latch chain.</summary>
+/// <summary>What one step of the Baby's entrance did: its phase before and after and the requests it made.</summary>
 [IndependentFlag("independent requests one cutscene step makes")]
 public readonly record struct BabyMetroidCutsceneStepResult(
     BabyMetroidCutscenePhase PhaseBefore,

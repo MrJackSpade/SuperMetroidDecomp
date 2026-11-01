@@ -126,8 +126,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The routine restores variable A from its mirror before indirect dispatch.
-        // This looks redundant for retail data but is observable and prevents an animation
-        // command or debugger edit during this frame from changing the current displacement.
+        // The speed is restored from its copy before the bounce moves, so an animation
+        // command during this frame cannot change the current displacement.
         state.SpeedMultiplier = state.SpeedMultiplierMirror;
         switch (state.BounceMovement)
         {
@@ -207,7 +207,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         BoyonEnemyState state,
         SamusState samus)
     {
-        _ = state; // Retains a symmetric family-helper signature for debugger inspection.
+        _ = state; // Keeps the same signature as the family's other trigger tests.
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole);
         return EnemyMath.IsNegative16(distance - slot.SpawnSettings<BoyonSpawnSettings>().TriggerDistance);
     }

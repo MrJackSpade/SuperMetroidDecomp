@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <summary>Installed RGB5 animation frames independent of stock storage and enemy mechanics.</summary>
 public sealed class EnemyAuxiliaryColorCatalog
 {
-    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    /// <summary>Identity of the selected colours, computed from them rather than kept with the game state.</summary>
     public string ContentIdentity => EnemyAuxiliaryColors.ContentIdentity(this);
 
     /// <summary>

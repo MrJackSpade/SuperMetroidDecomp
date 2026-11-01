@@ -159,8 +159,8 @@ internal sealed class MotherBrainBody
                 // function remains represented by its pointer so the next frame
                 // enters the real timed descent rather than jumping to standing form.
                 state.DeleteTurretsAndRinkas = true;
-                // Mother Brain and Rinka alias slot-zero variable $1D. Publish the
-                // shared word before later enemy slots can keep drawing replaced tile art.
+                // Mother Brain and the Rinkas share this request. Publish it before later
+                // enemy slots can keep drawing replaced tile art.
                 _roomActors.TerminateRinkas();
                 state.Form = MotherBrainForm.FakeDeath;
                 _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest);

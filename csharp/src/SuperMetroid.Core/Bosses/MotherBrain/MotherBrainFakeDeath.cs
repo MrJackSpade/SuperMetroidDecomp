@@ -129,8 +129,8 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Schedules glass and tube collapse phases with their authored waits.</summary>
-    /// <remarks>Every spawn after the first begins with DEC timer : BPL return, so each waits out the
-    /// $20 (or $02) its preceding clear step set.</remarks>
+    /// <remarks>Every spawn after the first waits until its timer goes negative, so each waits out the
+    /// 32 (or 2) its preceding clear step set.</remarks>
     internal void RunMotherBrainTubeCollapse(MotherBrainEnemyState state)
     {
         switch (state.TubeCollapseFunction)

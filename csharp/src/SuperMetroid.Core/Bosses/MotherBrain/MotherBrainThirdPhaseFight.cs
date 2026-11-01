@@ -236,7 +236,7 @@ internal sealed class MotherBrainThirdPhaseFight
     /// </summary>
     internal bool RunThirdPhaseRecoverSetupForFighting()
     {
-        // `$20` remains valid through zero and expires only when DEC wraps negative,
+        // The timer of 32 remains valid through zero and expires only when it wraps negative,
         // yielding 33 setup calls after the one-frame recovery producer above.
         _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
         if (_state.FunctionTimer.IsNegative)

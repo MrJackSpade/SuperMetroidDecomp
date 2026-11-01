@@ -190,7 +190,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
     }
 
-    /// <summary>Subtracts the <c>[$14].[$12]</c> split pair from enemy Y.</summary>
+    /// <summary>Moves the enemy up by the whole and fractional speed, borrowing from the whole pixels.</summary>
     private static void SubtractKzanY(
         RoomEnemySlot slot,
         int wholeSpeed,

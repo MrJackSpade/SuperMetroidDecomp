@@ -638,8 +638,8 @@ internal sealed class StationPlms : IPlmFamilySource
             bool setupAccepted = setupGate == StationSetupGate.Bypassed || access switch
             {
                 // Right-side access is entered while moving left in pose $8A; left-side
-                // access is the mirror in pose $89. These are the exact B1C8/B1F0 and
-                // B26D-B300 setup predicates before cannon-height alignment.
+                // access is the mirror in pose $89. These are the stations' setup tests
+                // before cannon-height alignment.
                 StationAccessBehavior.MapRight or
                     StationAccessBehavior.EnergyRight or
                     StationAccessBehavior.MissileRight =>
@@ -750,7 +750,7 @@ internal sealed class StationPlms : IPlmFamilySource
             else if (canActivate)
             {
                 // Access lists draw their first extension frame for six ticks, hold the
-                // fully inserted arm for $60, then execute the activation opcode. Command
+                // fully inserted arm for 96 ticks, then activate the station. Command
                 // six locked Samus in setup; this pass does not lock her again, so one an
                 // intervening unpause freed stays free.
                 station.OperationPhase = StationOperationPhase.Extending;

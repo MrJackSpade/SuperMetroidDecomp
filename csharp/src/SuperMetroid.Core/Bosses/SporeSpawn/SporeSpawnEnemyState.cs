@@ -5,9 +5,8 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
-/// Debugger-visible state that the original game stores beyond Spore Spawn's common enemy words.
-/// Naming these fields keeps the boss's angle, stalk anchor, and death velocity from being
-/// hidden in unrelated generic variables while retaining their 16-bit arithmetic.
+/// Spore Spawn's state beyond its common enemy record: the boss's swing angle, stalk anchor and
+/// death velocity, each named rather than kept in generic enemy variables, with their 16-bit arithmetic.
 /// </summary>
 public sealed class SporeSpawnEnemyState
 {

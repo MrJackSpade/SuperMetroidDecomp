@@ -142,7 +142,7 @@ public sealed class DraygonEnemyState
     /// <summary>Countdown for an incidental 64-frame tail whip.</summary>
     public WrappingCountdown TailWhipTimer { get; internal set; }
 
-    /// <summary>Debugger-visible proof that the physical chase reached its grab window.</summary>
+    /// <summary>How many times Draygon's chase has reached its grab window and caught Samus.</summary>
     public int SuccessfulGrabs { get; internal set; }
 
     /// <summary>Number of tail-hit steps that actually damaged grabbed Samus.</summary>

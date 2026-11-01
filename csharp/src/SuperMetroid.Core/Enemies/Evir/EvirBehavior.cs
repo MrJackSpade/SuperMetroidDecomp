@@ -418,8 +418,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RegenerationOffset += new Offset16<RoomPixels>(EvirBodyFacesRight(slot) ? 1 : -1, 0);
 
     /// <summary>
-    /// Both regeneration instructions test <c>Evir.instList-$80,X</c>: the installed list
-    /// of the body two slots before the projectile, not any facing word of its own.
+    /// Both regeneration instructions test the animation installed on the body two slots
+    /// before the projectile, not any facing of its own.
     /// </summary>
     private bool EvirBodyFacesRight(RoomEnemySlot projectile)
     {

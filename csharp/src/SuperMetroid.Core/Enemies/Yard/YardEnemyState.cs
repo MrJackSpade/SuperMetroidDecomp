@@ -49,11 +49,11 @@ public sealed class YardEnemyState
     /// is 0..2.
     /// </summary>
     public FixedVector<RoomPixels> AirborneVelocity { get; internal set; }
-    /// <summary>Extension offset $08: slope/turn cooldown counter, 0 through 15, reset by adjustment or turning; an unadjusted crawl call whose increment reaches 16 reenables transitions without storing that increment.</summary>
+    /// <summary>Slope/turn cooldown counter, 0 through 15, reset by adjustment or turning; an unadjusted crawl call whose increment reaches 16 reenables transitions without storing that increment.</summary>
     public int TurnTransitionDisableCounter { get; internal set; }
-    /// <summary>Extension offset $0A flag selecting the turn-disabled corner-probe definitions, set after slope alignment, a turn, or landing and cleared by the crawl cooldown.</summary>
+    /// <summary>Flag selecting the turn-disabled corner-probe definitions, set after slope alignment, a turn, or landing and cleared by the crawl cooldown.</summary>
     public bool TurnTransitionDisabled { get; internal set; }
-    /// <summary>Extension offset $0C: saved population crawl-speed index, restored after ordinary touch in place of the aggressive post-kick speed index 8.</summary>
+    /// <summary>Saved population crawl-speed index, restored after ordinary touch in place of the aggressive post-kick speed index 8.</summary>
     public int IdleCrawlingSpeedIndex { get; internal set; }
     /// <summary>The live crawl-speed index (parameter one): the population's, or 8 while crawling aggressively after a landing.</summary>
     public int CrawlingSpeedIndex { get; internal set; }

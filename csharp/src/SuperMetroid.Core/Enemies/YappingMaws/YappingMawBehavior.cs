@@ -102,10 +102,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
-        // SpawnEprojWithGfx searches indexes $22,$20,... downward. The initializer
-        // receives parameters 3,2,1,0 and writes those physical indexes into variables
-        // 43,42,41,40 respectively. Allocate in that literal order, then expose links in
-        // root-to-mouth order so their geometric meaning is clear in a debugger.
+        // Projectile slots are searched from the last downward, and the body segments are
+        // spawned with parameters 3, 2, 1, 0, each recording its slot under its parameter.
+        // Allocate in that order, then keep the links in root-to-mouth order.
         for (int parameter = 3; parameter >= 0; parameter--)
         {
             RoomEnemyProjectileSlot? body = _projectiles.AllocateEnemyProjectile();

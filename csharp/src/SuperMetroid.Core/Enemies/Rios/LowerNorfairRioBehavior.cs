@@ -226,9 +226,9 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             return;
         }
 
-        // gEnemySpawnData(child)[31].field_4 again aliases the preceding parent's family
-        // extra word $02. Here it is Boolean rather than a signed offset. The drawing-queue
-        // X/Y aliases supply the live parent origin and this variant adds a literal 12 px.
+        // The follower again reads the preceding parent's visibility switch, a Boolean here
+        // rather than a signed offset. The follower takes the parent's live position and
+        // this variant adds 12 pixels.
         follower.Properties = follower.Properties.Without(EnemyProperties.Invisible);
         follower.Position = follower.Position.WithWhole(new(parent.Position.X.Whole, CoordinateAxis.Wrap(parent.Position.Y.Whole + 12)));
     }

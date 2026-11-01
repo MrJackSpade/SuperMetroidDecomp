@@ -6,7 +6,7 @@ public static class RidleyInertiaDefinitions
     /// <summary>MoveRidleyToDeathSpot loads Y=0, selecting the first inertia byte.</summary>
     public const int DeathDivisorIndex = 0;
 
-    /// <summary>MoveRidleyToDeathSpot loads A=$10, adding sixteen to reversal deceleration, independently of Y.</summary>
+    /// <summary>Moving Ridley to his death spot adds sixteen to reversal deceleration, independently of Y.</summary>
     public const int DeathReversalBoost = 16;
 
     /// <summary>The fastest positive speed the Norfair acceleration routines allow, five pixels per frame.</summary>

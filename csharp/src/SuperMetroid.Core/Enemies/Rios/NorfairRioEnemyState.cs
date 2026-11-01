@@ -11,10 +11,10 @@ public sealed class NorfairRioEnemyState
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<NorfairRioProgram> Program { get; set; }
 
-    /// <summary>Extra word $00: the last animation installed by function seven.</summary>
+    /// <summary>The last animation installed by function seven.</summary>
     internal NorfairRioProgram InstalledProgram { get; set; }
 
-    /// <summary>Extra word $01: animation handshake set by the swoop-start-finished cue.</summary>
+    /// <summary>Animation handshake set by the swoop-start-finished cue.</summary>
     public bool AnimationSignal { get; internal set; }
 
     /// <summary>

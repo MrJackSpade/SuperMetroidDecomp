@@ -33,7 +33,7 @@ internal sealed class XrayReveal
         _room = room;
         _system = system;
     }
-    /// <summary>Installed X-ray art, rebound by the host after debugger-state restore.</summary>
+    /// <summary>Installed X-ray art, rebound when a saved game state is restored.</summary>
     [field: NonSerialized]
     public InstalledXrayReveals? XrayRevealVisuals { get; set; }
 

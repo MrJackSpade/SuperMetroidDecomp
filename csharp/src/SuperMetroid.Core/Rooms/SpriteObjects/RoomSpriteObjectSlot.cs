@@ -15,7 +15,7 @@ public sealed class RoomSpriteObjectSlot
     /// <summary>The slot's ordinal in the pool, zero first; the pool processes the highest ordinal first.</summary>
     public int SlotIndex { get; }
 
-    /// <summary>Selector retained from allocation for owner/debugger identity; clearing assigns <see cref="RoomSpriteObjectKind.None"/>.</summary>
+    /// <summary>The kind chosen at allocation, which identifies the object to its owner; clearing assigns <see cref="RoomSpriteObjectKind.None"/>.</summary>
     public RoomSpriteObjectKind Kind { get; internal set; } = RoomSpriteObjectKind.None;
 
     /// <summary>Whether the slot runs a program; this alone determines occupancy, even for hidden or update-disabled objects.</summary>

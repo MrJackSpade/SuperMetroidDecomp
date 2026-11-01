@@ -109,9 +109,8 @@ internal sealed class CrocomireFight
         _room.Services.RoomScroll.Write(0, RoomScrollState.RedBoundary);
         _room.Services.RoomScroll.Write(1, RoomScrollState.RedBoundary);
 
-        // The initializer copies seventeen words, not sixteen: X starts at $20 and reaches
-        // zero inclusively. Preserve that palette-boundary write because later fades compare
-        // the exact target image produced by the original game.
+        // The initializer copies seventeen colours, not sixteen, so one crosses into the next
+        // palette. Later fades compare against that exact target.
         (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
             "Crocomire requires installed color artwork.")).ApplyInitial(_presentation.Colours);
     }

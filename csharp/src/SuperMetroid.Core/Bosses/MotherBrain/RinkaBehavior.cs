@@ -573,9 +573,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         int slotIndex = slot.SlotIndex;
         slot.Clear();
 
-        // EnemySpawnData occupies a separate memory region and is not part of memset's
-        // 64-byte target. Preserve it even for a non-respawning special Rinka so debugger
-        // state remains structurally faithful after the common record disappears.
+        // Clearing the enemy record leaves its spawn data in place, even for a special Rinka
+        // that does not respawn.
         slot.Spawn = survivingSpawnSnapshot;
         _slotTable.Slots[slotIndex].SetSpeciesState<RinkaEnemyState>(null);
         if (respawns)

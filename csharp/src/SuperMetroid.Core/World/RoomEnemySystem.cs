@@ -437,8 +437,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     internal RoomEarthquake Earthquake { get; }
 
     /// <summary>
-    /// The reactions several species share. The lists contain delegates and are rebuilt from their owners on first
-    /// access after a debugger restore.
+    /// The reactions several species share. They are rebuilt from their owners on first access, including after a
+    /// saved game state is restored.
     /// </summary>
     [field: NonSerialized]
     internal EnemySharedReactions SharedReactions => field ??= BuildSharedReactions();
@@ -454,7 +454,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 
     /// <summary>
     /// Rebinds the room's active escape typewriters to the host's current escape-warning text, after the host installs
-    /// it (as after a debugger restore).
+    /// it (as when a saved game state is restored).
     /// </summary>
     /// <param name="value">The installed escape-warning text, or null when none is installed.</param>
     internal void RebindEscapeTypewriters(EscapeTypewriterPresentation? value)
@@ -1156,7 +1156,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     }
 
     /// <summary>
-    /// Rebuilds the shared reactions after construction or debugger restore, in the established first-match order.
+    /// Rebuilds the shared reactions after construction or a restored game state, in the established first-match order.
     /// </summary>
     private EnemySharedReactions BuildSharedReactions()
     {

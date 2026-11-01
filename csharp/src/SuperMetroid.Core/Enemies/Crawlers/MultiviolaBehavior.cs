@@ -44,8 +44,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Retail redundantly performs the same magnitude calculation here and again at the
-        // beginning of every main-AI call. Preserve the visible variable writes: debugging
-        // immediately after room load should match the speed words before the first frame.
+        // beginning of every main-AI call, so the speeds are already set when the room
+        // finishes loading, before the first frame.
         CalculateMultiviolaVelocityMagnitudes(state);
         state.Program = AnimationProgramCursor<MultiviolaProgram>.Start(MultiviolaProgram.Flying);
     }

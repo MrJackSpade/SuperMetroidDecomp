@@ -47,7 +47,7 @@ public sealed class EscapeTypewriterState
     /// <summary>Whether the first eligible installed-program call has initialized the character delay; retained across host-content unbinding and restoration.</summary>
     public bool ProgramStarted { get; private set; }
 
-    /// <summary>Reattaches host content after debugger-state restoration.</summary>
+    /// <summary>Reattaches the installed typewriter text when a saved game state is restored.</summary>
     public void BindProgram(EscapeTypewriterProgram program)
     {
         Ensure.NotNull(program);

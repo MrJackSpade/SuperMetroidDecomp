@@ -50,6 +50,6 @@ public abstract record BossArtworkCatalog
     /// <summary>Editable initial and arena-reveal colors; Ridley's fade cadence stays in code.</summary>
     public NorfairRidleyColorCatalog? NorfairRidleyColors { get; init; }
 
-    /// <summary>The selected boss presentation, computed rather than persisted in an exact debugger snapshot.</summary>
+    /// <summary>The selected boss presentation, computed from the installed content rather than kept with the game state.</summary>
     public abstract string ContentIdentity { get; }
 }

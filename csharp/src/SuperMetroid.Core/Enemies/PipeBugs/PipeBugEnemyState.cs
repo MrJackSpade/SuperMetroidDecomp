@@ -21,7 +21,7 @@ public sealed class PipeBugEnemyState
     /// <summary>
     /// Header which created this physical state projection. Generic death clears the live
     /// definition word on the following scheduler scan, but formation code continues
-    /// to address the record's variables through fixed <c>+$40</c> aliases. Species-aware
+    /// to reach the record's variables from the neighbouring slot. Species-aware
     /// typed views must therefore use this immutable owner, not the disposable live word.
     /// </summary>
     public EnemyDefinitionId DefinitionAtInitialization { get; }

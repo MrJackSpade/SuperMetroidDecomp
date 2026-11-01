@@ -24,7 +24,7 @@ public abstract class EnemyTileArtworkCatalog
     /// <summary>
     /// Complete selected enemy presentation, including legacy-override merges, display
     /// bindings, special uploads and colors. Gameplay definitions are excluded.
-    /// This is computed rather than persisted in an exact debugger snapshot.
+    /// This is computed from the installed content rather than kept with the game state.
     /// </summary>
     public abstract string ContentIdentity { get; }
 

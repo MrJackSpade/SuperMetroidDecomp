@@ -93,7 +93,7 @@ internal sealed class EnemyProjectileEngine
         _earthquake = earthquake;
         _audio = audio;
     }
-    /// <summary>Eighteen physical enemy-projectile indices $00..$22 in two-byte steps.</summary>
+    /// <summary>The eighteen enemy-projectile slots.</summary>
     internal const int RoomEnemyProjectileSlotCount = 18;
 
     /// <summary>Pool including inactive entries, traversed from the highest physical slot down.</summary>
@@ -387,10 +387,10 @@ internal sealed class EnemyProjectileEngine
     /// <summary>The characters one projectile tile page holds.</summary>
     private const int ProjectileTilePageCharacters = 256;
 
-    /// <summary>Searches physical slots $22 down to $00 and returns null when the finite pool is full.</summary>
+    /// <summary>Searches the slots from the last down to the first and returns null when the finite pool is full.</summary>
     internal RoomEnemyProjectileSlot? AllocateEnemyProjectile()
     {
-        // SpawnEnemyProjectile searches from index $22 toward zero.
+        // Spawning searches from the last slot toward the first.
         for (int index = _enemyProjectiles.Length - 1; index >= 0; index--)
         {
             RoomEnemyProjectileSlot projectile = _enemyProjectiles[index];

@@ -28,17 +28,14 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
     internal RoomEnemySlot Body => _slotTable.Slots[0];
 
     /// <summary>
-    /// Ridley's state extension while either encounter owns slot zero. The actor
-    /// extends far beyond the common $40-byte enemy record, so exposing a deliberately named
-    /// object is both more accurate and considerably easier to inspect than aliasing dozens
-    /// of unrelated generic slot words.
+    /// Ridley's state beyond the common enemy record while either encounter owns slot zero,
+    /// kept in named fields rather than in dozens of generic enemy variables.
     /// </summary>
     public RidleyEnemyState? Ridley { get; internal set; }
 
     /// <summary>
-    /// Compatibility view used by the existing Ceres debugger. It deliberately becomes
-    /// null for Lower Norfair Ridley so callers cannot accidentally apply Baby/Mode-7
-    /// encounter assumptions to the real boss fight.
+    /// Ridley's state while the Ceres getaway owns slot zero, and null during the Lower
+    /// Norfair fight, which has neither the Baby nor the rotating Ceres floor.
     /// </summary>
     public RidleyEnemyState? CeresRidley =>
         _slotTable.Slots[0].DefinitionId == EnemyDefinitionId.RidleyCeres ? Ridley : null;

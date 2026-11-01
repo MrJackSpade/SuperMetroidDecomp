@@ -1087,7 +1087,7 @@ internal sealed class BossRoomMutationPlms
                 "Mother Brain mutation header is outside Mother Brain's fake-death mutation set."),
         };
 
-        // SpawnHardcodedPLM probes slots $4E,$4C,...,$00. Do not reserve a boss
+        // Spawning searches the PLM slots from the last down to the first. Do not reserve a boss
         // slot or coalesce adjacent row requests: their allocation order is observable.
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;

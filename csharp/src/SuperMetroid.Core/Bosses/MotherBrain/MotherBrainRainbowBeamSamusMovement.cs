@@ -51,9 +51,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             // product bits 8..23, i.e. a signed 8.8 component for the supplied 8.8 speed.
             MoveVerticallyTowardCeilingOrFloor(samus, cameraCheckpoint, CalculateYVelocity(speed: 4096, RainbowBeamAngle));
 
-            // The wall step unconditionally clears carry after the vertical helper. The caller
-            // can therefore observe only the wall result; keep the clamp witness separately
-            // for debugging without pretending it controls the state transition.
+            // The wall step reports only whether Samus reached the wall; the vertical clamp
+            // is reported separately and does not end the forced movement.
         }
 
         return CreateResult(

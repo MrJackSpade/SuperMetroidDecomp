@@ -113,7 +113,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             SetWaverProgram(slot, state);
         }
 
-        // The list's $86:E3 command sets this flag after 32 animation frames. Main AI owns
+        // The spin animation sets this flag after 32 animation frames. Main AI owns
         // the return to steady art, matching the command/AI seam rather than timing it here.
         if (state.SpinFinished)
         {

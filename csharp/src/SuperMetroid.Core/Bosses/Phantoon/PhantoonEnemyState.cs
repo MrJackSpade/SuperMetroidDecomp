@@ -4,26 +4,25 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// Debugger-facing state shared by Phantoon's four consecutive physical enemy records.
-/// Most gameplay words deliberately remain on those records: code aliases the same
-/// offsets by adding enemy indexes <c>$00/$40/$80/$C0</c>, and flattening them would hide
-/// exactly the relationships a decompilation is supposed to expose.
+/// State shared by Phantoon's four consecutive enemy records: body, eye, tentacles and mouth.
+/// Most gameplay values remain on those records, because the parts' behaviour reads one
+/// another's records, and keeping the values per part keeps those relationships visible.
 /// </summary>
 public sealed class PhantoonEnemyState
 {
-    /// <summary>Attaches shared encounter state to the physical body slot at index $00.</summary>
+    /// <summary>Attaches shared encounter state to the body's slot.</summary>
     internal PhantoonEnemyState(RoomEnemySlot body) => Body = body;
 
-    /// <summary>Gets physical slot zero, the $00 body owner of function dispatch, health, motion, and shared encounter words.</summary>
+    /// <summary>Gets the body, the first of the four records and owner of function dispatch, health, motion, and shared encounter values.</summary>
     public RoomEnemySlot Body { get; }
 
     /// <summary>The record values of the body, eye, tentacles and mouth, in slot order.</summary>
     public PhantoonPartState[] Parts { get; } = [new(), new(), new(), new()];
-    /// <summary>Gets the $40 eye record, attached by part initialization and sharing the body's position while retaining its own animation/palette counters.</summary>
+    /// <summary>Gets the eye, the second record, attached by part initialization and sharing the body's position while retaining its own animation/palette counters.</summary>
     public RoomEnemySlot Eye { get => field ?? throw new InvalidOperationException("Phantoon's eye part is not attached; part initialization attaches it."); internal set; }
-    /// <summary>Gets the $80 tentacle record, attached by part initialization and positioned from the body after its AI pass.</summary>
+    /// <summary>Gets the tentacles, the third record, attached by part initialization and positioned from the body after its AI pass.</summary>
     public RoomEnemySlot Tentacles { get => field ?? throw new InvalidOperationException("Phantoon's tentacle part is not attached; part initialization attaches it."); internal set; }
-    /// <summary>Gets the $C0 mouth record, attached by part initialization and also retaining the wave/blending control words.</summary>
+    /// <summary>Gets the mouth, the fourth record, attached by part initialization and also retaining the wave/blending controls.</summary>
     public RoomEnemySlot Mouth { get => field ?? throw new InvalidOperationException("Phantoon's mouth part is not attached; part initialization attaches it."); internal set; }
 
     /// <summary>Each part's typed program cursor (#641), by its slot offset from the body: body, eye, tentacles, mouth.</summary>

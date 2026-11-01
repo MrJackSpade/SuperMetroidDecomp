@@ -93,9 +93,11 @@ internal static class BlockReactionSelectorsVerification
     /// <summary>Checks contact-crumble headers for all supported BTS values and rejects unsupported indexes.</summary>
     internal static void VerifyContactCrumbleHeaderSelection(SuperMetroidAddressSpace rom)
     {
+        // Header identities are arbitrary values since #1452, so the cartridge's header pointer is decoded
+        // through the native header table and compared as an identity.
         for (int index = 0; index < 8; index++)
-            AssertEqual(ReadRomWord(rom, 0x949139 + 2 * index),
-                (ushort)RoomPlmHeaders.ContactCrumbleByReactionIndex(index), "contact crumble native header selection");
+            AssertEqual(PlmNativeWords.Header(ReadRomWord(rom, 0x949139 + 2 * index)),
+                RoomPlmHeaders.ContactCrumbleByReactionIndex(index), "contact crumble native header selection");
         for (int index = 8; index <= byte.MaxValue; index++)
             AssertThrows<ArgumentOutOfRangeException>(() => RoomPlmHeaders.ContactCrumbleByReactionIndex(index),
                 "contact crumble header rejects unsupported BTS without masking");

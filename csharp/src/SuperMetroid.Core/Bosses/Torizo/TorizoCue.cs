@@ -37,8 +37,7 @@ internal abstract record TorizoCue
     internal sealed record ParameterizedSpawn(TorizoParameterizedSpawnKind Kind, int Parameter) : TorizoCue;
 
     /// <summary>
-    /// Spawns the low-health explosions and flashes; the program then waits forty updates
-    /// .
+    /// Spawns the low-health explosions and flashes; the program then waits forty updates.
     /// </summary>
     /// <param name="Site">Where the explosions burst.</param>
     internal sealed record LowHealthExplosions(BombTorizoExplosionSite Site) : TorizoCue;

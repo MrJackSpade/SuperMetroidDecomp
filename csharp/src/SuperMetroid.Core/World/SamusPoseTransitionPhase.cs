@@ -10,8 +10,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// UpdateSamusPose after normal beta's animation: animation command three, the interruptions, the collision
-/// transitions, the input transition alpha selected or its lookup-failure command, and the pose-history commit
-/// .
+/// transitions, the input transition alpha selected or its lookup-failure command, and the pose-history commit.
 /// </summary>
 internal sealed class SamusPoseTransitionPhase
 {

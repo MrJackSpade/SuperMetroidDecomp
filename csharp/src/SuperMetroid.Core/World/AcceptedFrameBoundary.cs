@@ -162,8 +162,7 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// The room's part of the scene: the room's blending, and the sky's layer-2 map and vertical scroll
-    /// .
+    /// The room's part of the scene: the room's blending, and the sky's layer-2 map and vertical scroll.
     /// </summary>
     private GameplayLatchedScene CaptureScene()
     {

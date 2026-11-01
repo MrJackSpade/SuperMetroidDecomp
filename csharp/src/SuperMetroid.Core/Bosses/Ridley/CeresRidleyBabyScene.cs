@@ -212,7 +212,7 @@ internal sealed class CeresRidleyBabyScene
         RoomEnemySlot door = _slotTable.Slots[1];
         if (door.Entity is IDrawnByCeresRidleyScene { HandsDrawingToRidley: true })
         {
-            // The private Ceres hook does not call WriteEnemyOAM and therefore owns a
+            // The private Ceres hook does not call the common enemy sprite writer and therefore owns a
             // second, authored quake adjustment. Its `Y`
             // index is the low two bits of the earthquake timer, but the table contains
             // words and the assembly omits an ASL. Preserve that retail byte-index read:

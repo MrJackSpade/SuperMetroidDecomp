@@ -9,8 +9,7 @@ internal abstract record RidleyBodyCue
     }
 
     /// <summary>
-    /// In Ceres, when Samus has under 30 energy, shortens the hover to eight updates and continues at the cue's target
-    /// .
+    /// In Ceres, when Samus has under 30 energy, shortens the hover to eight updates and continues at the cue's target.
     /// </summary>
     /// <param name="Target">The program a goto cue continues at.</param>
     internal sealed record GoToIfCeresAndSamusLowEnergy(RidleyBodyProgram Target) : RidleyBodyCue;

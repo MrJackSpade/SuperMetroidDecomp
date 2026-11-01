@@ -64,15 +64,26 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Places the lower actor twelve pixels below the preceding top during setup.</summary>
-    internal void InitializeKzanBottom(RoomEnemySlot slot) => FollowKzanTop(slot);
+    /// <exception cref="InvalidDataException">The enemy before the bottom is not a Kzan top.</exception>
+    internal void InitializeKzanBottom(RoomEnemySlot slot)
+    {
+        // The bottom follows whatever enemy precedes it. Every retail Kzan population (the Wasteland and the
+        // Wrecked Ship's main shaft) places each bottom directly after its top, so that enemy is its top; any
+        // other placement is refused rather than followed.
+        if (slot.SlotIndex == 0 || _slotTable.Slots[slot.SlotIndex - 1].DefinitionId != EnemyDefinitionId.KzanTop)
+        {
+            throw new InvalidDataException(
+                $"Kzan bottom in slot {slot.SlotIndex} does not directly follow a Kzan top, as every retail Kzan population places it.");
+        }
+        FollowKzanTop(slot);
+    }
 
     /// <summary>Keeps the lower actor twelve pixels below the top on every enemy update.</summary>
     internal void RunKzanBottomMain(RoomEnemySlot slot) => FollowKzanTop(slot);
 
     /// <summary>
-    /// Reproduces the literal <c>Enemy[-1]</c> reads. Retail populations always place the
-    /// bottom immediately after its top; only slot zero is rejected because there is no
-    /// managed representation of the unrelated memory that malformed data would under-read.
+    /// Follows the enemy placed directly before the bottom, which setup requires to be its top: every retail population
+    /// places the bottom immediately after its top.
     /// </summary>
     private void FollowKzanTop(RoomEnemySlot bottom)
     {

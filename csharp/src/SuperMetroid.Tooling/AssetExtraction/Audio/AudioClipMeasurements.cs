@@ -25,7 +25,7 @@ internal static class AudioClipMeasurements
         long first = track.Arrivals[0];
         long second = track.Arrivals[1];
         long length = second - first;
-        short[] pcm = MusicTrackRendering.Render(catalog, track, second + length);
+        short[] pcm = MusicTrackRendering.Render(catalog, track, 0, second + length);
         return SeamProfile.Compare(pcm, first, second, length);
     }
 

@@ -15,11 +15,17 @@ internal sealed record ExtractedAudioAssetParts
     /// <summary>Music banks.</summary>
     public required IReadOnlyDictionary<AudioBank, AudioBankMetadata> MusicBanks { get; init; }
 
+    /// <summary>Each music bank's compiled definition bytes by APU RAM address.</summary>
+    public required IReadOnlyDictionary<AudioBank, IReadOnlyDictionary<int, byte>> CompiledMusicBanks { get; init; }
+
     /// <summary>Decoded, address-stable authored SFX channel programs.</summary>
     public required IReadOnlyList<AudioSoundProgramMetadata> SoundPrograms { get; init; }
 
     /// <summary>Stable SFX command IDs and their compiled routing/allocation metadata.</summary>
     public required IReadOnlyList<AudioSoundLibraryMetadata> SoundLibraries { get; init; }
+
+    /// <summary>The SFX programs' encoded bytes and routes.</summary>
+    public required SpcSoundEffectImage SoundEffectImage { get; init; }
 
     /// <summary>Canonical sample count.</summary>
     public required int CanonicalSampleCount { get; init; }

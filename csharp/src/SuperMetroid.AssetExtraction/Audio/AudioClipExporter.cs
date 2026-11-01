@@ -217,8 +217,7 @@ internal static class AudioClipExporter
         {
             string path = Path.Combine(root, relative);
             Directory.CreateDirectory(Path.GetDirectoryName(path) ?? throw new InvalidOperationException($"Clip path '{path}' has no directory."));
-            PcmWaveFile.WriteStereoPcm16(path, SpcAudioClipRenderer.NativeSampleRate, pcm);
-            string fileHash = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path)));
+            string fileHash = Convert.ToHexString(PcmWaveFile.WriteHashedStereoPcm16(path, SpcAudioClipRenderer.NativeSampleRate, pcm));
             return new AudioClipFile(relative, fileHash, pcm.Length / 2);
         })).Value;
     }

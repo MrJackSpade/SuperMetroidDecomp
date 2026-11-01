@@ -76,6 +76,8 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         AddImplicitTargets(model, node, info, targets, owner);
         foreach (var target in targets)
         {
+            foreach (string dispatchKey in FrameworkDispatch.CallKeys(target))
+                graph.DispatchCall(owner, dispatchKey);
             if (identity.Key(target) is not { } targetKey)
                 continue;
             Referenced.Add(targetKey);

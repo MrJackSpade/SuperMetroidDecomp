@@ -12,6 +12,10 @@ internal sealed class ReachabilityGraph
     private readonly Dictionary<string, HashSet<string>> edges = [];
     /// <summary>Framework-driven members reached whenever their containing type is reached.</summary>
     private readonly Dictionary<string, HashSet<string>> typeImplied = [];
+    /// <summary>Per declaration, the <see cref="FrameworkDispatch"/> keys of the framework interface members it calls.</summary>
+    private readonly Dictionary<string, HashSet<string>> dispatchCalls = [];
+    /// <summary>Per <see cref="FrameworkDispatch"/> key, the repository members implementing that contract member.</summary>
+    private readonly Dictionary<string, List<DispatchImplementation>> dispatchImplementations = [];
 
     /// <summary>Adds a direct reference, ignoring missing or self-referential symbol keys.</summary>
     public void Edge(string? from, string? to)
@@ -33,14 +37,52 @@ internal sealed class ReachabilityGraph
         members.Add(memberKey);
     }
 
-    /// <summary>Traverses direct and type-implied edges to a fixed point from the supplied roots.</summary>
-    public HashSet<string> Reach(IEnumerable<string> roots) => Reach(roots, _ => true);
+    /// <summary>Records that <paramref name="owner"/> calls a framework interface member through <paramref name="dispatchKey"/>.</summary>
+    public void DispatchCall(string? owner, string dispatchKey)
+    {
+        if (owner is null)
+            return;
+        if (!dispatchCalls.TryGetValue(owner, out var keys))
+            dispatchCalls[owner] = keys = [];
+        keys.Add(dispatchKey);
+    }
+
+    /// <summary>
+    /// Records a repository member implementing the framework contract member named by <paramref name="dispatchKey"/>,
+    /// with the keys whose reachability means its type is instantiated: its constructors, or the type itself for a value
+    /// type, whose default value needs no constructor.
+    /// </summary>
+    public void DispatchImplementation(string dispatchKey, string? implementationKey, IReadOnlyList<string> instantiationKeys)
+    {
+        if (implementationKey is null)
+            return;
+        if (!dispatchImplementations.TryGetValue(dispatchKey, out var implementations))
+            dispatchImplementations[dispatchKey] = implementations = [];
+        implementations.Add(new DispatchImplementation(implementationKey, instantiationKeys));
+    }
+
+    /// <summary>
+    /// Traverses direct and type-implied edges to a fixed point from the supplied roots. A reached type's implementations
+    /// of framework interface members are already reached through its type-implied edges, so calls through framework
+    /// interfaces add nothing to this walk.
+    /// </summary>
+    public HashSet<string> Reach(IEnumerable<string> roots) => Walk(roots, _ => true, null);
 
     /// <summary>
     /// Traverses direct and type-implied edges from the supplied roots, entering only keys <paramref name="admits"/>
-    /// accepts: a reference into a refused key is not followed, so nothing is reached through it.
+    /// accepts: a reference into a refused key is not followed, so nothing is reached through it. A refused key can still
+    /// have built the objects the admitted walk reads through a framework interface (the import builds a colour band the
+    /// game indexes as an <c>IReadOnlyList&lt;T&gt;</c>), so a reached call through a framework interface member also
+    /// reaches each repository implementation of that member whose type <paramref name="instantiated"/> shows constructed.
     /// </summary>
-    public HashSet<string> Reach(IEnumerable<string> roots, Func<string, bool> admits)
+    public HashSet<string> Reach(IEnumerable<string> roots, Func<string, bool> admits, IReadOnlySet<string> instantiated) =>
+        Walk(roots, admits, instantiated);
+
+    /// <summary>
+    /// Walks edges from <paramref name="roots"/> through admitted keys; with <paramref name="instantiated"/>, also follows
+    /// framework-interface calls to the implementations of instantiated types.
+    /// </summary>
+    private HashSet<string> Walk(IEnumerable<string> roots, Func<string, bool> admits, IReadOnlySet<string>? instantiated)
     {
         var reached = new HashSet<string>();
         var pending = new Stack<string>(roots);
@@ -55,6 +97,12 @@ internal sealed class ReachabilityGraph
             if (typeImplied.TryGetValue(current, out var members))
                 foreach (string member in members)
                     pending.Push(member);
+            if (instantiated is not null && dispatchCalls.TryGetValue(current, out var calls))
+                foreach (string call in calls)
+                    if (dispatchImplementations.TryGetValue(call, out var implementations))
+                        foreach (var implementation in implementations)
+                            if (implementation.InstantiationKeys.Any(instantiated.Contains))
+                                pending.Push(implementation.ImplementationKey);
         }
         return reached;
     }

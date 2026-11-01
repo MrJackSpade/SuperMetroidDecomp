@@ -6,6 +6,18 @@ namespace SuperMetroid.ReachabilityAudit.Reporting;
 /// Core declarations the game itself never reads (#1484): reachable from the product's entry points only through the
 /// import pipeline, or only from tools and checks. The walk starts at the production roots and refuses to enter any
 /// declaration the import pipeline compiles, so a Core type that only the import builds and reads is left unreached.
+/// <para>
+/// Framework-interface dispatch (#1502): the game often reads an object the import built through a framework interface,
+/// indexing a colour band as an <c>IReadOnlyList&lt;RgbColor&gt;</c> or enumerating it as an <c>IEnumerable&lt;T&gt;</c>.
+/// Such a call names only the framework member, and the object's constructor is reached only through the refused import,
+/// so the walk would never enter the repository type that answers it. When game-reached code calls a member of a framework
+/// interface, the walk therefore also reaches each repository member implementing that member, provided its type is
+/// constructed somewhere in the product (a constructor of it, or the value type itself, is reached from the production
+/// roots through the import). The match is by constructed contract: a call through <c>IReadOnlyList&lt;RgbColor&gt;</c>
+/// reaches implementations of <c>IReadOnlyList&lt;RgbColor&gt;</c> and of contracts still open in a generic type, never
+/// implementations of <c>IReadOnlyList&lt;int&gt;</c>; a call from generic code through an open contract reaches every
+/// implementation of it. Calls the framework makes internally (a LINQ operator enumerating its argument) are not seen.
+/// </para>
 /// </summary>
 internal static class CoreImportOnlyReport
 {
@@ -24,7 +36,8 @@ internal static class CoreImportOnlyReport
     {
         var declarations = result.Declarations;
         HashSet<string> gameReached = result.Graph.Reach(result.ProductionRoots,
-            key => !declarations.TryGetValue(key, out Declaration? declaration) || !declaration.Projects.Contains(ImportAssembly));
+            key => !declarations.TryGetValue(key, out Declaration? declaration) || !declaration.Projects.Contains(ImportAssembly),
+            result.ProductionReachable);
         var lines = new List<string>();
         foreach (Declaration declaration in declarations.Values.OrderBy(d => d.File, StringComparer.Ordinal).ThenBy(d => d.Line))
         {

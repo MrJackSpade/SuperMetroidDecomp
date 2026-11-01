@@ -96,6 +96,7 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
             else
                 graph.ImpliedByType(typeKey, identity.Key(member));
         }
+        IReadOnlyList<string>? instantiation = null;
         foreach (var contract in type.AllInterfaces)
             foreach (var contractMember in contract.GetMembers())
             {
@@ -104,10 +105,27 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
                     || !InSource(implementation))
                     continue;
                 if (InSource(contractMember))
+                {
                     graph.Edge(identity.Key(contractMember), identity.Key(implementation));
-                else
-                    graph.ImpliedByType(typeKey, identity.Key(implementation));
+                    continue;
+                }
+                graph.ImpliedByType(typeKey, identity.Key(implementation));
+                instantiation ??= InstantiationKeys(type, typeKey);
+                foreach (string dispatchKey in FrameworkDispatch.ImplementationKeys(contractMember))
+                    graph.DispatchImplementation(dispatchKey, identity.Key(implementation), instantiation);
             }
+    }
+
+    /// <summary>
+    /// The keys whose reachability shows <paramref name="type"/> constructed: each instance constructor, compiler-declared
+    /// ones included, and for a value type the type itself, since its default value exists without a constructor call.
+    /// </summary>
+    private List<string> InstantiationKeys(INamedTypeSymbol type, string typeKey)
+    {
+        var keys = type.InstanceConstructors.Select(identity.Key).OfType<string>().ToList();
+        if (type.IsValueType)
+            keys.Add(typeKey);
+        return keys;
     }
 
     /// <summary>Distinguishes repository declarations from external framework contracts.</summary>

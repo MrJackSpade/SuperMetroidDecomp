@@ -2052,7 +2052,7 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)), actual.Lifetime, "stream4 native breakup lifetime");
         }
         for (int orientation = 0; orientation < 16; orientation++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + 2 * orientation)), SuperMetroid.Verification.Bosses.Ridley.RidleyNativeProgramOracle.BreakupList(RidleyBreakup.SelectTailFrame(RidleyExplosionPart.TailTip, orientation)), "stream4 native tail-tip orientation program");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + 2 * orientation)), RidleyNativeProgramOracle.BreakupList(RidleyBreakup.SelectTailFrame(RidleyExplosionPart.TailTip, orientation)), "stream4 native tail-tip orientation program");
         foreach (ushort invalid in new ushort[] { 1, 23, 24, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(invalid), "stream4 invalid breakup parameter");
         foreach (int invalid in new[] { -1, 16, int.MaxValue })

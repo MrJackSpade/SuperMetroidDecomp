@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -15,13 +16,24 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 internal sealed class RoomBlockComposition
 {
-    /// <summary>Keeps the tiles of every block and the characters each reads.</summary>
-    private RoomBlockComposition(BackgroundTile[] tiles, bool collectibleSlots, RoomBlockCharacters characters)
+    /// <summary>Keeps the tiles of every block, the characters each reads, and what each collectible slot block's load reads.</summary>
+    private RoomBlockComposition(BackgroundTile[] tiles, bool collectibleSlots, RoomBlockCharacters characters,
+        IReadOnlyDictionary<int, ImmutableArray<RoomBlockCharacterRun>> slotLoadRuns)
     {
         this.tiles = tiles;
         CollectibleSlots = collectibleSlots;
         Characters = characters;
+        this.slotLoadRuns = slotLoadRuns;
     }
+
+    /// <summary>The runs each collectible slot block's stock tiles read, by block: what the block shows until a collectible writes the slot.</summary>
+    private readonly IReadOnlyDictionary<int, ImmutableArray<RoomBlockCharacterRun>> slotLoadRuns;
+
+    /// <summary>The runs collectible slot block <paramref name="block"/>'s stock tiles read, which the room's load shows while the slot holds no collectible (#1486).</summary>
+    /// <exception cref="InvalidOperationException">The block is not a collectible slot's.</exception>
+    internal ImmutableArray<RoomBlockCharacterRun> LoadRunsOfSlotBlock(int block) =>
+        slotLoadRuns.TryGetValue(block, out ImmutableArray<RoomBlockCharacterRun> runs) ? runs
+            : throw new InvalidOperationException($"Block {block} is not a collectible slot's block.");
 
     /// <summary>Every block's tiles, four per block: top left, top right, bottom left, bottom right.</summary>
     private readonly BackgroundTile[] tiles;
@@ -99,14 +111,23 @@ internal sealed class RoomBlockComposition
     {
         BackgroundTile[] tiles = StockTiles(metatiles, set, ceres);
         var blocks = new RoomBlockCharacterRun[tiles.Length / RoomMetatileFormat.TilesPerBlock][];
+        var slotLoadRuns = new Dictionary<int, ImmutableArray<RoomBlockCharacterRun>>();
         for (int block = 0; block < blocks.Length; block++)
         {
-            IEnumerable<int> characters = !ceres && CollectibleSlotBlocks.SlotOf(block, CollectiblePlms.GraphicsSlots) is not null
-                ? CollectibleSlotBlocks.CharactersOf(block)
-                : tiles.Skip(block * RoomMetatileFormat.TilesPerBlock).Take(RoomMetatileFormat.TilesPerBlock).Select(tile => tile.Tile);
-            blocks[block] = [.. characters.Distinct().GroupBy(character => Region(bounds, character)).OrderBy(region => region.Key)
-                .Select(region => new RoomBlockCharacterRun(region.Min(), region.Max() - region.Min() + 1))];
+            IEnumerable<int> stock = tiles.Skip(block * RoomMetatileFormat.TilesPerBlock).Take(RoomMetatileFormat.TilesPerBlock).Select(tile => tile.Tile);
+            if (!ceres && CollectibleSlotBlocks.SlotOf(block, CollectiblePlms.GraphicsSlots) is not null)
+            {
+                blocks[block] = Runs(CollectibleSlotBlocks.CharactersOf(block));
+                slotLoadRuns.Add(block, [.. Runs(stock)]);
+            }
+            else
+                blocks[block] = Runs(stock);
         }
-        return new RoomBlockComposition(tiles, !ceres, new RoomBlockCharacters(set, blocks));
+        return new RoomBlockComposition(tiles, !ceres, new RoomBlockCharacters(set, blocks), slotLoadRuns);
+
+        // The characters' runs, split at the upload bounds.
+        RoomBlockCharacterRun[] Runs(IEnumerable<int> characters) =>
+            [.. characters.Distinct().GroupBy(character => Region(bounds, character)).OrderBy(region => region.Key)
+                .Select(region => new RoomBlockCharacterRun(region.Min(), region.Max() - region.Min() + 1))];
     }
 }

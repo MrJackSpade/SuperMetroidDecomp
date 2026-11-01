@@ -128,12 +128,17 @@ internal static class RoomBlockSheetComposer
         {
             if (spriteInputs is not null)
                 spriteInputs[block] = [];
-            // A collectible slot's block shows only the collectible shown in the slot, pictured below.
+            // A collectible slot's block shows the collectible shown in the slot, pictured below, and the room's load until a
+            // collectible shows there (#1486): a room can show the block while its slot holds none.
             if (blocks.IsCollectibleSlotBlock(block))
             {
                 int slot = CollectibleSlotBlocks.SlotOf(block, CollectiblePlms.GraphicsSlots)
                     ?? throw new InvalidOperationException($"Block {block} is a collectible slot's block in no slot.");
-                tilesetInputs[block] = [new CollectibleSlotAppearance(slot)];
+                ImmutableArray<AppearanceInput> slotInput = [new CollectibleSlotAppearance(slot)];
+                string[] loadedValue = [RoomAppearanceValues.Loaded];
+                tilesetInputs[block] = slotInput;
+                AddPicture(RoomBlockPictureNames.Of(block, RoomBlockArtwork.Tileset, slotInput, loadedValue), blocks.LoadRunsOfSlotBlock(block),
+                    blocks.TilesOf(block).ToArray(), slotInput, loadedValue, options, loaded);
                 continue;
             }
             BackgroundTile[] tiles = blocks.TilesOf(block).ToArray();
@@ -151,8 +156,8 @@ internal static class RoomBlockSheetComposer
             for (int block = 0; block < slot.Tiles.Length / RoomMetatileFormat.TilesPerBlock; block++)
             {
                 BackgroundTile[] tiles = slot.Tiles[(block * RoomMetatileFormat.TilesPerBlock)..((block + 1) * RoomMetatileFormat.TilesPerBlock)];
-                AddPicture(RoomBlockPictureNames.Of(slot.FirstBlock + block, RoomBlockArtwork.Tileset, slotInputs, values), slot.FirstBlock + block,
-                    tiles, slotInputs, values, slotOptions, null);
+                AddPicture(RoomBlockPictureNames.Of(slot.FirstBlock + block, RoomBlockArtwork.Tileset, slotInputs, values),
+                    blocks.Characters.RunsOf(slot.FirstBlock + block), tiles, slotInputs, values, slotOptions, null);
             }
         }
         // A library background's image shows its room's load; each 16x16 cell whose characters an input reaches draws the
@@ -211,16 +216,15 @@ internal static class RoomBlockSheetComposer
             ImmutableArray<RoomBlockCharacterRun> runs = blocks.Characters.RunsOf(block);
             ImmutableArray<AppearanceInput> blockInputs = RoomAppearanceComposition.InputsOver(BgCharacterSet.Tiles, runs.Select(run => run.FirstCharacter), candidates);
             foreach (string[] values in RoomAppearanceComposition.Assignments(blockInputs, candidates, withLoaded: true))
-                AddPicture(RoomBlockPictureNames.Of(block, artwork, blockInputs, values), block, tiles, blockInputs, values, candidates, over);
+                AddPicture(RoomBlockPictureNames.Of(block, artwork, blockInputs, values), runs, tiles, blockInputs, values, candidates, over);
             return blockInputs;
         }
 
-        // Adds the picture `name` of block `block`'s `tiles` while `blockInputs` take `values`, unless a run of characters the
-        // block reads shows nothing then.
-        void AddPicture(string name, int block, BackgroundTile[] tiles, ImmutableArray<AppearanceInput> blockInputs, string[] values,
-            AppearanceOptions candidates, BgArtworkBindings? over)
+        // Adds the picture `name` of a block's `tiles`, which read `runs`, while `blockInputs` take `values`, unless a run
+        // shows nothing then.
+        void AddPicture(string name, ImmutableArray<RoomBlockCharacterRun> runs, BackgroundTile[] tiles, ImmutableArray<AppearanceInput> blockInputs,
+            string[] values, AppearanceOptions candidates, BgArtworkBindings? over)
         {
-            ImmutableArray<RoomBlockCharacterRun> runs = blocks.Characters.RunsOf(block);
             var shown = new BgArtworkShown[runs.Length];
             for (int run = 0; run < runs.Length; run++)
             {

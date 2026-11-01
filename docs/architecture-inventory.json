@@ -160560,6 +160560,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Verification.Rooms.Artwork.CollectibleSlotLoadPictureVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Rooms/Artwork/CollectibleSlotLoadPictureVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Rooms.Artwork.RoomBlockPicturesVerification",
       "kind": "static class",
       "scope": "test",

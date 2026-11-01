@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
+
+namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
 /// The installed pre-rendered audio (#1305): every music track and every sound effect in every

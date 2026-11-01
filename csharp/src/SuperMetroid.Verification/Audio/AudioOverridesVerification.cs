@@ -45,7 +45,7 @@ internal static class AudioOverridesVerification
         }
         ExportStock();
 
-        ClipAudioLibrary stock = installation.LoadAudioClips();
+        InstalledClipAudioLibrary stock = installation.LoadAudioClips();
         AssertEqual(stock.ContentIdentity, installation.LoadAudioClips().ContentIdentity, "stock clip identity is stable across reload");
         string selectedDirectory = AudioAssetOverrideInstaller.Initialize(installation);
         AssertEqual(
@@ -73,7 +73,7 @@ internal static class AudioOverridesVerification
             "a sound's override identity names its library's sound");
         AudioAssetOverrideInstaller.Replace(installation, songId, tonePath, ToneLoop);
 
-        ClipAudioLibrary selected = installation.LoadAudioClips();
+        InstalledClipAudioLibrary selected = installation.LoadAudioClips();
         MusicClipEntry song = selected.GetMusic(MusicDataSet.GreenBrinstar, new MusicTrack(ReplacedTrack));
         AssertEqual(ToneFrames, song.Clip.Frames, "the replacement's length selects the song");
         AssertEqual<long?>(ToneLoop, song.LoopStart, "the replacement's loop selects the song");
@@ -127,7 +127,7 @@ internal static class AudioOverridesVerification
     }
 
     /// <summary>The clips' sample rate.</summary>
-    private static int ClipSampleRate(ClipAudioLibrary clips) => clips.Manifest.SampleRate;
+    private static int ClipSampleRate(InstalledClipAudioLibrary clips) => clips.Manifest.SampleRate;
 
     /// <summary>Checks component digests and build identity affect compatibility warnings independently.</summary>
     internal static void VerifyGameContentIdentityComposition()

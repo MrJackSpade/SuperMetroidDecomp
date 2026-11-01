@@ -261,7 +261,7 @@ internal static class InstallationOverrideLifecycleVerification
         File.WriteAllBytes(palettePath, GameplayBasePaletteFiles.Write(palette));
         ushort selectedColor = (ushort)(palette.Initial[0].Red | palette.Initial[0].Green << 5 | palette.Initial[0].Blue << 10);
 
-        ClipAudioLibrary clips = installation.LoadAudioClips();
+        InstalledClipAudioLibrary clips = installation.LoadAudioClips();
         MusicClipEntry song = clips.Manifest.Music[0];
         short[] samples = clips.ReadClip(song.Clip);
         samples[0] = unchecked((short)(samples[0] ^ 1));

@@ -27,7 +27,7 @@ public static class PcmWaveFile
     public static PcmSamples ReadMonoPcm16(
         ReadOnlySpan<byte> bytes,
         string sourceName) =>
-        ReadPcm16(bytes, sourceName, PcmSampleFormat.ChannelCount);
+        ReadPcm16(bytes, sourceName, InstrumentSampleFormat.ChannelCount);
 
     /// <summary>Decodes uncompressed interleaved stereo PCM16 with the same validation as <see cref="ReadMonoPcm16"/>.</summary>
     /// <returns>The sampling frequency and the interleaved left/right samples.</returns>
@@ -71,7 +71,7 @@ public static class PcmWaveFile
                 ushort blockAlign = ReadWord(chunk, 12);
                 ushort bits = ReadWord(chunk, 14);
                 if (format != PcmFormat || channels != channelCount ||
-                    bits != PcmSampleFormat.BitsPerSample ||
+                    bits != InstrumentSampleFormat.BitsPerSample ||
                     blockAlign != channelCount * sizeof(short) || sampleRate <= 0 ||
                     byteRate != checked(sampleRate * channelCount * sizeof(short)))
                 {
@@ -106,7 +106,7 @@ public static class PcmWaveFile
     /// <exception cref="ArgumentOutOfRangeException">The sample rate is zero or negative.</exception>
     /// <exception cref="OverflowException">The sample count cannot be represented as a signed integer byte length.</exception>
     public static void WriteMonoPcm16(string path, int sampleRate, IReadOnlyList<short> samples) =>
-        WritePcm16(path, sampleRate, PcmSampleFormat.ChannelCount, samples);
+        WritePcm16(path, sampleRate, InstrumentSampleFormat.ChannelCount, samples);
 
     /// <summary>Writes interleaved left/right samples as a minimal uncompressed stereo PCM16 WAV file.</summary>
     /// <exception cref="ArgumentException"><paramref name="samples"/> holds an odd count.</exception>
@@ -133,7 +133,7 @@ public static class PcmWaveFile
         writer.Write(sampleRate);
         writer.Write(sampleRate * channelCount * sizeof(short));
         writer.Write(unchecked((ushort)(channelCount * sizeof(short))));
-        writer.Write(checked((ushort)PcmSampleFormat.BitsPerSample));
+        writer.Write(checked((ushort)InstrumentSampleFormat.BitsPerSample));
         writer.Write(Encoding.ASCII.GetBytes("data"));
         writer.Write(dataBytes);
         foreach (short sample in samples)

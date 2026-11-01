@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Spatial;
@@ -351,8 +350,8 @@ public sealed class ManagedSnesDsp
         // lets an HD replacement use a different sample rate without changing musical pitch.
         long scaledPitch = sampleSource is null
             ? pitch
-            : ((long)pitch * sampleSource.SampleRate + PcmSampleFormat.StockSampleRate / 2) /
-                PcmSampleFormat.StockSampleRate;
+            : ((long)pitch * sampleSource.SampleRate + InstrumentSampleFormat.StockSampleRate / 2) /
+                InstrumentSampleFormat.StockSampleRate;
         long nextCounter = voice.PitchCounter + scaledPitch;
         while (nextCounter > ushort.MaxValue)
         {
@@ -513,7 +512,7 @@ public sealed class ManagedSnesDsp
 
         ReadOnlySpan<short> source = sample.Samples.Span;
         voice.PreviousFlags = 0;
-        for (int sampleIndex = 0; sampleIndex < PcmSampleFormat.StreamingWindowSampleCount; sampleIndex++)
+        for (int sampleIndex = 0; sampleIndex < InstrumentSampleFormat.StreamingWindowSampleCount; sampleIndex++)
         {
             if (voice.SampleCursor >= source.Length)
             {

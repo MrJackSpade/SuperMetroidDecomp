@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Audio;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Audio;
+
+namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
 /// The single conversion between <see cref="SoundEffectVoices"/> and the export renderer's voice

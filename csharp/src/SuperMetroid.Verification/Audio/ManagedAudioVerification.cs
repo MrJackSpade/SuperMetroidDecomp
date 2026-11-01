@@ -348,7 +348,7 @@ internal static class ManagedAudioVerification
         AssertThrows<InvalidDataException>(
             () => _ = new ManagedPcmSample(
                 "bad-rate",
-                PcmSampleFormat.MinimumReplacementSampleRate - 1,
+                InstrumentSampleFormat.MinimumReplacementSampleRate - 1,
                 [0],
                 null),
             "managed PCM rejects unsupported sample rate");

@@ -21,31 +21,22 @@ public sealed class MotherBrainRoomColorPresentation
     /// <summary>Seven-frame doorway and room-light recovery sequence.</summary>
     internal readonly RecoveryLightFade recoveryLights;
 
-    /// <summary>Builds the selected flash, room, phase-two, room-entry and recovery colours.</summary>
-    /// <param name="colours">The selected colours; a null family is inherited from <paramref name="currentStock"/>.</param>
-    /// <param name="currentStock">The current stock presentation a missing family is inherited from.</param>
-    internal static MotherBrainRoomColorPresentation Create(MotherBrainRoomColours colours,
-        MotherBrainRoomColorPresentation? currentStock)
-    {
-        Ensure.NotNull(colours);
-        var room = new FinalRoomPalette(colours.FinalRoom);
-        return new(colours.Flash, room, colours.PhaseTwoAttack, colours.PhaseTwoRearLeg,
-            colours.InitialGlassShard is null ? Ensure.NotNull(currentStock).initialGlassShard : new GlassPalette(colours.InitialGlassShard, room),
-            colours.InitialTubeProjectile is null ? Ensure.NotNull(currentStock).initialTubeProjectile : new TubePalette(colours.InitialTubeProjectile, room),
-            colours.RecoveryLights is null ? Ensure.NotNull(currentStock).recoveryLights : new RecoveryLightFade(colours.RecoveryLights, room));
-    }
-
-    /// <summary>Retains independent color edits while keeping stock-derived relationships implicit.</summary>
-    private MotherBrainRoomColorPresentation(RgbColor[][] flash, FinalRoomPalette finalRoom,
-        RgbColor[] phaseTwoAttack, RgbColor[] phaseTwoRearLeg,
-        GlassPalette initialGlassShard, TubePalette initialTubeProjectile,
+    /// <summary>Keeps the recognized flash, room, phase-two, room-entry and recovery colours.</summary>
+    /// <param name="flash">The room flash.</param>
+    /// <param name="finalRoom">The final room colours.</param>
+    /// <param name="phaseTwoAttack">The phase-two attack colours.</param>
+    /// <param name="phaseTwoRearLeg">Edited phase-two rear-leg colours, or null when they are the stock rear legs.</param>
+    /// <param name="initialGlassShard">The room-entry glass-shard colours.</param>
+    /// <param name="initialTubeProjectile">The room-entry tube-projectile colours.</param>
+    /// <param name="recoveryLights">The room-light recovery fade.</param>
+    internal MotherBrainRoomColorPresentation(RoomFlash flash, FinalRoomPalette finalRoom, AttackPalette phaseTwoAttack,
+        RgbColor[]? phaseTwoRearLeg, GlassPalette initialGlassShard, TubePalette initialTubeProjectile,
         RecoveryLightFade recoveryLights)
     {
-        this.flash = new RoomFlash(flash, finalRoom);
+        this.flash = flash;
         this.finalRoom = finalRoom;
-        this.phaseTwoAttack = new AttackPalette(phaseTwoAttack);
-        this.phaseTwoRearLeg = phaseTwoRearLeg.Where((word, color) =>
-            word != MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, color)).Any() ? phaseTwoRearLeg : null;
+        this.phaseTwoAttack = phaseTwoAttack;
+        this.phaseTwoRearLeg = phaseTwoRearLeg;
         this.initialGlassShard = initialGlassShard;
         this.initialTubeProjectile = initialTubeProjectile;
         this.recoveryLights = recoveryLights;
@@ -160,12 +151,13 @@ public sealed class MotherBrainRoomColorPresentation
         internal readonly RgbColor[]? supplied;
         /// <summary>Number of room colors available to the flash and recovery programs.</summary>
         public int Length { get; }
-        /// <summary>Checks whether all supplied colors match the paint-derived room palette.</summary>
-        public FinalRoomPalette(RgbColor[] colors)
+        /// <summary>Keeps the room colour count and, when one differs from the derivation, every supplied colour.</summary>
+        /// <param name="length">The number of room colours.</param>
+        /// <param name="supplied">Every supplied colour when one differs from the paint-derived palette, otherwise null.</param>
+        internal FinalRoomPalette(int length, RgbColor[]? supplied)
         {
-            Length = colors.Length;
-            for (int color = 0; color < colors.Length; color++)
-                if (Calculate(color) != colors[color]) { supplied = colors; return; }
+            Length = length;
+            this.supplied = supplied;
         }
         /// <summary>Uses edited paint when present and rejects colors outside the room palette.</summary>
         public RgbColor this[int color] => (uint)color < Length
@@ -234,12 +226,9 @@ public sealed class MotherBrainRoomColorPresentation
     {
         /// <summary>Supplied attack colors when any word differs from the shared-shade derivation.</summary>
         internal readonly RgbColor[]? supplied;
-        /// <summary>Uses paint-derived shades only when every supplied colour matches.</summary>
-        public AttackPalette(RgbColor[] colors)
-        {
-            for (int color = 0; color < colors.Length; color++)
-                if (Calculate(color) != colors[color]) { supplied = colors; return; }
-        }
+        /// <summary>Keeps every supplied colour when one differs from the paint-derived shades.</summary>
+        /// <param name="supplied">Every supplied colour when one differs, otherwise null.</param>
+        internal AttackPalette(RgbColor[]? supplied) => this.supplied = supplied;
         /// <summary>Selects the edited or calculated phase-two attack color.</summary>
         public RgbColor Color(int color) => supplied is null ? Calculate(color) : supplied[color];
         /// <summary>Builds cyan and flame ramps and reuses health-palette tissue colors.</summary>
@@ -277,12 +266,13 @@ public sealed class MotherBrainRoomColorPresentation
         private readonly FinalRoomPalette room;
         /// <summary>Independent shard colors retained only when derivation differs.</summary>
         internal readonly RgbColor[]? supplied;
-        /// <summary>Checks whether shard colors can be calculated from room and glass paint.</summary>
-        public GlassPalette(RgbColor[] colors, FinalRoomPalette room)
+        /// <summary>Keeps the room palette and, when one shard colour differs from the derivation, every supplied colour.</summary>
+        /// <param name="room">The room palette supplying shared colours.</param>
+        /// <param name="supplied">Every supplied colour when one differs, otherwise null.</param>
+        internal GlassPalette(FinalRoomPalette room, RgbColor[]? supplied)
         {
             this.room = room;
-            for (int color = 0; color < colors.Length; color++)
-                if (Calculate(color) != colors[color]) { supplied = colors; return; }
+            this.supplied = supplied;
         }
         /// <summary>Selects a supplied or room-derived shard color.</summary>
         public RgbColor Color(int color) => supplied is null ? Calculate(color) : supplied[color];
@@ -313,12 +303,13 @@ public sealed class MotherBrainRoomColorPresentation
         private readonly FinalRoomPalette room;
         /// <summary>Independent tube colors retained only when derivation differs.</summary>
         internal readonly RgbColor[]? supplied;
-        /// <summary>Checks whether tube colors can be calculated from room paint.</summary>
-        public TubePalette(RgbColor[] colors, FinalRoomPalette room)
+        /// <summary>Keeps the room palette and, when one tube colour differs from the derivation, every supplied colour.</summary>
+        /// <param name="room">The room palette supplying outline colours.</param>
+        /// <param name="supplied">Every supplied colour when one differs, otherwise null.</param>
+        internal TubePalette(FinalRoomPalette room, RgbColor[]? supplied)
         {
             this.room = room;
-            for (int color = 0; color < colors.Length; color++)
-                if (Calculate(color) != colors[color]) { supplied = colors; return; }
+            this.supplied = supplied;
         }
         /// <summary>Selects a supplied or room-derived tube-projectile color.</summary>
         public RgbColor Color(int color) => supplied is null ? Calculate(color) : supplied[color];
@@ -339,15 +330,15 @@ public sealed class MotherBrainRoomColorPresentation
         /// <summary>Number of timed flash entries selected by the palette program.</summary>
         public int FrameCount { get; }
 
-        /// <summary>Checks supplied flash frames against the final-room color derivation.</summary>
-        public RoomFlash(RgbColor[][] frames, FinalRoomPalette finalRoom)
+        /// <summary>Keeps the flash's frame count and basis, and every supplied frame when one differs from the derivation.</summary>
+        /// <param name="frameCount">The number of flash entries.</param>
+        /// <param name="finalRoom">The final room colours the flash brightens or dims.</param>
+        /// <param name="supplied">Every supplied frame when one differs, otherwise null.</param>
+        internal RoomFlash(int frameCount, FinalRoomPalette finalRoom, RgbColor[][]? supplied)
         {
-            FrameCount = frames.Length;
+            FrameCount = frameCount;
             basis = finalRoom;
-            for (int frame = 0; frame < frames.Length; frame++)
-                for (int color = 0; color < basis.Length; color++)
-                    if (Calculate(frame, color) != frames[frame][color])
-                    { supplied = frames; return; }
+            this.supplied = supplied;
         }
 
         /// <summary>Selects the edited or calculated room color at one timed entry.</summary>
@@ -376,14 +367,13 @@ public sealed class MotherBrainRoomColorPresentation
         /// <summary>Independent recovery frames retained only when the calculated frames differ.</summary>
         internal readonly RgbColor[][]? supplied;
 
-        /// <summary>Checks supplied recovery colors against seven intensity steps to shared endpoints.</summary>
-        public RecoveryLightFade(RgbColor[][] frames, FinalRoomPalette finalRoom)
+        /// <summary>Keeps the shared endpoints and every supplied frame when one differs from the intensity steps.</summary>
+        /// <param name="finalRoom">The final room colours reused as endpoints.</param>
+        /// <param name="supplied">Every supplied frame when one differs, otherwise null.</param>
+        internal RecoveryLightFade(FinalRoomPalette finalRoom, RgbColor[][]? supplied)
         {
             this.finalRoom = finalRoom;
-            for (int frame = 0; frame < frames.Length; frame++)
-                for (int color = 0; color < frames[frame].Length; color++)
-                    if (Calculate(frame, color) != frames[frame][color])
-                    { supplied = frames; return; }
+            this.supplied = supplied;
         }
 
         /// <summary>Selects edited or calculated doorway and room-light color for one recovery frame.</summary>

@@ -47,7 +47,7 @@ public static class MotherBrainRoomColorFile
         RgbColor[] finalRoom = Compile(document.FinalRoom, MotherBrainRoomColorDefinitions.SliceColors * 2, "final room");
         // A legacy override inherits the families it predates from the current stock the
         // version check above required; a null family says so.
-        return MotherBrainRoomColorPresentation.Create(new MotherBrainRoomColours
+        return MotherBrainRoomColorRecognition.Create(new MotherBrainRoomColours
         {
             Flash = flash,
             FinalRoom = finalRoom,

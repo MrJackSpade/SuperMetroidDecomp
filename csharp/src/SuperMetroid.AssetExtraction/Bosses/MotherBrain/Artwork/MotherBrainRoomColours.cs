@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>The selected Mother Brain room colours; a family an older override predates is null.</summary>
 internal sealed record MotherBrainRoomColours

@@ -5,8 +5,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>
-/// Typed projection of the unusually large Yapping Maw extension blocks,
-/// And $7E:8800. Names describe the words' actual consumers; arrays keep
+/// Typed projection of the unusually large Yapping Maw extension blocks.
+/// Names describe the words' actual consumers; arrays keep
 /// the four identical tongue-link calculations inspectable without four copies of every
 /// property.
 /// </summary>
@@ -31,8 +31,8 @@ public sealed class YappingMawEnemyState
     public Position16<RoomPixels> Origin { get; internal set; }
 
     /// <summary>
-    /// Final signed offsets from the root for the four successive tongue points (Y words at
-    /// $7E:7802/$7806/$780A/$780E, positive downward). Link zero is nearest the root, link
+    /// Final signed offsets from the root for the four successive tongue points (Y
+    /// positive downward). Link zero is nearest the root, link
     /// three is the mouth; the first three also position decorative eprojs.
     /// </summary>
     public Offset16<RoomPixels>[] SegmentOffsets { get; } = new Offset16<RoomPixels>[4];
@@ -70,17 +70,17 @@ public sealed class YappingMawEnemyState
     /// </summary>
     public SignedSixteenSixteen Extension { get; internal set; }
 
-    /// <summary>Record index into CommonEnemySpeeds_QuadraticallyIncreasing (native D holds the byte offset).</summary>
+    /// <summary>Record index into the quadratically increasing common enemy speeds (variable D holds the byte offset).</summary>
     public int QuadraticSpeedRecord { get; internal set; }
 
-    /// <summary>Whether the negative half of the record is read (native D's extra +4 at the turn-around clamp).</summary>
+    /// <summary>Whether the negative half of the record is read (variable D's extra four bytes at the turn-around clamp).</summary>
     public bool QuadraticSpeedNegative { get; internal set; }
 
-    /// <summary>Native E: 64-frame hold after the tongue fully retracts.</summary>
+    /// <summary>Variable E: 64-frame hold after the tongue fully retracts.</summary>
     public WrappingCountdown RetractedDelayTimer { get; internal set; }
 
     /// <summary>
-    /// Native F: the population parameter-one distance, 0 through 65535, below which an attack starts. The game
+    /// Variable F: the population parameter-one distance, 0 through 65535, below which an attack starts. The game
     /// compares it by the sign of a sixteen-bit difference, so a parameter of 32768 or more behaves as the game's
     /// wrapped comparison does; <see cref="IsWithinActivationDistance"/> owns that comparison.
     /// </summary>
@@ -108,7 +108,7 @@ public sealed class YappingMawEnemyState
     /// </summary>
     public WrappingCountdown GrabCooldown { get; internal set; }
 
-    /// <summary>Result of the point-based $A0:AD70 viewport test sampled before movement.</summary>
+    /// <summary>Result of the point-based viewport test sampled before movement.</summary>
     public bool IsOffScreen { get; internal set; }
 
     /// <summary>The actor's own colours, captured at room load and restored to every link after frozen flashing.</summary>

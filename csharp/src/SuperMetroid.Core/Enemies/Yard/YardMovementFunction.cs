@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// </summary>
 public enum YardMovementFunction
 {
-    /// <summary>RTL stub: main movement remains idle until an animation instruction installs a movement pointer.</summary>
+    /// <summary>Empty behaviour: main movement remains idle until an animation cue installs a movement behaviour.</summary>
     InstructionPending = 1,
     /// <summary>Probes the current attachment surface while hidden and drops Yard if support disappears.</summary>
     Hiding,
@@ -26,6 +26,6 @@ public enum YardMovementFunction
     CrawlingUpsideDownMovingLeft,
     /// <summary>Upward crawl with Yard's top facing left, using vertical surface and corner probes.</summary>
     CrawlingUpsideLeftMovingUp,
-    /// <summary>Applies 16.16 shell motion, horizontal decay, gravity, native per-word collision bounces, and low-speed floor landing.</summary>
+    /// <summary>Applies 16.16 shell motion, horizontal decay, gravity, per-word collision bounces, and low-speed floor landing.</summary>
     Airborne,
 }

@@ -55,7 +55,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case YardCue.SetMovementFunction setMovementFunction:
-                // Yard animation owns movement dispatch: the operand is a same-bank function pointer, not a branch.
+                // Yard animation owns movement dispatch: the operand is a movement behaviour, not a branch.
                 state.MovementFunction = setMovementFunction.MovementFunction;
                 return null;
             case YardCue.SetHidingProgram setHidingProgram:
@@ -115,7 +115,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Reproduces the sign-pair arithmetic. Negative entries are encoded as
-    /// <c>$FFFF xor speed, then +1</c>, rather than by a host signed table.
+    /// <c>0xFFFF xor speed, then +1</c>, rather than by a host signed table.
     /// </summary>
     internal static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction)
     {
@@ -128,7 +128,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ValidateYardSpeedIndex(int index)
     {
         if (index >= CrawlerSpeedDefinitions.Count)
-            throw new InvalidDataException($"Yard speed index ${index:X4} exceeds $A3:CCA2.");
+            throw new InvalidDataException($"Yard speed index {index} exceeds the authored speed table.");
     }
 
     /// <summary>Ports Yard main AI.</summary>
@@ -162,8 +162,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunYardAirborneMovement(slot, state, samus, level);
                 return;
             // Direction-changing animation can publish the new direction word one frame before
-            // it installs the matching movement pointer. Native JMPs through F, so dispatch by
-            // that pointer—not by the temporarily newer direction field.
+            // it installs the matching movement behaviour. The game dispatches through that behaviour,
+            // not by the temporarily newer direction field.
             case YardMovementFunction.CrawlingUpsideUpMovingLeft:
             case YardMovementFunction.CrawlingUpsideLeftMovingDown:
             case YardMovementFunction.CrawlingUpsideDownMovingRight:
@@ -212,7 +212,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Behavior = YardBehavior.NormalCrawling;
     }
 
-    /// <summary>Ports Yard's dynamic bit-$8000 solid-hitbox decision.</summary>
+    /// <summary>Runs Yard's dynamic solid-hitbox decision.</summary>
     private static void UpdateYardSolidProperty(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -662,7 +662,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             AdmitsBombFamilies = true,
             // Yard's custom shot AI sends super-missile/power-bomb families through normal vulnerability damage,
             // but every other colliding shot merely kicks the shell into the air. This occurs after projectile
-            // impact, exactly where bank $A0 has already accepted the collision index.
+            // impact, exactly where the collision pass has already accepted the collision index.
             BeforeVulnerability = (in EnemyShotContext c) =>
             {
                 if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)

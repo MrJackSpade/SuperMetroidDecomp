@@ -25,7 +25,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         _presentation = presentation;
     }
 
-    /// <summary>$A8:9B17 combines the 120-frame appearance delay with an additional 160-frame startup wait.</summary>
+    /// <summary>Initialization combines the 120-frame appearance delay with an additional 160-frame startup wait.</summary>
     private const int WreckedShipGhostInitialDelay = 280;
     /// <summary>Frames the ghost remains visible after its appearance cycle enters bobbing.</summary>
     private const int WreckedShipGhostVisibleDuration = 120;
@@ -46,8 +46,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     internal void InitializeWreckedShipGhost(RoomEnemySlot slot)
     {
         // Every named retail ghost population places this actor in physical slot zero.
-        // Its tracking routine contains several absolute-Samus reads indexed by the native
-        // enemy offset; a nonzero slot would deliberately alias unrelated WRAM. Enforce the
+        // Its tracking routine contains several absolute-Samus reads indexed by the
+        // enemy's slot; a nonzero slot would deliberately alias unrelated memory. Enforce the
         // authored layout rather than silently pretending that retail bug has generic rules.
         if (slot.SlotIndex != 0)
         {
@@ -55,7 +55,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
                 "Wrecked Ship ghost requires retail physical slot zero for indexed Samus reads.");
         }
 
-        // Native ORs property bits $2000, $0400, and $0100. In this host those mean
+        // The initializer sets the animation-script, intangibility and invisibility properties. In this host those mean
         // instruction processing, exclusion from Samus interaction, and invisibility.
         slot.Properties = slot.Properties.With(
             EnemyProperties.RunsAnimationScript |
@@ -117,8 +117,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>
-    /// Ports $A8:9D13. A zero timer also advances immediately, matching the ORA/DEC
-    /// branch rather than wrapping zero to $FFFF.
+    /// Counts down the invisible delay. A zero timer also advances immediately, matching the game's
+    /// branch rather than wrapping zero to -1.
     /// </summary>
     private static void RunWreckedShipGhostInitialDelay(WreckedShipGhostEnemyState state)
     {
@@ -135,7 +135,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     private static readonly Offset16<RoomPixels> WreckedShipGhostStillMargin = new(1, 1);
 
     /// <summary>
-    /// Ports $A8:9D36. The one-pixel upper bound is exclusive in retail; this asymmetric
+    /// Tracks Samus for the spawn. The one-pixel upper bound is exclusive in retail; this asymmetric
     /// comparison is deliberately not replaced by an absolute-distance convenience test.
     /// </summary>
     private static void RunWreckedShipGhostTracking(
@@ -215,7 +215,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.SamusUpperBound = samusPosition + WreckedShipGhostStillMargin;
     }
 
-    /// <summary>Installs the direction-selected relative position and begins $A8:9B42.</summary>
+    /// <summary>Installs the direction-selected relative position and begins brightening.</summary>
     internal static void SpawnWreckedShipGhost(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state,
@@ -250,9 +250,9 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             if (current.Red >= 31)
                 continue;
 
-            // Adds $0421 as a word, raising red, green, and blue together. It gates
+            // The game adds 0x0421 as a word, raising red, green, and blue together. It gates
             // only on red and does not saturate the others: a full green or blue carries
-            // into the next field exactly as the word sum does, and CGRAM keeps 15 bits.
+            // into the next field exactly as the word sum does, and the palette keeps 15 bits.
             palette.Write(color,
                 RgbColor.FromWordIgnoringTopBit(WordWrap.Unsigned(current.ToWord() + WreckedShipGhostAppearanceDefinitions.ColorStepEachChannel)));
             colorsChanged++;
@@ -266,7 +266,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             state.MutableTargetColours[color] = WreckedShipGhostAppearance.PaletteColor(color);
     }
 
-    /// <summary>Ports $A8:9BAD, including the simultaneous flicker and per-component fade.</summary>
+    /// <summary>Fades to the ghost palette, including the simultaneous flicker and per-component fade.</summary>
     private void RunWreckedShipGhostPaletteFade(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state,
@@ -277,7 +277,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         if (!state.PhaseTimer.IsZero || componentsChanged != 0)
             return;
 
-        // Clearing $0500 makes the fully materialized ghost visible and eligible for the
+        // Clearing intangibility and invisibility makes the fully materialized ghost visible and eligible for the
         // ordinary touch/shot collision handlers authored by its enemy definition.
         slot.Properties = slot.Properties.Without(
             EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
@@ -316,7 +316,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.MutableTargetColours.Fill(RgbColor.White);
     }
 
-    /// <summary>Ports $A8:9C69: finish whitening, hide, and restart the 120-frame delay.</summary>
+    /// <summary>Finishes whitening, hides, and restarts the 120-frame delay.</summary>
     private void RunWreckedShipGhostWhiteFade(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)
@@ -330,8 +330,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>
-    /// Ports $A8:9C31. The table alternates hidden and visible intervals whose lengths
-    /// converge; its $FFFF terminator leaves the ghost permanently visible for this cycle.
+    /// Advances the flicker. The table alternates hidden and visible intervals whose lengths
+    /// converge; its -1 terminator leaves the ghost permanently visible for this cycle.
     /// </summary>
     internal static void AdvanceWreckedShipGhostFlicker(
         RoomEnemySlot slot,
@@ -347,7 +347,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             if ((uint)tableIndex >= WreckedShipGhostAppearanceDefinitions.FlickerCount)
             {
                 throw new InvalidDataException(
-                    $"Wrecked Ship ghost flicker offset ${state.FlickerTableOffset:X4} exceeds $A8:9ACC.");
+                    $"Wrecked Ship ghost flicker offset {state.FlickerTableOffset} is outside the flicker table.");
             }
 
             int duration = WreckedShipGhostAppearance.FlickerDuration(tableIndex);
@@ -369,7 +369,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>
-    /// Ports $A8:9E88. Every BGR555 component moves exactly one hardware level toward its
+    /// Steps a palette fade. Every BGR555 component moves exactly one colour level toward its
     /// target per frame; the return value counts component changes, not changed colors.
     /// </summary>
     internal int StepWreckedShipGhostPaletteTowardTarget(

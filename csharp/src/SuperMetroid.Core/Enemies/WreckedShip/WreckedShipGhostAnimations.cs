@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>
-/// The Wrecked Ship ghost's (native Coven) floating loop as a typed program (#641). Each
+/// The Wrecked Ship ghost's (Coven) floating loop as a typed program (#641). Each
 /// frame shows a <see cref="WreckedShipGhostFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class WreckedShipGhostAnimations

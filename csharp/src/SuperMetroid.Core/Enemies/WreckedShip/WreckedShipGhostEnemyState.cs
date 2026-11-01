@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>
-/// The state of the Wrecked Ship ghost, with its extension in WRAM $7800. Its behaviour, phase timer and
+/// The state of the Wrecked Ship ghost, with its extension words. Its behaviour, phase timer and
 /// flicker offset are values the game keeps in the enemy's common record, so a kill empties them with that record
 /// (<see cref="ClearWithRecord"/>); the extension outlives the kill.
 /// </summary>
@@ -76,7 +76,7 @@ public sealed class WreckedShipGhostEnemyState
 
     /// <summary>
     /// Actor-selected sixteen-color target palette. Retail stores this in global target
-    /// palette WRAM; the sidecar preserves that second buffer because the actor's shown colours
+    /// palette; the sidecar preserves that second buffer because the actor's shown colours
     /// model the independently visible current palette.
     /// </summary>
     public ReadOnlyMemory<RgbColor> TargetColours => _targetColours;

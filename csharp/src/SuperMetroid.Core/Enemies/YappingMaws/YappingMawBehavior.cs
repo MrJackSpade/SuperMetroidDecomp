@@ -112,7 +112,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             if (body is null)
             {
                 throw new InvalidDataException(
-                    $"Yapping Maw slot {slot.SlotIndex} could not allocate all four native body projectiles.");
+                    $"Yapping Maw slot {slot.SlotIndex} could not allocate all four body projectiles.");
             }
 
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
@@ -138,11 +138,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.RootSpriteObject is null)
         {
             throw new InvalidDataException(
-                $"Yapping Maw slot {slot.SlotIndex} could not allocate its native root sprite object.");
+                $"Yapping Maw slot {slot.SlotIndex} could not allocate its root sprite object.");
         }
     }
 
-    /// <summary>Ports $A8:A211 and the four post-dispatch link-position writers.</summary>
+    /// <summary>Runs the Maw's main behaviour and the four post-dispatch link-position writers.</summary>
     private void RunYappingMawMain(
         RoomEnemySlot slot,
         YappingMawEnemyState state,
@@ -179,7 +179,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The mouth actor owns the final point. The four eprojs own root, quarter, half,
         // and three-quarter points in variables 40..43. Hardware writes coordinates even
-        // though their pre-instructions are empty; bank $86 advances only their one-frame
+        // though their frame behaviours are empty; the projectile pass advances only their one-frame
         // map selection and permanent sleep opcode.
         PositionYappingMawBodyProjectile(state, 0, state.Origin);
         PositionYappingMawBodyProjectile(state, 1, YappingMawLinkPosition(state, 0));
@@ -187,7 +187,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         PositionYappingMawBodyProjectile(state, 3, YappingMawLinkPosition(state, 2));
     }
 
-    /// <summary>Ports $A8:A235, including the deliberately approximate distance helper.</summary>
+    /// <summary>Waits for Samus, including the deliberately approximate distance helper.</summary>
     private static void WaitForSamusWithYappingMaw(
         YappingMawEnemyState state,
         SamusState samus)
@@ -208,7 +208,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.IsWithinActivationDistance(distance))
             return;
 
-        // Native BMI skips the assignment for a shorter target. Inflating a short
+        // The game skips the assignment for a shorter target. Inflating a short
         // distance instead makes the mouth overshoot the position it aimed at.
         if (state.DistanceToSamus >= YappingMawAttackGeometry.MaximumTargetDistance)
             state.DistanceToSamus = YappingMawAttackGeometry.MaximumTargetDistance;
@@ -256,7 +256,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // quarter of the signed whole part equals the game's two logical right shifts of the word; the checked
         // conversion fails loudly if that range is ever violated.
         int bendStep = Ensure.BetweenInclusive(0, ushort.MaxValue, state.Extension.WholePixels / 4);
-        // $A8:A532 corrects the eight offsets in one chain, link by link and X before Y: an offset whose correction
+        // The bend corrects the eight offsets in one chain, link by link and X before Y: an offset whose correction
         // wraps it past the last pixel of its word moves the next offset in the chain one pixel further.
         int wrappedIntoNext = 0;
         for (int segment = 0; segment < 4; segment++)
@@ -300,7 +300,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             if (state.Extension.WholePixels >= YappingMawMaximumCurl)
             {
                 state.Extension = SignedSixteenSixteen.FromParts(checked(YappingMawMaximumCurl), 0);
-                // $A8:A4F2 adds four bytes after the ordinary eight-byte record advance: the same record's
+                // The turn-around adds four bytes after the ordinary eight-byte record advance: the same record's
                 // negative half, or the next record's positive half from a negative one.
                 if (state.QuadraticSpeedNegative)
                     state.QuadraticSpeedRecord++;
@@ -359,14 +359,14 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports $A8:A63E: adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>
+    /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
         state.Extension += SignedSixteenSixteen.FromRaw(EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.QuadraticSpeedRecord)).Toward(state.QuadraticSpeedNegative ? EnemySpeedSign.Negative : EnemySpeedSign.Positive));
         state.QuadraticSpeedRecord++;
     }
 
-    /// <summary>Ports $A8:A68A, including DEC-underflow expiration on frame 65.</summary>
+    /// <summary>Waits after retraction, including decrement-underflow expiration on frame 65.</summary>
     private void WaitAfterYappingMawRetraction(
         YappingMawEnemyState state,
         SamusState samus)
@@ -385,13 +385,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = YappingMawAiFunction.WaitingForSamus;
     }
 
-    /// <summary>Ports the observable portions of CallSomeSamusCode(3) plus $A8:A665.</summary>
+    /// <summary>Runs the observable portions of Samus command three plus holding Samus in the mouth.</summary>
     private void PositionSamusInYappingMaw(
         RoomEnemySlot slot,
         YappingMawEnemyState state,
         SamusState samus)
     {
-        // Samus command three drops any active grapple via $9B:C8C5;
+        // Samus command three drops any active grapple;
         // its transitional pose must be committed before the Maw releases input. It normalizes
         // spin-jump/wall-jump bodies. The input handler itself was already replaced by the
         // touch callback; do not force unrelated falling/running poses to standing.
@@ -406,7 +406,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 // CallSomeSamusCode(3) selects pose $01/$02 from the current direction,
                 // then runs the ordinary pose metadata and animation initialization path.
-                // Reusing those public ROM-backed helpers prevents a Yapping-Maw-only pose
+                // Reusing those shared data-backed helpers prevents a Yapping-Maw-only pose
                 // approximation from drifting away from every other Samus transition.
                 samus.Pose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
                     ? SamusPoseId.FacingLeftNormalPose
@@ -421,7 +421,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         _scrollCap.CapSamusScrollingSpeed(samus);
     }
 
-    /// <summary>Custom touch callback $A8:A799: grab, never ordinary contact damage.</summary>
+    /// <summary>Custom touch callback: grab, never ordinary contact damage.</summary>
     private static void ResolveYappingMawTouch(
         YappingMawEnemyState state,
         SamusState samus)
@@ -435,7 +435,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs after common shot AI exactly like $A8:A7BD. Ice releases a living Maw's captive;
+    /// Runs after common shot AI. Ice releases a living Maw's captive;
     /// death additionally destroys all four body eprojs and the root sprite-object slot.
     /// </summary>
     private static void ResolveYappingMawShotAfterCommon(
@@ -468,7 +468,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HasGrabbedSamus = false;
     }
 
-    /// <summary>Custom frozen tail $A8:A835-$A899 for all five auxiliary actors.</summary>
+    /// <summary>Custom frozen tail for all five auxiliary actors.</summary>
     internal static void RunYappingMawFrozen(
         RoomEnemySlot slot,
         YappingMawEnemyState state)
@@ -573,8 +573,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         CalculateYappingMawY(angle.AddTableUnits(-ByteAngle.QuarterTurn.RawValue), length);
 
     /// <summary>
-    /// Ports $A8:A742 exactly, including the high-byte sine approximation and the unusual
-    /// negative-product construction. Only length's low byte reaches WRMPYB.
+    /// Computes the link offsets exactly, including the high-byte sine approximation and the unusual
+    /// negative-product construction. Only length's low byte reaches the multiplier.
     /// </summary>
     internal static int CalculateYappingMawY(ByteAngle angle, int length)
     {
@@ -632,7 +632,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Registers contact as a grab that locks Samus without ordinary touch damage.</summary>
     internal static void AddYappingMawTouch(EnemySharedReactions table)
     {
-        // $A8:A799 replaces common contact damage entirely. A qualifying overlap transfers Samus input/position
+        // The Maw's touch replaces common contact damage entirely. A qualifying overlap transfers Samus input/position
         // ownership to the mouth state machine.
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.YappingMaw &&
                                EnemyCollision.TouchAi(slot) == EnemyReaction.YappingMawTouch,

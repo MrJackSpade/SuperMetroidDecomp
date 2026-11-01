@@ -17,7 +17,7 @@ internal abstract record YardCue
     internal sealed record SetDirection(YardDirection Direction) : YardCue;
 
     /// <summary>Names the animation the Yard hides with, or none.</summary>
-    /// <param name="OptionalTarget">The program the cue names, or none where the operand is the $CF5F sentinel.</param>
+    /// <param name="OptionalTarget">The program the cue names, or none where the operand is the empty-behaviour sentinel.</param>
     internal sealed record SetHidingProgram(YardProgram? OptionalTarget) : YardCue;
 
     /// <summary>Selects the movement function main AI runs.</summary>

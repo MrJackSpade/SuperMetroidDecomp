@@ -3,7 +3,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>
-/// The state of a Yard. Names follow what each word does rather than the original generic $7800 indexes. The values the
+/// The state of a Yard. Names follow what each word does rather than generic extension indexes. The values the
 /// game keeps in the enemy's common record are emptied with it when the enemy is killed (<see
 /// cref="ClearWithRecord"/>).
 /// </summary>
@@ -23,7 +23,7 @@ public sealed class YardEnemyState
     /// </summary>
     public YardAirborneFacing AirborneFacingDirection { get; internal set; }
 
-    /// <summary>The hidden-shell animation for the current orientation; none, the native $CF5F sentinel, suppresses the look-at hiding transition.</summary>
+    /// <summary>The hidden-shell animation for the current orientation; none, the empty-behaviour sentinel, suppresses the look-at hiding transition.</summary>
     internal YardProgram? HidingProgram { get; set; }
 
     /// <summary>
@@ -43,8 +43,8 @@ public sealed class YardEnemyState
     public YardMovementFunction? MovementFunction { get; internal set; }
 
     /// <summary>
-    /// Extension offsets $00-$06: signed 16.16 airborne velocity in pixels per AI update (Y fraction/whole at
-    /// $00/$02, X fraction/whole at $04/$06). Gravity adds $2000 to Y, horizontal speed decays by $1000 toward zero
+    /// Extension words zero through three: signed 16.16 airborne velocity in pixels per AI update (Y fraction/whole,
+    /// then X fraction/whole). Gravity adds 0.125 to Y, horizontal speed decays by 0.0625 toward zero
     /// when not colliding, and collisions negate each word separately; downward collision lands when the Y whole word
     /// is 0..2.
     /// </summary>
@@ -65,9 +65,9 @@ public sealed class YardEnemyState
     /// landing; emptied with the record.
     /// </summary>
     internal CrawlerSurfaceOrientation BlockSide { get; set; }
-    /// <summary>Extension offset $10: mutually exclusive behavior 0 normal crawling, 1 aggressive crawling, 2 hiding, 3 dropped, 4 kicked, or 5 beam-launched, controlling look-at, solidity, touch, and airborne decisions.</summary>
+    /// <summary>Mutually exclusive behavior 0 normal crawling, 1 aggressive crawling, 2 hiding, 3 dropped, 4 kicked, or 5 beam-launched, controlling look-at, solidity, touch, and airborne decisions.</summary>
     public YardBehavior Behavior { get; internal set; }
-    /// <summary>Parallel $7E:8000 flag: set by a horizontal airborne collision and cleared by a vertical bounce; a record of bounce state rather than a per-frame event.</summary>
+    /// <summary>Parallel flag: set by a horizontal airborne collision and cleared by a vertical bounce; a record of bounce state rather than a per-frame event.</summary>
     public bool BouncedHorizontally { get; internal set; }
 
     /// <summary>Empties the values the game keeps in the enemy's common record.</summary>

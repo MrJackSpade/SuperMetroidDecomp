@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 
 /// <summary>
 /// The state of a Zoa, with its launch speed stage. The values the game keeps in the enemy's
-/// common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>). “Shooting” is the ROM's
+/// common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>). “Shooting” is the original
 /// name for the creature launching itself horizontally; it does not create a separate enemy projectile.
 /// </summary>
 public sealed class ZoaEnemyState
@@ -18,13 +18,13 @@ public sealed class ZoaEnemyState
     public ZoaAnimationSelector AnimationScriptTableIndex { get; internal set; }
 
     /// <summary>
-    /// Last installed animation selector, initially zero; $A3:B537 compares it with the requested selector so unchanged
+    /// Last installed animation selector, initially zero; the animation change compares it with the requested selector so unchanged
     /// lists keep their timer and loop state.
     /// </summary>
     public ZoaAnimationSelector PreviousAnimationScriptTableIndex { get; internal set; }
 
     /// <summary>
-    /// Same-bank AI dispatch word, initialized to wait and transitioned through rise, horizontal launch, and offscreen
+    /// The current AI behaviour, initialized to wait and transitioned through rise, horizontal launch, and offscreen
     /// return to wait; none once a kill has emptied the record.
     /// </summary>
     public ZoaEnemyFunction? Function { get; internal set; }

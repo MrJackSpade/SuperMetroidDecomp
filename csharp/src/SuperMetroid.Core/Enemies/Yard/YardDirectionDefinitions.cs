@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 internal static class YardDirectionDefinitions
 {
     /// <summary>
-    /// $CDC2 and $CDD2: each of the eight surface orientations' crawling and hiding animations, airborne
+    /// Each of the eight surface orientations' crawling and hiding animations, airborne
     /// facing, opposite direction and movement callback, by direction: right-side wall moving up and
     /// down, left-side wall moving up and down, ceiling moving left and right, floor moving left and right. Direction
     /// pairs reverse motion on the same surface. Each names the side of its block a landing crawl takes its signs from.
@@ -41,7 +41,7 @@ internal static class YardDirectionDefinitions
 
     /// <summary>
     /// The visible and hidden airborne animations by facing. Detach, contact-kick and shot-launch repeat these
-    /// pairs, $D50F and $D5A4.
+    /// pairs.
     /// </summary>
     internal static readonly Dictionary<YardAirborneFacing, YardAirborneInstructionDefinition> AirborneFacings = new()
     {

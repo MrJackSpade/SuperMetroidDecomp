@@ -23,5 +23,5 @@ internal static class YardDirections
         YardDirectionDefinitions.AirborneFacings.TryGetValue(facing, out YardAirborneInstructionDefinition airborne)
             ? airborne
             : throw new InvalidDataException(
-                $"Yard airborne facing {facing} exceeds its two cartridge definitions.");
+                $"Yard airborne facing {facing} exceeds its two airborne facings.");
 }

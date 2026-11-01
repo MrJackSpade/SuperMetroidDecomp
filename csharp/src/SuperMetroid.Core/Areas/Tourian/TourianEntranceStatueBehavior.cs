@@ -34,8 +34,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>
-    /// Whether the entrance statue has finished sinking. The enemy-
-    /// projectile frame behaviour publishes the same completion latch for debugger hosts.
+    /// Whether the entrance statue has finished sinking. The statue's base
+    /// decoration sets it once the sinking animation has ended.
     /// </summary>
     public bool TourianEntranceStatueFinished { get; internal set; }
     /// <summary>

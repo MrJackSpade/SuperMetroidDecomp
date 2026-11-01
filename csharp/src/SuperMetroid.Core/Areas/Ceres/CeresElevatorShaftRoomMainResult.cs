@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>Debugger-visible result of one Ceres elevator shaft room-main call.</summary>
+/// <summary>What one update of the Ceres elevator shaft room did: the turning floor's transform and whether it changed, and whether departure began.</summary>
 [IndependentFlag("independent facts of one room-main call: whether the Mode 7 matrix changed and whether departure was requested")]
 public readonly record struct CeresElevatorShaftRoomMainResult(
     TurningFloorTransform Transform,

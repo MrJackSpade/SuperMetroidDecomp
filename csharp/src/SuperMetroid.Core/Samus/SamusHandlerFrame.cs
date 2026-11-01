@@ -6,10 +6,10 @@ using SuperMetroid.Core.World;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// One gameplay frame of the bank-$90 Samus handler: the values alpha samples before movement and the ones
+/// One gameplay frame of the Samus handler: the values alpha samples before movement and the ones
 /// beta and the animation transitions update, shared by <see cref="SuperMetroidRuntime"/> and
 /// <see cref="SamusFramePhases"/>. Each value changes only through the sampling operation that names its point in
-/// the native handler sequence.
+/// the handler sequence.
 /// </summary>
 internal sealed class SamusHandlerFrame
 {
@@ -37,7 +37,7 @@ internal sealed class SamusHandlerFrame
     /// <summary>Whether a bomb jump locks pose input this frame.</summary>
     internal bool BombJumpLocksPoseInput { get; private set; }
 
-    /// <summary>Whether the input lookup fell through to the pose-definition fallback ($91:82D9).</summary>
+    /// <summary>Whether the input lookup fell through to the pose-definition fallback.</summary>
     internal bool UsePoseDefinitionFallback { get; private set; }
 
     /// <summary>
@@ -59,7 +59,7 @@ internal sealed class SamusHandlerFrame
     internal bool EnemyMainAlreadyRan { get; private set; }
 
     /// <summary>
-    /// Whether that hoisted EnemyMain restored the normal handler pair (gunship $A2:A987). The locked alpha has
+    /// Whether that hoisted EnemyMain restored the normal handler pair (the gunship). The locked alpha has
     /// already been installed for this frame, so only alpha's checks still see the lock.
     /// </summary>
     internal bool EnemyMainReleasedAlphaLock { get; private set; }
@@ -70,7 +70,7 @@ internal sealed class SamusHandlerFrame
     /// <summary>Whether the locked alpha, a bomb jump, Shinespark or Crystal Flash, or the elevator locks pose input.</summary>
     internal bool ActorLocksPoseInput { get; private set; }
 
-    /// <summary>Whether the posture-transition input dispatcher, an RTS ($91:8146), skips pose input.</summary>
+    /// <summary>Whether the posture-transition input dispatcher, an empty handler, skips pose input.</summary>
     internal bool PostureTransitionSkipsPoseInput { get; private set; }
 
     /// <summary>Whether ordinary alpha's HUD, bomb and projectile owners run.</summary>
@@ -112,7 +112,7 @@ internal sealed class SamusHandlerFrame
 
     /// <summary>
     /// Samples what locks pose input: Samus's bomb jump, the live alpha lock, <paramref name="otherActorLocks"/> (Shinespark,
-    /// Crystal Flash or the elevator), and the posture-transition dispatcher's RTS.
+    /// Crystal Flash or the elevator), and the posture-transition dispatcher's empty handler.
     /// </summary>
     internal void SamplePoseInputLocks(SamusState samus, bool otherActorLocks)
     {

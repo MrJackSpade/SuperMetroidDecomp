@@ -23,7 +23,7 @@ internal sealed class SamusFrameState
     internal SamusFrameState(SpriteColourSets spriteSets) =>
         Colours = new SamusColours(spriteSets);
 
-    /// <summary>Remaining native load-appearance updates before ordinary Samus drawing resumes.</summary>
+    /// <summary>Remaining load-appearance updates before ordinary Samus drawing resumes.</summary>
     internal WrappingCountdown LoadAppearanceFramesRemaining { get; private set; }
     /// <summary>Palette-FX object selected while Samus's load appearance is active.</summary>
     internal PaletteFxObject? LoadAppearancePaletteFx { get; private set; }
@@ -59,14 +59,14 @@ internal sealed class SamusFrameState
         throw new InvalidOperationException("Samus has not been introduced; this gameplay phase requires her actor.");
 
     /// <summary>
-    /// Winning cartridge pose-transition entry for the most recently latched controller
+    /// Winning pose-transition entry for the most recently latched controller
     /// chord. The grounded debug scenario applies its verified $01/$02/$09/$0A/$25/$26
-    /// routes; every other winner remains diagnostic until its native side effects exist.
+    /// routes; every other winner remains diagnostic until its side effects exist.
     /// </summary>
     public SamusPoseTransition? ProspectiveSamusPose { get; internal set; }
 
     /// <summary>
-    /// Block-only result of `$91:EADE` after movement. This is separate from the input
+    /// Block-only result of the wall check after movement. This is separate from the input
     /// table record because a killed running speed can create `$89/$8A/$CF-$D2` even when
     /// no controller record matched, and a one-pixel probe can replace a running target.
     /// </summary>
@@ -74,7 +74,7 @@ internal sealed class SamusFrameState
 
 
     /// <summary>
-    /// No-button fallback selected by <c>Samus_Pose_CancelGrapple</c> at $91:82D9. This is
+    /// No-button fallback selected by <c>Samus_Pose_CancelGrapple</c>. This is
     /// separate from <see cref="SamusFrameState.ProspectiveSamusPose"/> because no six-byte table entry wins.
     /// </summary>
     public SamusPoseId? ProspectiveSamusFallbackPose { get; internal set; }
@@ -86,7 +86,7 @@ internal sealed class SamusFrameState
     public bool GroundedSamusMovementEnabled { get; internal set; }
 
     /// <summary>
-    /// Low-byte snapshot at WRAM <c>$0A11</c> used by X-ray stability and post-draw spin audio.
+    /// Low-byte snapshot of the previous movement type, used by X-ray stability and post-draw spin audio.
     /// The runtime updates it after each completed gameplay frame.
     /// </summary>
     public SamusMovementType PreviousMovementTypeForXray { get; internal set; }
@@ -110,7 +110,7 @@ internal sealed class SamusFrameState
     public KnockbackMovementResult? LastKnockbackMovement { get; internal set; }
 
 
-    /// <summary>Most recent bank-$9B connected-grapple function result.</summary>
+    /// <summary>Most recent connected-grapple function result.</summary>
     public GrappleMovementResult? LastGrappleMovement { get; internal set; }
 
     /// <summary>Most recent stored-shine windup or active shinespark handler result.</summary>
@@ -120,21 +120,21 @@ internal sealed class SamusFrameState
     public CrystalFlashMovementResult? LastCrystalFlashMovement { get; internal set; }
 
 
-    /// <summary>Most recent call of X-ray's bank-$88 setup/beam/deactivation state.</summary>
+    /// <summary>Most recent call of X-ray's setup/beam/deactivation state.</summary>
     public XrayBeamStepResult? LastXrayBeamStep { get; internal set; }
 
 
-    /// <summary>Most recent game-state-owned fatal-damage animation/palette/VRAM call.</summary>
+    /// <summary>Most recent game-state-owned fatal-damage animation/palette/artwork call.</summary>
     public SamusDeathSequenceStepResult? LastDeathSequenceStep { get; internal set; }
 
 
-    /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
+    /// <summary>Most recent call of drained Samus's installed falling handler.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; internal set; }
 
     /// <summary>Most recent normal movement-type-`$1A` dispatcher result.</summary>
     public DraygonGrabbedMovementResult? LastDraygonGrabbedMovement { get; internal set; }
 
-    /// <summary>Most recent `$90:E2A1` alternating-D-pad escape-handler result.</summary>
+    /// <summary>Most recent alternating-D-pad escape-handler result.</summary>
     public DraygonEscapeResult? LastDraygonEscape { get; internal set; }
 
     /// <summary>

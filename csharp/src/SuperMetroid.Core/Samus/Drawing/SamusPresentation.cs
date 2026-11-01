@@ -519,7 +519,7 @@ internal sealed class SamusPresentation
                 Position16<ScreenPixels>.Of(chestX, chestY), SpriteMirror.None));
         }
 
-        // $90:8686 suppresses the ordinary spin-jump bottom half for art frames 1..A;
+        // The draw suppresses the ordinary spin-jump bottom half for art frames 1..A;
         // those frames' top spritemaps contain the complete curled body. Frame zero and
         // frames B+ draw the split bottom. The admitted Screw/Space Jump records use their
         // separate rule and always draw the bottom half at every animation frame.

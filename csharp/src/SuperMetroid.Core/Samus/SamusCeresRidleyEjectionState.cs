@@ -6,32 +6,31 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// The two-stage Samus handler installed by Ceres Ridley's Mode-7 getaway at
-/// <c>$90:E119-$E21B</c>.
+/// The two-stage Samus handler installed by Ceres Ridley's Mode-7 getaway.
 /// </summary>
 /// <remarks>
-/// The native request is made from room-main code, after Samus has already moved for that
+/// The request is made from room-main code, after Samus has already moved for that
 /// frame, so the installed handler first runs on the following gameplay frame.
 /// </remarks>
 public sealed class SamusCeresRidleyEjectionState
 {
-    /// <summary>Native signed whole-pixel downward speed threshold during Ridley's shove.</summary>
+    /// <summary>Signed whole-pixel downward speed threshold during Ridley's shove.</summary>
     private const int TerminalDownwardSpeed = 5;
 
-    /// <summary>True while `$90:E12E/$E1C8` owns Samus movement.</summary>
+    /// <summary>True while the shove's handlers own Samus movement.</summary>
     public bool IsActive { get; private set; }
 
-    /// <summary>True until the first `$90:E12E` call installs pose and velocity.</summary>
+    /// <summary>True until the first shove call installs pose and velocity.</summary>
     public bool InitializationPending { get; private set; }
 
     /// <summary>
-    /// The wall the shove carries Samus toward (native <c>samus_var62</c>); <see cref="CeresRidleyShoveDirection.None"/>
+    /// The wall the shove carries Samus toward (<c>samus_var62</c>); <see cref="CeresRidleyShoveDirection.None"/>
     /// until initialization chooses a side and again once wall contact ends the shove.
     /// </summary>
     public CeresRidleyShoveDirection PushDirection { get; private set; }
 
     /// <summary>
-    /// <c>SetSamusToBePushedOutOfCeresRidleysWay</c> ($90:E119): installs the handlers
+    /// <c>SetSamusToBePushedOutOfCeresRidleysWay</c>: installs the handlers
     /// that the following gameplay frame executes.
     /// </summary>
     public void Request(SamusState samus)
@@ -40,23 +39,23 @@ public sealed class SamusCeresRidleyEjectionState
         IsActive = true;
         InitializationPending = true;
 
-        // `$90:E119` writes `$E90E` into the one physical movement-handler word. An
+        // Writes the shove into the one physical movement-handler word. An
         // uncrashed ordinary spark consequently retains its boost words as Blue Suit. If
         // the overwritten pointer was Crystal Flash's raise/drain/finish routine, its
-        // independent palette handler and RTS pose-input pointer survive instead. Neither
+        // independent palette handler and empty pose-input pointer survive instead. Neither
         // displaced movement owner can resume after Ridley's shove ends.
         samus.Shinespark.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishMovementHandler();
 
-        // `$90:E119` replaces only MovementHandler. The ordinary pose-input handler stays
+        // Replaces only MovementHandler. The ordinary pose-input handler stays
         // installed: held controller chords are still matched, projectile/HUD input still
-        // runs, and `$90:E1C8` specifically discards a prospective `$4F/$50` damage boost
+        // runs, and the shove specifically discards a prospective `$4F/$50` damage boost
         // while the shove remains active. Runtime owns that narrow prospective-pose clear.
         // Do not install a locked handler pair here; doing so changes controller
         // semantics and made this cutscene indistinguishable from an elevator/message lock.
     }
 
-    /// <summary>Executes one `$90:E12E` or `$90:E1C8` handler call.</summary>
+    /// <summary>Executes one shove handler call.</summary>
     public CeresRidleyEjectionResult Step(
 
         RoomLevelData level,
@@ -74,7 +73,7 @@ public sealed class SamusCeresRidleyEjectionState
         {
             InitializationPending = false;
 
-            // `$90:E12E` selects the ordinary hurt pose from the PREVIOUS pose direction and
+            // Selects the ordinary hurt pose from the PREVIOUS pose direction and
             // refreshes the animation. InitializeSamusPose_1 does not publish the hurt pose's
             // radius, so the `21 - radius` alignment uses the source pose's live radius; the
             // ordinary pose epilogue publishes radius 21 on the following frame.
@@ -90,14 +89,14 @@ public sealed class SamusCeresRidleyEjectionState
                 samus.Position.Y.Whole - (21 - samus.Kinematics.Radius.Y));
 
             // The side is selected from screen X, not world X. Exact center belongs to the
-            // rightward branch because the native BMI tests a signed `(screenX - 128)`.
+            // rightward branch because the BMI tests a signed `(screenX - 128)`.
             int screenX = CoordinateAxis.Wrap(samus.Position.X.Whole - layer1X);
             PushDirection = CoordinateAxis.Difference(screenX, 128) < 0
                 ? CeresRidleyShoveDirection.Left
                 : CeresRidleyShoveDirection.Right;
             samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(TerminalDownwardSpeed, 0);
 
-            // `$90:E12E` initializes only handler state on this call. `$90:E1C8` does not
+            // Initializes only handler state on this call. The shove does not
             // perform the first collision/movement pass until the following frame.
             return new CeresRidleyEjectionResult();
         }
@@ -115,13 +114,13 @@ public sealed class SamusCeresRidleyEjectionState
 
         if (horizontal.Collided)
         {
-            // MoveSamus_Left/Right end in Kill_SamusXSpeed_IfCollisionDetected ($90:E5CE),
+            // MoveSamus_Left/Right end in Kill_SamusXSpeed_IfCollisionDetected,
             // which cancels speed boosting and clears the extra-run words as well.
             samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-            // `$90:E1FD/$E21C` restore the ordinary handlers, then
-            // HandleKnockbackVerticalCollision ($90:DF6E) sees the still-set collision flag,
+            // Restore the ordinary handlers, then
+            // HandleKnockbackVerticalCollision sees the still-set collision flag,
             // clears the movement words and aligns the feet to the previous pose. The push
-            // never sets knockback direction `$0A52`, so `$90:DDE9` does not convert the
+            // never sets knockback direction, so the knockback check does not convert the
             // hurt pose; `$53/$54` remains for the ordinary movement handler.
             IsActive = false;
             PushDirection = CeresRidleyShoveDirection.None;
@@ -133,7 +132,7 @@ public sealed class SamusCeresRidleyEjectionState
             return new CeresRidleyEjectionResult();
         }
 
-        // `$90:8F5A` accelerates only while the signed whole speed is below five. The
+        // Accelerates only while the signed whole speed is below five. The
         // resulting 16.16 word is passed directly to MoveDown; unlike the common falling
         // wrapper, this path adds no extra one-pixel downward bias.
         if (WordWrap.Signed(samus.Kinematics.YSpeed.Whole - TerminalDownwardSpeed) < 0)

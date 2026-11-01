@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus;
 
-/// <summary>Shared cartridge suit division for ordinary enemy and projectile damage.</summary>
+/// <summary>Shared suit division for ordinary enemy and projectile damage.</summary>
 public static class SamusSuitDamage
 {
     /// <summary>Gravity takes precedence over Varia; integer shifts discard fractions. The damage is a word, 0 through 65535.</summary>

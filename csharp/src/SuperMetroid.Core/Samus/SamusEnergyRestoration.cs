@@ -2,13 +2,13 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus;
 
-/// <summary>Shared cartridge energy restoration, including overflow into reserve tanks.</summary>
+/// <summary>Shared energy restoration, including overflow into reserve tanks.</summary>
 public static class SamusEnergyRestoration
 {
     /// <summary>
-    /// Implements Restore_A_Energy_ToSamus ($91:DF12). Fill regular energy first, spill
+    /// Implements Restore_A_Energy_ToSamus. Fill regular energy first, spill
     /// only the excess into reserves, and enable auto reserve only from disabled mode.
-    /// Gunship and crystal-flash restoration both call this native routine.
+    /// Gunship and crystal-flash restoration both call this routine.
     /// </summary>
     public static void Restore(SamusState samus, int amount)
     {

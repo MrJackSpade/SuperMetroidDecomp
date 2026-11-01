@@ -8,15 +8,15 @@ namespace SuperMetroid.Core.Samus;
 internal sealed class SamusInputSnapshot
 {
     /// <summary>
-    /// Live WRAM $0A68: ordinary stored-shine countdown or Crystal Flash's palette
+    /// The live special-palette timer: ordinary stored-shine countdown or Crystal Flash's palette
     /// timer. A grab-interrupted Flash keeps the latter ticking indefinitely, so
-    /// native jump admission still sees a nonzero shine without a Stored phase.
+    /// the game's jump admission still sees a nonzero shine without a Stored phase.
     /// </summary>
     public static int SharedShineTimer(SamusState samus) => samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash
         ? samus.CrystalFlash.SpecialPaletteTimer.RemainingFrames : samus.Shinespark.ShineTimer.RemainingFrames;
 
     /// <summary>
-    /// WRAM $0E00, joypad1_newinput_samusfilter: the Fire edge retained by $90:EAB3
+    /// Joypad1_newinput_samusfilter: the Fire edge retained by the post-draw input filter
     /// after drawing Samus and projectiles. Missile admission and grapple's inactive function accept either
     /// this previous-frame edge or the current frame's edge, allowing a press that first
     /// exits a non-firing pose to fire on the next frame. Demo alpha replaces it with
@@ -24,30 +24,30 @@ internal sealed class SamusInputSnapshot
     /// </summary>
     public ControllerButton PreviousDrawNewInput { get; internal set; }
 
-    /// <summary>WRAM $0AF4, 0 through 65535: consecutive held-Jump history updated by $90:EAB3.</summary>
+    /// <summary>0 through 65535: consecutive held-Jump history updated by the post-draw input filter.</summary>
     public int AutoJumpTimer
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>WRAM $0DFE: held input published by $90:EAB3 and main-loop tail $82:8AB0.</summary>
+    /// <summary>Held input published by the post-draw input filter and the main loop's tail.</summary>
     public ControllerButton PreviousDrawHeldInput { get; internal set; }
 
-    /// <summary>PoseInputHandler currently selects the one-shot $90:E926 auto-jump handler.</summary>
+    /// <summary>PoseInputHandler currently selects the one-shot auto-jump handler.</summary>
     public bool AutoJumpInputPending { get; internal set; }
 
     /// <summary>
-    /// Shinespark launch installed the RTS pose-input handler ($91:FACA). This
+    /// Shinespark launch installed the empty pose-input handler. This
     /// survives an independently replaced movement handler until input is restored,
-    /// for example by normal landing's one-shot auto-jump handler ($91:F1EC).
+    /// for example by normal landing's one-shot auto-jump handler.
     /// </summary>
     public bool ShinesparkPoseInputLocked { get; internal set; }
 
-    /// <summary>Crystal Flash's RTS input pointer survives grab/release until native input restoration.</summary>
+    /// <summary>Crystal Flash's empty input pointer survives grab/release until input is restored.</summary>
     public bool CrystalFlashPoseInputLocked { get; internal set; }
 
-    /// <summary>Local input substitution from $90:E926; does not alter the controller's real edge.</summary>
+    /// <summary>Local input substitution from the auto-jump handler; does not alter the controller's real edge.</summary>
     internal ControllerButton ConsumeAutoJumpInput(ControllerButton newlyPressed)
     {
         if (!AutoJumpInputPending) return newlyPressed;
@@ -62,10 +62,10 @@ internal sealed class SamusInputSnapshot
         return newlyPressed;
     }
 
-    /// <summary>$82:8AB0 publishes held input without advancing Samus's draw-time owners.</summary>
+    /// <summary>Publishes held input without advancing Samus's draw-time owners.</summary>
     internal void PublishMainLoopHeldInput(ControllerButton held) => PreviousDrawHeldInput = held;
 
-    /// <summary>Native $90:EAB3 increments only when Jump is held in both draw samples.</summary>
+    /// <summary>The post-draw input filter increments only when Jump is held in both draw samples.</summary>
     internal void SnapshotDrawInput(ControllerButton held, ControllerButton newlyPressed)
     {
         ControllerButton jump = ControllerButton.A;
@@ -75,7 +75,7 @@ internal sealed class SamusInputSnapshot
         PreviousDrawNewInput = newlyPressed;
     }
 
-    /// <summary>Health-feedback tail of $90:EAB3, independent of knockback admission.</summary>
+    /// <summary>Health-feedback tail of the post-draw input filter, independent of knockback admission.</summary>
     internal static void UpdateHurtFlashFromHealthLoss(SamusState samus)
     {
         if (samus.Health < samus.PreviousHealthForHurtCheck && samus.HurtFlashCounter == 0)

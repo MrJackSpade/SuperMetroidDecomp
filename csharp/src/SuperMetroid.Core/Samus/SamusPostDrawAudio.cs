@@ -6,18 +6,18 @@ using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus;
 
-/// <summary>Post-draw spin/charge handoff from Samus_ShootCheck at $90:F576.</summary>
+/// <summary>Post-draw spin/charge handoff from Samus_ShootCheck.</summary>
 public static class SamusPostDrawAudio
 {
     /// <summary>
-    /// Uses the completed previous frame's $0A11 movement snapshot, not the last pose
-    /// initializer's $0A23. A spin can end through aiming, firing, landing or another
+    /// Uses the completed previous frame's movement-type snapshot, not the last pose
+    /// initializer's. A spin can end through aiming, firing, landing or another
     /// transition; the shared post-draw check handles them without per-input patches.
     /// </summary>
     public static void Step(SamusState samus,
         SamusMovementType previousMovement, ControllerButton controllerInput)
     {
-        // The signed latch takes native's direct branch to rearming positive one. It
+        // The signed latch takes the game's direct branch to rearming positive one. It
         // must not play a charge sound or run the spin-stop test on this frame.
         if (samus.ResumeChargingBeamSound == ResumeChargingBeamSoundLatch.SignedLatch)
         {

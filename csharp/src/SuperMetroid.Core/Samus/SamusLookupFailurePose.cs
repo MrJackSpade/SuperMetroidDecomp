@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus;
 public readonly record struct SamusLookupFailurePose(SamusPoseId ProspectivePose)
 {
     /// <summary>
-    /// Ports <c>$91:82D9</c> with <c>Set_ProspectivePoseChangeCommand</c> ($91:8304).
+    /// Ports the pose-definition fallback with <c>Set_ProspectivePoseChangeCommand</c>.
     /// Decelerate retains the current pose while base X speed remains and otherwise
     /// becomes Stop; every other command consults pose-definition byte two, where $FF
     /// retains the current pose.

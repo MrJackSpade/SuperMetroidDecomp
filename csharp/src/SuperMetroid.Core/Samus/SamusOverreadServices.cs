@@ -25,6 +25,7 @@ public sealed class SamusOverreadServices
     /// <param name="speedBoosterColours">The suit colours Gravity Speed Booster copies from past its cycle.</param>
     /// <param name="unauthoredBeamSpeeds">The speeds a Spazer and Plasma beam launches at.</param>
     /// <param name="drainedCrashDepartures">The angles a Shinespark crash finishing in a drained pose releases its echoes at.</param>
+    /// <param name="chainsawColours">The colours the Chainsaw beam's palette loader reads past its table.</param>
     internal SamusOverreadServices(
         LaidOutProgramContinuation<SamusPoseId> animationContinuation,
         TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> trailStarts,
@@ -34,7 +35,8 @@ public sealed class SamusOverreadServices
         PostureAdmissionBeyondTransitions<SamusPoseId> postureAdmission,
         SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> speedBoosterColours,
         UnauthoredBeamLaunchSpeeds<SamusBeamCombination> unauthoredBeamSpeeds,
-        DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> drainedCrashDepartures)
+        DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> drainedCrashDepartures,
+        ChainsawBeamColours<RgbColor> chainsawColours)
     {
         AnimationContinuation = Ensure.NotNull(animationContinuation);
         TrailStarts = Ensure.NotNull(trailStarts);
@@ -45,6 +47,7 @@ public sealed class SamusOverreadServices
         SpeedBoosterColours = Ensure.NotNull(speedBoosterColours);
         UnauthoredBeamSpeeds = Ensure.NotNull(unauthoredBeamSpeeds);
         DrainedCrashDepartures = Ensure.NotNull(drainedCrashDepartures);
+        ChainsawColours = Ensure.NotNull(chainsawColours);
     }
 
     /// <summary>What a Samus animation frame past its pose's program reads, by a pose that animates by each program.</summary>
@@ -73,4 +76,7 @@ public sealed class SamusOverreadServices
 
     /// <summary>The angles a Shinespark crash finishing in a drained pose releases its echoes at, read past its table.</summary>
     internal DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> DrainedCrashDepartures { get; }
+
+    /// <summary>The colours the Chainsaw beam's palette loader reads past its table.</summary>
+    internal ChainsawBeamColours<RgbColor> ChainsawColours { get; }
 }

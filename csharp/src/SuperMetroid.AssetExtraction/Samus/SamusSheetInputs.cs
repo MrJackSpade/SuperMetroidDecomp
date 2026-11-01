@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 
@@ -21,9 +22,10 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="SamusBody">Samus's body characters, bound to the body's frame selections and spritemaps.</param>
 /// <param name="DeathTiles">The characters of Samus's suit explosion.</param>
 /// <param name="SuitColors">The three suits' colours.</param>
+/// <param name="Overreads">The decoded glitch reads, which hold the Chainsaw beam's colours.</param>
 internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projectiles, SpriteArtwork StandardObjects,
     GameplayBasePalette Palettes, IntroCinematicArtwork Intro, SamusBodyCharacterArtwork SamusBody,
-    SamusDeathTileAtlas DeathTiles, InstalledSamusSuitColors SuitColors)
+    SamusDeathTileAtlas DeathTiles, InstalledSamusSuitColors SuitColors, SamusOverreadServices Overreads)
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static SamusSheetInputs Load(string content)
@@ -38,7 +40,8 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
             IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null),
             SamusBodyArtworkFiles.LoadCharacters(samusBody, null),
             SamusDeathTileArtworkFiles.Load(samusBody, null),
-            LoadSuitColors(Path.Combine(content, GameInstallationLayout.MapDirectoryName, SamusSuitColorFile.FileName)));
+            LoadSuitColors(Path.Combine(content, GameInstallationLayout.MapDirectoryName, SamusSuitColorFile.FileName)),
+            SamusOverreadFiles.Load(Path.Combine(content, GameInstallationLayout.SamusOverreadDirectoryName)));
     }
 
     /// <summary>The stock suit colours, which the validated map installation holds.</summary>
@@ -57,7 +60,8 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
     {
         ScreenPalette cgram = RoomLoadColours();
         SuitColors.Apply(SamusColourDefinitions.SuitColourGroup.Store.In(cgram.SpriteSets), SamusSuit.Power);
-        SamusProjectileSystem.LoadBeamPalette(SamusColourDefinitions.BeamColourGroup.Store.In(cgram.SpriteSets), SamusBeamCombination.Power, Projectiles.BeamTiles.Palettes);
+        SamusProjectileSystem.LoadBeamPalette(SamusColourDefinitions.BeamColourGroup.Store.In(cgram.SpriteSets), SamusBeamCombination.Power, Projectiles.BeamTiles.Palettes,
+            Overreads.ChainsawColours);
         return cgram.SpriteSets.All.Colors.ToArray();
     }
 

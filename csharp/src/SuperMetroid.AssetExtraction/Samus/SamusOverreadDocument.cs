@@ -28,6 +28,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="SpeedBoosterOverrunColours">The colours Gravity copies on each Speed Booster step past its cycle, by step name.</param>
 /// <param name="UnauthoredBeamLaunchSpeeds">The speeds each Spazer and Plasma beam combination launches at, by combination name.</param>
 /// <param name="DrainedCrashDepartures">The angles a Shinespark crash finishing in each drained pose releases its echoes at, by pose name.</param>
+/// <param name="ChainsawBeamColours">The sixteen colours the Chainsaw beam's palette holds, in palette order.</param>
 internal sealed record SamusOverreadDocument(
     int Version,
     IReadOnlyDictionary<string, SamusOverreadDocument.Continuation?> AnimationContinuations,
@@ -39,7 +40,8 @@ internal sealed record SamusOverreadDocument(
     IReadOnlyDictionary<string, bool> PostureAdmissions,
     IReadOnlyDictionary<string, IReadOnlyList<PaletteRgb5>> SpeedBoosterOverrunColours,
     IReadOnlyDictionary<string, SamusOverreadDocument.LaunchSpeeds> UnauthoredBeamLaunchSpeeds,
-    IReadOnlyDictionary<string, SamusOverreadDocument.CrashDepartures> DrainedCrashDepartures)
+    IReadOnlyDictionary<string, SamusOverreadDocument.CrashDepartures> DrainedCrashDepartures,
+    IReadOnlyList<PaletteRgb5> ChainsawBeamColours)
 {
     /// <summary>The program laid out after another, named by a pose that animates by it.</summary>
     /// <param name="Pose">The name of a pose that animates by the later program.</param>

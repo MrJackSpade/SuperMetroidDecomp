@@ -34,7 +34,8 @@ internal static class SamusOverreadServicesReader
             PostureAdmission(Require(document.PostureAdmissions, nameof(document.PostureAdmissions))),
             SpeedBoosterColours(Require(document.SpeedBoosterOverrunColours, nameof(document.SpeedBoosterOverrunColours))),
             UnauthoredBeamSpeeds(Require(document.UnauthoredBeamLaunchSpeeds, nameof(document.UnauthoredBeamLaunchSpeeds))),
-            DrainedCrashDepartures(Require(document.DrainedCrashDepartures, nameof(document.DrainedCrashDepartures))));
+            DrainedCrashDepartures(Require(document.DrainedCrashDepartures, nameof(document.DrainedCrashDepartures))),
+            ChainsawColours(Require(document.ChainsawBeamColours, nameof(document.ChainsawBeamColours))));
     }
 
     /// <summary>Every pose with an animation program and its program's successor.</summary>
@@ -221,6 +222,12 @@ internal static class SamusOverreadServicesReader
             throw new InvalidDataException($"Samus overread file holds crash departures for {departures.Count} poses, not {result.Count}.");
         return new(result);
     }
+
+    /// <summary>The Chainsaw beam's sixteen colours.</summary>
+    private static ChainsawBeamColours<RgbColor> ChainsawColours(IReadOnlyList<PaletteRgb5> colours) =>
+        colours.Count == ChainsawBeamColours<RgbColor>.ColourCount
+            ? new([.. colours.Select(colour => colour.ToRgbColor())])
+            : throw new InvalidDataException($"Samus overread file holds {colours.Count} Chainsaw beam colours, not {ChainsawBeamColours<RgbColor>.ColourCount}.");
 
     /// <summary>A sparkle's signed offset from its projectile, -128 through 127 pixels.</summary>
     private static Offset16<RoomPixels> Sparkle(Offset16<RoomPixels> offset) => new(SparkleOffset(offset.X), SparkleOffset(offset.Y));

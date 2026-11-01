@@ -31,6 +31,8 @@ internal sealed class RuntimeArtwork
     private readonly SamusFrameState _player;
     /// <summary>Receives animated tile, layer-three map, and blend-color catalogs for every room's FX.</summary>
     private readonly RoomFxSession _roomFx;
+    /// <summary>The colours the Chainsaw beam's palette loader reads past its table.</summary>
+    private readonly ChainsawBeamColours<RgbColor> _chainsawColours;
 
     /// <summary>
     /// Binds the installed projectile artwork to one room's Samus projectile and bomb systems: when the room builds them,
@@ -53,6 +55,7 @@ internal sealed class RuntimeArtwork
         _hud = dependencies.Hud;
         _player = dependencies.Player;
         _roomFx = dependencies.RoomFx;
+        _chainsawColours = Ensure.NotNull(dependencies.ChainsawColours);
     }
     /// <summary>Installed colors used at construction and on each room-entry palette restore.</summary>
     [field: NonSerialized]
@@ -176,7 +179,7 @@ internal sealed class RuntimeArtwork
     internal void UpdateBeamTilesAndPalette(SamusColours colours, SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams)
     {
         LoadedBeams = equippedBeams;
-        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(colours.Beam, equippedBeams, BeamPalettes);
+        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(colours.Beam, equippedBeams, BeamPalettes, _chainsawColours);
     }
 
     /// <summary>

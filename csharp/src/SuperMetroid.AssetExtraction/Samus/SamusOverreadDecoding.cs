@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Abilities;
@@ -36,7 +37,8 @@ internal static class SamusOverreadDecoding
             PostureAdmissions(cartridge),
             SpeedBoosterOverrunColours(cartridge),
             UnauthoredBeamLaunchSpeeds(cartridge),
-            DrainedCrashDepartures(cartridge));
+            DrainedCrashDepartures(cartridge),
+            ChainsawPaletteColours(cartridge));
     }
 
     /// <summary>
@@ -336,4 +338,19 @@ internal static class SamusOverreadDecoding
                 SamusPoseNumbering.Offset(pose, SamusPoseId.ShinesparkHorizontalRightPose) * 2;
             return new SamusOverreadDocument.CrashDepartures(cartridge.ReadCartridgeByte(pair), cartridge.ReadCartridgeByte(pair + 1));
         });
+
+    /// <summary>
+    /// The Chainsaw beam's sixteen colours: the loader copies sixteen words from the place it reads past the palette
+    /// table, whose first byte answers with the open bus and whose other bytes are Samus_Animate's code. The palette keeps
+    /// each word without its top bit.
+    /// </summary>
+    private static PaletteRgb5[] ChainsawPaletteColours(IImportCartridgeSource cartridge) =>
+        [.. Enumerable.Range(0, ChainsawBeamColours<RgbColor>.ColourCount).Select(colour =>
+        {
+            int place = SamusOverreadSourceDefinitions.ChainsawPaletteStart + colour * RgbColor.ByteCount;
+            ushort word = colour == 0
+                ? unchecked((ushort)(SamusOverreadSourceDefinitions.ChainsawPaletteOpenBusByte | cartridge.ReadCartridgeByte(place + 1) << 8))
+                : cartridge.ReadCartridgeWord(place);
+            return PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
+        })];
 }

@@ -37,6 +37,18 @@ internal static class SamusOverreadSourceDefinitions
     /// <summary>$90:DD75, the byte the HUD's posture-transition admission reads for pose zero; the real flags start at $90:DDAA.</summary>
     internal const int HudPostureFlagsForPoseZero = 0x90dd75;
 
+    /// <summary>
+    /// $90:7FFF: where the beam palette loader reads the Chainsaw beam's sixteen colours, through the palette place it
+    /// reads past its table; the first byte lies in the unconnected expansion window and the rest are Samus_Animate's code.
+    /// </summary>
+    internal const int ChainsawPaletteStart = 0x907fff;
+
+    /// <summary>
+    /// The byte <c>LDA [$00],Y</c> reads at <c>$90:7FFF</c>: the expansion window is open bus, so it returns the memory
+    /// data register, which still holds the long pointer's bank, $90.
+    /// </summary>
+    internal const int ChainsawPaletteOpenBusByte = 0x90;
+
     /// <summary>$90:D4C6: the Shinespark crash's echo departure table, two angle bytes per pose from the first crash pose.</summary>
     internal const int CrashDepartureTable = 0x90d4c6;
 

@@ -10,7 +10,6 @@ using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Artwork;

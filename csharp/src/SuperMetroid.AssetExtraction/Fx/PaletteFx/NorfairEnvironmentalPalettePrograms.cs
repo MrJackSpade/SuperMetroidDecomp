@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using static SuperMetroid.AssetExtraction.Fx.PaletteFx.NorfairEnvironmentalPaletteFxColorDefinitions;
 

@@ -46,7 +46,6 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Samus.Artwork;

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;

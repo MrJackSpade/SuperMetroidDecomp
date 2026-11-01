@@ -4,7 +4,6 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresExplosionVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Samus.Artwork;

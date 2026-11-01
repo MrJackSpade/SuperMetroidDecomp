@@ -10,7 +10,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Enemies;

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Spatial;

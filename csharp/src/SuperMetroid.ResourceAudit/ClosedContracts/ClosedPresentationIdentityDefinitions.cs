@@ -7,7 +7,6 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;

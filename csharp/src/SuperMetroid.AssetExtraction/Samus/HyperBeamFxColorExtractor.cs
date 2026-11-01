@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;

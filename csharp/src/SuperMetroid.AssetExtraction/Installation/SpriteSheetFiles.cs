@@ -15,7 +15,6 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
@@ -28,7 +27,6 @@ using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 

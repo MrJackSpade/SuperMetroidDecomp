@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 

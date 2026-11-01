@@ -51,7 +51,7 @@ public static class EndingMode7ArtworkFiles
             {
                 Version = EndingFloorArtworkFormat.Version,
                 Width = EndingFloorArtworkFormat.MapWidth,
-                Height = EndingFloorArtworkFormat.MapHeight,
+                Height = lowMap.Length / EndingFloorArtworkFormat.MapWidth,
                 Tiles = lowMap.Select(value => (int)value).ToArray(),
             });
 
@@ -92,7 +92,7 @@ public static class EndingMode7ArtworkFiles
         {
             Version = EndingFloorArtworkFormat.Version,
             Width = EndingRewardIconArtworkFormat.MapWidth,
-            Height = EndingRewardIconArtworkFormat.MapHeight,
+            Height = rewardMap.Length / EndingRewardIconArtworkFormat.MapWidth,
             Tiles = rewardMap,
         });
         byte[] rewardPixels = SnesGraphics.DecodeMode7Tiles(rewardCharacters, 16,

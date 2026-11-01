@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Fx;
-
 namespace SuperMetroid.AssetExtraction.Fx.Artwork;
 
 /// <summary>File identity and schema versions for editable room/cinematic palette-FX color assets.</summary>

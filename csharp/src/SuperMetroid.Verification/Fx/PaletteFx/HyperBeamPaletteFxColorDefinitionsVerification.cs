@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.Verification.Fx.PaletteFx;

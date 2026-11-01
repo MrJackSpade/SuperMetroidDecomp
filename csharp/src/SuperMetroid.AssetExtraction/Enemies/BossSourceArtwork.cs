@@ -5,7 +5,6 @@ using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 

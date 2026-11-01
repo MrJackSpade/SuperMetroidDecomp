@@ -11,7 +11,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.Verification.Frontend;
 

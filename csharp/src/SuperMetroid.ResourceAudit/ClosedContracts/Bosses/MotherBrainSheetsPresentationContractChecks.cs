@@ -50,6 +50,7 @@ internal static class MotherBrainSheetsPresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
+            using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
             using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
             class SheetConsumer {
                 void Inspect(MotherBrainSpecialSpriteArtworkCatalog sheets, MotherBrainSpritePageSheet selected) {
@@ -62,7 +63,8 @@ internal static class MotherBrainSheetsPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("MotherBrainSheetsFixture", sources,
-            platforms.Append(typeof(MotherBrainSpecialSpriteArtworkCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(MotherBrainSpecialSpriteArtworkCatalog).Assembly.Location)
+                .Append(typeof(MotherBrainSpritePageSheet).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

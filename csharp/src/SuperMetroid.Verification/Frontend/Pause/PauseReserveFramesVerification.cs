@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Pause;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;

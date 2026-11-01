@@ -50,11 +50,17 @@ internal sealed class AppearanceOptions
             reaching.Add(set, ofSet = []);
         if (!ofSet.TryGetValue(character, out AppearanceOption[]? found))
         {
-            found = [.. All.Where(option => option.Upload.Covers(set, character))];
+            found = Covering(set, character);
             ofSet.Add(character, found);
         }
         return found;
     }
+
+    /// <summary>
+    /// Scans the options for those whose upload covers <paramref name="character"/> of <paramref name="set"/>, in the order
+    /// given. Kept apart from <see cref="Reaching"/> so a character already asked about builds no filter over the options.
+    /// </summary>
+    private AppearanceOption[] Covering(BgCharacterSet set, int character) => [.. All.Where(option => option.Upload.Covers(set, character))];
 
     /// <summary>The distinct values the options give <paramref name="input"/>, in the order given; none for an input no option names.</summary>
     internal IReadOnlyList<string> ValuesOf(AppearanceInput input) => values.TryGetValue(input, out List<string>? given) ? given : [];

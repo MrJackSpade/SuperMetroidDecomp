@@ -42,7 +42,7 @@ internal sealed class MovieReplayVideo : IMovieRecorder, IDisposable
     }
 
     /// <summary>Binds synthesized audio to a freshly created game before its first update.</summary>
-    internal void Attach(SuperMetroidGame game) => game.BindAudio(clips);
+    public void Attach(SuperMetroidGame game) => game.BindAudio(clips);
 
     /// <summary>Runs one production update and appends its picture and sound.</summary>
     internal FrontendFrame Step(SuperMetroidGame game, ControllerButton input)

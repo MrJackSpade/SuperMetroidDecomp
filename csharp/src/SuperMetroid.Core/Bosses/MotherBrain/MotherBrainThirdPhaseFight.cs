@@ -148,7 +148,7 @@ internal sealed class MotherBrainThirdPhaseFight
             case MotherBrainPhase3NeckPhase.Normal:
                 // The neck setup briefly writes lower index one and immediately overwrites it with
                 // two before any other code can observe the word. Preserve the observable
-                // result while documenting the retail no-op (`>_<` in the disassembly).
+                // result; the first write has no effect.
                 _state.NeckAngleDelta = 128;
                 _state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
                 _state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;

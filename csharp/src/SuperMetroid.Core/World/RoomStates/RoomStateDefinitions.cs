@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
-/// The initialization settings of each of the 323 retail room states, named by the disassembly's RoomState_ labels.
+/// The initialization settings of each of the 323 retail room states, named for their rooms.
 /// Each field keeps the value range of its room-state header field.
 /// </summary>
 [NumberedIdentities("Each numbered state is one state of its room, chosen by its own event condition; the number tells the states apart and no caller indexes them.")]

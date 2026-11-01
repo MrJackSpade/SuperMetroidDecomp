@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// room is shown before gameplay. Treating the station's room as sufficient discarded
 /// exactly the turning-floor view of the opening Ceres elevator.
 /// </remarks>
-/// <param name="Name">The door's name, the pinned disassembly's label for its record.</param>
+/// <param name="Name">The door's name.</param>
 /// <param name="DestinationRoom">The room the door leads to.</param>
 /// <param name="Orientation">The direction Samus travels through the door and what closes behind her on arrival.</param>
 /// <param name="PlmBlock">The block of the destination room where the arrival's closing door cap stands.</param>

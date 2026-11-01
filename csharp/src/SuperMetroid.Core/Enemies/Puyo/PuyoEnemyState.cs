@@ -34,7 +34,7 @@ public sealed class PuyoEnemyState
     public PuyoHopType HopType { get; internal set; }
 
     /// <summary>
-    /// The name is inherited from the disassembly: true means the hopping pose is still active, while false permits
+    /// True means the hopping pose is still active, while false permits
     /// the grounded-list handoff.
     /// </summary>
     public bool HoppingAnimationActive { get; internal set; }

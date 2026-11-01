@@ -211,7 +211,7 @@ public sealed class SamusProjectileSystem
         {
             // The charge palette admits the continuously cycling charge palette only while
             // grapple's function pointer is exactly inactive and the flare counter has
-            // reached 60. The 65816 BMI is a signed subtraction test, retained literally
+            // reached 60. The game's test is a signed subtraction, retained literally
             // so Hyper's 32768 sentinel follows game behavior too.
             bool chargePaletteActive =
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
@@ -503,7 +503,7 @@ public sealed class SamusProjectileSystem
                 // Charged combination thirteen does not point at game code. Its table
                 // overrun reads a word of Samus's state, so the game jumps there and begins
                 // decoding the cached previous-Super-Missile word as opcodes. This semantic
-                // port cannot execute arbitrary mutable data as 65C816 code; fail at the
+                // port cannot execute arbitrary mutable data as code; fail at the
                 // same callback-dispatch seam instead of silently substituting Wave motion.
                 throw new NotSupportedException(
                     "Charged Chainsaw callback enters Samus's mutable state " +

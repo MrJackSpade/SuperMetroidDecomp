@@ -8,7 +8,7 @@ internal static class BotwoonHealthPalette
     /// through seven. The signed subtraction matches the original game's comparison.
     /// </summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against the NTSC J/U v1.0 release and its pinned disassembly:
+    /// Independently reviewed for #1165 against the NTSC J/U v1.0 release:
     /// threshold(i)=375*(8-i), i=0..7. Subtract in sixteen bits and interpret the
     /// result as signed, matching the game's signed compare. All ushort health values remain
     /// supported, including wrapped differences. Phase 8 is caller-owned completion,

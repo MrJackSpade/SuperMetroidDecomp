@@ -143,7 +143,7 @@ internal sealed class RoomSpriteObjectPool
                 continue;
 
             Position16<ScreenPixels> screen = slot.Position.Whole.ToScreen(camera);
-            // The 65816 uses signed branch tests on `(x + 16)`, `(x - 272)`, `y`, and
+            // The game uses signed tests on `(x + 16)`, `(x - 272)`, `y`, and
             // `(y - 272)`. Unsigned host comparisons incorrectly discarded partially visible
             // objects whose wrapped screen coordinate represented a small negative offset.
             if (CoordinateAxis.AsSigned(screen.X + 16) < 0 ||

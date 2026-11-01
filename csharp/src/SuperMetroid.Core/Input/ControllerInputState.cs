@@ -39,8 +39,7 @@ public sealed class ControllerInputState
     public ControllerButton NewlyPressed { get; private set; }
 
     /// <summary>
-    /// Auto-repeat form at direct page <c>$93</c>. The disassembly calls this "fake new";
-    /// it begins as <see cref="NewlyPressed"/> and periodically emits all held bits.
+    /// Auto-repeat form: it begins as <see cref="NewlyPressed"/> and periodically emits all held bits.
     /// </summary>
     public ControllerButton NewlyPressedWithRepeat { get; private set; }
 

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// interactive-enemy list in slot order. That order matters:
 /// the original routine returns the first colliding entry, not the geometrically nearest one.
 /// All positions and arithmetic remain 16-bit so wraparound, signed branch tests, and pixel
-/// rounding agree with the 65C816 rather than with host-language geometry conventions.
+/// rounding agree with the original rather than with conventional geometry.
 /// </remarks>
 public static class SamusSolidEnemyCollision
 {
@@ -92,8 +92,8 @@ public static class SamusSolidEnemyCollision
             if (wasTouching)
             {
                 // Clears Y subposition for every direction. Yes, that clears
-                // Samus's *Y* subposition even for a left/right touch. The disassembly calls
-                // this out as an original-game bug; preserving it prevents one-pixel drift
+                // Samus's *Y* subposition even for a left/right touch. This is an
+                // original-game bug; preserving it prevents one-pixel drift
                 // differences when repeatedly pressing into a solid or frozen enemy.
                 state.Position = state.Position.WithFractionY(0);
             }

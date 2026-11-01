@@ -11,7 +11,7 @@ internal static class DraygonHealthPalette
     /// to continue through the adjacent terminator and following data.
     /// </summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against the NTSC J/U v1.0 release and its pinned disassembly:
+    /// Independently reviewed for #1165 against the NTSC J/U v1.0 release:
     /// threshold(i)=750*(7-i), i=0..7; the band is the first
     /// nonnegative signed difference. For health 0..6000 no difference overflows,
     /// so integer division gives the band max(0,7-floor(health/750)) (byte index twice that). Exact multiples stay

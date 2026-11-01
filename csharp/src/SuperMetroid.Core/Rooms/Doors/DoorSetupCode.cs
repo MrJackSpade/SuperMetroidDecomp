@@ -253,7 +253,7 @@ public enum DoorSetupCode
     DoorASM_Scroll_0_1_Green_duplicate = 80,
 
     /// <summary>
-    /// Door callback. The inherited disassembly label says cells 8/9, but the
+    /// Door callback. Its traditional name says cells 8/9, but the
     /// door's own operands are cells 24 and 25.
     /// </summary>
     DoorASM_Scroll_18_Blue_19_Red = 81,

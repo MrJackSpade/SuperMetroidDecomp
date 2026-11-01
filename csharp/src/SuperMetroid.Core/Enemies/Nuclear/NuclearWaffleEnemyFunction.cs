@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
-/// The routine Nuclear Waffle's main AI dispatches. “Nuclear Waffle” is the disassembly's internal
-/// name; the game name table calls the enemy Puromi.
+/// The routine Nuclear Waffle's main AI dispatches. “Nuclear Waffle” is the enemy's traditional
+/// name; the game's own name table calls it Puromi.
 /// Its values are arbitrary.
 /// </summary>
 public enum NuclearWaffleEnemyFunction

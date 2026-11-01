@@ -42,7 +42,7 @@ public readonly record struct TurningFloorTransform(
         // The original helper multiplies two signed 16-bit values into a 32-bit result.
         // Each product is shifted independently, truncated to a word, and only then added
         // to the other term. Do not combine these into a wider host expression: overflow
-        // between the two `$26` additions is authentic 65816 behavior.
+        // between the two additions is the original behavior.
         int transformedHorizontalDistance = CoordinateAxis.Wrap(
             MultiplySigned8Point8(horizontalDistance, MatrixA) +
             MultiplySigned8Point8(verticalDistance, MatrixB));

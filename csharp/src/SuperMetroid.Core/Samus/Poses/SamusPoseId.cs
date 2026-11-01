@@ -67,9 +67,9 @@ public enum SamusPoseId
     MoonwalkAimDownRightPose,
 
     /// <summary>
-    /// Pose `$BF`: right-facing moonwalk art turning/jumping toward the left. Despite the
-    /// name in the disassembly, this is still grounded movement type `$0E` until its input
-    /// table or terminal `$F8,$1A` animation command installs the actual spin jump.
+    /// Right-facing moonwalk art turning/jumping toward the left. Despite its traditional
+    /// name, this is still grounded turning movement until its input table or its
+    /// animation's final step installs the actual spin jump.
     /// </summary>
     MoonwalkTurnJumpLeftPose,
 

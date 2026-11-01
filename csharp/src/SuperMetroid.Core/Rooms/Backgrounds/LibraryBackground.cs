@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 public sealed class LibraryBackground
 {
     /// <summary>Names the background and the entry doors that show their own pictures of it.</summary>
-    /// <param name="name">The background's name, the disassembly's label for its command list without its prefix.</param>
+    /// <param name="name">The background's name.</param>
     /// <param name="pictureDoors">The entry doors that each show their own picture, in the order the list names them.</param>
     /// <exception cref="ArgumentException">The name is empty, or a door is named twice.</exception>
     public LibraryBackground(string name, IEnumerable<DoorDefinition> pictureDoors)

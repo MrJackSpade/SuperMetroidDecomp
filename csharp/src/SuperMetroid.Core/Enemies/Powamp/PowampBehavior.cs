@@ -439,7 +439,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AlignPowampBalloonY(RoomEnemySlot body, PowampBalloon balloon)
     {
         (bool sinking, int shownPoses) = PowampBalloonPhase(balloon.State.Program);
-        // The 65C816 calculation halves the pointer's byte offset past the first pose, (2 * shown - 2), and indexes
+        // The game's calculation halves the pointer's byte offset past the first pose, (2 * shown - 2), and indexes
         // words with it. Before any pose has shown the offset underflows past five and falls back to the first entry.
         int index = shownPoses == 0 ? 0 : shownPoses - 1;
         balloon.Slot.Position = balloon.Slot.Position.WithWrappedWholeY(body.Position.Y.Whole + PowampMotion.BalloonOffset(index, sinking));

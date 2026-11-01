@@ -11,7 +11,7 @@ public sealed class RoomPlmPopulation
     /// <summary>Owned placement records kept in the order the PLM allocator consumes them.</summary>
     private readonly RoomPlmPlacement[] placements;
 
-    /// <summary>The population's name, the disassembly's label for it without its prefix, or a fixture's description.</summary>
+    /// <summary>The population's name, or a fixture's description.</summary>
     public string Name { get; }
     /// <summary>Validated placement records in allocation order, excluding the zero header terminator; scroll programs are owned copies.</summary>
     public ReadOnlyMemory<RoomPlmPlacement> Placements => placements;

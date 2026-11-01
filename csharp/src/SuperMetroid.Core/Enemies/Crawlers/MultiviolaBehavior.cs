@@ -118,7 +118,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Reproduces the Multiviola's two-word negations. This is not
     /// a conventional 32-bit negation: when the fractional word is zero, its wrapped increment
     /// does not carry into the already-complemented whole word, leaving the velocity exactly
-    /// one pixel/frame too negative. The retail disassembly explicitly documents this bug.
+    /// one pixel/frame too negative. This is an original-game bug, kept because it is observable.
     /// </summary>
     private static void NegateWithoutFractionCarry(
         ref MultiviolaEnemyState state,

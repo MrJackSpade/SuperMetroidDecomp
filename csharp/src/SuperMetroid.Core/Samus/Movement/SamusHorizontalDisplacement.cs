@@ -27,8 +27,8 @@ public readonly record struct SamusHorizontalDisplacement(int Displacement, Samu
 
     /// <summary>
     /// The game's calculator choice: acceleration modes zero and two follow the pose's
-    /// X direction; any other word value (normally mode one, turning) reverses it. The 65C816
-    /// compares rather than validating an enum, so every value is handled this way.
+    /// X direction; any other word value (normally mode one, turning) reverses it. The game
+    /// compares rather than validating the mode, so every value is handled this way.
     /// </summary>
     public static SamusHorizontalDisplacement ForPoseDirection(SamusState samus, uint baseSpeed)
     {

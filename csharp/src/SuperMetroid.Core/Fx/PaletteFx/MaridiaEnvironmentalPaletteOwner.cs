@@ -7,6 +7,6 @@ public enum MaridiaEnvironmentalPaletteOwner
     SandPits,
     /// <summary>Maridia palette effect 2, sand falls: rotates the four <see cref="PaletteFxColours.MaridiaSandFalls"/>, with four ten-update phases.</summary>
     SandFalls,
-    /// <summary>Maridia palette effect 4, background waterfalls: rotates the eight <see cref="PaletteFxColours.MaridiaBackgroundWaterfalls"/>, with eight two-update phases; the operand, not the incorrect disassembly annotation, determines the destination.</summary>
+    /// <summary>Maridia palette effect 4, background waterfalls: rotates the eight <see cref="PaletteFxColours.MaridiaBackgroundWaterfalls"/>, with eight two-update phases; the operand, not the effect's traditional description, determines the destination.</summary>
     BackgroundWaterfalls,
 }

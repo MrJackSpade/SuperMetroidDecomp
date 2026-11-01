@@ -505,9 +505,9 @@ internal sealed class SamusPresentation
         sprites.AddSamusBody(top, drawOrigin, spritemaps, BodySheets, ShownPictures, new SpriteSource(SpriteSourceKind.Samus, 0));
 
         // The draw writes one small sprite directly between the top and bottom
-        // spritemap calls when unsuited pose `$00` faces the screen. This is not a visor:
-        // the disassembly identifies tile `$021` as a cover for the left side of the power-
-        // suit chest. The suited `$9B` body has that shape in its ordinary spritemap and
+        // spritemaps when the unsuited Samus faces the screen. This is not a visor:
+        // the tile covers the left side of the power-suit chest. The suited
+        // front-facing body has that shape in its ordinary spritemap and
         // deliberately skips this write. Coordinates use Samus's world center directly,
         // not SpritemapPosition.Y (which has already applied pose graphics offset `$08`).
         if (samus.Pose == SamusPoseId.ForwardFacingPowerSuitPose)

@@ -114,7 +114,7 @@ public sealed class DemoInputState
         frameBehavior(this, FrameBehavior);
         cursor = Cursor ?? throw new InvalidOperationException("A demo pre-instruction deleted its object.");
 
-        // DEC is a 16-bit 65C816 operation. In particular, a zero duration wraps and lasts
+        // The countdown is a wrapping 16-bit word. In particular, a zero duration wraps and lasts
         // 65,536 handler calls; using an int countdown would quietly change malformed or
         // intentionally unusual recorded input data.
         CountdownStep frameHold = FrameHold.Decrement();

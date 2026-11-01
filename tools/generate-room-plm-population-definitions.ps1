@@ -79,7 +79,7 @@ public static class PlmHeaderGenerationProcessPolicy {
     $lines.Add('namespace SuperMetroid.Core.Rooms.Plms;')
     $lines.Add('')
     $lines.Add('/// <summary>')
-    $lines.Add('/// The retail room PLM populations, each named by the pinned disassembly''s label for it. Each holds its placements')
+    $lines.Add('/// The retail room PLM populations, each named for its room state. Each holds its placements')
     $lines.Add('/// in native order: PLM header, block X and Y, and the room argument decoded into what the PLM reads; regenerate with')
     $lines.Add('/// tools/generate-room-plm-population-definitions.ps1.')
     $lines.Add('/// </summary>')

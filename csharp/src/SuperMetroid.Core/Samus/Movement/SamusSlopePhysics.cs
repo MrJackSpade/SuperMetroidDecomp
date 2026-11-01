@@ -47,7 +47,7 @@ public static class SamusSlopePhysics
 
         int multiplier = SlopeSpeeds.HorizontalMultiplier(behavior.SlopeShape);
 
-        // The 65816 discards the displacement's lowest eight fractional bits before the
+        // The game discards the displacement's lowest eight fractional bits before the
         // unsigned 16×16 multiply. For negative values it negates that truncated 16-bit
         // magnitude, multiplies, and negates the 32-bit result afterward.
         if (displacement >= 0)

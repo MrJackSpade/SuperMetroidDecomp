@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Each retail room's door list: the entries its type-$9 blocks select by index.</summary>
-/// <remarks>Each list is the pinned disassembly's <c>RoomDoors_</c> list for the room. Twelve lists hold the shared
+/// <remarks>Each list is the room's own door list. Twelve lists hold the shared
 /// elevator pseudo-door and two the Maridia/Tourian one, which consume no physical door record.</remarks>
 public static class RoomDoorListDefinitions
 {

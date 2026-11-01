@@ -29,7 +29,7 @@ internal static class IntroCinematicMotion
     public static FixedCoordinate AddEightEight(
         FixedCoordinate position,
         SignedEightEight velocity) =>
-        // The 65c816 XBA sequence places the velocity fraction in subposition byte +1.
+        // The velocity's fraction lands in the subposition's high byte.
         // Its eight-bit carry then feeds the sign-extended integer byte.
         velocity
             .ToSixteenSixteenDelta()

@@ -538,7 +538,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // The intangible property removes the dead body from the interactive-enemy list.
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
-        // The 65C816 loop clears projectile indexes $1A..$00: physical slots 13..0.
+        // The clear walks the projectile slots downward from 13 to 0.
         // Slots 14..17 are the stalk and deliberately survive for the death animation.
         for (int projectileSlot = 0; projectileSlot <= 13; projectileSlot++)
             _projectiles.EnemyProjectiles[projectileSlot].Clear();

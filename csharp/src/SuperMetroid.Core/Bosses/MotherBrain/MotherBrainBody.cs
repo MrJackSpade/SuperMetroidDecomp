@@ -237,9 +237,8 @@ internal sealed class MotherBrainBody
             case MotherBrainBodyCue.SetPose setPose:
                 state.Pose = setPose.Pose;
                 return;
-            // The walk-cycle comments in the historical disassembly describe visual
-            // motion and are occasionally opposite the literal signed Y operand. The
-            // programs keep the actual additions the walking steps perform, not the labels.
+            // The walking steps' visible motion is occasionally opposite their signed Y
+            // addition. The programs keep the additions the walking steps perform.
             case MotherBrainBodyCue.Move move:
                 MoveMotherBrainBody(move.Offset);
                 return;

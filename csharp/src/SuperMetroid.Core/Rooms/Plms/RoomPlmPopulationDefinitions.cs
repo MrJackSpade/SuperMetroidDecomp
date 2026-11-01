@@ -3,7 +3,7 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// The retail room PLM populations, each named by the pinned disassembly's label for it. Each holds its placements
+/// The retail room PLM populations, each named for its room state. Each holds its placements
 /// in authored order: PLM header, block X and Y, and the room argument decoded into what the PLM reads; regenerate with
 /// tools/generate-room-plm-population-definitions.ps1.
 /// </summary>

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// </summary>
 /// <remarks>
 /// Logical cells are screen-sized (256x256 pixels), not 16x16 room blocks. Values zero,
-/// one, and two are conventionally called red, blue, and green scrolls by the disassembly.
+/// one, and two are conventionally called red, blue, and green scrolls.
 /// Zero forms a camera boundary; one and two are traversable but affect vertical alignment
 /// differently. Scroll PLMs can mutate these bytes during play.
 /// </remarks>

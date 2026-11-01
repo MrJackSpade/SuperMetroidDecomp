@@ -10,8 +10,8 @@ public static class DraygonProjectileSpeeds
     public const int WallTurret = 3;
 
     /// <summary>
-    /// Two, passed by the goop spawn. Despite the disassembly's note that the
-    /// goop instructions do not set parameter zero, the spawn routine stores this A value.
+    /// Two, passed by the goop spawn. The goop's own animation never sets parameter zero;
+    /// the spawn stores this value.
     /// </summary>
     public const int Goop = 2;
 }

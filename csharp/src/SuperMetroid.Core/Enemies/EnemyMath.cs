@@ -208,6 +208,6 @@ internal static class EnemyMath
     /// </summary>
     private static int RadiusMultiplierOperand(int radius) => WordWrap.LowByte(Ensure.BetweenInclusive(0, ushort.MaxValue, radius));
 
-    /// <summary>Tests the sign of the low sixteen bits as a 65816 word, ignoring higher host bits.</summary>
+    /// <summary>Tests the sign of the low sixteen bits as a signed word, ignoring higher bits.</summary>
     internal static bool IsNegative16(int value) => WordWrap.IsNegative(value);
 }

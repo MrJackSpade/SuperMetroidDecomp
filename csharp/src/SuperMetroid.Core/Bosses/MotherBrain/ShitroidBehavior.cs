@@ -109,8 +109,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.AsSigned(cameraX) < 0)
         {
             // The intangible property removes the actor from ordinary interaction and the hide-drawing property suppresses
-            // drawing. Keep the former raw: its historical disassembly name "tangible" is
-            // contradicted by the collision walkers that explicitly reject the bit.
+            // drawing. Keep the former raw: although it is traditionally called "tangible", the
+            // collision walkers explicitly reject actors that have it.
             slot.Properties = slot.Properties.With(
                 EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
             state.Function = ShitroidAiFunction.Dormant;

@@ -23,7 +23,7 @@ public sealed record RoomStateSettings(
     SuperMetroid.Core.Rooms.Backgrounds.LibraryBackground? Background,
     RoomSetupCallback SetupCallback)
 {
-    /// <summary>The state's name, the disassembly's label for it without its prefix.</summary>
+    /// <summary>The state's name.</summary>
     public string Name { get; init; } = Ensure.NotNull(Name);
 
     /// <summary>The level the state loads: its initial blocks, block types and background blocks, shared with the room's other states that load the same one.</summary>

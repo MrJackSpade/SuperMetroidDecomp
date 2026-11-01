@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Fx;
 public sealed class RoomFxHeader
 {
     /// <summary>Holds a header's records in the game's order.</summary>
-    /// <param name="name">The header's name, the disassembly's label for it without its prefix, or a fixture's description.</param>
+    /// <param name="name">The header's name, or a fixture's description.</param>
     /// <param name="records">The header's records in the game's order.</param>
     public RoomFxHeader(string name, RoomFxRecordDefinition[] records)
     {

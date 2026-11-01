@@ -760,7 +760,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // During wing initialization its typed state does not exist yet, so insist on the
         // authored matching definition. Once initialization has established the pair, retain
         // the physical alias even if deletion cleared the definition or the slot was
-        // subsequently reused. The latter is intentional: the 65C816 routine would alias and
+        // subsequently reused. The latter is intentional: the game would alias and
         // mutate that replacement record too rather than performing a type check.
         if (wings.DefinitionId != expected &&
             wings.SpeciesState<KiHunterEnemyState>() is null)

@@ -126,7 +126,7 @@ public sealed class ScrollBoundaryCamera
     /// <remarks>
     /// The vertical transition routines deliberately begin outside the destination room:
     /// down starts at destination Y minus 224 (often 65312) and up starts at
-    /// destination Y plus <c>$FB</c>. These are valid 65C816 coordinates, not entry
+    /// destination Y plus 251. These are valid wrapped coordinates, not entry
     /// positions to clamp. Keeping this operation separate from <see cref="SetPosition"/>
     /// prevents ordinary loaders and debug callers from bypassing room-edge validation.
     /// </remarks>

@@ -110,8 +110,8 @@ public sealed class BackgroundScrollState
     {
         Bg1Scroll = Layer1Position + Bg1Offset;
 
-        // Mode one means "do not scroll BG2 on this axis". The 65C816 subroutine returns
-        // carry set, so the caller skips both the layer-2 position write and the BG2 scroll.
+        // Mode one means "do not scroll layer 2 on this axis": the caller skips both the
+        // layer-2 position write and the layer-2 scroll.
         if (TryCalculateLayer2Position(Layer1Position.X, Layer2Scroll.Horizontal, out int layer2X))
         {
             Layer2Position = Layer2Position.WithX(layer2X);

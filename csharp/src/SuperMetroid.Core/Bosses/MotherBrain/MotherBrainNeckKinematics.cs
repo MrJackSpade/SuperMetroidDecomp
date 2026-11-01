@@ -165,8 +165,8 @@ internal static class MotherBrainNeckKinematics
     internal static ImmutableArray<Position16<RoomPixels>> CalculateGeometry(Position16<RoomPixels> body, RotationAngle lowerAngle, RotationAngle upperAngle, IReadOnlyList<int> distances)
     {
         // The body reference point is deliberately offset. Adding (112,-96)
-        // below reduces it to body+($20,-$32), but retaining the two stages makes the
-        // individual segment equations auditable against the disassembly.
+        // below reduces it to body+(32,-50), but retaining the two stages keeps each
+        // segment's equation separately readable.
         Position16<RoomPixels> reference = body + new Offset16<RoomPixels>(-80, 46);
         ByteAngle lower = lowerAngle.ToByteAngle();
         ByteAngle upper = upperAngle.ToByteAngle();

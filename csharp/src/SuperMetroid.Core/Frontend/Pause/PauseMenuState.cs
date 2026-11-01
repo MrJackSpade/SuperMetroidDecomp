@@ -522,9 +522,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         int maximumY = WordWrap.Unsigned(bottom * 8);
         CurrentMapScrollBounds = new PauseMapScroll(new(CoordinateAxis.Wrap(minimumX), CoordinateAxis.Wrap(minimumY)), new(CoordinateAxis.Wrap(maximumX), CoordinateAxis.Wrap(maximumY)));
 
-        // SetupMapScrollingForPauseMenu($80) uses 16-bit ADC/SBC throughout. These local
-        // helpers retain wrapping before every signed branch so an edge-of-map position
-        // behaves like the 65C816 rather than like unbounded host integer arithmetic.
+        // The pause map's scroll setup uses wrapping 16-bit arithmetic throughout. These local
+        // helpers wrap before every signed test so an edge-of-map position behaves as the
+        // game's does rather than like unbounded integer arithmetic.
         // The player's map cell: the room's map origin plus Samus's room screen, with the
         // map convention's one-row downward offset.
         Position16<MapPixels> player = SamusMapCell().ToMapPixels();

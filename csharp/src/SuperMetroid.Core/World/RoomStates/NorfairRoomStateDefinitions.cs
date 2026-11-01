@@ -2,407 +2,407 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>The initialization settings of each Norfair room state, named by the disassembly's RoomState_ labels.</summary>
+/// <summary>The initialization settings of each Norfair room state, named for their rooms.</summary>
 [NumberedIdentities("Each numbered state is one state of its room, chosen by its own event condition; the number tells the states apart and no caller indexes them.")]
 public static class NorfairRoomStateDefinitions
 {
 
-    /// <summary>The disassembly's RoomState_IceBeamAcid.</summary>
+    /// <summary>The Ice Beam Acid room's state.</summary>
     public static RoomStateSettings IceBeamAcid { get; } =
         new(nameof(IceBeamAcid), RoomLevelDefinitions.IceBeamAcid, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.IceBeamAcid, RoomEnemyPopulationDefinitions.IceBeamAcid, Enemies.RoomEnemyGraphicsSetDefinitions.IceBeamAcid, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.IceBeamAcid, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurpleBright, RoomSetupCallback.SharedReturnB);
 
 
-    /// <summary>The disassembly's RoomState_Cathedral.</summary>
+    /// <summary>The Cathedral room's state.</summary>
     public static RoomStateSettings Cathedral { get; } =
         new(nameof(Cathedral), RoomLevelDefinitions.Cathedral, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Cathedral, RoomEnemyPopulationDefinitions.Cathedral, Enemies.RoomEnemyGraphicsSetDefinitions.Cathedral, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.Cathedral, null, RoomSetupCallback.SharedReturnB);
 
 
-    /// <summary>The disassembly's RoomState_CathedralEntrance.</summary>
+    /// <summary>The Cathedral Entrance room's state.</summary>
     public static RoomStateSettings CathedralEntrance { get; } =
         new(nameof(CathedralEntrance), RoomLevelDefinitions.CathedralEntrance, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.CathedralEntrance, RoomEnemyPopulationDefinitions.CathedralEntrance, Enemies.RoomEnemyGraphicsSetDefinitions.CathedralEntrance, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.CathedralEntrance, null, RoomSetupCallback.SharedReturnB);
 
 
-    /// <summary>The disassembly's RoomState_BusinessCenter.</summary>
+    /// <summary>The Business Center room's state.</summary>
     public static RoomStateSettings BusinessCenter { get; } =
         new(nameof(BusinessCenter), RoomLevelDefinitions.BusinessCenter, 10, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.BusinessCenter, RoomEnemyPopulationDefinitions.BusinessCenter, Enemies.RoomEnemyGraphicsSetDefinitions.BusinessCenter, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.BusinessCenter, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernVertical, RoomSetupCallback.SharedReturnB);
 
 
-    /// <summary>The disassembly's RoomState_IceBeamGate.</summary>
+    /// <summary>The Ice Beam Gate room's state.</summary>
     public static RoomStateSettings IceBeamGate { get; } =
         new(nameof(IceBeamGate), RoomLevelDefinitions.IceBeamGate, 10, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.IceBeamGate, RoomEnemyPopulationDefinitions.IceBeamGate, Enemies.RoomEnemyGraphicsSetDefinitions.IceBeamGate, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.IceBeamGate, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.IceBeamGate, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurple0, RoomSetupCallback.SharedReturnB);
 
 
-    /// <summary>The disassembly's RoomState_IceBeamTutorial.</summary>
+    /// <summary>The Ice Beam Tutorial room's state.</summary>
     public static RoomStateSettings IceBeamTutorial { get; } =
         new(nameof(IceBeamTutorial), RoomLevelDefinitions.IceBeamTutorial, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.IceBeamTutorial, RoomEnemyPopulationDefinitions.IceBeamTutorial, Enemies.RoomEnemyGraphicsSetDefinitions.IceBeamTutorial, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.IceBeamTutorial, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurpleBright, RoomSetupCallback.SharedReturnB);
 
 
-    /// <summary>The disassembly's RoomState_IceBeam.</summary>
+    /// <summary>The Ice Beam room's state.</summary>
     public static RoomStateSettings IceBeam { get; } =
         new(nameof(IceBeam), RoomLevelDefinitions.IceBeam, 10, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.IceBeam, RoomEnemyPopulationDefinitions.IceBeam, Enemies.RoomEnemyGraphicsSetDefinitions.IceBeam, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(1, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.IceBeam, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurple0, RoomSetupCallback.SharedReturnB);
 
 
-    /// <summary>The disassembly's RoomState_IceBeamSnake.</summary>
+    /// <summary>The Ice Beam Snake room's state.</summary>
     public static RoomStateSettings IceBeamSnake { get; } =
         new(nameof(IceBeamSnake), RoomLevelDefinitions.IceBeamSnake, 9, new RoomMusic(null, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.IceBeamSnake, RoomEnemyPopulationDefinitions.IceBeamSnake, Enemies.RoomEnemyGraphicsSetDefinitions.IceBeamSnake, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.IceBeamSnake, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.IceBeamSnake, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurple0, RoomSetupCallback.SharedReturnB);
 
 
-    /// <summary>The disassembly's RoomState_CrumbleShaft.</summary>
+    /// <summary>The Crumble Shaft room's state.</summary>
     public static RoomStateSettings CrumbleShaft { get; } =
         new(nameof(CrumbleShaft), RoomLevelDefinitions.CrumbleShaft, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.CrumbleShaft, RoomEnemyPopulationDefinitions.CrumbleShaft, Enemies.RoomEnemyGraphicsSetDefinitions.CrumbleShaft, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.CrumbleShaft, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernVertical, RoomSetupCallback.SharedReturnB);
 
 
-    /// <summary>The disassembly's RoomState_CrocomireSpeedway.</summary>
+    /// <summary>The Crocomire Speedway room's state.</summary>
     public static RoomStateSettings CrocomireSpeedway { get; } =
         new(nameof(CrocomireSpeedway), RoomLevelDefinitions.CrocomireSpeedway, 9, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrocomireSpeedway, RoomEnemyPopulationDefinitions.CrocomireSpeedway, Enemies.RoomEnemyGraphicsSetDefinitions.CrocomireSpeedway, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.CrocomireSpeedway, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.CrocomireSpeedway, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurple0, RoomSetupCallback.SharedReturnB);
 
 
-    /// <summary>The disassembly's RoomState_Crocomire_0.</summary>
+    /// <summary>The Crocomire room's state 0.</summary>
     public static RoomStateSettings Crocomire0 { get; } =
         new(nameof(Crocomire0), RoomLevelDefinitions.Crocomire, 27, new RoomMusic(MusicDataSet.BossFight2, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrocomireState01, RoomEnemyPopulationDefinitions.Crocomire, Enemies.RoomEnemyGraphicsSetDefinitions.Crocomire, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(1, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Crocomire, null, RoomMainCallback.CrocomireRoomShaking, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.CrocomireState01, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrocomireState0, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_Crocomire_1.</summary>
+    /// <summary>The Crocomire room's state 1.</summary>
     public static RoomStateSettings Crocomire1 { get; } =
         new(nameof(Crocomire1), RoomLevelDefinitions.Crocomire, 27, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.CrocomireState01, RoomEnemyPopulationDefinitions.Crocomire, Enemies.RoomEnemyGraphicsSetDefinitions.Crocomire, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(1, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Crocomire, null, RoomMainCallback.CrocomireRoomShaking, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.CrocomireState01, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrocomireState1, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_HiJumpBoots.</summary>
+    /// <summary>The Hi Jump Boots room's state.</summary>
     public static RoomStateSettings HiJumpBoots { get; } =
         new(nameof(HiJumpBoots), RoomLevelDefinitions.HiJumpBoots, 10, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.HiJumpBoots, RoomEnemyPopulationDefinitions.HiJumpBoots, Enemies.RoomEnemyGraphicsSetDefinitions.HiJumpBoots, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.HiJumpBoots, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurpleBright, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_CrocomireEscape.</summary>
+    /// <summary>The Crocomire Escape room's state.</summary>
     public static RoomStateSettings CrocomireEscape { get; } =
         new(nameof(CrocomireEscape), RoomLevelDefinitions.CrocomireEscape, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.CrocomireEscape, RoomEnemyPopulationDefinitions.CrocomireEscape, Enemies.RoomEnemyGraphicsSetDefinitions.CrocomireEscape, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.CrocomireEscape, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.CrocomireEscape, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_HiJumpETank.</summary>
+    /// <summary>The Hi Jump E Tank room's state.</summary>
     public static RoomStateSettings HiJumpETank { get; } =
         new(nameof(HiJumpETank), RoomLevelDefinitions.HiJumpETank, 10, new RoomMusic(null, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.HiJumpETank, RoomEnemyPopulationDefinitions.HiJumpETank, Enemies.RoomEnemyGraphicsSetDefinitions.HiJumpETank, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.HiJumpETank, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.HiJumpETank, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_PostCrocFarming.</summary>
+    /// <summary>The Post Croc Farming room's state.</summary>
     public static RoomStateSettings PostCrocFarming { get; } =
         new(nameof(PostCrocFarming), RoomLevelDefinitions.PostCrocFarming, 9, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocFarming, RoomEnemyPopulationDefinitions.PostCrocFarming, Enemies.RoomEnemyGraphicsSetDefinitions.PostCrocFarming, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.PostCrocFarming, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.PostCrocFarming, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_PostCrocSave.</summary>
+    /// <summary>The Post Croc Save room's state.</summary>
     public static RoomStateSettings PostCrocSave { get; } =
         new(nameof(PostCrocSave), RoomLevelDefinitions.WarehouseSave, 25, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocSave, RoomEnemyPopulationDefinitions.PostCrocSave, Enemies.RoomEnemyGraphicsSetDefinitions.PostCrocSave, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.PostCrocSave, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_PostCrocPowerBombs.</summary>
+    /// <summary>The Post Croc Power Bombs room's state.</summary>
     public static RoomStateSettings PostCrocPowerBombs { get; } =
         new(nameof(PostCrocPowerBombs), RoomLevelDefinitions.PostCrocPowerBombs, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocPowerBombs, RoomEnemyPopulationDefinitions.PostCrocPowerBombs, Enemies.RoomEnemyGraphicsSetDefinitions.PostCrocPowerBombs, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.PostCrocPowerBombs, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernStalactites, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_PostCrocShaft.</summary>
+    /// <summary>The Post Croc Shaft room's state.</summary>
     public static RoomStateSettings PostCrocShaft { get; } =
         new(nameof(PostCrocShaft), RoomLevelDefinitions.PostCrocShaft, 10, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocShaft, RoomEnemyPopulationDefinitions.PostCrocShaft, Enemies.RoomEnemyGraphicsSetDefinitions.PostCrocShaft, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.PostCrocShaft, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.PostCrocShaft, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernVertical, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_PostCrocMissile.</summary>
+    /// <summary>The Post Croc Missile room's state.</summary>
     public static RoomStateSettings PostCrocMissile { get; } =
         new(nameof(PostCrocMissile), RoomLevelDefinitions.PostCrocMissile, 10, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocMissile, RoomEnemyPopulationDefinitions.PostCrocMissile, Enemies.RoomEnemyGraphicsSetDefinitions.PostCrocMissile, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.PostCrocMissile, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernStalactites, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_GrappleTutorial3.</summary>
+    /// <summary>The Grapple Tutorial room's state 3.</summary>
     public static RoomStateSettings GrappleTutorial3 { get; } =
         new(nameof(GrappleTutorial3), RoomLevelDefinitions.GrappleTutorial3, 10, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.GrappleTutorial3, RoomEnemyPopulationDefinitions.GrappleTutorial3, Enemies.RoomEnemyGraphicsSetDefinitions.GrappleTutorial3, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.GrappleTutorial3, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurple0, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_PostCrocJump.</summary>
+    /// <summary>The Post Croc Jump room's state.</summary>
     public static RoomStateSettings PostCrocJump { get; } =
         new(nameof(PostCrocJump), RoomLevelDefinitions.PostCrocJump, 10, new RoomMusic(null, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocJump, RoomEnemyPopulationDefinitions.PostCrocJump, Enemies.RoomEnemyGraphicsSetDefinitions.PostCrocJump, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.PostCrocJump, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.PostCrocJump, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_GrappleTutorial2.</summary>
+    /// <summary>The Grapple Tutorial room's state 2.</summary>
     public static RoomStateSettings GrappleTutorial2 { get; } =
         new(nameof(GrappleTutorial2), RoomLevelDefinitions.GrappleTutorial2, 10, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.GrappleTutorial2, RoomEnemyPopulationDefinitions.GrappleTutorial2, Enemies.RoomEnemyGraphicsSetDefinitions.GrappleTutorial2, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GrappleTutorial2, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.GrappleTutorial2, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernVertical, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_GrappleTutorial1.</summary>
+    /// <summary>The Grapple Tutorial room's state 1.</summary>
     public static RoomStateSettings GrappleTutorial1 { get; } =
         new(nameof(GrappleTutorial1), RoomLevelDefinitions.GrappleTutorial1, 10, new RoomMusic(null, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.GrappleTutorial1, RoomEnemyPopulationDefinitions.GrappleTutorial1, Enemies.RoomEnemyGraphicsSetDefinitions.GrappleTutorial1, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.GrappleTutorial1, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernStalactites, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_GrappleBeam.</summary>
+    /// <summary>The Grapple Beam room's state.</summary>
     public static RoomStateSettings GrappleBeam { get; } =
         new(nameof(GrappleBeam), RoomLevelDefinitions.GrappleBeam, 10, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.GrappleBeam, RoomEnemyPopulationDefinitions.GrappleBeam, Enemies.RoomEnemyGraphicsSetDefinitions.GrappleBeam, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GrappleBeam, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.GrappleBeam, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernVertical, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_NorfairReserveTank.</summary>
+    /// <summary>The Norfair Reserve Tank room's state.</summary>
     public static RoomStateSettings NorfairReserveTank { get; } =
         new(nameof(NorfairReserveTank), RoomLevelDefinitions.NorfairReserveTank, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.NorfairReserveTank, RoomEnemyPopulationDefinitions.NorfairReserveTank, Enemies.RoomEnemyGraphicsSetDefinitions.NorfairReserveTank, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.NorfairReserveTank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9PurplePatches, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_GreenBubblesMissiles.</summary>
+    /// <summary>The Green Bubbles Missiles room's state.</summary>
     public static RoomStateSettings GreenBubblesMissiles { get; } =
         new(nameof(GreenBubblesMissiles), RoomLevelDefinitions.GreenBubblesMissiles, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.GreenBubblesMissiles, RoomEnemyPopulationDefinitions.GreenBubblesMissiles, Enemies.RoomEnemyGraphicsSetDefinitions.GreenBubblesMissiles, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenBubblesMissiles, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.GreenBubblesMissiles, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9Bubbles, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_BubbleMountain.</summary>
+    /// <summary>The Bubble Mountain room's state.</summary>
     public static RoomStateSettings BubbleMountain { get; } =
         new(nameof(BubbleMountain), RoomLevelDefinitions.BubbleMountain, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.BubbleMountain, RoomEnemyPopulationDefinitions.BubbleMountain, Enemies.RoomEnemyGraphicsSetDefinitions.BubbleMountain, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BubbleMountain, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.BubbleMountain, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9Bubbles, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_SpeedBoosterHall.</summary>
+    /// <summary>The Speed Booster Hall room's state.</summary>
     public static RoomStateSettings SpeedBoosterHall { get; } =
         new(nameof(SpeedBoosterHall), RoomLevelDefinitions.SpeedBoosterHall, 9, new RoomMusic(null, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.SpeedBoosterHall, RoomEnemyPopulationDefinitions.SpeedBoosterHall, Enemies.RoomEnemyGraphicsSetDefinitions.SpeedBoosterHall, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.SpeedBoosterHall, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurple0, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_SpeedBooster.</summary>
+    /// <summary>The Speed Booster room's state.</summary>
     public static RoomStateSettings SpeedBooster { get; } =
         new(nameof(SpeedBooster), RoomLevelDefinitions.SpeedBooster, 9, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.SpeedBooster, RoomEnemyPopulationDefinitions.SpeedBooster, Enemies.RoomEnemyGraphicsSetDefinitions.SpeedBooster, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.SpeedBooster, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurpleBright, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_SingleChamber.</summary>
+    /// <summary>The Single Chamber room's state.</summary>
     public static RoomStateSettings SingleChamber { get; } =
         new(nameof(SingleChamber), RoomLevelDefinitions.SingleChamber, 9, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.SingleChamber, RoomEnemyPopulationDefinitions.SingleChamber, Enemies.RoomEnemyGraphicsSetDefinitions.SingleChamber, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(192, 192), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.SingleChamber, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.SingleChamber, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_DoubleChamber.</summary>
+    /// <summary>The Double Chamber room's state.</summary>
     public static RoomStateSettings DoubleChamber { get; } =
         new(nameof(DoubleChamber), RoomLevelDefinitions.DoubleChamber, 9, new RoomMusic(null, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.DoubleChamber, RoomEnemyPopulationDefinitions.DoubleChamber, Enemies.RoomEnemyGraphicsSetDefinitions.DoubleChamber, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.DoubleChamber, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.DoubleChamber, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_WaveBeam.</summary>
+    /// <summary>The Wave Beam room's state.</summary>
     public static RoomStateSettings WaveBeam { get; } =
         new(nameof(WaveBeam), RoomLevelDefinitions.WaveBeam, 9, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.WaveBeam, RoomEnemyPopulationDefinitions.WaveBeam, Enemies.RoomEnemyGraphicsSetDefinitions.WaveBeam, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.WaveBeam, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernStalactites, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_SpikyPlatformsTunnel.</summary>
+    /// <summary>The Spiky Platforms Tunnel room's state.</summary>
     public static RoomStateSettings SpikyPlatformsTunnel { get; } =
         new(nameof(SpikyPlatformsTunnel), RoomLevelDefinitions.SpikyPlatformsTunnel, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.SpikyPlatformsTunnel, RoomEnemyPopulationDefinitions.SpikyPlatformsTunnel, Enemies.RoomEnemyGraphicsSetDefinitions.SpikyPlatformsTunnel, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.SpikyPlatformsTunnel, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernStalactites, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_Volcano.</summary>
+    /// <summary>The Volcano room's state.</summary>
     public static RoomStateSettings Volcano { get; } =
         new(nameof(Volcano), RoomLevelDefinitions.Volcano, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Volcano, RoomEnemyPopulationDefinitions.Volcano, Enemies.RoomEnemyGraphicsSetDefinitions.Volcano, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Volcano, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.Volcano, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_KronicBoost.</summary>
+    /// <summary>The Kronic Boost room's state.</summary>
     public static RoomStateSettings KronicBoost { get; } =
         new(nameof(KronicBoost), RoomLevelDefinitions.KronicBoost, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.KronicBoost, RoomEnemyPopulationDefinitions.KronicBoost, Enemies.RoomEnemyGraphicsSetDefinitions.KronicBoost, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.KronicBoost, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.KronicBoost, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_MagdolliteTunnel.</summary>
+    /// <summary>The Magdollite Tunnel room's state.</summary>
     public static RoomStateSettings MagdolliteTunnel { get; } =
         new(nameof(MagdolliteTunnel), RoomLevelDefinitions.MagdolliteTunnel, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.MagdolliteTunnel, RoomEnemyPopulationDefinitions.MagdolliteTunnel, Enemies.RoomEnemyGraphicsSetDefinitions.MagdolliteTunnel, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.MagdolliteTunnel, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernStalactites, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_PurpleShaft.</summary>
+    /// <summary>The Purple Shaft room's state.</summary>
     public static RoomStateSettings PurpleShaft { get; } =
         new(nameof(PurpleShaft), RoomLevelDefinitions.PurpleShaft, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.PurpleShaft, RoomEnemyPopulationDefinitions.PurpleShaft, Enemies.RoomEnemyGraphicsSetDefinitions.PurpleShaft, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.PurpleShaft, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.PurpleShaft, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9PurplePatches, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_LavaDive.</summary>
+    /// <summary>The Lava Dive room's state.</summary>
     public static RoomStateSettings LavaDive { get; } =
         new(nameof(LavaDive), RoomLevelDefinitions.LavaDive, 9, new RoomMusic(null, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.LavaDive, RoomEnemyPopulationDefinitions.LavaDive, Enemies.RoomEnemyGraphicsSetDefinitions.LavaDive, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.LavaDive, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurple0, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_LowerNorfairElev.</summary>
+    /// <summary>The Lower Norfair Elev room's state.</summary>
     public static RoomStateSettings LowerNorfairElev { get; } =
         new(nameof(LowerNorfairElev), RoomLevelDefinitions.LowerNorfairElev, 9, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.LowerNorfairElev, RoomEnemyPopulationDefinitions.LowerNorfairElev, Enemies.RoomEnemyGraphicsSetDefinitions.LowerNorfairElev, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LowerNorfairElev, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.LowerNorfairElev, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernStalactites, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_UpperNorfairFarming.</summary>
+    /// <summary>The Upper Norfair Farming room's state.</summary>
     public static RoomStateSettings UpperNorfairFarming { get; } =
         new(nameof(UpperNorfairFarming), RoomLevelDefinitions.UpperNorfairFarming, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.UpperNorfairFarming, RoomEnemyPopulationDefinitions.UpperNorfairFarming, Enemies.RoomEnemyGraphicsSetDefinitions.UpperNorfairFarming, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.UpperNorfairFarming, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.UpperNorfairFarming, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_RisingTide.</summary>
+    /// <summary>The Rising Tide room's state.</summary>
     public static RoomStateSettings RisingTide { get; } =
         new(nameof(RisingTide), RoomLevelDefinitions.RisingTide, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.RisingTide, RoomEnemyPopulationDefinitions.RisingTide, Enemies.RoomEnemyGraphicsSetDefinitions.RisingTide, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.RisingTide, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernStalactites, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_AcidSnakesTunnel.</summary>
+    /// <summary>The Acid Snakes Tunnel room's state.</summary>
     public static RoomStateSettings AcidSnakesTunnel { get; } =
         new(nameof(AcidSnakesTunnel), RoomLevelDefinitions.AcidSnakesTunnel, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.AcidSnakesTunnel, RoomEnemyPopulationDefinitions.AcidSnakesTunnel, Enemies.RoomEnemyGraphicsSetDefinitions.AcidSnakesTunnel, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.AcidSnakesTunnel, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernStalactites, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_SpikyAcidSnakesTunnel.</summary>
+    /// <summary>The Spiky Acid Snakes Tunnel room's state.</summary>
     public static RoomStateSettings SpikyAcidSnakesTunnel { get; } =
         new(nameof(SpikyAcidSnakesTunnel), RoomLevelDefinitions.SpikyAcidSnakesTunnel, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.SpikyAcidSnakesTunnel, RoomEnemyPopulationDefinitions.SpikyAcidSnakesTunnel, Enemies.RoomEnemyGraphicsSetDefinitions.SpikyAcidSnakesTunnel, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.SpikyAcidSnakesTunnel, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernStalactites, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_UpperNorfairRefill.</summary>
+    /// <summary>The Upper Norfair Refill room's state.</summary>
     public static RoomStateSettings UpperNorfairRefill { get; } =
         new(nameof(UpperNorfairRefill), RoomLevelDefinitions.UpperNorfairRefill, 23, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.UpperNorfairRefill, RoomEnemyPopulationDefinitions.UpperNorfairRefill, Enemies.RoomEnemyGraphicsSetDefinitions.UpperNorfairRefill, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.UpperNorfairRefill, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_PurpleFarming.</summary>
+    /// <summary>The Purple Farming room's state.</summary>
     public static RoomStateSettings PurpleFarming { get; } =
         new(nameof(PurpleFarming), RoomLevelDefinitions.PurpleFarming, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.PurpleFarming, RoomEnemyPopulationDefinitions.PurpleFarming, Enemies.RoomEnemyGraphicsSetDefinitions.PurpleFarming, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(1, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.PurpleFarming, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9PurplePatches, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_BatCave.</summary>
+    /// <summary>The Bat Cave room's state.</summary>
     public static RoomStateSettings BatCave { get; } =
         new(nameof(BatCave), RoomLevelDefinitions.BatCave, 9, new RoomMusic(null, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.BatCave, RoomEnemyPopulationDefinitions.BatCave, Enemies.RoomEnemyGraphicsSetDefinitions.BatCave, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BatCave, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.BatCave, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_NorfairMap.</summary>
+    /// <summary>The Norfair Map room's state.</summary>
     public static RoomStateSettings NorfairMap { get; } =
         new(nameof(NorfairMap), RoomLevelDefinitions.GreenBrinstarMap, 21, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.NorfairMap, RoomEnemyPopulationDefinitions.NorfairMap, Enemies.RoomEnemyGraphicsSetDefinitions.NorfairMap, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.NorfairMap, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_BubbleMountainSave.</summary>
+    /// <summary>The Bubble Mountain Save room's state.</summary>
     public static RoomStateSettings BubbleMountainSave { get; } =
         new(nameof(BubbleMountainSave), RoomLevelDefinitions.CrateriaSave, 25, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.BubbleMountainSave, RoomEnemyPopulationDefinitions.BubbleMountainSave, Enemies.RoomEnemyGraphicsSetDefinitions.BubbleMountainSave, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.BubbleMountainSave, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_FrogSpeedway.</summary>
+    /// <summary>The Frog Speedway room's state.</summary>
     public static RoomStateSettings FrogSpeedway { get; } =
         new(nameof(FrogSpeedway), RoomLevelDefinitions.FrogSpeedway, 10, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.FrogSpeedway, RoomEnemyPopulationDefinitions.FrogSpeedway, Enemies.RoomEnemyGraphicsSetDefinitions.FrogSpeedway, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.FrogSpeedway, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.FrogSpeedway, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurpleBright, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_RedPirateShaft.</summary>
+    /// <summary>The Red Pirate Shaft room's state.</summary>
     public static RoomStateSettings RedPirateShaft { get; } =
         new(nameof(RedPirateShaft), RoomLevelDefinitions.RedPirateShaft, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.RedPirateShaft, RoomEnemyPopulationDefinitions.RedPirateShaft, Enemies.RoomEnemyGraphicsSetDefinitions.RedPirateShaft, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(1, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.RedPirateShaft, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.RedPirateShaft, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ACavernVertical, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_FrogSave.</summary>
+    /// <summary>The Frog Save room's state.</summary>
     public static RoomStateSettings FrogSave { get; } =
         new(nameof(FrogSave), RoomLevelDefinitions.FrogSave, 25, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.FrogSave, RoomEnemyPopulationDefinitions.FrogSave, Enemies.RoomEnemyGraphicsSetDefinitions.FrogSave, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.FrogSave, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_CrocomireSave.</summary>
+    /// <summary>The Crocomire Save room's state.</summary>
     public static RoomStateSettings CrocomireSave { get; } =
         new(nameof(CrocomireSave), RoomLevelDefinitions.WarehouseSave, 25, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrocomireSave, RoomEnemyPopulationDefinitions.CrocomireSave, Enemies.RoomEnemyGraphicsSetDefinitions.CrocomireSave, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.CrocomireSave, null, RoomSetupCallback.SharedReturnC);
 
 
-    /// <summary>The disassembly's RoomState_LNElevSave.</summary>
+    /// <summary>The LN Elev Save room's state.</summary>
     public static RoomStateSettings LNElevSave { get; } =
         new(nameof(LNElevSave), RoomLevelDefinitions.CrateriaSave, 25, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.LNElevSave, RoomEnemyPopulationDefinitions.LNElevSave, Enemies.RoomEnemyGraphicsSetDefinitions.LNElevSave, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LNElevSave, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.LNElevSave, null, RoomSetupCallback.None);
 
 
-    /// <summary>The disassembly's RoomState_AcidStatue.</summary>
+    /// <summary>The Acid Statue room's state.</summary>
     public static RoomStateSettings AcidStatue { get; } =
         new(nameof(AcidStatue), RoomLevelDefinitions.AcidStatue, 9, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.AcidStatue, RoomEnemyPopulationDefinitions.AcidStatue, Enemies.RoomEnemyGraphicsSetDefinitions.AcidStatue, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.AcidStatue, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.AcidStatue, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9CavernRoomPillars, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_MainHall.</summary>
+    /// <summary>The Main Hall room's state.</summary>
     public static RoomStateSettings MainHall { get; } =
         new(nameof(MainHall), RoomLevelDefinitions.MainHall, 9, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.MainHall, RoomEnemyPopulationDefinitions.MainHall, Enemies.RoomEnemyGraphicsSetDefinitions.MainHall, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MainHall, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.MainHall, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9CavernVerticalRuins, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_GoldenTorizo_0.</summary>
+    /// <summary>The Golden Torizo room's state 0.</summary>
     public static RoomStateSettings GoldenTorizo0 { get; } =
         new(nameof(GoldenTorizo0), RoomLevelDefinitions.GoldenTorizo, 9, new RoomMusic(MusicDataSet.BossFight1, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.GoldenTorizoState01, RoomEnemyPopulationDefinitions.GoldenTorizo, Enemies.RoomEnemyGraphicsSetDefinitions.GoldenTorizo, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GoldenTorizo, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.GoldenTorizoState01, null, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_GoldenTorizo_1.</summary>
+    /// <summary>The Golden Torizo room's state 1.</summary>
     public static RoomStateSettings GoldenTorizo1 { get; } =
         new(nameof(GoldenTorizo1), RoomLevelDefinitions.GoldenTorizo, 9, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.GoldenTorizoState01, RoomEnemyPopulationDefinitions.GoldenTorizo, Enemies.RoomEnemyGraphicsSetDefinitions.GoldenTorizo, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GoldenTorizo, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.GoldenTorizoState01, null, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_FastRipper.</summary>
+    /// <summary>The Fast Ripper room's state.</summary>
     public static RoomStateSettings FastRipper { get; } =
         new(nameof(FastRipper), RoomLevelDefinitions.FastRipper, 9, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.FastRipper, RoomEnemyPopulationDefinitions.FastRipper, Enemies.RoomEnemyGraphicsSetDefinitions.FastRipper, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.FastRipper, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9CavernVerticalRuins, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_GTEnergyRefill.</summary>
+    /// <summary>The GT Energy Refill room's state.</summary>
     public static RoomStateSettings GTEnergyRefill { get; } =
         new(nameof(GTEnergyRefill), RoomLevelDefinitions.GTEnergyRefill, 23, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.GTEnergyRefill, RoomEnemyPopulationDefinitions.GTEnergyRefill, Enemies.RoomEnemyGraphicsSetDefinitions.GTEnergyRefill, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.GTEnergyRefill, null, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_Ridley_0.</summary>
+    /// <summary>The Ridley room's state 0.</summary>
     public static RoomStateSettings Ridley0 { get; } =
         new(nameof(Ridley0), RoomLevelDefinitions.Ridley, 9, new RoomMusic(MusicDataSet.BossFight1, RoomMusicTrack.Plays(4)), SuperMetroid.Core.Fx.RoomFxDefinitions.RidleyState01, RoomEnemyPopulationDefinitions.Ridley, Enemies.RoomEnemyGraphicsSetDefinitions.Ridley, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(1, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Ridley, null, RoomMainCallback.RidleyRoomShaking, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.RidleyState01, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9CavernRoomPillars, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_Ridley_1.</summary>
+    /// <summary>The Ridley room's state 1.</summary>
     public static RoomStateSettings Ridley1 { get; } =
         new(nameof(Ridley1), RoomLevelDefinitions.Ridley, 9, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.RidleyState01, RoomEnemyPopulationDefinitions.Ridley, Enemies.RoomEnemyGraphicsSetDefinitions.Ridley, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(1, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Ridley, null, RoomMainCallback.RidleyRoomShaking, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.RidleyState01, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9CavernRoomPillars, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_LNFarming.</summary>
+    /// <summary>The LN Farming room's state.</summary>
     public static RoomStateSettings LNFarming { get; } =
         new(nameof(LNFarming), RoomLevelDefinitions.LNFarming, 9, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.LNFarming, RoomEnemyPopulationDefinitions.LNFarming, Enemies.RoomEnemyGraphicsSetDefinitions.LNFarming, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.LNFarming, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9RoomStatues, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_FastPillarsSetup.</summary>
+    /// <summary>The Fast Pillars Setup room's state.</summary>
     public static RoomStateSettings FastPillarsSetup { get; } =
         new(nameof(FastPillarsSetup), RoomLevelDefinitions.FastPillarsSetup, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.FastPillarsSetup, RoomEnemyPopulationDefinitions.FastPillarsSetup, Enemies.RoomEnemyGraphicsSetDefinitions.FastPillarsSetup, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.FastPillarsSetup, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.FastPillarsSetup, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9VerticalPatternBrick, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's UNUSED_RoomState_8FB3EE.</summary>
+    /// <summary>The unused room's state.</summary>
     public static RoomStateSettings UnusedRoom8FB3EE { get; } =
         new(nameof(UnusedRoom8FB3EE), RoomLevelDefinitions.UnusedNorfairRoom, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.UnusedRoom8387EC, RoomEnemyPopulationDefinitions.UnusedRoom8FB3EEA1AD06, Enemies.RoomEnemyGraphicsSetDefinitions.UnusedState8FB3EEB48899, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.UnusedRoom8FB3EE, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9HorizontalPatternBrick, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_MickeyMouse.</summary>
+    /// <summary>The Mickey Mouse room's state.</summary>
     public static RoomStateSettings MickeyMouse { get; } =
         new(nameof(MickeyMouse), RoomLevelDefinitions.MickeyMouse, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.MickeyMouse, RoomEnemyPopulationDefinitions.MickeyMouse, Enemies.RoomEnemyGraphicsSetDefinitions.MickeyMouse, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MickeyMouse, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.MickeyMouse, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9PurplePatches, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_Pillar.</summary>
+    /// <summary>The Pillar room's state.</summary>
     public static RoomStateSettings Pillar { get; } =
         new(nameof(Pillar), RoomLevelDefinitions.Pillar, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Pillar, RoomEnemyPopulationDefinitions.Pillar, Enemies.RoomEnemyGraphicsSetDefinitions.Pillar, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.Pillar, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9CavernVerticalRuins, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_Plowerhouse.</summary>
+    /// <summary>The Plowerhouse room's state.</summary>
     public static RoomStateSettings Plowerhouse { get; } =
         new(nameof(Plowerhouse), RoomLevelDefinitions.Plowerhouse, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Plowerhouse, RoomEnemyPopulationDefinitions.Plowerhouse, Enemies.RoomEnemyGraphicsSetDefinitions.Plowerhouse, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.Plowerhouse, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9RoomStatues, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_WorstRoomInTheGame.</summary>
+    /// <summary>The Worst Room In The Game room's state.</summary>
     public static RoomStateSettings WorstRoomInTheGame { get; } =
         new(nameof(WorstRoomInTheGame), RoomLevelDefinitions.WorstRoomInTheGame, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.WorstRoomInTheGame, RoomEnemyPopulationDefinitions.WorstRoomInTheGame, Enemies.RoomEnemyGraphicsSetDefinitions.WorstRoomInTheGame, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.WorstRoomInTheGame, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.WorstRoomInTheGame, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9CavernHorizontalRuins, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_Amphitheatre.</summary>
+    /// <summary>The Amphitheatre room's state.</summary>
     public static RoomStateSettings Amphitheatre { get; } =
         new(nameof(Amphitheatre), RoomLevelDefinitions.Amphitheatre, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Amphitheatre, RoomEnemyPopulationDefinitions.Amphitheatre, Enemies.RoomEnemyGraphicsSetDefinitions.Amphitheatre, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.Amphitheatre, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurple0, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_LNSpringBallMaze.</summary>
+    /// <summary>The LN Spring Ball Maze room's state.</summary>
     public static RoomStateSettings LNSpringBallMaze { get; } =
         new(nameof(LNSpringBallMaze), RoomLevelDefinitions.LNSpringBallMaze, 9, new RoomMusic(null, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.LNSpringballMaze, RoomEnemyPopulationDefinitions.LNSpringBallMaze, Enemies.RoomEnemyGraphicsSetDefinitions.LNSpringBallMaze, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LNSpringBallMaze, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.LNSpringBallMaze, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9PurplePatches, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_LNEscapePowerBombs.</summary>
+    /// <summary>The LN Escape Power Bombs room's state.</summary>
     public static RoomStateSettings LNEscapePowerBombs { get; } =
         new(nameof(LNEscapePowerBombs), RoomLevelDefinitions.LNEscapePowerBombs, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.LNEscapePowerBombs, RoomEnemyPopulationDefinitions.LNEscapePowerBombs, Enemies.RoomEnemyGraphicsSetDefinitions.LNEscapePowerBombs, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.LNEscapePowerBombs, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9CavernRoomPillars, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_RedKihunterShaft.</summary>
+    /// <summary>The Red Kihunter Shaft room's state.</summary>
     public static RoomStateSettings RedKihunterShaft { get; } =
         new(nameof(RedKihunterShaft), RoomLevelDefinitions.RedKihunterShaft, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.RedKihunterShaft, RoomEnemyPopulationDefinitions.RedKihunterShaft, Enemies.RoomEnemyGraphicsSetDefinitions.RedKihunterShaft, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.RedKihunterShaft, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.RedKihunterShaft, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurple0, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_Wasteland.</summary>
+    /// <summary>The Wasteland room's state.</summary>
     public static RoomStateSettings Wasteland { get; } =
         new(nameof(Wasteland), RoomLevelDefinitions.Wasteland, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Wasteland, RoomEnemyPopulationDefinitions.Wasteland, Enemies.RoomEnemyGraphicsSetDefinitions.Wasteland, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Wasteland, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.Wasteland, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9CavernRoomPillars, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_MetalPirates.</summary>
+    /// <summary>The Metal Pirates room's state.</summary>
     public static RoomStateSettings MetalPirates { get; } =
         new(nameof(MetalPirates), RoomLevelDefinitions.MetalPirates, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.MetalPirates, RoomEnemyPopulationDefinitions.MetalPirates, Enemies.RoomEnemyGraphicsSetDefinitions.MetalPirates, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.MetalPirates, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9RoomStatues, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_ThreeMusketeers.</summary>
+    /// <summary>The Three Musketeers room's state.</summary>
     public static RoomStateSettings ThreeMusketeers { get; } =
         new(nameof(ThreeMusketeers), RoomLevelDefinitions.ThreeMusketeers, 9, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.ThreeMusketeers, RoomEnemyPopulationDefinitions.ThreeMusketeers, Enemies.RoomEnemyGraphicsSetDefinitions.ThreeMusketeers, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.ThreeMusketeers, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.ThreeMusketeers, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9PurplePatches, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_RidleyETank.</summary>
+    /// <summary>The Ridley E Tank room's state.</summary>
     public static RoomStateSettings RidleyETank { get; } =
         new(nameof(RidleyETank), RoomLevelDefinitions.RidleyETank, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.RidleyETank, RoomEnemyPopulationDefinitions.RidleyETank, Enemies.RoomEnemyGraphicsSetDefinitions.RidleyETank, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(1, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.RidleyETank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9CavernRoomPillars, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_ScrewAttack.</summary>
+    /// <summary>The Screw Attack room's state.</summary>
     public static RoomStateSettings ScrewAttack { get; } =
         new(nameof(ScrewAttack), RoomLevelDefinitions.ScrewAttack, 9, new RoomMusic(null, RoomMusicTrack.Plays(3)), SuperMetroid.Core.Fx.RoomFxDefinitions.ScrewAttack, RoomEnemyPopulationDefinitions.ScrewAttack, Enemies.RoomEnemyGraphicsSetDefinitions.ScrewAttack, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(1, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.ScrewAttack, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9CavernRoomPillars, RoomSetupCallback.SharedReturnD);
 
 
-    /// <summary>The disassembly's RoomState_LNFireflea.</summary>
+    /// <summary>The LN Fireflea room's state.</summary>
     public static RoomStateSettings LNFireflea { get; } =
         new(nameof(LNFireflea), RoomLevelDefinitions.LNFireflea, 10, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.LNFireflea, RoomEnemyPopulationDefinitions.LNFireflea, Enemies.RoomEnemyGraphicsSetDefinitions.LNFireflea, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LNFireflea, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.LNFireflea, null, RoomSetupCallback.None);
 
 
-    /// <summary>The disassembly's RoomState_LNSave.</summary>
+    /// <summary>The LN Save room's state.</summary>
     public static RoomStateSettings LNSave { get; } =
         new(nameof(LNSave), RoomLevelDefinitions.WarehouseSave, 25, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(5)), SuperMetroid.Core.Fx.RoomFxDefinitions.LNSave, RoomEnemyPopulationDefinitions.LNSave, Enemies.RoomEnemyGraphicsSetDefinitions.LNSave, SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.LNSave, null, RoomSetupCallback.None);
 }

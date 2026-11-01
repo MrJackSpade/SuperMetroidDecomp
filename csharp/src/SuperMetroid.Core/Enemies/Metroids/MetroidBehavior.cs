@@ -170,7 +170,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int targetY,
         RoomLevelData level)
     {
-        // The 65816 constructs a temporary word from the coordinate low-byte subtraction,
+        // The game constructs a temporary word from the coordinate low-byte subtraction,
         // shifts it right three, sign-extends bit twelve, then clamps the whole result.
         // This is observably not a clean full-word delta: crossing a 256-pixel boundary can
         // reverse the short route. Preserve the byte arithmetic instead of “fixing” it.

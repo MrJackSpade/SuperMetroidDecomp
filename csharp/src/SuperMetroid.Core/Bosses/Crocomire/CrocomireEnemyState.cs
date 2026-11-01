@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's body state. These names come from the disassembly. The values the body's record keeps are
+/// Crocomire's body state. The values the body's record keeps are
 /// emptied with the record when the body is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 /// <remarks>

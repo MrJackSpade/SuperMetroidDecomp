@@ -368,16 +368,9 @@ internal sealed class SuperMetroidRuntime
     [field: NonSerialized]
     public SuperMetroid.Core.Progression.SuperMetroidGameState DispatchGameState { get; set; } = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay;
 
-    /// <summary>
-    /// Whether a power-bomb explosion is under way; X-ray setup and the pause check reject one. The getter reads the
-    /// room's explosion; the setter is a debugger seam for forcing preconditions without constructing an explosion.
-    /// </summary>
+    /// <summary>Whether a power-bomb explosion is under way; X-ray setup and the pause check reject one.</summary>
     /// <remarks>Before the first room exists there is no explosion.</remarks>
-    public bool PowerBombExplosionActive
-    {
-        get => Room.BombProjectiles?.PowerBombExplosion.IsActive == true;
-        set => Room.LoadedScope.BombProjectiles.PowerBombExplosion.SetActiveForDebugging(value);
-    }
+    public bool PowerBombExplosionActive => Room.BombProjectiles?.PowerBombExplosion.IsActive == true;
 
     /// <summary>
     /// The power-bomb gate in all three sound queues:

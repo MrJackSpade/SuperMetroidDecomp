@@ -60,7 +60,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal readonly ScreenPalette palette = new();
     /// <summary>The live actors' sprite entries over the OBJ characters the uploads leave (#1358).</summary>
     internal readonly ScreenSprites objects;
-    /// <summary>Installed art rebound after debugger restoration rather than serialized with scene state.</summary>
+    /// <summary>Installed art rebound whenever the game is bound to its installed content rather than serialized with scene state.</summary>
     [field: NonSerialized] internal IntroCinematicArtwork? Artwork { get; private set; }
     /// <summary>The installed sprite sheets the Ceres and Zebes actors draw from; artwork, never saved.</summary>
     [NonSerialized] private InstalledSpriteSheets spriteSheets;
@@ -82,7 +82,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private readonly SamusPowerBombExplosionState stationExplosion = new();
     /// <summary>Engine-flicker palette program created at the Zebes reveal boundary.</summary>
     internal RoomPaletteFxSystem? PaletteFx { get; set; }
-    /// <summary>Installed color provider rebound after debugger restoration.</summary>
+    /// <summary>Installed color provider rebound whenever the game is bound to its installed content.</summary>
     [NonSerialized] private IPaletteFxColorSource? paletteFxColors;
     /// <summary>Planet actor whose sliding pre-instruction uses the larger acceleration.</summary>
     internal IntroDiscoverySprite? ZebesPlanetActor { get; private set; }

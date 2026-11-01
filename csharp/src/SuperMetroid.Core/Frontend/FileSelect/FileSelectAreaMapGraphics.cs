@@ -156,7 +156,7 @@ public sealed class FileSelectAreaMapGraphics
     internal LayeredScene CaptureBackgrounds(AreaMapColorMath colorMath)
     {
         // The foreground and the area's background are their pictures under the area's world-map palette (#1467).
-        InstalledSpriteSheets sheets = worldSheets ?? throw new InvalidOperationException("The world map's pictures are rebound after debugger restoration.");
+        InstalledSpriteSheets sheets = worldSheets ?? throw new InvalidOperationException("The world map's pictures are bound when the game is bound to its installed content.");
         AreaId area = AreaIds.At(SelectedArea);
         var foreground = new PicturedPlaneLayer(new PicturedPlane(MenuScreen.PageSize,
             [new PlacedPlanePicture(sheets.Get(ScreenTileSheetDefinitions.AreaMapForegrounds[area]).Frame(AreaMapPictures.WorldForegroundFrame), default)]), default, null);

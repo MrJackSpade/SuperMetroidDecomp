@@ -15,7 +15,7 @@ internal sealed class IntroCeresFlightState
     internal readonly ScreenPalette palette = new();
     /// <summary>The front-star or rear-view actors' sprite entries over the flight OBJ page (#1358).</summary>
     internal readonly ScreenSprites objects;
-    /// <summary>Installed flight artwork the frame is drawn from, rebound after debugger restoration.</summary>
+    /// <summary>Installed flight artwork the frame is drawn from, rebound whenever the game is bound to its installed content.</summary>
     [field: NonSerialized] internal CeresFlightArtwork? Artwork { get; private set; }
     /// <summary>Installed sprite compositions, rebound without restarting the scene.</summary>
     [NonSerialized] private CinematicSpriteSheet? spriteArtwork;

@@ -7,9 +7,8 @@ namespace SuperMetroid.Core.Input;
 public sealed class ControllerInputState
 {
     /// <summary>
-    /// Creates an input latch with the two repeat delays stored at direct-page
-    /// <c>$87/$89</c>. They default to zero because the retail game's secondary "fake new"
-    /// output is unused; tools can provide small values to exercise repeat behavior.
+    /// Creates an input latch with the first and later auto-repeat delays. They default to zero
+    /// because the retail game's auto-repeat output is unused; tools can provide small values to exercise repeat behavior.
     /// </summary>
     public ControllerInputState(int initialRepeatDelay = 0, int subsequentRepeatDelay = 0)
     {
@@ -29,7 +28,7 @@ public sealed class ControllerInputState
     /// </summary>
     public int SubsequentRepeatDelay { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
-    /// <summary>Controller buttons currently down, corresponding to direct page <c>$8B</c>.</summary>
+    /// <summary>Controller buttons currently down.</summary>
     public ControllerButton Current { get; private set; }
 
     /// <summary>
@@ -43,10 +42,10 @@ public sealed class ControllerInputState
     /// </summary>
     public ControllerButton NewlyPressedWithRepeat { get; private set; }
 
-    /// <summary>Prior controller buttons at direct page <c>$97</c>.</summary>
+    /// <summary>The controller buttons that were down on the previous update.</summary>
     public ControllerButton Previous { get; private set; }
 
-    /// <summary>Current 16-bit repeat countdown at direct page <c>$9B</c>.</summary>
+    /// <summary>The current 16-bit countdown to the next auto-repeat.</summary>
     public WrappingCountdown RepeatTimer { get; private set; }
 
     /// <summary>

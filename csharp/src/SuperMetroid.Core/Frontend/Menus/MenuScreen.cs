@@ -25,7 +25,7 @@ internal sealed class MenuScreen
     /// <summary>The installed sheets the screen's pictures come from (#1467).</summary>
     [field: NonSerialized]
     [AllowNull]
-    private InstalledSpriteSheets Sheets { get => field ?? throw new InvalidOperationException("The menu's pictures are rebound after debugger restoration."); set; }
+    private InstalledSpriteSheets Sheets { get => field ?? throw new InvalidOperationException("The menu's pictures are bound when the game is bound to its installed content."); set; }
 
     /// <summary>Rebinds the sheets the screen's pictures come from (#1467).</summary>
     public void BindScreenTiles(InstalledSpriteSheets? sheets) =>
@@ -67,7 +67,7 @@ internal sealed class MenuScreen
     /// <summary>The installed world-map characters.</summary>
     [field: NonSerialized]
     [AllowNull]
-    public WorldMapArtwork WorldArtwork { get => field ?? throw new InvalidOperationException("The menu's world-map characters are rebound after debugger restoration."); private set; }
+    public WorldMapArtwork WorldArtwork { get => field ?? throw new InvalidOperationException("The menu's world-map characters are bound when the game is bound to its installed content."); private set; }
 
 
     /// <summary>The menu's palette.</summary>

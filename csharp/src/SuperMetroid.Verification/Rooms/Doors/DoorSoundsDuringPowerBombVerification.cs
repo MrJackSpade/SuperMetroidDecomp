@@ -50,7 +50,7 @@ internal static class DoorSoundsDuringPowerBombVerification
         }
         AssertTrue(selected, "Landing Site has an exit");
 
-        runtime.PowerBombExplosionActive = true;
+        runtime.Room.LoadedScope.BombProjectiles.PowerBombExplosion.ForceActive(true);
         var audio = game.AudioForVerification;
         int library1 = audio.SoundQueueForVerification(0).Next;
         int library2 = audio.SoundQueueForVerification(1).Next;

@@ -23,7 +23,7 @@ internal sealed class IntroCinematicObjectSystem
     internal WrappingCountdown EyeFrameHold { get; private set; } = WrappingCountdown.Start(1);
     /// <summary>Countdown for initial marker, glyph, or final page hold.</summary>
     private WrappingCountdown textFrameHold;
-    /// <summary>Caller-installed narration artwork, rebound after debugger restoration.</summary>
+    /// <summary>Caller-installed narration artwork, rebound whenever the game is bound to its installed content.</summary>
     [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
     /// <summary>The eye frame the portrait shows, as an installed picture over it (#1467); null before the first frame.</summary>
     internal IntroEyeFrame? EyeFrame { get; private set; }

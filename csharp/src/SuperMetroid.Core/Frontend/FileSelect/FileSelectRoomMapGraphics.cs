@@ -101,7 +101,7 @@ public sealed class FileSelectRoomMapGraphics
     {
         var layers = new List<DisplayLayer>();
         // The frame is the area's installed room-frame picture and the map a grid of its cells' pictures (#1467).
-        SpriteSheet pictures = roomPictures ?? throw new InvalidOperationException("The room map's pictures are rebound after debugger restoration.");
+        SpriteSheet pictures = roomPictures ?? throw new InvalidOperationException("The room map's pictures are bound when the game is bound to its installed content.");
         var frame = new PicturedPlane(MenuScreen.PageSize, [new PlacedPlanePicture(pictures.Frame(AreaMapPictures.RoomFrameName(icons.MapArea)), default)]);
         var frameScroll = new Position16<TilePlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll);
         if (content == RoomMapContent.FrameOnly)

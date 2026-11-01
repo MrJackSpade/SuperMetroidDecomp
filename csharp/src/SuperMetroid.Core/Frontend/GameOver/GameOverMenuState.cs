@@ -39,7 +39,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     internal WrappingCountdown BabyFrameHold { get; private set; }
     /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
     private readonly bool continueLoadsCeresArrival;
-    /// <summary>Installed artwork rebound after debugger restoration without changing menu timing.</summary>
+    /// <summary>Installed artwork rebound whenever the game is bound to its installed content without changing menu timing.</summary>
     [NonSerialized] private AreaMapPresentation? mapPresentation;
     /// <summary>The installed map presentation the game-over screen draws from.</summary>
     private AreaMapPresentation MapPresentation => mapPresentation ??

@@ -80,7 +80,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         set => flashbackProjectiles.Animation.FrameBindings = value;
     }
 
-    /// <summary>Installed first-font transfer rebound after debugger restoration.</summary>
+    /// <summary>Installed first-font transfer rebound whenever the game is bound to its installed content.</summary>
     [field: NonSerialized] internal IntroFontAtlas? IntroFont { get; private set; }
     /// <summary>Installed background, object, and palette content for the intro scenes.</summary>
     [field: NonSerialized] internal IntroCinematicArtwork? CharacterArtwork { get; private set; }

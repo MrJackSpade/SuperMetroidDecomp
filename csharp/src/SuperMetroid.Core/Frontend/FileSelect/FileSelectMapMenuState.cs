@@ -54,7 +54,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private int pendingFrames;
     /// <summary>Master brightness from fifteen (full) down to zero (black) during the exit fades; each step is guarded by a positive level.</summary>
     private int brightness = 15;
-    /// <summary>Installed map artwork rebound after debugger restoration instead of serialized with navigation state.</summary>
+    /// <summary>Installed map artwork rebound whenever the game is bound to its installed content instead of serialized with navigation state.</summary>
     [NonSerialized] private AreaMapPresentation? mapPresentation;
 
     /// <summary>Initializes existing-save map entry from the saved Zebes area/station, exploration, boss, map-station, and used-station data without loading a gameplay room.</summary>

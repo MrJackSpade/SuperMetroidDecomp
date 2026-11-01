@@ -26,7 +26,7 @@ internal sealed class PauseScreen
     /// <summary>The installed sheets the screen's background tiles come from (#1392).</summary>
     [field: NonSerialized]
     [AllowNull]
-    private InstalledSpriteSheets Sheets { get => field ?? throw new InvalidOperationException("The pause screen's tiles are rebound after debugger restoration."); set; }
+    private InstalledSpriteSheets Sheets { get => field ?? throw new InvalidOperationException("The pause screen's tiles are bound when the game is bound to its installed content."); set; }
 
     /// <summary>Rebinds the sheets the screen's background tiles come from (#1392).</summary>
     public void BindScreenTiles(InstalledSpriteSheets? sheets)
@@ -110,7 +110,7 @@ internal sealed class PauseScreen
     [AllowNull]
     public AreaMapPresentation Artwork
     {
-        get => field ?? throw new InvalidOperationException("The pause screen's artwork is rebound after debugger restoration.");
+        get => field ?? throw new InvalidOperationException("The pause screen's artwork is bound when the game is bound to its installed content.");
         private set;
     }
 

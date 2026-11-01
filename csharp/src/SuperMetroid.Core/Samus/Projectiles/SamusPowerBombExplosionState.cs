@@ -237,17 +237,6 @@ public sealed class SamusPowerBombExplosionState
         _crystalFlashAfterglowStepsRemaining = 0;
     }
 
-    /// <summary>
-    /// Retains the old runtime debugger seam used to force X-ray's explosion precondition.
-    /// A forced explosion does not fabricate an animation phase or armed projectile.
-    /// </summary>
-    internal void SetActiveForDebugging(bool active)
-    {
-        IsActive = active;
-        if (!active && Phase != PowerBombExplosionPhase.Inactive)
-            Phase = PowerBombExplosionPhase.Inactive;
-    }
-
     /// <summary>Displays the current white flash radius, then slows expansion until the yellow shape list takes over.</summary>
     private void StepPreExplosionWhite()
     {

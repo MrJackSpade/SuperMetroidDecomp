@@ -56,7 +56,7 @@ internal static class GameplayAudioPublicationVerification
             "earlier landing, echo, later landing play once in order across repeated flushes");
 
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        runtime.PowerBombExplosionActive = true;
+        runtime.Room.LoadedScope.BombProjectiles.PowerBombExplosion.ForceActive(true);
         var suppressedAudio = new AudioQueues();
         var suppressedPublication = new GameplayAudioFramePublication(suppressedAudio);
         // A suppressed echo is still admitted at the threshold with an empty queue (formerly the accumulator $0003).

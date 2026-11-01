@@ -4,6 +4,7 @@ using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
@@ -37,7 +38,7 @@ internal static class OverlappingEnemyShotsVerification
             // observe damage independently from the death actor and drop machinery.
             enemy.Health = 180;
             initialize(enemy, samus, 0);
-            enemy.SpritemapPointer = 1;
+            enemy.Frame = EnemyFrameId.BeetomLeftCrawl0; // Shots reach only an enemy showing a frame.
             interactive.Add(enemy);
         }
         var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);

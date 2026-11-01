@@ -48,6 +48,6 @@ public enum CrocomireFightFunction
     StepForwardVariantUnused,
     /// <summary>Unused: consumes claw-contact cycles or restores the saved fight index from the projectile counter.</summary>
     MovingClawsUnused,
-    /// <summary>Offset $2A, one past the table: the unused move-until-Samus branch selects it, and the original game would read the word after the table as a routine. The port rejects it.</summary>
+    /// <summary>The entry one past the table: the unused move-until-Samus branch selects it, and the original game would read the data after the table as a routine. The port rejects it.</summary>
     UnwrittenTableEntry,
 }

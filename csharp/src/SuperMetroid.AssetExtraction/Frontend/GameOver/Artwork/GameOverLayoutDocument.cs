@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 /// <summary>
 /// The game-over JSON's Baby palette phases and screen layout the game binds. The document the import

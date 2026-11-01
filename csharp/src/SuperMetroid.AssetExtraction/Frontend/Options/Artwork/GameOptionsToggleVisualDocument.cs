@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Options.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>Enabled and disabled label regions for one special setting, recolored independently of the setting's mechanics.</summary>
 public sealed record GameOptionsToggleVisualDocument

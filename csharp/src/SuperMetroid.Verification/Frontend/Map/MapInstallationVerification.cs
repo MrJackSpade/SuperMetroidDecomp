@@ -277,9 +277,9 @@ internal static class MapInstallationVerification
         AssertEqual(104, edited.SaveMarkers.Get(SuperMetroid.Core.Progression.AreaId.Maridia, 0).X, "full installation consumes save-marker override");
         AssertEqual(160, edited.Landmarks.Get("Boss.Phantoon").X, "full installation consumes landmark override");
         AssertEqual(80, edited.Stations.Get("Brinstar.Missile.0").X, "full installation consumes station position override");
-        AssertTrue(stock.GameOptions.ContentIdentity != edited.GameOptions.ContentIdentity,
+        AssertTrue(GameOptionsSourcePresentation.Of(stock.GameOptions).ContentIdentity != GameOptionsSourcePresentation.Of(edited.GameOptions).ContentIdentity,
             "full installation consumes options-menu override");
-        AssertTrue(stock.FileSelect.ContentIdentity != edited.FileSelect.ContentIdentity,
+        AssertTrue(FileSelectSourcePresentation.Of(stock.FileSelect).ContentIdentity != FileSelectSourcePresentation.Of(edited.FileSelect).ContentIdentity,
             "full installation consumes file-select override");
         AssertTrue(!stock.EscapeTimerTiles.Resolve(SuperMetroid.Core.Assets.InstalledArtworkId.EscapeTimerFirstTiles).Span.SequenceEqual(
             edited.EscapeTimerTiles.Resolve(SuperMetroid.Core.Assets.InstalledArtworkId.EscapeTimerFirstTiles).Span),

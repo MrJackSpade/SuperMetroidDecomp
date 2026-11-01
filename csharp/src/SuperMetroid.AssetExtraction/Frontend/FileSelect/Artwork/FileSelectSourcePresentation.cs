@@ -28,8 +28,10 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
     /// <summary>Stores the compiled presentation and its sprite compositions.</summary>
     private FileSelectSourcePresentation(FileSelectPresentationDocument document, FileSelectPages pages,
         FileSelectGlyphs glyphs, FileSelectSprites sprites, string contentIdentity)
-        : base(document, contentIdentity)
+        : base(Placements(document))
     {
+        ContentIdentity = contentIdentity;
+        ObjectPalette = document.ObjectPalette;
         this.pages = pages.Foreground;
         background = pages.Background;
         patches = pages.Patches;
@@ -39,6 +41,29 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
         cursorSprites = sprites.Cursors;
         helmetSprites = sprites.Helmets;
     }
+
+    /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying the selected presentation including its encoding.</summary>
+    public string ContentIdentity { get; }
+
+    /// <summary>The OBJ palette the borders, cursor and helmets are composed in.</summary>
+    internal int ObjectPalette { get; }
+
+    /// <summary>The slot fields, anchors and durations of a validated document, which the game places its actors by.</summary>
+    private static FileSelectPlacements Placements(FileSelectPresentationDocument document) => new()
+    {
+        MainSlots = document.MainSlots,
+        DataSlots = document.DataSlots,
+        BorderAnchors = FileSelectPresentationDefinitions.Borders.ToDictionary(border => border,
+            border => document.BorderAnchors[FileSelectParts.BorderName(border)]),
+        MainCursorAnchors = document.MainCursorAnchors,
+        DataCursorAnchors = document.DataCursorAnchors,
+        ConfirmationCursorAnchors = document.ConfirmationCursorAnchors,
+        HelmetAnchors = document.HelmetAnchors,
+        DynamicAnchors = FileSelectPresentationDefinitions.Anchors.ToDictionary(anchor => anchor,
+            anchor => document.DynamicAnchors[FileSelectParts.AnchorName(anchor)]),
+        CursorFrameDuration = document.CursorFrameDuration,
+        HelmetFrameDuration = document.HelmetFrameDuration,
+    };
 
     /// <summary>Named, compiled 32-by-32 tilemaps for the menu pages.</summary>
     internal readonly Dictionary<FileSelectPage, BackgroundTile[]> pages;

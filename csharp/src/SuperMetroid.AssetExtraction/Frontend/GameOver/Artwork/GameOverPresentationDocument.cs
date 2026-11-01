@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 

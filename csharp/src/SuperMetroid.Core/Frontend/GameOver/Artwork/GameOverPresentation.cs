@@ -15,26 +15,18 @@ public abstract class GameOverPresentation
     private readonly GameOverBabyPaint babyPalettes;
 
     /// <summary>Retains compiled artwork and screen anchors; the page's tiles are the import's, which pictures the page (#1467).</summary>
-    /// <param name="document">The validated layout.</param>
+    /// <param name="placements">The validated anchors and cursor duration.</param>
     /// <param name="babyPalettes">The Baby's idle and crying colours.</param>
-    /// <param name="contentIdentity">The identity of the selected presentation's bytes.</param>
-    internal GameOverPresentation(GameOverLayoutDocument document, GameOverBabyPaint babyPalettes,
-        string contentIdentity)
+    internal GameOverPresentation(GameOverPlacements placements, GameOverBabyPaint babyPalettes)
     {
         this.babyPalettes = babyPalettes;
-        BabyAnchor = document.BabyAnchor;
-        CursorX = document.CursorX;
-        YesCursorY = document.YesCursorY;
-        NoCursorY = document.NoCursorY;
-        BabyPaletteIndex = document.BabyPalette;
-        EggPaletteIndex = document.EggPalette;
-        CursorPaletteIndex = document.CursorPalette;
-        CursorFrameDuration = document.CursorFrameDuration;
-        ContentIdentity = contentIdentity;
+        BabyAnchor = placements.BabyAnchor;
+        CursorX = placements.CursorX;
+        YesCursorY = placements.YesCursorY;
+        NoCursorY = placements.NoCursorY;
+        CursorFrameDuration = placements.CursorFrameDuration;
     }
 
-    /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying the selected presentation including its encoding.</summary>
-    public string ContentIdentity { get; }
     /// <summary>Shared drawing origin of the Baby and egg compositions in screen pixels, with both coordinates in 0-255.</summary>
     public Position16<SpritePixels> BabyAnchor { get; }
     /// <summary>Missile-cursor horizontal screen coordinate in pixels, shared by both answers and bounded to 0-255.</summary>
@@ -43,12 +35,6 @@ public abstract class GameOverPresentation
     public int YesCursorY { get; }
     /// <summary>Missile-cursor vertical screen coordinate in pixels for the No answer, bounded to 0-255.</summary>
     public int NoCursorY { get; }
-    /// <summary>Sprite palette selector 0-7 used when drawing the Baby composition; palette animation writes to its fixed destination.</summary>
-    public int BabyPaletteIndex { get; }
-    /// <summary>OBJ palette selector 0-7 used when drawing the egg at the shared Baby anchor.</summary>
-    public int EggPaletteIndex { get; }
-    /// <summary>OBJ palette selector 0-7 used by all four missile-cursor frames.</summary>
-    public int CursorPaletteIndex { get; }
     /// <summary>Menu updates per frame of the looping missile cursor, in the range 1-65535.</summary>
     public int CursorFrameDuration { get; }
 

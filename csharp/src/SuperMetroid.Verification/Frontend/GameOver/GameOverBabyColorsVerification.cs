@@ -26,7 +26,7 @@ internal static class GameOverBabyColorsVerification
         var catalog = new GameOverBabyPaint(palettes.ToDictionary(entry => entry.Key, entry => ToColors(entry.Value)));
         byte[] json = GameOverPresentationExtractor.Extract(rom);
         using var stream = new MemoryStream(json);
-        GameOverPresentation presentation = GameOverSourcePresentation.Load(stream);
+        GameOverSourcePresentation presentation = GameOverSourcePresentation.Load(stream);
         AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(json)),
             presentation.ContentIdentity, "Baby presentation preserves content identity");
         var cgram = new ScreenPalette();

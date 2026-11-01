@@ -1,7 +1,9 @@
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Frontend.FileSelect.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>
 /// The file-select JSON's pages, fields and layout the game binds, with tile-space background fields and pixel-space

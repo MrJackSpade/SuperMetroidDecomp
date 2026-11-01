@@ -11,63 +11,45 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 /// </summary>
 public abstract class FileSelectPresentation
 {
-    /// <summary>Each bordered heading's anchor.</summary>
-    private readonly Dictionary<FileSelectBorder, Position16<SpritePixels>> borderAnchors;
-    /// <summary>Each copy or clear page's slot-letter anchor.</summary>
-    private readonly Dictionary<FileSelectAnchor, Position16<TilemapCells>> dynamicAnchors;
-    /// <summary>Validated anchors and frame durations from the selected JSON presentation.</summary>
-    private readonly FileSelectLayoutDocument document;
+    /// <summary>The slot fields, anchors and durations the import pipeline validated.</summary>
+    private readonly FileSelectPlacements placements;
 
     /// <summary>Keeps the layout's anchors and durations.</summary>
-    /// <param name="document">The validated layout.</param>
-    /// <param name="contentIdentity">The identity of the selected presentation's bytes.</param>
-    internal FileSelectPresentation(FileSelectLayoutDocument document, string contentIdentity)
-    {
-        borderAnchors = FileSelectPresentationDefinitions.Borders.ToDictionary(border => border,
-            border => document.BorderAnchors[FileSelectParts.BorderName(border)]);
-        dynamicAnchors = FileSelectPresentationDefinitions.Anchors.ToDictionary(anchor => anchor,
-            anchor => document.DynamicAnchors[FileSelectParts.AnchorName(anchor)]);
-        this.document = document;
-        ContentIdentity = contentIdentity;
-    }
+    /// <param name="placements">The validated layout.</param>
+    internal FileSelectPresentation(FileSelectPlacements placements) => this.placements = placements;
 
-    /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying the selected presentation including its encoding.</summary>
-    public string ContentIdentity { get; }
     /// <summary>Menu updates per missile-cursor animation frame, in the range 1-65535.</summary>
-    public int CursorFrameDuration => document.CursorFrameDuration;
+    public int CursorFrameDuration => placements.CursorFrameDuration;
     /// <summary>Menu updates per selected-slot helmet animation frame, in the range 1-65535.</summary>
-    public int HelmetFrameDuration => document.HelmetFrameDuration;
+    public int HelmetFrameDuration => placements.HelmetFrameDuration;
 
     /// <summary>Selects the main or data-management field anchors for one save slot.</summary>
     internal FileSelectSlotFieldDocument Slot(bool dataManagement, int slot)
     {
         FileSelectSlotFieldDocument[] layouts = dataManagement
-            ? document.DataSlots
-            : document.MainSlots;
+            ? placements.DataSlots
+            : placements.MainSlots;
         return (uint)slot < layouts.Length
             ? layouts[slot]
             : throw new ArgumentOutOfRangeException(nameof(slot));
     }
 
     /// <summary>Resolves a named dynamic field location in the menu tilemap.</summary>
-    internal Position16<TilemapCells> DynamicAnchor(FileSelectAnchor anchor) => dynamicAnchors[anchor];
+    internal Position16<TilemapCells> DynamicAnchor(FileSelectAnchor anchor) => placements.DynamicAnchors[anchor];
 
     /// <summary>Selects the cursor anchor from main, confirmation, or data-management layouts.</summary>
     internal Position16<SpritePixels> CursorPosition(FileSelectCursorPage page, int selected) =>
         Point(page switch
         {
-            FileSelectCursorPage.Main => document.MainCursorAnchors,
-            FileSelectCursorPage.DataManagement => document.DataCursorAnchors,
-            FileSelectCursorPage.Confirmation => document.ConfirmationCursorAnchors,
+            FileSelectCursorPage.Main => placements.MainCursorAnchors,
+            FileSelectCursorPage.DataManagement => placements.DataCursorAnchors,
+            FileSelectCursorPage.Confirmation => placements.ConfirmationCursorAnchors,
             _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectCursorPage)} {page}."),
         }, selected, "cursor");
 
-    /// <summary>The OBJ palette the borders, cursor and helmets draw in.</summary>
-    internal int ObjectPalette => document.ObjectPalette;
-
     /// <summary>Draws the page's border frame of the file-select sheet at its authored screen anchor.</summary>
     internal void DrawBorder(ScreenSprites screenSprites, SpriteSheet sheet, FileSelectBorder border) =>
-        screenSprites.AddImage(sheet.Frame(FileSelectParts.BorderSpriteName(border)), borderAnchors[border]);
+        screenSprites.AddImage(sheet.Frame(FileSelectParts.BorderSpriteName(border)), placements.BorderAnchors[border]);
 
     /// <summary>Draws one missile-cursor frame of the file-select sheet.</summary>
     internal static void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, Position16<SpritePixels> anchor) =>
@@ -76,7 +58,7 @@ public abstract class FileSelectPresentation
     /// <summary>Draws a selected-slot helmet frame of the file-select sheet at that slot's screen anchor.</summary>
     internal void DrawHelmet(ScreenSprites screenSprites, SpriteSheet sheet, int frame, int slot) =>
         screenSprites.AddImage(sheet.Frame(FileSelectParts.HelmetSpriteName(frame)),
-            Point(document.HelmetAnchors, slot, "helmet"));
+            Point(placements.HelmetAnchors, slot, "helmet"));
 
     /// <summary>Reads an indexed screen anchor, rejecting selections outside its layout.</summary>
     private static Position16<SpritePixels> Point(Position16<SpritePixels>[] points, int index, string owner) =>

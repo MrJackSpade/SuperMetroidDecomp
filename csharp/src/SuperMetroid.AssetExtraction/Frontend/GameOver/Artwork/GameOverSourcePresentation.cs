@@ -30,13 +30,33 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
 
     /// <summary>Retains the compiled presentation and its compositions.</summary>
     private GameOverSourcePresentation(GameOverPresentationDocument document, BackgroundTile[] tilemap, GameOverBabyPaint babyPalettes,
-        GameOverSprites sprites, string contentIdentity) : base(document, babyPalettes, contentIdentity)
+        GameOverSprites sprites, string contentIdentity) : base(new GameOverPlacements
+        {
+            BabyAnchor = document.BabyAnchor,
+            CursorX = document.CursorX,
+            YesCursorY = document.YesCursorY,
+            NoCursorY = document.NoCursorY,
+            CursorFrameDuration = document.CursorFrameDuration,
+        }, babyPalettes)
     {
+        ContentIdentity = contentIdentity;
+        BabyPaletteIndex = document.BabyPalette;
+        EggPaletteIndex = document.EggPalette;
+        CursorPaletteIndex = document.CursorPalette;
         page = tilemap;
         babySprites = sprites.Baby;
         eggSprite = sprites.Egg;
         cursorSprites = sprites.Cursors;
     }
+
+    /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying the selected presentation including its encoding.</summary>
+    public string ContentIdentity { get; }
+    /// <summary>Sprite palette selector 0-7 the Baby composition is composed in.</summary>
+    public int BabyPaletteIndex { get; }
+    /// <summary>OBJ palette selector 0-7 the egg composition is composed in.</summary>
+    public int EggPaletteIndex { get; }
+    /// <summary>OBJ palette selector 0-7 all four missile-cursor frames are composed in.</summary>
+    public int CursorPaletteIndex { get; }
 
     /// <summary>Compiles the sprite the document names <paramref name="name"/>.</summary>
     private static SpriteComposition CompileSprite(GameOverPresentationDocument document, string name) =>

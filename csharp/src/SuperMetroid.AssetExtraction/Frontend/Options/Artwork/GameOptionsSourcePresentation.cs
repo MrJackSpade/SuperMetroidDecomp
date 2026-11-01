@@ -38,11 +38,27 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     /// <summary>Edited special-setting visuals, or null for the native cells.</summary>
     internal readonly Dictionary<GameOptionsToggle, GameOptionsToggleVisualDocument>? specialToggles;
 
+    /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying selected artwork and layout including their encoding.</summary>
+    public string ContentIdentity { get; }
+
+    /// <summary>OBJ palette index 0-7 the missile cursor and menu-heading compositions are composed in.</summary>
+    public int CursorPalette { get; }
+
     /// <summary>Retains the compiled presentation, only the visual edits that depart from stock geometry, and its compositions.</summary>
     private GameOptionsSourcePresentation(GameOptionsPresentationDocument document, GameOptionsPages pages,
         GameOptionsSprites sprites, string contentIdentity)
-        : base(document, contentIdentity)
+        : base(new GameOptionsPlacements
+        {
+            HeadingAnchors = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(
+                page => page, page => document.HeadingAnchors[GameOptionsNames.MenuName(page)]),
+            CursorAnchors = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(
+                page => page, page => document.CursorAnchors[GameOptionsNames.MenuName(page)]),
+            HiddenCursor = document.HiddenCursor,
+            CursorFrameDuration = document.CursorFrameDuration,
+        })
     {
+        ContentIdentity = contentIdentity;
+        CursorPalette = document.CursorPalette;
         this.pages = pages.Pages;
         background = pages.Background;
         controllerLabels = pages.ControllerLabels.Where(pair => pair.Value.Where((tile, cell) =>

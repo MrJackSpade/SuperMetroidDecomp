@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>Authored sparse tilemap patch whose cells are positioned relative to a slot-field anchor.</summary>
 public sealed record FileSelectPatchDocument

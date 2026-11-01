@@ -1,7 +1,8 @@
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Options.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>
 /// The options-menu JSON's background tilemaps, controller glyphs, palette-only highlight regions and pixel-space

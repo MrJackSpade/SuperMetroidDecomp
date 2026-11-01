@@ -13,6 +13,8 @@ using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -40,7 +42,7 @@ internal static class MenuSheetFixtures
     internal static SpriteSheet FileSelect(FileSelectPresentation fileSelect)
     {
         ArgumentNullException.ThrowIfNull(fileSelect);
-        return fileSelect.ContentIdentity == InstalledFixtures.Maps.FileSelect.ContentIdentity
+        return FileSelectSourcePresentation.Of(fileSelect).ContentIdentity == FileSelectSourcePresentation.Of(InstalledFixtures.Maps.FileSelect).ContentIdentity
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.FileSelect)
             : fileSelects.GetValue(fileSelect, key => Load(SpriteSheetId.FileSelect, FileSelectSheetComposer.Sources(key, InstalledFixtures.Maps),
                 $"presentation-{RuntimeHelpers.GetHashCode(key):X8}"));
@@ -53,7 +55,7 @@ internal static class MenuSheetFixtures
     internal static SpriteSheet GameOptions(GameOptionsPresentation presentation)
     {
         ArgumentNullException.ThrowIfNull(presentation);
-        return presentation.ContentIdentity == InstalledFixtures.Maps.GameOptions.ContentIdentity
+        return GameOptionsSourcePresentation.Of(presentation).ContentIdentity == GameOptionsSourcePresentation.Of(InstalledFixtures.Maps.GameOptions).ContentIdentity
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.GameOptions)
             : options.GetValue(presentation, key => Load(SpriteSheetId.GameOptions, GameOptionsSheetComposer.Sources(key, InstalledFixtures.Maps),
                 $"presentation-{RuntimeHelpers.GetHashCode(key):X8}"));

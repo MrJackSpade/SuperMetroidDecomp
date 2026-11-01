@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Options.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>One primary-page language text region, recolored by replacing only its BG palette bits.</summary>
 public sealed record GameOptionsLanguageRegionDocument

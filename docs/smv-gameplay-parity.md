@@ -172,6 +172,17 @@ and regenerating the trace. Diagnostics that need complete WRAM after the initia
 such as `--snapshot-import-audit`, read a full capture made for that diagnosis with the
 adapter alone, which is deleted once the diagnosis is done.
 
+## Replaying through the Direct3D 11 host
+
+`SuperMetroid.DesktopVerification --desktop-movie <glitch|13|100|drunk|lowc|ridley>` runs one
+movie through the production host instead of headless: a hidden `GameForm` on a private copy
+of the repository installation, presenting on the hardware Direct3D 11 worker, with only the
+host's own WinForms timer advancing frames. The converted movie session is the host's
+`IHostFrameDriver`; it makes the one initial-state import, supplies each update's input and
+compares the same checkpoints as the headless replay. The first divergence, gameplay failure or
+renderer fault ends the command with a nonzero exit; a finished movie prints its report. The
+host paces updates at 60 Hz, and the command has no time bound until the owner sets one.
+
 ## Which movies pass
 
 Whether a given movie currently passes, how many updates it retains, and what its last

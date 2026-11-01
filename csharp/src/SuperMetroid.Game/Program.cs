@@ -113,7 +113,8 @@ internal static class Program
                     $"Recoverable errors will be deduplicated and filed in " +
                     $"{hostOptions.GitHubErrorRepository}; gameplay will attempt the next frame.");
             }
-            Application.Run(new GameForm(installation, hostOptions, replay, githubErrorReporter));
+            Application.Run(new GameForm(installation, hostOptions,
+                replay is null ? null : new RecordingFrameDriver(replay), githubErrorReporter));
         }
         catch (Exception exception)
         {

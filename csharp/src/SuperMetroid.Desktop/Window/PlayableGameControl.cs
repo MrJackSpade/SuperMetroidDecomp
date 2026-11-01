@@ -8,7 +8,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
 using System.Diagnostics;
 using System.Runtime.ExceptionServices;
-using System.Security.Cryptography;
 using Microsoft.Win32;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Spatial;
@@ -50,8 +49,8 @@ public sealed class PlayableGameControl : UserControl
     private readonly string legacySaveRamPath;
     /// <summary>Host options retained unchanged through in-window restarts.</summary>
     private readonly HostOptions hostOptions;
-    /// <summary>Optional immutable controller recording driving frame input.</summary>
-    private readonly ControllerInputRecording? replay;
+    /// <summary>The recorded timeline driving the game and every frame's input; null for live play.</summary>
+    private readonly IHostFrameDriver? driver;
     /// <summary>Recoverable error reporter installed by the desktop host.</summary>
     private readonly GitHubErrorReporter? errorReporter;
     /// <summary>Retains audio commands across recoverable device failures.</summary>
@@ -92,8 +91,6 @@ public sealed class PlayableGameControl : UserControl
     private ControllerInputRecorder? inputRecorder;
     /// <summary>Persistent debugger snapshots bound to installed content identity.</summary>
     private DebuggerSaveStateStore stateStore;
-    /// <summary>Next controller word to read from an active replay.</summary>
-    private int replayFrameIndex;
     /// <summary>Room last shown in the window caption.</summary>
     private RoomHeaderDefinition? displayedRoom;
     /// <summary>Most recent frame timing sample used by the toolbar.</summary>
@@ -114,10 +111,15 @@ public sealed class PlayableGameControl : UserControl
     private const int MaximumCatchUpFrames = 4;
 
     /// <summary>Starts from validated installed assets without naming or opening a ROM file.</summary>
-    public PlayableGameControl(
+    /// <param name="installation">The installed content and player data directory.</param>
+    /// <param name="hostOptions">Host options retained through in-window restarts.</param>
+    /// <param name="driver">A recorded timeline that drives the game and its input, or null for live play.</param>
+    /// <param name="errorReporter">Recoverable error reporter, or null to fail at the first frame error.</param>
+    /// <param name="audioDirectory">An audio override directory, or null for the installation's audio.</param>
+    internal PlayableGameControl(
         GameInstallation installation,
         HostOptions hostOptions,
-        ControllerInputRecording? replay = null,
+        IHostFrameDriver? driver = null,
         GitHubErrorReporter? errorReporter = null,
         string? audioDirectory = null)
     {
@@ -131,7 +133,7 @@ public sealed class PlayableGameControl : UserControl
         saveFile = new GameSaveFile(saveFilePath);
         legacySaveRamPath = Path.ChangeExtension(saveBase, ".srm");
         this.hostOptions = Ensure.NotNull(hostOptions);
-        this.replay = replay;
+        this.driver = driver;
         this.errorReporter = errorReporter;
         Dock = DockStyle.Fill;
 
@@ -156,12 +158,12 @@ public sealed class PlayableGameControl : UserControl
         stateSlot.SelectedIndex = 0;
         var saveStateButton = new ToolStripButton("Save State")
         {
-            Enabled = replay is null,
+            Enabled = driver is null,
             ToolTipText = "Persist the complete emulated state in the selected slot",
         };
         var loadStateButton = new ToolStripButton("Load State")
         {
-            Enabled = replay is null,
+            Enabled = driver is null,
             ToolTipText = "Restore the selected debugger state; different builds warn and attempt compatible loading",
         };
         toolStrip.Items.Add(restartButton);
@@ -210,7 +212,7 @@ public sealed class PlayableGameControl : UserControl
             canvas.Focus();
         };
         stateSlot.SelectedIndexChanged += (_, _) =>
-            saveStateButton.Enabled = replay is null && stateSlot.SelectedIndex != DebuggerStateFormat.AutomaticSlot;
+            saveStateButton.Enabled = driver is null && stateSlot.SelectedIndex != DebuggerStateFormat.AutomaticSlot;
         loadStateButton.Click += async (_, _) =>
         {
             await LoadDebuggerState(stateSlot.SelectedIndex);
@@ -263,7 +265,6 @@ public sealed class PlayableGameControl : UserControl
         audioDevice = null;
         inputRecorder?.Dispose();
         inputRecorder = null;
-        replayFrameIndex = 0;
         // Restart must retain host configuration. Re-reading the INI here would make an
         // ordinary in-window reset depend on a mid-session disk edit and would obscure the
         // exact options with which the debugger-visible session was constructed.
@@ -273,7 +274,6 @@ public sealed class PlayableGameControl : UserControl
         ClipAudioLibrary selectedAudioAssets = LoadAudioAssets();
         if (hostOptions.AudioEnabled)
             audioDevice = CreateAudioDevice();
-        SaveSlotStore saves = replay is null ? LoadSavesFromDisk() : LoadReplaySaves();
         projectilePresentation = installation.LoadProjectiles();
         GameArtwork artwork = installation.LoadGameArtwork(
             mapPresentation ?? throw new InvalidOperationException("Installed map identity is unavailable."),
@@ -281,8 +281,6 @@ public sealed class PlayableGameControl : UserControl
         // The session binds clips in every configuration so a debugger state always carries
         // its playback state; whether samples reach a device is the host's choice alone.
         content = new InstalledSessionContent(artwork, selectedAudioAssets);
-        // A replay's saves start from its header and are never written back.
-        game = GameSessionComposer.Create(saves, hostOptions.Game.ToAssists(), content, replay is null ? saveFile : null);
         Console.WriteLine($"Projectile compositions: stock={projectilePresentation.StockSha256}, selected={projectilePresentation.SelectedSha256} ({playerDataDirectory}).");
         installedContentIdentity = GameContentIdentity.Create(
             selectedAudioAssets,
@@ -297,13 +295,15 @@ public sealed class PlayableGameControl : UserControl
             $"projectiles={installedContentIdentity.ProjectileContentSha256}.");
         foreach ((string domain, string digest) in installedContentIdentity.AdditionalContentSha256.OrderBy(pair => pair.Key))
             Console.WriteLine($"Installed content component: {domain}={digest}.");
-        if (replay is not null)
-            ReportReplayContentCompatibility();
+        // A driven session's game comes from its timeline, and its saves are never written back.
+        game = driver is null
+            ? GameSessionComposer.Create(LoadSavesFromDisk(), hostOptions.Game.ToAssists(), content, saveFile)
+            : driver.Start(new HostSessionStart(content, hostOptions.Game.ToAssists(), mapPresentation, installedContentIdentity));
         // The previous session's queued door autosave finishes before a new store can write the same slot.
         if (stateStore is not null)
             stateStore.Dispose();
         stateStore = CreateStateStore();
-        if (replay is null)
+        if (driver is null)
         {
             // The reset seed is captured after disk SRAM has been validated/copied but
             // before the first dispatcher call. A crash in state zero is therefore just as
@@ -312,8 +312,8 @@ public sealed class PlayableGameControl : UserControl
             Console.WriteLine($"Recording controller input to {inputRecorder.Path}");
         }
         // Execute reset once so the first visible debugger frame is state one's native setup.
-        FrontendFrame resetFrame = AdvanceOneFrame(forcedInput: replay is null ? ControllerButton.None : null)
-            ?? throw new InvalidDataException("Replay contains no reset frame.");
+        FrontendFrame resetFrame = AdvanceOneFrame(forcedInput: driver is null ? ControllerButton.None : null)
+            ?? throw new InvalidDataException("The driven timeline contains no reset frame.");
         RefreshFrame(resetFrame);
         ResetFrameTimings();
         canvas.Focus();
@@ -322,8 +322,8 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Persists the selected debugger slot with current game, memory, and SPC state.</summary>
     internal void SaveDebuggerState(int slot)
     {
-        if (replay is not null)
-            throw new InvalidOperationException("Debugger states are disabled during an input replay.");
+        if (driver is not null)
+            throw new InvalidOperationException("Debugger states are disabled while a recorded timeline drives the host.");
         DebuggerSaveStateMetadata metadata = stateStore.Save(
             slot, addressSpace, game);
         statusLabel.Text =
@@ -335,8 +335,8 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Validates a state, drains old presentation work, then rebinds game and audio.</summary>
     internal async Task LoadDebuggerState(int slot)
     {
-        if (replay is not null)
-            throw new InvalidOperationException("Debugger states are disabled during an input replay.");
+        if (driver is not null)
+            throw new InvalidOperationException("Debugger states are disabled while a recorded timeline drives the host.");
 
         // Decode and check compatibility before changing the live game or its audio.
         DebuggerSaveStateLoadResult loaded;
@@ -408,25 +408,6 @@ public sealed class PlayableGameControl : UserControl
             ? $"room {room}/state {state}"
             : "frontend/no active room";
 
-    /// <summary>
-    /// Decodes the replay's cartridge-compatible SRAM image into the session's saves and rejects a
-    /// different ROM revision before the first input can produce a misleading divergence.
-    /// </summary>
-    private SaveSlotStore LoadReplaySaves()
-    {
-        if (replay is null)
-            throw new InvalidOperationException("Replay SRAM requested without a replay.");
-
-        byte[] actualDigest = SupportedCartridge.CreateSha256Digest();
-        if (!CryptographicOperations.FixedTimeEquals(actualDigest, replay.RomSha256))
-        {
-            throw new InvalidDataException(
-                "The replay was recorded from a different ROM image (SHA-256 mismatch).");
-        }
-        return SaveRamCodec.Decode(replay.InitialSaveRam,
-            mapPresentation ?? throw new InvalidOperationException("Replay saves require installed maps."));
-    }
-
     /// <summary>Creates a debugger-state store keyed to options and installed content identity.</summary>
     private DebuggerSaveStateStore CreateStateStore()
     {
@@ -447,21 +428,6 @@ public sealed class PlayableGameControl : UserControl
             hostOptions.Game,
             installedContentIdentity ?? throw new InvalidOperationException(
                 "Installed desktop session has no content identity."));
-    }
-
-    /// <summary>Writes installed-content differences against the recording before playback.</summary>
-    private void ReportReplayContentCompatibility()
-    {
-        if (replay is null)
-            throw new InvalidOperationException("Replay compatibility requested without a replay.");
-        var contentIdentity = installedContentIdentity ?? throw new InvalidOperationException(
-            "Installed desktop session has no content identity.");
-        foreach (string warning in contentIdentity.GetCompatibilityWarnings(
-                     replay.ContentIdentity,
-                     "controller recording"))
-        {
-            Console.WriteLine($"REPLAY COMPATIBILITY WARNING: {warning}");
-        }
     }
 
     /// <summary>
@@ -508,21 +474,24 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>
-    /// Selects exactly one live or replay word, records it before execution, and advances
-    /// the translated dispatcher. Null means exhausted replay or deferred audio capacity, never input zero.
+    /// Selects exactly one live or driven word, records live input before execution, and advances
+    /// the translated dispatcher. Null means a finished timeline or deferred audio capacity, never input zero.
     /// </summary>
+    /// <remarks>Under a driver the forced and live inputs are ignored: the timeline supplies every word,
+    /// and the driver's current game, read after its input, is the one stepped and presented.</remarks>
     private FrontendFrame? AdvanceOneFrame(ControllerButton? forcedInput = null)
     {
         if (!CanAdvanceAudioFrame()) return null;
         ControllerButton input;
-        if (replay is not null)
+        if (driver is not null)
         {
-            if (replayFrameIndex >= replay.ControllerInputs.Length)
+            if (driver.NextInput() is not { } driven)
             {
                 SetPlaying(playing: false);
                 return null;
             }
-            input = replay.InputAt(replayFrameIndex++);
+            input = driven;
+            game = driver.Game;
         }
         else
         {
@@ -531,12 +500,13 @@ public sealed class PlayableGameControl : UserControl
         }
         GameplaySnapshot beforeFrame = game.CaptureGameplaySnapshot();
         var previousGameState = game.GameState;
+        FrontendFrame frame;
         try
         {
             long frameStarted = Stopwatch.GetTimestamp();
             var captured = game.StepCaptured(input);
             pendingDisplay = PresentationFrame(captured.Snapshot);
-            FrontendFrame frame = captured.Frame;
+            frame = captured.Frame;
 
             // The session already advanced its SPC model and synthesized this update's samples
             // inside Step; the bank $82 handshake never depends on this host. Only submission
@@ -561,11 +531,10 @@ public sealed class PlayableGameControl : UserControl
                         InputRecordingPath: inputRecorder?.Path)) ?? "audio failure (see console; GitHub reporting disabled)";
                 });
             }
-            DoorTransitionAutosave.TrySave(hostOptions.DoorTransitionAutosave, replay is not null,
+            DoorTransitionAutosave.TrySave(hostOptions.DoorTransitionAutosave, driver is not null,
                 previousGameState, stateStore, addressSpace, game);
             frameTimings.RecordEmulatedFrame(Stopwatch.GetTimestamp() - frameStarted);
             PublishGpuDisplay();
-            return frame;
         }
         catch (Exception frameException)
         {
@@ -590,8 +559,8 @@ public sealed class PlayableGameControl : UserControl
 
             string frameDiagnostics = GameplayFrameFailureDiagnostics.Format(
                 beforeFrame, game.CaptureGameplaySnapshot(), input,
-                replay is not null ? "in-memory replay (path unavailable)" : inputRecorder?.Path,
-                replay is not null ? replayFrameIndex - 1 : inputRecorder?.FrameCount - 1);
+                driver is not null ? $"driven timeline at {driver.Progress} (path unavailable)" : inputRecorder?.Path,
+                driver is not null ? driver.InputsSupplied - 1 : inputRecorder?.FrameCount - 1);
             // Printed before either fatal rethrow or recoverable reporting. The session
             // log/ZIP captures stderr even when GitHub reporting is disabled.
             try
@@ -632,6 +601,9 @@ public sealed class PlayableGameControl : UserControl
                     FrameDiagnostics: frameDiagnostics));
             return game.CurrentFrame;
         }
+        // Outside the frame boundary: a driver's own failure is not a gameplay-frame failure.
+        driver?.FrameCompleted(frame);
+        return frame;
     }
 
     /// <summary>
@@ -691,9 +663,9 @@ public sealed class PlayableGameControl : UserControl
         string gameStatus =
             $"state {frame.GameState}  |  {frame.Phase}  |  frame {frame.FrameNumber}" +
             (gamepad.DeviceName is null ? string.Empty : $"  |  pad: {gamepad.DeviceName}") +
-            (replay is null
+            (driver is null
                 ? string.Empty
-                : $"  |  replay {replayFrameIndex}/{replay.ControllerInputs.Length}");
+                : $"  |  {driver.Progress}");
         string timingStatus = latestFrameTiming?.ToToolbarText() ??
             "emu --.- | step --.-/--.- ms | late --.-";
         statusLabel.Text = timingStatus + GpuTimingText;

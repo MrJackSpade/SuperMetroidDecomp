@@ -8,6 +8,7 @@ using static SuperMetroid.DesktopVerification.Window.RendererCaptureTests;
 using static SuperMetroid.DesktopVerification.Startup.RendererStartupTests;
 using SuperMetroid.DesktopVerification.Audio;
 using SuperMetroid.DesktopVerification.Harness;
+using SuperMetroid.DesktopVerification.Replay;
 using SuperMetroid.DesktopVerification.Soak;
 using SuperMetroid.DesktopVerification.Startup;
 namespace SuperMetroid.DesktopVerification;
@@ -83,6 +84,11 @@ internal static class Program
             try
             {
                 if (DesktopSmokeAuditCommands.TryRun(args)) return;
+                if (args is [DesktopMovieReplay.Flag, var movieName])
+                {
+                    await DesktopMovieReplay.Run(DesktopMovieReplay.Parse(movieName));
+                    return;
+                }
                 VerifyAudioQueueHealth();
                 if (args is ["--audio-endpoint-recovery-audit"])
                 {
@@ -124,7 +130,7 @@ internal static class Program
                         }
                     throw new ArgumentException($"Unknown desktop check '{checkName}'.");
                 }
-                throw new ArgumentException("Usage: DesktopVerification [--audio-queue | --check NAME]");
+                throw new ArgumentException("Usage: DesktopVerification [--audio-queue | --check NAME | --desktop-movie glitch|13|100|drunk|lowc|ridley]");
             }
             catch (Exception error) { Console.Error.WriteLine(error); Environment.ExitCode = 1; }
             finally { context.ExitThread(); }

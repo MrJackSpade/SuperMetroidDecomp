@@ -28,7 +28,7 @@ internal static class NintendoLogoFadePaletteFxColorDefinitionsConstants
     /// <summary>The copyright entry at <c>$8D:C7F2</c>.</summary>
     public const ushort CopyrightEntry = 0xc7f2;
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => NintendoLogoFadePaletteFxColorDefinitions.Rows.Color(frame, color);
+    public static PaletteFxColorKey Color(int frame, int color) => NintendoLogoFadePaletteFxColorDefinitions.ColorFrames.Color(frame, color);
     /// <summary>The shared one-shot fade contains eight timed records.</summary>
-    public static int FrameCount => NintendoLogoFadePaletteFxColorDefinitions.Rows.FrameCount;
+    public static int FrameCount => NintendoLogoFadePaletteFxColorDefinitions.ColorFrames.FrameCount;
 }

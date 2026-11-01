@@ -33,14 +33,14 @@ public static class ZebesExplosionLayerFadePaletteFxColorDefinitions
             Owner = ZebesExplosionLayerFadePaletteFxProgramOwner.Crust,
             Object = PaletteFxObject.FadeOutExplodingZebesCrust,
             FrameDuration = 20,
-            Rows = PaletteFxColorRows.Of(PaletteFxProgram.FadeOutExplodingZebesCrust, ColorsPerFrame),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.FadeOutExplodingZebesCrust, ColorsPerFrame),
         },
         new()
         {
             Owner = ZebesExplosionLayerFadePaletteFxProgramOwner.GreyClouds,
             Object = PaletteFxObject.FadeOutExplodingZebesGreyClouds,
             FrameDuration = 14,
-            Rows = PaletteFxColorRows.Of(PaletteFxProgram.FadeOutExplodingZebesGreyClouds, ColorsPerFrame),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.FadeOutExplodingZebesGreyClouds, ColorsPerFrame),
         },
     ];
 

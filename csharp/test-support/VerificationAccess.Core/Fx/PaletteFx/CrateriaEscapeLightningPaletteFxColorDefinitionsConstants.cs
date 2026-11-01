@@ -25,5 +25,5 @@ internal static class CrateriaEscapeLightningPaletteFxColorDefinitionsConstants
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
     /// <summary>Both loops contain eleven timed records.</summary>
-    public static int FrameCount => CrateriaEscapeLightningPaletteFxColorDefinitions.All[0].Rows.FrameCount;
+    public static int FrameCount => CrateriaEscapeLightningPaletteFxColorDefinitions.All[0].ColorFrames.FrameCount;
 }

@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Fx.Artwork;
 
-/// <summary>Calculated repeated-row identities in the three suit-loading palettes.</summary>
+/// <summary>Calculated repeated-frame identities in the three suit-loading palettes.</summary>
 /// <remarks>Each suit's loading program contains nine
 /// sixteen-color records. Every even record repeats the normal palette; record3
 /// repeats record1. Records5 and7 contain distinct shades. The mapping is checked
-/// against complete original rows, including transparent entries, for #1165.
+/// against complete original frames, including transparent entries, for #1165.
 /// The remaining25 whole words are22 distinct normal sprite inks plus three
 /// transparent payloads. Opaque indices select categorical
 /// painted pixels, not a numerical brightness/time input; the suit-loading setup
@@ -13,12 +13,12 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// skips index zero before palette lookup, so its differing source payloads
 /// have no functional color-generation basis either. All432 original loading
 /// words independently match their normal/speed-boost source art. Repeated
-/// rows, suit sharing, shade transforms and derived endpoint channels are
+/// frames, suit sharing, shade transforms and derived endpoint channels are
 /// calculated separately; LoadingPaletteInputView documents the nine retained
-/// tint components. No complete generated palette row is cached. Other
+/// tint components. No complete generated colour set is cached. Other
 /// full-body palette families still require their own review.</remarks>
 public static class LoadingPaletteColorDefinitions
 {
     /// <summary>The final record, which repeats the normal palette.</summary>
-    internal const int FinalRow = 8;
+    internal const int FinalFrame = 8;
 }

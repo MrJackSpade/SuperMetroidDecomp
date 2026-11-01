@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// runs <c>SetColorIndex(84)</c>, eight 12-byte
 /// records of <c>10, colors[4], Wait</c>, then a goto back to its first record
 /// (80 frames per loop). All 20 control words match. The
-/// first row reuses the initial title palette. Tube channels interpolate to their
+/// first frame reuses the initial title palette. Tube channels interpolate to their
 /// clamped endpoint using the minimum phase count at the selected three-unit
 /// scale and nearest/even integer quantization; no green exception is needed.
 /// Issue #854 / #625: the displays' definition
@@ -39,7 +39,7 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
             Colours = PaletteFxColours.BabyMetroidTubeLight,
             FrameCount = 2 * TubeDimmingSteps,
             ColorsPerFrame = TubeColourCount,
-            Rows = PaletteFxColorRows.Of(PaletteFxProgram.TitleScreenBabyMetroidTubeLight1, TubeColourCount),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.TitleScreenBabyMetroidTubeLight1, TubeColourCount),
         };
     /// <summary>The two-frame flickering displays.</summary>
     public static TitleScreenAmbientPaletteFxColorDefinition Displays { get; } =
@@ -49,7 +49,7 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
             Colours = PaletteFxColours.TitleScreenDisplays,
             FrameCount = DisplayStates,
             ColorsPerFrame = DisplayColourCount,
-            Rows = PaletteFxColorRows.Of(PaletteFxProgram.TitleScreenFlickeringDisplays1, DisplayColourCount),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.TitleScreenFlickeringDisplays1, DisplayColourCount),
         };
 
     /// <summary>The two semantic palette owners in definition order.</summary>

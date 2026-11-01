@@ -33,5 +33,5 @@ internal static class OldTourianEscapeAccentPaletteFxColorDefinitionsConstants
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 10;
     /// <summary>Both loops contain fifteen timed records.</summary>
-    public static int FrameCount => OldTourianEscapeAccentPaletteFxColorDefinitions.All[0].Rows.FrameCount;
+    public static int FrameCount => OldTourianEscapeAccentPaletteFxColorDefinitions.All[0].ColorFrames.FrameCount;
 }

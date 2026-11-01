@@ -22,7 +22,7 @@ internal static class BeaconPaletteFxColorDefinitionsConstants
     /// <summary>Library-two sound ID <c>$18</c> selected at <c>$8D:F051</c>.</summary>
     public const byte SoundId = 0x18;
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => BeaconPaletteFxColorDefinitions.Rows.Color(frame, color);
+    public static PaletteFxColorKey Color(int frame, int color) => BeaconPaletteFxColorDefinitions.ColorFrames.Color(frame, color);
     /// <summary>Ten ten-frame records form one complete flash cycle.</summary>
-    public static int FrameCount => BeaconPaletteFxColorDefinitions.Rows.FrameCount;
+    public static int FrameCount => BeaconPaletteFxColorDefinitions.ColorFrames.FrameCount;
 }

@@ -13,21 +13,21 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <c>floor(((7 - t)*q + 31*t)/7)</c>. Frame 6 is white, frames 7..12
 /// mirror frames 5..0, and frame 13 restores the base. This rule matches
 /// all 224 original colors exactly. LogoGlarePaletteColors evaluates matching
-/// presentation colors from the final supplied row; independent edits remain explicit.
+/// presentation colors from the final supplied frame; independent edits remain explicit.
 /// The presentation compiler owns the base colors and overrides.
 /// </remarks>
 public static class PostCreditsIconGlarePaletteFxColorDefinitions
 {
 
     /// <summary>The one-shot glare contains fourteen timed records.</summary>
-    public static int FrameCount => Rows.FrameCount;
+    public static int FrameCount => ColorFrames.FrameCount;
 
     /// <summary>Each record writes sixteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 16;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.PostCreditsSuperMetroidIconGlare, ColorsPerFrame);
+    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxProgram.PostCreditsSuperMetroidIconGlare, ColorsPerFrame);
 
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
+    public static PaletteFxColorKey Color(int frame, int color) => ColorFrames.Color(frame, color);
 }

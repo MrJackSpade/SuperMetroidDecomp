@@ -29,5 +29,5 @@ internal static class NorfairEnvironmentalPaletteFxColorDefinitionsConstants
         return (ushort)(distance == 0 ? 16 : Math.Clamp(distance + 2, 4, 8));
     }
     /// <summary>All four programs contain sixteen phases.</summary>
-    public static int FrameCount => NorfairEnvironmentalPaletteFxColorDefinitions.All[0].Rows.FrameCount;
+    public static int FrameCount => NorfairEnvironmentalPaletteFxColorDefinitions.All[0].ColorFrames.FrameCount;
 }

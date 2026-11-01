@@ -14,7 +14,7 @@ internal static class TitleAmbientColors
         IReadOnlyDictionary<PaletteFxColorKey, RgbColor> supplied, out RgbColor color)
     {
         var tube = TitleScreenAmbientPaletteFxColorDefinitions.TubeLight;
-        if (tube.Rows.TryLocate(key, out int frame, out int index))
+        if (tube.ColorFrames.TryLocate(key, out int frame, out int index))
         {
             RgbColor first = initial.Colours(ScreenColourGroup.TitleTubeLight)[index];
             if (frame == 0) { color = first; return true; }
@@ -24,7 +24,7 @@ internal static class TitleAmbientColors
             return true;
         }
         var displays = TitleScreenAmbientPaletteFxColorDefinitions.Displays;
-        if (displays.Rows.TryLocate(key, out frame, out index))
+        if (displays.ColorFrames.TryLocate(key, out frame, out index))
         {
             color = frame == 0 ? initial.Colours(ScreenColourGroup.TitleDisplays)[index]
                 : initial.Colour(index == 0 ? ScreenColourGroup.TitleDimWarmPaint : ScreenColourGroup.TitleDimGreenPaint);

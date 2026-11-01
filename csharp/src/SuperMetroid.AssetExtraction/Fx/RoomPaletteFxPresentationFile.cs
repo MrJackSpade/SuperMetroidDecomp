@@ -20,9 +20,9 @@ public static class RoomPaletteFxPresentationFile
             [RoomPaletteFxPresentationFormat.Version] = RoomPaletteFxPresentationRevision.Current,
         }.ToFrozenDictionary();
 
-    /// <summary>Validates editable palette rows and compiles their RGB5 colors into the native bank-$8D color lookup.</summary>
+    /// <summary>Validates editable palette-FX frames and compiles their RGB5 colors into the native bank-$8D color lookup.</summary>
     /// <param name="json">The UTF-8 JSON presentation stream with the required frame counts and RGB components from zero through thirty-one.</param>
-    /// <param name="previousVersionFallback">Current stock colors used only to supply the missing Samus heat rows when loading the previous schema version.</param>
+    /// <param name="previousVersionFallback">Current stock colors used only to supply the missing Samus heat frames when loading the previous schema version.</param>
     /// <returns>A color source preserving independent edits while reconstructing matching shared or calculated samples on demand.</returns>
     /// <exception cref="InvalidDataException">The schema version, required frame geometry, or a color component is invalid, or the fallback lacks a required heat color.</exception>
     public static RoomPaletteFxPresentation Read(Stream json,
@@ -55,11 +55,11 @@ public static class RoomPaletteFxPresentationFile
             {
                 // A v17 player override predates these three color families. Keep
                 // all its existing edits and inherit only the newly extracted
-                // Samus-in-heat rows from the verified current stock catalog.
-                for (int frame = 0; frame < definition.Rows.FrameCount; frame++)
-                for (int index = 0; index < definition.Rows.ColorsPerFrame; index++)
+                // Samus-in-heat frames from the verified current stock catalog.
+                for (int frame = 0; frame < definition.ColorFrames.FrameCount; frame++)
+                for (int index = 0; index < definition.ColorFrames.ColorsPerFrame; index++)
                 {
-                    PaletteFxColorKey key = definition.Rows.Color(frame, index);
+                    PaletteFxColorKey key = definition.ColorFrames.Color(frame, index);
                     if (!(previousVersionFallback ?? throw new InvalidDataException("A previous-version room palette-FX override requires the current stock presentation.")).TryReadColor(key, out RgbColor stockColor))
                         throw new InvalidDataException(
                             $"Current stock is missing {definition.Suit} heat color {key}.");
@@ -67,7 +67,7 @@ public static class RoomPaletteFxPresentationFile
                 }
             }
             else
-                ValidateAndCompile($"Samus {definition.Suit} suit in heat", frames, definition.Rows, colors);
+                ValidateAndCompile($"Samus {definition.Suit} suit in heat", frames, definition.ColorFrames, colors);
         }
         foreach (NorfairEnvironmentalPaletteFxColorDefinition definition in
                  NorfairEnvironmentalPaletteFxColorDefinitions.All)
@@ -85,7 +85,7 @@ public static class RoomPaletteFxPresentationFile
                 _ => throw new InvalidDataException(
                     $"Unsupported Norfair palette owner {definition.Owner}."),
             };
-            ValidateAndCompile($"Norfair {definition.Owner}", frames, definition.Rows, colors);
+            ValidateAndCompile($"Norfair {definition.Owner}", frames, definition.ColorFrames, colors);
         }
         foreach (MaridiaEnvironmentalPaletteFxColorDefinition definition in
                  MaridiaEnvironmentalPaletteFxColorDefinitions.All)
@@ -99,15 +99,15 @@ public static class RoomPaletteFxPresentationFile
                 _ => throw new InvalidDataException(
                     $"Unsupported Maridia palette owner {definition.Owner}."),
             };
-            ValidateAndCompile($"Maridia {definition.Owner}", frames, definition.Rows, colors);
+            ValidateAndCompile($"Maridia {definition.Owner}", frames, definition.ColorFrames, colors);
         }
-        ValidateAndCompile("Wrecked Ship green lights", document.WreckedShipGreenLights, WreckedShipGreenLightPaletteFxColorDefinitions.Rows, colors);
-        ValidateAndCompile("Red Brinstar background glow", document.RedBrinstarBackgroundGlow, RedBrinstarGlowPaletteFxColorDefinitions.Rows, colors);
-        ValidateAndCompile("Tourian glow", document.TourianGlow, TourianGlowPaletteFxColorDefinitions.Rows, colors);
+        ValidateAndCompile("Wrecked Ship green lights", document.WreckedShipGreenLights, WreckedShipGreenLightPaletteFxColorDefinitions.ColorFrames, colors);
+        ValidateAndCompile("Red Brinstar background glow", document.RedBrinstarBackgroundGlow, RedBrinstarGlowPaletteFxColorDefinitions.ColorFrames, colors);
+        ValidateAndCompile("Tourian glow", document.TourianGlow, TourianGlowPaletteFxColorDefinitions.ColorFrames, colors);
         foreach (BrinstarBlueSporePaletteFxColorDefinition definition in
                  BrinstarBlueSporePaletteFxColorDefinitions.All)
         {
-            ValidateAndCompile($"Brinstar blue spores ({definition.Owner})", document.BrinstarBlueSpores, definition.Rows, colors);
+            ValidateAndCompile($"Brinstar blue spores ({definition.Owner})", document.BrinstarBlueSpores, definition.ColorFrames, colors);
         }
         foreach (TorizoBellyPaletteFxColorDefinition definition in
                  TorizoBellyPaletteFxColorDefinitions.All)
@@ -119,9 +119,9 @@ public static class RoomPaletteFxPresentationFile
                 _ => throw new InvalidDataException(
                     $"Unsupported Torizo belly owner {definition.Owner}."),
             };
-            ValidateAndCompile($"{definition.Owner} belly", frames, definition.Rows, colors);
+            ValidateAndCompile($"{definition.Owner} belly", frames, definition.ColorFrames, colors);
         }
-        ValidateAndCompile("Tourian statue grey-out", document.TourianStatueGrey, TourianStatueGreyPaletteFxColorDefinitions.Rows, colors);
+        ValidateAndCompile("Tourian statue grey-out", document.TourianStatueGrey, TourianStatueGreyPaletteFxColorDefinitions.ColorFrames, colors);
         foreach (CrateriaLightningPaletteFxColorDefinition definition in
                  CrateriaLightningPaletteFxColorDefinitions.All)
         {
@@ -134,10 +134,10 @@ public static class RoomPaletteFxPresentationFile
                 _ => throw new InvalidDataException(
                     $"Unsupported Crateria lightning owner {definition.Owner}."),
             };
-            ValidateAndCompile($"Crateria {definition.Owner}", frames, definition.Rows, colors);
+            ValidateAndCompile($"Crateria {definition.Owner}", frames, definition.ColorFrames, colors);
         }
-        ValidateAndCompile("Ceres gunship-engine lights", document.CeresGunshipEngineLights, CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineRows, colors);
-        ValidateAndCompile("Ceres navigation lights", document.CeresNavigationLights, CeresCinematicLightPaletteFxColorDefinitions.NavigationLightsRows, colors);
+        ValidateAndCompile("Ceres gunship-engine lights", document.CeresGunshipEngineLights, CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineFrames, colors);
+        ValidateAndCompile("Ceres navigation lights", document.CeresNavigationLights, CeresCinematicLightPaletteFxColorDefinitions.NavigationLightsFrames, colors);
         foreach (PlanetZebesTextPaletteFxColorDefinition definition in
                  PlanetZebesTextPaletteFxColorDefinitions.All)
         {
@@ -150,7 +150,7 @@ public static class RoomPaletteFxPresentationFile
                 _ => throw new InvalidDataException(
                     $"Unsupported PLANET ZEBES text-fade owner {definition.Owner}."),
             };
-            ValidateAndCompile($"PLANET ZEBES {definition.Owner}", frames, definition.Rows, colors);
+            ValidateAndCompile($"PLANET ZEBES {definition.Owner}", frames, definition.ColorFrames, colors);
         }
         foreach (CinematicGlowPaletteFxColorDefinition definition in
                  CinematicGlowPaletteFxColorDefinitions.All)
@@ -164,15 +164,15 @@ public static class RoomPaletteFxPresentationFile
                 _ => throw new InvalidDataException(
                     $"Unsupported cinematic glow owner {definition.Owner}."),
             };
-            ValidateAndCompile($"Cinematic glow {definition.Owner}", frames, definition.Rows, colors);
+            ValidateAndCompile($"Cinematic glow {definition.Owner}", frames, definition.ColorFrames, colors);
         }
-        ValidateAndCompile("exploding Zebes fade", document.ExplodingZebesFade, ExplodingZebesFadePaletteFxColorDefinitions.Rows, colors);
-        ValidateAndCompile("unused cinematic fade", document.UnusedCinematicFade, UnusedCinematicFadePaletteFxColorDefinitions.Rows, colors);
-        ValidateAndCompile("title-logo fade", document.TitleLogoFade, TitleLogoFadePaletteFxColorDefinitions.Rows, colors);
-        ValidateAndCompile("Nintendo shared fade", document.NintendoSharedFade, NintendoLogoFadePaletteFxColorDefinitions.Rows, colors);
-        ValidateAndCompile("Zebes explosion foreground", document.ZebesExplosionForeground, ZebesExplosionForegroundPaletteFxColorDefinitions.Rows, colors);
-        ValidateAndCompile("Zebes explosion finale", document.ZebesExplosionFinale, ZebesExplosionFinalePaletteFxColorDefinitions.Rows, colors);
-        ValidateAndCompile("Zebes explosion shared whiteout", document.ZebesExplosionWhiteout, ZebesExplosionWhiteoutPaletteFxColorDefinitions.Rows, colors);
+        ValidateAndCompile("exploding Zebes fade", document.ExplodingZebesFade, ExplodingZebesFadePaletteFxColorDefinitions.ColorFrames, colors);
+        ValidateAndCompile("unused cinematic fade", document.UnusedCinematicFade, UnusedCinematicFadePaletteFxColorDefinitions.ColorFrames, colors);
+        ValidateAndCompile("title-logo fade", document.TitleLogoFade, TitleLogoFadePaletteFxColorDefinitions.ColorFrames, colors);
+        ValidateAndCompile("Nintendo shared fade", document.NintendoSharedFade, NintendoLogoFadePaletteFxColorDefinitions.ColorFrames, colors);
+        ValidateAndCompile("Zebes explosion foreground", document.ZebesExplosionForeground, ZebesExplosionForegroundPaletteFxColorDefinitions.ColorFrames, colors);
+        ValidateAndCompile("Zebes explosion finale", document.ZebesExplosionFinale, ZebesExplosionFinalePaletteFxColorDefinitions.ColorFrames, colors);
+        ValidateAndCompile("Zebes explosion shared whiteout", document.ZebesExplosionWhiteout, ZebesExplosionWhiteoutPaletteFxColorDefinitions.ColorFrames, colors);
         foreach (ZebesExplosionAmbientPaletteFxColorDefinition definition in
                  ZebesExplosionAmbientPaletteFxColorDefinitions.All)
         {
@@ -185,7 +185,7 @@ public static class RoomPaletteFxPresentationFile
                 _ => throw new InvalidDataException(
                     $"Unsupported Zebes explosion ambient owner {definition.Owner}."),
             };
-            ValidateAndCompile($"Zebes explosion {definition.Owner}", frames, definition.Rows, colors);
+            ValidateAndCompile($"Zebes explosion {definition.Owner}", frames, definition.ColorFrames, colors);
         }
         foreach (ZebesExplosionLayerFadePaletteFxColorDefinition definition in
                  ZebesExplosionLayerFadePaletteFxColorDefinitions.All)
@@ -199,9 +199,9 @@ public static class RoomPaletteFxPresentationFile
                 _ => throw new InvalidDataException(
                     $"Unsupported Zebes explosion layer owner {definition.Owner}."),
             };
-            ValidateAndCompile($"Zebes explosion {definition.Owner}", frames, definition.Rows, colors);
+            ValidateAndCompile($"Zebes explosion {definition.Owner}", frames, definition.ColorFrames, colors);
         }
-        ValidateAndCompile("Zebes explosion gunship", document.ZebesExplosionGunship, ZebesExplosionGunshipPaletteFxColorDefinitions.Rows, colors);
+        ValidateAndCompile("Zebes explosion gunship", document.ZebesExplosionGunship, ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames, colors);
         foreach (SamusLoadingSuitPaletteFxColorDefinition definition in
                  SamusLoadingSuitPaletteFxColorDefinitions.All)
         {
@@ -216,9 +216,9 @@ public static class RoomPaletteFxPresentationFile
                 _ => throw new InvalidDataException(
                     $"Unsupported Samus loading-suit owner {definition.Owner}."),
             };
-            ValidateAndCompile($"Samus loading {definition.Owner}", frames, definition.Rows, colors);
+            ValidateAndCompile($"Samus loading {definition.Owner}", frames, definition.ColorFrames, colors);
         }
-        ValidateAndCompile("post-credits icon glare", document.PostCreditsIconGlare, PostCreditsIconGlarePaletteFxColorDefinitions.Rows, colors);
+        ValidateAndCompile("post-credits icon glare", document.PostCreditsIconGlare, PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames, colors);
         foreach (TourianEscapeRedFlashPaletteFxColorDefinition definition in
                  TourianEscapeRedFlashPaletteFxColorDefinitions.All)
         {
@@ -230,10 +230,10 @@ public static class RoomPaletteFxPresentationFile
                 _ => throw new InvalidDataException(
                     $"Unsupported Tourian escape red-flash owner {definition.Owner}."),
             };
-            ValidateAndCompile($"Tourian escape {definition.Owner}", frames, definition.Rows, colors);
+            ValidateAndCompile($"Tourian escape {definition.Owner}", frames, definition.ColorFrames, colors);
         }
-        ValidateAndCompile("Tourian escape shared red flash", document.TourianEscapeSharedRedFlash, TourianEscapeSharedRedFlashPaletteFxColorDefinitions.Rows, colors);
-        ValidateAndCompile("old Tourian escape red flash", document.OldTourianEscapeRedFlash, OldTourianEscapeRedFlashPaletteFxColorDefinitions.Rows, colors);
+        ValidateAndCompile("Tourian escape shared red flash", document.TourianEscapeSharedRedFlash, TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ColorFrames, colors);
+        ValidateAndCompile("old Tourian escape red flash", document.OldTourianEscapeRedFlash, OldTourianEscapeRedFlashPaletteFxColorDefinitions.ColorFrames, colors);
         foreach (OldTourianEscapeAccentPaletteFxColorDefinition definition in
                  OldTourianEscapeAccentPaletteFxColorDefinitions.All)
         {
@@ -246,9 +246,9 @@ public static class RoomPaletteFxPresentationFile
                 _ => throw new InvalidDataException(
                     $"Unsupported old Tourian escape accent owner {definition.Owner}."),
             };
-            ValidateAndCompile($"old Tourian escape {definition.Owner}", frames, definition.Rows, colors);
+            ValidateAndCompile($"old Tourian escape {definition.Owner}", frames, definition.ColorFrames, colors);
         }
-        ValidateAndCompile("upper Crateria escape red flash", document.UpperCrateriaEscapeRedFlash, UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.Rows, colors);
+        ValidateAndCompile("upper Crateria escape red flash", document.UpperCrateriaEscapeRedFlash, UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.ColorFrames, colors);
         foreach (CrateriaEscapeLightningPaletteFxColorDefinition definition in
                  CrateriaEscapeLightningPaletteFxColorDefinitions.All)
         {
@@ -261,9 +261,9 @@ public static class RoomPaletteFxPresentationFile
                 _ => throw new InvalidDataException(
                     $"Unsupported Crateria escape lightning owner {definition.Owner}."),
             };
-            ValidateAndCompile($"Crateria escape {definition.Owner}", frames, definition.Rows, colors);
+            ValidateAndCompile($"Crateria escape {definition.Owner}", frames, definition.ColorFrames, colors);
         }
-        ValidateAndCompile("Crateria and Brinstar beacon flash", document.BeaconFlashing, BeaconPaletteFxColorDefinitions.Rows, colors);
+        ValidateAndCompile("Crateria and Brinstar beacon flash", document.BeaconFlashing, BeaconPaletteFxColorDefinitions.ColorFrames, colors);
 
         return RoomPaletteFxPresentation.Create(colors);
     }
@@ -285,11 +285,11 @@ public static class RoomPaletteFxPresentationFile
     private static void ValidateAndCompile(
         string owner,
         PaletteRgb5[][]? frames,
-        PaletteFxColorRows rows,
+        PaletteFxColorFrames colorFrames,
         Dictionary<PaletteFxColorKey, RgbColor> destination)
     {
-        int frameCount = rows.FrameCount;
-        int colorCount = rows.ColorsPerFrame;
+        int frameCount = colorFrames.FrameCount;
+        int colorCount = colorFrames.ColorsPerFrame;
         if (frames is null || frames.Length != frameCount)
         {
             throw new InvalidDataException(
@@ -318,7 +318,7 @@ public static class RoomPaletteFxPresentationFile
                 }
 
                 destination.Add(
-                    rows.Color(frame, index),
+                    colorFrames.Color(frame, index),
                     color.ToRgbColor());
             }
         }

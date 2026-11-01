@@ -53,10 +53,10 @@ internal static class PaletteDefinitionAudit
                         covered |= CheckColorMethod(row.GetType(), row, method, string.Empty, audit);
                     if (row is PaletteFxHeatProgramDefinition heat)
                     {
-                        for (int frame = 0; frame < heat.Rows.FrameCount; frame++)
-                        for (int color = 0; color < heat.Rows.ColorsPerFrame; color++)
+                        for (int frame = 0; frame < heat.ColorFrames.FrameCount; frame++)
+                        for (int color = 0; color < heat.ColorFrames.ColorsPerFrame; color++)
                             report.Require(ResourceDomains.PaletteFx, catalog.Name,
-                                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, PaletteFxRecordSources.ColorAddress(heat.Rows.Color(frame, color))), source, exports);
+                                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, PaletteFxRecordSources.ColorAddress(heat.ColorFrames.Color(frame, color))), source, exports);
                         covered = true;
                     }
                     if (row is TitleScreenAmbientPaletteFxColorDefinition ambient)

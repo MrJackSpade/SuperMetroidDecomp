@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// Each one-shot lasts 24 frames. All 38 control words match
 /// the original programs. For frame <c>i</c> and color <c>c</c>, the fade-out color
 /// equals fade-in color <c>(7 - i, c)</c> at all 24 positions. The eight
-/// color rows and their reverse form 48 presentation identities. The
+/// colour frames and their reverse form 48 presentation identities. The
 /// presentation view calculates rounded RGB5 interpolation from three required
 /// endpoints and preserves independent supplied edits. This catalog supplies
 /// control words; the text endpoints, cadence and palette selection are authored inputs.
@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class PlanetZebesTextPaletteFxColorDefinitions
 {
     /// <summary>Eight brightness records per fade.</summary>
-    public static int FrameCount => All[0].Rows.FrameCount;
+    public static int FrameCount => All[0].ColorFrames.FrameCount;
 
     /// <summary>Three text colors per record.</summary>
     public const int ColorsPerFrame = 3;
@@ -29,12 +29,12 @@ public static class PlanetZebesTextPaletteFxColorDefinitions
             new()
             {
                 Owner = PlanetZebesTextPaletteFxProgramOwner.FadeIn,
-                Rows = PaletteFxColorRows.Of(PaletteFxProgram.FadeInPlanetZebesText, ColorsPerFrame),
+                ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.FadeInPlanetZebesText, ColorsPerFrame),
             },
             new()
             {
                 Owner = PlanetZebesTextPaletteFxProgramOwner.FadeOut,
-                Rows = PaletteFxColorRows.Of(PaletteFxProgram.FadeOutPlanetZebesText, ColorsPerFrame),
+                ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.FadeOutPlanetZebesText, ColorsPerFrame),
             },
         ];
 

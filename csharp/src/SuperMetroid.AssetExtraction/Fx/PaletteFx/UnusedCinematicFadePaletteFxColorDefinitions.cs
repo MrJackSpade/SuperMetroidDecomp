@@ -27,5 +27,5 @@ public static class UnusedCinematicFadePaletteFxColorDefinitions
     public const int ColorsPerFrame = 16;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.ListD9D0, ColorsPerFrame);
+    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxProgram.ListD9D0, ColorsPerFrame);
 }

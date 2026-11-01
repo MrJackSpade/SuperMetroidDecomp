@@ -20,7 +20,7 @@ internal static class TitleLogoFadePaletteFxColorDefinitionsConstants
         internal static ushort DefinitionPointer => TitleLogoFadePaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => TitleLogoFadePaletteFxColorDefinitions.Rows.Color(frame, color);
+    public static PaletteFxColorKey Color(int frame, int color) => TitleLogoFadePaletteFxColorDefinitions.ColorFrames.Color(frame, color);
     /// <summary>The one-shot fade contains eight timed records.</summary>
-    public static int FrameCount => TitleLogoFadePaletteFxColorDefinitions.Rows.FrameCount;
+    public static int FrameCount => TitleLogoFadePaletteFxColorDefinitions.ColorFrames.FrameCount;
 }

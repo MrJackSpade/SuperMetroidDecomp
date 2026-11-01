@@ -20,7 +20,7 @@ internal static class UnusedCinematicFadePaletteFxColorDefinitionsConstants
         internal static ushort DefinitionPointer => UnusedCinematicFadePaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => UnusedCinematicFadePaletteFxColorDefinitions.Rows.Color(frame, color);
+    public static PaletteFxColorKey Color(int frame, int color) => UnusedCinematicFadePaletteFxColorDefinitions.ColorFrames.Color(frame, color);
     /// <summary>The one-shot fade contains eleven timed records.</summary>
-    public static int FrameCount => UnusedCinematicFadePaletteFxColorDefinitions.Rows.FrameCount;
+    public static int FrameCount => UnusedCinematicFadePaletteFxColorDefinitions.ColorFrames.FrameCount;
 }

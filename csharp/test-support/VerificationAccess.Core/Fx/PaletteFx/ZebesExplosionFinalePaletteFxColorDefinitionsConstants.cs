@@ -20,7 +20,7 @@ internal static class ZebesExplosionFinalePaletteFxColorDefinitionsConstants
         internal static ushort DefinitionPointer => ZebesExplosionFinalePaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => ZebesExplosionFinalePaletteFxColorDefinitions.Rows.Color(frame, color);
+    public static PaletteFxColorKey Color(int frame, int color) => ZebesExplosionFinalePaletteFxColorDefinitions.ColorFrames.Color(frame, color);
     /// <summary>The finale contains 45 timed records.</summary>
-    public static int FrameCount => ZebesExplosionFinalePaletteFxColorDefinitions.Rows.FrameCount;
+    public static int FrameCount => ZebesExplosionFinalePaletteFxColorDefinitions.ColorFrames.FrameCount;
 }

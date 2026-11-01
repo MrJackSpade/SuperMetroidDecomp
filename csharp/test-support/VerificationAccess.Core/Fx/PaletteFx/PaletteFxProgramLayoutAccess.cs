@@ -23,16 +23,16 @@ internal readonly record struct PaletteFxRecordView(ushort InstructionPointer, i
 /// </summary>
 internal static class PaletteFxProgramLayoutAccess
 {
-    /// <summary>The records of <paramref name="rows"/> as native views.</summary>
-    internal static IReadOnlyList<PaletteFxRecordView> Records(PaletteFxColorRows rows) =>
-        [.. Enumerable.Range(0, rows.FrameCount).Select(frame => new PaletteFxRecordView(
-            PaletteFxColorLayoutAccess.RecordAddress(rows.Frame(frame)), rows.ColorsPerFrame))];
+    /// <summary>The records of <paramref name="colorFrames"/> as native views.</summary>
+    internal static IReadOnlyList<PaletteFxRecordView> Records(PaletteFxColorFrames colorFrames) =>
+        [.. Enumerable.Range(0, colorFrames.FrameCount).Select(frame => new PaletteFxRecordView(
+            PaletteFxColorLayoutAccess.RecordAddress(colorFrames.Frame(frame)), colorFrames.ColorsPerFrame))];
 
     /// <summary>Heat programs' native records.</summary>
     extension(PaletteFxHeatProgramDefinition self)
     {
         /// <summary>The sixteen phase records.</summary>
-        internal IReadOnlyList<PaletteFxRecordView> Frames => Records(self.Rows);
+        internal IReadOnlyList<PaletteFxRecordView> Frames => Records(self.ColorFrames);
     }
 
     /// <summary>Heat program selection by address.</summary>
@@ -40,14 +40,14 @@ internal static class PaletteFxProgramLayoutAccess
     {
         /// <summary>The bank-$8D record <paramref name="suit"/>'s program shows at <paramref name="phase"/>.</summary>
         internal static ushort Resolve(PaletteFxHeatSuit suit, ushort phase) =>
-            PaletteFxColorLayoutAccess.RecordAddress(SuperMetroid.Core.Fx.Artwork.HeatPaletteColors.Rows(suit).Frame(phase));
+            PaletteFxColorLayoutAccess.RecordAddress(SuperMetroid.Core.Fx.Artwork.HeatPaletteColors.ColorFrames(suit).Frame(phase));
     }
 
     /// <summary>Crateria lightning's native list structure.</summary>
     extension(CrateriaLightningPaletteFxColorDefinition self)
     {
         /// <summary>The program's timed records.</summary>
-        internal IReadOnlyList<PaletteFxRecordView> Frames => Records(self.Rows);
+        internal IReadOnlyList<PaletteFxRecordView> Frames => Records(self.ColorFrames);
 
         /// <summary>The list entry: <c>$8D:EB3B</c> for surface lightning, <c>$8D:EC6E</c> for dark lightning.</summary>
         internal ushort ProgramStart => self.Owner == CrateriaLightningPaletteOwner.SurfaceLightning ? (ushort)0xeb3b : (ushort)0xec6e;
@@ -135,22 +135,22 @@ internal static class CeresCinematicLightPaletteFxColorDefinitionsLayoutAccess
 
         /// <summary>The bank-$8D address of gunship engine record <paramref name="frame"/>.</summary>
         internal static ushort GunshipEngineFramePointer(int frame) =>
-            PaletteFxColorLayoutAccess.RecordAddress(CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineRows.Frame(frame));
+            PaletteFxColorLayoutAccess.RecordAddress(CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineFrames.Frame(frame));
 
         /// <summary>The bank-$8D address of gunship engine colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
         internal static ushort GunshipEngineColorPointer(int frame, int color) =>
-            PaletteFxColorLayoutAccess.ColorAddress(CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineRows.Color(frame, color));
+            PaletteFxColorLayoutAccess.ColorAddress(CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineFrames.Color(frame, color));
 
         /// <summary>The bank-$8D address of the navigation lights' first record.</summary>
         internal static ushort NavigationLightsFirstFramePointer => NavigationLightsFramePointer(0);
 
         /// <summary>The bank-$8D address of navigation lights record <paramref name="frame"/>.</summary>
         internal static ushort NavigationLightsFramePointer(int frame) =>
-            PaletteFxColorLayoutAccess.RecordAddress(CeresCinematicLightPaletteFxColorDefinitions.NavigationLightsRows.Frame(frame));
+            PaletteFxColorLayoutAccess.RecordAddress(CeresCinematicLightPaletteFxColorDefinitions.NavigationLightsFrames.Frame(frame));
 
         /// <summary>The bank-$8D address of navigation lights colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
         internal static ushort NavigationLightsColorPointer(int frame, int color) =>
-            PaletteFxColorLayoutAccess.ColorAddress(CeresCinematicLightPaletteFxColorDefinitions.NavigationLightsRows.Color(frame, color));
+            PaletteFxColorLayoutAccess.ColorAddress(CeresCinematicLightPaletteFxColorDefinitions.NavigationLightsFrames.Color(frame, color));
     }
 }
 

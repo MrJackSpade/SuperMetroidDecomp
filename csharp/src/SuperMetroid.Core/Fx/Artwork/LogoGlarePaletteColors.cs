@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// white followed by the mirrored return. For frame0..13, t is frame+1 up to6
 /// and13-frame thereafter. Each channel is floor((base*(7-t)+31*t)/7).
 /// All224 original words independently confirm this interpolation. The final
-/// row remains supplied base artwork. Its fifteen opaque words equal the original
+/// frame remains supplied base artwork. Its fifteen opaque words equal the original
 /// logo palette: selected yellow, blue and orange drawing inks, whose
 /// numerical recitation would only disguise the artwork. Slot0 instead holds an unused word;
 /// sprite colour 0 is transparent before lookup, so this source payload has no
@@ -15,12 +15,12 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// exception; no intermediate animation color is included in that disposition.</summary>
 internal static class LogoGlarePaletteColors
 {
-    /// <summary>Calculate only intermediate colors from the final supplied row.
-    /// The caller resolves explicit per-frame edits first. No generated row is cached.</summary>
+    /// <summary>Calculate only intermediate colors from the final supplied frame.
+    /// The caller resolves explicit per-frame edits first. No generated colour set is cached.</summary>
     internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
         value = RgbColor.Black;
-        if (!PostCreditsIconGlarePaletteFxColorDefinitions.Rows.TryLocate(key, out int frame, out int color) || frame == 13 ||
+        if (!PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames.TryLocate(key, out int frame, out int color) || frame == 13 ||
             !colors.TryGetValue(PostCreditsIconGlarePaletteFxColorDefinitions.Color(13, color), out RgbColor basis))
             return false;
         int t = frame < 7 ? frame + 1 : 13 - frame;

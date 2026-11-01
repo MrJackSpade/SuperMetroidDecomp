@@ -16,5 +16,5 @@ internal static class BrinstarBlueSporePaletteFxColorDefinitionsConstants
         internal static int CycleFrames => BrinstarBlueSporePaletteFxColorDefinitionsConstants.CycleFrames;
     }
     /// <summary>Fourteen ten-frame records form one complete spore-color cycle.</summary>
-    public static int FrameCount => BrinstarBlueSporePaletteFxColorDefinitions.All[0].Rows.FrameCount;
+    public static int FrameCount => BrinstarBlueSporePaletteFxColorDefinitions.All[0].ColorFrames.FrameCount;
 }

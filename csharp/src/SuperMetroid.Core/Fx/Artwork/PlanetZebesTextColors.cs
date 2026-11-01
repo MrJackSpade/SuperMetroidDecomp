@@ -11,7 +11,7 @@ internal static class PlanetZebesTextColors
     {
         foreach (var program in PlanetZebesTextPaletteFxColorDefinitions.All)
         {
-            if (program.Rows.TryLocate(key, out frame, out color))
+            if (program.ColorFrames.TryLocate(key, out frame, out color))
             {
                 owner = program.Owner;
                 return true;
@@ -21,7 +21,7 @@ internal static class PlanetZebesTextColors
         return false;
     }
 
-    /// <summary>The fade-in's last row: REQUIRED selected bright text endpoints. No color or intensity exception is claimed.</summary>
+    /// <summary>The fade-in's last frame: REQUIRED selected bright text endpoints. No color or intensity exception is claimed.</summary>
     internal static PaletteFxColorKey Endpoint(int color) => PlanetZebesTextPaletteFxColorDefinitions.All[0]
         .Color(PlanetZebesTextPaletteFxColorDefinitions.FrameCount - 1, color);
 

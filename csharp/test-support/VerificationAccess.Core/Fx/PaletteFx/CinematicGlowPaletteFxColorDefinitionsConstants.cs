@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 internal static class CinematicGlowPaletteFxColorDefinitionsConstants
 {
     /// <summary>Both glow loops contain fourteen timed records.</summary>
-    public static int FrameCount => CinematicGlowPaletteFxColorDefinitions.All[0].Rows.FrameCount;
+    public static int FrameCount => CinematicGlowPaletteFxColorDefinitions.All[0].ColorFrames.FrameCount;
 }

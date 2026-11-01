@@ -14,5 +14,5 @@ internal static class SamusLoadingSuitPaletteFxColorDefinitionsConstants
         internal static int CycleFrames => SamusLoadingSuitPaletteFxColorDefinitionsConstants.CycleFrames;
     }
     /// <summary>Each complete program contains eight counted records and one final record.</summary>
-    public static int FrameCount => SamusLoadingSuitPaletteFxColorDefinitions.All[0].Rows.FrameCount;
+    public static int FrameCount => SamusLoadingSuitPaletteFxColorDefinitions.All[0].ColorFrames.FrameCount;
 }

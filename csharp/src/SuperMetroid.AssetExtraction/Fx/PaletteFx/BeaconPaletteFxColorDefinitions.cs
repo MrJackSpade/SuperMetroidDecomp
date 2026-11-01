@@ -23,5 +23,5 @@ public static class BeaconPaletteFxColorDefinitions
     public const int ColorsPerFrame = 4;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.Crateria80Brinstar41, ColorsPerFrame);
+    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxProgram.Crateria80Brinstar41, ColorsPerFrame);
 }

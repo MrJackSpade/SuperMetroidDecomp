@@ -37,7 +37,7 @@ internal static class ZebesExplosionForegroundPaletteFxColorDefinitionsConstants
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = (ZebesExplosionForegroundPaletteFxColorDefinitions.ColorsPerFrame + 2) * sizeof(ushort);
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => ZebesExplosionForegroundPaletteFxColorDefinitions.Rows.Color(frame, color);
+    public static PaletteFxColorKey Color(int frame, int color) => ZebesExplosionForegroundPaletteFxColorDefinitions.ColorFrames.Color(frame, color);
     /// <summary>The one-shot foreground explosion contains sixteen timed records.</summary>
-    public static int FrameCount => ZebesExplosionForegroundPaletteFxColorDefinitions.Rows.FrameCount;
+    public static int FrameCount => ZebesExplosionForegroundPaletteFxColorDefinitions.ColorFrames.FrameCount;
 }

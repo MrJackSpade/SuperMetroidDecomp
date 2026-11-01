@@ -19,9 +19,9 @@ internal static class RoomPaletteFxPresentationExtractor
         RoomPaletteFxPresentationFile.Write(json, new RoomPaletteFxPresentationDocument
         {
             Version = RoomPaletteFxPresentationFormat.Version,
-            SamusHeatPowerSuit = ExtractFrames(HeatPaletteColors.Rows(PaletteFxHeatSuit.Power)),
-            SamusHeatVariaSuit = ExtractFrames(HeatPaletteColors.Rows(PaletteFxHeatSuit.Varia)),
-            SamusHeatGravitySuit = ExtractFrames(HeatPaletteColors.Rows(PaletteFxHeatSuit.Gravity)),
+            SamusHeatPowerSuit = ExtractFrames(HeatPaletteColors.ColorFrames(PaletteFxHeatSuit.Power)),
+            SamusHeatVariaSuit = ExtractFrames(HeatPaletteColors.ColorFrames(PaletteFxHeatSuit.Varia)),
+            SamusHeatGravitySuit = ExtractFrames(HeatPaletteColors.ColorFrames(PaletteFxHeatSuit.Gravity)),
             NorfairForegroundAndHeatPhase = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase)),
             NorfairForegroundPalette4 = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.ForegroundPalette4)),
             NorfairForegroundPalette5 = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.ForegroundPalette5)),
@@ -29,72 +29,72 @@ internal static class RoomPaletteFxPresentationExtractor
             MaridiaSandPits = ExtractFrames(Maridia(MaridiaEnvironmentalPaletteOwner.SandPits)),
             MaridiaSandFalls = ExtractFrames(Maridia(MaridiaEnvironmentalPaletteOwner.SandFalls)),
             MaridiaBackgroundWaterfalls = ExtractFrames(Maridia(MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls)),
-            WreckedShipGreenLights = ExtractFrames(WreckedShipGreenLightPaletteFxColorDefinitions.Rows),
-            RedBrinstarBackgroundGlow = ExtractFrames(RedBrinstarGlowPaletteFxColorDefinitions.Rows),
-            TourianGlow = ExtractFrames(TourianGlowPaletteFxColorDefinitions.Rows),
-            BrinstarBlueSpores = ExtractFrames(BrinstarBlueSporePaletteFxColorDefinitions.All[0].Rows),
-            BombTorizoBelly = ExtractFrames(TorizoBellyPaletteFxColorDefinitions.All.Single(item => item.Owner == TorizoBellyPaletteOwner.BombTorizo).Rows),
-            GoldenTorizoBelly = ExtractFrames(TorizoBellyPaletteFxColorDefinitions.All.Single(item => item.Owner == TorizoBellyPaletteOwner.GoldenTorizo).Rows),
-            TourianStatueGrey = ExtractFrames(TourianStatueGreyPaletteFxColorDefinitions.Rows),
+            WreckedShipGreenLights = ExtractFrames(WreckedShipGreenLightPaletteFxColorDefinitions.ColorFrames),
+            RedBrinstarBackgroundGlow = ExtractFrames(RedBrinstarGlowPaletteFxColorDefinitions.ColorFrames),
+            TourianGlow = ExtractFrames(TourianGlowPaletteFxColorDefinitions.ColorFrames),
+            BrinstarBlueSpores = ExtractFrames(BrinstarBlueSporePaletteFxColorDefinitions.All[0].ColorFrames),
+            BombTorizoBelly = ExtractFrames(TorizoBellyPaletteFxColorDefinitions.All.Single(item => item.Owner == TorizoBellyPaletteOwner.BombTorizo).ColorFrames),
+            GoldenTorizoBelly = ExtractFrames(TorizoBellyPaletteFxColorDefinitions.All.Single(item => item.Owner == TorizoBellyPaletteOwner.GoldenTorizo).ColorFrames),
+            TourianStatueGrey = ExtractFrames(TourianStatueGreyPaletteFxColorDefinitions.ColorFrames),
             CrateriaSurfaceLightning = ExtractFrames(CrateriaLightningPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == CrateriaLightningPaletteOwner.SurfaceLightning).Rows),
+                item => item.Owner == CrateriaLightningPaletteOwner.SurfaceLightning).ColorFrames),
             CrateriaUnusedDarkLightning = ExtractFrames(CrateriaLightningPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == CrateriaLightningPaletteOwner.UnusedDarkLightning).Rows),
-            CeresGunshipEngineLights = ExtractFrames(CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineRows),
-            CeresNavigationLights = ExtractFrames(CeresCinematicLightPaletteFxColorDefinitions.NavigationLightsRows),
+                item => item.Owner == CrateriaLightningPaletteOwner.UnusedDarkLightning).ColorFrames),
+            CeresGunshipEngineLights = ExtractFrames(CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineFrames),
+            CeresNavigationLights = ExtractFrames(CeresCinematicLightPaletteFxColorDefinitions.NavigationLightsFrames),
             PlanetZebesTextFadeIn = ExtractFrames(PlanetZebesTextPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == PlanetZebesTextPaletteFxProgramOwner.FadeIn).Rows),
+                item => item.Owner == PlanetZebesTextPaletteFxProgramOwner.FadeIn).ColorFrames),
             PlanetZebesTextFadeOut = ExtractFrames(PlanetZebesTextPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == PlanetZebesTextPaletteFxProgramOwner.FadeOut).Rows),
+                item => item.Owner == PlanetZebesTextPaletteFxProgramOwner.FadeOut).ColorFrames),
             OldMotherBrainBackgroundLights = ExtractFrames(CinematicGlowPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights).Rows),
+                item => item.Owner == CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights).ColorFrames),
             CinematicGunshipGlow = ExtractFrames(CinematicGlowPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == CinematicGlowPaletteFxProgramOwner.GunshipGlow).Rows),
-            ExplodingZebesFade = ExtractFrames(ExplodingZebesFadePaletteFxColorDefinitions.Rows),
-            UnusedCinematicFade = ExtractFrames(UnusedCinematicFadePaletteFxColorDefinitions.Rows),
-            TitleLogoFade = ExtractFrames(TitleLogoFadePaletteFxColorDefinitions.Rows),
-            NintendoSharedFade = ExtractFrames(NintendoLogoFadePaletteFxColorDefinitions.Rows),
-            ZebesExplosionForeground = ExtractFrames(ZebesExplosionForegroundPaletteFxColorDefinitions.Rows),
-            ZebesExplosionFinale = ExtractFrames(ZebesExplosionFinalePaletteFxColorDefinitions.Rows),
-            ZebesExplosionWhiteout = ExtractFrames(ZebesExplosionWhiteoutPaletteFxColorDefinitions.Rows),
+                item => item.Owner == CinematicGlowPaletteFxProgramOwner.GunshipGlow).ColorFrames),
+            ExplodingZebesFade = ExtractFrames(ExplodingZebesFadePaletteFxColorDefinitions.ColorFrames),
+            UnusedCinematicFade = ExtractFrames(UnusedCinematicFadePaletteFxColorDefinitions.ColorFrames),
+            TitleLogoFade = ExtractFrames(TitleLogoFadePaletteFxColorDefinitions.ColorFrames),
+            NintendoSharedFade = ExtractFrames(NintendoLogoFadePaletteFxColorDefinitions.ColorFrames),
+            ZebesExplosionForeground = ExtractFrames(ZebesExplosionForegroundPaletteFxColorDefinitions.ColorFrames),
+            ZebesExplosionFinale = ExtractFrames(ZebesExplosionFinalePaletteFxColorDefinitions.ColorFrames),
+            ZebesExplosionWhiteout = ExtractFrames(ZebesExplosionWhiteoutPaletteFxColorDefinitions.ColorFrames),
             ZebesExplosionAfterglow = ExtractFrames(ZebesExplosionAmbientPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow).Rows),
+                item => item.Owner == ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow).ColorFrames),
             ZebesExplosionLava = ExtractFrames(ZebesExplosionAmbientPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == ZebesExplosionAmbientPaletteFxProgramOwner.Lava).Rows),
+                item => item.Owner == ZebesExplosionAmbientPaletteFxProgramOwner.Lava).ColorFrames),
             ZebesExplosionCrust = ExtractFrames(ZebesExplosionLayerFadePaletteFxColorDefinitions.All.Single(
-                item => item.Owner == ZebesExplosionLayerFadePaletteFxProgramOwner.Crust).Rows),
+                item => item.Owner == ZebesExplosionLayerFadePaletteFxProgramOwner.Crust).ColorFrames),
             ZebesExplosionGreyClouds = ExtractFrames(ZebesExplosionLayerFadePaletteFxColorDefinitions.All.Single(
-                item => item.Owner == ZebesExplosionLayerFadePaletteFxProgramOwner.GreyClouds).Rows),
-            ZebesExplosionGunship = ExtractFrames(ZebesExplosionGunshipPaletteFxColorDefinitions.Rows),
-            SamusLoadingPowerSuit = ExtractFrames(LoadingPaletteColors.Rows(PaletteFxHeatSuit.Power)),
-            SamusLoadingVariaSuit = ExtractFrames(LoadingPaletteColors.Rows(PaletteFxHeatSuit.Varia)),
-            SamusLoadingGravitySuit = ExtractFrames(LoadingPaletteColors.Rows(PaletteFxHeatSuit.Gravity)),
-            PostCreditsIconGlare = ExtractFrames(PostCreditsIconGlarePaletteFxColorDefinitions.Rows),
+                item => item.Owner == ZebesExplosionLayerFadePaletteFxProgramOwner.GreyClouds).ColorFrames),
+            ZebesExplosionGunship = ExtractFrames(ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames),
+            SamusLoadingPowerSuit = ExtractFrames(LoadingPaletteColors.ColorFrames(PaletteFxHeatSuit.Power)),
+            SamusLoadingVariaSuit = ExtractFrames(LoadingPaletteColors.ColorFrames(PaletteFxHeatSuit.Varia)),
+            SamusLoadingGravitySuit = ExtractFrames(LoadingPaletteColors.ColorFrames(PaletteFxHeatSuit.Gravity)),
+            PostCreditsIconGlare = ExtractFrames(PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames),
             TourianEscapeShutter = ExtractFrames(TourianEscapeRedFlashPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == TourianEscapeRedFlashPaletteOwner.Shutter).Rows),
+                item => item.Owner == TourianEscapeRedFlashPaletteOwner.Shutter).ColorFrames),
             TourianEscapeBackground = ExtractFrames(TourianEscapeRedFlashPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == TourianEscapeRedFlashPaletteOwner.Background).Rows),
-            TourianEscapeSharedRedFlash = ExtractFrames(TourianEscapeSharedRedFlashPaletteFxColorDefinitions.Rows),
-            OldTourianEscapeRedFlash = ExtractFrames(OldTourianEscapeRedFlashPaletteFxColorDefinitions.Rows),
+                item => item.Owner == TourianEscapeRedFlashPaletteOwner.Background).ColorFrames),
+            TourianEscapeSharedRedFlash = ExtractFrames(TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ColorFrames),
+            OldTourianEscapeRedFlash = ExtractFrames(OldTourianEscapeRedFlashPaletteFxColorDefinitions.ColorFrames),
             OldTourianEscapeOrangeRailings = ExtractFrames(OldTourianEscapeAccentPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == OldTourianEscapeAccentPaletteOwner.OrangeRailings).Rows),
+                item => item.Owner == OldTourianEscapeAccentPaletteOwner.OrangeRailings).ColorFrames),
             OldTourianEscapeYellowPanels = ExtractFrames(OldTourianEscapeAccentPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == OldTourianEscapeAccentPaletteOwner.YellowPanels).Rows),
-            UpperCrateriaEscapeRedFlash = ExtractFrames(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.Rows),
+                item => item.Owner == OldTourianEscapeAccentPaletteOwner.YellowPanels).ColorFrames),
+            UpperCrateriaEscapeRedFlash = ExtractFrames(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.ColorFrames),
             CrateriaEscapeYellowLightning = ExtractFrames(CrateriaEscapeLightningPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == CrateriaEscapeLightningPaletteOwner.YellowLightning).Rows),
+                item => item.Owner == CrateriaEscapeLightningPaletteOwner.YellowLightning).ColorFrames),
             CrateriaEscapeCreBlockPixel = ExtractFrames(CrateriaEscapeLightningPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == CrateriaEscapeLightningPaletteOwner.CreBlockPixel).Rows),
-            BeaconFlashing = ExtractFrames(BeaconPaletteFxColorDefinitions.Rows),
+                item => item.Owner == CrateriaEscapeLightningPaletteOwner.CreBlockPixel).ColorFrames),
+            BeaconFlashing = ExtractFrames(BeaconPaletteFxColorDefinitions.ColorFrames),
         });
         return json.ToArray();
 
-        static PaletteFxColorRows Norfair(NorfairEnvironmentalPaletteOwner owner) =>
-            NorfairEnvironmentalPaletteFxColorDefinitions.All.Single(item => item.Owner == owner).Rows;
+        static PaletteFxColorFrames Norfair(NorfairEnvironmentalPaletteOwner owner) =>
+            NorfairEnvironmentalPaletteFxColorDefinitions.All.Single(item => item.Owner == owner).ColorFrames;
 
-        static PaletteFxColorRows Maridia(MaridiaEnvironmentalPaletteOwner owner) =>
-            MaridiaEnvironmentalPaletteFxColorDefinitions.All.Single(item => item.Owner == owner).Rows;
+        static PaletteFxColorFrames Maridia(MaridiaEnvironmentalPaletteOwner owner) =>
+            MaridiaEnvironmentalPaletteFxColorDefinitions.All.Single(item => item.Owner == owner).ColorFrames;
 
-        PaletteRgb5[][] ExtractFrames(PaletteFxColorRows rows) => PaletteFxColorExtraction.ReadFrames(bus, rows);
+        PaletteRgb5[][] ExtractFrames(PaletteFxColorFrames colorFrames) => PaletteFxColorExtraction.ReadFrames(bus, colorFrames);
     }
 }

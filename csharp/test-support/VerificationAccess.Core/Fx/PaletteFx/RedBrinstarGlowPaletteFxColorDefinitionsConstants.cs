@@ -20,7 +20,7 @@ internal static class RedBrinstarGlowPaletteFxColorDefinitionsConstants
         internal static ushort DefinitionPointer => RedBrinstarGlowPaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => RedBrinstarGlowPaletteFxColorDefinitions.Rows.Color(frame, color);
+    public static PaletteFxColorKey Color(int frame, int color) => RedBrinstarGlowPaletteFxColorDefinitions.ColorFrames.Color(frame, color);
     /// <summary>Fourteen ten-frame records form one complete glow cycle.</summary>
-    public static int FrameCount => RedBrinstarGlowPaletteFxColorDefinitions.Rows.FrameCount;
+    public static int FrameCount => RedBrinstarGlowPaletteFxColorDefinitions.ColorFrames.FrameCount;
 }

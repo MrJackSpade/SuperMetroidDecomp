@@ -23,7 +23,11 @@ internal static class SpriteSheetFilesVerification
     {
         VerifySpriteSheetRecomposition(bus);
         // A private installation copy, whose sprite-sheet override is written and whose stock image is damaged below.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        // Loading names the body, pause, intro and ending sheets from the body tables, map presentation, intro and
+        // ending compositions installed beside the sheets, so those directories are copied with them.
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.SpriteSheetDirectory,
+            layout => layout.SamusBodyDirectory, layout => layout.MapDirectory,
+            layout => layout.IntroCinematicDirectory, layout => layout.EndingObjectDirectory);
         string stock = copy.Installation.SpriteSheetDirectory;
         string overrides = copy.Installation.SpriteSheetOverrideDirectory;
         InstalledSpriteSheets installed = SpriteSheetFiles.Load(stock, null);

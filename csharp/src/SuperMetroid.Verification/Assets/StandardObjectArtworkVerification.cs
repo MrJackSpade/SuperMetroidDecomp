@@ -7,6 +7,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
@@ -35,7 +36,7 @@ internal static class StandardObjectArtworkVerification
     internal static void VerifyStandardObjectArtwork(string sourceRom)
     {
         // A private installation copy, whose standard OBJ override is written and whose stock sheet is damaged below.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.StandardObjectDirectory);
         string stock = copy.Installation.StandardObjectDirectory;
         string overrides = copy.Installation.StandardObjectOverrideDirectory;
         var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
@@ -72,8 +73,7 @@ internal static class StandardObjectArtworkVerification
         editedRuntime.HudSetup.ShowStandardObjectCharacters();
         AssertTrue(ShownStandardObjects(editedRuntime, edited).SequenceEqual(edited.Characters.Span),
             "edited OBJ tile is what gameplay setup selects over the OBJ characters");
-        // The shared installation's stock sheet stands for a stock sheet the installer extracted again.
-        AssertTrue(StandardObjectArtworkFiles.Load(RepositoryInstallation.Installation.StandardObjectDirectory, overrides).Characters.Span
+        AssertTrue(ReExtractStandardObjectStock(native, Path.Combine(copy.Root, "refreshed-stock"), overrides).Characters.Span
             .SequenceEqual(edited.Characters.Span),
             "stock re-extraction preserves the selected external OBJ override");
 
@@ -88,6 +88,14 @@ internal static class StandardObjectArtworkVerification
         AssertThrows<InvalidDataException>(() => StandardObjectArtworkFiles.Load(stock, overrides),
             "damaged stock OBJ provenance fails loudly");
         Console.WriteLine("Standard OBJ art: all $2E00 native bytes, guarded setup selection, visible PNG edit, invalid override and stock provenance pass.");
+    }
+
+    /// <summary>Extracts the stock standard OBJ sheet from the cartridge into <paramref name="refreshed"/> and loads it under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs StandardObjectArtworkFiles.Extract into a fresh stock directory beside the copy's standard OBJ override, to check that a stock re-extraction keeps the edited indexed PNG's OBJ characters selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static RoomCharacterAtlas ReExtractStandardObjectStock(ISnesAddressSpace native, string refreshed, string overrides)
+    {
+        StandardObjectArtworkFiles.Extract(native, refreshed, SupportedCartridge.Sha256);
+        return StandardObjectArtworkFiles.Load(refreshed, overrides);
     }
 
     /// <summary>Runs the standard object-artwork check against the repository's retail ROM.</summary>

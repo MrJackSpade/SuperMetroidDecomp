@@ -530,7 +530,7 @@ public sealed class PlayableGameControl : UserControl
             input = forcedInput ?? BuildControllerWord();
             inputRecorder?.RecordFrame(input);
         }
-        string beforeFrameContext = game.CaptureGameplayFailureContext();
+        GameplaySnapshot beforeFrame = game.CaptureGameplaySnapshot();
         var previousGameState = game.GameState;
         try
         {
@@ -590,7 +590,7 @@ public sealed class PlayableGameControl : UserControl
             }
 
             string frameDiagnostics = GameplayFrameFailureDiagnostics.Format(
-                beforeFrameContext, game.CaptureGameplayFailureContext(), input,
+                beforeFrame, game.CaptureGameplaySnapshot(), input,
                 replay is not null ? "in-memory replay (path unavailable)" : inputRecorder?.Path,
                 replay is not null ? replayFrameIndex - 1 : inputRecorder?.FrameCount - 1);
             // Printed before either fatal rethrow or recoverable reporting. The session

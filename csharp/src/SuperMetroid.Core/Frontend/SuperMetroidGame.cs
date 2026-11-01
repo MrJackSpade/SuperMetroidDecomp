@@ -467,22 +467,37 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>
-    /// Copies diagnostic state without reading game data or invoking gameplay.
-    /// Hosts capture this before a frame and again on failure to expose partial mutations.
+    /// Copies where the game is and what Samus is doing, without running the game. A host takes one before an update
+    /// and another when the update fails, so its report shows how far the failed update got.
     /// </summary>
-    public string CaptureGameplayFailureContext()
+    public GameplaySnapshot CaptureGameplaySnapshot() => new()
     {
-        string location = $"frame=${FrameNumber:X4}; state={Session.GameState}; " +
-            $"room={GameplayActiveRoom?.Name}; roomState={GameplayActiveRoomState?.Name}; door={GameplayActiveDoor?.Name}";
-        if (Session.Runtime?.Player.Samus is not { } samus)
-            return location + "; Samus=not initialized";
-        return location + $"; pose={samus.Pose}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer.RemainingFrames}; " +
-            $"animatedPose={samus.AnimatedPose}; position={samus.Position.X.Whole},{samus.Position.Y.Whole}; " +
-            $"input=${Session.Runtime.Controller1.Current:X}; newlyPressed=${Session.Runtime.Controller1.NewlyPressed:X}; inputLocked={samus.Control.AlphaLocked}; " +
-            $"drainedPhase={samus.Drained.Phase}; drainedHandler={samus.Drained.GetUpHandler}; " +
-            $"escapeTimer={Session.Runtime.EscapeTimer.Phase}; fx={samus.LiquidPhysics.FxType}; medium={samus.LiquidPhysics.LiquidPhysicsType}; " +
-            $"waterY=${samus.LiquidPhysics.FxYPosition:X4}; acidY=${samus.LiquidPhysics.LavaAcidYPosition:X4}";
-    }
+        FrameNumber = FrameNumber,
+        GameState = Session.GameState,
+        Room = GameplayActiveRoom?.Name,
+        RoomState = GameplayActiveRoomState?.Name,
+        Door = GameplayActiveDoor?.Name,
+        Samus = Session.Runtime is { Player.Samus: { } samus } runtime
+            ? new SamusSnapshot
+            {
+                Pose = samus.Pose,
+                AnimationFrame = samus.AnimationFrame,
+                AnimationFramesRemaining = samus.AnimationFrameTimer.RemainingFrames,
+                AnimatedPose = samus.AnimatedPose,
+                Position = samus.Position.Whole,
+                HeldButtons = runtime.Controller1.Current,
+                NewlyPressedButtons = runtime.Controller1.NewlyPressed,
+                InputLocked = samus.Control.AlphaLocked,
+                DrainedPhase = samus.Drained.Phase,
+                DrainedGetUp = samus.Drained.GetUpHandler,
+                EscapeTimer = runtime.EscapeTimer.Phase,
+                Fx = samus.LiquidPhysics.FxType,
+                Medium = samus.LiquidPhysics.LiquidPhysicsType,
+                WaterSurfaceY = samus.LiquidPhysics.FxYPosition,
+                LavaAcidSurfaceY = samus.LiquidPhysics.LavaAcidYPosition,
+            }
+            : null,
+    };
 
     /// <summary>
     /// Rebinds host policy after an interactive debugger-state load. Game state,

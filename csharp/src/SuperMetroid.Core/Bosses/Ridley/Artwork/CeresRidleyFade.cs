@@ -17,11 +17,7 @@ internal sealed class CeresRidleyFade
     internal readonly record struct EyePaint(int RedStep, int HighlightGreen, int MiddleGreen, int ShadowGreen)
     {
         /// <summary>Highest five-bit color channel value used to derive the eye reds.</summary>
-        private const int MaximumRgb5 = (1 << 5) - 1;
-
-        /// <summary>Extracts the selected red step and three green levels from the eye endpoint shade.</summary>
-        internal static EyePaint From(ReadOnlySpan<RgbColor> colors) => new(MaximumRgb5 - colors[1].Red, colors[0].Green,
-            colors[1].Green, colors[2].Green);
+        internal const int MaximumRgb5 = (1 << 5) - 1;
 
         /// <summary>Calculates one of the three warm eye shades from the selected material inputs.</summary>
         internal RgbColor Color(int shade)
@@ -32,7 +28,7 @@ internal sealed class CeresRidleyFade
         }
     }
     /// <summary>Imported colors that differ from the common quantized fade formula.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> overrides = new();
+    internal readonly Dictionary<ColourCell, RgbColor> overrides;
     /// <summary>Number of colors in a shade of the selected fade table.</summary>
     private int Colors => kind == CeresRidleyFadeKind.Eyes
         ? CeresRidleyPaletteDefinitions.EyeFadeColorCount : CeresRidleyPaletteDefinitions.BodyFadeColorCount;
@@ -40,16 +36,18 @@ internal sealed class CeresRidleyFade
     private int Shades => kind == CeresRidleyFadeKind.Eyes
         ? CeresRidleyPaletteDefinitions.EyeFadeShadeCount : CeresRidleyPaletteDefinitions.BodyFadeShadeCount;
 
-    /// <summary>Retains selected endpoint paints and exceptions to the shared fade formula.</summary>
-    internal CeresRidleyFade(CeresRidleyFadeKind kind, RgbColor[][] shades)
+    /// <summary>Retains the selected endpoint paint and the exceptions to the shared fade formula.</summary>
+    /// <param name="kind">Whether this is the eye or the body fade.</param>
+    /// <param name="eyePaint">The eye endpoint paint; read only by an eye fade.</param>
+    /// <param name="bodyPaint">The body endpoint paint of a body fade, or null for an eye fade.</param>
+    /// <param name="overrides">The supplied colors the import found differing from the fade formula.</param>
+    internal CeresRidleyFade(CeresRidleyFadeKind kind, EyePaint eyePaint, CeresRidleyBodyPaint? bodyPaint,
+        Dictionary<ColourCell, RgbColor> overrides)
     {
         this.kind = kind;
-        if (kind == CeresRidleyFadeKind.Eyes) eyePaint = EyePaint.From(shades[0]);
-        else bodyPaint = new(shades[Shades - 1]);
-        for (int shade = 0; shade < Shades; shade++)
-        for (int color = 0; color < Colors; color++)
-            if (shades[shade][color] != Calculate(shade, color))
-                overrides[new ColourCell(shade, color)] = shades[shade][color];
+        this.eyePaint = eyePaint;
+        this.bodyPaint = bodyPaint;
+        this.overrides = overrides;
     }
 
     /// <summary>Returns a supplied exception color when present, otherwise the calculated fade shade.</summary>

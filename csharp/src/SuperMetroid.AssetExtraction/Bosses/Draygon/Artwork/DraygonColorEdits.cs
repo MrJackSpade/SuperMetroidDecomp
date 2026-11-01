@@ -1,5 +1,5 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 
@@ -20,7 +20,7 @@ internal static class DraygonColorEdits
     private static DraygonIntroPaint Intro(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, 25);
-        return new(Material(colors[..16]), new CeresDoorEscapeSurfacePaint(colors[17..]),
+        return new(Material(colors[..16]), CeresDoorPaintRecognition.Surface(colors[17..]),
             colors[16] == DraygonMaterialPaint.ClearTarget ? (RgbColor?)null : colors[16]);
     }
 

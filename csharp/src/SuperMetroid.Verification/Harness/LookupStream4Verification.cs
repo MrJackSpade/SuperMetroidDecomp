@@ -53,6 +53,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -2423,7 +2424,7 @@ internal static class LookupStream4Verification
         for(int edit=-1;edit<45;edit++)
         {
             ushort[] selected=(ushort[])escape.Clone(); if(edit>=0)selected[edit/3]^=(ushort)(1<<(edit%3*5));
-            var paint=new CeresDoorEscapePaint(ToColors(selected));
+            var paint=CeresDoorPaintRecognition.Escape(ToColors(selected));
             for(int color=0;color<15;color++)AssertEqual(selected[color],paint.ColorAt(color),"Shared extraction preserves all escape channels and edits");
             for(int color=0;color<25;color++)AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a217+color*2)),stock.ResolveIntro(color),"Escape edits do not couple intro instance");
         }
@@ -2832,7 +2833,7 @@ internal static class LookupStream4Verification
             }
         }
         ushort[] normalWords = Read(0xa6f4ee, 15), escapeWords = Read(0xa6f50e, 15);
-        var normalStock = new CeresDoorNormalPaint(ToColors(normalWords));
+        var normalStock = CeresDoorPaintRecognition.Normal(ToColors(normalWords));
         NoEdits(normalStock.edits); NoEdits(normalStock.WarmTargets.edits);
         for (int edit = -1; edit < 90; edit++)
         {
@@ -2842,9 +2843,9 @@ internal static class LookupStream4Verification
                 int local = edit % 45;
                 (edit < 45 ? normal : escape)[local / 3] ^= (ushort)(1 << (local % 3 * 5));
             }
-            var normalProvider = new CeresDoorNormalPaint(ToColors(normal));
-            var dependentEscape = new CeresDoorEscapePaint(ToColors(escape), normalProvider);
-            var standaloneEscape = new CeresDoorEscapePaint(ToColors(escape));
+            var normalProvider = CeresDoorPaintRecognition.Normal(ToColors(normal));
+            var dependentEscape = CeresDoorPaintRecognition.Escape(ToColors(escape), normalProvider);
+            var standaloneEscape = CeresDoorPaintRecognition.Escape(ToColors(escape));
             for (int color = 0; color < 15; color++)
             {
                 AssertEqual(normal[color], normalProvider.ColorAt(color), "Normal shared extraction preserves independent edits");

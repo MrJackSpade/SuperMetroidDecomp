@@ -19,17 +19,17 @@ internal static class CeresRidleyColorSelectionBuilder
     internal static CeresRidleyColorSelection Select(CeresRidleySuppliedColors supplied, CeresRidleyColorCatalog? stock)
     {
         Ensure.NotNull(supplied);
-        var bodyFade = new CeresRidleyFade(CeresRidleyFadeKind.Body, supplied.BodyFade);
-        var eyeFade = new CeresRidleyFade(CeresRidleyFadeKind.Eyes, supplied.EyeFade);
-        CeresBabyPaint baby = supplied.Baby is null ? Ensure.NotNull(stock).selection.Baby : new CeresBabyPaint(supplied.Baby, bodyFade);
-        var start = new CeresRidleyStartColors(supplied.Start, baby);
+        CeresRidleyFade bodyFade = CeresRidleyPaintRecognition.Fade(CeresRidleyFadeKind.Body, supplied.BodyFade);
+        CeresRidleyFade eyeFade = CeresRidleyPaintRecognition.Fade(CeresRidleyFadeKind.Eyes, supplied.EyeFade);
+        CeresBabyPaint baby = supplied.Baby is null ? Ensure.NotNull(stock).selection.Baby : CeresRidleyPaintRecognition.Baby(supplied.Baby, bodyFade);
+        CeresRidleyStartColors start = CeresRidleyPaintRecognition.Start(supplied.Start, baby);
         return new CeresRidleyColorSelection
         {
             Start = start,
             EyeFade = eyeFade,
             BodyFade = bodyFade,
-            Health = new CeresRidleyHealthPaint(supplied.Health, bodyFade, eyeFade),
-            Alarm = supplied.Alarm is null ? Ensure.NotNull(stock).selection.Alarm : new CeresRidleyAlarmColors(supplied.Alarm),
+            Health = CeresRidleyPaintRecognition.Health(supplied.Health, bodyFade, eyeFade),
+            Alarm = supplied.Alarm is null ? Ensure.NotNull(stock).selection.Alarm : CeresRidleyPaintRecognition.Alarm(supplied.Alarm),
             RetreatBg = RetreatBgEdits(supplied.RetreatBg, bodyFade, eyeFade),
             RetreatShared = RetreatSharedEdits(supplied.RetreatShared, start),
             Baby = baby,

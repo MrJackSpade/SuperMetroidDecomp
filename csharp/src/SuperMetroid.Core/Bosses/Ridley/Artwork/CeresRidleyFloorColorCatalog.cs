@@ -8,8 +8,9 @@ public sealed class CeresRidleyFloorColorCatalog
     /// <summary>Immutable decoded shades indexed by getaway zoom step.</summary>
     internal readonly CeresRidleyFloorPaint steps;
 
-    /// <summary>Copies validated RGB5 steps into the fixed zoom-shade selector.</summary>
-    internal CeresRidleyFloorColorCatalog(RgbColor[][] steps) => this.steps = new(steps);
+    /// <summary>Keeps the recognized zoom-shade selector.</summary>
+    /// <param name="steps">The zoom shades the import recognized.</param>
+    internal CeresRidleyFloorColorCatalog(CeresRidleyFloorPaint steps) => this.steps = steps;
 
     /// <summary>Reproduces the getaway's fifteen-color zoom shade write to colours 81..95, preserving background palette 5 color zero and leaving zoom/rotation mechanics unchanged.</summary>
     /// <param name="colours">The colours to update.</param>

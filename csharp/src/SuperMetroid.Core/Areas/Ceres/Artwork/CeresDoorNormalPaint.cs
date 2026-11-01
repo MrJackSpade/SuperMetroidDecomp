@@ -20,31 +20,21 @@ internal sealed class CeresDoorNormalPaint
     /// <summary>Independent copied target paint for door slots nine through fourteen.</summary>
     internal CeresDoorWarmTargetPaint WarmTargets { get; }
     /// <summary>Selected categorical channel seeds keyed by palette slot and channel.</summary>
-    internal readonly Dictionary<CeresDoorPaintChannel, int> paint = [];
+    internal readonly Dictionary<CeresDoorPaintChannel, int> paint;
     /// <summary>Supplied colors that depart from the calculated normal-door composition.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
-    /// <summary>Separates chosen material paint channels from calculated and independently edited colors.</summary>
-    internal CeresDoorNormalPaint(ReadOnlySpan<RgbColor> colors)
+    /// <summary>Keeps the chosen material paint channels, the copied warm targets and the independently edited colors.</summary>
+    /// <param name="warmTargets">The copied warm target paint for slots nine through fourteen.</param>
+    /// <param name="paint">The categorical channel seeds by slot and channel.</param>
+    /// <param name="edits">The supplied colors the import found differing from the composition, keyed by one-based slot.</param>
+    internal CeresDoorNormalPaint(CeresDoorWarmTargetPaint warmTargets, Dictionary<CeresDoorPaintChannel, int> paint,
+        Dictionary<ColourCell, RgbColor> edits)
     {
-        Ensure.LengthEqual(colors, 15);
-        WarmTargets = new(colors.Slice(8, 6));
-        for (int slot = 1; slot <= colors.Length; slot++)
-            foreach (ColorChannel channel in Enum.GetValues<ColorChannel>())
-                if (StoresPaint(slot, channel))
-                    paint.Add(new CeresDoorPaintChannel(slot, channel), colors[slot - 1][channel]);
-        for (int slot = 1; slot <= colors.Length; slot++)
-            if (Calculate(slot) != colors[slot - 1]) edits.Add(new ColourCell(0, slot), colors[slot - 1]);
+        WarmTargets = warmTargets;
+        this.paint = paint;
+        this.edits = edits;
     }
-
-    /// <summary>Identifies channels whose values are authored seeds rather than derived hues.</summary>
-    private static bool StoresPaint(int slot, ColorChannel channel) => channel switch
-    {
-        ColorChannel.Red => false,
-        ColorChannel.Green => slot is 1 or 2 or 3 or 5 or 6 or 7,
-        ColorChannel.Blue => slot is 3 or 4 or 5 or 6 or 7 or 8 or 15,
-        _ => throw new ArgumentOutOfRangeException(nameof(channel), channel, "Undefined color channel."),
-    };
 
     /// <summary>Reads a stored material-paint channel for one door palette slot.</summary>
     private int Seed(int slot, ColorChannel channel) => paint[new CeresDoorPaintChannel(slot, channel)];

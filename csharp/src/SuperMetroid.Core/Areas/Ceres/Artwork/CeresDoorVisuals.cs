@@ -11,21 +11,16 @@ public sealed class CeresDoorVisuals
     internal readonly CeresDoorEscapePaint escape;
     /// <summary>Eight animation steps resolved against the normal palette.</summary>
     internal readonly CeresDoorAnimationPaint animation;
-    /// <summary>Retains validated visual data.</summary>
-    private CeresDoorVisuals(RgbColor[] normal, RgbColor[] escape, RgbColor[][] animation)
+    /// <summary>Retains the recognized door paints.</summary>
+    /// <param name="normal">The normal setup paint.</param>
+    /// <param name="escape">The escape setup paint, resolved against the normal paint.</param>
+    /// <param name="animation">The animation steps, resolved against the normal paint.</param>
+    internal CeresDoorVisuals(CeresDoorNormalPaint normal, CeresDoorEscapePaint escape, CeresDoorAnimationPaint animation)
     {
-        this.normal = new(normal);
-        this.escape = new(escape, this.normal);
-        this.animation = new(animation, this.normal);
+        this.normal = normal;
+        this.escape = escape;
+        this.animation = animation;
     }
-
-    /// <summary>Retains the door colours the installed visual document supplied.</summary>
-    /// <param name="normal">Fifteen normal setup colours.</param>
-    /// <param name="escape">Fifteen escape setup colours.</param>
-    /// <param name="animation">Eight steps of six animation colours.</param>
-    /// <returns>The compiled visual snapshot.</returns>
-    internal static CeresDoorVisuals Load(RgbColor[] normal, RgbColor[] escape, RgbColor[][] animation) =>
-        new(normal, escape, animation);
 
     /// <summary>Installs fifteen normal nontransparent inks: the completed setup-fade target.</summary>
     /// <param name="destination">The door's colours: an inactive door's, or the active door's.</param>

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 /// <summary>The Ceres Baby's installed colours: fifteen colours for each shade it glows with.</summary>
 internal sealed record CeresBabyShadeColours

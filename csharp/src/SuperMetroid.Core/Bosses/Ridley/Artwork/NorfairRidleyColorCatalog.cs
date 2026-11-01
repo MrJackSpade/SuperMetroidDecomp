@@ -11,9 +11,9 @@ public sealed class NorfairRidleyColorCatalog
     /// <summary>The selected initial colours and reveal steps.</summary>
     internal readonly NorfairRidleyColorSelection selection;
 
-    /// <summary>Copies validated initial and reveal RGB5 colors into independent paint selectors.</summary>
-    internal NorfairRidleyColorCatalog(RgbColor[] initial, RgbColor[][] reveal) =>
-        selection = new(new NorfairRidleyInitialPaint(initial), new NorfairRidleyRevealPaint(reveal));
+    /// <summary>Keeps the recognized initial and reveal paint selectors.</summary>
+    /// <param name="selection">The initial colours and reveal steps the import recognized.</param>
+    internal NorfairRidleyColorCatalog(NorfairRidleyColorSelection selection) => this.selection = selection;
 
     /// <summary>Installs the 32 initial RGB5 colors in colours 160..191 (sprite palettes 2 and 3), matching the copy; subsequent palette clearing is the caller's responsibility.</summary>
     /// <param name="colours">The colours to update.</param>

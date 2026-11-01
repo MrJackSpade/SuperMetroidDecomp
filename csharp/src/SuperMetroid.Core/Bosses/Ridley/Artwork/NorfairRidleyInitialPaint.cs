@@ -23,17 +23,20 @@ internal sealed class NorfairRidleyInitialPaint
     /// <summary>Copied blue channel shared by the two clear-slot source records.</summary>
     private readonly int clearBlue;
     /// <summary>Supplied clear-slot colors that differ from the copied metadata.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
-    /// <summary>Splits 32 supplied targets into two materials and preserves independent clear-slot edits.</summary>
-    internal NorfairRidleyInitialPaint(ReadOnlySpan<RgbColor> colors)
+    /// <summary>Keeps the two materials, the copied clear-slot blue and the independent clear-slot edits.</summary>
+    /// <param name="armor">The escape-door armor material of the first fifteen targets.</param>
+    /// <param name="organ">The Baby/container material of the second fifteen targets.</param>
+    /// <param name="clearBlue">The copied clear-slot blue.</param>
+    /// <param name="edits">The clear-slot colors the import found differing from the copied metadata.</param>
+    internal NorfairRidleyInitialPaint(CeresDoorEscapePaint armor, CeresBabyPaint organ, int clearBlue,
+        Dictionary<ColourCell, RgbColor> edits)
     {
-        Ensure.LengthEqual(colors, 32);
-        clearBlue = colors[0].Blue;
-        if (colors[0] != ClearSlot) edits.Add(new ColourCell(0, 0), colors[0]);
-        if (colors[16] != ClearSlot) edits.Add(new ColourCell(0, 16), colors[16]);
-        armor = new(colors.Slice(1, 15));
-        organ = new(colors.Slice(17, 15));
+        this.armor = armor;
+        this.organ = organ;
+        this.clearBlue = clearBlue;
+        this.edits = edits;
     }
 
     /// <summary>Reconstructs the clear-slot value from the source's copied blue channel.</summary>

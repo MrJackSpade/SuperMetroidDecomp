@@ -25,10 +25,6 @@ internal sealed class CeresRidleyBodyPaint
     /// <summary>Blue channel of the darkest membrane paint.</summary>
     private readonly int darkBlue;
 
-    /// <summary>Extracts the three membrane endpoints from an eleven-color body palette.</summary>
-    internal CeresRidleyBodyPaint(ReadOnlySpan<RgbColor> endpoint)
-        : this(EndpointColor(endpoint, 8), EndpointColor(endpoint, 9), EndpointColor(endpoint, 10)) { }
-
     /// <summary>Shared membrane material, also present in the Baby palette.</summary>
     internal CeresRidleyBodyPaint(RgbColor highlight, RgbColor middle, RgbColor dark)
     {
@@ -39,12 +35,6 @@ internal sealed class CeresRidleyBodyPaint
         darkBlue = dark.Blue;
     }
 
-    /// <summary>Rejects incomplete body palettes before selecting a membrane endpoint.</summary>
-    private static RgbColor EndpointColor(ReadOnlySpan<RgbColor> endpoint, int index)
-    {
-        if (endpoint.Length != 11) throw new ArgumentException("Ridley body endpoint requires eleven colors.", nameof(endpoint));
-        return endpoint[index];
-    }
     /// <summary>Uses Golden Torizo armor for inks zero through seven and the derived wing paints for eight through ten.</summary>
     internal RgbColor Color(int color)
     {

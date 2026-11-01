@@ -19,16 +19,17 @@ internal sealed class CeresRidleyFloorPaint
     /// <summary>The reviewed eye contour shared by every zoom bucket.</summary>
     private readonly CeresRidleyFade.EyePaint eyes;
     /// <summary>Extracted colors that differ from the computed contour at a step and color index.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
-    /// <summary>Builds the shared contours from the first step and retains only differences in later steps.</summary>
-    internal CeresRidleyFloorPaint(RgbColor[][] steps)
+    /// <summary>Keeps the shared contours and the colors that differ from them.</summary>
+    /// <param name="body">The body contour.</param>
+    /// <param name="eyes">The eye contour.</param>
+    /// <param name="edits">The supplied colors the import found differing from the scaled contours.</param>
+    internal CeresRidleyFloorPaint(CeresRidleyBodyPaint body, CeresRidleyFade.EyePaint eyes, Dictionary<ColourCell, RgbColor> edits)
     {
-        body = new(steps[0].AsSpan(0, 11));
-        eyes = CeresRidleyFade.EyePaint.From(steps[0].AsSpan(11, 3));
-        for (int step = 0; step < CeresRidleyPaletteDefinitions.GetawayZoomStepCount; step++)
-        for (int color = 0; color < CeresRidleyPaletteDefinitions.GetawayZoomColorCount; color++)
-            if (Calculate(step, color) != steps[step][color]) edits.Add(new ColourCell(step, color), steps[step][color]);
+        this.body = body;
+        this.eyes = eyes;
+        this.edits = edits;
     }
 
     /// <summary>The neutral floor colour (also in the header palette) equals the canonical Golden low contour; no duplicate grey input.</summary>

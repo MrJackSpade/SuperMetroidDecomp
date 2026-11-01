@@ -27,28 +27,28 @@ internal sealed class CeresDoorAnimationPaint
     /// <summary>Red channel retained independently for the dim middle amber phase.</summary>
     internal readonly int dimMiddleAmberRed;
     /// <summary>Seed colors that differ from the shared normal target paint.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> seedEdits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> seedEdits;
     /// <summary>Individual source cells that differ from the calculated mirrored fade.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
-    /// <summary>Captures independent paint channels and per-cell edits from the eight six-color steps of the glow cycle.</summary>
-    internal CeresDoorAnimationPaint(RgbColor[][] steps, CeresDoorNormalPaint normal)
+    /// <summary>Keeps the independent paint channels and per-cell edits of the eight six-color steps of the glow cycle.</summary>
+    /// <param name="normal">The shared normal target paint supplying the seed colors.</param>
+    /// <param name="firstSeedBlue">The first seed's independent blue.</param>
+    /// <param name="dimMiddleAmberRed">The dim middle amber phase's independent red.</param>
+    /// <param name="seedEdits">Seed colors the import found differing from the normal target paint.</param>
+    /// <param name="edits">Cells the import found differing from the calculated mirrored fade.</param>
+    internal CeresDoorAnimationPaint(CeresDoorNormalPaint normal, int firstSeedBlue, int dimMiddleAmberRed,
+        Dictionary<ColourCell, RgbColor> seedEdits, Dictionary<ColourCell, RgbColor> edits)
     {
-        Ensure.NotNull(steps); Ensure.NotNull(normal);
-        if (steps.Length != 8 || steps.Any(step => step is null || step.Length != 6))
-            throw new ArgumentException("Beacon paint requires eight six-color steps.", nameof(steps));
         this.normal = normal;
-        firstSeedBlue = steps[1][0].Blue;
-        dimMiddleAmberRed = steps[3][4].Red;
-        for (int color = 0; color < 6; color++)
-            if (steps[1][color] != SharedSeed(color)) seedEdits.Add(new ColourCell(0, color), steps[1][color]);
-        for (int step = 0; step < 8; step++)
-            for (int color = 0; color < 6; color++)
-                if (steps[step][color] != Calculate(step, color)) edits.Add(new ColourCell(step, color), steps[step][color]);
+        this.firstSeedBlue = firstSeedBlue;
+        this.dimMiddleAmberRed = dimMiddleAmberRed;
+        this.seedEdits = seedEdits;
+        this.edits = edits;
     }
 
     /// <summary>Uses normal target paint for each seed, with the first seed's independent blue channel.</summary>
-    private RgbColor SharedSeed(int color)
+    internal RgbColor SharedSeed(int color)
     {
         if (color != 0) return normal.ColorAt(8 + color);
         RgbColor normalSeed = normal.ColorAt(8);

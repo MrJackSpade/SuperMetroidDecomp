@@ -14,16 +14,11 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 internal sealed class CeresRidleyAlarmColors
 {
     /// <summary>Independent supplied colors that differ from the reflected sixteen-step trajectory.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
-    /// <summary>Compares supplied warning colors with calculated steps and retains only independently edited cells.</summary>
-    internal CeresRidleyAlarmColors(RgbColor[][] steps)
-    {
-        for (int step = 0; step < CeresRidleyPaletteDefinitions.AlarmStepCount; step++)
-        for (int color = 0; color < CeresRidleyPaletteDefinitions.AlarmColorCount; color++)
-            if (Calculate(step, color) != steps[step][color])
-                edits.Add(new ColourCell(step, color), steps[step][color]);
-    }
+    /// <summary>Keeps the independently edited warning cells.</summary>
+    /// <param name="edits">The supplied colors the import found differing from the calculated steps.</param>
+    internal CeresRidleyAlarmColors(Dictionary<ColourCell, RgbColor> edits) => this.edits = edits;
 
     /// <summary>The reflected phase of alarm step <paramref name="step"/>: sixteen steps ascend through phase eight, then revisit phases seven to one.</summary>
     internal static int Phase(int step)

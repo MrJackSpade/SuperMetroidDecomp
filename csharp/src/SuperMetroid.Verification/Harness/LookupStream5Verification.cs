@@ -1978,7 +1978,7 @@ internal static class LookupStream5Verification
         CeresDoorNormalPaint Check()
         {
             ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
-            var basis = new CeresDoorNormalPaint(ToColors(document.Normal.Select(Pack).ToArray()));
+            var basis = CeresDoorPaintRecognition.Normal(ToColors(document.Normal.Select(Pack).ToArray()));
             var visual = CeresDoorVisualFiles.Read(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualFiles.Write(document)));
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), basis.ColorAt(color), "Every supplied normal channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
@@ -2040,7 +2040,7 @@ internal static class LookupStream5Verification
         CeresDoorEscapePaint Check()
         {
             ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
-            var basis = new CeresDoorEscapePaint(ToColors(document.Escape.Select(Pack).ToArray()), new CeresDoorNormalPaint(ToColors(document.Normal.Select(Pack).ToArray())));
+            var basis = CeresDoorPaintRecognition.Escape(ToColors(document.Escape.Select(Pack).ToArray()), CeresDoorPaintRecognition.Normal(ToColors(document.Normal.Select(Pack).ToArray())));
             var visual = CeresDoorVisualFiles.Read(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualFiles.Write(document)));
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), basis.ColorAt(color), "Every supplied escape channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
@@ -2104,7 +2104,7 @@ internal static class LookupStream5Verification
         CeresDoorAnimationPaint Check(int editedRow)
         {
             ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
-            var basis = new CeresDoorAnimationPaint(ToColors(document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray()), new CeresDoorNormalPaint(ToColors(document.Normal.Select(Pack).ToArray())));
+            var basis = CeresDoorPaintRecognition.Animation(ToColors(document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray()), CeresDoorPaintRecognition.Normal(ToColors(document.Normal.Select(Pack).ToArray())));
             var visual = CeresDoorVisualFiles.Read(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualFiles.Write(document)));
             for (int row = 0; row < 8; row++) for (int color = 0; color < 6; color++)
                 AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel remains independent");

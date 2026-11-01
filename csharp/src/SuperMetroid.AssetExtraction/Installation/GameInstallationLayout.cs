@@ -26,7 +26,7 @@ public static class GameInstallationLayout
     /// <summary>Pre-coloured sprite sheets and their frame manifests.</summary>
     public const string SpriteSheetDirectoryName = "sprite-sheets";
     /// <summary>Pre-coloured enemy sheets and the manifest naming each graphics set's sheet for each enemy.</summary>
-    public const string EnemySheetDirectoryName = SuperMetroid.Core.Enemies.Artwork.EnemySheetFiles.DirectoryName;
+    public const string EnemySheetDirectoryName = EnemySheetFiles.DirectoryName;
     /// <summary>Content child directory for Samus body PNGs and visual selectors.</summary>
     public const string SamusBodyDirectoryName = "samus-body";
     /// <summary>Content child directory for opening-cinematic artwork.</summary>

@@ -129,7 +129,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.SamusDeath => SamusDeathSheetComposer.Frames,
         SpriteSheetId.GameOver => GameOverPresentationFormat.SpriteNames.ToArray(),
         SpriteSheetId.FileSelect => FileSelectParts.SheetFrames,
-        SpriteSheetId.GameOptions => GameOptionsNames.SheetFrames,
+        SpriteSheetId.GameOptions => GameOptionsPresentationFormat.SheetFrames,
         SpriteSheetId.MapSprites => MapSpriteArtwork.SheetFrames,
         SpriteSheetId.PauseSprites => PauseSheetComposer.FrameNames(maps.Value),
         SpriteSheetId.PauseHud => HudImageSheet.PauseFrameNames(maps.Value),

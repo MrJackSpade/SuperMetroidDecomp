@@ -66,7 +66,4 @@ public static class GameOptionsNames
     public static string ToggleFrame(GameOptionsScreen page, GameOptionsToggle toggle, bool enabled) =>
         $"Options.Toggle.{TilemapName(page)}.{ToggleName(toggle)}.{(enabled ? "On" : "Off")}";
 
-    /// <summary>Every frame of the options sheet: each page's heading, then each cursor frame.</summary>
-    public static IEnumerable<string> SheetFrames =>
-        MenuPages.Select(HeadingSpriteName).Concat(Enumerable.Range(0, CursorFrameCount).Select(CursorSpriteName));
 }

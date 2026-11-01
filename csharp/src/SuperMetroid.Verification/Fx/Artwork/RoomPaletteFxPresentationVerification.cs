@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Text;

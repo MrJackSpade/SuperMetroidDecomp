@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>How a diagonal world map room tile is drawn.</summary>

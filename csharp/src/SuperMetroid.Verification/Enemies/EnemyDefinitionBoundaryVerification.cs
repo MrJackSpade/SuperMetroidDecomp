@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using SuperMetroid.AssetExtraction.CartridgeTables;

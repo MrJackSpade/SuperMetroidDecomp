@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>The mutually exclusive old-Tourian escape accent palette program.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>The sides of a world map room tile that carry a border.</summary>

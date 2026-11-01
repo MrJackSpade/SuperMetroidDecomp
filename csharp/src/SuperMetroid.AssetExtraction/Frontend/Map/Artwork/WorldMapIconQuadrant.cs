@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>Where a cell sits in a two-by-two icon, and which of the icon's highlights it shows.</summary>

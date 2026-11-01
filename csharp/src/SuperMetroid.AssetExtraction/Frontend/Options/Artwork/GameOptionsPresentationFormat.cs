@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Frontend.Options;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
@@ -17,4 +18,9 @@ public static class GameOptionsPresentationFormat
     public static IReadOnlyList<GameOptionsToggle> Toggles { get; } = Enum.GetValues<GameOptionsToggle>();
     /// <summary>The missile cursor's looping animation frames.</summary>
     public const int CursorFrameCount = 4;
+
+    /// <summary>Every frame of the options sheet: each page's heading, then each cursor frame.</summary>
+    public static IEnumerable<string> SheetFrames =>
+        GameOptionsPresentationDefinitions.MenuPages.Select(GameOptionsNames.HeadingSpriteName)
+            .Concat(Enumerable.Range(0, CursorFrameCount).Select(GameOptionsNames.CursorSpriteName));
 }

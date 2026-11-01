@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;

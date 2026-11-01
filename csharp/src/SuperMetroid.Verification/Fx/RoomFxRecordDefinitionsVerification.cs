@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using SuperMetroid.Core.Rooms;

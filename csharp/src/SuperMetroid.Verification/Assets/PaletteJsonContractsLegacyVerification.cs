@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Text;

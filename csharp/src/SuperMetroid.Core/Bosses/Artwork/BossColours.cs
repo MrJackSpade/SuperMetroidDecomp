@@ -40,15 +40,15 @@ public readonly struct BossColours(GameplayColours colours)
     public ColourRun CeresRidleyRevealedObjects => BossColourDefinitions.CeresRidleyRevealedObjects.In(colours.SpriteSets);
     /// <summary>The cutscene Baby Metroid palette.</summary>
     public ColourRun BabyMetroidCutscene => BossColourDefinitions.BabyMetroidCutscene.In(colours.SpriteSets);
-    /// <summary>Kraid's room backdrop row.</summary>
+    /// <summary>Kraid's room backdrop colour set.</summary>
     public ColourRun KraidRoomBackdrop => BossColourDefinitions.KraidRoomBackdrop.In(colours.BackgroundSets);
-    /// <summary>Kraid's BG2 body row.</summary>
+    /// <summary>Kraid's BG2 body colour set.</summary>
     public ColourRun KraidBody => BossColourDefinitions.KraidBody.In(colours.BackgroundSets);
     /// <summary>Kraid's eye colours.</summary>
     public ColourRun KraidEye => BossColourDefinitions.KraidEye.In(colours.BackgroundSets);
-    /// <summary>Kraid's initial sprite row.</summary>
+    /// <summary>Kraid's initial sprite colour set.</summary>
     public ColourRun KraidSprites => BossColourDefinitions.KraidSprites.In(colours.SpriteSets);
-    /// <summary>Kraid's secondary row.</summary>
+    /// <summary>Kraid's secondary colour set.</summary>
     public ColourRun KraidSecondary => BossColourDefinitions.KraidSecondary.In(colours.SpriteSets);
     /// <summary>Mother Brain's body colours.</summary>
     public ColourRun MotherBrainBody => BossColourDefinitions.MotherBrainBody.In(colours.BackgroundSets);
@@ -70,7 +70,7 @@ public readonly struct BossColours(GameplayColours colours)
     public ColourRun SporeSpawnSpores => BossColourDefinitions.SporeSpawnSpores.In(colours.SpriteSets);
     /// <summary>Spore Spawn's body palette.</summary>
     public ColourRun SporeSpawnBody => BossColourDefinitions.SporeSpawnBody.In(colours.SpriteSets);
-    /// <summary>The Shitroid encounter's target row for <paramref name="target"/>.</summary>
+    /// <summary>The Shitroid encounter's target colour set for <paramref name="target"/>.</summary>
     public ColourRun ShitroidTarget(ShitroidColorTarget target) => target switch
     {
         ShitroidColorTarget.Sidehopper => BossColourDefinitions.ShitroidSidehopper.In(colours.SpriteSets),
@@ -78,7 +78,7 @@ public readonly struct BossColours(GameplayColours colours)
         ShitroidColorTarget.DeadSidehopper => TourianCorpseColourDefinitions.DrainedCorpses.In(colours.SpriteSets),
         _ => throw new ArgumentOutOfRangeException(nameof(target), target, "Undefined Shitroid colour target."),
     };
-    /// <summary>The row Spore Spawn's death sequence fades for <paramref name="layer"/>.</summary>
+    /// <summary>The colour set Spore Spawn's death sequence fades for <paramref name="layer"/>.</summary>
     public ColourRun SporeSpawnDeath(SporeSpawnDeathPaletteLayer layer) => layer switch
     {
         SporeSpawnDeathPaletteLayer.Sprite => BossColourDefinitions.SporeSpawnBody.In(colours.SpriteSets),

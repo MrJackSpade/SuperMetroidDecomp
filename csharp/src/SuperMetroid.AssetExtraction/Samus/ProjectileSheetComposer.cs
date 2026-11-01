@@ -19,6 +19,27 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class ProjectileSheetComposer
 {
+    /// <summary>
+    /// The combinations with a sheet: every one the game can load. Spazer with Plasma, with or without Ice and Wave,
+    /// has no translated beam palette, so loading it fails before anything is drawn.
+    /// </summary>
+    internal static IReadOnlyList<SamusBeamCombination> Combinations { get; } =
+    [
+        SamusBeamCombination.Power, SamusBeamCombination.Wave, SamusBeamCombination.Ice, SamusBeamCombination.IceWave,
+        SamusBeamCombination.Spazer, SamusBeamCombination.SpazerWave, SamusBeamCombination.SpazerIce, SamusBeamCombination.SpazerIceWave,
+        SamusBeamCombination.Plasma, SamusBeamCombination.PlasmaWave, SamusBeamCombination.PlasmaIce, SamusBeamCombination.PlasmaIceWave,
+        SamusBeamCombination.SpazerPlasmaWave, SamusBeamCombination.SpazerPlasmaIce,
+    ];
+
+    /// <summary>The flare compositions a projectile sheet holds: those the flare's selectors name.</summary>
+    internal static IEnumerable<ProjectileSpriteId> FlareCompositions => ChargeFlareSpriteSelection.Selectors.Distinct();
+
+    /// <summary>Every frame a projectile sheet holds: each projectile and flare composition, each trail pose and the unshown trail.</summary>
+    internal static IEnumerable<string> Frames =>
+        ProjectileSpriteDefinitions.All.Select(ProjectileSheetFrames.ProjectileFrame)
+            .Concat(FlareCompositions.Select(ProjectileSheetFrames.FlareFrame))
+            .Concat(Enum.GetValues<ProjectileTrailFrame>().Select(ProjectileSheetFrames.TrailFrame))
+            .Append(ProjectileSheetDefinitions.UnshownTrailFrame);
 
     /// <summary>What one projectile sheet composes: its named frames over the context's OBJ page, and the sprite rows' colours.</summary>
     /// <param name="inputs">The installed stock artwork the sheet composes from.</param>
@@ -52,7 +73,7 @@ internal static class ProjectileSheetComposer
         var frames = new List<SheetFrameSource>();
         foreach (ProjectileSpriteId composition in ProjectileSpriteDefinitions.All)
             frames.Add(new(ProjectileSheetFrames.ProjectileFrame(composition), projectiles.Catalog.Frame(composition), page));
-        foreach (ProjectileSpriteId composition in ProjectileSheetDefinitions.FlareCompositions)
+        foreach (ProjectileSpriteId composition in FlareCompositions)
         {
             int selector = checked((ushort)ChargeFlareSpriteSelection.Selectors.ToList().IndexOf(composition));
             frames.Add(new(ProjectileSheetFrames.FlareFrame(composition), projectiles.FlareCompositions.Frame(selector), page));
@@ -65,5 +86,5 @@ internal static class ProjectileSheetComposer
 
     /// <summary>The beam combination whose gameplay sheet <paramref name="sheet"/> is.</summary>
     private static SamusBeamCombination Combination(SpriteSheetId sheet) =>
-        ProjectileSheetDefinitions.Combinations.Single(beams => ProjectileSheetFrames.For(beams) == sheet);
+        Combinations.Single(beams => ProjectileSheetFrames.For(beams) == sheet);
 }

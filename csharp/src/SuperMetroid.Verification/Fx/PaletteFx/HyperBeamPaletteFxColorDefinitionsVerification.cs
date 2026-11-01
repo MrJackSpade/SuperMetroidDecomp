@@ -2,6 +2,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
+
 namespace SuperMetroid.Verification.Fx.PaletteFx;
 /// <summary>Checks the compiled Hyper Beam palette cycle against its cartridge control words and restored-pointer domain.</summary>
 internal static class HyperBeamPaletteFxColorDefinitionsVerification

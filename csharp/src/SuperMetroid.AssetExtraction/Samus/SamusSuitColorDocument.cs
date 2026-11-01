@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>JSON schema for the Power, Varia, and Gravity normal body palettes.</summary>
 public sealed record SamusSuitColorDocument
 {
-    /// <summary>Gets the schema version required by <see cref="SamusSuitColorFormat.Version"/>.</summary>
+    /// <summary>Gets the schema version required by <see cref="SamusSuitColorFile.Version"/>.</summary>
     public required int Version { get; init; }
 
     /// <summary>Gets the sixteen editable Power-suit RGB5 colors.</summary>

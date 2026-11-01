@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.Operations;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 using SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
@@ -14,6 +13,8 @@ using SuperMetroid.ResourceAudit.PlmPrograms;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Bosses.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

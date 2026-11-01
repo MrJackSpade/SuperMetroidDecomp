@@ -6,12 +6,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The definition data of Mother Brain's death and the escape it starts: its colour fades, the escape door and the subtitle.</summary>
 public static class MotherBrainDeathDefinitions
 {
-    /// <summary>The body and leg fade images, shown in order before the body is cleared.</summary>
-    public const int BodyFadeFrameCount = 16;
-
-    /// <summary>The corpse-head fade images, shown in order while the corpse rots away.</summary>
-    public const int CorpseFadeFrameCount = 8;
-
     /// <summary>The colours each body or leg fade image rewrites; the exploded door's colours are as many.</summary>
     public const int BodyColorCount = 14;
 

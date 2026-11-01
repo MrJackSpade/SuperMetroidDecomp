@@ -8,6 +8,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Reads and writes the installed Samus suit colour document.</summary>
 public static class SamusSuitColorFile
 {
+    /// <summary>Supported normal-suit color schema version.</summary>
+    public const int Version = 1;
+
+    /// <summary>Canonical normal-suit color asset file name.</summary>
+    public const string FileName = "samus-suit-colors.json";
+
     /// <summary>Loads and validates the three complete normal-suit palettes from JSON.</summary>
     /// <param name="json">Caller-owned stream containing the suit-color document.</param>
     /// <returns>The compiled suit-color catalog.</returns>
@@ -16,7 +22,7 @@ public static class SamusSuitColorFile
         Ensure.NotNull(json);
         SamusSuitColorDocument document;
         document = JsonAssetDocument.Read<SamusSuitColorDocument>(json, ArtworkJson.Options, "Samus suit color");
-        if (document.Version != SamusSuitColorFormat.Version)
+        if (document.Version != Version)
             throw new InvalidDataException("Samus suit colors require the supported version.");
         return new(Compile(document.Power, "Power"), Compile(document.Varia, "Varia"),
             Compile(document.Gravity, "Gravity"));

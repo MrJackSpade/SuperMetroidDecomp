@@ -51,11 +51,11 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Installed Zebetite pulse never reads migrated ROM colors");
 
-        string stockPath = Path.Combine(stockDirectory, ZebetiteColorFormat.FileName);
+        string stockPath = Path.Combine(stockDirectory, ZebetiteColorFile.FileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
         string overrides = Path.Combine(stockDirectory, "zebetite-color-overrides");
         Directory.CreateDirectory(overrides);
-        string overridePath = Path.Combine(overrides, ZebetiteColorFormat.FileName);
+        string overridePath = Path.Combine(overrides, ZebetiteColorFile.FileName);
         JsonNode editedDocument = RequiredJson.Parse(stockBytes);
         JsonNode red = editedDocument.Required("frames").Required(3).Required(1).Required("red");
         editedDocument.Required("frames").Required(3).Required(1)["red"] = red.GetValue<int>() ^ 1;

@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// </remarks>
 public static class SamusPaletteDefinitions
 {
-
     /// <summary>Shared full-body OBJ palette layout and suit selection table.</summary>
     public static class Common
     {
@@ -147,8 +146,6 @@ public static class SamusPaletteDefinitions
     /// <summary>Fixed-color tables used by the Power Bomb and Crystal Flash explosion effects.</summary>
     public static class PowerBomb
     {
-        /// <summary>The five-bit channel in each stored fixed-colour byte.</summary>
-        public const int ComponentMask = 0b1_1111;
         /// <summary>Number of pre-explosion fixed-color triplets.</summary>
         public const int PreExplosionColorCount = 16;
         /// <summary>Number of explosion fixed-color triplets addressed by radius.</summary>

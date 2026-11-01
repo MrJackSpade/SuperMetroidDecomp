@@ -93,6 +93,7 @@ using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Video;
+
 namespace SuperMetroid.Verification.Frontend.Map;
 
 using SuperMetroid.Verification.Harness;
@@ -110,6 +111,7 @@ using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Map.Artwork;
 using SuperMetroid.AssetExtraction.Progression;
 
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// <summary>Checks editable map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
 internal static class MapPresentationVerification
 {
@@ -478,7 +480,7 @@ internal static class MapPresentationVerification
         AreaMapPresentation original,
         GameplayBasePalette initialPalettes)
     {
-        string source = Path.Combine(stock, MotherBrainRainbowPaletteFormat.FileName);
+        string source = Path.Combine(stock, MotherBrainRainbowPaletteFile.FileName);
         MotherBrainRainbowPaletteDocument document =
             JsonSerializer.Deserialize<MotherBrainRainbowPaletteDocument>(
                 File.ReadAllBytes(source), ArtworkJson.Options)
@@ -618,7 +620,7 @@ internal static class MapPresentationVerification
         {
             Red = hdmaColor.Red == 31 ? 30 : hdmaColor.Red + 1,
         };
-        string replacement = Path.Combine(overrides, MotherBrainRainbowPaletteFormat.FileName);
+        string replacement = Path.Combine(overrides, MotherBrainRainbowPaletteFile.FileName);
         using (var stream = File.Create(replacement))
             MotherBrainRainbowPaletteFile.Write(stream, document);
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
@@ -745,7 +747,7 @@ internal static class MapPresentationVerification
         AreaMapPresentation original,
         GameplayBasePalette initialPalettes)
     {
-        string source = Path.Combine(stock, MotherBrainHealthPaletteFormat.FileName);
+        string source = Path.Combine(stock, MotherBrainHealthPaletteFile.FileName);
         MotherBrainHealthPaletteDocument document =
             JsonSerializer.Deserialize<MotherBrainHealthPaletteDocument>(
                 File.ReadAllBytes(source), ArtworkJson.Options)
@@ -779,7 +781,7 @@ internal static class MapPresentationVerification
         document.Body[2][0] = body with { Red = body.Red == 31 ? 30 : body.Red + 1 };
         PaletteRgb5 leg = document.BackLegs[2][0];
         document.BackLegs[2][0] = leg with { Blue = leg.Blue == 31 ? 30 : leg.Blue + 1 };
-        string replacement = Path.Combine(overrides, MotherBrainHealthPaletteFormat.FileName);
+        string replacement = Path.Combine(overrides, MotherBrainHealthPaletteFile.FileName);
         using (var stream = File.Create(replacement))
             MotherBrainHealthPaletteFile.Write(stream, document);
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
@@ -806,7 +808,7 @@ internal static class MapPresentationVerification
         AssertThrows<InvalidDataException>(() => MotherBrainHealthPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
-                Version = MotherBrainHealthPaletteFormat.Version + 1,
+                Version = MotherBrainHealthPaletteFile.Version + 1,
             }, ArtworkJson.Options))), "reject unsupported Mother Brain palette version");
         AssertThrows<InvalidDataException>(() => MotherBrainHealthPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with

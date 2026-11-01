@@ -23,7 +23,7 @@ internal static class MotherBrainBeamWindowVerification
         // A native 64-angle-wide beam selects gradients 32/96, both exactly 1.
         // This retains the indirect-run/carry fixture without replacing engine lookup data.
         var paletteDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
-            RepositoryInstallation.Installation.MapDirectory, MotherBrainRainbowPaletteFormat.FileName)));
+            RepositoryInstallation.Installation.MapDirectory, MotherBrainRainbowPaletteFile.FileName)));
         var cycle = new JsonArray();
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount; frame++)
             cycle.Add(new JsonObject { ["red"] = frame % 2 == 0 ? 31 : 0,

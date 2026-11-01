@@ -6,11 +6,12 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Enemies;
+
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Checks enemy drawing after the power-bomb damage phase removes queued actors.</summary>
 internal static class PowerBombDeathDrawingVerification

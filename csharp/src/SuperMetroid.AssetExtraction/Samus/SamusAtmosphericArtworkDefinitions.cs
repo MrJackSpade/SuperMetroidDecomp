@@ -5,6 +5,9 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Native atmospheric OBJ identity progression and palette routing, with narrowly retained drawn-layer priority.</summary>
 internal static class SamusAtmosphericArtworkDefinitions
 {
+    /// <summary>Four words per authored direct small-OBJ effect list.</summary>
+    internal const int DirectAtmosphericFrameCount = 4;
+
     /// <summary>$90:8C0F, AtmosphericGraphics_SpriteTileNumberAttributes_1_Footstep: first of four consecutive footstep OBJ tiles.</summary>
     internal const int FootstepFirstTile = 44;
     /// <summary>$90:8C17, AtmosphericGraphics_SpriteTileNumberAttribute_4_6_7_LavaDust: first of four consecutive shared lava/dust OBJ tiles.</summary>

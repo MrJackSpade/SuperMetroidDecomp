@@ -14,6 +14,20 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class GrappleSheetComposer
 {
+    /// <summary>Endpoint animation frames.</summary>
+    internal const int EndpointFrameCount = 4;
+
+    /// <summary>Every rope-direction mirroring a segment is drawn with.</summary>
+    internal static IReadOnlyList<SpriteMirror> RopeMirrors { get; } =
+        [SpriteMirror.None, SpriteMirror.Horizontal, SpriteMirror.Vertical, SpriteMirror.Horizontal | SpriteMirror.Vertical];
+
+    /// <summary>Every frame the grapple sheet holds.</summary>
+    internal static IEnumerable<string> Frames =>
+        Enumerable.Range(0, EndpointFrameCount).Select(GrappleSheets.EndpointFrame)
+            .Concat(Enum.GetValues<GrappleRopeOrientation>().SelectMany(orientation =>
+                Enumerable.Range(0, SuperMetroid.Core.Samus.Grapple.GrappleBeamDefinitions.Rendering.SegmentAnimationFrameCount).SelectMany(segment =>
+                    RopeMirrors.Select(mirror => GrappleSheets.RopeFrame(orientation, segment, mirror)))));
+
     /// <summary>The grapple's endpoint character.</summary>
     private const int EndpointCharacter = GrappleTileDefinitions.FirstCharacter;
 
@@ -31,7 +45,7 @@ internal static class GrappleSheetComposer
         SpritePart endpoint = tiles.Sprites?.Endpoint ?? GrappleSpriteDefinitions.StockEndpoint;
         if (endpoint.Character is >= FirstRopeCharacter and <= LastRopeCharacter)
             throw new InvalidDataException($"The grapple endpoint names rope character ${endpoint.Character:X3}, which its orientation selects.");
-        for (int point = 0; point < GrappleSheetDefinitions.EndpointFrameCount; point++)
+        for (int point = 0; point < EndpointFrameCount; point++)
         {
             frames.Add(new(GrappleSheets.EndpointFrame(point), SpritePartFrames.SmallObject(endpoint, 0),
                 tiles.OnStandardObjects(inputs.StandardObjects, point, GrappleRopeOrientation.Horizontal)));
@@ -44,7 +58,7 @@ internal static class GrappleSheetComposer
                 SpritePart appearance = tiles.Sprites?.Segment(segment) ?? GrappleSpriteDefinitions.StockSegment(segment);
                 if (appearance.Character == EndpointCharacter)
                     throw new InvalidDataException($"Grapple rope segment {segment} names the endpoint's character, which its animation selects.");
-                foreach (SpriteMirror mirror in GrappleSheetDefinitions.RopeMirrors)
+                foreach (SpriteMirror mirror in RopeMirrors)
                 {
                     // `$94:AFDE` ORs the rope direction's flips into the segment's own attributes.
                     TileFlip flips = ((mirror & SpriteMirror.Horizontal) != 0 ? TileFlip.Horizontal : TileFlip.None) |

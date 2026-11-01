@@ -5,14 +5,13 @@ using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Assets.PaletteJsonContractsFixturesVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
-
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>Checks stock-assisted migration of older room, Mother Brain, and rainbow palette JSON.</summary>

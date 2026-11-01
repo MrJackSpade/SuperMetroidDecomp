@@ -9,7 +9,6 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Rooms.RoomArtworkRenderParityVerification;
 using static SuperMetroid.Verification.Rooms.RoomVisualLayoutsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XrayRevealVisualInstallationVerification;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -20,9 +19,11 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
+
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Checks stock and overridden room characters, palettes, blocks, backgrounds, and sky artwork.</summary>
 internal static class RoomCharacterInstallationVerification

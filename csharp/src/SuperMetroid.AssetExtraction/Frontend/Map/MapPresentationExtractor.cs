@@ -3,7 +3,6 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -31,6 +30,8 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -278,14 +279,14 @@ public static class MapPresentationExtractor
         hashes.Add(RoomPaletteFxPresentationFormat.FileName,
             Convert.ToHexString(SHA256.HashData(roomPaletteFxBytes)));
         byte[] motherBrainHealthBytes = MotherBrainHealthPaletteExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, MotherBrainHealthPaletteFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, MotherBrainHealthPaletteFile.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(motherBrainHealthBytes);
-        hashes.Add(MotherBrainHealthPaletteFormat.FileName,
+        hashes.Add(MotherBrainHealthPaletteFile.FileName,
             Convert.ToHexString(SHA256.HashData(motherBrainHealthBytes)));
         byte[] motherBrainRainbowBytes = MotherBrainRainbowPaletteExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, MotherBrainRainbowPaletteFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, MotherBrainRainbowPaletteFile.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(motherBrainRainbowBytes);
-        hashes.Add(MotherBrainRainbowPaletteFormat.FileName,
+        hashes.Add(MotherBrainRainbowPaletteFile.FileName,
             Convert.ToHexString(SHA256.HashData(motherBrainRainbowBytes)));
         byte[] motherBrainRoomColorBytes = MotherBrainRoomColorExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, MotherBrainRoomColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
@@ -308,24 +309,24 @@ public static class MapPresentationExtractor
         hashes.Add(RoomFxPaletteBlendDefinitions.FileName,
             Convert.ToHexString(SHA256.HashData(roomFxPaletteBlendBytes)));
         byte[] powerBombFixedColorBytes = PowerBombFixedColorExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, PowerBombFixedColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, PowerBombFixedColorFile.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(powerBombFixedColorBytes);
-        hashes.Add(PowerBombFixedColorFormat.FileName,
+        hashes.Add(PowerBombFixedColorFile.FileName,
             Convert.ToHexString(SHA256.HashData(powerBombFixedColorBytes)));
         byte[] samusVisorColorBytes = SamusVisorColorExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, SamusVisorColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, SamusVisorColorFile.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(samusVisorColorBytes);
-        hashes.Add(SamusVisorColorFormat.FileName,
+        hashes.Add(SamusVisorColorFile.FileName,
             Convert.ToHexString(SHA256.HashData(samusVisorColorBytes)));
         byte[] samusHurtColorBytes = SamusHurtColorExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, SamusHurtColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, SamusHurtColorFile.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(samusHurtColorBytes);
-        hashes.Add(SamusHurtColorFormat.FileName,
+        hashes.Add(SamusHurtColorFile.FileName,
             Convert.ToHexString(SHA256.HashData(samusHurtColorBytes)));
         byte[] samusSuitColorBytes = SamusSuitColorExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, SamusSuitColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, SamusSuitColorFile.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(samusSuitColorBytes);
-        hashes.Add(SamusSuitColorFormat.FileName,
+        hashes.Add(SamusSuitColorFile.FileName,
             Convert.ToHexString(SHA256.HashData(samusSuitColorBytes)));
         byte[] samusFullBodyCycleBytes = SamusFullBodyCycleColorExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, SamusFullBodyCycleColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
@@ -333,9 +334,9 @@ public static class MapPresentationExtractor
         hashes.Add(SamusFullBodyCycleColorFormat.FileName,
             Convert.ToHexString(SHA256.HashData(samusFullBodyCycleBytes)));
         byte[] crystalFlashColorBytes = CrystalFlashColorExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, CrystalFlashColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, CrystalFlashColorFile.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(crystalFlashColorBytes);
-        hashes.Add(CrystalFlashColorFormat.FileName,
+        hashes.Add(CrystalFlashColorFile.FileName,
             Convert.ToHexString(SHA256.HashData(crystalFlashColorBytes)));
         byte[] samusChargeColorBytes = SamusChargeColorExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, SamusChargeColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
+﻿using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 

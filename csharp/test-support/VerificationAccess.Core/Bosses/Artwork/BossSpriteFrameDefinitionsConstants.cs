@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Bosses.Artwork;
+﻿using SuperMetroid.AssetExtraction.Bosses.Artwork;
+
+namespace SuperMetroid.Core.Bosses.Artwork;
 
 /// <summary>Cartridge values and helpers of <see cref="BossSpriteFrameDefinitions"/> that only verification reads.</summary>
 internal static class BossSpriteFrameDefinitionsConstants

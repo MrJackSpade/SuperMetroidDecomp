@@ -24,6 +24,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Fx.Artwork;
 
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// <summary>
 /// Checks #1344: boss and scripted-actor sprite parts publish whole-frame entries over the gameplay OBJ page, and their
 /// OBJ artwork reaches that page as named owned sources rather than VRAM writes or bus addresses.
@@ -153,7 +154,7 @@ internal static class BossSpriteEntriesVerification
         InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         ShownSpriteArtwork uploads = enemies.Room.Session.SpriteLooks;
-        int corpseBytes = MotherBrainCorpseArtworkDefinitions.PageByteCount;
+        int corpseBytes = MotherBrainCorpseSheet.PageByteCount;
         enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, 1));
         AssertEqual<SpriteArtworkSource>(new MotherBrainCorpseCharacters(1), uploads.Uploads.Single().Source,
             "A corpse page selection shows its installed page");

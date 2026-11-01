@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -20,6 +21,15 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 internal static class SpawnedObjectSheetComposer
 {
+    /// <summary>
+    /// The character indexes, beside its own, each enemy's spawned objects draw from, so its spawned-object sheets are
+    /// composed there too: Mother Brain's at <see cref="EnemyTileBaseDefinitions.MotherBrainObjectCharacters"/> (#1435).
+    /// </summary>
+    internal static IReadOnlyDictionary<EnemyDefinitionId, int[]> SpawnsAlsoAt { get; } = new Dictionary<EnemyDefinitionId, int[]>
+    {
+        [EnemyDefinitionId.MotherBrainBody] = [EnemyTileBaseDefinitions.MotherBrainObjectCharacters],
+    };
+
     /// <summary>The frames rotting corpses' encounters draw themselves, which show the rot: the dead Torizo's hook.</summary>
     private static readonly HashSet<EnemyFrameId> RotEncounterFrames =
         [.. EncounterFrameDefinitions.ByEnemy.Where(encounter => CorpseRotSimulation.Rots(encounter.Key)).SelectMany(encounter => encounter.Value)];
@@ -51,7 +61,7 @@ internal static class SpawnedObjectSheetComposer
             int palette = graphics.Placement.StoreOf(indexes.Colouring).Set;
             // A projectile draws at its tile base's place in its page, a sprite object at the tile base itself, and some
             // spawners' objects also at characters of their own choosing.
-            int[] alsoAt = EnemyTileBaseDefinitions.SpawnsAlsoAt.GetValueOrDefault(enemy, []);
+            int[] alsoAt = SpawnsAlsoAt.GetValueOrDefault(enemy, []);
             foreach (int tileBase in new[] { EnemyProjectileEngine.ProjectileTileBase(indexes), indexes.TileBase }.Concat(alsoAt).Distinct())
             {
                 if (!plans.TryGetValue(tileBase, out SpawnedObjectSheetPlan? plan))

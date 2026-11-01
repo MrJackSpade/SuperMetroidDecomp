@@ -11,6 +11,9 @@ namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 /// </summary>
 public static class CeresBabyCartridgeShades
 {
+    /// <summary>The Baby's shades: resting, horizontal squish, round and vertical squish, selected by its animation.</summary>
+    public const int BabyShadeCount = 4;
+
     /// <summary>Names each of the four ordered colour steps by the shade it holds.</summary>
     /// <param name="steps">The Baby's colour steps in cartridge order.</param>
     public static CeresBabyShadeColorsDocument FromSteps(PaletteRgb5[][] steps) => Ensure.NotNull(steps) switch
@@ -23,6 +26,6 @@ public static class CeresBabyCartridgeShades
             VerticalSquish = verticalSquish,
         },
         _ => throw new InvalidDataException(
-            $"Ceres Ridley Baby requires {CeresRidleyPaletteDefinitions.BabyShadeCount} colour steps."),
+            $"Ceres Ridley Baby requires {BabyShadeCount} colour steps."),
     };
 }

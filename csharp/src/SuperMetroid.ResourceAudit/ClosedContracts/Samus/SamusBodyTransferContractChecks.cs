@@ -7,7 +7,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
@@ -64,8 +63,8 @@ internal static class SamusBodyTransferContractChecks
         var sprites = new SamusSpritemapSources(new ushort[InstalledSamusBodyArtwork.PoseCount],
             new ushort[InstalledSamusBodyArtwork.PoseCount], new SamusSpritemapId?[SamusSpritemapSources.EntryCount], []);
         var atmosphere = new SamusAtmosphericSourceArtwork(
-            new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount],
-            new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount]);
+            new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount],
+            new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount]);
         RgbColor[][] Rows() => Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount)
             .Select(_ => new RgbColor[InstalledSamusDeathPalettes.ColorCount]).ToArray();
         var deathColors = new InstalledSamusDeathPalettes(

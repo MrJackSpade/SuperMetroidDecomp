@@ -1,4 +1,5 @@
-﻿
+﻿using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
+
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>Development-tool members of <see cref="CrocomireSkeletonVisualDefinitions"/>; never linked by player hosts.</summary>

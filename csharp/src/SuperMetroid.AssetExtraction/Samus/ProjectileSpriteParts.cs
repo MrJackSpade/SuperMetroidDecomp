@@ -87,7 +87,7 @@ public static class ProjectileSpriteParts
                 WaveDirection.DownRight => new Offset16<RoomPixels>(1, 1),
                 _ => throw new ArgumentOutOfRangeException(nameof(phase)),
             };
-            int distance = SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelope.AxialLobeDistance(step);
+            int distance = SuperMetroid.AssetExtraction.Samus.Projectiles.ProjectileWaveEnvelope.AxialLobeDistance(step);
             if (lobeDirection.X != 0 && lobeDirection.Y != 0) distance = distance * WaveDiagonalNumerator / WaveDiagonalDenominator;
             x += lobeDirection.X * distance;
             y += lobeDirection.Y * distance;

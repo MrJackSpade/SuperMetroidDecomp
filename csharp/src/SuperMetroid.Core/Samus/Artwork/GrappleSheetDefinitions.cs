@@ -8,13 +8,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </summary>
 public static class GrappleSheetDefinitions
 {
-    /// <summary>Endpoint animation frames.</summary>
-    public const int EndpointFrameCount = 4;
-
-    /// <summary>Every rope-direction mirroring a segment is drawn with.</summary>
-    public static IReadOnlyList<SpriteMirror> RopeMirrors { get; } =
-        [SpriteMirror.None, SpriteMirror.Horizontal, SpriteMirror.Vertical, SpriteMirror.Horizontal | SpriteMirror.Vertical];
-
     /// <summary>The value each key selects; MirrorName looks it up.</summary>
     internal static readonly IReadOnlyDictionary<SpriteMirror, string> MirrorNames = new Dictionary<SpriteMirror, string>
     {

@@ -21,9 +21,9 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
-
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Assets;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>Constructs valid palette JSON baselines for the shared schema-mutation checks.</summary>
@@ -81,7 +81,7 @@ internal static class PaletteJsonContractsFixturesVerification
             SkipCopyrightWhite = PaletteContractColors(1)[0], SkipCopyrightRed = PaletteContractColors(1, 1)[0],
         }), json => _ = TitlePaletteFile.Read(json));
         yield return new("Mother Brain health", PaletteContractDocument(new MotherBrainHealthPaletteDocument
-        { Version = MotherBrainHealthPaletteFormat.Version,
+        { Version = MotherBrainHealthPaletteFile.Version,
             Body = PaletteContractRows(MotherBrainHealthPaletteFormat.StateCount, MotherBrainRainbowPaletteDefinitions.ColorCount),
             BackLegs = PaletteContractRows(MotherBrainHealthPaletteFormat.StateCount, MotherBrainRainbowPaletteDefinitions.ColorCount) }),
             json => _ = MotherBrainHealthPaletteFile.Read(json));

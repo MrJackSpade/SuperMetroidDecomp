@@ -7,6 +7,9 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Extracts displayed orientation, never the physical body placement associated with it.</summary>
 public static class GrappleSwingFrameExtractor
 {
+    /// <summary>Asset filename for the editable angle-to-displayed-orientation mapping.</summary>
+    public const string FileName = "grapple-swing-frames.json";
+
     /// <summary>Exports the 256-entry Grapple angle-to-displayed-Samus-frame mapping from $9B:C1C2–C2C1.</summary>
     /// <param name="bus">Non-null cartridge source supplying one visual frame selector for each high byte of the native swing angle.</param>
     /// <returns>A new UTF-8 JSON buffer with versioned frame indices 0..31 in unsigned angle-byte order.</returns>

@@ -8,6 +8,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Reads and writes the installed Samus hurt colour document.</summary>
 public static class SamusHurtColorFile
 {
+    /// <summary>Supported schema version, requiring both complete sixteen-color RGB5 arrays.</summary>
+    public const int Version = 1;
+
+    /// <summary>Installed resource filename loaded by the area-map presentation catalog for hurt-flash and cinematic restoration artwork.</summary>
+    public const string FileName = "samus-hurt-colors.json";
+
     /// <summary>Compiles the installed hurt and cinematic palettes into independent color edits and calculated native shade relationships.</summary>
     /// <param name="json">UTF-8 JSON input, consumed from its current position and left open.</param>
     /// <returns>A catalog with private compiled color state, independent of the input document's arrays.</returns>
@@ -18,14 +24,14 @@ public static class SamusHurtColorFile
         Ensure.NotNull(json);
         SamusHurtColorDocument document;
         document = JsonAssetDocument.Read<SamusHurtColorDocument>(json, ArtworkJson.Options, "Samus hurt color");
-        if (document.Version != SamusHurtColorFormat.Version)
+        if (document.Version != Version)
             throw new InvalidDataException("Samus hurt colors require the supported version.");
         return new(Compile(document.Hurt, "hurt"), Compile(document.Intro, "intro"));
     }
 
     /// <summary>Serializes a palette document as indented, camel-case UTF-8 JSON and validates it through the same loader used for installed content.</summary>
     /// <param name="document">Hurt and cinematic RGB5 artwork to serialize; its arrays are not modified.</param>
-    /// <returns>A newly allocated JSON byte array suitable for <see cref="SamusHurtColorFormat.FileName"/>.</returns>
+    /// <returns>A newly allocated JSON byte array suitable for <see cref="FileName"/>.</returns>
     /// <exception cref="InvalidDataException">The serialized document is null or fails the supported version, palette length, or RGB5 channel requirements.</exception>
     public static byte[] Write(SamusHurtColorDocument document) =>
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));

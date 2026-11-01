@@ -14,7 +14,7 @@ internal readonly struct SpazerAxialSpreadParts(int pose, int phase) : IReadOnly
         get
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-            int distance = phase == 0 ? SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.SpazerInitialAxialSpread : SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelope.AxialLobeDistance(phase - 1);
+            int distance = phase == 0 ? SuperMetroid.AssetExtraction.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.SpazerInitialAxialSpread : SuperMetroid.AssetExtraction.Samus.Projectiles.ProjectileWaveEnvelope.AxialLobeDistance(phase - 1);
             bool vertical = pose is 4 or 6;
             int seedIndex, lane;
             if (vertical)

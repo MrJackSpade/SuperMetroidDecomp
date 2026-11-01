@@ -36,7 +36,7 @@ public static class CrystalFlashColorExtractor
         }
         return CrystalFlashColorFile.Write(new CrystalFlashColorDocument
         {
-            Version = CrystalFlashColorFormat.Version,
+            Version = CrystalFlashColorFile.Version,
             Body = body,
             Bubble = bubble,
         });

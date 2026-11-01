@@ -11,6 +11,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -32,7 +33,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
     {
         MotherBrainDeathColorCatalog native = stock.Bosses.MotherBrainDeathColors ??
             throw new InvalidDataException("Installed enemy art has no Mother Brain death colors.");
-        for (int frame = 0; frame < MotherBrainDeathDefinitions.BodyFadeFrameCount; frame++)
+        for (int frame = 0; frame < MotherBrainDeathColorFile.BodyFadeFrameCount; frame++)
         {
             int source = MotherBrainSourceDefinitions.Death.BodyFadeColors(frame);
             AssertEqual(unchecked((ushort)source),
@@ -50,7 +51,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
                     $"installed Mother Brain leg death frame {frame} color {color}");
             }
         }
-        for (int frame = 0; frame < MotherBrainDeathDefinitions.CorpseFadeFrameCount; frame++)
+        for (int frame = 0; frame < MotherBrainDeathColorFile.CorpseFadeFrameCount; frame++)
         {
             int source = MotherBrainSourceDefinitions.Death.CorpseFadeColors(frame);
             AssertEqual(unchecked((ushort)source),
@@ -90,7 +91,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         MotherBrainDeathColorCatalog colors = edited.Bosses.MotherBrainDeathColors ??
             throw new InvalidDataException("Edited enemy art has no Mother Brain death colors.");
-        for (int frame = 0; frame < MotherBrainDeathDefinitions.BodyFadeFrameCount; frame++)
+        for (int frame = 0; frame < MotherBrainDeathColorFile.BodyFadeFrameCount; frame++)
         {
             AssertTrue(native.BodyColor(frame, 5) != colors.BodyColor(frame, 5),
                 $"Mother Brain body death frame {frame} edit takes effect");
@@ -99,7 +100,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
             AssertEqual(native.BodyColor(frame, 4), colors.BodyColor(frame, 4),
                 $"Mother Brain body death frame {frame} adjacent color stays native");
         }
-        for (int frame = 0; frame < MotherBrainDeathDefinitions.CorpseFadeFrameCount; frame++)
+        for (int frame = 0; frame < MotherBrainDeathColorFile.CorpseFadeFrameCount; frame++)
             AssertTrue(native.CorpseColor(frame, 5) != colors.CorpseColor(frame, 5),
                 $"Mother Brain corpse death frame {frame} edit takes effect");
         AssertTrue(native.ExplodedDoorColor(5) != colors.ExplodedDoorColor(5),
@@ -112,11 +113,11 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
             address => address >= BodyFadeTable &&
                     address < MotherBrainSourceDefinitions.Death.BodyFadeColors(
-                        MotherBrainDeathDefinitions.BodyFadeFrameCount - 1) +
+                        MotherBrainDeathColorFile.BodyFadeFrameCount - 1) +
                         MotherBrainDeathDefinitions.BodyColorCount * 2 * sizeof(ushort) ||
                 address >= CorpseFadeTable &&
                     address < MotherBrainSourceDefinitions.Death.CorpseFadeColors(
-                        MotherBrainDeathDefinitions.CorpseFadeFrameCount - 1) +
+                        MotherBrainDeathColorFile.CorpseFadeFrameCount - 1) +
                         MotherBrainDeathDefinitions.CorpseColorCount * sizeof(ushort) ||
                 address is >= MotherBrainSourceDefinitions.Death.ExplodedDoorColors and
                     < (MotherBrainSourceDefinitions.Death.ExplodedDoorColors +
@@ -130,7 +131,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         cgram.SetColor(MotherBrainDeathColorDestinations.BrainColors - 1, RgbColor.FromWord(0x1234));
         cgram.SetColor(MotherBrainDeathColorDestinations.LegColors - 1, RgbColor.FromWord(0x1234));
         cgram.SetColor(MotherBrainDeathColorDestinations.CorpseColors - 1, RgbColor.FromWord(0x1234));
-        for (int frame = 0; frame < MotherBrainDeathDefinitions.BodyFadeFrameCount; frame++)
+        for (int frame = 0; frame < MotherBrainDeathColorFile.BodyFadeFrameCount; frame++)
         {
             enemies.MotherBrainBehavior.RainbowAndDeath.LoadMotherBrainDeathBodyFade(frame);
             for (int color = 0; color < MotherBrainDeathDefinitions.BodyColorCount; color++)
@@ -145,7 +146,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
                     $"live Mother Brain leg death frame {frame} color {color}");
             }
         }
-        for (int frame = 0; frame < MotherBrainDeathDefinitions.CorpseFadeFrameCount; frame++)
+        for (int frame = 0; frame < MotherBrainDeathColorFile.CorpseFadeFrameCount; frame++)
         {
             enemies.MotherBrainBehavior.RainbowAndDeath.LoadMotherBrainDeathCorpseFade(frame);
             for (int color = 0; color < MotherBrainDeathDefinitions.CorpseColorCount; color++)

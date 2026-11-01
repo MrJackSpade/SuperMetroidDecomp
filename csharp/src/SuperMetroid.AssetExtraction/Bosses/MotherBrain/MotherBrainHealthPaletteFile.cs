@@ -9,6 +9,12 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// <summary>Reads and writes the installed Mother Brain health palette document.</summary>
 public static class MotherBrainHealthPaletteFile
 {
+    /// <summary>Supported schema version requiring paired body and rear-leg arrays with four fifteen-color RGB5 rows each.</summary>
+    public const int Version = 1;
+
+    /// <summary>Installed resource filename loaded with area-map presentation assets for Mother Brain's body/brain and rear-leg damage colors.</summary>
+    public const string FileName = "mother-brain-health-palette.json";
+
     /// <summary>Compiles installed RGB5 health-state artwork, retaining supplied edits independently of the native shade ramps and red-tint calculations.</summary>
     /// <param name="json">UTF-8 JSON input consumed from its current position to the end; the stream remains open.</param>
     /// <returns>Compiled body and rear-leg palette state independent of the source document's mutable arrays.</returns>
@@ -18,7 +24,7 @@ public static class MotherBrainHealthPaletteFile
     {
         MotherBrainHealthPaletteDocument document = JsonAssetDocument.Read<MotherBrainHealthPaletteDocument>(
             json, ArtworkJson.Options, "Mother Brain health palette");
-        if (document.Version != MotherBrainHealthPaletteFormat.Version)
+        if (document.Version != Version)
             throw new InvalidDataException("Unsupported Mother Brain health palette version.");
         return new(Convert(document.Body, nameof(document.Body)),
             Convert(document.BackLegs, nameof(document.BackLegs)));

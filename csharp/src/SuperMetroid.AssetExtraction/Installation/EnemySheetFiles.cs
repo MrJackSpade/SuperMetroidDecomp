@@ -16,6 +16,15 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// </summary>
 public static class EnemySheetFiles
 {
+    /// <summary>The manifest revision this build reads.</summary>
+    public const int ManifestVersion = 6;
+
+    /// <summary>The manifest naming each graphics set's sheet for each of its enemies.</summary>
+    public const string ManifestFileName = "enemy-sheets.json";
+
+    /// <summary>The installation directory holding the sheets and their manifest.</summary>
+    public const string DirectoryName = "enemy-sheets";
+
     /// <summary>The provenance manifest's file name.</summary>
     public const string ProvenanceFileName = "enemy-sheets-provenance.json";
 
@@ -29,7 +38,7 @@ public static class EnemySheetFiles
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ProvenanceFileName);
         store.WriteAll([.. composition.Sheets.Select(entry => new NamedComposedSheet(entry.Key, entry.Value))]);
         store.Finish(sourceCartridgeSha256);
-        File.WriteAllBytes(Path.Combine(directory, EnemySheetDefinitions.ManifestFileName),
+        File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(composition.Manifest, JsonOptions));
     }
 
@@ -41,11 +50,11 @@ public static class EnemySheetFiles
     public static InstalledEnemySheets Load(string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, EnemySheetDefinitions.ManifestFileName);
+        string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
         EnemySheetManifestDocument manifest = JsonSerializer.Deserialize<EnemySheetManifestDocument>(File.ReadAllBytes(manifestPath), JsonOptions)
             ?? throw new InvalidDataException($"Enemy sheet manifest {manifestPath} is empty.");
-        if (manifest.Version != EnemySheetDefinitions.ManifestVersion)
-            throw new InvalidDataException($"Enemy sheet manifest {manifestPath} has revision {manifest.Version}, not {EnemySheetDefinitions.ManifestVersion}.");
+        if (manifest.Version != ManifestVersion)
+            throw new InvalidDataException($"Enemy sheet manifest {manifestPath} has revision {manifest.Version}, not {ManifestVersion}.");
         string[] names = [.. manifest.Sets.Values.SelectMany(members => members.Values)
             .Concat(manifest.Spawned.Values.SelectMany(bases => bases.Values.Select(entry => entry.Sheet))).Distinct(StringComparer.Ordinal)];
         // A player's sheet written before enemy frames were named for their meaning names them by their older keys (#1465).

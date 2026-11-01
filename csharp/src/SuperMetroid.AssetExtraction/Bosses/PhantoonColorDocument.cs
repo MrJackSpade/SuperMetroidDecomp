@@ -1,5 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 

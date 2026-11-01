@@ -24,6 +24,7 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 
@@ -50,7 +51,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("GameOverPresentation", "ApplyBabyPalette", "palette") => new(0, 4),
         ("PauseReserveUiPresentation", "ApplyDigit", "position") => new(0, PauseReserveUiDefinitions.SupplyDigitPlaces),
         ("PauseReserveUiPresentation", "ApplyDigit", "value") => new(0, PauseReserveUiDefinitions.DigitCount),
-        ("InstalledBeamPalettes", "LoadTo", "selection") => new(0, BeamPaletteDefinitions.SelectionCount),
+        ("InstalledBeamPalettes", "LoadTo", "selection") => new(0, BeamPaletteFile.SelectionCount),
         ("CeresRidleyColorCatalog", "ApplyEyeFade", "shade") => new(0, CeresRidleyPaletteDefinitions.EyeFadeShadeCount),
         ("CeresRidleyColorCatalog", "ApplyBodyFade", "shade") => new(0, CeresRidleyPaletteDefinitions.BodyFadeShadeCount),
         ("CeresRidleyColorCatalog", "ApplyHealth", "band") => new(0, CeresRidleyPaletteDefinitions.HealthBandCount),
@@ -73,9 +74,9 @@ internal static class ClosedPresentationIndexDefinitions
         ("MotherBrainRainbowPalettePresentation", "ApplyRainbow", "frame") => new(0, MotherBrainRainbowPaletteFormat.RainbowFrameCount),
         ("MotherBrainRainbowPalettePresentation", "ApplyToGrey" or "ApplyFromGrey" or "ApplyFakeDeathFromGrey", "frame") => new(0, MotherBrainRainbowPaletteFormat.GreyFrameCount),
         ("MotherBrainRainbowPalettePresentation", "ApplyFakeDeathToGrey", "frame") => new(0, MotherBrainFakeDeathPaletteDefinitions.FrameCount),
-        ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor", "frame") => new(0, MotherBrainDeathDefinitions.BodyFadeFrameCount),
+        ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor", "frame") => new(0, MotherBrainDeathColorFile.BodyFadeFrameCount),
         ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor" or "ExplodedDoorColor", "color") => new(0, MotherBrainDeathDefinitions.BodyColorCount),
-        ("MotherBrainDeathColorCatalog", "CorpseColor", "frame") => new(0, MotherBrainDeathDefinitions.CorpseFadeFrameCount),
+        ("MotherBrainDeathColorCatalog", "CorpseColor", "frame") => new(0, MotherBrainDeathColorFile.CorpseFadeFrameCount),
         ("MotherBrainDeathColorCatalog", "CorpseColor", "color") => new(0, MotherBrainDeathDefinitions.CorpseColorCount),
         ("InstalledSamusDeathPalettes", "SuitedColor", "suit") => new(0, InstalledSamusDeathPalettes.SuitCount),
         ("InstalledSamusDeathPalettes", "SuitedColor" or "SuitlessColor", "palette") => new(0, SamusPaletteDefinitions.Death.PaletteCount),

@@ -14,19 +14,20 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.AssetExtraction.Artwork;
 
+using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 /// <summary>Checks statically identified enemy definition conversions against ROM and installed artwork.</summary>
 internal static class EnemyDefinitionBoundaryVerification
 {

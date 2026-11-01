@@ -79,6 +79,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Compares stream-four imported definitions and runtime consumers with pinned cartridge data.</summary>

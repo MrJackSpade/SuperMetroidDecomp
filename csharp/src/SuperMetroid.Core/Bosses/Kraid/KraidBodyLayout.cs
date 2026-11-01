@@ -8,7 +8,4 @@ internal static class KraidBodyLayout
 {
     /// <summary>The rows of Kraid's body layer: four pages of thirty-two.</summary>
     internal const int LayerRows = 128;
-
-    /// <summary>The first row of the bottom-left page, where his lower body is drawn.</summary>
-    internal const int LowerPageTopRow = 64;
 }

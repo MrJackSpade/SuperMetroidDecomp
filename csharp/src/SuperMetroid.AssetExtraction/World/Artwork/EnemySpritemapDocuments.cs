@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.World.Artwork;
 

@@ -42,11 +42,11 @@ internal static class PowerBombFixedColorsVerification
                 byte red = (byte)color.Red;
                 byte green = (byte)color.Green;
                 byte blue = (byte)color.Blue;
-                AssertEqual((byte)(rom.ReadCartridgeByte(address) & SamusPaletteDefinitions.PowerBomb.ComponentMask),
+                AssertEqual((byte)(rom.ReadCartridgeByte(address) & PowerBombFixedColorExtractor.ComponentMask),
                     red, $"{sequence} native red {index}");
-                AssertEqual((byte)(rom.ReadCartridgeByte(address + 1) & SamusPaletteDefinitions.PowerBomb.ComponentMask),
+                AssertEqual((byte)(rom.ReadCartridgeByte(address + 1) & PowerBombFixedColorExtractor.ComponentMask),
                     green, $"{sequence} native green {index}");
-                AssertEqual((byte)(rom.ReadCartridgeByte(address + 2) & SamusPaletteDefinitions.PowerBomb.ComponentMask),
+                AssertEqual((byte)(rom.ReadCartridgeByte(address + 2) & PowerBombFixedColorExtractor.ComponentMask),
                     blue, $"{sequence} native blue {index}");
                 compared++;
             }
@@ -112,9 +112,9 @@ internal static class PowerBombFixedColorsVerification
     internal static void VerifyPowerBombFixedColorOverride(string stock, string overrides,
         AreaMapPresentation baseline)
     {
-        string path = Path.Combine(overrides, PowerBombFixedColorFormat.FileName);
+        string path = Path.Combine(overrides, PowerBombFixedColorFile.FileName);
         PowerBombFixedColorDocument document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(
-            File.ReadAllBytes(Path.Combine(stock, PowerBombFixedColorFormat.FileName)),
+            File.ReadAllBytes(Path.Combine(stock, PowerBombFixedColorFile.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Power Bomb color document is null.");
         PaletteRgb5 original = document.PreExplosion[0];

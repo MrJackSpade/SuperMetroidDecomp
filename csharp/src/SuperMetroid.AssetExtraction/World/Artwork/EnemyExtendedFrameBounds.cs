@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 
 namespace SuperMetroid.AssetExtraction.World.Artwork;
 

@@ -7,10 +7,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>Installed-resource identity, schema revision, and sequence dimensions for explosion fixed-color artwork.</summary>
 public static class PowerBombFixedColorFormat
 {
-    /// <summary>JSON resource filename containing the pre-explosion and explosion RGB5 sequences.</summary>
-    public const string FileName = "power-bomb-fixed-colors.json";
-    /// <summary>Supported schema revision, one, fixing the sixteen- and thirty-two-entry sequence dimensions.</summary>
-    public const int Version = 1;
 
 
     /// <summary>Returns the number of radius-addressable RGB5 triplets in the selected sequence.</summary>

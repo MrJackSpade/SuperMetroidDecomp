@@ -20,7 +20,7 @@ public static class SamusSuitColorExtractor
         Ensure.NotNull(bus);
         return SamusSuitColorFile.Write(new SamusSuitColorDocument
         {
-            Version = SamusSuitColorFormat.Version,
+            Version = SamusSuitColorFile.Version,
             Power = Read(SamusSourceDefinitions.PowerSuitPalette.Value),
             Varia = Read(SamusSourceDefinitions.VariaSuitPalette.Value),
             Gravity = Read(SamusSourceDefinitions.GravitySuitPalette.Value),

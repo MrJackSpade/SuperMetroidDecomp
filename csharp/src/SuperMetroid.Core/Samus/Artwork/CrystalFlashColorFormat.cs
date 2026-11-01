@@ -5,10 +5,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>Resource identity, supported JSON version, and fixed dimensions derived from the Crystal Flash palette programs.</summary>
 public static class CrystalFlashColorFormat
 {
-    /// <summary>Installed presentation resource name, <c>crystal-flash-colors.json</c>.</summary>
-    public const string FileName = "crystal-flash-colors.json";
-    /// <summary>Supported JSON schema revision one, checked before palette compilation.</summary>
-    public const int Version = 1;
     /// <summary>Ten editable body frames, one per pointer/timer record in playback order.</summary>
     public const int BodyFrameCount = SamusPaletteDefinitions.CrystalFlash.BodyRecordCount;
     /// <summary>Six editable bubble frames selected independently by the pointer table.</summary>

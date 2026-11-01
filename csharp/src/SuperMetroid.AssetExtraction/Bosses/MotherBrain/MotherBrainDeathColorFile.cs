@@ -3,12 +3,19 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Reads and writes the installed Mother Brain death colour document.</summary>
 public static class MotherBrainDeathColorFile
 {
+    /// <summary>The body and leg fade images, shown in order before the body is cleared.</summary>
+    public const int BodyFadeFrameCount = 16;
+
+    /// <summary>The corpse-head fade images, shown in order while the corpse rots away.</summary>
+    public const int CorpseFadeFrameCount = 8;
+
     /// <summary>Validates and compiles the death-fade and exploded-door RGB5 document, retaining edited images independently of the health-palette presentation.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
     /// <returns>Compiled color catalog detached from the deserialized document arrays.</returns>
@@ -23,13 +30,13 @@ public static class MotherBrainDeathColorFile
             throw new InvalidDataException(
                 "Mother Brain death colors require the supported version.");
         return new(CompileFrames(document.BodyFade,
-                MotherBrainDeathDefinitions.BodyFadeFrameCount,
+                BodyFadeFrameCount,
                 MotherBrainDeathDefinitions.BodyColorCount, "body fade"),
             CompileFrames(document.LegFade,
-                MotherBrainDeathDefinitions.BodyFadeFrameCount,
+                BodyFadeFrameCount,
                 MotherBrainDeathDefinitions.BodyColorCount, "leg fade"),
             CompileFrames(document.CorpseFade,
-                MotherBrainDeathDefinitions.CorpseFadeFrameCount,
+                CorpseFadeFrameCount,
                 MotherBrainDeathDefinitions.CorpseColorCount, "corpse fade"),
             Compile(document.ExplodedDoor, MotherBrainDeathDefinitions.BodyColorCount,
                 "exploded door"));

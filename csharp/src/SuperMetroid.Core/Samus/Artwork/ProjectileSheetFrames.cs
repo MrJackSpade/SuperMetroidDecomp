@@ -21,11 +21,4 @@ public static class ProjectileSheetFrames
 
     /// <summary>The frame of a trail pose.</summary>
     public static string TrailFrame(ProjectileTrailFrame pose) => "Trail." + pose;
-
-    /// <summary>Every frame a projectile sheet holds: each projectile and flare composition, each trail pose and the unshown trail.</summary>
-    public static IEnumerable<string> Frames =>
-        ProjectileSpriteDefinitions.All.Select(ProjectileFrame)
-            .Concat(FlareCompositions.Select(FlareFrame))
-            .Concat(Enum.GetValues<ProjectileTrailFrame>().Select(TrailFrame))
-            .Append(UnshownTrailFrame);
 }

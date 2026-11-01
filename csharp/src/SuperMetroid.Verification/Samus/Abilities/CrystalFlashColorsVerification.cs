@@ -48,12 +48,12 @@ internal static class CrystalFlashColorsVerification
         }
 
         CrystalFlashColorDocument document = JsonSerializer.Deserialize<CrystalFlashColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, CrystalFlashColorFormat.FileName)),
+            File.ReadAllBytes(Path.Combine(stockDirectory, CrystalFlashColorFile.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Crystal Flash color JSON is null.");
         Paint(document.Body[0]);
         Paint(document.Bubble[0]);
-        string replacement = Path.Combine(overrideDirectory, CrystalFlashColorFormat.FileName);
+        string replacement = Path.Combine(overrideDirectory, CrystalFlashColorFile.FileName);
         File.WriteAllBytes(replacement, CrystalFlashColorFile.Write(document));
         AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,

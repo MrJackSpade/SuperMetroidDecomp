@@ -9,6 +9,15 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Reads and writes the installed ordinary beam palette document.</summary>
 public static class BeamPaletteFile
 {
+    /// <summary>Twelve legal beam-combination pointers precede the palette data: one palette per retail combination.</summary>
+    public const int SelectionCount = 12;
+
+    /// <summary>Supported revision of the twelve-selection beam-palette JSON schema.</summary>
+    public const int Version = 1;
+
+    /// <summary>Asset filename for the ordinary beam-combination RGB5 palettes.</summary>
+    public const string FileName = "beam-palettes.json";
+
     /// <summary>Strict camel-case JSON settings shared by beam palette loading and writing.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -31,7 +40,7 @@ public static class BeamPaletteFile
                 ?? throw new InvalidDataException("Beam palettes are null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid beam palette JSON.", error); }
-        if (document.Version != BeamPaletteDefinitions.Version || document.Palettes is null ||
+        if (document.Version != Version || document.Palettes is null ||
             document.Palettes.Count != BeamTileAtlasDefinitions.SelectionCount)
             throw new InvalidDataException("Beam palettes require version 1 and all twelve selections.");
         var compiled = new RgbColor[BeamTileAtlasDefinitions.SelectionCount][];

@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>The charge/Hyper flare and its directional sparks.</summary>
 public static class ChargeFlareSpriteDefinitions
 {
-    /// <summary>Installed JSON resource filename for charge/Hyper/grapple flare and spark sprite compositions, separate from ordinary projectile compositions.</summary>
-    public const string FileName = "charge-flare-compositions.json";
     /// <summary>FlareSpritemapTable_IndexOffsets: both facing rows select the main flare at offset zero.</summary>
     public const int MainFlareSelectorOffset = 0;
 

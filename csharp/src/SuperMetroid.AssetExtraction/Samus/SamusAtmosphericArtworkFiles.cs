@@ -5,7 +5,6 @@ using SuperMetroid.Core.Assets;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -106,7 +105,7 @@ public static class SamusAtmosphericArtworkFiles
     /// <summary>Imports one native atmospheric list, decoding its four attribute words into single small pieces.</summary>
     private static SpriteVisualPart[] ReadList(ISnesAddressSpace bus, int pointer)
     {
-        var parts = new SpriteVisualPart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount];
+        var parts = new SpriteVisualPart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount];
         for (int frame = 0; frame < parts.Length; frame++)
             parts[frame] = SpriteVisualPart.FromSpritePart(new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(
                 SamusSourceDefinitions.MovementBank.Value | pointer + frame * 2)).ToSinglePart(), SpriteArtwork.CharactersPerRow);

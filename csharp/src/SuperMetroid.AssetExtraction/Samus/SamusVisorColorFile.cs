@@ -8,6 +8,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Reads and writes the installed Samus visor colour document.</summary>
 public static class SamusVisorColorFile
 {
+    /// <summary>Supported schema revision, one, requiring exactly the six authored visor words.</summary>
+    public const int Version = 1;
+
+    /// <summary>JSON resource filename containing the six editable visor RGB5 colors.</summary>
+    public const string FileName = "samus-visor-colors.json";
+
     /// <summary>Validates the six RGB5 visor colors and compiles independent edits relative to the reviewed $9B:A3C0 widening/cycling definitions.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
     /// <returns>Compiled visor colors detached from the document array, without changing X-ray or room-cycle timing.</returns>
@@ -18,7 +24,7 @@ public static class SamusVisorColorFile
         Ensure.NotNull(json);
         SamusVisorColorDocument document;
         document = JsonAssetDocument.Read<SamusVisorColorDocument>(json, ArtworkJson.Options, "Samus visor color");
-        if (document.Version != SamusVisorColorFormat.Version ||
+        if (document.Version != Version ||
             document.Colors is null || document.Colors.Length != SamusVisorColorFormat.ColorCount)
             throw new InvalidDataException("Samus visor colors require the supported version and six RGB5 colors.");
 
@@ -37,7 +43,7 @@ public static class SamusVisorColorFile
 
     /// <summary>Serializes the editable visor colors to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Read"/>.</summary>
     /// <param name="document">All six RGB5 visor colors to serialize; the array is not retained.</param>
-    /// <returns>Validated JSON bytes for <see cref="SamusVisorColorFormat.FileName"/>.</returns>
+    /// <returns>Validated JSON bytes for <see cref="FileName"/>.</returns>
     /// <exception cref="InvalidDataException">The serialized document fails schema, color-count, or RGB5-channel validation.</exception>
     public static byte[] Write(SamusVisorColorDocument document) =>
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));

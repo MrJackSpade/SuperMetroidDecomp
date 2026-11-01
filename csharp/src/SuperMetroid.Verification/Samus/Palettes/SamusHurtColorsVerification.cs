@@ -105,9 +105,9 @@ internal static class SamusHurtColorsVerification
     internal static void VerifySamusHurtColorOverride(string stock, string overrides,
         AreaMapPresentation baseline, ISnesAddressSpace rom)
     {
-        string path = Path.Combine(overrides, SamusHurtColorFormat.FileName);
+        string path = Path.Combine(overrides, SamusHurtColorFile.FileName);
         SamusHurtColorDocument document = JsonSerializer.Deserialize<SamusHurtColorDocument>(
-            File.ReadAllBytes(Path.Combine(stock, SamusHurtColorFormat.FileName)),
+            File.ReadAllBytes(Path.Combine(stock, SamusHurtColorFile.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Samus hurt color document is null.");
         PaletteRgb5 hurtOriginal = document.Hurt[5];

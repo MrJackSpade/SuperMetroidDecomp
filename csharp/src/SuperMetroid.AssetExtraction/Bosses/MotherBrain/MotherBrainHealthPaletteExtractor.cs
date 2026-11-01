@@ -17,7 +17,7 @@ internal static class MotherBrainHealthPaletteExtractor
         using var json = new MemoryStream();
         MotherBrainHealthPaletteFile.Write(json, new MotherBrainHealthPaletteDocument
         {
-            Version = MotherBrainHealthPaletteFormat.Version,
+            Version = MotherBrainHealthPaletteFile.Version,
             Body = ReadTable(MotherBrainSourceDefinitions.Palettes.HealthBodyPointerTable),
             BackLegs = ReadTable(MotherBrainSourceDefinitions.Palettes.HealthRearLegPointerTable),
         });

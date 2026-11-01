@@ -12,6 +12,12 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 internal static class CrocomireMeltDissolve
 {
+    /// <summary>Characters in one row of a melt image, and so between the first characters of consecutive bands.</summary>
+    public const int BandRowCharacters = 16;
+
+    /// <summary>Characters a band shows from the start of its row.</summary>
+    public const int BandCharacterCount = 11;
+
     /// <summary>
     /// <c>CrocomireMeltingXOffsetTable</c> at <c>$A4:9697-$A4:96C7</c>: the column each step erases.
     /// </summary>
@@ -76,12 +82,12 @@ internal static class CrocomireMeltDissolve
     /// The first of the room's tile characters <paramref name="band"/>'s characters show over: the first character of the
     /// band's row of the melt image.
     /// </summary>
-    internal static int BandFirstCharacter(int band) => band * CrocomireMeltingDefinitions.BandRowCharacters;
+    internal static int BandFirstCharacter(int band) => band * BandRowCharacters;
 
     /// <summary>The bytes of the characters <paramref name="band"/> shows in an assembled melt <paramref name="image"/>.</summary>
     internal static ReadOnlyMemory<byte> BandCharacters(byte[] image, int band) =>
-        image.AsMemory(band * CrocomireMeltingDefinitions.BandRowCharacters * RoomCharacterAtlasFormat.BytesPerTile,
-            CrocomireMeltingDefinitions.BandCharacterCount * RoomCharacterAtlasFormat.BytesPerTile);
+        image.AsMemory(band * BandRowCharacters * RoomCharacterAtlasFormat.BytesPerTile,
+            BandCharacterCount * RoomCharacterAtlasFormat.BytesPerTile);
 
     /// <summary>
     /// Erases the column step <paramref name="step"/> selects, every pixel row of it, through the step's mask in all four

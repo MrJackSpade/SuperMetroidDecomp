@@ -49,8 +49,6 @@ public static class MotherBrainRainbowPaletteFormat
     internal const int BlueRaisedPhase = 9;
     /// <summary>All15 body inks add5 blue; selected magnitude is chosen paint-animation content.</summary>
     internal const int BlueAddition = 5;
-    /// <summary>Installed editable JSON filename for rainbow, drain/revival, fake-death, restoration, and beam-backdrop colors.</summary>
-    public const string FileName = "mother-brain-rainbow-palette.json";
     /// <summary>Ten full-palette phases before the terminator in the rainbow palette list.</summary>
     public const int RainbowFrameCount = 10;
     /// <summary>Eight authored steps in each drain and revival palette pointer sequence; cadence and completion are controlled by boss AI.</summary>

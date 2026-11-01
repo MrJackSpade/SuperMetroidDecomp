@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Assets;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -89,9 +90,9 @@ internal sealed class SetRegions
             Add(new GraphicsSetTileCharacters(entry),
                 EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter * SpriteCharacterTableLayout.CharacterByteCount + entry.StagingOffset, entry.TileByteCount);
         Add(new InstalledArtworkCharacters(InstalledArtworkId.StandardObjectTiles), 0, StandardObjectArtworkFormat.ByteCount);
-        LookRegion[][] rotRows = corpseRows.Count == 0 ? [] : [.. MotherBrainCorpseArtworkDefinitions.RotRows.Select(row =>
-            Regions.Where(range => range.FirstByte >= row.FirstCharacter * CharacterBytes
-                && range.FirstByte + range.ByteCount <= row.FirstCharacter * CharacterBytes + row.ByteCount).Select(RegionOf).ToArray())];
+        LookRegion[][] rotRows = corpseRows.Count == 0 ? [] : [.. MotherBrainCorpseSheet.RotRows.Select(row =>
+            Regions.Where(range => range.FirstByte >= MotherBrainCorpseSheet.RotRowFirstCharacter(row) * CharacterBytes
+                && range.FirstByte + range.ByteCount <= MotherBrainCorpseSheet.RotRowFirstCharacter(row) * CharacterBytes + row.ByteCount).Select(RegionOf).ToArray())];
         return new SetLookCoverage([.. Regions.Select(RegionOf)], bySource, rotRows);
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
@@ -80,6 +81,10 @@ public sealed record GameInstallation(string Root)
     public string SamusOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing Samus's glitch reads.</summary>
     public SamusOverreadServices LoadSamusOverreads() => SamusOverreadFiles.Load(SamusOverreadDirectory);
+    /// <summary>Stock decoded results of what enemies read past their authored data; not editable, so there is no override directory.</summary>
+    public string EnemyOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemyOverreadDirectoryName);
+    /// <summary>Loads the validated compatibility services reproducing what enemies read past their authored data.</summary>
+    public EnemyOverreadServices LoadEnemyOverreads() => EnemyOverreadFiles.Load(EnemyOverreadDirectory);
     /// <summary>Stock pre-coloured sprite sheets and their frame manifests.</summary>
     public string SpriteSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SpriteSheetDirectoryName);
     /// <summary>Player-edited sprite sheet images or frame manifests, which replace the stock files of the same name.</summary>
@@ -457,6 +462,7 @@ public sealed record GameInstallation(string Root)
             GrappleFlarePlacement = projectiles.GrappleTiles.FlarePlacement,
             GrappleSwingFrames = projectiles.GrappleTiles.SwingFrames,
             SamusOverreads = LoadSamusOverreads(),
+            EnemyOverreads = LoadEnemyOverreads(),
             SpriteSheets = LoadSpriteSheets(),
             EnemySheets = LoadEnemySheets(),
             BossBodySheets = LoadBossBodySheets(),

@@ -7,10 +7,9 @@ public static class FallingSparkLaunchDefinitions
     internal static readonly RandomSampleField LaunchSelector = new(2, 3);
 
     /// <summary>
-    /// Distance and subdistance: seven interleaved authored records, by launch selector, as signed 16.16
-    /// horizontal deltas: four leftward and three rightward launches.
-    /// The eighth RNG outcome reads F3F0/F3F2 instruction words DBBD/301A; retain
-    /// that overread rather than inventing a symmetric positive speed.
+    /// Distance and subdistance: the seven authored records, by launch selector, as signed 16.16 horizontal deltas:
+    /// four leftward and three rightward launches. The eighth selection lies past them and drifts by
+    /// <see cref="FallingSparkUnauthoredLaunch"/>.
     /// </summary>
     internal static readonly SignedSixteenSixteen[] Launches =
     [
@@ -21,6 +20,5 @@ public static class FallingSparkLaunchDefinitions
         SignedSixteenSixteen.FromParts(0, 256),
         SignedSixteenSixteen.FromParts(0, 8192),
         SignedSixteenSixteen.FromParts(0, 16384),
-        SignedSixteenSixteen.FromParts(-9283, 12314),
     ];
 }

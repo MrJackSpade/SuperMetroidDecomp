@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms;
@@ -142,6 +143,9 @@ internal interface IGameplayArtwork
 
     /// <summary>The pre-coloured enemy sheets, by the room graphics set that loads each enemy.</summary>
     InstalledEnemySheets? EnemySheets { get; }
+
+    /// <summary>The compatibility services reproducing what enemies read past their authored data, decoded from the player's game data.</summary>
+    EnemyOverreadServices? EnemyOverreads { get; }
 
     /// <summary>Charge-flare placement.</summary>
     ChargeFlarePlacements? ChargeFlarePlacement { get; }

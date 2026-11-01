@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -183,6 +184,9 @@ public sealed record GameArtwork : IGameplayArtwork
 
     /// <summary>The pre-coloured enemy sheets, by the room graphics set that loads each enemy.</summary>
     public InstalledEnemySheets? EnemySheets { get; init; }
+
+    /// <summary>The compatibility services reproducing what enemies read past their authored data, decoded from the player's game data.</summary>
+    public EnemyOverreadServices? EnemyOverreads { get; init; }
 
     /// <summary>Charge-flare placement.</summary>
     public ChargeFlarePlacements? ChargeFlarePlacement { get; init; }

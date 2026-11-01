@@ -32,6 +32,12 @@ internal static class InstalledFixtures
     /// <summary>The installation's services reproducing Samus's glitch reads.</summary>
     internal static SamusOverreadServices SamusOverreads => samusOverreads.Value;
 
+    /// <summary>The installation's services reproducing what enemies read past their authored data, loaded once.</summary>
+    private static readonly Lazy<SuperMetroid.Core.Enemies.EnemyOverreadServices> enemyOverreads = new(() => RepositoryInstallation.Installation.LoadEnemyOverreads());
+
+    /// <summary>The installation's services reproducing what enemies read past their authored data.</summary>
+    internal static SuperMetroid.Core.Enemies.EnemyOverreadServices EnemyOverreads => enemyOverreads.Value;
+
     /// <summary>The installation's continuation of a Samus animation frame past its pose's program, which every Samus takes.</summary>
     internal static SuperMetroid.Core.Compatibility.LaidOutProgramContinuation<SuperMetroid.Core.Samus.Poses.SamusPoseId> AnimationContinuation =>
         SamusOverreads.AnimationContinuation;

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.Magdollite;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Reproduces Magdollite's slot-indexed apex threshold read from the native overrun table.</summary>
 internal static class MagdolliteApexThresholdVerification
@@ -15,25 +16,26 @@ internal static class MagdolliteApexThresholdVerification
     /// index into Y. The recorded Crateria arm in slot two reads $AE9D and grows one final
     /// pillar segment at the apex. For every enemy slot, the cartridge's signed comparison of each rise an arm can
     /// reach the apex with (the maximum rise plus at most one step of the fastest speed record) against the overread
-    /// word must give the production table's answer.
+    /// word must give the installed <see cref="MagdolliteApexGrowth"/> service's answer (#1500).
     /// </summary>
     internal static void VerifyMagdolliteApexThreshold()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         VerifyMagdollitePhaseDefinitions(rom);
         const int largestStep = 5;
-        for (int slot = 0; slot < MagdollitePhaseDefinitions.ApexEnemySlotCount; slot++)
+        MagdolliteApexGrowth installed = InstalledFixtures.EnemyOverreads.MagdolliteApexGrowth;
+        for (int slot = 0; slot < EnemySlotOrder.Capacity; slot++)
         {
             int address = 0xa80000 | MagdollitePhaseDefinitions.ArmHeightThresholdTable + slot * 0x40;
             ushort overread = ReadMagdolliteWord(rom, address);
             for (int rise = MagdollitePhaseDefinitions.MaximumRise; rise <= MagdollitePhaseDefinitions.MaximumRise + largestStep; rise++)
             {
-                AssertEqual(unchecked((short)(rise - overread)) >= 0, MagdolliteRise.ApexGrowsFinalPhase(slot),
+                AssertEqual(unchecked((short)(rise - overread)) >= 0, installed.GrowsFinalSegment(slot),
                     $"Magdollite apex growth for slot {slot} at a rise of {rise}");
             }
         }
-        AssertThrows<InvalidDataException>(
-            () => MagdolliteRise.ApexGrowsFinalPhase(MagdollitePhaseDefinitions.ApexEnemySlotCount),
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => installed.GrowsFinalSegment(EnemySlotOrder.Capacity),
             "Magdollite apex growth beyond the enemy slots");
 
         VerifyRiseCarry();
@@ -80,7 +82,7 @@ internal static class MagdolliteApexThresholdVerification
 
         static void VerifyApex(int headSlot, bool grows)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Overreads = InstalledFixtures.EnemyOverreads }, definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, SamusState?> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
             Action<RoomEnemySlot, MagdolliteEnemyState, SamusState?> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
             for (int part = 0; part < 3; part++)

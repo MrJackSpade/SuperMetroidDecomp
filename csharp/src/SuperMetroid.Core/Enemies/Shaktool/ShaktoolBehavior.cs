@@ -62,6 +62,15 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ResetOrientation();
         slot.Properties = slot.Properties.With(definition.PropertyMask);
         state.OwnerSlotIndex = slot.SlotIndex - definition.OwnerSlotDistance;
+        // A kill empties the struck segment's owner, and the chain's death then deletes the seven slots from the
+        // first. Both retail Shaktool room states place the chain in the first seven slots, so those are its own
+        // segments; a chain anywhere else would delete unrelated enemies, which no retail room reaches.
+        if (state.OwnerSlotIndex != 0)
+        {
+            throw new InvalidDataException(
+                $"Shaktool's chain starts in enemy slot {state.OwnerSlotIndex}; its death deletes the first seven slots, " +
+                "where both retail Shaktool room states place it.");
+        }
         state.FrameBehavior = definition.FrameBehavior;
         // Initialization subtracts the parallel all-zero table; synchronization
         // uses the same authored velocity directly.
@@ -495,10 +504,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (struckSegment.Health != 0)
             return;
-        // The generic death clears the entire common slot, which empties the segment's owner. Shaktool's death tail
-        // reads that now-zero owner and writes properties without checking headers.
-        // Do not recover the old group from before the kill: the game also targets slots
-        // 0..6 when Shaktool was placed later in a constructed population.
+        // The generic death clears the entire common slot, which empties the segment's owner to the first slot.
+        // Initialization requires the chain to start there, so the seven slots from it are the chain's own segments.
         int ownerSlotIndex = RequireShaktoolState(struckSegment).OwnerSlotIndex;
         if (ownerSlotIndex < 0 ||
             ownerSlotIndex + ShaktoolSegmentCount > _slotTable.Slots.Count)

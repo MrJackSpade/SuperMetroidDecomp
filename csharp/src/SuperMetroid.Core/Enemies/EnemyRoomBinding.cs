@@ -52,6 +52,11 @@ internal sealed class EnemyRoomBinding
     /// <summary>The session's record of what Mother Brain's rainbow-beam push hides from the camera.</summary>
     internal RainbowBeamCameraCheckpoint? RainbowBeamCameraCheckpoint => Session.RainbowBeamCameraCheckpoint;
 
+    /// <summary>The session's installed services reproducing what enemies read past their authored data (#1500).</summary>
+    /// <exception cref="InvalidOperationException">The host installed none.</exception>
+    internal EnemyOverreadServices Overreads => Session.Overreads ?? throw new InvalidOperationException(
+        "An enemy read past its authored data in an enemy session without installed enemy over-read services.");
+
     /// <summary>The bound enemy definition source; enemy work requires a loaded room population.</summary>
     internal IRoomEnemyDefinitionSource LoadedDefinitions =>
         Definitions ?? throw new InvalidOperationException("A room enemy population must be loaded first.");

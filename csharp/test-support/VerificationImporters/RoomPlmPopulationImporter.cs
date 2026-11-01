@@ -35,9 +35,13 @@ internal static class RoomPlmPopulationImporter
                     $"at block ({blockX},{blockY}) with argument ${argument:X4}.");
             var metadata = new RoomPlmHeaderDefinition(header);
             byte[] scroll = header == PlmHeaderId.ScrollTrigger ? Scroll(argument) : [];
+            RoomScrollProgram? retailScroll = header == PlmHeaderId.ScrollTrigger ? RetailScrollProgram(argument, scroll) : null;
             records.Add(new RoomPlmPlacement(metadata,
-                new(blockX, blockY), PlmRoomArgumentWords.Decode(header, argument), scroll,
-                DraygonCannonPlms.IsDraygonCannonHeader(header) ? DraygonWallCannonAddresses.Decode(argument) : null));
+                new(blockX, blockY), PlmRoomArgumentWords.Decode(header, argument), retailScroll is null ? scroll : [],
+                DraygonCannonPlms.IsDraygonCannonHeader(header) ? DraygonWallCannonAddresses.Decode(argument) : null)
+            {
+                CompiledScrollProgram = retailScroll,
+            });
             cursor = unchecked((ushort)(cursor + RoomPlmPopulationFormatConstants.RecordByteCount));
         }
         // Preserve the loader's bounded parser: a terminator beyond record 256
@@ -47,6 +51,18 @@ internal static class RoomPlmPopulationImporter
         byte Byte(byte bank, ushort offset) => cartridge.ReadCartridgeByte(((int)new SnesAddress(bank, offset)));
         ushort Word(byte bank, ushort offset) =>
             LittleEndianBytes.Word(Byte(bank, offset), Byte(bank, unchecked((ushort)(offset + 1))));
+        // A trigger whose argument is where a retail scroll program is stored, and which finds that program's pairs there,
+        // runs that retail program, as the compiled populations bind it; pairs stored anywhere else are a constructed
+        // program the trigger carries itself.
+        static RoomScrollProgram? RetailScrollProgram(ushort argument, byte[] pairs)
+        {
+            foreach ((RoomScrollProgram program, ushort address) in RoomScrollProgramNative.Addresses)
+            {
+                if (address == argument && RoomPlmScrollProgramDefinitions.Get(address).Span.SequenceEqual(pairs))
+                    return program;
+            }
+            return null;
+        }
         byte[] Scroll(ushort argument)
         {
             var pairs = new List<byte>();

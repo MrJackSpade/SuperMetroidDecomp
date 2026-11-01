@@ -37,9 +37,9 @@ internal sealed record CorpseRowGeometry(bool InHeap, int Rows, int TilesPerRow,
     /// Mother Brain's corpse's movers ($A9:EA40-$EB07): its rows' last two pixel rows land in the next row of characters, and
     /// its bottom two rows clear without copying.
     /// </summary>
-    internal static CorpseRowGeometry MotherBrain { get; } = new(InHeap: true, Rows: 8, MotherBrainCorpseArtworkDefinitions.ColumnCount,
-        [.. Enumerable.Range(0, MotherBrainCorpseArtworkDefinitions.ColumnCount).Select(column => column * MotherBrainCorpseArtworkDefinitions.TileBytes / 2)],
-        [.. Enumerable.Range(0, MotherBrainCorpseArtworkDefinitions.ColumnCount).Select(MotherBrainCorpseSheet.ColumnMinimumY)],
+    internal static CorpseRowGeometry MotherBrain { get; } = new(InHeap: true, Rows: 8, MotherBrainCorpseSheet.ColumnCount,
+        [.. Enumerable.Range(0, MotherBrainCorpseSheet.ColumnCount).Select(column => column * MotherBrainCorpseSheet.TileBytes / 2)],
+        [.. Enumerable.Range(0, MotherBrainCorpseSheet.ColumnCount).Select(MotherBrainCorpseSheet.ColumnMinimumY)],
         CopyLimit: MotherBrainCorpseRottingState.EntryCount - 2, Wrap: 212);
 
     /// <summary>

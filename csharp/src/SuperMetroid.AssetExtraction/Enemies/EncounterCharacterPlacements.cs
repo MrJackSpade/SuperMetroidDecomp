@@ -54,7 +54,7 @@ internal static class EncounterCharacterPlacements
         MotherBrainSpecialSpriteCharacters special => new(source,
             MotherBrainSpecialSprites.PageFirstCharacter(MotherBrainSpecialSpriteArtworkDefinitions.All[special.Sheet], special.Page), Characters(MotherBrainSpecialSpriteSheetDefinition.PageByteCount)),
         MotherBrainCorpseCharacters corpse => new(source,
-            MotherBrainCorpseSheet.PageFirstCharacter(corpse.Page), Characters(MotherBrainCorpseArtworkDefinitions.PageByteCount)),
+            MotherBrainCorpseSheet.PageFirstCharacter(corpse.Page), Characters(MotherBrainCorpseSheet.PageByteCount)),
         MotherBrainEscapeTextCharacters text => new(source,
             EscapeTextPages.PageFirstCharacter(text.Page), Characters(EscapeTextPages.PageByteCount(text.Page))),
         _ => throw new InvalidDataException($"The cartridge shows no {source} among the sprite characters."),

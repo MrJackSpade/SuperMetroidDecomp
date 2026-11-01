@@ -154,7 +154,7 @@ internal static class BossSpriteEntriesVerification
         InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         ShownSpriteArtwork uploads = enemies.Room.Session.SpriteLooks;
-        int corpseBytes = MotherBrainCorpseArtworkDefinitions.PageByteCount;
+        int corpseBytes = MotherBrainCorpseSheet.PageByteCount;
         enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, 1));
         AssertEqual<SpriteArtworkSource>(new MotherBrainCorpseCharacters(1), uploads.Uploads.Single().Source,
             "A corpse page selection shows its installed page");

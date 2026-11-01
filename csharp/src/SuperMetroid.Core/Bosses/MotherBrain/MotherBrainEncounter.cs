@@ -40,7 +40,7 @@ internal sealed class MotherBrainEncounter
     /// </summary>
     internal void ShowCorpseRotStep(int step)
     {
-        for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RotRows.Count; row++)
+        for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
             _presentation.ShowRotRow(row, step);
     }
 

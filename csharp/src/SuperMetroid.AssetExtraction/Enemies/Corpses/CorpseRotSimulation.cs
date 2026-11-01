@@ -160,10 +160,10 @@ internal sealed class CorpseRotSimulation
     private static CorpseRotSimulation MotherBrain(BossSourceArtwork bosses)
     {
         RoomCharacterAtlas atlas = bosses.MotherBrainCorpse
-            ?? throw new InvalidDataException($"Installed boss art holds no Mother Brain corpse ({MotherBrainCorpseArtworkDefinitions.FileName}).");
-        if (atlas.Characters.Length != MotherBrainCorpseArtworkDefinitions.ByteCount)
-            throw new InvalidDataException($"Installed {MotherBrainCorpseArtworkDefinitions.FileName} holds {atlas.Characters.Length} bytes, not {MotherBrainCorpseArtworkDefinitions.ByteCount}.");
-        return Batch("MotherBrain", null, [.. MotherBrainCorpseArtworkDefinitions.RotRows.Select(row =>
+            ?? throw new InvalidDataException($"Installed boss art holds no Mother Brain corpse ({MotherBrainCorpseSheet.FileName}).");
+        if (atlas.Characters.Length != MotherBrainCorpseSheet.ByteCount)
+            throw new InvalidDataException($"Installed {MotherBrainCorpseSheet.FileName} holds {atlas.Characters.Length} bytes, not {MotherBrainCorpseSheet.ByteCount}.");
+        return Batch("MotherBrain", null, [.. MotherBrainCorpseSheet.RotRows.Select(row =>
                 new CorpseRotRow(row.Row, EnemySourceDefinitions.CorpseRottingHeap + row.RottingOffset, row.ByteCount,
                     MotherBrainCorpseSheet.RotRowFirstCharacter(row) * SuperMetroid.Core.Assets.SpriteArtwork.CharacterByteCount))],
             new CorpseRotSchedule(MotherBrainCorpseArtworkDefinitions.PixelRowCount),

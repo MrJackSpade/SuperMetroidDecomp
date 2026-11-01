@@ -1456,7 +1456,7 @@ internal static class LookupStream3Verification
         for (int row = 0; row < 8; row++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + row * 2), MotherBrainCorpseArtworkDefinitionsConstants.TileRowOffset(row),
                 "stream 3 corpse native tile row offset");
-        IReadOnlyList<MotherBrainCorpseRotRow> rotRows = MotherBrainCorpseArtworkDefinitions.RotRows;
+        IReadOnlyList<MotherBrainCorpseRotRow> rotRows = MotherBrainCorpseSheet.RotRows;
         AssertEqual(6, rotRows.Count, "stream 3 corpse rot row count");
         for (int row = 0; row < 6; row++)
         {
@@ -1489,9 +1489,9 @@ internal static class LookupStream3Verification
             byte[] expectedTiles = new byte[0x600];
             for (int offset = 0; offset < expectedTiles.Length; offset++)
                 expectedTiles[offset] = (byte)(offset * 37 + 11);
-            byte[] atlas = new byte[MotherBrainCorpseArtworkDefinitions.ByteCount];
+            byte[] atlas = new byte[MotherBrainCorpseSheet.ByteCount];
             for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
-                expectedTiles.AsSpan(row * MotherBrainCorpseArtworkDefinitions.RowBytes, MotherBrainCorpseSheet.InitialCopyLength(row))
+                expectedTiles.AsSpan(row * MotherBrainCorpseSheet.RowBytes, MotherBrainCorpseSheet.InitialCopyLength(row))
                     .CopyTo(atlas.AsSpan(MotherBrainCorpseSheet.InitialCopyOffset(row)));
             CorpseStaging actualTiles = CorpseStaging.MotherBrain(atlas);
             int source = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + (y >> 3) * 2) + (y & 7) * 2;
@@ -1524,7 +1524,7 @@ internal static class LookupStream3Verification
             // The movers never write below the sixth row, so the staged rows hold every effect.
             for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
             {
-                int first = row * MotherBrainCorpseArtworkDefinitions.RowBytes;
+                int first = row * MotherBrainCorpseSheet.RowBytes;
                 byte[] staged = actualTiles.Upload(new CorpseRotRow(row, EnemySourceDefinitions.CorpseRottingHeap + first,
                     MotherBrainCorpseSheet.InitialCopyLength(row), 0));
                 for (int offset = 0; offset < staged.Length; offset++)

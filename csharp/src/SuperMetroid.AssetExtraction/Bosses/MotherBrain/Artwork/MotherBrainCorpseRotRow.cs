@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>
 /// The part of one corpse row that shows while Mother Brain's corpse rots: the run of its columns the corpse's outline
@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 public readonly record struct MotherBrainCorpseRotRow(int Row, int FirstColumn, int ColumnCount)
 {
     /// <summary>Where the part begins in the corpse's rotting characters, which hold the rows one after another.</summary>
-    public int RottingOffset => Row * MotherBrainCorpseArtworkDefinitions.RowBytes + FirstColumn * MotherBrainCorpseArtworkDefinitions.TileBytes;
+    public int RottingOffset => Row * MotherBrainCorpseSheet.RowBytes + FirstColumn * MotherBrainCorpseSheet.TileBytes;
 
     /// <summary>The part's bytes.</summary>
-    public int ByteCount => ColumnCount * MotherBrainCorpseArtworkDefinitions.TileBytes;
+    public int ByteCount => ColumnCount * MotherBrainCorpseSheet.TileBytes;
 }

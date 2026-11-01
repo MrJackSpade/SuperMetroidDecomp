@@ -36,7 +36,7 @@ internal static class MotherBrainCorpseArtworkVerification
     private static byte[] ReadNativeMotherBrainCorpseArtwork(CartridgeImportAddressSpace rom) =>
         RomDataReader.ReadFixedBank(rom,
             MotherBrainSourceDefinitions.Corpse.Characters,
-            MotherBrainCorpseArtworkDefinitions.ByteCount);
+            MotherBrainCorpseSheet.ByteCount);
 
     /// <summary>Compares six installed VRAM pages and corpse staging with native bytes, then checks one PNG pixel edit and reload.</summary>
     internal static void VerifyInstalledMotherBrainCorpseArtwork(
@@ -57,9 +57,9 @@ internal static class MotherBrainCorpseArtworkVerification
             int sourceOffset = MotherBrainCorpseSheet.PageOffset(page);
             int shownOffset = MotherBrainCorpseSheet.PageFirstCharacter(page) * RoomCharacterAtlasFormat.BytesPerTile;
             AssertTrue(stockCharacters.AsSpan(shownOffset,
-                    MotherBrainCorpseArtworkDefinitions.PageByteCount)
+                    MotherBrainCorpseSheet.PageByteCount)
                 .SequenceEqual(native.AsSpan(sourceOffset,
-                    MotherBrainCorpseArtworkDefinitions.PageByteCount)),
+                    MotherBrainCorpseSheet.PageByteCount)),
                 $"installed Mother Brain corpse page {page} shows the native page's characters");
         }
 
@@ -82,10 +82,10 @@ internal static class MotherBrainCorpseArtworkVerification
         CorpseRotScheduleChecks.AssertFreshSchedule(MotherBrainCorpseRottingState.EntryCount,
             new MotherBrainRainbowBeamAttackSequence().ThirdPhaseDeath.CorpseRotting.Schedule, "Mother Brain's final-death corpse");
 
-        string fileName = MotherBrainCorpseArtworkDefinitions.FileName;
+        string fileName = MotherBrainCorpseSheet.FileName;
         using var input = new MemoryStream(File.ReadAllBytes(Path.Combine(directory, fileName)));
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(
-            MotherBrainCorpseArtworkDefinitions.ByteCount);
+            MotherBrainCorpseSheet.ByteCount);
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
         int rows = (tileCount + columns - 1) / columns;
         IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
@@ -141,7 +141,7 @@ internal static class MotherBrainCorpseArtworkVerification
     /// <summary>The six staged rows of the corpse frame, as the extraction stages them, in heap order.</summary>
     private static byte[] StagedCorpseRows(CorpseStaging staged) =>
         [.. Enumerable.Range(0, MotherBrainCorpseArtworkDefinitions.RowCount).SelectMany(row => staged.Upload(new CorpseRotRow(row,
-            EnemySourceDefinitions.CorpseRottingHeap + row * MotherBrainCorpseArtworkDefinitions.RowBytes,
+            EnemySourceDefinitions.CorpseRottingHeap + row * MotherBrainCorpseSheet.RowBytes,
             MotherBrainCorpseSheet.InitialCopyLength(row), 0)))];
 
     /// <summary>Compares the extraction's staged corpse rows with an independent native copy.</summary>
@@ -150,10 +150,10 @@ internal static class MotherBrainCorpseArtworkVerification
         StagingByteView expectedTiles = expected.MotherBrainCorpseTiles;
         for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
         {
-            byte[] staged = actual.Upload(new CorpseRotRow(row, EnemySourceDefinitions.CorpseRottingHeap + row * MotherBrainCorpseArtworkDefinitions.RowBytes,
+            byte[] staged = actual.Upload(new CorpseRotRow(row, EnemySourceDefinitions.CorpseRottingHeap + row * MotherBrainCorpseSheet.RowBytes,
                 MotherBrainCorpseSheet.InitialCopyLength(row), 0));
             for (int offset = 0; offset < staged.Length; offset++)
-                AssertEqual(expectedTiles[row * MotherBrainCorpseArtworkDefinitions.RowBytes + offset], staged[offset],
+                AssertEqual(expectedTiles[row * MotherBrainCorpseSheet.RowBytes + offset], staged[offset],
                     "installed Mother Brain corpse staging agrees with cartridge");
         }
     }

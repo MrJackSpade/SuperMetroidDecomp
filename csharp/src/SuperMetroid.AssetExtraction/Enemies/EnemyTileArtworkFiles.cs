@@ -251,7 +251,7 @@ public static class EnemyTileArtworkFiles
         // frame so edits can feed the native row-by-row WRAM decay processor.
         byte[] corpsePlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             MotherBrainSourceDefinitions.Corpse.Characters,
-            MotherBrainCorpseArtworkDefinitions.ByteCount);
+            MotherBrainCorpseSheet.ByteCount);
         byte[] corpsePixels = SnesGraphics.DecodePlanarTiles(corpsePlanar, 4,
             RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> corpseSize);
         using var corpseStream = new MemoryStream();
@@ -260,10 +260,10 @@ public static class EnemyTileArtworkFiles
         byte[] corpsePng = corpseStream.ToArray();
         RoomCharacterAtlas corpseRoundtrip = RoomCharacterAtlasPng.Read(
             new MemoryStream(corpsePng, writable: false),
-            MotherBrainCorpseArtworkDefinitions.ByteCount);
+            MotherBrainCorpseSheet.ByteCount);
         if (!corpseRoundtrip.Characters.Span.SequenceEqual(corpsePlanar))
             throw new InvalidDataException("Mother Brain corpse PNG changed native pixels during extraction.");
-        File.WriteAllBytes(Path.Combine(directory, MotherBrainCorpseArtworkDefinitions.FileName),
+        File.WriteAllBytes(Path.Combine(directory, MotherBrainCorpseSheet.FileName),
             corpsePng);
         // The following bank-$B7 pages are a different visual owner: the escape
         // typewriter characters. Keep their override separate from corpse decay.
@@ -799,16 +799,16 @@ public static class EnemyTileArtworkFiles
         try
         {
             byte[] selected = ReadStockOrOverride(
-                MotherBrainCorpseArtworkDefinitions.FileName,
+                MotherBrainCorpseSheet.FileName,
                 manifest.MotherBrainCorpseSha256);
             motherBrainCorpse = RoomCharacterAtlasPng.Read(
                 new MemoryStream(selected, writable: false),
-                MotherBrainCorpseArtworkDefinitions.ByteCount);
+                MotherBrainCorpseSheet.ByteCount);
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                $"Invalid Mother Brain corpse PNG {MotherBrainCorpseArtworkDefinitions.FileName}: {error.Message}",
+                $"Invalid Mother Brain corpse PNG {MotherBrainCorpseSheet.FileName}: {error.Message}",
                 error);
         }
         RoomCharacterAtlas motherBrainEscapeText;

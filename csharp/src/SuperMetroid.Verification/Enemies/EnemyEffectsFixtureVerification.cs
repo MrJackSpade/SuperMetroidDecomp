@@ -20,6 +20,7 @@ namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Constructs cartridge-free enemy-effect artwork and Crocomire state fixtures.</summary>
 internal static class EnemyEffectsFixtureVerification
@@ -131,8 +132,8 @@ internal static class EnemyEffectsFixtureVerification
 
     /// <summary>Compiles a patterned full-size Mother Brain corpse sheet through the PNG loader.</summary>
     internal static RoomCharacterAtlas CorpseEffectArtwork(byte pattern) => RoomCharacterAtlasPng.Read(
-        EffectPng(MotherBrainCorpseArtworkDefinitions.ByteCount, MotherBrainCorpseArtworkDefinitions.ByteCount, pattern),
-        MotherBrainCorpseArtworkDefinitions.ByteCount);
+        EffectPng(MotherBrainCorpseSheet.ByteCount, MotherBrainCorpseSheet.ByteCount, pattern),
+        MotherBrainCorpseSheet.ByteCount);
 
     /// <summary>Creates a valid Crocomire tilemap document with seed-dependent cell attributes.</summary>
     internal static string MeltEffectJson(int seed = 0) => JsonSerializer.Serialize(new CrocomireMeltingTilemapDocument

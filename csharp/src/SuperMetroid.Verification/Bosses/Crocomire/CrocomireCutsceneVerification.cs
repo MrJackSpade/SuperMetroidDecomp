@@ -16,7 +16,8 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 /// <summary>Checks Crocomire corpse collision data and the two death cutscene camera boundaries.</summary>
 internal static class CrocomireCutsceneVerification
 {

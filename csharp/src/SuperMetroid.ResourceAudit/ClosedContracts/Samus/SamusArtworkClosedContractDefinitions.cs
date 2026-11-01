@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
+
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 
 /// <summary>Complete placement/composition domains, separate from editable DMA frame-selector closure.</summary>
@@ -105,7 +107,7 @@ internal static class SamusArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseProjectileOriginDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseProjectileOrigins.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Drawing/SamusDrawingDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomCharacterAtlas.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Rooms/Artwork/RoomCharacterAtlas.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/SamusArmCannonPlacementDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/SamusArmCannonPlacements.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/SamusSpritemapSources.cs"),

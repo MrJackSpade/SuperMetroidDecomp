@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 

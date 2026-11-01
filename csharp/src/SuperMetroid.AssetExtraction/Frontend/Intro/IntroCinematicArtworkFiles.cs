@@ -17,7 +17,8 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>

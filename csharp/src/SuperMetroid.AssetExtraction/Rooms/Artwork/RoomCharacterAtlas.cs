@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 /// <summary>
 /// One room-character stream the import pipeline compiled from editable, palette-indexed 8x8 artwork (#1409). The room's

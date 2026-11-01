@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
+
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
 /// <summary>Complete ordinary sheet/palette admission.</summary>
@@ -23,7 +25,7 @@ internal static class EnemyArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Enemies/RoomEnemySlot.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipFrameEvent.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipLoadScenario.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomCharacterAtlas.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Rooms/Artwork/RoomCharacterAtlas.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyPaletteSheet.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Ceres/Artwork/CeresEscapeTileArtwork.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Ceres/Artwork/CeresEscapeTileArtworkDefinitions.cs"),

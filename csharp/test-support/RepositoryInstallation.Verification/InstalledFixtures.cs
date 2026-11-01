@@ -132,9 +132,9 @@ internal static class InstalledFixtures
     private static readonly Lazy<InstalledSpriteSheets> spriteSheets = new(() => RepositoryInstallation.Installation.LoadSpriteSheets());
 
     /// <summary>The installation's standard OBJ sheet, loaded once per process.</summary>
-    internal static SuperMetroid.Core.Rooms.Artwork.RoomCharacterAtlas StandardObjects => standardObjects.Value;
+    internal static SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas StandardObjects => standardObjects.Value;
     /// <summary>Backing loader for <see cref="StandardObjects"/>.</summary>
-    private static readonly Lazy<SuperMetroid.Core.Rooms.Artwork.RoomCharacterAtlas> standardObjects =
+    private static readonly Lazy<SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas> standardObjects =
         new(() => RepositoryInstallation.Installation.LoadStandardObjects());
 
     /// <summary>Binds the installed beam artwork and the sprite sheets a runtime's projectiles draw from.</summary>

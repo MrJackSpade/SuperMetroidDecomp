@@ -1,7 +1,8 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using SuperMetroid.EnsureAnalyzer.Modules;
+using SuperMetroid.EnsureAnalyzer.Modules;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.EnsureAnalyzer.Contracts;
 

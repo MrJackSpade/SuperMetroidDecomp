@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
+
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 
 /// <summary>Complete source and page-size admission for fixed Mother Brain transfer sheets.</summary>
@@ -10,6 +12,6 @@ internal static class MotherBrainSheetsClosedContractDefinitions
             [new("csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainSpecialSpriteArtworkCatalog.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/MotherBrainSpecialSprites.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainSpecialSpriteArtworkDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomCharacterAtlas.cs")]),
+             new("csharp/src/SuperMetroid.AssetExtraction/Rooms/Artwork/RoomCharacterAtlas.cs")]),
     ];
 }

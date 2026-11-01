@@ -6,6 +6,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
@@ -50,9 +51,15 @@ internal static class CollectibleMessageTimingVerification
             return (cell, bg1.Pictures?.Picture(cell.Definition));
         }
         ushort[] HudWords() => runtime.Hud.TileWords.WhereToArray((_, index) => index % 32 < 26);
-        ushort[] VisibleHudWords() => Enumerable.Range(0, runtime.Hud.TileWords.Length)
-            .Where(index => index % 32 < 26)
-            .Select(index => runtime.Vram.ReadWord((ushort)(0x5820 + index))).ToArray();
+        // The displayed HUD is the one the last accepted NMI latched, laid out as tilemap words below its static top row;
+        // the HUD's images are latched rather than written into VRAM (#1466).
+        ushort[] VisibleHudWords()
+        {
+            ushort[] shown = runtime.AcceptedHudWords;
+            return Enumerable.Range(0, runtime.Hud.TileWords.Length)
+                .Where(index => index % 32 < 26)
+                .Select(index => shown[Layer3Plane.Columns + index]).ToArray();
+        }
         ushort[] beforeVisibleHud = VisibleHudWords();
         (RoomBlockCell Cell, SpriteSheetFrame? Picture) beforeTile = ShownBlock();
         ushort[] beforeHud = HudWords();
@@ -90,9 +97,11 @@ internal static class CollectibleMessageTimingVerification
         AssertEqual(199, samus.MaxHealth, "return grants no duplicate energy");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(beforeTile != ShownBlock(), "post-message NMI displays the empty pickup block");
-        for (int i = 0; i < runtime.Hud.TileWords.Length; i++)
+        ushort[] drawn = runtime.Hud.TileWords;
+        ushort[] published = runtime.AcceptedHudWords;
+        for (int i = 0; i < drawn.Length; i++)
             if (i % 32 < 26)
-                AssertEqual(runtime.Hud.TileWords[i], runtime.Vram.ReadWord((ushort)(0x5820 + i)), "post-message NMI publishes HUD");
+                AssertEqual(drawn[i], published[Layer3Plane.Columns + i], "post-message NMI publishes HUD");
         Console.WriteLine("  Pickup message: native early grant, retained pickup/HUD during fanfare, and post-message visual update agree.");
     }
 

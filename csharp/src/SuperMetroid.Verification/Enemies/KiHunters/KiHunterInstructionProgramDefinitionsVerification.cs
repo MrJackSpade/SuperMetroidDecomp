@@ -215,6 +215,10 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             RoomEnemySlot wings = enemies.SlotTable.Slots[1];
             wings.Bind(EnemyDefinitionId.KihunterGreenWings, wings.Definition);
             wings.Bind(wings.DefinitionId, default(RoomEnemyDefinition));
+            // A winged pair's population entries, as the room load gives them: the body keeps its wings, and the wing
+            // entry's detachment health is never reached by these unhurt programs.
+            body.SetSpawnSettings(new KiHunterSpawnSettings(KiHunterWings.Winged));
+            wings.SetSpawnSettings(new KiHunterWingsSpawnSettings(DetachHealth: 0));
             initializeBody(body);
             initializeWings(wings);
             return new CreatePairResult(enemies, body, wings,

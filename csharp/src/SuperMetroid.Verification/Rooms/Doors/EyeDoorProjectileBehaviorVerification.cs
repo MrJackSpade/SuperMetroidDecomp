@@ -1,7 +1,7 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Enemies;
@@ -23,9 +23,13 @@ internal static class EyeDoorProjectileBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, EyeDoorProjectileNativeListAddresses.Extent, "eye-door shot");
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyProjectileSlot shot = enemies.Projectiles.EnemyProjectiles[0];
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(shot, RoomEnemyProjectileKind.EyeDoorProjectile,
-            SuperMetroid.Core.Assets.SpriteGraphics.Emptied);
+        // The eye's attack spawns the shot with the door bit its typed state keeps; the aim cue reads that state.
+        enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
+            new EyeDoorProjectileRequest(EyeDoorProjectileDefinition.Projectile, Facing: EyeDoorOrientation.Left, PlmBlockIndex: 4 * 16 + 7, DoorBit: 0),
+            roomWidthInBlocks: 16,
+            new SharedGameState());
+        RoomEnemyProjectileSlot shot = enemies.Projectiles.EnemyProjectiles.Single(
+            projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile);
         shot.Position = shot.Position.WithWhole(new(64, 32));
         AssertTrue(shot.Animation is EyeDoorProjectileAnimation { Cursor.Program: EyeDoorProjectileProgram.Initial }, "the shot starts its flight");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, shot,

@@ -3,14 +3,15 @@ using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoHandArtworkVerification;
+using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Areas.Escape;
 
@@ -44,10 +45,13 @@ internal static class EscapeRunningFootstepsVerification
             var request = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0, NextRandomNumber = () => 0 });
             AssertTrue(request.TimerHandlingEnableRequested && request.MotherBrainEscapeTimerStartRequested,
                 "native death phase emits command F and timer start together");
-            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, initialPaletteArt: BombTorizoHandFixturePalette());
+            // The death step's requests are applied in Mother Brain's room, whose PLMs, FX and enemies the room load owns.
+            var runtime = CreateRetailRuntimeFixture();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
             runtime.Player.Samus = samus;
-            var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]);
-            runtime.Enemies.MotherBrainEncounter.MotherBrain = motherBrain;
             // Area flags are outside this fixture. Preserve the actual timer requests.
             runtime.EnemyRoomEffects.ApplyPendingMotherBrainPlms(EnemyRoomEffectRequestsConstants.None with
             {

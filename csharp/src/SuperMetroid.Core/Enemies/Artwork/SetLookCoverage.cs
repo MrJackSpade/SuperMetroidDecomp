@@ -46,9 +46,13 @@ public sealed class SetLookCoverage
     /// What shows over <paramref name="region"/> now: of the looks still visible in <paramref name="shown"/> as
     /// <paramref name="catalog"/> judges them, the newest that covers it, named when it is one of
     /// <paramref name="setLooks"/>, or none while the graphics set's own look, which the room load showed, or the standard
-    /// sprites show there.
+    /// sprites show there. A look an encounter of another graphics set showed in an earlier room stays visible, as the
+    /// escape timer does into the gunship's room (#1499), and is passed over where it does not cover the region.
     /// </summary>
-    /// <exception cref="InvalidDataException">A look an encounter of another graphics set showed is still visible.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The set does not record where a visible encounter look shows, or the newest look covering the region is one an
+    /// encounter of another graphics set showed, which no picture of the set's frames shows.
+    /// </exception>
     public LookRegionContent Showing(ShownSpriteArtwork shown, IEncounterLookCatalog catalog, IReadOnlyList<SpriteArtworkSource> setLooks,
         LookRegion region)
     {
@@ -58,10 +62,16 @@ public sealed class SetLookCoverage
         Ensure.NotNull(region);
         foreach (SpriteArtworkSource look in shown.VisibleNewestFirst(catalog))
         {
-            if (!Knows(look) && catalog.IsEncounterLook(look))
+            bool encounterLook = catalog.IsEncounterLook(look);
+            if (encounterLook && !Knows(look))
+                throw new InvalidDataException($"The set's coverage does not record where {look}, an encounter's look, shows.");
+            if (!Covers(look, region))
+                continue;
+            if (setLooks.Contains(look))
+                return new LookRegionContent(region, look);
+            if (encounterLook)
                 throw new InvalidDataException($"{look}, shown by an encounter of another graphics set, shows over a frame drawn under this one.");
-            if (Covers(look, region))
-                return new LookRegionContent(region, setLooks.Contains(look) ? look : null);
+            return new LookRegionContent(region, null);
         }
         return new LookRegionContent(region, null);
     }

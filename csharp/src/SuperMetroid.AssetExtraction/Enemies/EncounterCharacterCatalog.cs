@@ -21,6 +21,9 @@ internal sealed class EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinit
     /// <summary>Every catalogued upload, once, in enemy order, whose index names it in picture names.</summary>
     private readonly ImmutableArray<SpriteArtworkPlacement> all = [.. byEnemy.OrderBy(entry => entry.Key).SelectMany(entry => entry.Value).Distinct()];
 
+    /// <summary>Every catalogued upload, once, in catalogue order: what the encounters of every graphics set show.</summary>
+    internal IReadOnlyList<SpriteArtworkPlacement> All => all;
+
     /// <summary>The catalogued placement that shows <paramref name="source"/>.</summary>
     /// <exception cref="InvalidDataException">No catalogued encounter shows the source, or several place it differently.</exception>
     internal SpriteArtworkPlacement Placement(SpriteArtworkSource source)

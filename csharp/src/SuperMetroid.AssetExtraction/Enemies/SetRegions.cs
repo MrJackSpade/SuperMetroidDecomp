@@ -70,9 +70,11 @@ internal sealed class SetRegions
     internal CharacterRange RangeOf(LookRegion region) => Regions[Ensure.NotNull(region).Ordinal];
 
     /// <summary>
-    /// What covers each of the set's regions (#1406): each of its encounters' uploads, each entry of the set's own load and
-    /// the standard sprites, by the bytes each shares with a region, as a room's characters show the last of them over it;
-    /// and each of Mother Brain's corpse rows, by the regions it spans.
+    /// What covers each of the set's regions (#1406): every catalogued encounter's uploads, each entry of the set's own load
+    /// and the standard sprites, by the bytes each shares with a region, as a room's characters show the last of them over
+    /// it; and each of Mother Brain's corpse rows, by the regions it spans. Other sets' encounters are recorded too, because
+    /// what an earlier room showed stays shown after this set's room loads, as the escape timer does into the gunship's
+    /// room (#1499): a frame reading a region one of them covers has no picture, and a frame reading other regions has.
     /// </summary>
     internal SetLookCoverage Coverage(RoomEnemyGraphicsSetDefinition set)
     {
@@ -83,7 +85,7 @@ internal sealed class SetRegions
             LookRegion[] covered = [.. Regions.Where(range => range.Overlaps(firstByte, byteCount)).Select(RegionOf)];
             bySource[source] = bySource.TryGetValue(source, out LookRegion[]? earlier) ? [.. earlier.Union(covered)] : covered;
         }
-        foreach (SpriteArtworkPlacement upload in Uploads)
+        foreach (SpriteArtworkPlacement upload in EncounterCharacterPlacements.Catalog.All)
             Add(upload.Source, upload.FirstByte, upload.ByteCount);
         foreach (RoomEnemyGraphicsSetEntry entry in EnemyGraphicsSet.LayOut(CompiledRoomEnemyDefinitions.Instance, set))
             Add(new GraphicsSetTileCharacters(entry),

@@ -35,15 +35,15 @@ internal static class FrameworkDispatch
         if (Contract(target) is not { } member)
             return [];
         return ContainsTypeParameter(member.ContainingType)
-            ? [AnyPrefix + Display(member.OriginalDefinition)]
-            : [ClosedPrefix + Display(member), OpenPrefix + Display(member.OriginalDefinition)];
+            ? new[] { AnyPrefix + Display(member.OriginalDefinition) }
+            : new[] { ClosedPrefix + Display(member), OpenPrefix + Display(member.OriginalDefinition) };
     }
 
     /// <summary>The dispatch keys under which an implementation of the framework contract member is found.</summary>
     public static IEnumerable<string> ImplementationKeys(ISymbol contractMember) =>
         ContainsTypeParameter(contractMember.ContainingType)
-            ? [OpenPrefix + Display(contractMember.OriginalDefinition), AnyPrefix + Display(contractMember.OriginalDefinition)]
-            : [ClosedPrefix + Display(contractMember), AnyPrefix + Display(contractMember.OriginalDefinition)];
+            ? new[] { OpenPrefix + Display(contractMember.OriginalDefinition), AnyPrefix + Display(contractMember.OriginalDefinition) }
+            : new[] { ClosedPrefix + Display(contractMember), AnyPrefix + Display(contractMember.OriginalDefinition) };
 
     /// <summary>
     /// The framework interface member a reference calls, with accessors standing for their property or event and a generic

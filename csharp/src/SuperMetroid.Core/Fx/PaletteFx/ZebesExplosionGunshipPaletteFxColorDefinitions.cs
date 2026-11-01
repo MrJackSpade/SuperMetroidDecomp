@@ -21,7 +21,7 @@ public static class ZebesExplosionGunshipPaletteFxColorDefinitions
 {
 
     /// <summary>The one-shot reveal contains sixteen timed records.</summary>
-    public static int FrameCount => Rows.FrameCount;
+    public static int FrameCount => ColorFrames.FrameCount;
 
     /// <summary>Each record writes sixteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 16;
@@ -30,5 +30,5 @@ public static class ZebesExplosionGunshipPaletteFxColorDefinitions
     public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxProgram.GunshipEmergingFromZebesExplosion, ColorsPerFrame);
 
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
+    public static PaletteFxColorKey Color(int frame, int color) => ColorFrames.Color(frame, color);
 }

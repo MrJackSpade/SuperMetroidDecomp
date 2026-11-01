@@ -15,5 +15,5 @@ public sealed class PlanetZebesTextPaletteFxColorDefinition
     public required PaletteFxColorFrames ColorFrames { get; init; }
 
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
+    public PaletteFxColorKey Color(int frame, int color) => ColorFrames.Color(frame, color);
 }

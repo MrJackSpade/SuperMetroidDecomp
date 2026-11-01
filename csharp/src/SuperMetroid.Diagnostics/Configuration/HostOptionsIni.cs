@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Diagnostics.Configuration;

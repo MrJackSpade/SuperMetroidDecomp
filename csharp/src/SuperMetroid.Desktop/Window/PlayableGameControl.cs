@@ -282,7 +282,7 @@ public sealed class PlayableGameControl : UserControl
         // its playback state; whether samples reach a device is the host's choice alone.
         content = new InstalledSessionContent(artwork, selectedAudioAssets);
         // A replay's saves start from its header and are never written back.
-        game = GameSessionComposer.Create(saves, hostOptions.Game, content, replay is null ? saveFile : null);
+        game = GameSessionComposer.Create(saves, hostOptions.Game.ToAssists(), content, replay is null ? saveFile : null);
         Console.WriteLine($"Projectile compositions: stock={projectilePresentation.StockSha256}, selected={projectilePresentation.SelectedSha256} ({playerDataDirectory}).");
         installedContentIdentity = GameContentIdentity.Create(
             selectedAudioAssets,

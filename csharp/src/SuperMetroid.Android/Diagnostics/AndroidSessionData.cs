@@ -75,7 +75,7 @@ internal sealed class AndroidSessionData : IDisposable
         foreach ((string domain, string digest) in ContentIdentity.AdditionalContentSha256.OrderBy(pair => pair.Key))
             Console.WriteLine($"Installed content component: {domain}={digest}.");
         content = new InstalledSessionContent(artwork, assets);
-        Game = GameSessionComposer.Create(saves, Options.Game, content, saveFile);
+        Game = GameSessionComposer.Create(saves, Options.Game.ToAssists(), content, saveFile);
         states = DebuggerSaveStateStore.ForInstalledGame(
             root,
             Options.Game,

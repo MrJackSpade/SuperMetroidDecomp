@@ -26,7 +26,7 @@ internal static class FileSelectCaptureComparison
             throw new InvalidDataException("Journal and local ROM differ.");
         // Caller must select a reset-origin journal, not a debugger-state continuation.
         var game = new SuperMetroidGame(
-            SaveRamCodec.Decode(recording.InitialSaveRam, RepositoryInstallation.Installation.LoadMaps()), recording.GameOptions);
+            SaveRamCodec.Decode(recording.InitialSaveRam, RepositoryInstallation.Installation.LoadMaps()), recording.GameOptions.ToAssists());
         ClipAudioLibrary clips = RepositoryInstallation.Installation.LoadAudioClips();
         game.BindAudio(clips);
         var pcm = new short[AudioSession.PcmSamplesPerFrame];

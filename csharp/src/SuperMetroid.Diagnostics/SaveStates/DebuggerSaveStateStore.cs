@@ -5,6 +5,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Diagnostics.Configuration;
 
 namespace SuperMetroid.Diagnostics.SaveStates;
 
@@ -292,7 +293,7 @@ internal sealed class DebuggerSaveStateStore : IDisposable
         }
 
         if (hostOptions is not null)
-            root.Game.ApplyHostOptions(hostOptions);
+            root.Game.ApplyAssists(hostOptions.ToAssists());
 
         return new DebuggerSaveStateLoadResult(
             root.AddressSpace,

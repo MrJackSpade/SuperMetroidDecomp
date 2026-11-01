@@ -6,6 +6,7 @@ using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 using SuperMetroid.Core.Rooms.LevelData;
@@ -19,16 +20,10 @@ internal static class DraygonCannonVisualsVerification
     internal static void VerifyDraygonCannonVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
-        using var testRootScratch = new TestScratchDirectory("draygon-cannon-visual");
-        string testRoot = testRootScratch.Root;
-        try
+        // A private installation copy, whose override is written and whose stock file is tampered below.
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
         {
-            var installation = new GameInstallation(testRoot);
-            // Extraction compares all twelve reachable native layouts, including
-            // every row word and signed offset, with the compiled definitions.
-            RoomPlmDraygonCannonVisualFiles.Extract(rom,
-                installation.RoomPlmDraygonCannonVisualDirectory,
-                SupportedCartridge.Sha256);
+            GameInstallation installation = copy.Installation;
             RoomPlmDraygonCannonVisualFiles.ValidateStock(
                 installation.RoomPlmDraygonCannonVisualDirectory);
             VerifyDraygonCannonStockMapping(rom, installation.LoadRoomPlmDraygonCannonVisuals());
@@ -52,9 +47,8 @@ internal static class DraygonCannonVisualsVerification
                     PlmDraw.Of(DraygonCannonDraw.RightShieldA), 0, 0),
                 "installed cannon override selects its edited block");
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmDraygonCannonVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
+            // The shared installation's stock directory stands for a stock directory the installer replaced.
+            string refreshed = RepositoryInstallation.Installation.RoomPlmDraygonCannonVisualDirectory;
             AssertEqual(RoomBlockAppearance.Of(0x53),
                 RoomPlmDraygonCannonVisualFiles.Load(refreshed,
                     installation.RoomPlmDraygonCannonVisualOverrideDirectory)
@@ -66,11 +60,6 @@ internal static class DraygonCannonVisualsVerification
                 () => RoomPlmDraygonCannonVisualFiles.ValidateStock(
                     installation.RoomPlmDraygonCannonVisualDirectory),
                 "tampered cannon stock fails manifest validation");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
         }
     }
 }

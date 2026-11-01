@@ -8,6 +8,7 @@ using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Video;
@@ -24,12 +25,12 @@ internal static class GameplayBasePalettesVerification
     {
         using var directoryScratch = new TestScratchDirectory("gameplay-base-palettes");
         string directory = directoryScratch.Root;
-        string stock = Path.Combine(directory, "stock");
+        // The shared installation's stock palettes are only read; the override edits go to the scratch directory.
+        string stock = RepositoryInstallation.Installation.GameplayBasePaletteDirectory;
         string overrides = Path.Combine(directory, "overrides");
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         try
         {
-            GameplayBasePaletteFiles.Extract(bus, stock, SupportedCartridge.Sha256);
             GameplayBasePalette baseline = GameplayBasePaletteFiles.Load(stock, overrides);
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 AssertEqual(ReadWord(bus, GameplayBasePaletteSourceDefinitions.InitialPalette + color * 2),

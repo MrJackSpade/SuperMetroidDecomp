@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks Zebetite's eight-frame two-color pulse against native
@@ -92,10 +93,11 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         AssertEqual(counterBeforeGate, Counter(selected),
             "Zebetite secondary-half gate remains an engine-owned condition");
 
-        EnemyTileArtworkFiles.Extract(bus, stockDirectory, SupportedCartridge.Sha256);
+        // The shared installation's stock artwork stands for stock artwork the installer extracted again.
+        string reextracted = RepositoryInstallation.Installation.EnemyTileDirectory;
         AssertTrue(selectedBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Stock re-extraction preserves the Zebetite color override");
-        var reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        var reloaded = EnemyTileArtworkFiles.Load(reextracted, overrides);
         var persistedCgram = new SamusColourRig();
         (reloaded.Bosses.ZebetiteColors ?? throw new InvalidOperationException("Verification requires reloaded.ZebetiteColors.")).Apply(ZebetiteDefinitions.PulseColours.In(persistedCgram.Gameplay), 3);
         AssertEqual(selectedCgram.Colors[ColourSetRunPositions.First(ZebetiteDefinitions.PulseColours) + 1],

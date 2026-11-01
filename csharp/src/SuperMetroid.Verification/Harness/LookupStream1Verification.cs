@@ -52,6 +52,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Harness;
@@ -856,8 +857,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks drained-pose Y offsets and independent spritemap geometry edits.</summary>
     internal static void VerifyLookupStream1DrainedGeometry(ISnesAddressSpace rom)
     {
-        string directory = Path.GetFullPath("csharp/test-temp/drained-geometry-native");
-        SamusBodyArtworkFiles.Extract(rom, directory, SupportedCartridge.Sha256);
+        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
         SamusBodyCharacterArtwork stockArt = SamusBodyArtworkFiles.LoadCharacters(directory, null);
         InstalledSamusBodyArtwork stock = stockArt.Body;
         sbyte[] native = Enumerable.Range(0, 32).Select(index => unchecked((sbyte)LookupStream1DrainedGeometryRomByte(rom, 0x908def + index))).ToArray();
@@ -916,8 +916,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks morph-transition posture offsets independently of tile and spritemap edits.</summary>
     internal static void VerifyLookupStream1PostureGeometry(ISnesAddressSpace rom)
     {
-        string directory = Path.GetFullPath("csharp/test-temp/posture-geometry-native");
-        SamusBodyArtworkFiles.Extract(rom, directory, SupportedCartridge.Sha256);
+        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
         SamusBodyCharacterArtwork stockArt = SamusBodyArtworkFiles.LoadCharacters(directory, null);
         InstalledSamusBodyArtwork stock = stockArt.Body;
         sbyte[] native = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)LookupStream1PostureGeometryRomByte(rom, 0x908d80 + index))).ToArray();
@@ -1190,10 +1189,9 @@ internal static class LookupStream1Verification
     /// <summary>Checks arm-cannon pose pointers and independent edited placement against native selections.</summary>
     internal static void VerifyLookupStream1CannonPoses(ISnesAddressSpace rom)
     {
-        using var directory = new TestScratchDirectory("map-catalog");
-        SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
-        byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
-        byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
+        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
+        byte[] json = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName));
+        byte[] png = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         var tiles = RoomCharacterAtlasPng.Read(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
@@ -1914,10 +1912,9 @@ internal static class LookupStream1Verification
         }
         foreach (int invalid in new[] { int.MinValue, -1, expected.Length, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = sources[invalid], "Calculated cannon source index bounds preserve array contract");
-        using var directory = new TestScratchDirectory("map-catalog");
-        SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
-        byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
-        byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
+        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
+        byte[] json = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName));
+        byte[] png = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
         var stock = InstalledSamusArmCannonArtworkTooling.Load(new MemoryStream(json), new MemoryStream(png));
         AssertEqual(0, stock.attributes.Count + stock.openingTiles.Count, "Stock cannon selectors require no stored fallback overrides");
         for (int direction = 0; direction < 10; direction++)
@@ -2048,10 +2045,9 @@ internal static class LookupStream1Verification
     /// <summary>Checks arm-cannon drawing commands and extracted placement through native OAM results.</summary>
     internal static void VerifyLookupStream1CannonDrawingControls(ISnesAddressSpace rom)
     {
-        using var directory = new TestScratchDirectory("map-catalog");
-        SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
-        byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
-        byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
+        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
+        byte[] json = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName));
+        byte[] png = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         var tiles = RoomCharacterAtlasPng.Read(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
@@ -2668,11 +2664,10 @@ internal static class LookupStream1Verification
     /// <summary>Checks cannon placement relative to Samus body poses and edited artwork geometry.</summary>
     internal static void VerifyLookupStream1CannonPlacement(ISnesAddressSpace rom)
     {
-        using var directory = new TestScratchDirectory("map-catalog");
-        SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
-        InstalledSamusBodyArtwork body = SamusBodyArtworkFiles.Load(directory.Root, null);
-        byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
-        byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
+        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
+        InstalledSamusBodyArtwork body = SamusBodyArtworkFiles.Load(directory, null);
+        byte[] json = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName));
+        byte[] png = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         var tiles = RoomCharacterAtlasPng.Read(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Count * 32);
@@ -2767,9 +2762,8 @@ internal static class LookupStream1Verification
     /// <summary>Checks Samus spritemap pointer roots and independently editable OAM definitions.</summary>
     internal static void VerifyLookupStream1OamPointers(ISnesAddressSpace rom)
     {
-        using var directory = new TestScratchDirectory("map-catalog");
-        SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
-        var body = SamusBodyArtworkFiles.Load(directory.Root, null);
+        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
+        var body = SamusBodyArtworkFiles.Load(directory, null);
         var stock = body.Spritemaps.Source;
         ushort[] nativePointers = Enumerable.Range(0, 2096).Select(index =>
             LittleEndianBytes.Word(LookupStream1OamPointersRomByte(rom, 0x92808d + index * 2), LookupStream1OamPointersRomByte(rom, 0x92808e + index * 2))).ToArray();
@@ -2849,9 +2843,8 @@ internal static class LookupStream1Verification
     /// <summary>Checks body tile pixel inputs, derived bytes, and independent edited planar data.</summary>
     internal static void VerifyLookupStream1BodyPixels(ISnesAddressSpace rom)
     {
-        using var directory = new TestScratchDirectory("map-catalog");
-        SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
-        var bodyArt = SamusBodyArtworkFiles.LoadCharacters(directory.Root, null);
+        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
+        var bodyArt = SamusBodyArtworkFiles.LoadCharacters(directory, null);
         var body = bodyArt.Body;
         var top = Enumerable.Range(0, 13).Select(set => bodyArt.TopSet(set).ToArray()).ToArray();
         var bottom = Enumerable.Range(0, 11).Select(set => bodyArt.BottomSet(set).ToArray()).ToArray();
@@ -2944,9 +2937,8 @@ internal static class LookupStream1Verification
     /// <summary>Checks body tile DMA definitions and actual native-sized VRAM transfer output.</summary>
     internal static void VerifyLookupStream1BodyTransfers(ISnesAddressSpace rom)
     {
-        using var directory = new TestScratchDirectory("map-catalog");
-        SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
-        var bodyArt = SamusBodyArtworkFiles.LoadCharacters(directory.Root, null);
+        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
+        var bodyArt = SamusBodyArtworkFiles.LoadCharacters(directory, null);
         var body = bodyArt.Body;
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1BodyTransfersRomByte(rom, address), LookupStream1BodyTransfersRomByte(rom, address + 1));
         var top = Enumerable.Range(0, 13).Select(set => bodyArt.TopSet(set).ToArray()).ToArray();

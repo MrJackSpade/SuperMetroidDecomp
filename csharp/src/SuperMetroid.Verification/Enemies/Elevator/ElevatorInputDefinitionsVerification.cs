@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Elevator;
 using SuperMetroid.Verification.Harness;
@@ -17,10 +18,7 @@ internal static class ElevatorInputDefinitionsVerification
     internal static void VerifyElevatorInputDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyElevatorDirectionInputMapping), () => VerifyElevatorDirectionInputMapping(rom));
-        using var artworkDirectory = new TestScratchDirectory("map-catalog");
-        SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Extract(rom, artworkDirectory.Root,
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc")))));
-        var bodyArtwork = SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Load(artworkDirectory.Root, null);
+        var bodyArtwork = SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Load(RepositoryInstallation.Installation.SamusBodyDirectory, null);
         const int inputTable = 0xa394e2;
 
         for (ushort direction = 0; direction < 2; direction++)

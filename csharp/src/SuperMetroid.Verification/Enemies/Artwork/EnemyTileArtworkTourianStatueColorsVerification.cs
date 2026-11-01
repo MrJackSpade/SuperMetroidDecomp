@@ -24,6 +24,7 @@ using SuperMetroid.AssetExtraction;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Retail CGRAM and guarded-source checks for editable Tourian entrance statue colors.</summary>
@@ -154,10 +155,11 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Tourian statue installed paths avoid migrated ROM colors");
 
-        EnemyTileArtworkFiles.Extract(bus, stockDirectory, SupportedCartridge.Sha256);
+        // The shared installation's stock artwork stands for stock artwork the installer extracted again.
+        string reextracted = RepositoryInstallation.Installation.EnemyTileDirectory;
         AssertTrue(greyBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Stock re-extraction preserves Tourian statue override");
-        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(reextracted, overrides);
         AssertEqual((editedGrey.Areas.TourianStatueColors ?? throw new InvalidOperationException("Verification requires editedGrey.TourianStatueColors.")).ResolveGrey(1),
             (reloaded.Areas.TourianStatueColors ?? throw new InvalidOperationException("Verification requires reloaded.TourianStatueColors.")).ResolveGrey(1),
             "Tourian statue grey edit survives reload");

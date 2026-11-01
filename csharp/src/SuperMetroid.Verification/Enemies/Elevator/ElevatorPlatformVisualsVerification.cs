@@ -14,6 +14,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
@@ -80,16 +81,12 @@ internal static class ElevatorPlatformVisualsVerification
     /// <summary>Checks extracted stock, override survival, and rejection of manifest corruption.</summary>
     private static void VerifyElevatorPlatformVisualInstallation()
     {
-        using var testRootScratch = new TestScratchDirectory("elevator-platform-visual");
-        string testRoot = testRootScratch.Root;
-        try
+        // A private installation copy, whose override is written and whose stock file is tampered below.
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
         {
-            var installation = new GameInstallation(testRoot);
+            GameInstallation installation = copy.Installation;
             SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
                 Path.GetFullPath("Super Metroid.smc"));
-            RoomPlmElevatorPlatformVisualFiles.Extract(rom,
-                installation.RoomPlmElevatorPlatformVisualDirectory,
-                SupportedCartridge.Sha256);
             RoomPlmElevatorPlatformVisualFiles.ValidateStock(
                 installation.RoomPlmElevatorPlatformVisualDirectory);
             VerifyElevatorPlatformStockMapping(rom, installation.LoadRoomPlmElevatorPlatformVisuals());
@@ -113,9 +110,8 @@ internal static class ElevatorPlatformVisualsVerification
                     PlmDraw.Of(ElevatorPlatformDraw.First), 0, 0),
                 "elevator override selects edited frame art");
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmElevatorPlatformVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
+            // The shared installation's stock directory stands for a stock directory the installer replaced.
+            string refreshed = RepositoryInstallation.Installation.RoomPlmElevatorPlatformVisualDirectory;
             AssertEqual(RoomBlockAppearance.Of(0x53),
                 RoomPlmElevatorPlatformVisualFiles.Load(refreshed,
                     installation.RoomPlmElevatorPlatformVisualOverrideDirectory).GetAppearance(
@@ -126,10 +122,6 @@ internal static class ElevatorPlatformVisualsVerification
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmElevatorPlatformVisuals(),
                 "elevator stock manifest rejects corruption");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot)) Directory.Delete(testRoot, recursive: true);
         }
     }
 

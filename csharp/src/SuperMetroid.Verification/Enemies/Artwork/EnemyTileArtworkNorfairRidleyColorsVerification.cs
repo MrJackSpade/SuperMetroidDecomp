@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Video;
 
+using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -115,10 +116,11 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             "Norfair Ridley reveal advances after three calls");
         CheckEditedCgram("Norfair Ridley next row replaces edit", revealRowVisible: false);
 
-        EnemyTileArtworkFiles.Extract(bus, stockDirectory, SupportedCartridge.Sha256);
+        // The shared installation's stock artwork stands for stock artwork the installer extracted again.
+        string reextracted = RepositoryInstallation.Installation.EnemyTileDirectory;
         AssertTrue(editedBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Stock re-extraction leaves Norfair Ridley override untouched");
-        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(reextracted, overrides);
         AssertEqual((edited.Bosses.NorfairRidleyColors ?? throw new InvalidOperationException("Verification requires edited.NorfairRidleyColors.")).ResolveReveal(7, 3),
             (reloaded.Bosses.NorfairRidleyColors ?? throw new InvalidOperationException("Verification requires reloaded.NorfairRidleyColors.")).ResolveReveal(7, 3),
             "Norfair Ridley reveal edit survives restart/re-extraction");

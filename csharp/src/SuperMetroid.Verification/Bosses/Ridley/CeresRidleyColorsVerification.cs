@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
@@ -232,11 +233,9 @@ internal static class CeresRidleyColorsVerification
         document.EyeFade[0][0] = document.EyeFade[0][0] with { Red = 32 };
         AssertThrows<InvalidDataException>(() => CeresRidleyColorFile.Write(document),
             "Ceres Ridley colors reject invalid RGB5 channel");
-        string replacementStock = Path.Combine(
-            Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
-            "ceres-ridley-reextract");
+        // The shared installation's stock maps stand for stock maps the installer replaced.
+        string replacementStock = RepositoryInstallation.Installation.MapDirectory;
         byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
-        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
         AreaMapPresentation repaired = MapPresentationFiles.Load(replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, repaired.ContentIdentity,
             "Ceres Ridley stock repair preserves override identity");

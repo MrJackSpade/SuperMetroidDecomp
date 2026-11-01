@@ -8,9 +8,9 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
@@ -23,16 +23,10 @@ internal static class KraidRoomVisualsVerification
     internal static void VerifyKraidRoomVisuals()
     {
         Suite(nameof(VerifyKraidRoomVisualSelection), () => VerifyKraidRoomVisualSelection());
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
-            Path.GetFullPath("Super Metroid.smc"));
-        using var testRootScratch = new TestScratchDirectory("kraid-room-visual");
-        string testRoot = testRootScratch.Root;
-        try
+        // A private installation copy, whose override is written and whose stock file is tampered below.
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
         {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmKraidVisualFiles.Extract(rom,
-                installation.RoomPlmKraidVisualDirectory,
-                SupportedCartridge.Sha256);
+            GameInstallation installation = copy.Installation;
             RoomPlmKraidVisualFiles.ValidateStock(
                 installation.RoomPlmKraidVisualDirectory);
             InstalledRoomPlmKraidVisuals stock =
@@ -80,9 +74,8 @@ internal static class KraidRoomVisualsVerification
                 "Kraid override edits far-right spike clear block");
             VerifyKraidVisualOwnerIsolation(edited);
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmKraidVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
+            // The shared installation's stock directory stands for a stock directory the installer replaced.
+            string refreshed = RepositoryInstallation.Installation.RoomPlmKraidVisualDirectory;
             AssertEqual(RoomBlockAppearance.Of(0x05a),
                 RoomPlmKraidVisualFiles.Load(refreshed,
                     installation.RoomPlmKraidVisualOverrideDirectory)
@@ -102,11 +95,6 @@ internal static class KraidRoomVisualsVerification
 
             JsonNode Entry(string id) => document.Required("entries").AsArray().RequiredElements()
                 .Single(entry => entry.Required("id").GetValue<string>() == id);
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
         }
         Console.WriteLine(
             "Kraid room visuals: ten native draws, live ceiling/spike edits, elevatube owner isolation, physical/timing separation, stock repair and strict failures pass.");

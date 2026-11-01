@@ -156,7 +156,7 @@ internal sealed class MotherBrainRainbowAndDeath
         }
     }
 
-    /// <summary>Applies the requested body-color row during the death fade.</summary>
+    /// <summary>Applies the requested body-color fade frame during the death fade.</summary>
     internal void LoadMotherBrainDeathBodyFade(int frame)
     {
         if (_bossArtwork.Artwork?.MotherBrainDeathColors is { } colors)
@@ -173,7 +173,7 @@ internal sealed class MotherBrainRainbowAndDeath
         throw new InvalidOperationException("Mother Brain death requires installed fade colors.");
     }
 
-    /// <summary>Applies the requested corpse-color row during the death fade.</summary>
+    /// <summary>Applies the requested corpse-color fade frame during the death fade.</summary>
     internal void LoadMotherBrainDeathCorpseFade(int frame)
     {
         if (_bossArtwork.Artwork?.MotherBrainDeathColors is { } colors)

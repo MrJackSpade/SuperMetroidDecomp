@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Installed palette filename and fixed sequence geometry; color content is editable while attack/fade timing and loop termination remain engine-owned.</summary>
 public static class MotherBrainRainbowPaletteFormat
 {
-    /// <summary>Body-row indices for head, plate, tissue, and independent tail inks.</summary>
+    /// <summary>Body colour indices for head, plate, tissue, and independent tail inks.</summary>
     internal static class RedOriginLayout
     {
         /// <summary>Darker head pair begins at body color index2.</summary>

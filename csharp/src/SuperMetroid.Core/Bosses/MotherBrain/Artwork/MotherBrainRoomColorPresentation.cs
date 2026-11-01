@@ -51,7 +51,7 @@ public sealed class MotherBrainRoomColorPresentation
         this.recoveryLights = recoveryLights;
     }
 
-    /// <summary>Applies the color row of one room-flash frame.</summary>
+    /// <summary>Applies the colors of one room-flash frame.</summary>
     /// <param name="gameplayColours">Destination color memory; twelve colors at indices 52..63 and 83..94 are replaced, with the second slice mirrored to 115..126.</param>
     /// <param name="frame">The flash frame, 0..13.</param>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of the fourteen authored frames.</exception>
@@ -234,7 +234,7 @@ public sealed class MotherBrainRoomColorPresentation
     {
         /// <summary>Supplied attack colors when any word differs from the shared-shade derivation.</summary>
         internal readonly RgbColor[]? supplied;
-        /// <summary>Uses paint-derived shades only when the entire supplied row matches.</summary>
+        /// <summary>Uses paint-derived shades only when every supplied colour matches.</summary>
         public AttackPalette(RgbColor[] colors)
         {
             for (int color = 0; color < colors.Length; color++)
@@ -333,21 +333,21 @@ public sealed class MotherBrainRoomColorPresentation
     {
         /// <summary>Final room colors that the timed flash brightens or dims.</summary>
         internal readonly FinalRoomPalette basis;
-        /// <summary>Independent flash rows retained only when the calculated rows differ.</summary>
+        /// <summary>Independent flash frames retained only when the calculated frames differ.</summary>
         internal readonly RgbColor[][]? supplied;
 
         /// <summary>Number of timed flash entries selected by the palette program.</summary>
         public int FrameCount { get; }
 
-        /// <summary>Checks supplied flash rows against the final-room color derivation.</summary>
-        public RoomFlash(RgbColor[][] rows, FinalRoomPalette finalRoom)
+        /// <summary>Checks supplied flash frames against the final-room color derivation.</summary>
+        public RoomFlash(RgbColor[][] frames, FinalRoomPalette finalRoom)
         {
-            FrameCount = rows.Length;
+            FrameCount = frames.Length;
             basis = finalRoom;
-            for (int frame = 0; frame < rows.Length; frame++)
+            for (int frame = 0; frame < frames.Length; frame++)
                 for (int color = 0; color < basis.Length; color++)
-                    if (Calculate(frame, color) != rows[frame][color])
-                    { supplied = rows; return; }
+                    if (Calculate(frame, color) != frames[frame][color])
+                    { supplied = frames; return; }
         }
 
         /// <summary>Selects the edited or calculated room color at one timed entry.</summary>
@@ -373,17 +373,17 @@ public sealed class MotherBrainRoomColorPresentation
     {
         /// <summary>Final room colors reused as recovery endpoints.</summary>
         internal readonly FinalRoomPalette finalRoom;
-        /// <summary>Independent recovery rows retained only when the calculated rows differ.</summary>
+        /// <summary>Independent recovery frames retained only when the calculated frames differ.</summary>
         internal readonly RgbColor[][]? supplied;
 
         /// <summary>Checks supplied recovery colors against seven intensity steps to shared endpoints.</summary>
-        public RecoveryLightFade(RgbColor[][] rows, FinalRoomPalette finalRoom)
+        public RecoveryLightFade(RgbColor[][] frames, FinalRoomPalette finalRoom)
         {
             this.finalRoom = finalRoom;
-            for (int frame = 0; frame < rows.Length; frame++)
-                for (int color = 0; color < rows[frame].Length; color++)
-                    if (Calculate(frame, color) != rows[frame][color])
-                    { supplied = rows; return; }
+            for (int frame = 0; frame < frames.Length; frame++)
+                for (int color = 0; color < frames[frame].Length; color++)
+                    if (Calculate(frame, color) != frames[frame][color])
+                    { supplied = frames; return; }
         }
 
         /// <summary>Selects edited or calculated doorway and room-light color for one recovery frame.</summary>

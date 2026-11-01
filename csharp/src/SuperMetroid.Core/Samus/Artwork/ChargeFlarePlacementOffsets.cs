@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Projectiles;
 using static SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementDefinitions;
 
@@ -47,7 +48,10 @@ public static class ChargeFlarePlacementOffsets
         };
     }
 
-    /// <summary>Grapple's ten visual origins, which equal the beam origins.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The direction is not one of the ten named aiming directions.</exception>
-    internal static Offset16<RoomPixels> GrappleOffset(bool running, int direction) => BeamOffset(running, direction);
+    /// <summary>The visual origins of Grapple's ten firing directions, which equal the beam origins.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The direction is not one of Grapple's firing directions.</exception>
+    internal static Offset16<RoomPixels> GrappleOffset(bool running, int direction) =>
+        (uint)direction < GrappleBeamDefinitions.Firing.DirectionCount
+            ? BeamOffset(running, direction)
+            : throw new ArgumentOutOfRangeException(nameof(direction));
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -15,5 +16,5 @@ public static class ChargeFlarePlacementDefinitions
     /// for a pose whose shot direction is one of them, and the Grapple flare takes its typed firing direction, so no
     /// placement past them is read (#1500).
     /// </summary>
-    public const int DirectionCount = 10;
+    public const int DirectionCount = SamusFiringTableDefinitions.DirectionCount;
 }

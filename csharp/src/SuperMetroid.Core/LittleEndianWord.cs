@@ -17,11 +17,6 @@ internal static class LittleEndianWord
     /// <param name="high">The second byte, 0 through 255; other values are rejected.</param>
     internal static int Unsigned(int low, int high) => RequireByte(high) << ByteBits | RequireByte(low);
 
-    /// <summary>The word whose low byte is <paramref name="low"/> and high byte is <paramref name="high"/>, read as signed, -32768 through 32767.</summary>
-    /// <param name="low">The first byte, 0 through 255; other values are rejected.</param>
-    /// <param name="high">The second byte, 0 through 255; other values are rejected.</param>
-    internal static int Signed(int low, int high) => unchecked((short)Unsigned(low, high));
-
     /// <summary>Writes <paramref name="word"/> into the first two bytes of <paramref name="destination"/>, low byte first.</summary>
     /// <param name="destination">The bytes the word occupies.</param>
     /// <param name="word">The word, 0 through 65535; other values are rejected.</param>

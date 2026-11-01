@@ -76,7 +76,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Guards the initializer's simulated ascent and floor search against invalid room geometry.</summary>
     private const int AlcoonJumpSimulationLimit = 4096;
 
-    /// <summary>Ports <c>InitAI_Alcoon</c>, including its floor search.</summary>
+    /// <summary>Initializes the Alcoon, including its floor search.</summary>
     private void InitializeAlcoon(RoomEnemySlot slot, RoomLevelData? level)
     {
         if (level is null)
@@ -422,7 +422,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int AlcoonFireballHorizontalDeceleration = 64;
 
     /// <summary>
-    /// Ports <c>InitAI_EnemyProjectile_AlcoonFireball</c>. The parameter
+    /// Initializes the Alcoon Fireball projectile. The parameter
     /// is a byte offset (0, 2, or 4), exactly as passed in A by Alcoon's three instructions.
     /// </summary>
     internal void SpawnAlcoonFireball(RoomEnemySlot alcoon, int yVelocityTableByteOffset)

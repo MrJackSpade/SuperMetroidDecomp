@@ -541,7 +541,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports gunship function 17 (#1406): shows the next of the five liftoff looks, one a step, from this
+    /// Runs gunship function 17 (#1406): shows the next of the five liftoff looks, one a step, from this
     /// update's frame on; after the fifth, the engines fire up.
     /// </summary>
     /// <exception cref="InvalidDataException">The page index left its five pages.</exception>
@@ -560,7 +560,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the 128-frame engine-rumble function.</summary>
+    /// <summary>Runs the 128-frame engine-rumble function.</summary>
     private void FireUpGunshipEngines(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -592,7 +592,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports constant two-pixel liftoff.</summary>
+    /// <summary>Runs constant two-pixel liftoff.</summary>
     private void LiftGunshipAtConstantSpeed(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -605,7 +605,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the accelerating takeoff function.</summary>
+    /// <summary>Runs the accelerating takeoff function.</summary>
     private void AccelerateEscapingGunship(RoomEnemySlot top, SamusState? samus)
     {
         MoveEscapingGunship(top, samus);
@@ -616,7 +616,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the shared 8.8 velocity integrator.</summary>
+    /// <summary>Runs the shared 8.8 velocity integrator.</summary>
     private void MoveEscapingGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)

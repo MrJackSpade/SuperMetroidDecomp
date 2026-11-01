@@ -346,7 +346,7 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>
-    /// Ports <c>Instruction_EnemyProjectile_CalculateDirectionTowardsSamus</c>: keeps the angle to
+    /// Aims the projectile at Samus: keeps the angle to
     /// Samus and launches the shot along it at unit speed.
     /// </summary>
     private static void AimEyeDoorProjectileAtSamus(RoomEnemyProjectileSlot projectile, IRoomSamus samus)

@@ -42,7 +42,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>The three movement classes on each axis: moving toward smaller coordinates, still, or toward larger ones.</summary>
     private const int WreckedShipGhostMovementClassCount = 3;
 
-    /// <summary>Ports <c>WreckedShipGhost_Init</c>.</summary>
+    /// <summary>Initializes the Wrecked Ship ghost.</summary>
     internal void InitializeWreckedShipGhost(RoomEnemySlot slot)
     {
         // Every named retail ghost population places this actor in physical slot zero.
@@ -236,7 +236,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.StableDirectionTimer = WrappingCountdown.Start(WreckedShipGhostStableDirectionDuration);
     }
 
-    /// <summary>Ports the white-flash ramp and its flicker helper.</summary>
+    /// <summary>Runs the white-flash ramp and its flicker helper.</summary>
     internal void RunWreckedShipGhostBrightening(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)
@@ -295,7 +295,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.StableDirectionTimer = WrappingCountdown.Start(WreckedShipGhostStableDirectionDuration);
     }
 
-    /// <summary>Ports the signed 16.16 oscillation and 120-frame visible lifetime.</summary>
+    /// <summary>Runs the signed 16.16 oscillation and 120-frame visible lifetime.</summary>
     private static void RunWreckedShipGhostBobbing(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)

@@ -29,7 +29,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>AI updates of endpoint rest per unit of a shutter's population rest parameter.</summary>
     private const int RestUpdatesPerParameterUnit = 16;
 
-    /// <summary>Ports <c>GrowingShutter_Init</c>.</summary>
+    /// <summary>Initializes the growing shutter.</summary>
     internal static void InitializeGrowingShutter(RoomEnemySlot slot)
     {
         GrowingShutterSpawnSettings settings = slot.SpawnSettings<GrowingShutterSpawnSettings>();
@@ -69,7 +69,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             yRadius: 8);
     }
 
-    /// <summary>Ports <c>GrowingShutter_Main</c>.</summary>
+    /// <summary>Runs the growing shutter's main AI.</summary>
     private void RunGrowingShutterMain(
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
@@ -143,7 +143,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
-    /// <summary>Ports the four growth stages.</summary>
+    /// <summary>Runs the four growth stages.</summary>
     private static void GrowShutterDown(RoomEnemySlot slot, GrowingShutterEnemyState state)
     {
         if (state.GrowthLevel >= 4)
@@ -159,7 +159,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         FinishGrowingShutterSection(slot, state, target, direction: VerticalDirection.Down);
     }
 
-    /// <summary>Ports the four upward growth stages.</summary>
+    /// <summary>Runs the four upward growth stages.</summary>
     private static void GrowShutterUp(
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
@@ -292,7 +292,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallHorizontalShutterProgram(slot, state);
     }
 
-    /// <summary>Ports <c>HorizontalShutter_Main</c>.</summary>
+    /// <summary>Runs the horizontal shutter's main AI.</summary>
     private static void RunHorizontalShutterMain(
         RoomEnemySlot slot,
         HorizontalShutterEnemyState state,
@@ -775,7 +775,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.DefinitionId == EnemyDefinitionId.Kamer ? ShutterProgram.KamerPlatform : ShutterProgram.FortyPixels);
     }
 
-    /// <summary>Ports <c>VerticalShutter_Main</c>.</summary>
+    /// <summary>Runs the vertical shutter's main AI.</summary>
     internal void RunVerticalShutterMain(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,

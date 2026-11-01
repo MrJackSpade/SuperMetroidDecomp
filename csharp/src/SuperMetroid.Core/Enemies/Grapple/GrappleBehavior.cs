@@ -28,7 +28,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
     }
 
     /// <summary>
-    /// Ports <c>EnemyGrappleBeamCollisionDetection</c>. Extended hitboxes are
+    /// Resolves the grapple beam's endpoint against enemies. Extended hitboxes are
     /// intentionally ignored: the original compares the endpoint with each ordinary radius
     /// plus an eight-pixel beam-point radius and selects the first interactive slot.
     /// </summary>

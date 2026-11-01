@@ -126,7 +126,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidOperationException($"Undefined {nameof(CrawlerSurfaceOrientation)} {blockSide}."),
         };
 
-    /// <summary>Ports the separate orange-Zoomer initializer.</summary>
+    /// <summary>Runs the separate orange-Zoomer initializer.</summary>
     internal static void InitializeHZoomer(RoomEnemySlot slot)
     {
         CrawlerSpawnSettings settings = slot.SpawnSettings<CrawlerSpawnSettings>();
@@ -311,7 +311,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Ports shared crawler main AI.</summary>
+    /// <summary>Runs shared crawler main AI.</summary>
     private void RunCrawlerMain(RoomEnemySlot slot, RoomLevelData? level)
     {
         if (level is null)
@@ -412,7 +412,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         SetCrawlerHorizontalSurfaceInstruction(slot, state);
     }
 
-    /// <summary>Ports the earthquake/outside-corner falling owner.</summary>
+    /// <summary>Runs the earthquake/outside-corner falling owner.</summary>
     private void RunCrawlerFalling(
         RoomEnemySlot slot,
         CrawlerEnemyState state,

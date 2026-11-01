@@ -84,7 +84,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId DachoraCeilingImpactSound =
         EnemySoundEffectDefinitions.DachoraCeilingImpactSound;
 
-    /// <summary>Ports <c>InitAI_Dachora</c>.</summary>
+    /// <summary>Initializes the Dachora.</summary>
     internal static void InitializeDachora(RoomEnemySlot slot)
     {
         DachoraSpawnSettings settings = slot.SpawnSettings<DachoraSpawnSettings>();
@@ -117,7 +117,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = DachoraAiFunction.WaitingForSamus;
     }
 
-    /// <summary>Ports <c>MainAI_Dachora</c>'s indirect jump.</summary>
+    /// <summary>Dispatches the Dachora's main AI through its indirect jump.</summary>
     private void RunDachoraMain(
         RoomEnemySlot slot,
         DachoraEnemyState state,
@@ -193,7 +193,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraActivationSound, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Ports the 120-frame warning countdown.</summary>
+    /// <summary>Runs the 120-frame warning countdown.</summary>
     private static void RunDachoraBlinking(RoomEnemySlot slot, DachoraEnemyState state)
     {
         state.PhaseTimer = state.PhaseTimer.Decrement().Remaining;
@@ -269,7 +269,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports <c>AccelerateRunningDachora</c>. This intentionally retains the
+    /// Accelerates the running Dachora. This intentionally retains the
     /// strange packed palette timer: after frame three is reached, the game reloads that
     /// brightest speed palette every sixteen frames instead of wrapping to frame zero.
     /// </summary>
@@ -323,7 +323,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         return state.Speed.RawValue;
     }
 
-    /// <summary>Ports the stored-shine countdown and echo activation.</summary>
+    /// <summary>Runs the stored-shine countdown and echo activation.</summary>
     private void RunDachoraCharging(RoomEnemySlot slot, DachoraEnemyState state)
     {
         StepDachoraShinePalette(slot, state);
@@ -352,7 +352,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             InstallDachoraInstruction(echo, echo.RequireSpeciesState<DachoraEnemyState>(), echoList);
     }
 
-    /// <summary>Ports upward acceleration, trail placement, and ceiling collision.</summary>
+    /// <summary>Runs upward acceleration, trail placement, and ceiling collision.</summary>
     private void RunDachoraShinespark(
         RoomEnemySlot slot,
         DachoraEnemyState state,
@@ -392,7 +392,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraCeilingImpactSound, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Ports the gravity-capped return to the ground.</summary>
+    /// <summary>Runs the gravity-capped return to the ground.</summary>
     private void RunDachoraFalling(
         RoomEnemySlot slot,
         DachoraEnemyState state,
@@ -423,7 +423,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Speed = SignedSixteenSixteen.Zero;
     }
 
-    /// <summary>Ports the four-slot, first-free echo pipeline.</summary>
+    /// <summary>Runs the four-slot, first-free echo pipeline.</summary>
     private void UpdateDachoraEchoPositions(RoomEnemySlot body)
     {
         RoomEnemySlot[] echoes = RequireDachoraEchoSlots(body);
@@ -447,7 +447,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the alternating, lifetime-owned echo visibility.</summary>
+    /// <summary>Runs the alternating, lifetime-owned echo visibility.</summary>
     private static void RunDachoraEcho(
         RoomEnemySlot slot,
         DachoraEnemyState state,
@@ -469,7 +469,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
 
-    /// <summary>Ports the four-frame shine palette loop.</summary>
+    /// <summary>Runs the four-frame shine palette loop.</summary>
     internal void StepDachoraShinePalette(RoomEnemySlot slot, DachoraEnemyState state)
     {
         int paletteIndex = state.PaletteFrame;

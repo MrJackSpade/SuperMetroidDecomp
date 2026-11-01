@@ -60,7 +60,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Two-pixel downward probe used to test for a solid floor without moving Stoke.</summary>
     private const int StokeFloorProbeDisplacement = 2 << 16;
 
-    /// <summary>Ports <c>InitAI_Stoke</c>.</summary>
+    /// <summary>Initializes the Stoke.</summary>
     internal static void InitializeStoke(RoomEnemySlot slot)
     {
         StokeSpawnSettings settings = slot.SpawnSettings<StokeSpawnSettings>();
@@ -93,7 +93,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>MainAI_Stoke</c>.</summary>
+    /// <summary>Runs the Stoke's main AI.</summary>
     private void RunStokeMain(RoomEnemySlot slot, StokeEnemyState state, RoomLevelData? level)
     {
         if (level is null)
@@ -145,7 +145,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         SetStokeProgram(slot, state, attackingProgram);
     }
 
-    /// <summary>Ports <c>StokeMovement</c>.</summary>
+    /// <summary>Moves Stoke and turns it at terrain.</summary>
     private void MoveStokeAndTurnAtTerrain(
         RoomEnemySlot slot,
         StokeEnemyState state,
@@ -165,11 +165,11 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             TurnStokeAround(slot, state);
     }
 
-    /// <summary>Ports <c>CheckForVerticalSolidBlockCollision</c>'s Stoke use.</summary>
+    /// <summary>Stoke's use of the vertical solid-block collision test.</summary>
     private static bool StokeHasSolidFloorTwoPixelsBelow(RoomLevelData level, RoomEnemySlot slot)
         => EnemyTerrain.EnemyMeetsAttachmentBlockVerticallyAhead(level, slot, StokeFloorProbeDisplacement);
 
-    /// <summary>Ports <c>TurnStokeAround</c>.</summary>
+    /// <summary>Turns Stoke around.</summary>
     private static void TurnStokeAround(RoomEnemySlot slot, StokeEnemyState state)
     {
         // The routine always selects the left wrapper first, then replaces it with right

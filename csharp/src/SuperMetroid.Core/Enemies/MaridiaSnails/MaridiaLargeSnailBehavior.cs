@@ -64,7 +64,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     private static readonly SoundEffectId MaridiaLargeSnailShotSound =
         EnemySoundEffectDefinitions.MaridiaLargeSnailShotSound;
 
-    /// <summary>Ports <c>InitAI_Oum</c>.</summary>
+    /// <summary>Initializes the Oum.</summary>
     internal static void InitializeMaridiaLargeSnail(RoomEnemySlot slot)
     {
         var state = new MaridiaLargeSnailEnemyState
@@ -504,7 +504,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>
-    /// Ports the private tail of <c>EnemyShot_Oum</c>. It runs after common shot
+    /// Runs the private tail of the Oum's shot reaction. It runs after common shot
     /// AI for damaging, freezing, and zero-damage vulnerability results alike.
     /// </summary>
     private void ResolveMaridiaLargeSnailShotAfterCommon() =>

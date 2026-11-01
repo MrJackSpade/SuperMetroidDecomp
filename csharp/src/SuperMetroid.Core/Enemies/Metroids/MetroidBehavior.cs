@@ -79,7 +79,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Drop publications generated after a frozen Metroid's death animation begins.</summary>
     internal readonly List<MetroidDropRequest> MetroidDropRequests = new();
 
-    /// <summary>Ports <c>Metroid_Init</c>.</summary>
+    /// <summary>Initializes the Metroid.</summary>
     internal void InitializeMetroid(RoomEnemySlot slot)
     {
         SpriteGraphics graphics = slot.Graphics;

@@ -6,30 +6,30 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// </summary>
 internal enum MamaTurtleProgram
 {
-    /// <summary>The baby crawling left animation.</summary>
+    /// <summary>The Baby crawling left animation.</summary>
     BabyCrawlingLeft,
-    /// <summary>The baby spinning animation.</summary>
+    /// <summary>The Baby spinning animation.</summary>
     BabySpinning,
     /// <summary>The mama spinning animation.</summary>
     MamaSpinning,
     /// <summary>The mama enter shell left animation.</summary>
     MamaEnterShellLeft,
-    /// <summary>The baby hiding left animation.</summary>
+    /// <summary>The Baby hiding left animation.</summary>
     BabyHidingLeft,
     /// <summary>The mama asleep animation.</summary>
     MamaAsleep,
     /// <summary>The mama leave shell left animation.</summary>
     MamaLeaveShellLeft,
-    /// <summary>The baby leave shell left animation.</summary>
+    /// <summary>The Baby leave shell left animation.</summary>
     BabyLeaveShellLeft,
-    /// <summary>The baby crawling right animation.</summary>
+    /// <summary>The Baby crawling right animation.</summary>
     BabyCrawlingRight,
     /// <summary>The mama enter shell right animation.</summary>
     MamaEnterShellRight,
-    /// <summary>The baby hiding right animation.</summary>
+    /// <summary>The Baby hiding right animation.</summary>
     BabyHidingRight,
     /// <summary>The mama leave shell right animation.</summary>
     MamaLeaveShellRight,
-    /// <summary>The baby leave shell right animation.</summary>
+    /// <summary>The Baby leave shell right animation.</summary>
     BabyLeaveShellRight,
 }

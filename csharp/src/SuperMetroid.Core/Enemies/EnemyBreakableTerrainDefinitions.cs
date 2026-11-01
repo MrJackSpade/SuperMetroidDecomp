@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Enemy/spike collision dispatch, <c>EnemyBlockCollisionReaction_Spike.PLMs</c>:
+/// Enemy/spike collision dispatch, the spike-block reaction's PLM table:
 /// the game masks bit seven, treats entries zero through fourteen as solid, and spawns
 /// <see cref="PlmHeaderId.EnemyBreakableBlock"/> for entry fifteen.
 /// </summary>

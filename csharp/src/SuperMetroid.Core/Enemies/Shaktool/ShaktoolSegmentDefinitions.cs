@@ -11,7 +11,7 @@ internal static class ShaktoolSegmentDefinitions
     /// and the initial curling angle delta is 32 times it, the same curvature at 1/64 of the angle's
     /// magnitude. Initial program: both saws their primary-piece list, the center segment the head-down
     /// list, the four arms the normal arm list. Layer: saws and head use layer 2, arms layer 4. Callback
-    ///: fixed anchor, head, final saw and ordinary arms have distinct roles.
+    /// by part: fixed anchor, head, final saw and ordinary arms have distinct roles.
     /// </summary>
     internal static readonly ShaktoolSegmentDefinition[] Segments =
     [

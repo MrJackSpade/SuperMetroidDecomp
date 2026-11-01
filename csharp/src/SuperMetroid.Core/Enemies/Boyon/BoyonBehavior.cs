@@ -47,7 +47,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId BoyonBounceSound =
         EnemySoundEffectDefinitions.BoyonBounceSound;
 
-    /// <summary>Ports <c>InitAI_Boyon</c>.</summary>
+    /// <summary>Initializes the Boyon.</summary>
     internal static void InitializeBoyon(RoomEnemySlot slot)
     {
         BoyonSpawnSettings settings = slot.SpawnSettings<BoyonSpawnSettings>();
@@ -83,7 +83,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetBoyonProgram(slot, state, BoyonProgram.Idle);
     }
 
-    /// <summary>Ports <c>MainAI_Boyon</c>.</summary>
+    /// <summary>Runs the Boyon's main AI.</summary>
     internal static void RunBoyonMain(RoomEnemySlot slot, BoyonEnemyState state, SamusState? samus)
     {
         if (samus is null)
@@ -143,7 +143,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the one-time loop.</summary>
+    /// <summary>Runs the one-time loop.</summary>
     private static void CalculateInitialBoyonBounceSpeed(BoyonEnemyState state)
     {
         // Every iteration multiplies two low bytes,
@@ -168,7 +168,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             "Boyon initial bounce-speed calculation did not reach its authored jump height.");
     }
 
-    /// <summary>Ports falling movement.</summary>
+    /// <summary>Runs falling movement.</summary>
     private static void MoveBoyonFalling(RoomEnemySlot slot, BoyonEnemyState state)
     {
         state.AdvanceSpeedTableIndex();
@@ -185,7 +185,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Bouncing = false;
     }
 
-    /// <summary>Ports rising movement.</summary>
+    /// <summary>Runs rising movement.</summary>
     private static void MoveBoyonRising(RoomEnemySlot slot, BoyonEnemyState state)
     {
         state.Speed = MultiplyBoyonCurveEntry(state);

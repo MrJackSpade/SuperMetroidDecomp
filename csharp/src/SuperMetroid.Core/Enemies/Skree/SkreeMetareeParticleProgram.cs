@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// </summary>
 internal enum SkreeMetareeParticleProgram
 {
-    /// <summary>The skree animation.</summary>
+    /// <summary>The Skree animation.</summary>
     Skree,
     /// <summary>The metaree animation.</summary>
     Metaree,

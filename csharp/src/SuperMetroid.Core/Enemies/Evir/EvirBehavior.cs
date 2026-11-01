@@ -72,7 +72,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The horizontal distance, in room pixels, from the mouth at which the regenerating spit starts.</summary>
     private const int RegenerationStartDistance = 8;
 
-    /// <summary>Ports <c>InitAI_Evir</c>.</summary>
+    /// <summary>Initializes the Evir.</summary>
     internal void InitializeEvir(RoomEnemySlot slot, SamusState? samus)
     {
         var state = new EvirEnemyState();
@@ -134,7 +134,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             $"Evir speed record {speedRecord} takes its first half-cycle from a value no retail Evir reads.");
     }
 
-    /// <summary>Ports <c>InitAI_EvirProjectile</c>.</summary>
+    /// <summary>Initializes the Evir Projectile.</summary>
     internal void InitializeEvirProjectile(RoomEnemySlot slot)
     {
         var state = new EvirEnemyState

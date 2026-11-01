@@ -21,7 +21,7 @@ internal static class EnemyMath
     }
 
     /// <summary>
-    /// Ports <c>CalculateAngleOf_12_14_Offset</c>. Zero points upward and the
+    /// Calculates the bearing of an offset. Zero points upward and the
     /// result advances clockwise in 256 units per turn, matching enemy callers.
     /// </summary>
     internal static Bearing CalculateBearing(Offset16<RoomPixels> delta)
@@ -103,11 +103,11 @@ internal static class EnemyMath
         return angle.IsInSecondHalf ? -magnitude : magnitude;
     }
 
-    /// <summary>Ports <c>EightBitCosineMultiplication</c>.</summary>
+    /// <summary>Computes the eight-bit cosine multiplication.</summary>
     internal static int ReadEightBitCosineProduct(ByteAngle angle, int radius) =>
         ReadEightBitSineProduct(angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue), radius);
 
-    /// <summary>Ports <c>EightBitNegativeSineMultiplication</c>.</summary>
+    /// <summary>Computes the eight-bit negative sine multiplication.</summary>
     internal static int ReadEightBitNegativeSineProduct(ByteAngle angle, int radius) =>
         ReadEightBitSineProduct(angle.AddTableUnits(ByteAngle.HalfTurn.RawValue), radius);
 
@@ -193,7 +193,7 @@ internal static class EnemyMath
         Trigonometry.MultiplySignedSine(speed, angle);
 
     /// <summary>
-    /// The game's sign extension of a word's low byte (<c>Sign_Extend_A</c>): a negative low byte fills the high byte
+    /// The game's sign extension of a word's low byte: a negative low byte fills the high byte
     /// with ones; a positive one leaves whatever high byte the word already had, so a borrowed one survives (#1412).
     /// </summary>
     internal static int SignExtendLowByte(int word) =>

@@ -41,7 +41,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Upper bound applied to the airborne speed-table index.</summary>
     private const int MaximumPuyoYSpeedTableIndex = 16384;
 
-    /// <summary>Ports <c>InitAI_Puyo</c>.</summary>
+    /// <summary>Initializes the Puyo.</summary>
     internal static void InitializePuyo(RoomEnemySlot slot)
     {
         // The initializer writes the common empty map and clears Enemy.var0 before
@@ -98,7 +98,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>Function_Puyo_Grounded</c>.</summary>
+    /// <summary>Runs the grounded Puyo.</summary>
     private void RunGroundedPuyo(RoomEnemySlot slot, PuyoEnemyState state, SamusState samus)
     {
         // DEC followed by BPL means a zero cooldown waits one frame and then wraps to FFFF
@@ -154,7 +154,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         CalculateInitialPuyoHopSpeed(state);
     }
 
-    /// <summary>Ports the integration loop without simplifying its odd units.</summary>
+    /// <summary>Runs the integration loop without simplifying its odd units.</summary>
     internal static void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)
     {
         int timeAccumulator = 0;
@@ -193,7 +193,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static PuyoHopDefinition Hop(PuyoEnemyState state) =>
         PuyoHops.FromByteIndex(Ensure.BetweenInclusive(0, ushort.MaxValue, state.HopRecord * PuyoHopDefinitions.RecordSize));
 
-    /// <summary>Ports the indirect airborne dispatcher.</summary>
+    /// <summary>Runs the indirect airborne dispatcher.</summary>
     private void RunAirbornePuyo(
         RoomEnemySlot slot,
         PuyoEnemyState state,
@@ -253,7 +253,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPuyoProgram(slot, state, landingProgram);
     }
 
-    /// <summary>Ports <c>Function_Puyo_Airborne_GiantHop</c>.</summary>
+    /// <summary>Runs the Puyo's giant airborne hop.</summary>
     private void RunGiantPuyoHop(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
         MovePuyo(slot, state, level);
@@ -272,7 +272,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPuyoProgram(slot, state, PuyoProgram.GroundedSlow);
     }
 
-    /// <summary>Ports the constant-speed collision fall.</summary>
+    /// <summary>Runs the constant-speed collision fall.</summary>
     private void RunDroppingPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
         int packed = Hop(state).YIndexDelta;
@@ -294,7 +294,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private int NextPuyoRandom0To7(RoomEnemySlot slot) =>
         WordWrap.Unsigned((_room.Random.Generate() + slot.FrameCounter) & 7);
 
-    /// <summary>Ports the post-drop bounce wrapper.</summary>
+    /// <summary>Runs the post-drop bounce wrapper.</summary>
     private void RunDroppedPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
         MovePuyo(slot, state, level);
@@ -306,7 +306,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPuyoProgram(slot, state, PuyoProgram.GroundedSlow);
     }
 
-    /// <summary>Ports <c>PuyoMovement</c>.</summary>
+    /// <summary>Moves the Puyo.</summary>
     private void MovePuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
         int cappedIndex = Math.Min(state.YSpeedTableIndex, MaximumPuyoYSpeedTableIndex);

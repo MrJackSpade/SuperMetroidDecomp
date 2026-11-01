@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 /// </summary>
 internal enum BlueBrinstarFaceBlockProgram
 {
-    /// <summary>The samus left animation.</summary>
+    /// <summary>The Samus left animation.</summary>
     SamusLeft,
-    /// <summary>The samus right animation.</summary>
+    /// <summary>The Samus right animation.</summary>
     SamusRight,
     /// <summary>The initial animation.</summary>
     Initial,

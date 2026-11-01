@@ -14,7 +14,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new AtomicEntity(slot, common);
 
 
-    /// <summary>Ports <c>InitAI_Atomic</c>.</summary>
+    /// <summary>Initializes the Atomic.</summary>
     internal static void InitializeAtomic(RoomEnemySlot slot)
     {
         var state = new AtomicEnemyState();
@@ -32,7 +32,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports <c>MainAI_Atomic</c>, including all four indirect targets.
+    /// Runs the Atomic's main AI, including all four indirect targets.
     /// Atomic deliberately ignores terrain and chooses both signs again every frame.
     /// </summary>
     private static void RunAtomicMain(

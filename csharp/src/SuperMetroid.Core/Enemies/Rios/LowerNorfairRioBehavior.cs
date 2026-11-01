@@ -41,7 +41,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Each flight update subtracts 32 units from the signed 8.8 vertical velocity.</summary>
     private const int LowerNorfairRioGravity = 32;
 
-    /// <summary>Ports <c>LowerNorfairRio_Init</c>.</summary>
+    /// <summary>Initializes the Lower Norfair Rio.</summary>
     internal void InitializeLowerNorfairRio(RoomEnemySlot slot)
     {
         var state = new LowerNorfairRioEnemyState
@@ -67,7 +67,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>
-    /// Ports <c>LowerNorfairRio_Main</c> and functions one through six.
+    /// Runs the Lower Norfair Rio's main AI and functions one through six.
     /// The shared RNG advances before every parent and follower dispatch, exactly as retail.
     /// </summary>
     private void RunLowerNorfairRioMain(

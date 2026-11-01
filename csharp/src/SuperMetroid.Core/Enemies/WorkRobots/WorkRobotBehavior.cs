@@ -77,7 +77,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static bool IsWorkRobotDefinition(EnemyDefinitionId definitionId) =>
         definitionId is EnemyDefinitionId.Robot or EnemyDefinitionId.RobotNoPower;
 
-    /// <summary>Ports <c>InitAI_Robot</c>.</summary>
+    /// <summary>Initializes the Robot.</summary>
     internal void InitializeWorkRobot(RoomEnemySlot slot)
     {
         var state = new WorkRobotEnemyState();
@@ -109,7 +109,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         WorkRobotPaletteAnimationColouring = slot.Colouring;
     }
 
-    /// <summary>Ports <c>InitAI_RobotNoPower</c>.</summary>
+    /// <summary>Initializes the unpowered Work Robot.</summary>
     internal void InitializeWorkRobotNoPower(RoomEnemySlot slot, WorkRobotEnemyState state)
     {
         state.Powered = false;
@@ -137,7 +137,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // rather than synthesized into the palette, matching the visible game result.
     }
 
-    /// <summary>Ports the gravity-only <c>MainAI_Robot</c>.</summary>
+    /// <summary>Runs the robot's gravity-only main behaviour.</summary>
     private void RunWorkRobotMain(
         RoomEnemySlot slot,
         WorkRobotEnemyState state,
@@ -346,7 +346,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         state.LaserCooldown = state.LaserCooldown.AddFrames(64);
     }
 
-    /// <summary>Ports the global graphics-drawn palette hook.</summary>
+    /// <summary>Runs the global graphics-drawn palette hook.</summary>
     internal void StepWorkRobotPaletteAnimation()
     {
         if (WorkRobotPaletteAnimationTimer.IsZero)

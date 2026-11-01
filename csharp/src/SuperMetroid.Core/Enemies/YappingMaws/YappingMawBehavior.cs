@@ -83,7 +83,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Delay after full retraction before Samus input is released.</summary>
     private const int YappingMawRetractedDelayFrames = 64;
 
-    /// <summary>Ports <c>YappingMaw_Init</c>.</summary>
+    /// <summary>Initializes the Yapping Maw.</summary>
     internal void InitializeYappingMaw(RoomEnemySlot slot)
     {
         var state = new YappingMawEnemyState(slot)
@@ -217,7 +217,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = YappingMawAiFunction.BeginExtension;
     }
 
-    /// <summary>Ports the one-frame setup function.</summary>
+    /// <summary>Runs the one-frame setup function.</summary>
     internal static void BeginYappingMawExtension(RoomEnemySlot slot, YappingMawEnemyState state)
     {
         state.Extension = SignedSixteenSixteen.Zero;
@@ -245,7 +245,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = YappingMawAiFunction.ExtendingOrRetracting;
     }
 
-    /// <summary>Ports the curved four-link solver and state transition.</summary>
+    /// <summary>Runs the curved four-link solver and state transition.</summary>
     private void AdvanceYappingMawExtension(
         RoomEnemySlot slot,
         YappingMawEnemyState state,
@@ -541,7 +541,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         CoordinateAxis.Difference(slot.Position.Y.Whole, camera.Y) < 0 ||
         CoordinateAxis.AsSigned(camera.Y + 256 - slot.Position.Y.Whole) < 0;
 
-    /// <summary>Ports EnemyFunc_ACA8 for the one family that consumes it.</summary>
+    /// <summary>Calculates the Maw's target, a shared enemy helper only this family consumes.</summary>
     private static YappingMawTarget CalculateYappingMawTarget(
         Position16<RoomPixels> origin,
         Position16<RoomPixels> samus)

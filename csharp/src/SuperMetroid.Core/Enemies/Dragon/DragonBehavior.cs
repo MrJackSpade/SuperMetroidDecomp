@@ -57,7 +57,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int DragonWaitBeforeRiseFrames = 128;
 
 
-    /// <summary>Ports <c>InitAI_Dragon</c>.</summary>
+    /// <summary>Initializes the Dragon.</summary>
     internal static void InitializeDragon(RoomEnemySlot slot)
     {
         DragonEnemyState state = CreateDragonState(slot);
@@ -83,7 +83,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = DragonEnemyFunction.WaitToRise;
     }
 
-    /// <summary>Ports <c>MainAI_Dragon</c> and its five body functions.</summary>
+    /// <summary>Runs the Dragon's main AI and its five body functions.</summary>
     private void RunDragonMain(RoomEnemySlot slot, DragonEnemyState state, SamusState? samus)
     {
         switch (state.Function)
@@ -237,7 +237,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports the shared tail after touch, shot, or power-bomb common AI. A dead
+    /// Runs the shared tail after touch, shot, or power-bomb common AI. A dead
     /// body deletes its wing; a surviving body mirrors every timer/handler word that affects
     /// visible hurt and freeze rendering into that cosmetic record.
     /// </summary>

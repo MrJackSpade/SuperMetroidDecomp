@@ -5,7 +5,7 @@ internal static class WorkRobotInitializationDefinitions
 {
     /// <summary>
     /// The three authored unpowered poses. The range check also admits parameter three, whose
-    /// table read overruns into the first code word of <c>MainAI_Robot</c> and points the interpreter at
+    /// table read overruns into the first word of the robot's main behaviour and points the interpreter at
     /// unrelated bytes; that corrupt path is outside the port.
     /// </summary>
     internal static readonly WorkRobotProgram[] InitialPrograms =

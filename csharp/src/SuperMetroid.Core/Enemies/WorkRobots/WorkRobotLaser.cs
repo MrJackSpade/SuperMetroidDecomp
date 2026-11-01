@@ -7,18 +7,18 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// </summary>
 internal enum WorkRobotLaser
 {
-    /// <summary><c>EnemyProjectile_RobotLaser_UpLeft</c>.</summary>
+    /// <summary>The up-left laser.</summary>
     UpLeft = 1,
 
-    /// <summary><c>EnemyProjectile_RobotLaser_Horizontal</c>.</summary>
+    /// <summary>The horizontal laser.</summary>
     Horizontal,
 
-    /// <summary><c>EnemyProjectile_RobotLaser_DownLeft</c>.</summary>
+    /// <summary>The down-left laser.</summary>
     DownLeft,
 
-    /// <summary><c>EnemyProjectile_RobotLaser_UpRight</c>.</summary>
+    /// <summary>The up-right laser.</summary>
     UpRight,
 
-    /// <summary><c>EnemyProjectile_RobotLaser_DownRight</c>.</summary>
+    /// <summary>The down-right laser.</summary>
     DownRight,
 }

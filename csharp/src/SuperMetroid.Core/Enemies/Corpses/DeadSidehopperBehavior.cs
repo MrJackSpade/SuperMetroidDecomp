@@ -72,7 +72,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>The living victim activates once the camera's left edge is left of this room pixel column.</summary>
     private static readonly Position16<RoomPixels> VictimActivationCamera = new(513, 0);
 
-    /// <summary>Ports <c>DeadSidehopper_Init</c>.</summary>
+    /// <summary>Initializes the dead Sidehopper.</summary>
     internal void InitializeDeadSidehopper(RoomEnemySlot slot)
     {
         if (slot.SpeciesState<DeadSidehopperEnemyState>() is not null)
@@ -93,7 +93,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
     }
 
-    /// <summary>Ports the Shitroid victim layout.</summary>
+    /// <summary>Runs the Shitroid victim layout.</summary>
     private void InitializeShitroidVictimSidehopper(RoomEnemySlot slot)
     {
         // The mask clears the solid bit and any inherited process-offscreen bit,
@@ -119,7 +119,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         state.Velocity = new EightEightVector<RoomPixels>(96, 256);
     }
 
-    /// <summary>Ports the already-dead Tourian layout.</summary>
+    /// <summary>Runs the already-dead Tourian layout.</summary>
     private void InitializeAlternateDeadSidehopper(RoomEnemySlot slot)
     {
         slot.Colouring = new EncounterSpriteColouring(TourianCorpseColourDefinitions.DrainedCorpses);
@@ -149,7 +149,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         return state;
     }
 
-    /// <summary>Ports <c>DeadSidehopper_Main</c>.</summary>
+    /// <summary>Runs the dead Sidehopper's main AI.</summary>
     private void RunDeadSidehopperMain(
         RoomEnemySlot slot,
         SamusState? samus,

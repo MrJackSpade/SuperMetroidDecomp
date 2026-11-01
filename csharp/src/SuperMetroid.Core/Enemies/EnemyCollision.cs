@@ -410,7 +410,7 @@ internal sealed class EnemyCollision
         stage is not null && stage(in context);
 
     /// <summary>
-    /// Ports the ordinary-radius half of <c>EnemyBombCollHandler</c>.
+    /// Runs the ordinary-radius half of <c>EnemyBombCollHandler</c>.
     /// </summary>
     /// <remarks>
     /// Normal bombs occupy physical projectile slots five through nine. They are not part

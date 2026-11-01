@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// </summary>
 internal enum MetroidProgram
 {
-    /// <summary>The chasing samus animation.</summary>
+    /// <summary>The chasing Samus animation.</summary>
     ChasingSamus,
-    /// <summary>The draining samus animation.</summary>
+    /// <summary>The draining Samus animation.</summary>
     DrainingSamus,
 }

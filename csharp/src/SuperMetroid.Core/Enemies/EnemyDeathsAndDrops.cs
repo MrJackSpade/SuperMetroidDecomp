@@ -64,7 +64,7 @@ internal sealed class EnemyDeathsAndDrops
     private void RequestDeathSound(SoundEffectId sound) =>
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.EnemyDeath, sound, priority: SoundRequestPriority.WhenIdle);
 
-    /// <summary>The library-two enemy-killed cry that <c>EprojInstr_QueueSfx2_9</c> queues.</summary>
+    /// <summary>The library-two enemy-killed cry the death explosion queues.</summary>
     internal static readonly SoundEffectId EnemyKilledSound = Library2Sound.EnemyKilled;
 
     /// <summary>Tells a power bomb's sweep in progress of each kill, which resizes its horizontal reach.</summary>
@@ -582,7 +582,7 @@ internal sealed class EnemyDeathsAndDrops
         }, EnemyProjectileFrameBehavior.PickupLifetime);
     }
 
-    /// <summary>Queues the library-two enemy-killed sound 9, as <c>EprojInstr_QueueSfx2_9</c> does.</summary>
+    /// <summary>Queues the library-two enemy-killed sound 9, as the death explosion's cue does.</summary>
     internal void QueueEnemyKilledSound() => RequestDeathSound(EnemyKilledSound);
 
     /// <summary>Connects the death and drop programs' cues: sprite spawns, sounds, drop conversion and respawn.</summary>

@@ -77,7 +77,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     public bool ChozoStatueAcidLoweringStarted { get; private set; }
 
     /// <summary>
-    /// Ports the complete palette-only initializer. The retail record begins
+    /// Runs the complete palette-only initializer. The retail record begins
     /// with the deletion property, so it exists solely long enough to replace target palette rows
     /// nine and ten; the scheduler removes it before any main-AI frame.
     /// </summary>

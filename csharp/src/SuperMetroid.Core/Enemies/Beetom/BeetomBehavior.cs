@@ -71,7 +71,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Input changes required to dislodge an attached draining Beetom.</summary>
     private const int BeetomMashCount = 64;
 
-    /// <summary>Ports <c>InitAI_Beetom</c>.</summary>
+    /// <summary>Initializes the Beetom.</summary>
     internal void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, ControllerButton controllerInput)
     {
         if (samus is null)
@@ -482,7 +482,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         throw new InvalidDataException("Beetom initial-speed calculation did not reach its authored target height.");
     }
 
-    /// <summary>Ports Beetom's custom touch handler.</summary>
+    /// <summary>Runs Beetom's custom touch handler.</summary>
     private void ResolveBeetomTouch(
         RoomEnemySlot slot,
         BeetomEnemyState state,
@@ -526,7 +526,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.KnockbackTimer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Ports the private post-common-shot tail.</summary>
+    /// <summary>Runs the private post-common-shot tail.</summary>
     private static void ResolveBeetomShotAfterCommon(RoomEnemySlot slot, BeetomEnemyState state)
     {
         if (!slot.FrozenTimer.IsZero && state.Function is

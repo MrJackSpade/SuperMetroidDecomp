@@ -42,7 +42,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         _roomStatus = roomStatus;
     }
 
-    /// <summary>Ports <c>Kago_Init</c>.</summary>
+    /// <summary>Initializes the Kago.</summary>
     internal static void InitializeKago(RoomEnemySlot slot)
     {
         var state = new KagoEnemyState();
@@ -76,7 +76,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports the Kago-owned tail of <c>Kago_Shot</c>. The caller has
+    /// Runs the Kago-owned tail of the Kago's shot reaction. The caller has
     /// already executed common normal-enemy shot AI, exactly matching the leading call in
     /// the game routine.
     /// </summary>
@@ -205,7 +205,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Beyond this parent separation, the next jump homes toward the shell.</summary>
     private const int KagoBugSourceHomingDistance = 48;
 
-    /// <summary>Ports <c>EprojInit_KagosBugs</c>.</summary>
+    /// <summary>Spawns and initializes a Kago bug.</summary>
     internal bool SpawnKagoBug(RoomEnemySlot source)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();

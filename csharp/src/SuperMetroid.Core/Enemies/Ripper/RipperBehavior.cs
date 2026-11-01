@@ -26,7 +26,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>Ports <c>InitAI_GRipper</c>.</summary>
+    /// <summary>Initializes the GRipper.</summary>
     internal static void InitializeGRipper(RoomEnemySlot slot)
     {
         var state = CreateRipperState(slot);
@@ -51,7 +51,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MaximumXPosition = settings.MaximumX;
     }
 
-    /// <summary>Ports <c>MainAI_GRipper</c>.</summary>
+    /// <summary>Runs the GRipper's main AI.</summary>
     private void RunGRipperMain(
         RoomEnemySlot slot,
         RipperEnemyState state,
@@ -80,7 +80,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>InitAI_Ripper2</c>.</summary>
+    /// <summary>Initializes the Ripper II.</summary>
     internal static void InitializeRipper2(RoomEnemySlot slot)
     {
         RipperEnemyState state = CreateRipperState(slot);
@@ -95,7 +95,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         SetRipperProgram(slot, movingPositive ? RipperProgram.Ripper2MovingLeft : RipperProgram.Ripper2MovingRight);
     }
 
-    /// <summary>Ports <c>MainAI_Ripper2</c>.</summary>
+    /// <summary>Runs the Ripper II's main AI.</summary>
     private void RunRipper2Main(RoomEnemySlot slot, RipperEnemyState state, RoomLevelData? level)
     {
         RequireRipperTerrain(level, "Ripper II");
@@ -109,7 +109,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             negativeProgram: RipperProgram.Ripper2MovingRight);
     }
 
-    /// <summary>Ports <c>Ripper_Init</c>.</summary>
+    /// <summary>Initializes the Ripper.</summary>
     internal static void InitializeRipper(RoomEnemySlot slot)
     {
         // The spawn's direction chooses the positive speed and the right-facing list, or the negative speed and the
@@ -124,7 +124,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         LoadRipperVelocity(state, movingRight);
     }
 
-    /// <summary>Ports <c>Ripper_Main</c>.</summary>
+    /// <summary>Runs the Ripper's main AI.</summary>
     private void RunRipperMain(RoomEnemySlot slot, RoomLevelData? level)
     {
         RequireRipperTerrain(level, "Ripper");
@@ -150,7 +150,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         state.XVelocity = movingRight ? state.Speeds.Positive : state.Speeds.Negative;
 
     /// <summary>
-    /// Ports the common post-shot tail. Normal shot AI owns health, death,
+    /// Runs the common post-shot tail. Normal shot AI owns health, death,
     /// impact, and freeze timers; this family-specific tail only pins the direction-specific
     /// two-piece frozen map when the accepted projectile actually froze the actor.
     /// </summary>

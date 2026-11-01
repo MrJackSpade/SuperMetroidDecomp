@@ -48,7 +48,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Slot zero's typed corpse pose (#641), started before the corpse state exists.</summary>
     private AnimationProgramCursor<DeadTorizoProgram> program;
 
-    /// <summary>Ports <c>DeadTorizo_Init</c>.</summary>
+    /// <summary>Initializes the dead Torizo.</summary>
     internal void InitializeDeadTorizo(RoomEnemySlot slot)
     {
         if (slot.SlotIndex != 0)
@@ -72,7 +72,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(DeadTorizo, DeadTorizo.ClearWithRecord);
     }
 
-    /// <summary>Ports <c>DeadTorizo_Main</c>.</summary>
+    /// <summary>Runs the dead Torizo's main AI.</summary>
     internal void RunDeadTorizoMain(RoomEnemySlot slot, SamusState? samus)
     {
         DeadTorizoEnemyState state = RequireDeadTorizoState(slot);

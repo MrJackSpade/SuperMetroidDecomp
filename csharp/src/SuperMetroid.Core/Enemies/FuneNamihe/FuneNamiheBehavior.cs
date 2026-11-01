@@ -206,7 +206,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileFrameBehavior.FuneNamiheFireballFlight;
 
     /// <summary>
-    /// Ports the shared projectile initializer. The source population's low
+    /// Runs the shared projectile initializer. The source population's low
     /// parameter-two byte selects one {left,right} speed pair; the fireball flies at the
     /// speed for its direction.
     /// </summary>

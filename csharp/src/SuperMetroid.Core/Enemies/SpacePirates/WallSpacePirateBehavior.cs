@@ -58,7 +58,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WalkingSpacePirateBehavior.IsWalkingSpacePirateDefinition(definition) ||
         NinjaSpacePirateBehavior.IsNinjaSpacePirateDefinition(definition);
 
-    /// <summary>Ports <c>InitAI_PirateWall</c>.</summary>
+    /// <summary>Initializes the wall Space Pirate.</summary>
     internal static void InitializeWallSpacePirate(RoomEnemySlot slot)
     {
         var state = new WallSpacePirateEnemyState();

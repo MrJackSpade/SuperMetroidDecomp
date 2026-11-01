@@ -34,7 +34,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Each Polyp initializer resets the shared enemy random seed to 17.</summary>
     private const int PolypRandomSeed = 17;
 
-    /// <summary>Ports <c>InitAI_Polyp</c>.</summary>
+    /// <summary>Initializes the Polyp.</summary>
     internal void InitializePolyp(RoomEnemySlot slot)
     {
         Action<int> setRandomNumber = _room.Random.Seed;
@@ -55,7 +55,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         setRandomNumber(PolypRandomSeed);
     }
 
-    /// <summary>Ports <c>MainAI_Polyp</c> and its three indirect functions.</summary>
+    /// <summary>Runs the Polyp's main AI and its three indirect functions.</summary>
     private void RunPolypMain(
         RoomEnemySlot slot,
         PolypEnemyState state,
@@ -96,7 +96,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the three independent random-table selections.</summary>
+    /// <summary>Runs the three independent random-table selections.</summary>
     private void ShootPolypRock(RoomEnemySlot slot, PolypEnemyState state)
     {
         int xVelocity = PolypLaunches.XVelocity(_room.Random.Generate());

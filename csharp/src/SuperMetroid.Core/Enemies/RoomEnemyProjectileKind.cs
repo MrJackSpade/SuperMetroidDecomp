@@ -149,7 +149,7 @@ public enum RoomEnemyProjectileKind
     PolypRock = 70,
     /// <summary><c>EnemyProjectile_Cacatac</c>: a Cacatac's directional spike.</summary>
     CacatacSpike = 71,
-    /// <summary><c>UNUSED_EnemyProjectile_Stoke_86DBF2</c>: the unused mini-Crocomire/Stoke projectile definition.</summary>
+    /// <summary>The unused mini-Crocomire/Stoke projectile definition.</summary>
     StokeProjectile = 72,
     /// <summary><c>EnemyProjectile_NamiheFireball</c>: Namihe's fireball definition.</summary>
     NamiheFireball = 73,

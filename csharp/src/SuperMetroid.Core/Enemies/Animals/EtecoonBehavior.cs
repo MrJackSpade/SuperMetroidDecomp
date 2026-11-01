@@ -83,7 +83,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId EtecoonWallSound =
         EnemySoundEffectDefinitions.EtecoonWallSound;
 
-    /// <summary>Ports <c>Etecoon_Init</c>.</summary>
+    /// <summary>Initializes the Etecoon.</summary>
     internal static void InitializeEtecoon(RoomEnemySlot slot)
     {
         var state = new EtecoonEnemyState();
@@ -189,7 +189,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the dormant/wake loop.</summary>
+    /// <summary>Runs the dormant/wake loop.</summary>
     private void RunEtecoonWaiting(
         RoomEnemySlot slot,
         EtecoonEnemyState state,

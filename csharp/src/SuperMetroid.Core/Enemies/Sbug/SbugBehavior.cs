@@ -37,7 +37,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Both axes must be at least six blocks from Samus for the special reversal.</summary>
     private const int SbugReverseDistance = 96;
 
-    /// <summary>Ports <c>InitAI_Sbug</c>.</summary>
+    /// <summary>Initializes the Sbug.</summary>
     internal static void InitializeSbug(RoomEnemySlot slot)
     {
         int behavior = slot.SpawnSettings<SbugSpawnSettings>().Behavior;

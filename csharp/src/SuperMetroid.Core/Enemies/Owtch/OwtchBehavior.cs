@@ -45,7 +45,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Owtch sinks sixteen whole pixels below its walking height.</summary>
     private const int OwtchMaximumBurialDepth = 16;
 
-    /// <summary>Ports <c>InitAI_Owtch</c>.</summary>
+    /// <summary>Initializes the Owtch.</summary>
     internal static void InitializeOwtch(RoomEnemySlot slot)
     {
         OwtchSpawnSettings settings = slot.SpawnSettings<OwtchSpawnSettings>();
@@ -95,7 +95,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>MainAI_Owtch</c> and its indirect state table.</summary>
+    /// <summary>Runs the Owtch's main AI and its indirect state table.</summary>
     private void RunOwtchMain(RoomEnemySlot slot, OwtchEnemyState state)
     {
         switch (state.Behavior)
@@ -178,7 +178,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Behavior = OwtchBehaviorState.MovingLeft;
     }
 
-    /// <summary>Ports Owtch's six-in-256 per-frame burial gate.</summary>
+    /// <summary>Runs Owtch's six-in-256 per-frame burial gate.</summary>
     private void MaybeMakeOwtchSink(RoomEnemySlot slot, OwtchEnemyState state)
     {
         int random = _room.Random.Generate();

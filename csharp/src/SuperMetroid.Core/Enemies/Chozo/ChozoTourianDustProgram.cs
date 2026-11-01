@@ -10,8 +10,8 @@ internal enum ChozoTourianDustProgram
     Footsteps,
     /// <summary>The spike clearing explosions animation. No authored spawn or branch enters it.</summary>
     SpikeClearingExplosions,
-    /// <summary>The tourian descent dust animation.</summary>
+    /// <summary>The Tourian descent dust animation.</summary>
     TourianDescentDust,
-    /// <summary>The tourian descent dust loop animation.</summary>
+    /// <summary>The Tourian descent dust loop animation.</summary>
     TourianDescentDustLoop,
 }

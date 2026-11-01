@@ -12,7 +12,7 @@ internal enum EnemyDeathProjectileProgram
     BigExplosion,
     /// <summary>The loop.</summary>
     BigExplosionLoop,
-    /// <summary>The mini kraid explosion animation.</summary>
+    /// <summary>The mini Kraid explosion animation.</summary>
     MiniKraidExplosion,
     /// <summary>The loop.</summary>
     MiniKraidExplosionLoop,
@@ -30,6 +30,6 @@ internal enum EnemyDeathProjectileProgram
     SuperMissiles,
     /// <summary>The power bombs animation.</summary>
     PowerBombs,
-    /// <summary>The killed by samus contact animation.</summary>
+    /// <summary>The killed by Samus contact animation.</summary>
     KilledBySamusContact,
 }

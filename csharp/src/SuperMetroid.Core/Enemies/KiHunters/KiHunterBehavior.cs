@@ -260,7 +260,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         SetKiHunterPairFacing(body, movingRight: !swoopLeft);
     }
 
-    /// <summary>Ports the elliptic diving arc.</summary>
+    /// <summary>Runs the elliptic diving arc.</summary>
     private void RunKiHunterSwoop(
         RoomEnemySlot body,
         KiHunterEnemyState state,
@@ -325,7 +325,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.FromParts(-1, 0));
     }
 
-    /// <summary>Ports the collision escape leg.</summary>
+    /// <summary>Runs the collision escape leg.</summary>
     private void RunKiHunterSwoopRecovery(
         RoomEnemySlot body,
         KiHunterEnemyState state,

@@ -63,7 +63,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>The colours of the last eligible block processed by main AI, whose set the animation writes.</summary>
     private SpriteColouring _blueBrinstarFaceBlockColouring = SharedSpriteColouring.Common;
 
-    /// <summary>Ports <c>BlueBrinstarFaceBlock_Init</c>.</summary>
+    /// <summary>Initializes the Blue Brinstar face block.</summary>
     internal void InitializeBlueBrinstarFaceBlock(RoomEnemySlot slot, SamusState? samus)
     {
         var state = new BlueBrinstarFaceBlockEnemyState();
@@ -91,7 +91,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         state.LastHorizontalDelta = 0;
     }
 
-    /// <summary>Ports <c>BlueBrinstarFaceBlock_Main</c>.</summary>
+    /// <summary>Runs the Blue Brinstar face block's main AI.</summary>
     internal void RunBlueBrinstarFaceBlockMain(
         RoomEnemySlot slot,
         BlueBrinstarFaceBlockEnemyState state,
@@ -159,7 +159,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>
-    /// Ports the graphics-drawn palette hook. RoomEnemySystem executes
+    /// Runs the graphics-drawn palette hook. RoomEnemySystem executes
     /// graphics hooks once per enemy frame after actor processing, the same ownership model
     /// already used by Magdollite and Work Robot palette hooks. The door-transition gate pauses it during
     /// an enemy door transition; that translated word is exposed as ElevatorDoorTransitionActive.

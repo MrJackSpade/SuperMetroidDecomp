@@ -45,7 +45,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>NTSC upward travel of half a pixel per gameplay frame.</summary>
     private const int ZoaRisingSubpixelSpeed = 32768;
 
-    /// <summary>Ports <c>InitAI_Zoa</c>, saving the population coordinate and hiding the idle actor.</summary>
+    /// <summary>Initializes the Zoa, saving the population coordinate and hiding the idle actor.</summary>
     internal static void InitializeZoa(RoomEnemySlot slot)
     {
         var state = new ZoaEnemyState

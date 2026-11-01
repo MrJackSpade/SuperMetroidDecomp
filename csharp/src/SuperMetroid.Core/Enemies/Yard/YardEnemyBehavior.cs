@@ -81,7 +81,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports Yard initialization.</summary>
+    /// <summary>Initializes the Yard.</summary>
     internal static void InitializeYard(RoomEnemySlot slot)
     {
         YardSpawnSettings settings = slot.SpawnSettings<YardSpawnSettings>();
@@ -131,7 +131,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException($"Yard speed index {index} exceeds the authored speed table.");
     }
 
-    /// <summary>Ports Yard main AI.</summary>
+    /// <summary>Runs the Yard's main AI.</summary>
     private void RunYardMain(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level)
     {
         if (samus is null)
@@ -180,7 +180,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the look-at/hide test.</summary>
+    /// <summary>Runs the look-at/hide test.</summary>
     private static void HandleYardHiding(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -242,7 +242,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             : slot.Properties.Without(EnemyProperties.SolidToSamus);
     }
 
-    /// <summary>Ports the hidden-list movement owner.</summary>
+    /// <summary>Runs the hidden-list movement owner.</summary>
     private static void RunYardHidingMovement(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -380,7 +380,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.TurnTransitionDisableCounter = 0;
     }
 
-    /// <summary>Ports the common detach path.</summary>
+    /// <summary>Runs the common detach path.</summary>
     internal static void DropYard(RoomEnemySlot slot, YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Dropped)
@@ -391,7 +391,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AirborneVelocity = FixedVector<RoomPixels>.Zero;
     }
 
-    /// <summary>Ports the complete bounce/gravity/landing loop.</summary>
+    /// <summary>Runs the complete bounce/gravity/landing loop.</summary>
     private void RunYardAirborneMovement(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -527,7 +527,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
-    /// <summary>Ports the running/airborne kick setup.</summary>
+    /// <summary>Runs the running/airborne kick setup.</summary>
     internal static void KickYardIntoAir(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -546,7 +546,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             kick);
     }
 
-    /// <summary>Ports ordinary-beam launch setup.</summary>
+    /// <summary>Runs ordinary-beam launch setup.</summary>
     internal static void ShootYardIntoAir(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -571,7 +571,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     private static SignedEightEight NegateEightEight(SignedEightEight velocity) =>
         new(CrawlersBehavior.Negate16(velocity.RawValue));
 
-    /// <summary>Ports Yard's custom touch entry.</summary>
+    /// <summary>Runs Yard's custom touch entry.</summary>
     private void ResolveYardTouch(
         RoomEnemySlot slot,
         YardEnemyState state,

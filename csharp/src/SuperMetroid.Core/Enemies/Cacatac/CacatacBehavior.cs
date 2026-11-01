@@ -52,7 +52,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Ports <c>InitAI_Cacatac</c>.</summary>
+    /// <summary>Initializes the Cacatac.</summary>
     internal static void InitializeCacatac(RoomEnemySlot slot)
     {
         CacatacSpawnSettings settings = slot.SpawnSettings<CacatacSpawnSettings>();

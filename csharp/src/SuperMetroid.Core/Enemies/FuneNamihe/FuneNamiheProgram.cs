@@ -6,20 +6,20 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// </summary>
 internal enum FuneNamiheProgram
 {
-    /// <summary>The fune idle left animation.</summary>
+    /// <summary>The Fune idle left animation.</summary>
     FuneIdleLeft,
-    /// <summary>The fune active left animation.</summary>
+    /// <summary>The Fune active left animation.</summary>
     FuneActiveLeft,
-    /// <summary>The fune idle right animation.</summary>
+    /// <summary>The Fune idle right animation.</summary>
     FuneIdleRight,
-    /// <summary>The fune active right animation.</summary>
+    /// <summary>The Fune active right animation.</summary>
     FuneActiveRight,
-    /// <summary>The namihe idle left animation.</summary>
+    /// <summary>The Namihe idle left animation.</summary>
     NamiheIdleLeft,
-    /// <summary>The namihe active left animation.</summary>
+    /// <summary>The Namihe active left animation.</summary>
     NamiheActiveLeft,
-    /// <summary>The namihe idle right animation.</summary>
+    /// <summary>The Namihe idle right animation.</summary>
     NamiheIdleRight,
-    /// <summary>The namihe active right animation.</summary>
+    /// <summary>The Namihe active right animation.</summary>
     NamiheActiveRight,
 }

@@ -949,7 +949,7 @@ internal sealed class EnemyProjectileEngine
         particle.Velocity = velocity;
     }
 
-    /// <summary>Ports common <c>CreateADudShot</c> for a protected head hitbox.</summary>
+    /// <summary>Runs common <c>CreateADudShot</c> for a protected head hitbox.</summary>
     internal void CreateEnemyProjectileDudShot(SamusProjectileSlot projectile)
     {
         _ = _spriteObjects.SpawnRoomSpriteObject(
@@ -961,8 +961,8 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Ports <c>Delete_EnemyProjectile_IfVerticallyOffScreen</c>, shared by
-    /// Dragon's fireball and both n00b-tube shard pre-instructions.
+    /// Deletes an enemy projectile once it is vertically off screen, shared by
+    /// Dragon's fireball and both n00b-tube shard frame behaviours.
     /// </summary>
     /// <remarks>
     /// A position above the camera's top row (signed-negative difference) is kept; only a

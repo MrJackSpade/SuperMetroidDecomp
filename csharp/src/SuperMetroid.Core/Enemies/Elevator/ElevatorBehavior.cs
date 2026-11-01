@@ -118,7 +118,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         ElevatorFlags = ElevatorJourneyFlag.None;
     }
 
-    /// <summary>Ports <c>Elevator_Init</c>.</summary>
+    /// <summary>Initializes the Elevator.</summary>
     internal void InitializeElevator(RoomEnemySlot slot, SamusState? samus)
     {
         var state = new ElevatorEnemyState();
@@ -149,7 +149,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         }
     }
 
-    /// <summary>Ports <c>Elevator_Frozen</c> and its four-entry dispatcher.</summary>
+    /// <summary>Runs the elevator's main behaviour and its four-entry dispatcher.</summary>
     private void RunElevatorMain(
         RoomEnemySlot slot,
         ElevatorEnemyState state,
@@ -196,7 +196,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         }
     }
 
-    /// <summary>Ports <c>Elevator_Func_1</c>.</summary>
+    /// <summary>Waits for the travel direction input.</summary>
     internal void WaitForElevatorDirectionInput(
         RoomEnemySlot slot,
         ElevatorEnemyState state,
@@ -224,7 +224,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         _frameResults.Elevator = ElevatorFrameEvent.DepartureStarted;
     }
 
-    /// <summary>Ports <c>Elevator_Func_2</c>.</summary>
+    /// <summary>Moves the departing elevator.</summary>
     private void MoveDepartingElevator(
         RoomEnemySlot slot,
         ElevatorEnemyState state,
@@ -284,7 +284,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         slot.Position = slot.Position.WithY(FixedCoordinate.FromRaw(unchecked(fixedPosition)));
     }
 
-    /// <summary>Ports <c>Elevator_Func_4</c>.</summary>
+    /// <summary>Pins Samus to the elevator.</summary>
     private static void PinSamusToElevator(RoomEnemySlot slot, SamusState samus)
     {
         samus.Position = samus.Position.WithWrappedWholeY(slot.Position.Y.Whole - ElevatorActorDefinitions.SamusYOffset);

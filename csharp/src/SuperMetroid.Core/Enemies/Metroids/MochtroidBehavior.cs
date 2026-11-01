@@ -44,7 +44,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Signed 16.16 speed of one pixel per attached-flight axis step.</summary>
     private const int MochtroidAttachedVelocity = 1 << 16;
 
-    /// <summary>Ports <c>InitAI_Mochtroid</c>.</summary>
+    /// <summary>Initializes the Mochtroid.</summary>
     internal static void InitializeMochtroid(RoomEnemySlot slot)
     {
         // Room clearing initializes both parallel words to zero. Installing the

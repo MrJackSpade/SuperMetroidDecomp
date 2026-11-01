@@ -97,7 +97,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         EnemyDefinitionId.PirateMagentaWalking or
         EnemyDefinitionId.PirateSilverWalking;
 
-    /// <summary>Ports <c>InitAI_PirateWalking</c>.</summary>
+    /// <summary>Initializes the walking Space Pirate.</summary>
     internal static void InitializeWalkingSpacePirate(RoomEnemySlot slot)
     {
         var state = new WalkingSpacePirateEnemyState();
@@ -119,7 +119,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         state.LeftPost = new(CoordinateAxis.Wrap(slot.Position.X.Whole - settings.PatrolReach), 0);
     }
 
-    /// <summary>Ports <c>MainAI_PirateWalking</c>.</summary>
+    /// <summary>Runs the walking Space Pirate's main AI.</summary>
     private void RunWalkingSpacePirateMain(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
@@ -159,7 +159,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             "Walking Space Pirate movement requires room collision data.");
     }
 
-    /// <summary>Ports the asymmetric left-walk function.</summary>
+    /// <summary>Runs the asymmetric left-walk function.</summary>
     private void RunWalkingSpacePirateLeft(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
@@ -208,7 +208,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             WalkingSpacePirateProgram.LookingFacingLeft);
     }
 
-    /// <summary>Ports the right-walk function.</summary>
+    /// <summary>Runs the right-walk function.</summary>
     private void RunWalkingSpacePirateRight(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
@@ -246,7 +246,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             WalkingSpacePirateProgram.LookingFacingRight);
     }
 
-    /// <summary>Ports <c>PirateWalking_FlinchTrigger</c>.</summary>
+    /// <summary>Runs the walking Space Pirate's flinch trigger.</summary>
     private static void TryTriggerWalkingSpacePirateFlinch(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,

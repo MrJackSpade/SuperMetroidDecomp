@@ -44,7 +44,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Ports <c>InitAI_Hibashi</c>.</summary>
+    /// <summary>Initializes the Hibashi.</summary>
     internal static void InitializeHibashi(RoomEnemySlot slot)
     {
         var state = new HibashiEnemyState
@@ -71,7 +71,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Radius = slot.Radius.WithX(0);
     }
 
-    /// <summary>Ports <c>MainAI_Hibashi</c>.</summary>
+    /// <summary>Runs the Hibashi's main AI.</summary>
     private void RunHibashiMain(RoomEnemySlot slot, HibashiEnemyState state)
     {
         if (state.IsCollisionPart)
@@ -93,7 +93,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>Function_Hibashi_Inactive</c>.</summary>
+    /// <summary>Runs the inactive Hibashi.</summary>
     private void RunHibashiInactive(RoomEnemySlot graphics, HibashiEnemyState state)
     {
         // The countdown expires through zero, so timer zero deliberately becomes -1 and erupts immediately. A
@@ -116,7 +116,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         hitbox.Properties = hitbox.Properties.Without(EnemyProperties.IgnoreSamusCollision);
     }
 
-    /// <summary>Ports <c>Function_Hibashi_Active</c>.</summary>
+    /// <summary>Runs the active Hibashi.</summary>
     private static void RunHibashiActive(RoomEnemySlot graphics, HibashiEnemyState state)
     {
         if (!state.ActivityFinished)

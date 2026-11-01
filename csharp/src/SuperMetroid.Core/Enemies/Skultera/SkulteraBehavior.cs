@@ -50,7 +50,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
 
-    /// <summary>Ports <c>InitAI_Skultera</c>.</summary>
+    /// <summary>Initializes the Skultera.</summary>
     internal static void InitializeSkultera(RoomEnemySlot slot)
     {
         var state = new SkulteraEnemyState();
@@ -86,7 +86,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             Ensure.BetweenInclusive(0, ushort.MaxValue, state.Radius));
     }
 
-    /// <summary>Ports <c>MainAI_Skultera</c>.</summary>
+    /// <summary>Runs the Skultera's main AI.</summary>
     private void RunSkulteraMain(
         RoomEnemySlot slot,
         SkulteraEnemyState state,

@@ -6,16 +6,16 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 /// </summary>
 internal enum RipperProgram
 {
-    /// <summary>The g ripper moving left animation.</summary>
+    /// <summary>The g Ripper moving left animation.</summary>
     GRipperMovingLeft,
-    /// <summary>The g ripper moving right animation.</summary>
+    /// <summary>The g Ripper moving right animation.</summary>
     GRipperMovingRight,
-    /// <summary>The ripper 2 moving right animation.</summary>
+    /// <summary>The Ripper 2 moving right animation.</summary>
     Ripper2MovingRight,
-    /// <summary>The ripper 2 moving left animation.</summary>
+    /// <summary>The Ripper 2 moving left animation.</summary>
     Ripper2MovingLeft,
-    /// <summary>The ripper moving right animation.</summary>
+    /// <summary>The Ripper moving right animation.</summary>
     RipperMovingRight,
-    /// <summary>The ripper moving left animation.</summary>
+    /// <summary>The Ripper moving left animation.</summary>
     RipperMovingLeft,
 }

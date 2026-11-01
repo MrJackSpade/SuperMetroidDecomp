@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// </summary>
 internal enum NorfairLavaJumperProgram
 {
-    /// <summary><c>AnimationScript_NorfairLavaJumper_Hidden</c>.</summary>
+    /// <summary>The hidden animation.</summary>
     Hidden,
-    /// <summary><c>AnimationScript_NorfairLavaJumper_Jump</c>.</summary>
+    /// <summary>The jump animation.</summary>
     Jump,
-    /// <summary><c>AnimationScript_NorfairLavaJumper_Follower</c>.</summary>
+    /// <summary>The follower animation.</summary>
     Follower,
     /// <summary>The loop.</summary>
     FollowerLoop,

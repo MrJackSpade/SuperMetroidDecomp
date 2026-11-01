@@ -46,7 +46,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>First quadratic-speed index for the yellow bug's vertical arc.</summary>
     private const int YellowPipeBugArcCounterStart = 40;
 
-    /// <summary>Ports <c>BrinstarPipeBug_Init</c>.</summary>
+    /// <summary>Initializes the Brinstar Pipe Bug.</summary>
     internal static void InitializeBrinstarPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
@@ -61,7 +61,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             PipeBugAnimationSelector.RisingFacingLeft));
     }
 
-    /// <summary>Ports <c>NorfairPipeBug_Init</c>.</summary>
+    /// <summary>Initializes the Norfair Pipe Bug.</summary>
     internal static void InitializeNorfairPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
@@ -75,7 +75,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = PipeBugEnemyFunction.NorfairWaitForFormation;
     }
 
-    /// <summary>Ports <c>BrinstarYellowPipeBug_Init</c>.</summary>
+    /// <summary>Initializes the yellow Brinstar Pipe Bug.</summary>
     internal static void InitializeYellowPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);

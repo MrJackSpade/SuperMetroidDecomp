@@ -27,7 +27,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="inheritance">Hands each new Bull the previous Bull in its slot.</param>
     internal BullBehavior(SlotInheritance<BullEnemyState> inheritance) => _inheritance = inheritance;
 
-    /// <summary>Ports <c>InitAI_Bull</c>.</summary>
+    /// <summary>Initializes the Bull.</summary>
     internal void InitializeBull(RoomEnemySlot slot)
     {
         BullEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous));
@@ -204,7 +204,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         return SignedSixteenSixteen.FromParts(WordWrap.Signed(whole), fraction).AddTo(position.Whole, position.Fraction);
     }
 
-    /// <summary>Ports the no-damage tail of <c>EnemyShot_Bull</c>.</summary>
+    /// <summary>Runs the no-damage tail of the Bull's shot reaction.</summary>
     internal static void ResolveBullImmuneShot(
         RoomEnemySlot bull,
         BullEnemyState state,

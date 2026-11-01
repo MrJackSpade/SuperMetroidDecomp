@@ -40,7 +40,7 @@ internal sealed class EnemyProcessingWindow
 
     /// <summary>
     /// Runs the morph-ball eye's beam effect, then
-    /// <c>Determine_Which_Enemies_to_Process</c>.
+    /// decides which enemies to process.
     /// </summary>
     /// <remarks>
     /// Game state eight builds the window first, before Samus's handlers. The grapple

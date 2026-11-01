@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// </summary>
 internal enum EtecoonProgram
 {
-    /// <summary>The look right at samus and run left animation.</summary>
+    /// <summary>The look right at Samus and run left animation.</summary>
     LookRightAtSamusAndRunLeft,
     /// <summary>The begin running left animation.</summary>
     BeginRunningLeft,
@@ -24,7 +24,7 @@ internal enum EtecoonProgram
     HitCeiling,
     /// <summary>The wall jump left eligible animation.</summary>
     WallJumpLeftEligible,
-    /// <summary>The look left at samus and run right animation.</summary>
+    /// <summary>The look left at Samus and run right animation.</summary>
     LookLeftAtSamusAndRunRight,
     /// <summary>The begin running right animation.</summary>
     BeginRunningRight,

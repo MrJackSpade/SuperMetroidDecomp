@@ -16,14 +16,14 @@ internal enum SkreeMetareeProgram
     MetareeDivingLoop,
     /// <summary>The metaree stop animating animation. No authored spawn or branch enters it.</summary>
     MetareeStopAnimating,
-    /// <summary>The skree idling animation.</summary>
+    /// <summary>The Skree idling animation.</summary>
     SkreeIdling,
-    /// <summary>The skree preparing attack animation.</summary>
+    /// <summary>The Skree preparing attack animation.</summary>
     SkreePreparingAttack,
-    /// <summary>The skree diving animation.</summary>
+    /// <summary>The Skree diving animation.</summary>
     SkreeDiving,
     /// <summary>The loop.</summary>
     SkreeDivingLoop,
-    /// <summary>The skree stop animating animation. No authored spawn or branch enters it.</summary>
+    /// <summary>The Skree stop animating animation. No authored spawn or branch enters it.</summary>
     SkreeStopAnimating,
 }

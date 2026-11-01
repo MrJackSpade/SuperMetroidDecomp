@@ -55,7 +55,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Whether any Magdollite initializer installed the room's palette hook.</summary>
     internal bool MagdollitePaletteAnimationInstalled { get; set; }
 
-    /// <summary>Ports <c>NorfairLavaMan_Init</c>.</summary>
+    /// <summary>Initializes the Magdollite.</summary>
     internal void InitializeMagdollite(RoomEnemySlot slot, SamusState? samus)
     {
         MagdollitePart part = slot.SpawnSettings<MagdolliteSpawnSettings>().Part;
@@ -140,7 +140,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
 
-    /// <summary>Ports <c>NorfairLavaMan_Main</c> and its indirect functions.</summary>
+    /// <summary>Runs the Magdollite's main AI and its indirect functions.</summary>
     private void RunMagdolliteMain(
         RoomEnemySlot slot,
         MagdolliteEnemyState state,
@@ -512,7 +512,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         _ => throw new InvalidOperationException($"Undefined {nameof(MagdollitePart)} {part}."),
     };
 
-    /// <summary>Ports the global graphics-drawn palette hook.</summary>
+    /// <summary>Runs the global graphics-drawn palette hook.</summary>
     internal void StepMagdollitePaletteAnimation()
     {
         if (!MagdollitePaletteAnimationInstalled)
@@ -639,7 +639,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         return _slotTable.Slots[slot.SlotIndex + 1];
     }
 
-    /// <summary>Ports the shared post-combat tail.</summary>
+    /// <summary>Runs the shared post-combat tail.</summary>
     private void ResolveMagdolliteCombatAfterCommon(RoomEnemySlot current)
     {
         // The callback literally addresses current+$40 and current+$80. Ordinary
@@ -764,7 +764,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Signed 8.8 sideways speed of thrown lava, three pixels per update, negated for a leftward throw.</summary>
     private const int MagdolliteLavaHorizontalSpeed = 768;
 
-    /// <summary>Ports <c>EprojInit_NorfairLavaMan</c>.</summary>
+    /// <summary>Spawns and initializes a Magdollite lava ball.</summary>
     internal void SpawnMagdolliteLava(RoomEnemySlot source, bool throwsRight)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();

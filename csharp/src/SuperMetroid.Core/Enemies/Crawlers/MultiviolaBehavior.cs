@@ -33,7 +33,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Angle bits toggled after collision with a horizontal surface.</summary>
     private const int MultiviolaVerticalReflection = 192;
 
-    /// <summary>Ports <c>InitAI_Multiviola</c>.</summary>
+    /// <summary>Initializes the Multiviola.</summary>
     internal static void InitializeMultiviola(RoomEnemySlot slot)
     {
         var state = new MultiviolaEnemyState
@@ -50,7 +50,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<MultiviolaProgram>.Start(MultiviolaProgram.Flying);
     }
 
-    /// <summary>Ports <c>MainAI_Multiviola</c>.</summary>
+    /// <summary>Runs the Multiviola's main AI.</summary>
     private void RunMultiviolaMain(
         RoomEnemySlot slot,
         MultiviolaEnemyState state,

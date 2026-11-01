@@ -41,7 +41,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     private static RotationAngle OppositeOrbitStep(RotationAngle angle) =>
         RotationAngle.FromTableIndex(angle.AddRaw(RotationAngle.HalfTurn.RawValue).TableIndex);
 
-    /// <summary>Ports <c>Shaktool_Init</c>, establishing the segment's orbit and owner-slot offset.</summary>
+    /// <summary>Initializes the Shaktool, establishing the segment's orbit and owner-slot offset.</summary>
     internal void InitializeShaktool(RoomEnemySlot slot)
     {
         ShaktoolSpawnSettings settings = slot.SpawnSettings<ShaktoolSpawnSettings>();
@@ -81,7 +81,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             PositionShaktoolAroundPreviousSegment(slot, state);
     }
 
-    /// <summary>Ports <c>Shaktool_Hurt</c>/<c>Shaktool_Main</c>.</summary>
+    /// <summary>Runs Shaktool's hurt and main behaviours.</summary>
     private void RunShaktoolMain(
         RoomEnemySlot slot,
         ShaktoolSegmentState state,
@@ -116,7 +116,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the linked-segment placement helper.</summary>
+    /// <summary>Runs the linked-segment placement helper.</summary>
     internal void PositionShaktoolAroundPreviousSegment(
         RoomEnemySlot slot,
         ShaktoolSegmentState state)
@@ -134,7 +134,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
 
-    /// <summary>Ports the common orbit step.</summary>
+    /// <summary>Runs the common orbit step.</summary>
     private void AdvanceShaktoolOrbit(RoomEnemySlot slot, ShaktoolSegmentState state)
     {
         PositionShaktoolAroundPreviousSegment(slot, state);
@@ -155,7 +155,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             : state.OrbitAngle.AddRaw(increment);
     }
 
-    /// <summary>Ports middle-segment orientation selection.</summary>
+    /// <summary>Runs middle-segment orientation selection.</summary>
     internal void AdvanceAndOrientShaktoolCenter(
         RoomEnemySlot slot,
         ShaktoolSegmentState state)
@@ -180,7 +180,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
-    /// <summary>Ports the last segment's collision/reversal controller.</summary>
+    /// <summary>Runs the last segment's collision/reversal controller.</summary>
     private void DriveShaktoolTail(
         RoomEnemySlot slot,
         ShaktoolSegmentState state,
@@ -290,7 +290,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the endpoint/angle reversal helper.</summary>
+    /// <summary>Runs the endpoint/angle reversal helper.</summary>
     private void ReverseShaktoolChainEndpoints(RoomEnemySlot anySegment)
     {
         RoomEnemySlot[] group = GetShaktoolGroup(anySegment);
@@ -326,7 +326,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         rightState.OrbitAngle = OppositeOrbitStep(saved);
     }
 
-    /// <summary>Ports the per-segment convergence speed calculation: four raw angle units per whole table step left to the target in the orbit direction.</summary>
+    /// <summary>Runs the per-segment convergence speed calculation: four raw angle units per whole table step left to the target in the orbit direction.</summary>
     private static void CalculateShaktoolAngularVelocity(ShaktoolSegmentState state)
     {
         int difference = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
@@ -335,7 +335,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AngularVelocity = 4 * RotationAngle.FromRaw(difference).TableIndex;
     }
 
-    /// <summary>Ports group synchronization.</summary>
+    /// <summary>Runs group synchronization.</summary>
     private void SynchronizeShaktoolOrbitTargets(RoomEnemySlot anySegment, RotationAngle target)
     {
         RoomEnemySlot[] group = GetShaktoolGroup(anySegment);
@@ -471,7 +471,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Ports the one-frame sine movement helper.</summary>
+    /// <summary>Runs the one-frame sine movement helper.</summary>
     private static void MoveShaktoolSegmentForAnimation(RoomEnemySlot slot, ByteAngle angle)
     {
         // The decompilation names a 320-word view whose indices 64..319 are the game's

@@ -34,7 +34,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         _spriteObjects = spriteObjects;
     }
 
-    /// <summary>Ports <c>NuclearWaffle_Init</c>.</summary>
+    /// <summary>Initializes the Nuclear Waffle.</summary>
     internal void InitializeNuclearWaffle(RoomEnemySlot slot)
     {
         var state = new NuclearWaffleEnemyState();
@@ -76,7 +76,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         SpawnNuclearWaffleSpriteSegments(slot, state);
     }
 
-    /// <summary>Ports <c>NuclearWaffle_Main</c>.</summary>
+    /// <summary>Runs the Nuclear Waffle's main AI.</summary>
     private void RunNuclearWaffleMain(RoomEnemySlot slot, NuclearWaffleEnemyState state)
     {
         switch (state.Function)
@@ -95,7 +95,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>NuclearWaffle_Func_1</c>.</summary>
+    /// <summary>Waits before a sweep.</summary>
     private static void RunNuclearWaffleWaiting(
         RoomEnemySlot slot,
         NuclearWaffleEnemyState state)
@@ -114,7 +114,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
     }
 
-    /// <summary>Ports <c>NuclearWaffle_Func_2</c>.</summary>
+    /// <summary>Runs a sweep.</summary>
     private void RunNuclearWaffleSweep(RoomEnemySlot slot, NuclearWaffleEnemyState state)
     {
         NuclearWaffleOrientation headOrientation = GetNuclearWaffleOrientation(
@@ -190,7 +190,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the projectile-link loop.</summary>
+    /// <summary>Runs the projectile-link loop.</summary>
     private bool PositionNuclearWaffleProjectileSegments(NuclearWaffleEnemyState state)
     {
         int angle = state.CurrentAngle + state.InterleavedSegmentOffset;
@@ -221,7 +221,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         return finished;
     }
 
-    /// <summary>Ports the sprite-object-link loop.</summary>
+    /// <summary>Runs the sprite-object-link loop.</summary>
     private void PositionNuclearWaffleSpriteSegments(NuclearWaffleEnemyState state)
     {
         int angle = state.CurrentAngle;

@@ -61,7 +61,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Terminal quadratic-speed table index used to cap the falling half of a hop.</summary>
     private const int MaximumHopperYSpeedTableIndex = 64;
 
-    /// <summary>Ports <c>InitAI_Hopper</c>.</summary>
+    /// <summary>Initializes the Hopper.</summary>
     internal void InitializeHopper(RoomEnemySlot slot)
     {
         if (slot.Definition.VariantIndex > 3)
@@ -98,7 +98,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             tableIndexDelta: 4);
     }
 
-    /// <summary>Ports <c>MainAI_Hopper</c> and every indirect target.</summary>
+    /// <summary>Runs the Hopper's main AI and every indirect target.</summary>
     private void RunHopperMain(
         RoomEnemySlot slot,
         SamusState? samus,

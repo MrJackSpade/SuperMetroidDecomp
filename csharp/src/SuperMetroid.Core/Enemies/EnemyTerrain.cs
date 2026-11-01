@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies;
 [RoomLifetime]
 internal sealed class EnemyTerrain
 {
-    /// <summary>Ports <c>MoveEnemyRightBy_14_12_IgnoreSlopes</c>.</summary>
+    /// <summary>Moves the enemy horizontally, ignoring non-square slopes.</summary>
     internal bool MoveEnemyHorizontallyIgnoringNonSquareSlopes(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -24,7 +24,7 @@ internal sealed class EnemyTerrain
             slopes: NonSquareSlopes.Ignored);
 
     /// <summary>
-    /// Ports <c>MoveEnemyRightBy_14_12_TreatSlopesAsWalls</c>. Square slopes
+    /// Moves the enemy horizontally, treating non-square slopes as walls. Square slopes
     /// retain their half-tile geometry; only non-square slopes consume direct-page
     /// flag 0x4000 and become solid walls.
     /// </summary>
@@ -108,7 +108,7 @@ internal sealed class EnemyTerrain
         return true;
     }
 
-    /// <summary>Ports <c>MoveEnemyDownBy_14_12</c>.</summary>
+    /// <summary>Moves the enemy vertically.</summary>
     internal bool MoveEnemyVertically(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -195,7 +195,7 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>
-    /// Ports <c>EnemyFunc_BBBF</c>. Unlike the ordinary horizontal collision
+    /// Tests the attachment block horizontally ahead. Unlike the ordinary horizontal collision
     /// mover, this look-ahead probe deliberately considers only whether each block stops attachment
     /// and does not resolve extension links or slope geometry.
     /// </summary>
@@ -532,7 +532,7 @@ internal sealed class EnemyTerrain
         return true;
     }
 
-    /// <summary>Ports <c>AlignEnemyYPositionWIthNonSquareSlope</c>.</summary>
+    /// <summary>Aligns the enemy's Y position with a non-square slope.</summary>
     internal static void AlignEnemyYWithNonSquareSlope(RoomLevelData level, RoomEnemySlot slot) =>
         AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, slot);
 

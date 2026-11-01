@@ -30,7 +30,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         _roomStatus = roomStatus;
     }
 
-    /// <summary>Ports <c>InitAI_Fireflea</c>, decoding motion parameters and the retail initial-circle angle bug.</summary>
+    /// <summary>Initializes the Fireflea, decoding motion parameters and the retail initial-circle angle bug.</summary>
     internal static void InitializeFireflea(RoomEnemySlot slot)
     {
         var state = new FirefleaEnemyState(slot);
@@ -66,7 +66,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MaximumYExtent = spawnY + reach;
     }
 
-    /// <summary>Ports <c>MainAI_Fireflea</c>, advancing circular angle or wrapped vertical travel.</summary>
+    /// <summary>Runs the Fireflea's main AI, advancing circular angle or wrapped vertical travel.</summary>
     private static void RunFirefleaMain(RoomEnemySlot slot, FirefleaEnemyState state)
     {
         if (state.UsesCircularMovement)
@@ -100,7 +100,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>
-    /// Ports Fireflea touch AI, including its retail double-death bug. The
+    /// Runs Fireflea touch AI, including its retail double-death bug. The
     /// private handler calls common touch AI and then calls <c>EnemyDeath</c> unconditionally:
     /// normal contact therefore kills an otherwise healthy Fireflea, while Screw Attack and
     /// similar contact attacks can increment the room kill count twice.

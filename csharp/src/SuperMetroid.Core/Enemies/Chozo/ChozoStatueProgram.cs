@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// </summary>
 internal enum ChozoStatueProgram
 {
-    /// <summary>The lower norfair initial animation.</summary>
+    /// <summary>The lower Norfair initial animation.</summary>
     LowerNorfairInitial,
-    /// <summary>The lower norfair activated animation.</summary>
+    /// <summary>The lower Norfair activated animation.</summary>
     LowerNorfairActivated,
     /// <summary>The loop.</summary>
     LowerNorfairActivatedLoop,

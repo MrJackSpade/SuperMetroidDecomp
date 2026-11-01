@@ -16,7 +16,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Samus must be within 80 horizontal pixels for a waiting Choot to arm its jump timer.</summary>
     private const int ChootActivationDistance = 80;
 
-    /// <summary>Ports <c>InitAI_Choot</c>, selecting a falling pattern and calculating ascent speed from parameters.</summary>
+    /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
     internal static void InitializeChoot(RoomEnemySlot slot)
     {
         var state = new ChootEnemyState();
@@ -44,7 +44,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.YSpeedTableIndex = state.InitialYSpeedTableIndex;
     }
 
-    /// <summary>Ports <c>MainAI_Choot</c> and its four wait, prepare, jump, and fall targets.</summary>
+    /// <summary>Runs the Choot's main AI and its four wait, prepare, jump, and fall targets.</summary>
     private static void RunChootMain(
         RoomEnemySlot slot,
         ChootEnemyState state,
@@ -159,7 +159,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports <c>CalculateChootInitialJumpSpeed</c>, integrating every second quadratic step until
+    /// Calculates the Choot's initial jump speed, integrating every second quadratic step until
     /// they cover the requested height. The table ends at record 94, so the result is an even index from 2 to 94.
     /// </summary>
     private static int CalculateInitialChootYSpeedTableIndex(int jumpHeight)

@@ -38,7 +38,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>8.8 vertical velocity decrement applied during dive and rebound.</summary>
     private const int RioGravityStep = 24;
 
-    /// <summary>Ports <c>Rio_Init</c>.</summary>
+    /// <summary>Initializes the Rio.</summary>
     internal static void InitializeRio(RoomEnemySlot slot)
     {
         var state = new RioEnemyState
@@ -56,7 +56,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Ports <c>Rio_Main</c> and Rio_1..Rio_5.</summary>
+    /// <summary>Runs the Rio's main AI and its five functions.</summary>
     private void RunRioMain(
         RoomEnemySlot slot,
         RioEnemyState state,

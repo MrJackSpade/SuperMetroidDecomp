@@ -20,9 +20,9 @@ internal enum WorkRobotProgram
     FacingLeftWalkingForwardsLoop,
     /// <summary>The facing left hit wall moving forwards animation.</summary>
     FacingLeftHitWallMovingForwards,
-    /// <summary>The facing left shot samus ahead animation.</summary>
+    /// <summary>The facing left shot Samus ahead animation.</summary>
     FacingLeftShotSamusAhead,
-    /// <summary>The facing left shot samus behind animation.</summary>
+    /// <summary>The facing left shot Samus behind animation.</summary>
     FacingLeftShotSamusBehind,
     /// <summary>The facing left shot laser down left animation.</summary>
     FacingLeftShotLaserDownLeft,
@@ -40,9 +40,9 @@ internal enum WorkRobotProgram
     FacingRightWalkingForwardsLoop,
     /// <summary>The facing right hit wall moving forwards animation.</summary>
     FacingRightHitWallMovingForwards,
-    /// <summary>The facing right shot samus ahead animation.</summary>
+    /// <summary>The facing right shot Samus ahead animation.</summary>
     FacingRightShotSamusAhead,
-    /// <summary>The facing right shot samus behind animation.</summary>
+    /// <summary>The facing right shot Samus behind animation.</summary>
     FacingRightShotSamusBehind,
     /// <summary>The facing right shot laser down right animation.</summary>
     FacingRightShotLaserDownRight,

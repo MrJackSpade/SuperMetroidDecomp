@@ -45,7 +45,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Signed 16.16 horizontal speed, 3.5 pixels, used when Etecoon exits without a wall collision.</summary>
     private const int EscapeEtecoonUncollidedExitSpeed = (7 << 16) / 2;
 
-    /// <summary>Ports <c>EscapeEtecoon_Init</c>.</summary>
+    /// <summary>Initializes the escape Etecoon.</summary>
     internal void InitializeEscapeEtecoon(RoomEnemySlot slot)
     {
         var state = new EscapeEtecoonEnemyState();
@@ -79,7 +79,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = initialization.Velocity;
     }
 
-    /// <summary>Ports <c>EscapeDachora_Init</c>.</summary>
+    /// <summary>Initializes the escape Dachora.</summary>
     internal void InitializeEscapeDachora(RoomEnemySlot slot)
     {
         slot.SetSpeciesState(new EscapeDachoraEnemyState());

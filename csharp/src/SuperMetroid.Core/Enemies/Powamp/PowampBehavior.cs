@@ -58,7 +58,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Frames between successive shared body and balloon horizontal wiggle offsets.</summary>
     private const int PowampWiggleFramesPerOffset = 5;
 
-    /// <summary>Ports <c>InitAI_Powamp</c>.</summary>
+    /// <summary>Initializes the Powamp.</summary>
     internal void InitializePowamp(RoomEnemySlot slot)
     {
         var state = new PowampEnemyState
@@ -583,7 +583,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                     ResolvePowampTouch(context.Slot, context.Samus);
             });
     }
-    /// <summary>Ports <c>FirePowampSpikesIn8Directions</c>.</summary>
+    /// <summary>Fires the Powamp's spikes in eight directions.</summary>
     /// <returns>
     /// The death animation <c>FirePowampSpikesIn8Directions</c> leaves selected for EnemyDeath: the last spike's
     /// projectile index, or, when the pool was full, <see cref="FullPoolDeathAnimation"/>.
@@ -625,7 +625,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private int FullPoolDeathAnimation(RoomEnemySlot body) =>
         _presentation.Placement.SharesColours(body.Colouring, SharedSpriteColouring.Common) ? body.TileIndexBase : 0;
 
-    /// <summary>Ports <c>FrameBehavior_EnemyProjectile_PowampSpike</c>.</summary>
+    /// <summary>Runs the Powamp spike's per-frame behaviour.</summary>
     internal static void RunPowampSpikeFrameBehavior(
         RoomEnemyProjectileSlot spike,
         RoomLevelData level)

@@ -6,19 +6,19 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// </summary>
 internal enum CrawlerProgram
 {
-    /// <summary>The sciser upside right animation.</summary>
+    /// <summary>The Sciser upside right animation.</summary>
     SciserUpsideRight,
     /// <summary>The loop.</summary>
     SciserUpsideRightLoop,
-    /// <summary>The sciser upside left animation.</summary>
+    /// <summary>The Sciser upside left animation.</summary>
     SciserUpsideLeft,
     /// <summary>The loop.</summary>
     SciserUpsideLeftLoop,
-    /// <summary>The sciser upside down animation.</summary>
+    /// <summary>The Sciser upside down animation.</summary>
     SciserUpsideDown,
     /// <summary>The loop.</summary>
     SciserUpsideDownLoop,
-    /// <summary>The sciser upside up animation.</summary>
+    /// <summary>The Sciser upside up animation.</summary>
     SciserUpsideUp,
     /// <summary>The loop.</summary>
     SciserUpsideUpLoop,
@@ -38,29 +38,29 @@ internal enum CrawlerProgram
     ZeroUpsideUp,
     /// <summary>The loop.</summary>
     ZeroUpsideUpLoop,
-    /// <summary>The viola upside down animation.</summary>
+    /// <summary>The Viola upside down animation.</summary>
     ViolaUpsideDown,
-    /// <summary>The viola upside up animation.</summary>
+    /// <summary>The Viola upside up animation.</summary>
     ViolaUpsideUp,
-    /// <summary>The viola upside right animation.</summary>
+    /// <summary>The Viola upside right animation.</summary>
     ViolaUpsideRight,
-    /// <summary>The viola upside left animation.</summary>
+    /// <summary>The Viola upside left animation.</summary>
     ViolaUpsideLeft,
-    /// <summary>The viola normal animation.</summary>
+    /// <summary>The Viola normal animation.</summary>
     ViolaNormal,
-    /// <summary>The h zoomer upside right animation.</summary>
+    /// <summary>The h Zoomer upside right animation.</summary>
     HZoomerUpsideRight,
     /// <summary>The loop.</summary>
     HZoomerUpsideRightLoop,
-    /// <summary>The h zoomer upside left animation.</summary>
+    /// <summary>The h Zoomer upside left animation.</summary>
     HZoomerUpsideLeft,
     /// <summary>The loop.</summary>
     HZoomerUpsideLeftLoop,
-    /// <summary>The h zoomer upside down animation.</summary>
+    /// <summary>The h Zoomer upside down animation.</summary>
     HZoomerUpsideDown,
     /// <summary>The loop.</summary>
     HZoomerUpsideDownLoop,
-    /// <summary>The h zoomer upside up animation.</summary>
+    /// <summary>The h Zoomer upside up animation.</summary>
     HZoomerUpsideUp,
     /// <summary>The loop.</summary>
     HZoomerUpsideUpLoop,

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Values returned by <c>Random_Drop_Routine</c>. These are deliberately the
+/// Values returned by the random drop selection. These are deliberately the
 /// values the pickup stores, halved; the table order is not the visual order of
 /// the five pickup instruction lists.
 /// </summary>

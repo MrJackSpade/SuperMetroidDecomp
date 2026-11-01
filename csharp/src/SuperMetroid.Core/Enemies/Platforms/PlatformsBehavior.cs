@@ -51,7 +51,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static bool IsPlatformDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2;
 
-    /// <summary>Ports the two entry points and common initializer.</summary>
+    /// <summary>Runs the two entry points and common initializer.</summary>
     internal static void InitializePlatform(RoomEnemySlot slot)
     {
         bool isKamer = slot.DefinitionId == EnemyDefinitionId.Kamer2;
@@ -81,7 +81,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MaximumYSpeedTableIndex = settings.MaximumYSpeedIndex;
     }
 
-    /// <summary>Ports <c>MainAI_Tripper_Kamer2</c>.</summary>
+    /// <summary>Runs the Tripper and Kamer's main AI.</summary>
     private void RunPlatformMain(
         RoomEnemySlot slot,
         PlatformEnemyState state,

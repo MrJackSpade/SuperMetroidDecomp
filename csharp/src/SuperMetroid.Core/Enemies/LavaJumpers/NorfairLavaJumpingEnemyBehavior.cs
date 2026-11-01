@@ -32,7 +32,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>Unsigned rising-velocity threshold that switches to the visible jump list.</summary>
     private static readonly int NorfairLavaJumpingEnemyAnimationSwitchVelocity = SignedEightEight.FromSignedRaw(-1024).RawValue;
 
-    /// <summary>Ports <c>NorfairLavajumpingEnemy_Init</c>.</summary>
+    /// <summary>Initializes the Norfair lava jumper.</summary>
     internal void InitializeNorfairLavaJumpingEnemy(RoomEnemySlot slot)
     {
         var state = new NorfairLavaJumpingEnemyState
@@ -212,7 +212,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         slot.Position = slot.Position.AdvanceY(state.YVelocity.ToSixteenSixteenDelta());
     }
 
-    /// <summary>Ports function six without restarting an unchanged list.</summary>
+    /// <summary>Runs function six without restarting an unchanged animation.</summary>
     private static void InstallNorfairLavaJumpingEnemyProgram(
         RoomEnemySlot slot,
         NorfairLavaJumpingEnemyState state,

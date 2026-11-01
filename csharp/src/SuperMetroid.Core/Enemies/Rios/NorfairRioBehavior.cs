@@ -41,7 +41,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Signed 8.8 vertical speed decrement applied during dive and return.</summary>
     private const int NorfairRioGravity = 32;
 
-    /// <summary>Ports <c>NorfairRio_Init</c>.</summary>
+    /// <summary>Initializes the Norfair Rio.</summary>
     internal void InitializeNorfairRio(RoomEnemySlot slot)
     {
         var state = new NorfairRioEnemyState
@@ -67,7 +67,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports <c>NorfairRio_Main</c> and functions one through six.
+    /// Runs the Norfair Rio's main AI and functions one through six.
     /// Every parent and follower advances the shared enemy RNG before dispatch.
     /// </summary>
     private void RunNorfairRioMain(

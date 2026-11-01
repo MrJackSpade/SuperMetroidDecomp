@@ -16,7 +16,7 @@ internal static class ChootFallingPathDefinitions
     private static readonly Offset16<RoomPixels> End = new(short.MinValue, short.MinValue);
 
     /// <summary>
-    /// <c>ChootFallingPatternData_0_Normal</c>.
+    /// The normal falling pattern.
     /// Each sample is a signed X/Y offset; the final <see cref="End"/> sample is the terminator.
     /// </summary>
     /// <remarks>
@@ -40,7 +40,7 @@ internal static class ChootFallingPathDefinitions
         End,
     ];
 
-    /// <summary><c>ChootFallingPatternData_1_Wide</c>.</summary>
+    /// <summary>The wide falling pattern.</summary>
     /// <remarks>
     /// All 73 signed X/Y motion pairs and the (-32768, -32768) sentinel
     /// are authored values. Selector 1 consumes one pair per
@@ -61,7 +61,7 @@ internal static class ChootFallingPathDefinitions
         End,
     ];
 
-    /// <summary><c>ChootFallingPatternData_2_VeryWide</c>.</summary>
+    /// <summary>The very wide falling pattern.</summary>
     /// <remarks>
     /// All 73 signed X/Y motion pairs and the (-32768, -32768) sentinel
     /// are authored values. Selector 2 consumes one pair per

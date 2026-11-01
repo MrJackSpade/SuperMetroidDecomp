@@ -15,12 +15,7 @@ public static class AreaMapLayout
     public const int PageWidthInTiles = 32;
     /// <summary>$80 bytes per presence or exploration page: 32 rows of four MSB-first bit bytes, one bit per map cell.</summary>
     public const int BitPlaneBytesPerPage = 128;
-    /// <summary>Map tiles per page, arranged as 32 rows of 32 cells; the second page begins after these 1024 tiles.</summary>
-    public const int TilemapWordsPerPage = 1024;
 
     /// <summary>The logical 64-by-32 area-map size.</summary>
     public static Extent16<MapTiles> Size => new(WidthInTiles, HeightInTiles);
-
-    /// <summary>The bit of a presence or exploration byte that holds its first, leftmost cell; the planes store cells most-significant bit first.</summary>
-    public const int FirstCellBit = 1 << 7;
 }

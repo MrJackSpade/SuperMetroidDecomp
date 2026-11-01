@@ -9,6 +9,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 namespace SuperMetroid.Verification.Rooms;
 

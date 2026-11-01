@@ -107,6 +107,8 @@ using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction.Map.Artwork;
+using SuperMetroid.AssetExtraction.Progression;
 
 /// <summary>Checks editable map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
 internal static class MapPresentationVerification

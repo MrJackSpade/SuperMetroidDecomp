@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 /// <summary>Checks compiled enemy populations and graphics sets against retail room-state references.</summary>
 internal static class EnemyRoomListsVerification

@@ -1,4 +1,8 @@
-namespace SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Progression;
 
 /// <summary>
 /// Locates a cell of one 64-by-32 area map in its two stored 32-by-32 pages (<see cref="AreaMapLayout"/>): the byte and
@@ -6,6 +10,12 @@ namespace SuperMetroid.Core.Progression;
 /// </summary>
 public static class AreaMapPages
 {
+    /// <summary>Map tiles per page, arranged as 32 rows of 32 cells; the second page begins after these 1024 tiles.</summary>
+    private const int TilemapWordsPerPage = 1024;
+
+    /// <summary>The bit of a presence or exploration byte that holds its first, leftmost cell; the planes store cells most-significant bit first.</summary>
+    private const int FirstCellBit = 1 << 7;
+
     /// <summary>Returns the byte of the paged exploration bits that contains one map bit.</summary>
     public static int GetBitByteIndex(Position16<MapTiles> cell)
     {
@@ -19,7 +29,7 @@ public static class AreaMapPages
     public static int GetTilemapWordIndex(Position16<MapTiles> cell)
     {
         ValidateCoordinate(cell);
-        int pageOffset = cell.X >= AreaMapLayout.PageWidthInTiles ? AreaMapLayout.TilemapWordsPerPage : 0;
+        int pageOffset = cell.X >= AreaMapLayout.PageWidthInTiles ? TilemapWordsPerPage : 0;
         return pageOffset + cell.Y * AreaMapLayout.PageWidthInTiles + (cell.X & (AreaMapLayout.PageWidthInTiles - 1));
     }
 
@@ -28,7 +38,7 @@ public static class AreaMapPages
     {
         if ((uint)mapX >= AreaMapLayout.WidthInTiles)
             throw new ArgumentOutOfRangeException(nameof(mapX));
-        return WordWrap.LowByte(AreaMapLayout.FirstCellBit >> (mapX & 7));
+        return WordWrap.LowByte(FirstCellBit >> (mapX & 7));
     }
 
     /// <summary>Rejects coordinates outside the two 32-by-32 map pages.</summary>

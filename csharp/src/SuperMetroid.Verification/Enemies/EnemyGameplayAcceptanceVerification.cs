@@ -26,6 +26,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 /// <summary>Confirms the compiled enemy catalog closes its references and keeps editable enemy art outside gameplay state.</summary>
 internal static class EnemyGameplayAcceptanceVerification

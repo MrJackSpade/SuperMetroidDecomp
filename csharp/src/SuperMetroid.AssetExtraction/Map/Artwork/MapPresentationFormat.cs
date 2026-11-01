@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Map.Artwork;
 
 /// <summary>Presentation schema geometry: the editable per-area map documents and the cells they place.</summary>
 public static class MapPresentationFormat

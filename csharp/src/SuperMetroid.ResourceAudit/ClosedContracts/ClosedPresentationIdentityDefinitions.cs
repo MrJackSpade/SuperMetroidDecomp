@@ -15,11 +15,11 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Escape.Artwork;
-using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Hud;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

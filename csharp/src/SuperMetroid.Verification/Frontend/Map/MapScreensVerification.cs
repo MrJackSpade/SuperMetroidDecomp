@@ -20,6 +20,7 @@ using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Map.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 

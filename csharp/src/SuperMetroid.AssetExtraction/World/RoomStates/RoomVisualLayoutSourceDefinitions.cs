@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rooms.LevelData;
 
-namespace SuperMetroid.Core.World.RoomStates;
+namespace SuperMetroid.AssetExtraction.World.RoomStates;
 
 /// <summary>Derives the complete level identity domain from compiled retail room states.</summary>
 public static class RoomVisualLayoutSourceDefinitions

@@ -7,7 +7,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 

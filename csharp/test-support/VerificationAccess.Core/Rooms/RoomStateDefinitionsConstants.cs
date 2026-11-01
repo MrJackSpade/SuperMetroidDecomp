@@ -1,4 +1,4 @@
-using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 namespace SuperMetroid.Core.Rooms;
 

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Progression;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 

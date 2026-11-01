@@ -52,6 +52,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -93,28 +94,29 @@ internal static class EnemyTileArtworkVerification
     }
 
     /// <summary>
-    /// Stock enemy artwork freshly extracted from the retail cartridge into a private directory,
-    /// which each enemy artwork suite may edit, so the suites run independently.
+    /// Stock enemy artwork in a private copy of the repository installation, which each enemy artwork
+    /// suite may edit, so the suites run independently.
     /// </summary>
     private sealed class EnemyTileFixture : IDisposable
     {
         /// <summary>Retail cartridge oracle for native comparisons.</summary>
         private readonly CartridgeImportAddressSpace bus =
             CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        /// <summary>Private extraction directory deleted on disposal.</summary>
-        private readonly string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),
-            "enemy-tiles-" + Guid.NewGuid().ToString("N"));
-        /// <summary>Stock catalog loaded from the extraction.</summary>
+        /// <summary>Private installation copy deleted on disposal.</summary>
+        private readonly PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        /// <summary>The copy's stock enemy-tile directory.</summary>
+        private readonly string directory;
+        /// <summary>Stock catalog loaded from the copy.</summary>
         private readonly InstalledEnemyArtwork stock;
 
-        /// <summary>Extracts and loads the stock enemy artwork.</summary>
+        /// <summary>Loads the stock enemy artwork of the private copy.</summary>
         internal EnemyTileFixture()
         {
-            EnemyTileArtworkFiles.Extract(bus, directory, SupportedCartridge.Sha256);
+            directory = copy.Installation.EnemyTileDirectory;
             stock = EnemyTileArtworkFiles.Load(directory, null);
         }
 
-        /// <summary>Supplies the cartridge, extraction directory and stock catalog.</summary>
+        /// <summary>Supplies the cartridge, stock enemy-tile directory and stock catalog.</summary>
         internal void Deconstruct(out CartridgeImportAddressSpace bus, out string directory, out InstalledEnemyArtwork stock)
         {
             bus = this.bus;
@@ -122,11 +124,8 @@ internal static class EnemyTileArtworkVerification
             stock = this.stock;
         }
 
-        /// <summary>Deletes the private extraction.</summary>
-        public void Dispose()
-        {
-            if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
-        }
+        /// <summary>Deletes the private installation copy.</summary>
+        public void Dispose() => copy.Dispose();
     }
 
     /// <summary>Checks installed Torizo, Ceres escape, Mother Brain, corpse, Ninja Pirate, Zebetite and Norfair Ridley artwork against retail.</summary>
@@ -186,7 +185,7 @@ internal static class EnemyTileArtworkVerification
         Suite(nameof(VerifyInstalledGunshipLiftoffArtwork), () => VerifyInstalledGunshipLiftoffArtwork(bus, directory, stock));
     }
 
-    /// <summary>Extracts stock enemy art and runs tile, palette, BG, spritemap and live override checks for the supported retail revision.</summary>
+    /// <summary>Runs tile, palette, BG, spritemap and live override checks on the stock enemy art of a private installation copy.</summary>
     internal static void VerifyEnemyTileArtwork()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -196,11 +195,10 @@ internal static class EnemyTileArtworkVerification
             return;
         }
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),
-            "enemy-tiles-" + Guid.NewGuid().ToString("N"));
-        try
+        // The live override and invalid-resource checks edit stock files, so they run on a private installation copy.
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        string directory = copy.Installation.EnemyTileDirectory;
         {
-            EnemyTileArtworkFiles.Extract(bus, directory, SupportedCartridge.Sha256);
             InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory, null);
             string[] files = Directory.GetFiles(directory, "enemy-????-tiles.png");
             AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount, files.Length,
@@ -398,10 +396,6 @@ internal static class EnemyTileArtworkVerification
             AssertThrows<InvalidDataException>(() => EnemyPaletteSheetFile.Write(
                     new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }),
                 "RGB5 palette channel outside native five-bit precision is rejected");
-        }
-        finally
-        {
-            if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
         }
             Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets, Crocomire melts, Kraid body/head maps, backdrop PNG, palette effects and four HUD-derived death restores, plus Boyon/Cacatac/Boulder/Atomic/Skultera/Waver/Skree/Metaree/Zoa/Pipe Bug/Fake Kraid/Kraid nail/Owtch/Stoke/Ripper/Fireflea/Magdollite/Ceres door/Ceres Baby/Rio/Lower Norfair Rio/Norfair Rio/Puyo/Bull/Alcoon/Beetom/Sidehopper/Dessgeega/Choot/HZoomer/Sbug/Fune/Namihe/Kamer platform/Elevator/Zeela/Sova/Zoomer/Stone Zoomer visual frames pass stock parity, live edits, persistence, and invalid-resource checks.");
             Console.WriteLine("  Sciser, shared Mellow/Mella/Memu, Kago, face-block, Morph Ball eye, shutter, ordinary Metroid, Shaktool, Tripper/Kamer, Dragon, Multiviola, Norfair lava-jumper, Chozo statue, Viola, and Rinka OAM frames: cartridge parity, installed draws, and legacy composition overrides pass.");

@@ -25,14 +25,14 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Exact body enemy property word touched by `$A9:AEE1` and `$A9:AFF7`. Keeping the raw
-    /// flags avoids guessing names for engine-wide enemy-property bits before bank `$A0` is
-    /// fully translated: death sets `$0400`, then fade completion sets `$0100` and clears
-    /// `$2000` with the cartridge's literal OR/AND sequence.
+    /// Exact body enemy property set touched by the death and its fade. Keeping the raw
+    /// flags avoids guessing names for engine-wide enemy-property bits before enemy processing is
+    /// fully translated: death makes the body intangible, then fade completion hides it and clears
+    /// its processing property with the game's literal OR/AND sequence.
     /// </summary>
     public EnemyProperties BodyProperties { get; internal set; }
 
-    /// <summary>Exact brain enemy property word; death/rotting sets raw bits `$0400/$0100`.</summary>
+    /// <summary>Exact brain enemy property set; death/rotting makes it intangible and hidden.</summary>
     public EnemyProperties BrainProperties { get; internal set; }
 
     /// <summary>Second brain property word cleared when the rot animation completes.</summary>
@@ -45,38 +45,38 @@ internal sealed class MotherBrainThirdPhaseDeath
     public bool HitboxesEnabled { get; internal set; } = true;
 
     /// <summary>
-    /// Native word <c>$0FF0</c>: the explosion interval timer of <c>$A9:B03E</c> and
-    /// <c>$A9:B346</c>, aliased with the body sub-function pointer.
+    /// The explosion interval timer of the death explosions,
+    /// aliased with the body sub-function counter.
     /// </summary>
     public WrappingCountdown DeathExplosionIntervalTimer { get; internal set; }
 
     /// <summary>
-    /// Native word <c>$0FF2</c>, one word under three names: the ascent dust's body
-    /// sub-function timer, the seven-record death-explosion index (<c>$A9:B046</c>) and the
-    /// four-record escape-door dust index (<c>$A9:B355</c>). Each effect inherits the value
-    /// the previous one left unless native code explicitly clears it.
+    /// One value under three names: the ascent dust's body
+    /// sub-function timer, the seven-record death-explosion index and the
+    /// four-record escape-door dust index. Each effect inherits the value
+    /// the previous one left unless code explicitly clears it.
     /// </summary>
     public WrappingCountdown DeathAndEscapeExplosionIndex { get; internal set; }
 
     /// <summary>The brain's colours, forced to the corpse colours when the dying brain effects shut down (#1464).</summary>
     public SpriteColouring BrainColouring { get; internal set; } = SharedSpriteColouring.Common;
 
-    /// <summary>Number of calls made to the body flicker producer at `$A9:AFB6`.</summary>
+    /// <summary>Number of calls made to the body flicker producer.</summary>
     public uint BodyFlickerCallCount { get; private set; }
 
     /// <summary>Whether the death has reached the point where the start of Mother Brain's body is cleared (#1466).</summary>
     public bool BodyClearRequested { get; private set; }
 
-    /// <summary>How many of the six corpse pages have shown (<c>$A9:9003</c>), which is also the next to show.</summary>
+    /// <summary>How many of the six corpse pages have shown, which is also the next to show.</summary>
     public int CorpsePagesShown { get; private set; }
 
     /// <summary>
-    /// How many pages of the escape sequence's list have shown (<c>$A6:C4CB</c>): the two escape-timer digit pages, then
+    /// How many pages of the escape sequence's list have shown: the two escape-timer digit pages, then
     /// the five escape-message pages.
     /// </summary>
     public int EscapePagesShown { get; private set; }
 
-    /// <summary>How many of the two exploded-door pages have shown (<c>$A9:902F</c>).</summary>
+    /// <summary>How many of the two exploded-door pages have shown.</summary>
     public int ExplodedDoorPagesShown { get; private set; }
 
     /// <summary>The pages the escape sequence shows one per call: the escape timer's digits, then the escape message.</summary>
@@ -87,7 +87,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     public bool MotherBrainUnpauseHookEnabled { get; internal set; } = true;
 
     /// <summary>
-    /// Set when `$A9:B11B` installs the brain-slot draw setup before the decapitated head
+    /// Set when the decapitation step installs the brain-slot draw setup before the decapitated head
     /// starts falling. The separate brain AI is not silently folded into the body function.
     /// </summary>
     public bool BrainDrawSetupRequested { get; private set; }
@@ -129,7 +129,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Emits the death-phase explosions at the native timer cadence, consuming one global
+    /// Emits the death-phase explosions at the timer cadence, consuming one global
     /// random value per projectile so later enemy AI sees the same RNG sequence.
     /// </summary>
     internal void GenerateDeathExplosions(
@@ -137,9 +137,9 @@ internal sealed class MotherBrainThirdPhaseDeath
         Func<int>? nextRandomNumber,
         List<MotherBrainDeathExplosionRequest> requests)
     {
-        // `$B03E` decrements before testing BPL. A cleared timer therefore wraps and emits
+        // The death explosions decrement before testing the sign. A cleared timer therefore wraps and emits
         // immediately. Crucially, the interval literal remains in A across the memory DEC,
-        // so the smoky/mixed caller writes exactly `$10`/`$08` after an expiry.
+        // so the smoky/mixed caller writes exactly 16/8 after an expiry.
         DeathExplosionIntervalTimer = DeathExplosionIntervalTimer.Decrement().Remaining;
         if (!DeathExplosionIntervalTimer.IsNegative)
             return;
@@ -174,13 +174,13 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Emits the next four-frame escape-door blast from its repeating native position table.
+    /// Emits the next four-frame escape-door blast from its repeating position table.
     /// Returns no request on frames before the shared interval timer expires.
     /// </summary>
     private DustExplosionRequest? GenerateEscapeDoorExplosion(
         Func<int>? nextRandomNumber)
     {
-        // `$B346` shares the old death-explosion interval word but replaces its cadence with
+        // The escape-door dust shares the old death-explosion interval value but replaces its cadence with
         // four. A cleared word underflows on the first call, so a new explosion is immediate.
         DeathExplosionIntervalTimer = DeathExplosionIntervalTimer.Decrement().Remaining;
         if (!DeathExplosionIntervalTimer.IsNegative)
@@ -193,7 +193,7 @@ internal sealed class MotherBrainThirdPhaseDeath
 
         // The table is stored as interleaved X/Y words and indexed by `index * 4` bytes.
         // Spell out the semantic pairs so neither host endianness nor array stride can alter
-        // the native 3,2,1,0 repeating order.
+        // the 3,2,1,0 repeating order.
         Position16<RoomPixels> position = DeathAndEscapeExplosionIndex.RemainingFrames switch
         {
             0 => new(8, 108),
@@ -201,7 +201,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             2 => new(9, 144),
             3 => new(24, 116),
             _ => throw new InvalidOperationException(
-                $"Escape-door explosion index {DeathAndEscapeExplosionIndex} escaped its native 0..3 range."),
+                $"Escape-door explosion index {DeathAndEscapeExplosionIndex} escaped its 0..3 range."),
         };
 
         if (nextRandomNumber is null)
@@ -210,7 +210,7 @@ internal sealed class MotherBrainThirdPhaseDeath
                 "Escape-door explosions require the global next-random-number producer.");
         }
 
-        // Native `$B377` advances the one shared RNG exactly once per emitted projectile.
+        // The escape-door dust advances the one shared RNG exactly once per emitted projectile.
         // Values below a quarter of the range select the smoke animation ($0C); all remaining
         // values retain the preloaded small explosion ($03).
         int random = nextRandomNumber();
@@ -222,14 +222,14 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death move to back of room body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death move to back of room body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathMoveToBackOfRoom(MotherBrainRainbowBeamStepRequests requests)
     {
-        // `$A9:AEE1` makes both enemy slots non-interactive and disables the shared
+        // The move-to-back step makes both enemy slots non-interactive and disables the shared
         // hitboxes on every call, then reuses the ordinary medium-speed backward
-        // walk producer. Carry means X `$28` has been reached/overshot; the new `$80`
+        // walk producer. Carry means X 40 has been reached/overshot; the new 128
         // timer falls through so the first smoky explosion and decrement happen now.
         BodyProperties = BodyProperties.With(EnemyProperties.IgnoreSamusCollision);
         BrainProperties = BrainProperties.With(EnemyProperties.IgnoreSamusCollision);
@@ -246,7 +246,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death idle whilst exploding body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death idle whilst exploding body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathIdleWhilstExploding(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -260,14 +260,14 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death stumble to middle of room body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death stumble to middle of room body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathStumbleToMiddleOfRoom(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // `$AF21` emits smoke before asking for a really-fast forward walk to `$60`.
+        // The stumble emits smoke before asking for a really-fast forward walk to 96.
         // Equality still starts a complete body program; only signed overshoot or the
-        // independent `$80` arena clamp reports carry and advances the death script.
+        // independent 128 arena clamp reports carry and advances the death script.
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, requests.DeathExplosions);
         MotherBrainWalkResult dyingAdvance = _state.RequestWalkForward(96, animationDelay: 2);
@@ -285,7 +285,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death disable brain effects body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death disable brain effects body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathDisableBrainEffects(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -295,7 +295,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
         if (_state.FunctionTimer.IsNegative)
         {
-            // `$AF5C-$AF94` removes the neck/breath/palette producers, copies sprite
+            // Disabling the brain's effects removes the neck/breath/palette producers, copies sprite
             // palette 1 into palette 7, performs one health-palette refresh, and then
             // deliberately falls through with the already-negative timer.
             _state.LowerNeckMovementIndex = MotherBrainNeckMovement.None;
@@ -306,7 +306,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.HealthBasedPaletteHandlingEnabled = false;
             BrainColouring = new EncounterSpriteColouring(BossColourDefinitions.MotherBrainCorpse);
             requests.PaletteRequested = true;
-            // `$AF91/$AF94` clear words $0FF0 and $0FF2 before the fade-out explosions.
+            // Disabling the brain's effects clears the death-explosion counters before the fade-out explosions.
             DeathExplosionIntervalTimer = WrappingCountdown.Start(0);
             DeathAndEscapeExplosionIndex = WrappingCountdown.Start(0);
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathSetupBodyFadeOut;
@@ -316,7 +316,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death setup body fade out body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death setup body fade out body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathSetupBodyFadeOut(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -335,7 +335,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death fade out body body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death fade out body body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathFadeOutBody(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -368,7 +368,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death final few explosions body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death final few explosions body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathFinalFewExplosions(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -382,7 +382,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death realize decapitation body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death realize decapitation body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathRealizeDecapitation()
@@ -397,14 +397,14 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death brain falls to ground body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death brain falls to ground body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathBrainFallsToGround()
     {
-        // `$B12D` treats FunctionTimer as unsigned 8.8 velocity: add `$20`, use only
+        // The fall treats FunctionTimer as unsigned 8.8 velocity: add 32, use only
         // its high byte as this frame's whole-pixel displacement, and accumulate Y.
-        // Crossing `$C4` clamps the head and publishes earthquake type two for 20.
+        // Crossing 196 clamps the head and publishes earthquake type two for 20.
         _state.FunctionTimer = _state.FunctionTimer.AddFrames(32);
         int fallingDisplacement = UnsignedEightEight.Whole(_state.FunctionTimer.RemainingFrames);
         Position16<RoomPixels> candidate = _state.BrainPosition + new Offset16<RoomPixels>(0, WordWrap.Signed(fallingDisplacement));
@@ -425,7 +425,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death load corpse tiles body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death load corpse tiles body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathLoadCorpseTiles(MotherBrainRainbowBeamStepRequests requests)
@@ -442,7 +442,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death setup fade to grey body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death setup fade to grey body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathSetupFadeToGrey()
@@ -458,7 +458,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death fade to grey body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death fade to grey body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathFadeToGrey(MotherBrainRainbowBeamStepRequests requests)
@@ -484,7 +484,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death corpse tips over body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death corpse tips over body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathCorpseTipsOver()
@@ -500,7 +500,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death corpse rots away body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death corpse rots away body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathCorpseRotsAway(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -514,23 +514,23 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (corpseRotting.StillRotting)
             return false;
 
-        // Carry clear at `$B1DB` makes the brain invisible/non-solid, clears its
+        // Carry clear makes the brain invisible/non-solid, clears its
         // second property word, and queues stop + escape music through the ordinary
-        // eight-frame-delay music queue. `$14` is loaded and immediately decremented
-        // by the fallthrough into `$B211`, leaving observable timer `$13` now.
+        // eight-frame-delay music queue. Twenty is loaded and immediately decremented
+        // by the fallthrough into the next step, leaving observable timer nineteen now.
         BrainProperties = BrainProperties
             .With(EnemyProperties.Invisible)
             .Without(EnemyProperties.RunsAnimationScript);
         BrainProperties2 = default;
-        requests.MusicStopQueued = true;   // Queue music value `$0000`.
-        requests.EscapeMusicQueued = true; // Queue music value `$FF24`.
+        requests.MusicStopQueued = true;   // Queue the music stop.
+        requests.EscapeMusicQueued = true; // Queue the escape music.
         _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay;
         _state.FunctionTimer = WrappingCountdown.Start(20);
         return true;
     }
 
     /// <summary>
-    /// Runs the third phase death20 frame delay body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death20 frame delay body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeath20FrameDelay()
@@ -539,7 +539,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (_state.FunctionTimer.IsNegative)
         {
             // The decapitated brain remains at the corpse coordinates for the full
-            // delay. `$B216/$B219` finally park it at (0,0) before escape-timer tile
+            // delay. Loading the escape-timer tiles finally parks it at (0,0) before escape-timer tile
             // loading begins; this is a real actor-coordinate mutation, not rendering.
             _state.BrainPosition = Position16<RoomPixels>.Zero;
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathLoadEscapeTimerTiles;
@@ -548,7 +548,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death load escape timer tiles body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death load escape timer tiles body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathLoadEscapeTimerTiles(MotherBrainRainbowBeamStepRequests requests)
@@ -557,7 +557,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (EscapePagesShown == EscapePageCount)
         {
             // Carry set after entry six clears the shared list cursor, installs
-            // `$B26D`, and falls through far enough to emit exploded-door entry zero
+            // And falls through far enough to emit exploded-door entry zero
             // during this same enemy AI call.
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathStartEscape;
             return true;
@@ -566,7 +566,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death start escape body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death start escape body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathStartEscape(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -576,11 +576,11 @@ internal sealed class MotherBrainThirdPhaseDeath
             return false;
 
         // The second door record observes the zero terminator and performs the full
-        // `$B275-$B2CD` handoff on that call: copy fourteen colors (palette zero is
+        // escape-door handoff on that call: copy fourteen colors (palette zero is
         // skipped), start escape music, hold the quake indefinitely, create four
         // palette-FX objects, disable the old unpause hook, and initialize text.
-        requests.ExplodedDoorPaletteRequested = true; // `$A9:9534`, 14 colors -> target `$0122`.
-        requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay music value `$0007`.
+        requests.ExplodedDoorPaletteRequested = true; // 14 colors into the target palette.
+        requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay escape music track seven.
         _state.EarthquakeType = 5;
         _state.EarthquakeTimer = WrappingCountdown.Start(ushort.MaxValue);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianShutterRedFlashing);
@@ -597,17 +597,17 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death spawn time bomb set subtitle body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death spawn time bomb set subtitle body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathSpawnTimeBombSetSubtitle(MotherBrainRainbowBeamStepRequests requests)
     {
-        // `$B2D1` decrements first. BPL does *not* merely wait: it branches directly
-        // into `$B2E3`, so the underlying typewriter advances during all 32..0
-        // subtitle-delay values. On underflow the native code installs `$B2E3`,
+        // The subtitle delay decrements first. Its sign test does *not* merely wait: it branches directly
+        // into the typing step, so the underlying typewriter advances during all 32..0
+        // subtitle-delay values. On underflow the code installs the typing step,
         // spawns the persistent Japanese subtitle projectile, and falls through to
         // that same typewriter call. Keep the producer request separate because the
-        // bank-$86 allocator owns whether a physical slot is actually available.
+        //  allocator owns whether a physical slot is actually available.
         _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
         if (_state.FunctionTimer.IsNegative)
         {
@@ -618,12 +618,12 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death type out zebes escape text body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death type out zebes escape text body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathTypeOutZebesEscapeText(RainbowBeamAttackFrame frame)
     {
-        // `$B2E3` calls the independently owned typewriter with list pointer `$2610`.
+        // The typing step calls the independently owned typewriter with the escape text list.
         // A request plus explicit completion input preserves that scheduler boundary:
         // the boss never invents character cadence, yet its carry-dependent handoff
         // remains directly testable and debuggable.
@@ -636,21 +636,21 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death door exploding start timer body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death door exploding start timer body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathDoorExplodingStartTimer(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // `$B2F9` always runs the periodic dust producer before touching the escape
+        // The keep-earthquake-going step always runs the periodic dust producer before touching the escape
         // countdown. The freshly loaded `$20` therefore receives 33 calls (32..0,
-        // then `$FFFF`) and can emit dust even on the transition call.
+        // then -1) and can emit dust even on the transition call.
         requests.EscapeDoorExplosion = GenerateEscapeDoorExplosion(frame.NextRandomNumber);
         _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
         if (!_state.FunctionTimer.IsNegative)
             return false;
 
-        // Samus command `$0F`, TimerStatus `$0002`, boss bit `$02`, and event `$0E`
-        // belong to four different native subsystems. Publish every edge instead of
+        // Samus command fifteen, the escape timer status, Mother Brain's boss bit, and the escape event
+        // belong to four different subsystems. Publish every edge instead of
         // silently writing the wrong debug room's area flags inside this actor.
         requests.TimerHandlingEnableRequested = true;
         requests.MotherBrainEscapeTimerStartRequested = true;
@@ -663,12 +663,12 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death blow up escape door body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death blow up escape door body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathBlowUpEscapeDoor(MotherBrainRainbowBeamStepRequests requests)
     {
-        // `$B3A3` invokes the ordinary highest-free-slot allocator eight times with
+        // The door explosion invokes the ordinary highest-free-slot allocator eight times with
         // parameters zero through seven. Allocation success is intentionally decided
         // by the shared enemy-projectile system, not assumed by the boss actor.
         for (int parameter = 0; parameter < 8; parameter++)
@@ -682,14 +682,14 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death keep earthquake going body function. True when it installs the next body function and the cartridge runs
+    /// Runs the third phase death keep earthquake going body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathKeepEarthquakeGoing(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // EarthquakeTimer is global WRAM and is normally decremented outside enemy
-        // AI. A supplied sample is therefore authoritative. `$B33C` changes only a
-        // visible zero to `$FFFF`; every nonzero value, including `$FFFF`, survives.
+        // EarthquakeTimer is global and is normally decremented outside enemy
+        // AI. A supplied sample is therefore authoritative. The quake step changes only a
+        // visible zero to -1; every nonzero value, including -1, survives.
         if (frame.GlobalEarthquakeTimer is WrappingCountdown observedEarthquakeTimer)
             _state.EarthquakeTimer = observedEarthquakeTimer;
         if (_state.EarthquakeTimer.IsZero)

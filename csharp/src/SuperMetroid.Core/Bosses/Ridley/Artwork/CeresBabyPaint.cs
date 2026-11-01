@@ -6,8 +6,8 @@ using static SuperMetroid.Core.Bosses.Ridley.Artwork.CeresBabyPaintDefinitions;
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
-/// Ceres Baby/container palettes $A6:E1F1-E268. $A6:BF5D-BFBF selects the
-/// horizontal/round/vertical brightness with the matching OAM shape; $A6:BFE1
+/// Ceres Baby/container palettes. The Baby's draw selects the
+/// horizontal/round/vertical brightness with the matching sprite shape; its palette update
 /// copies fifteen colors uniformly. Shared organ and fang source paints calculate
 /// from existing owners. Eight selected glass/dome/outline inputs and the exact
 /// clipped three-unit pose brightening specify this reviewed material composition,
@@ -42,7 +42,7 @@ internal sealed class CeresBabyPaint
         }
     }
 
-    /// <summary>The same material at Norfair Ridley $A6:E1F1-E20E, with its own supplied values.</summary>
+    /// <summary>The same material in Norfair Ridley's initial palette, with its own supplied values.</summary>
     internal CeresBabyPaint(ReadOnlySpan<RgbColor> initial)
         : this(initial, CeresBabyPaintShades.RestingOnly)
     {

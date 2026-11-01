@@ -37,11 +37,11 @@ internal static class TorizoProgramSteps
     internal static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> FallInto(TorizoBodyProgram program) =>
         AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the script's sleep does.</summary>
     internal static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> Hold =>
         AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.Hold;
 
-    /// <summary>Ends the actor's program, as the native stop does.</summary>
+    /// <summary>Ends the actor's program, as the stop does.</summary>
     internal static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> Stop =>
         AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.Stop;
 

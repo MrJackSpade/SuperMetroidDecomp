@@ -14,14 +14,14 @@ internal static class KraidFootCollision
         return WordWrap.Signed(8 - 2 * Math.Min(frame, 34 - frame));
     }
 
-    /// <summary>The fixed component rises, turns at native pose A/B, then descends and holds.</summary>
+    /// <summary>The fixed component rises, turns at pose A/B, then descends and holds.</summary>
     internal static int FirstY(int frame)
     {
         CheckFrame(frame);
         return WordWrap.Signed(frame < 10 ? 40 - frame : frame == 10 ? 29 : frame < 18 ? 28 + 2 * (frame - 11) : 40);
     }
 
-    /// <summary>Moving-foot horizontal placement within native poses0,1,2,3 and the return sequence.</summary>
+    /// <summary>Moving-foot horizontal placement within poses0,1,2,3 and the return sequence.</summary>
     /// <remarks>Independently reviewed for #1165 against bank_A7.asm. Pose changes
     /// occur at frames5,10,11,21,23,31; frame17 reverses travel. Each pose's
     /// placement advances by two pixels. Pose2 at frame10 is the raised transition.</remarks>

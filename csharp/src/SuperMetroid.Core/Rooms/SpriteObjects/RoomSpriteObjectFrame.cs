@@ -1,561 +1,561 @@
 namespace SuperMetroid.Core.Rooms.SpriteObjects;
 
 /// <summary>
-/// The bank-$B4 spritemaps of every room sprite-object list the cartridge's 62 object selectors reach: the frames the
+/// The spritemaps of every room sprite-object list the game's 62 object selectors reach: the frames the
 /// programs show and the rest of the installed sprite-object artwork.
 /// </summary>
 internal enum RoomSpriteObjectFrame
 {
-    /// <summary><c>SpriteObjectSpritemaps_3D_DraygonFoamingAtTheMouth_0</c> at $B4:DD51.</summary>
+    /// <summary>Draygon foaming at the mouth, frame 0.</summary>
     DraygonFoamingAtTheMouth0,
-    /// <summary><c>SpriteObjectSpritemaps_3D_DraygonFoamingAtTheMouth_1</c> at $B4:DD58.</summary>
+    /// <summary>Draygon foaming at the mouth, frame 1.</summary>
     DraygonFoamingAtTheMouth1,
-    /// <summary><c>SpriteObjectSpritemaps_3D_DraygonFoamingAtTheMouth_2</c> at $B4:DD5F.</summary>
+    /// <summary>Draygon foaming at the mouth, frame 2.</summary>
     DraygonFoamingAtTheMouth2,
-    /// <summary><c>SpriteObjectSpritemaps_3D_DraygonFoamingAtTheMouth_3</c> at $B4:DD66.</summary>
+    /// <summary>Draygon foaming at the mouth, frame 3.</summary>
     DraygonFoamingAtTheMouth3,
-    /// <summary><c>SpriteObjectSpritemaps_3D_DraygonFoamingAtTheMouth_4</c> at $B4:DD6D.</summary>
+    /// <summary>Draygon foaming at the mouth, frame 4.</summary>
     DraygonFoamingAtTheMouth4,
-    /// <summary><c>SpriteObjectSpritemaps_3D_DraygonFoamingAtTheMouth_5</c> at $B4:DD74.</summary>
+    /// <summary>Draygon foaming at the mouth, frame 5.</summary>
     DraygonFoamingAtTheMouth5,
-    /// <summary><c>SpriteObjectSpritemaps_3D_DraygonFoamingAtTheMouth_6</c> at $B4:DD7B.</summary>
+    /// <summary>Draygon foaming at the mouth, frame 6.</summary>
     DraygonFoamingAtTheMouth6,
-    /// <summary><c>SpriteObjectSpritemaps_3D_DraygonFoamingAtTheMouth_7</c> at $B4:DD82.</summary>
+    /// <summary>Draygon foaming at the mouth, frame 7.</summary>
     DraygonFoamingAtTheMouth7,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_2F_B4D594</c> at $B4:D594.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject47,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_0_BeamCharge_0_B4CAC9</c> at $B4:CAC9.</summary>
+    /// <summary>Unused beam charge, frame 0.</summary>
     BeamCharge0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_0_BeamCharge_1_B4CAD0</c> at $B4:CAD0.</summary>
+    /// <summary>Unused beam charge, frame 1.</summary>
     BeamCharge1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_0_BeamCharge_2_B4CAD7</c> at $B4:CAD7.</summary>
+    /// <summary>Unused beam charge, frame 2.</summary>
     BeamCharge2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_0_BeamCharge_3_B4CADE</c> at $B4:CADE.</summary>
+    /// <summary>Unused beam charge, frame 3.</summary>
     BeamCharge3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1_MBElbowParticle_0_B4CAF4</c> at $B4:CAF4.</summary>
+    /// <summary>Unused Mother Brain elbow particle, frame 0.</summary>
     MBElbowParticle0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1_MBElbowParticle_1_B4CB05</c> at $B4:CB05.</summary>
+    /// <summary>Unused Mother Brain elbow particle, frame 1.</summary>
     MBElbowParticle1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1_MBElbowParticle_2_B4CB16</c> at $B4:CB16.</summary>
+    /// <summary>Unused Mother Brain elbow particle, frame 2.</summary>
     MBElbowParticle2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1_MBElbowParticle_3_B4CB27</c> at $B4:CB27.</summary>
+    /// <summary>Unused Mother Brain elbow particle, frame 3.</summary>
     MBElbowParticle3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1_MBElbowParticle_4_B4CB38</c> at $B4:CB38.</summary>
+    /// <summary>Unused Mother Brain elbow particle, frame 4.</summary>
     MBElbowParticle4,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1_MBElbowParticle_5_B4CB49</c> at $B4:CB49.</summary>
+    /// <summary>Unused Mother Brain elbow particle, frame 5.</summary>
     MBElbowParticle5,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_2_MBElbowEnergy_0_B4CB5A</c> at $B4:CB5A.</summary>
+    /// <summary>Unused Mother Brain elbow energy, frame 0.</summary>
     MBElbowEnergy0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_2_MBElbowEnergy_1_B4CB6B</c> at $B4:CB6B.</summary>
+    /// <summary>Unused Mother Brain elbow energy, frame 1.</summary>
     MBElbowEnergy1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_2_MBElbowEnergy_2_B4CB7C</c> at $B4:CB7C.</summary>
+    /// <summary>Unused Mother Brain elbow energy, frame 2.</summary>
     MBElbowEnergy2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_2_MBElbowEnergy_3_B4CB8D</c> at $B4:CB8D.</summary>
+    /// <summary>Unused Mother Brain elbow energy, frame 3.</summary>
     MBElbowEnergy3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_2_MBElbowEnergy_4_B4CB9E</c> at $B4:CB9E.</summary>
+    /// <summary>Unused Mother Brain elbow energy, frame 4.</summary>
     MBElbowEnergy4,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_2_MBElbowEnergy_5_B4CBAF</c> at $B4:CBAF.</summary>
+    /// <summary>Unused Mother Brain elbow energy, frame 5.</summary>
     MBElbowEnergy5,
-    /// <summary><c>SpriteObjectSpritemaps_3_SmallExplosion_0</c> at $B4:CBC0.</summary>
+    /// <summary>Small explosion, frame 0.</summary>
     SmallExplosion0,
-    /// <summary><c>SpriteObjectSpritemaps_3_SmallExplosion_1</c> at $B4:CBC7.</summary>
+    /// <summary>Small explosion, frame 1.</summary>
     SmallExplosion1,
-    /// <summary><c>SpriteObjectSpritemaps_3_SmallExplosion_2</c> at $B4:CBDD.</summary>
+    /// <summary>Small explosion, frame 2.</summary>
     SmallExplosion2,
-    /// <summary><c>SpriteObjectSpritemaps_3_SmallExplosion_3</c> at $B4:CBF3.</summary>
+    /// <summary>Small explosion, frame 3.</summary>
     SmallExplosion3,
-    /// <summary><c>SpriteObjectSpritemaps_3_SmallExplosion_4</c> at $B4:CC09.</summary>
+    /// <summary>Small explosion, frame 4.</summary>
     SmallExplosion4,
-    /// <summary><c>SpriteObjectSpritemaps_3_SmallExplosion_5</c> at $B4:CC1F.</summary>
+    /// <summary>Small explosion, frame 5.</summary>
     SmallExplosion5,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_4_BombExplosion_0_B4CC35</c> at $B4:CC35.</summary>
+    /// <summary>Unused Bomb explosion, frame 0.</summary>
     BombExplosion0,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_4_BombExplosion_1_B4CC4B</c> at $B4:CC4B.</summary>
+    /// <summary>Unused Bomb explosion, frame 1.</summary>
     BombExplosion1,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_4_BombExplosion_2_B4CC61</c> at $B4:CC61.</summary>
+    /// <summary>Unused Bomb explosion, frame 2.</summary>
     BombExplosion2,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_4_BombExplosion_3_B4CC77</c> at $B4:CC77.</summary>
+    /// <summary>Unused Bomb explosion, frame 3.</summary>
     BombExplosion3,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_4_BombExplosion_4_B4CC8D</c> at $B4:CC8D.</summary>
+    /// <summary>Unused Bomb explosion, frame 4.</summary>
     BombExplosion4,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_5_BeamTrail_0_B4CCB9</c> at $B4:CCB9.</summary>
+    /// <summary>Unused beam trail, frame 0.</summary>
     BeamTrail0,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_5_BeamTrail_1_B4CCC0</c> at $B4:CCC0.</summary>
+    /// <summary>Unused beam trail, frame 1.</summary>
     BeamTrail1,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_5_BeamTrail_2_B4CCC7</c> at $B4:CCC7.</summary>
+    /// <summary>Unused beam trail, frame 2.</summary>
     BeamTrail2,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_5_BeamTrail_3_B4CCCE</c> at $B4:CCCE.</summary>
+    /// <summary>Unused beam trail, frame 3.</summary>
     BeamTrail3,
-    /// <summary><c>SpriteObjectSpritemaps_6_DudShot_0</c> at $B4:CCF1.</summary>
+    /// <summary>Dud shot, frame 0.</summary>
     DudShot0,
-    /// <summary><c>SpriteObjectSpritemaps_6_DudShot_1</c> at $B4:CCF8.</summary>
+    /// <summary>Dud shot, frame 1.</summary>
     DudShot1,
-    /// <summary><c>SpriteObjectSpritemaps_6_DudShot_2</c> at $B4:CCFF.</summary>
+    /// <summary>Dud shot, frame 2.</summary>
     DudShot2,
-    /// <summary><c>SpriteObjectSpritemaps_6_DudShot_3</c> at $B4:CD15.</summary>
+    /// <summary>Dud shot, frame 3.</summary>
     DudShot3,
-    /// <summary><c>SpriteObjectSpritemaps_6_DudShot_4</c> at $B4:CD2B.</summary>
+    /// <summary>Dud shot, frame 4.</summary>
     DudShot4,
-    /// <summary><c>SpriteObjectSpritemaps_6_DudShot_5</c> at $B4:CD41.</summary>
+    /// <summary>Dud shot, frame 5.</summary>
     DudShot5,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_7_PowerBomb_0_B4CCD5</c> at $B4:CCD5.</summary>
+    /// <summary>Unused power Bomb, frame 0.</summary>
     PowerBomb0,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_7_PowerBomb_1_B4CCDC</c> at $B4:CCDC.</summary>
+    /// <summary>Unused power Bomb, frame 1.</summary>
     PowerBomb1,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_7_PowerBomb_2_B4CCE3</c> at $B4:CCE3.</summary>
+    /// <summary>Unused power Bomb, frame 2.</summary>
     PowerBomb2,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_8_1C_ElevatorPad_0_B4CD57</c> at $B4:CD57.</summary>
+    /// <summary>Unused elevator pad, frame 0.</summary>
     ElevatorPad0,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_8_1C_ElevatorPad_1_B4CD6D</c> at $B4:CD6D.</summary>
+    /// <summary>Unused elevator pad, frame 1.</summary>
     ElevatorPad1,
-    /// <summary><c>SpriteObjectSpritemaps_A_PirateLandingDustCloud_0</c> at $B4:CDB5.</summary>
+    /// <summary>Pirate landing dust cloud, frame 0.</summary>
     PirateLandingDustCloud0,
-    /// <summary><c>SpriteObjectSpritemaps_9_SmallDustCloud_0</c> at $B4:CD99.</summary>
+    /// <summary>Small dust cloud, frame 0.</summary>
     SmallDustCloud0,
-    /// <summary><c>SpriteObjectSpritemaps_9_SmallDustCloud_1</c> at $B4:CDA0.</summary>
+    /// <summary>Small dust cloud, frame 1.</summary>
     SmallDustCloud1,
-    /// <summary><c>SpriteObjectSpritemaps_9_SmallDustCloud_2</c> at $B4:CDA7.</summary>
+    /// <summary>Small dust cloud, frame 2.</summary>
     SmallDustCloud2,
-    /// <summary><c>SpriteObjectSpritemaps_9_SmallDustCloud_3</c> at $B4:CDAE.</summary>
+    /// <summary>Small dust cloud, frame 3.</summary>
     SmallDustCloud3,
-    /// <summary><c>SpriteObjectSpritemaps_A_PirateLandingDustCloud_1</c> at $B4:CDBC.</summary>
+    /// <summary>Pirate landing dust cloud, frame 1.</summary>
     PirateLandingDustCloud1,
-    /// <summary><c>SpriteObjectSpritemaps_A_PirateLandingDustCloud_2</c> at $B4:CDC3.</summary>
+    /// <summary>Pirate landing dust cloud, frame 2.</summary>
     PirateLandingDustCloud2,
-    /// <summary><c>SpriteObjectSpritemaps_A_PirateLandingDustCloud_3</c> at $B4:CDCA.</summary>
+    /// <summary>Pirate landing dust cloud, frame 3.</summary>
     PirateLandingDustCloud3,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_B_EyeDoorSweatDrop_0_B4CDD1</c> at $B4:CDD1.</summary>
+    /// <summary>Unused eye door sweat drop, frame 0.</summary>
     EyeDoorSweatDrop0,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_B_EyeDoorSweatDrop_1_B4CDD8</c> at $B4:CDD8.</summary>
+    /// <summary>Unused eye door sweat drop, frame 1.</summary>
     EyeDoorSweatDrop1,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_B_EyeDoorSweatDrop_2_B4CDDF</c> at $B4:CDDF.</summary>
+    /// <summary>Unused eye door sweat drop, frame 2.</summary>
     EyeDoorSweatDrop2,
-    /// <summary><c>UNSUED_SpriteObjectSpritemaps_B_EyeDoorSweatDrop_3_B4CDE6</c> at $B4:CDE6.</summary>
+    /// <summary>Unused eye door sweat drop, frame 3.</summary>
     EyeDoorSweatDrop3,
-    /// <summary><c>SpriteObjectSpritemaps_C_Smoke_0</c> at $B4:CDED.</summary>
+    /// <summary>Smoke, frame 0.</summary>
     Smoke0,
-    /// <summary><c>SpriteObjectSpritemaps_C_Smoke_1</c> at $B4:CDF4.</summary>
+    /// <summary>Smoke, frame 1.</summary>
     Smoke1,
-    /// <summary><c>SpriteObjectSpritemaps_C_Smoke_2</c> at $B4:CDFB.</summary>
+    /// <summary>Smoke, frame 2.</summary>
     Smoke2,
-    /// <summary><c>SpriteObjectSpritemaps_C_Smoke_3</c> at $B4:CE02.</summary>
+    /// <summary>Smoke, frame 3.</summary>
     Smoke3,
-    /// <summary><c>SpriteObjectSpritemaps_1D_BigExplosion_0</c> at $B4:CFA3.</summary>
+    /// <summary>Big explosion, frame 0.</summary>
     BigExplosion0,
-    /// <summary><c>SpriteObjectSpritemaps_1D_BigExplosion_1</c> at $B4:CFB9.</summary>
+    /// <summary>Big explosion, frame 1.</summary>
     BigExplosion1,
-    /// <summary><c>SpriteObjectSpritemaps_1D_BigExplosion_2</c> at $B4:CFCF.</summary>
+    /// <summary>Big explosion, frame 2.</summary>
     BigExplosion2,
-    /// <summary><c>SpriteObjectSpritemaps_1D_BigExplosion_3</c> at $B4:CFE5.</summary>
+    /// <summary>Big explosion, frame 3.</summary>
     BigExplosion3,
-    /// <summary><c>SpriteObjectSpritemaps_1D_BigExplosion_4</c> at $B4:D023.</summary>
+    /// <summary>Big explosion, frame 4.</summary>
     BigExplosion4,
-    /// <summary><c>SpriteObjectSpritemaps_1D_BigExplosion_5</c> at $B4:D04D.</summary>
+    /// <summary>Big explosion, frame 5.</summary>
     BigExplosion5,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_D_SmallEnergyDrop_0_B4CE1E</c> at $B4:CE1E.</summary>
+    /// <summary>Unused small energy drop, frame 0.</summary>
     SmallEnergyDrop0CE1E,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_D_SmallEnergyDrop_1_B4CE25</c> at $B4:CE25.</summary>
+    /// <summary>Unused small energy drop, frame 1.</summary>
     SmallEnergyDrop1CE25,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_D_SmallEnergyDrop_2_B4CE2C</c> at $B4:CE2C.</summary>
+    /// <summary>Unused small energy drop, frame 2.</summary>
     SmallEnergyDrop2CE2C,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_D_SmallEnergyDrop_3_B4CE33</c> at $B4:CE33.</summary>
+    /// <summary>Unused small energy drop, frame 3.</summary>
     SmallEnergyDrop3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_E_BigEnergyDrop_0_B4CE3A</c> at $B4:CE3A.</summary>
+    /// <summary>Unused big energy drop, frame 0.</summary>
     BigEnergyDrop0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_E_BigEnergyDrop_1_B4CE50</c> at $B4:CE50.</summary>
+    /// <summary>Unused big energy drop, frame 1.</summary>
     BigEnergyDrop1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_E_BigEnergyDrop_2_B4CE66</c> at $B4:CE66.</summary>
+    /// <summary>Unused big energy drop, frame 2.</summary>
     BigEnergyDrop2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_E_BigEnergyDrop_3_B4CE7C</c> at $B4:CE7C.</summary>
+    /// <summary>Unused big energy drop, frame 3.</summary>
     BigEnergyDrop3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_F_Bomb_0_B4CE83</c> at $B4:CE83.</summary>
+    /// <summary>Unused bomb, frame 0.</summary>
     Bomb0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_F_Bomb_1_B4CE8A</c> at $B4:CE8A.</summary>
+    /// <summary>Unused bomb, frame 1.</summary>
     Bomb1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_F_Bomb_2_B4CE91</c> at $B4:CE91.</summary>
+    /// <summary>Unused bomb, frame 2.</summary>
     Bomb2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_F_Bomb_3_B4CE98</c> at $B4:CE98.</summary>
+    /// <summary>Unused bomb, frame 3.</summary>
     Bomb3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_10_SmallEnergyDrop_0_B4CF87</c> at $B4:CF87.</summary>
+    /// <summary>Unused small energy drop, frame 0.</summary>
     SmallEnergyDrop0CF87,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_10_SmallEnergyDrop_1_B4CF8E</c> at $B4:CF8E.</summary>
+    /// <summary>Unused small energy drop, frame 1.</summary>
     SmallEnergyDrop1CF8E,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_10_SmallEnergyDrop_2_B4CF95</c> at $B4:CF95.</summary>
+    /// <summary>Unused small energy drop, frame 2.</summary>
     SmallEnergyDrop2CF95,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_0_B4C6D8</c> at $B4:C6D8.</summary>
+    /// <summary>Unused rock particles, frame 0.</summary>
     RockParticles0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_1_B4C6EE</c> at $B4:C6EE.</summary>
+    /// <summary>Unused rock particles, frame 1.</summary>
     RockParticles1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_2_B4C704</c> at $B4:C704.</summary>
+    /// <summary>Unused rock particles, frame 2.</summary>
     RockParticles2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_3_B4C71A</c> at $B4:C71A.</summary>
+    /// <summary>Unused rock particles, frame 3.</summary>
     RockParticles3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_4_B4C730</c> at $B4:C730.</summary>
+    /// <summary>Unused rock particles, frame 4.</summary>
     RockParticles4,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_5_B4C746</c> at $B4:C746.</summary>
+    /// <summary>Unused rock particles, frame 5.</summary>
     RockParticles5,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_6_B4C75C</c> at $B4:C75C.</summary>
+    /// <summary>Unused rock particles, frame 6.</summary>
     RockParticles6,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_7_B4C772</c> at $B4:C772.</summary>
+    /// <summary>Unused rock particles, frame 7.</summary>
     RockParticles7,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_8_B4C788</c> at $B4:C788.</summary>
+    /// <summary>Unused rock particles, frame 8.</summary>
     RockParticles8,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_9_B4C79E</c> at $B4:C79E.</summary>
+    /// <summary>Unused rock particles, frame 9.</summary>
     RockParticles9,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_A_B4C7B4</c> at $B4:C7B4.</summary>
+    /// <summary>Unused rock particles a frame.</summary>
     RockParticlesA,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_B_B4C7CA</c> at $B4:C7CA.</summary>
+    /// <summary>Unused rock particles b frame.</summary>
     RockParticlesB,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_C_B4C7E0</c> at $B4:C7E0.</summary>
+    /// <summary>Unused rock particles c frame.</summary>
     RockParticlesC,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_D_B4C7F6</c> at $B4:C7F6.</summary>
+    /// <summary>Unused rock particles d frame.</summary>
     RockParticlesD,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_E_B4C80C</c> at $B4:C80C.</summary>
+    /// <summary>Unused rock particles e frame.</summary>
     RockParticlesE,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_11_RockParticles_F_B4C822</c> at $B4:C822.</summary>
+    /// <summary>Unused rock particles f frame.</summary>
     RockParticlesF,
-    /// <summary><c>SpriteObjectSpritemaps_12_15_BigDustCloud_0</c> at $B4:C838.</summary>
+    /// <summary>Big dust cloud, frame 0.</summary>
     BigDustCloud0,
-    /// <summary><c>SpriteObjectSpritemaps_12_15_BigDustCloud_1</c> at $B4:C83F.</summary>
+    /// <summary>Big dust cloud, frame 1.</summary>
     BigDustCloud1,
-    /// <summary><c>SpriteObjectSpritemaps_12_15_BigDustCloud_2</c> at $B4:C84B.</summary>
+    /// <summary>Big dust cloud, frame 2.</summary>
     BigDustCloud2,
-    /// <summary><c>SpriteObjectSpritemaps_12_15_BigDustCloud_3</c> at $B4:C85C.</summary>
+    /// <summary>Big dust cloud, frame 3.</summary>
     BigDustCloud3,
-    /// <summary><c>SpriteObjectSpritemaps_13_14_15_BigDustCloud_4</c> at $B4:C872.</summary>
+    /// <summary>Big dust cloud, frame 4.</summary>
     BigDustCloud4,
-    /// <summary><c>SpriteObjectSpritemaps_13_14_15_BigDustCloud_5</c> at $B4:C888.</summary>
+    /// <summary>Big dust cloud, frame 5.</summary>
     BigDustCloud5,
-    /// <summary><c>SpriteObjectSpritemaps_13_14_15_BigDustCloud_6</c> at $B4:C899.</summary>
+    /// <summary>Big dust cloud, frame 6.</summary>
     BigDustCloud6,
-    /// <summary><c>SpriteObjectSpritemaps_13_14_15_BigDustCloud_7</c> at $B4:C8A5.</summary>
+    /// <summary>Big dust cloud, frame 7.</summary>
     BigDustCloud7,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_13_14_16_DustCloud_Beam_B4C8AC</c> at $B4:C8AC.</summary>
+    /// <summary>Unused dust cloud beam frame.</summary>
     DustCloudBeamC8AC,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_13_14_16_DustCloud_Beam_B4C8B3</c> at $B4:C8B3.</summary>
+    /// <summary>Unused dust cloud beam frame.</summary>
     DustCloudBeamC8B3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_14_16_DustCloud_Beam_B4C8BA</c> at $B4:C8BA.</summary>
+    /// <summary>Unused dust cloud beam frame.</summary>
     DustCloudBeamC8BA,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_16_DustCloud_Beam_B4C8C6</c> at $B4:C8C6.</summary>
+    /// <summary>Unused dust cloud beam frame.</summary>
     DustCloudBeamC8C6,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_16_DustCloud_Beam_B4C8D2</c> at $B4:C8D2.</summary>
+    /// <summary>Unused dust cloud beam frame.</summary>
     DustCloudBeamC8D2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_16_DustCloud_Beam_B4C8E2</c> at $B4:C8E3.</summary>
+    /// <summary>Unused dust cloud beam frame.</summary>
     DustCloudBeamC8E3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_16_17_DustCloud_Beam_B4C8F4</c> at $B4:C8F4.</summary>
+    /// <summary>Unused dust cloud beam frame.</summary>
     DustCloudBeamC8F4,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_16_17_DustCloud_Beam_B4C90A</c> at $B4:C90A.</summary>
+    /// <summary>Unused dust cloud beam frame.</summary>
     DustCloudBeamC90A,
-    /// <summary><c>SpriteObjectSpritemaps_18_ShortDraygonBreathBubbles_0</c> at $B4:C920.</summary>
+    /// <summary>Short Draygon breath bubbles, frame 0.</summary>
     ShortDraygonBreathBubbles0,
-    /// <summary><c>SpriteObjectSpritemaps_18_ShortDraygonBreathBubbles_1</c> at $B4:C927.</summary>
+    /// <summary>Short Draygon breath bubbles, frame 1.</summary>
     ShortDraygonBreathBubbles1,
-    /// <summary><c>SpriteObjectSpritemaps_18_ShortDraygonBreathBubbles_2</c> at $B4:C938.</summary>
+    /// <summary>Short Draygon breath bubbles, frame 2.</summary>
     ShortDraygonBreathBubbles2,
-    /// <summary><c>SpriteObjectSpritemaps_18_ShortDraygonBreathBubbles_3</c> at $B4:C949.</summary>
+    /// <summary>Short Draygon breath bubbles, frame 3.</summary>
     ShortDraygonBreathBubbles3,
-    /// <summary><c>SpriteObjectSpritemaps_18_ShortDraygonBreathBubbles_4</c> at $B4:C95A.</summary>
+    /// <summary>Short Draygon breath bubbles, frame 4.</summary>
     ShortDraygonBreathBubbles4,
-    /// <summary><c>SpriteObjectSpritemaps_18_ShortDraygonBreathBubbles_5</c> at $B4:C96B.</summary>
+    /// <summary>Short Draygon breath bubbles, frame 5.</summary>
     ShortDraygonBreathBubbles5,
-    /// <summary><c>SpriteObjectSpritemaps_18_ShortDraygonBreathBubbles_6</c> at $B4:C97C.</summary>
+    /// <summary>Short Draygon breath bubbles, frame 6.</summary>
     ShortDraygonBreathBubbles6,
-    /// <summary><c>SpriteObjectSpritemaps_18_ShortDraygonBreathBubbles_7</c> at $B4:C98D.</summary>
+    /// <summary>Short Draygon breath bubbles, frame 7.</summary>
     ShortDraygonBreathBubbles7,
-    /// <summary><c>SpriteObjectSpritemaps_18_ShortDraygonBreathBubbles_8</c> at $B4:C999.</summary>
+    /// <summary>Short Draygon breath bubbles, frame 8.</summary>
     ShortDraygonBreathBubbles8,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_19_SaveStationElect_0_B4C9A0</c> at $B4:C9A0.</summary>
+    /// <summary>Unused save station elect, frame 0.</summary>
     SaveStationElect0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_19_SaveStationElect_1_B4C9B6</c> at $B4:C9B6.</summary>
+    /// <summary>Unused save station elect, frame 1.</summary>
     SaveStationElect1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_19_SaveStationElect_2_B4C9CC</c> at $B4:C9CC.</summary>
+    /// <summary>Unused save station elect, frame 2.</summary>
     SaveStationElect2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_19_SaveStationElect_3_B4C9E2</c> at $B4:C9E2.</summary>
+    /// <summary>Unused save station elect, frame 3.</summary>
     SaveStationElect3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_19_SaveStationElect_4_B4C9F8</c> at $B4:C9F8.</summary>
+    /// <summary>Unused save station elect, frame 4.</summary>
     SaveStationElect4,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_19_SaveStationElect_5_B4CA0E</c> at $B4:CA0E.</summary>
+    /// <summary>Unused save station elect, frame 5.</summary>
     SaveStationElect5,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_19_SaveStationElect_6_B4CA24</c> at $B4:CA24.</summary>
+    /// <summary>Unused save station elect, frame 6.</summary>
     SaveStationElect6,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_19_SaveStationElect_7_B4CA3A</c> at $B4:CA3A.</summary>
+    /// <summary>Unused save station elect, frame 7.</summary>
     SaveStationElect7,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1A_1B_VerticalGate_0_B4CA50</c> at $B4:CA50.</summary>
+    /// <summary>Unused vertical gate, frame 0.</summary>
     VerticalGate0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1A_1B_VerticalGate_1_B4CA5C</c> at $B4:CA5C.</summary>
+    /// <summary>Unused vertical gate, frame 1.</summary>
     VerticalGate1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1A_1B_VerticalGate_2_B4CA63</c> at $B4:CA63.</summary>
+    /// <summary>Unused vertical gate, frame 2.</summary>
     VerticalGate2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1A_1B_VerticalGate_3_B4CA6F</c> at $B4:CA6F.</summary>
+    /// <summary>Unused vertical gate, frame 3.</summary>
     VerticalGate3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1A_1B_VerticalGate_4_B4CA7B</c> at $B4:CA7B.</summary>
+    /// <summary>Unused vertical gate, frame 4.</summary>
     VerticalGate4,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1A_1B_VerticalGate_5_B4CA8C</c> at $B4:CA8C.</summary>
+    /// <summary>Unused vertical gate, frame 5.</summary>
     VerticalGate5,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1A_1B_VerticalGate_6_B4CA9D</c> at $B4:CA9D.</summary>
+    /// <summary>Unused vertical gate, frame 6.</summary>
     VerticalGate6,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1A_1B_VerticalGate_7_B4CAB3</c> at $B4:CAB3.</summary>
+    /// <summary>Unused vertical gate, frame 7.</summary>
     VerticalGate7,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1E_0_B4C630</c> at $B4:C630.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject30Frame0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1E_1_B4C637</c> at $B4:C637.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject30Frame1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1E_2_B4C63E</c> at $B4:C63E.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject30Frame2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1F_0_B4C645</c> at $B4:C645.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject31Frame0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1F_1_B4C645</c> at $B4:C64C.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject31Frame1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_1F_2_B4C653</c> at $B4:C653.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject31Frame2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_20_0_B4C65A</c> at $B4:C65A.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject32Frame0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_20_1_B4C661</c> at $B4:C661.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject32Frame1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_20_2_B4C668</c> at $B4:C668.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject32Frame2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_21_0_B4C66F</c> at $B4:C66F.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject33Frame0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_21_1_B4C676</c> at $B4:C676.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject33Frame1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_21_2_B4C67D</c> at $B4:C67D.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject33Frame2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_22_0_B4C684</c> at $B4:C684.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject34Frame0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_22_1_B4C68B</c> at $B4:C68B.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject34Frame1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_22_2_B4C692</c> at $B4:C692.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject34Frame2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_23_0_B4C699</c> at $B4:C699.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject35Frame0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_23_1_B4C6A0</c> at $B4:C6A0.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject35Frame1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_23_2_B4C6A7</c> at $B4:C6A7.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject35Frame2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_24_0_B4C6AE</c> at $B4:C6AE.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject36Frame0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_24_1_B4C6B5</c> at $B4:C6B5.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject36Frame1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_24_2_B4C6BC</c> at $B4:C6BC.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject36Frame2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_25_0_B4C6C3</c> at $B4:C6C3.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject37Frame0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_25_1_B4C6CA</c> at $B4:C6CA.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject37Frame1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_25_2_B4C6D1</c> at $B4:C6D1.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject37Frame2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_26_0_B4D08B</c> at $B4:D08B.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject38Frame0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_26_1_B4D0BA</c> at $B4:D0BA.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject38Frame1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_26_2_B4D0E9</c> at $B4:D0E9.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject38Frame2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_26_3_B4D118</c> at $B4:D118.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject38Frame3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_26_4_B4D147</c> at $B4:D147.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject38Frame4,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_26_5_B4D176</c> at $B4:D176.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject38Frame5,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_27_0_B4D1D4</c> at $B4:D1D4.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject39Frame0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_27_1_B4D1EF</c> at $B4:D1EF.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject39Frame1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_27_2_B4D20A</c> at $B4:D20A.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject39Frame2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_27_3_B4D225</c> at $B4:D225.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject39Frame3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_27_4_B4D245</c> at $B4:D245.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject39Frame4,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_28_0_B4D2B3</c> at $B4:D2B3.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject40Frame0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_28_1_B4D2E2</c> at $B4:D2E2.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject40Frame1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_28_2_B4D311</c> at $B4:D311.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject40Frame2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_28_3_B4D340</c> at $B4:D340.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject40Frame3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_28_4_B4D36F</c> at $B4:D36F.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject40Frame4,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_28_5_B4D39E</c> at $B4:D39E.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject40Frame5,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_29_0_B4D3FC</c> at $B4:D3FC.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject41Frame0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_29_1_B4D417</c> at $B4:D417.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject41Frame1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_29_2_B4D432</c> at $B4:D432.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject41Frame2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_29_3_B4D44D</c> at $B4:D44D.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject41Frame3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_29_4_B4D46D</c> at $B4:D46D.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject41Frame4,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_2A_B4D2AC</c> at $B4:D2AC.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject42,
-    /// <summary><c>SpriteObjectSpritemaps_2B_Puromi_0</c> at $B4:D4BE.</summary>
+    /// <summary>Puromi, frame 0.</summary>
     Puromi0,
-    /// <summary><c>SpriteObjectSpritemaps_2B_Puromi_1</c> at $B4:D4C5.</summary>
+    /// <summary>Puromi, frame 1.</summary>
     Puromi1,
-    /// <summary><c>SpriteObjectSpritemaps_2B_Puromi_4</c> at $B4:D4DA.</summary>
+    /// <summary>Puromi, frame 4.</summary>
     Puromi4,
-    /// <summary><c>SpriteObjectSpritemaps_2B_Puromi_2</c> at $B4:D4CC.</summary>
+    /// <summary>Puromi, frame 2.</summary>
     Puromi2,
-    /// <summary><c>SpriteObjectSpritemaps_2B_Puromi_3</c> at $B4:D4D3.</summary>
+    /// <summary>Puromi, frame 3.</summary>
     Puromi3,
-    /// <summary><c>SpriteObjectSpritemaps_2B_Puromi_5</c> at $B4:D4E1.</summary>
+    /// <summary>Puromi, frame 5.</summary>
     Puromi5,
-    /// <summary><c>SpriteObjectSpritemaps_2B_Puromi_6</c> at $B4:D4E8.</summary>
+    /// <summary>Puromi, frame 6.</summary>
     Puromi6,
-    /// <summary><c>SpriteObjectSpritemaps_2B_Puromi_7</c> at $B4:D4EF.</summary>
+    /// <summary>Puromi, frame 7.</summary>
     Puromi7,
-    /// <summary><c>SpriteObjectSpritemaps_2C_PuromiRightExplosion_0</c> at $B4:D4F6.</summary>
+    /// <summary>Puromi right explosion, frame 0.</summary>
     PuromiRightExplosion0,
-    /// <summary><c>SpriteObjectSpritemaps_2C_PuromiRightExplosion_1</c> at $B4:D4FD.</summary>
+    /// <summary>Puromi right explosion, frame 1.</summary>
     PuromiRightExplosion1,
-    /// <summary><c>SpriteObjectSpritemaps_2C_PuromiRightExplosion_2</c> at $B4:D504.</summary>
+    /// <summary>Puromi right explosion, frame 2.</summary>
     PuromiRightExplosion2,
-    /// <summary><c>SpriteObjectSpritemaps_2C_PuromiRightExplosion_3</c> at $B4:D50B.</summary>
+    /// <summary>Puromi right explosion, frame 3.</summary>
     PuromiRightExplosion3,
-    /// <summary><c>SpriteObjectSpritemaps_2C_PuromiRightExplosion_4</c> at $B4:D512.</summary>
+    /// <summary>Puromi right explosion, frame 4.</summary>
     PuromiRightExplosion4,
-    /// <summary><c>SpriteObjectSpritemaps_2C_PuromiRightExplosion_5</c> at $B4:D519.</summary>
+    /// <summary>Puromi right explosion, frame 5.</summary>
     PuromiRightExplosion5,
-    /// <summary><c>SpriteObjectSpritemaps_2C_PuromiRightExplosion_6</c> at $B4:D520.</summary>
+    /// <summary>Puromi right explosion, frame 6.</summary>
     PuromiRightExplosion6,
-    /// <summary><c>SpriteObjectSpritemaps_2D_PuromiLeftExplosion_0</c> at $B4:D527.</summary>
+    /// <summary>Puromi left explosion, frame 0.</summary>
     PuromiLeftExplosion0,
-    /// <summary><c>SpriteObjectSpritemaps_2D_PuromiLeftExplosion_1</c> at $B4:D52E.</summary>
+    /// <summary>Puromi left explosion, frame 1.</summary>
     PuromiLeftExplosion1,
-    /// <summary><c>SpriteObjectSpritemaps_2D_PuromiLeftExplosion_2</c> at $B4:D535.</summary>
+    /// <summary>Puromi left explosion, frame 2.</summary>
     PuromiLeftExplosion2,
-    /// <summary><c>SpriteObjectSpritemaps_2D_PuromiLeftExplosion_3</c> at $B4:D53C.</summary>
+    /// <summary>Puromi left explosion, frame 3.</summary>
     PuromiLeftExplosion3,
-    /// <summary><c>SpriteObjectSpritemaps_2D_PuromiLeftExplosion_4</c> at $B4:D543.</summary>
+    /// <summary>Puromi left explosion, frame 4.</summary>
     PuromiLeftExplosion4,
-    /// <summary><c>SpriteObjectSpritemaps_2D_PuromiLeftExplosion_5</c> at $B4:D54A.</summary>
+    /// <summary>Puromi left explosion, frame 5.</summary>
     PuromiLeftExplosion5,
-    /// <summary><c>SpriteObjectSpritemaps_2D_PuromiLeftExplosion_6</c> at $B4:D551.</summary>
+    /// <summary>Puromi left explosion, frame 6.</summary>
     PuromiLeftExplosion6,
-    /// <summary><c>SpriteObjectSpritemaps_2E_PuromiSplash_0</c> at $B4:D558.</summary>
+    /// <summary>Puromi splash, frame 0.</summary>
     PuromiSplash0,
-    /// <summary><c>SpriteObjectSpritemaps_2E_PuromiSplash_1</c> at $B4:D564.</summary>
+    /// <summary>Puromi splash, frame 1.</summary>
     PuromiSplash1,
-    /// <summary><c>SpriteObjectSpritemaps_2E_PuromiSplash_2</c> at $B4:D570.</summary>
+    /// <summary>Puromi splash, frame 2.</summary>
     PuromiSplash2,
-    /// <summary><c>SpriteObjectSpritemaps_2E_PuromiSplash_4</c> at $B4:D588.</summary>
+    /// <summary>Puromi splash, frame 4.</summary>
     PuromiSplash4,
-    /// <summary><c>SpriteObjectSpritemaps_30_FallingSparkTrail_0</c> at $B4:D59B.</summary>
+    /// <summary>Falling spark trail, frame 0.</summary>
     FallingSparkTrail0,
-    /// <summary><c>SpriteObjectSpritemaps_30_FallingSparkTrail_1</c> at $B4:D5A2.</summary>
+    /// <summary>Falling spark trail, frame 1.</summary>
     FallingSparkTrail1,
-    /// <summary><c>SpriteObjectSpritemaps_30_FallingSparkTrail_2</c> at $B4:D5A9.</summary>
+    /// <summary>Falling spark trail, frame 2.</summary>
     FallingSparkTrail2,
-    /// <summary><c>SpriteObjectSpritemaps_30_FallingSparkTrail_3</c> at $B4:D5B0.</summary>
+    /// <summary>Falling spark trail, frame 3.</summary>
     FallingSparkTrail3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_31_MetroidInsides_0_B4D653</c> at $B4:D653.</summary>
+    /// <summary>Unused Metroid insides, frame 0.</summary>
     MetroidInsides0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_31_MetroidInsides_1_B4D67D</c> at $B4:D67D.</summary>
+    /// <summary>Unused Metroid insides, frame 1.</summary>
     MetroidInsides1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_31_MetroidInsides_2_B4D69D</c> at $B4:D69D.</summary>
+    /// <summary>Unused Metroid insides, frame 2.</summary>
     MetroidInsides2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_31_MetroidInsides_3_B4D6C7</c> at $B4:D6C7.</summary>
+    /// <summary>Unused Metroid insides, frame 3.</summary>
     MetroidInsides3,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_0</c> at $B4:D6F1.</summary>
+    /// <summary>Metroid electricity, frame 0.</summary>
     MetroidElectricity0,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_1</c> at $B4:D702.</summary>
+    /// <summary>Metroid electricity, frame 1.</summary>
     MetroidElectricity1,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_2</c> at $B4:D713.</summary>
+    /// <summary>Metroid electricity, frame 2.</summary>
     MetroidElectricity2,
-    /// <summary><c>SpriteObject_DrawInst_Empty</c> at $B4:BDA6.</summary>
+    /// <summary>Draw inst sprite object: empty.</summary>
     SpriteObjectDrawInstEmpty,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_3</c> at $B4:D724.</summary>
+    /// <summary>Metroid electricity, frame 3.</summary>
     MetroidElectricity3,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_4</c> at $B4:D73A.</summary>
+    /// <summary>Metroid electricity, frame 4.</summary>
     MetroidElectricity4,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_5</c> at $B4:D750.</summary>
+    /// <summary>Metroid electricity, frame 5.</summary>
     MetroidElectricity5,
-    /// <summary><c>SpriteObjectSpritemaps_32_MetroidElectricity_C</c> at $B4:D7DB.</summary>
+    /// <summary>Metroid electricity c frame.</summary>
     MetroidElectricityC,
-    /// <summary><c>SpriteObjectSpritemaps_32_MetroidElectricity_D</c> at $B4:D7E7.</summary>
+    /// <summary>Metroid electricity d frame.</summary>
     MetroidElectricityD,
-    /// <summary><c>SpriteObjectSpritemaps_32_MetroidElectricity_E</c> at $B4:D7EE.</summary>
+    /// <summary>Metroid electricity e frame.</summary>
     MetroidElectricityE,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_9</c> at $B4:D799.</summary>
+    /// <summary>Metroid electricity, frame 9.</summary>
     MetroidElectricity9,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_A</c> at $B4:D7AF.</summary>
+    /// <summary>Metroid electricity a frame.</summary>
     MetroidElectricityA,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_B</c> at $B4:D7C5.</summary>
+    /// <summary>Metroid electricity b frame.</summary>
     MetroidElectricityB,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_F</c> at $B4:D7FA.</summary>
+    /// <summary>Metroid electricity f frame.</summary>
     MetroidElectricityF,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_10</c> at $B4:D806.</summary>
+    /// <summary>Metroid electricity, frame 10.</summary>
     MetroidElectricity10,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_11</c> at $B4:D812.</summary>
+    /// <summary>Metroid electricity, frame 11.</summary>
     MetroidElectricity11,
-    /// <summary><c>SpriteObjectSpritemaps_32_MetroidElectricity_12</c> at $B4:D81E.</summary>
+    /// <summary>Metroid electricity, frame 12.</summary>
     MetroidElectricity12,
-    /// <summary><c>SpriteObjectSpritemaps_32_MetroidElectricity_13</c> at $B4:D82A.</summary>
+    /// <summary>Metroid electricity, frame 13.</summary>
     MetroidElectricity13,
-    /// <summary><c>SpriteObjectSpritemaps_32_MetroidElectricity_14</c> at $B4:D836.</summary>
+    /// <summary>Metroid electricity, frame 14.</summary>
     MetroidElectricity14,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_6</c> at $B4:D766.</summary>
+    /// <summary>Metroid electricity, frame 6.</summary>
     MetroidElectricity6,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_7</c> at $B4:D777.</summary>
+    /// <summary>Metroid electricity, frame 7.</summary>
     MetroidElectricity7,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_8</c> at $B4:D788.</summary>
+    /// <summary>Metroid electricity, frame 8.</summary>
     MetroidElectricity8,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_15</c> at $B4:D842.</summary>
+    /// <summary>Metroid electricity, frame 15.</summary>
     MetroidElectricity15,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_16</c> at $B4:D849.</summary>
+    /// <summary>Metroid electricity, frame 16.</summary>
     MetroidElectricity16,
-    /// <summary><c>SpriteObjectSpritemaps_32_33_MetroidElectricity_17</c> at $B4:D850.</summary>
+    /// <summary>Metroid electricity, frame 17.</summary>
     MetroidElectricity17,
-    /// <summary><c>SpriteObjectSpritemaps_34_35_36_MetroidShell_0</c> at $B4:D5B7.</summary>
+    /// <summary>Metroid shell, frame 0.</summary>
     MetroidShell0,
-    /// <summary><c>SpriteObjectSpritemaps_34_36_MetroidShell_1</c> at $B4:D5EB.</summary>
+    /// <summary>Metroid shell, frame 1.</summary>
     MetroidShell1,
-    /// <summary><c>SpriteObjectSpritemaps_34_35_36_MetroidShell_2</c> at $B4:D61F.</summary>
+    /// <summary>Metroid shell, frame 2.</summary>
     MetroidShell2,
-    /// <summary><c>SpriteObjectSpritemaps_37_EnemyShot_0</c> at $B4:D857.</summary>
+    /// <summary>Enemy shot, frame 0.</summary>
     EnemyShot0,
-    /// <summary><c>SpriteObjectSpritemaps_37_EnemyShot_1</c> at $B4:D86D.</summary>
+    /// <summary>Enemy shot, frame 1.</summary>
     EnemyShot1,
-    /// <summary><c>SpriteObjectSpritemaps_37_EnemyShot_2</c> at $B4:D883.</summary>
+    /// <summary>Enemy shot, frame 2.</summary>
     EnemyShot2,
-    /// <summary><c>SpriteObjectSpritemaps_37_EnemyShot_3</c> at $B4:D899.</summary>
+    /// <summary>Enemy shot, frame 3.</summary>
     EnemyShot3,
-    /// <summary><c>SpriteObjectSpritemaps_38_YappingMawBaseFacingDown</c> at $B4:D8AF.</summary>
+    /// <summary>Yapping maw base facing down frame.</summary>
     YappingMawBaseFacingDown,
-    /// <summary><c>SpriteObjectSpritemaps_39_YappingMawBaseFacingUp</c> at $B4:D8B6.</summary>
+    /// <summary>Yapping maw base facing up frame.</summary>
     YappingMawBaseFacingUp,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_0_B4D8BD</c> at $B4:D8BD.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject58Frame0,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_1_B4D905</c> at $B4:D905.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject58Frame1,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_2_B4D957</c> at $B4:D957.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject58Frame2,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_3_B4D9A9</c> at $B4:D9A9.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject58Frame3,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_4_B4D9FB</c> at $B4:D9FB.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject58Frame4,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_5_B4DA48</c> at $B4:DA48.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject58Frame5,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_6_B4DA90</c> at $B4:DA90.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject58Frame6,
-    /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_7_B4DAD8</c> at $B4:DAD8.</summary>
+    /// <summary>Unused sprite-object frame.</summary>
     UnusedObject58Frame7,
-    /// <summary><c>SpriteObjectSpritemaps_3B_EvirFacingLeft_0</c> at $B4:DB42.</summary>
+    /// <summary>Evir facing left, frame 0.</summary>
     EvirFacingLeft0,
-    /// <summary><c>SpriteObjectSpritemaps_3B_EvirFacingLeft_1</c> at $B4:DB80.</summary>
+    /// <summary>Evir facing left, frame 1.</summary>
     EvirFacingLeft1,
-    /// <summary><c>SpriteObjectSpritemaps_3B_EvirFacingLeft_2</c> at $B4:DBBE.</summary>
+    /// <summary>Evir facing left, frame 2.</summary>
     EvirFacingLeft2,
-    /// <summary><c>SpriteObjectSpritemaps_3B_EvirFacingLeft_3</c> at $B4:DBFC.</summary>
+    /// <summary>Evir facing left, frame 3.</summary>
     EvirFacingLeft3,
-    /// <summary><c>SpriteObjectSpritemaps_3C_EvirFacingRight_0</c> at $B4:DC3F.</summary>
+    /// <summary>Evir facing right, frame 0.</summary>
     EvirFacingRight0,
-    /// <summary><c>SpriteObjectSpritemaps_3C_EvirFacingRight_1</c> at $B4:DC7D.</summary>
+    /// <summary>Evir facing right, frame 1.</summary>
     EvirFacingRight1,
-    /// <summary><c>SpriteObjectSpritemaps_3C_EvirFacingRight_2</c> at $B4:DCBB.</summary>
+    /// <summary>Evir facing right, frame 2.</summary>
     EvirFacingRight2,
-    /// <summary><c>SpriteObjectSpritemaps_3C_EvirFacingRight_3</c> at $B4:DCF9.</summary>
+    /// <summary>Evir facing right, frame 3.</summary>
     EvirFacingRight3,
 }

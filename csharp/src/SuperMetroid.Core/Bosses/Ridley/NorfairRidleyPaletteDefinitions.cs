@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// The shapes of Lower Norfair Ridley's palettes (#1413): his initial body and tail colours, and the arena reveal's
-/// steps. Where each sits in the cartridge is the import's knowledge.
+/// steps. Where each sits in the original game is the import's knowledge.
 /// </summary>
 public static class NorfairRidleyPaletteDefinitions
 {

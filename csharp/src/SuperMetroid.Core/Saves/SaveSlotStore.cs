@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Saves;
 
 /// <summary>
 /// The session's battery-backed saves as owned state (#1322): three slots (null is empty or invalid), the menu's
-/// selected slot and game completion. Gameplay, menus, checkpoints and JSON read and write it directly; the cartridge's
+/// selected slot and game completion. Gameplay, menus, checkpoints and JSON read and write it directly; the raw
 /// save image is only the hosts' import and export format.
 /// </summary>
 public sealed class SaveSlotStore
@@ -21,7 +21,7 @@ public sealed class SaveSlotStore
     /// <summary>
     /// The earthquake rumble delay the save image this store was imported from gives at power-on, which its host decided
     /// from the image's raw completion mark; null once the mark is rewritten, or when the store was never imported.
-    /// Saving, copying or clearing a slot leaves the mark, as the cartridge does.
+    /// Saving, copying or clearing a slot leaves the mark, as the original game does.
     /// </summary>
     private PowerOnEarthquakeSoundDelay? importedEarthquakeDelay;
 
@@ -72,7 +72,7 @@ public sealed class SaveSlotStore
     }
 
     /// <summary>
-    /// Ports <c>SaveToSRAM</c>: stores the slot the cartridge would read back, so what a save does not keep (exploration
+    /// Saves a slot: stores the slot as the game would read it back, so what a save does not keep (exploration
     /// of map runs no stock cell occupies, Ceres's exploration) is gone when the slot is read back.
     /// </summary>
     public void SaveSlot(int slot, SuperMetroidSaveSnapshot snapshot)
@@ -81,7 +81,7 @@ public sealed class SaveSlotStore
         slots[slot] = SaveSlotRetention.Retain(snapshot, slot, mapPresentation);
     }
 
-    /// <summary>File-copy menu index 13 at <c>$81:9A2C</c>: the destination receives the source's save.</summary>
+    /// <summary>File-copy menu index 13: the destination receives the source's save.</summary>
     public void CopySlot(int sourceSlot, int destinationSlot)
     {
         RequireSlot(sourceSlot);
@@ -93,7 +93,7 @@ public sealed class SaveSlotStore
         slots[destinationSlot] = Detached(source, destinationSlot);
     }
 
-    /// <summary>File-clear menu index 25 at <c>$81:9C9E</c>: the slot becomes empty.</summary>
+    /// <summary>File-clear menu index 25: the slot becomes empty.</summary>
     public void ClearSlot(int slot)
     {
         RequireSlot(slot);
@@ -137,9 +137,9 @@ public sealed class SaveSlotStore
     }
 
     /// <summary>
-    /// Boot's <c>DetermineNumberOfDemoSets</c> ($80:8261), called once from $80:8564. When all three slots are invalid
-    /// it overwrites the completion marker with the corrupt-SRAM signature ($80:8283-8290) and
-    /// enables three demo sets; otherwise the completion signature enables the fourth. The cartridge never re-evaluates
+    /// Boot's <c>DetermineNumberOfDemoSets</c>, called once. When all three slots are invalid
+    /// it overwrites the completion marker with the corrupt-SRAM signature and
+    /// enables three demo sets; otherwise the completion signature enables the fourth. The game never re-evaluates
     /// the count before reset.
     /// </summary>
     /// <returns>The attract-demo set count fixed for the session.</returns>

@@ -39,7 +39,7 @@ internal static class GrappleBlockPlmDraws
         return true;
     }
 
-    /// <summary>Enumerates the initial Grapple block, three breakup frames, and blank air in native order.</summary>
+    /// <summary>Enumerates the initial Grapple block, three breakup frames, and blank air in authored order.</summary>
     internal static IEnumerable<DrawList> All
     {
         get

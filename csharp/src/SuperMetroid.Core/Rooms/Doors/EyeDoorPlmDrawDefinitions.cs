@@ -28,7 +28,7 @@ internal static class EyeDoorPlmDrawDefinitions
         };
 
     /// <summary>
-    /// The cells of each eye-door draw, in native run order: the four-block clear, the two-block eye and the one-block
+    /// The cells of each eye-door draw, in authored run order: the four-block clear, the two-block eye and the one-block
     /// middle and bottom. The left-facing door mirrors horizontally, and lower cells mirror vertically. The eye shows
     /// its closed, opening, vulnerable, hit-flash and open-but-solid frames; only the vulnerable frame is shootable.
     /// </summary>

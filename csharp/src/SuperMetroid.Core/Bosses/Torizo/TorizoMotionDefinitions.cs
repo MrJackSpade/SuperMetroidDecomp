@@ -17,19 +17,19 @@ internal static class TorizoMotionDefinitions
     internal const int BlockPixels = 16;
 
     /// <summary>
-    /// The pixels the initial drool is lifted above the jittered spawn height. The cartridge adds this as
-    /// <c>ADC #$FFFB</c>, whose carry (set unless the lift wraps) its fall speed adds.
+    /// The pixels the initial drool is lifted above the jittered spawn height. The original game adds this as
+    /// minus five, whose carry (set unless the lift wraps) its fall speed adds.
     /// </summary>
     internal const int InitialDroolLift = 5;
 
     /// <summary>
-    /// The pixels the initial drool is placed to the facing side of the jittered spawn position (the cartridge's
-    /// <c>ADC #$0008</c> facing right and <c>ADC #$FFF8</c> facing left).
+    /// The pixels the initial drool is placed to the facing side of the jittered spawn position (the game
+    /// adds eight facing right and minus eight facing left).
     /// </summary>
     internal const int InitialDroolSideOffset = 8;
 
     /// <summary>
-    /// Golden Torizo's egg hatch timer. $86:B001 masks the literal opcode byte $E2 rather than a random number, an
+    /// Golden Torizo's egg hatch timer. The egg's initializer masks a fixed value rather than a random number, an
     /// authentic bug that fixes the timer at 66 updates.
     /// </summary>
     internal const int EggHatchTimer = (226 & 0b1_1111) + 64;

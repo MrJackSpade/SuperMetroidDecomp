@@ -15,7 +15,7 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// One loaded room's state, built by <see cref="RoomScopeConstruction"/> in the cartridge's load order and replaced
+/// One loaded room's state, built by <see cref="RoomScopeConstruction"/> in the game's load order and replaced
 /// whole by the next load. Nothing in it survives into another room; values a destination reads from its source room
 /// travel through <see cref="RoomTransitionCarryOver"/> instead (#1329, <c>docs/room-scope.md</c>).
 /// </summary>
@@ -85,7 +85,7 @@ internal sealed record RoomScope
     /// <summary>Pictures the room's actors wrote over BG2 (the Zebes escape warning), or null (#1348, #1466).</summary>
     public RoomWrittenOverlay? Bg2Overlay { get; private set; }
 
-    /// <summary>The bank-$88 scrolling-sky updater of a scrolling-sky room, or null.</summary>
+    /// <summary>The scrolling-sky updater of a scrolling-sky room, or null.</summary>
     public required ScrollingSkyState? ScrollingSky { get; init; }
 
     /// <summary>The turning floor a Ceres room shows, or null outside Ceres (#1349, #1467).</summary>
@@ -149,7 +149,7 @@ internal sealed record RoomScope
     public LoadStationEntry? LoadStation { get; init; }
 
     /// <summary>
-    /// The two native bank-$86 objects carrying Samus into fresh Ceres, once Ceres-start setup has begun them. They
+    /// The two objects carrying Samus into fresh Ceres, once Ceres-start setup has begun them. They
     /// are projectiles of this room, so the next room's load ends them.
     /// </summary>
     public CeresElevatorArrivalState? CeresElevatorArrival { get; private set; }

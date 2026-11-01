@@ -87,7 +87,7 @@ internal sealed class MessageBoxFlow
     /// <summary>
     /// Returns and clears a confirmed save-station request. SRAM encoding remains owned by
     /// the frontend because it owns the selected file slot; the runtime supplies only the
-    /// cartridge area/station identity and already-mutated gameplay state.
+    /// area/station identity and already-mutated gameplay state.
     /// </summary>
     public SaveStationPersistenceRequest? ConsumeSaveStationPersistenceRequest()
     {
@@ -182,7 +182,7 @@ internal sealed class MessageBoxFlow
     private bool _gunshipExitSoundRequested;
 
     /// <summary>
-    /// Consumes the $A2:AB58 entrance-pad sound queued when the suspended gunship message
+    /// Consumes the gunship's entrance-pad sound queued when the suspended gunship message
     /// returns. Message-box updates do not publish the ordinary enemy sound list.
     /// </summary>
     public bool ConsumeGunshipExitSoundRequest()

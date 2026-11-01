@@ -5,14 +5,14 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>
 /// Exact supplied-match material ramps. Retained endpoints, independent samples and
 /// selected profile/rounding policies specify the reviewed temporal material paint.
-/// $A9:BCFD-BD44 only advances palette selection and copies colors to CGRAM; these
+/// The rainbow palette step only advances palette selection and copies colors; these
 /// choices paint the cortex, plate, tissue, glint and exposed-head outline masks.
 /// A different generated hue performance would invent different content. Shared
 /// channels and interpolated shades still calculate; arbitrary supplied edits stay exact.
 /// </summary>
 internal sealed class MotherBrainRainbowShadeChannel
 {
-    /// <summary>Native phase's selected head, plate, tissue, and tail shade rule.</summary>
+    /// <summary>Phase's selected head, plate, tissue, and tail shade rule.</summary>
     private readonly MotherBrainRainbowShadeProfile profile;
     /// <summary>Existing shared green channel used by the recovering phase.</summary>
     private readonly Func<int, int> sourceGreen;
@@ -21,7 +21,7 @@ internal sealed class MotherBrainRainbowShadeChannel
     /// <summary>Whether every supplied shade matches the reviewed interpolation profile.</summary>
     private readonly bool calculated;
 
-    /// <summary>Retains independent samples only when the supplied row follows the native shade profile.</summary>
+    /// <summary>Retains independent samples only when the supplied row follows the shade profile.</summary>
     internal MotherBrainRainbowShadeChannel(int[] samples, MotherBrainRainbowShadeProfile profile, Func<int, int> sourceGreen)
     {
         this.profile = profile;

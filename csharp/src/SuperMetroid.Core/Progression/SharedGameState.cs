@@ -90,13 +90,13 @@ public sealed class SharedGameState
     public int RandomNumber => Random.Read();
 
     /// <summary>
-    /// Performs a direct write to the shared RNG word at WRAM <c>$05E5</c>. Most callers
+    /// Performs a direct write to the shared RNG seed. Most callers
     /// should use <see cref="NextRandom"/>; this seam exists because a small number of
-    /// cartridge actors deliberately reseed the global generator as part of their AI.
+    /// actors deliberately reseed the global generator as part of their AI.
     /// </summary>
     /// <remarks>
-    /// This is not a host-only testing shortcut. Sbug activation functions $A3:A315 and
-    /// $A3:A325 both execute <c>STA $05E5</c> with <c>$000B</c>, so later unrelated random
+    /// This is not a host-only testing shortcut. Both Sbug activation behaviours reseed the generator
+    /// with eleven, so later unrelated random
     /// consumers must observe the replacement seed as well.
     /// </remarks>
     public void SetRandomNumber(int value) => Random.Seed(value);
@@ -105,44 +105,44 @@ public sealed class SharedGameState
     internal void SwapRandomBytes() => Random.SwapBytes();
 
     /// <summary>
-    /// Most recently calculated held input, corresponding to WRAM <c>$05D9</c>.
+    /// Most recently calculated held input.
     /// Despite the C decompilation's name <c>joypad_released_keys</c>, the assembly names
     /// and behavior show that this is the previous value of "held but not newly pressed."
     /// </summary>
     public ControllerButton HeldInputPrevious { get; private set; }
 
     /// <summary>
-    /// Countdown at WRAM <c>$05DB</c>. A signed underflow from zero to <c>$FFFF</c>
+    /// Held-input countdown. A signed underflow from zero to 65,535
     /// causes the held input to become active.
     /// </summary>
     public WrappingCountdown TimedHeldInputTimer { get; internal set; }
 
     /// <summary>
-    /// Reload value at WRAM <c>$05DD</c>, 0 through 65,535: any value the held-input countdown can start at. A value of
+    /// Held-input countdown reload value, 0 through 65,535: any value the held-input countdown can start at. A value of
     /// N requires N + 1 stable update calls after the held-input value changes. The value is only ever reloaded into
     /// <see cref="TimedHeldInputTimer"/>, never counted itself; that countdown keeps the wrap.
     /// </summary>
     public int TimedHeldInputTimerReset { get; internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>
-    /// Filtered input at WRAM <c>$05DF</c>. Bits appear after their buttons have remained
+    /// Filtered input. Bits appear after their buttons have remained
     /// stable long enough for the timer to underflow.
     /// </summary>
     public ControllerButton TimedHeldInput { get; internal set; }
 
     /// <summary>
-    /// Rising-edge bits for <see cref="TimedHeldInput"/>, stored at WRAM <c>$05E1</c>.
+    /// Rising-edge bits for <see cref="TimedHeldInput"/>.
     /// </summary>
     public ControllerButton NewlyTimedHeldInput { get; internal set; }
 
     /// <summary>
-    /// Prior active filtered input at WRAM <c>$05E3</c>. The original routine updates
+    /// Prior active filtered input. The original routine updates
     /// this only on timer underflow, not on every frame.
     /// </summary>
     public ControllerButton TimedHeldInputPrevious { get; internal set; }
 
     /// <summary>
-    /// Advances the shared RNG word at <c>$7E:05E5</c> exactly as <c>$80:8111</c>
+    /// Advances the shared RNG seed exactly as the game's generator
     /// does, preserving the two byte-multiply results, high-byte addition carry,
     /// and final 16-bit wrapping addition. Every caller observes the updated seed.
     /// </summary>
@@ -150,12 +150,12 @@ public sealed class SharedGameState
     public int NextRandom() => Random.Generate();
 
     /// <summary>
-    /// Ports <c>$80:8146</c>, which turns stable held buttons into delayed input suitable
+    /// Turns stable held buttons into delayed input suitable
     /// for repeated cursor movement on the pause map and item screens.
     /// </summary>
     /// <param name="timerReset">Number of stable frames minus one before activation.</param>
-    /// <param name="controllerInput">All buttons currently down (WRAM <c>$8B</c>).</param>
-    /// <param name="controllerNewInput">Buttons newly pressed this frame (WRAM <c>$8F</c>).</param>
+    /// <param name="controllerInput">All buttons currently down.</param>
+    /// <param name="controllerNewInput">Buttons newly pressed this frame.</param>
     public void UpdateHeldInput(int timerReset, ControllerButton controllerInput, ControllerButton controllerNewInput)
     {
         TimedHeldInputTimerReset = timerReset;
@@ -178,8 +178,8 @@ public sealed class SharedGameState
         }
         else
         {
-            // DEC is an unsigned 16-bit wrap, but BPL interprets bit 15 as the sign bit.
-            // Therefore zero decrements to $FFFF and takes the activation path.
+            // The decrement is an unsigned 16-bit wrap, but the branch interprets bit 15 as the sign bit.
+            // Therefore zero decrements to 65,535 and takes the activation path.
             CountdownStep timer = TimedHeldInputTimer.Decrement();
             TimedHeldInputTimer = timer.Remaining;
 
@@ -189,7 +189,7 @@ public sealed class SharedGameState
             }
             else
             {
-                // The ROM pins the expired timer to zero. Continued stable input therefore
+                // The game pins the expired timer to zero. Continued stable input therefore
                 // underflows again on every update, keeping TimedHeldInput active.
                 TimedHeldInputTimer = WrappingCountdown.Start(0);
                 TimedHeldInputPrevious = TimedHeldInput;
@@ -202,7 +202,7 @@ public sealed class SharedGameState
         NewlyTimedHeldInput = TimedHeldInput & (TimedHeldInputPrevious ^ TimedHeldInput);
     }
 
-    /// <summary>Records <paramref name="bits"/> as defeated in <paramref name="area"/>, equivalent to <c>$80:81A6</c>.</summary>
+    /// <summary>Records <paramref name="bits"/> as defeated in <paramref name="area"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The flags are not all named.</exception>
     public void SetBossBits(AreaId area, BossBits bits)
     {
@@ -211,8 +211,8 @@ public sealed class SharedGameState
     }
 
     /// <summary>
-    /// Forgets <paramref name="bits"/> as defeated in <paramref name="area"/>, equivalent to the unused original routine at
-    /// <c>$80:81C0</c>; the tester's encounter reset uses it.
+    /// Forgets <paramref name="bits"/> as defeated in <paramref name="area"/>, as an otherwise unused original
+    /// routine does; the tester's encounter reset uses it.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The flags are not all named.</exception>
     public void ClearBossBits(AreaId area, BossBits bits)
@@ -221,7 +221,7 @@ public sealed class SharedGameState
         Progress.SetDefeatedBosses(area, Progress.DefeatedBosses(area) & ~bits);
     }
 
-    /// <summary>Whether any of <paramref name="bits"/> is defeated in <paramref name="area"/>, matching <c>$80:81DC</c>.</summary>
+    /// <summary>Whether any of <paramref name="bits"/> is defeated in <paramref name="area"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The flags are not all named.</exception>
     public bool HasAnyBossBits(AreaId area, BossBits bits)
     {
@@ -232,24 +232,23 @@ public sealed class SharedGameState
     /// <summary>The bosses defeated in <paramref name="area"/>.</summary>
     public BossBits GetBossBits(AreaId area) => Progress.DefeatedBosses(area);
 
-    /// <summary>Marks an event as having occurred, matching <c>$80:81FA</c>.</summary>
+    /// <summary>Marks an event as having occurred.</summary>
     public void SetEvent(EventNumber eventNumber) => Progress.SetEvent(eventNumber);
 
-    /// <summary>Clears an event, matching <c>$80:8212</c>.</summary>
+    /// <summary>Clears an event.</summary>
     public void ClearEvent(EventNumber eventNumber) => Progress.ClearEvent(eventNumber);
 
-    /// <summary>Tests an event, matching <c>$80:8233</c>.</summary>
+    /// <summary>Tests an event.</summary>
     public bool HasEvent(EventNumber eventNumber) => Progress.HasEvent(eventNumber);
 
     /// <summary>
-    /// Whether the item location a nonnegative room-PLM argument numbers has been collected, matching the shared
-    /// <c>PrepareBitAccess</c> path used by instruction <c>$84:887C</c>.
+    /// Whether the item location a nonnegative room-PLM argument numbers has been collected, as the item PLMs test it.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The number is outside the room-data range.</exception>
     public bool HasCollectedItemBit(int bitIndex) => Progress.CollectedItems.Contains(bitIndex);
 
     /// <summary>
-    /// Marks one physical pickup as collected, matching PLM instruction <c>$84:8899</c>. This set identifies locations;
+    /// Marks one physical pickup as collected, as an item PLM does when Samus collects it. This set identifies locations;
     /// it is deliberately independent from Samus's equipment, where multiple tanks of one kind share one meaning.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The number is outside the room-data range.</exception>
@@ -263,7 +262,7 @@ public sealed class SharedGameState
     public bool HasOpenedDoorBit(int bitIndex) => Progress.OpenedDoors.Contains(bitIndex);
 
     /// <summary>
-    /// Persists a colored door after its final valid hit, matching the door instruction at <c>$84:8A91</c>. Re-entering
+    /// Persists a colored door after its final valid hit, matching the door instruction. Re-entering
     /// the room then converts that colored cap into its ordinary blue-door counterpart.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The number is outside the room-data range.</exception>
@@ -277,7 +276,7 @@ public sealed class SharedGameState
         [.. Enumerable.Range(Ensure.AtLeastZero(firstDoor), Ensure.AtLeastZero(count))
             .Where(door => door < Progress.OpenedDoors.Capacity && Progress.OpenedDoors.Contains(door))];
 
-    /// <summary>Marks a cell of <paramref name="area"/>'s map as explored, matching <c>$90:A8A6/$90:A91B</c>.</summary>
+    /// <summary>Marks a cell of <paramref name="area"/>'s map as explored, as Samus's map-exploration update does.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The cell is outside the area map.</exception>
     public void MarkExploredMapTile(AreaId area, Position16<MapTiles> cell) => Progress.SetExplored(area, cell, explored: true);
 

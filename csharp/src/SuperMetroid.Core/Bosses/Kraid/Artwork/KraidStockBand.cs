@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 /// </summary>
 internal sealed class KraidStockBand : IReadOnlyList<RgbColor>
 {
-    /// <summary>Named native source that supplies calculated unedited colors.</summary>
+    /// <summary>Named source that supplies calculated unedited colors.</summary>
     private readonly KraidPaletteSource source;
     /// <summary>Only supplied colors that differ from the reviewed stock paint.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> deviations = new();
@@ -22,13 +22,13 @@ internal sealed class KraidStockBand : IReadOnlyList<RgbColor>
                 deviations.Add(new ColourCell(0, index), supplied[index]);
     }
 
-    /// <summary>Native color count of this named source.</summary>
+    /// <summary>Color count of this named source.</summary>
     public int Count => KraidPalettes.ColorCount(source);
     /// <summary>Edited color at an index, or its calculated stock paint.</summary>
     public RgbColor this[int index] => deviations.TryGetValue(new ColourCell(0, index), out RgbColor supplied)
         ? supplied : KraidPaint.Color(source, index);
 
-    /// <summary>Visits source colors in their native palette order.</summary>
+    /// <summary>Visits source colors in their palette order.</summary>
     public IEnumerator<RgbColor> GetEnumerator()
     {
         for (int index = 0; index < Count; index++)

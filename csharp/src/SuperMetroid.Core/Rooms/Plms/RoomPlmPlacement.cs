@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// One decoded placement and its setup metadata. Program payloads are
 /// bounded domain records, not an address space that can supply arbitrary bytes.
 /// </summary>
-/// <param name="Header">Decoded bank-$84 PLM header selecting setup and instruction-list identities.</param>
-/// <param name="Block">Placement in 16-pixel room blocks, from the native six-byte record's two coordinate bytes.</param>
+/// <param name="Header">Decoded PLM header selecting setup and instruction-list identities.</param>
+/// <param name="Block">Placement in 16-pixel room blocks, from the six-byte record's two coordinate bytes.</param>
 /// <param name="Argument">What the setup reads, decoded at import; null for a PLM placed without one.</param>
 /// <param name="ScrollProgram">Constructed scroll index/state byte pairs followed by a high-bit terminator; population construction copies and validates the payload.</param>
 /// <param name="Cannon">The Draygon wall cannon a cannon placement controls, decoded at import; null for every other PLM.</param>

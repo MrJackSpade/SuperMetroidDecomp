@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 public static class RidleyAttackChoices
 {
     /// <summary>
-    /// $A6:B38C..B3EB: health distributions split at four; damage boosting splits
+    /// Health distributions split at four; damage boosting splits
     /// at six. Pogo-zone, spin and zero-health situations select a single action.
     /// The reversed above-half-health distribution remains independently defined,
     /// even though the ordinary health branch cannot reach it.

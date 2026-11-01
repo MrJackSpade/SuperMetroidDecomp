@@ -30,7 +30,7 @@ internal sealed record GameplayActorDrawingDependencies
     /// <summary>The frame clock.</summary>
     public required FrameClock Clock { get; init; }
 
-    /// <summary>Sprite frame receiving actor OAM sprites and whole-frame draws.</summary>
+    /// <summary>Sprite frame receiving actor sprites and whole-frame draws.</summary>
     public required SpriteFrameBuffer Sprites { get; init; }
 
     /// <summary>Player.</summary>

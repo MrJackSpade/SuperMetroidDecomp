@@ -393,7 +393,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
                 eyeDoor.HasPendingHit = false;
                 if (family == SamusProjectileFamily.SuperMissile)
                 {
-                    // $BD50 seeds the counter so the next increment meets the threshold.
+                    // The Super Missile frame behaviour seeds the counter so the next increment meets the threshold.
                     eyeDoor.HitCounter = EyeDoorPlmProgramDefinitions.SuperMissileHitCounter;
                 }
                 else if (family != SamusProjectileFamily.Missile)
@@ -412,7 +412,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
         }
     }
 
-    /// <summary><c>$84:8D41</c>: whether Samus stands within <paramref name="reach"/> blocks across and up or down of the PLM.</summary>
+    /// <summary>Whether Samus stands within <paramref name="reach"/> blocks across and up or down of the PLM.</summary>
     internal bool IsSamusNear(RoomLevelData level, PlmSlot slot, Extent16<RoomBlocks> reach)
     {
         IRoomSamus samus = _samus?.Current
@@ -424,7 +424,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
         return deltaX <= reach.X && deltaY <= reach.Y;
     }
 
-    /// <summary><c>$84:D77A</c>: the eye facing <paramref name="facing"/> fires its projectile and queues its sound.</summary>
+    /// <summary>The eye facing <paramref name="facing"/> fires its projectile and queues its sound.</summary>
     internal void Shoot(PlmSlot slot, EyeDoorOrientation facing)
     {
         SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.Projectile, facing);
@@ -433,22 +433,22 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
             Priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary><c>$84:D790</c>: the eye facing <paramref name="facing"/> sweats.</summary>
+    /// <summary>The eye facing <paramref name="facing"/> sweats.</summary>
     internal void SpawnSweat(PlmSlot slot, EyeDoorOrientation facing) =>
         SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.Sweat, facing);
 
-    /// <summary><c>$84:D79F</c>: two randomly placed smoke puffs.</summary>
+    /// <summary>Two randomly placed smoke puffs.</summary>
     internal void SpawnTwoSmoke(PlmSlot slot, EyeDoorOrientation facing)
     {
         SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.ScatteredSmoke, facing);
         SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.ScatteredSmoke, facing);
     }
 
-    /// <summary><c>$84:D7B6</c>: one centred smoke puff.</summary>
+    /// <summary>One centred smoke puff.</summary>
     internal void SpawnSmoke(PlmSlot slot, EyeDoorOrientation facing) =>
         SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.CenteredSmoke, facing);
 
-    /// <summary><c>$84:8A91</c>: counts a hit on the eye; true when it opens the door.</summary>
+    /// <summary>Counts a hit on the eye; true when it opens the door.</summary>
     internal static bool CountEyeHit(PlmSlot slot, DoorPlms doors)
     {
         EyeDoorPlmState eye = (slot.Family as EyeDoorPlmState)
@@ -461,7 +461,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
     }
 
     /// <summary>
-    /// <c>$84:D7C3</c> (right) / <c>$84:D7DA</c> (left): moves the eye PLM up one block and writes the blue cap facing
+    /// Moves the eye PLM up one block and writes the blue cap facing
     /// <paramref name="orientation"/> with its extension rows.
     /// </summary>
     internal static void ConvertEyeToBlueDoor(RoomLevelData level, PlmSlot slot, EyeDoorOrientation orientation)
@@ -504,7 +504,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
         EyeDoorOrientation facing)
     {
         IEyeDoorProjectileSpawner enemies = _enemies ??
-            throw new InvalidOperationException("Eye-door bytecode has no bank-$86 spawn owner.");
+            throw new InvalidOperationException("Eye-door program has no enemy-projectile spawner.");
         enemies.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(
             definition,
             facing,
@@ -527,7 +527,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
 
         /// <summary>Identifies whether this slot is the eye, middle, or bottom component.</summary>
         public EyeDoorComponent Component { get; } = component;
-        /// <summary>Missile-hit count used by the door's threshold instruction. It only counts up, by one per hit or to 120 on a Super Missile hit, and the door opens once it reaches its threshold, so it stays far below the 255 the cartridge's byte could hold.</summary>
+        /// <summary>Missile-hit count used by the door's threshold step. It only counts up, by one per hit or to 120 on a Super Missile hit, and the door opens once it reaches its threshold, so it stays far below the 255 the original byte counter could hold.</summary>
         public int HitCounter { get; set; }
         /// <summary>Whether a projectile collision awaits the eye's missile pre-instruction.</summary>
         public bool HasPendingHit { get; set; }

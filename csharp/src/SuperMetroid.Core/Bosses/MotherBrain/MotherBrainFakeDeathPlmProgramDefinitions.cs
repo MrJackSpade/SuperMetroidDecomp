@@ -5,8 +5,8 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.B
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's fake-death room mutation programs (#1296), in place of their bank-$84 instruction lists at
-/// $84:AC05..AC88: each draws its layout for one update, then deletes the PLM.
+/// Mother Brain's fake-death room mutation programs (#1296), in place of their instruction lists at
+/// Each draws its layout for one update, then deletes the PLM.
 /// </summary>
 internal static class MotherBrainFakeDeathPlmProgramDefinitions
 {

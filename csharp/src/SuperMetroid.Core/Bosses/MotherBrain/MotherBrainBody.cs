@@ -62,7 +62,7 @@ internal sealed class MotherBrainBody
 
     /// <summary>
     /// Runs a falling tube's program where the enemy instruction interpreter would: its pose shows on the update the
-    /// native timer expires, raising the new-frame flag, and the native sleep then keeps it.
+    /// timer expires, raising the new-frame flag, and the script's sleep then keeps it.
     /// </summary>
     internal static void AdvanceMotherBrainTubeAnimation(RoomEnemySlot tube)
     {
@@ -89,20 +89,20 @@ internal sealed class MotherBrainBody
                 tube.ExtraProperties = tube.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvance<MotherBrainTubeFrame>.Hold:
-                // The native sleep: the timer wraps from zero and the pose stays.
+                // The script's sleep: the timer wraps from zero and the pose stays.
                 return;
             default:
                 throw new InvalidOperationException($"Falling-tube programs have no {advance} step.");
         }
     }
 
-    /// <summary>Ports <c>InitAI_MotherBrainBody</c> at <c>$A9:8687</c>.</summary>
+    /// <summary>Ports <c>InitAI_MotherBrainBody</c>.</summary>
     internal void InitializeMotherBrainBody(RoomEnemySlot body)
     {
         if (body.SlotIndex != 0)
         {
             throw new InvalidDataException(
-                $"Mother Brain's body requires native slot zero, not slot {body.SlotIndex}.");
+                $"Mother Brain's body requires the first enemy slot, not slot {body.SlotIndex}.");
         }
 
         body.FrameHold = WrappingCountdown.Start(1);
@@ -113,7 +113,7 @@ internal sealed class MotherBrainBody
             EnemyProperties.Invisible);
         body.Colouring = SharedSpriteColouring.Common;
 
-        // Both source labels include transparent color zero. `$A9:86B3/$86C0` deliberately
+        // Both source palettes include transparent color zero. The initializer deliberately
         // begin at +2 and copy only colors 1..15 into the otherwise unrelated room palette
         // ranges used by glass shards and tube projectiles.
         LoadMotherBrainRoomEntryColors();
@@ -145,8 +145,8 @@ internal sealed class MotherBrainBody
     /// <summary>Updates the glass-bound first phase and advances its scripted reaction to Samus.</summary>
     internal void RunMotherBrainFirstPhase(MotherBrainEnemyState state, SamusState? samus)
     {
-        // Before PLM `$D6DE` finishes the nineteen missile increments and its 48-frame tail,
-        // event two is clear and `$A9:87E1` performs no phase mutation. Head-vs-Samus and
+        // Before the glass PLM finishes the nineteen missile increments and its 48-frame tail,
+        // event two is clear and the first-phase function performs no phase mutation. Head-vs-Samus and
         // projectile interactions are separate collision passes and remain outside this
         // body-function dispatcher.
         bool glassDestroyed = _room.Services.Events.Has(EventNumber.MotherBrainGlassDestroyed);
@@ -155,19 +155,19 @@ internal sealed class MotherBrainBody
             state.BrainMainShakeTimer = _earthquake.EarthquakeTimer;
             if (samus is not null && samus.Position.X.Whole < 236 && state.Head.Health == 0)
             {
-                // This is the exact first-phase exit at `$A9:87FE-$8814`. The following
-                // function remains represented by its native pointer so the next frame
+                // This is the exact first-phase exit. The following
+                // function remains represented by its pointer so the next frame
                 // enters the real timed descent rather than jumping to standing form.
                 state.DeleteTurretsAndRinkas = true;
-                // Mother Brain and Rinka alias native slot-zero variable $1D. Publish the
+                // Mother Brain and Rinka alias slot-zero variable $1D. Publish the
                 // shared word before later enemy slots can keep drawing replaced tile art.
                 _roomActors.TerminateRinkas();
                 state.Form = MotherBrainForm.FakeDeath;
                 _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest);
 
-                // MotherBrain_SealWall at `$AD:E396` creates both dust puffs before its
-                // two identical hardcoded PLMs. Requests remain ordered because the bank
-                // $84 allocator searches the same descending pool for each call.
+                // MotherBrain_SealWall creates both dust puffs before its
+                // two identical hardcoded PLMs. Requests remain ordered because the PLM
+                // allocator searches the same descending pool for each call.
                 _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 72), MiscDustAnimation.SmallDustCloud);
                 _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 152), MiscDustAnimation.SmallDustCloud);
                 _access.RequestMotherBrainPlm(new(15, 4), PlmHeaderId.FillMotherBrainsWall);
@@ -176,7 +176,7 @@ internal sealed class MotherBrainBody
             }
         }
 
-        // `$A9:87E1` always falls through to the encounter's custom rectangle walker,
+        // The first-phase function always falls through to the encounter's custom rectangle walker,
         // including the frame that arms fake death. This collision is not represented by
         // either enemy header's ordinary radius and must stay in the body dispatcher.
         if (samus is not null)
@@ -185,7 +185,7 @@ internal sealed class MotherBrainBody
 
     /// <summary>
     /// Runs the body's program, or the head slot's dummy, where the enemy instruction interpreter would: the frame
-    /// expires on the update its native timer would, and a newly shown frame raises the new-frame flag.
+    /// expires on the update its timer would, and a newly shown frame raises the new-frame flag.
     /// </summary>
     internal void AdvanceMotherBrainSlotAnimation(RoomEnemySlot slot, SamusState? samus)
     {
@@ -220,7 +220,7 @@ internal sealed class MotherBrainBody
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvance<MotherBrainBodyFrame>.Hold:
-                // The native sleep: the timer wraps from zero and the last frame stays.
+                // The script's sleep: the timer wraps from zero and the last frame stays.
                 return;
             default:
                 throw new InvalidOperationException($"Mother Brain's body programs have no {advance} step.");
@@ -239,7 +239,7 @@ internal sealed class MotherBrainBody
                 return;
             // The walk-cycle comments in the historical disassembly describe visual
             // motion and are occasionally opposite the literal signed Y operand. The
-            // programs keep the actual additions performed by `$9579`, not the labels.
+            // programs keep the actual additions the walking steps perform, not the labels.
             case MotherBrainBodyCue.Move move:
                 MoveMotherBrainBody(move.Offset);
                 return;
@@ -247,7 +247,7 @@ internal sealed class MotherBrainBody
                 RunMotherBrainFootstep();
                 MoveMotherBrainBody(stepAndMove.Offset);
                 return;
-            // `$95B6-$95F2` are the six posture-transition displacements. Each moves the body
+            // The six posture-transition steps each move the body
             // vertically, counter-scrolls BG2 by the opposite amount, and derives BG2 X from
             // the body's new origin plus its authored horizontal bias.
             case MotherBrainBodyCue.MoveWithScrollBias moveWithScrollBias:
@@ -275,7 +275,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Ports <c>$A9:B3B6-$B454</c>. Mother Brain owns a bit-selected set of asymmetric
+    /// Resolves Mother Brain's contact with Samus. Mother Brain owns a bit-selected set of asymmetric
     /// rectangles whose side extents are interpreted relative to Samus, rather than an
     /// ordinary enemy radius. Phase one enables only the brain list; later phases also
     /// admit the body and three independently positioned neck segments.
@@ -306,7 +306,7 @@ internal sealed class MotherBrainBody
 
         if ((enabled & MotherBrainHitboxParts.Neck) != MotherBrainHitboxParts.None)
         {
-            // Native tests only middle joints one, two, and three. Joint zero is buried in
+            // Tests only middle joints one, two, and three. Joint zero is buried in
             // the body and joint four is already covered by the separate brain rectangles.
             Position16<RoomPixels>[] collisionSegments = state.NeckJoints[MotherBrainNeckJointDefinitions.CollisionJoints];
             foreach (Position16<RoomPixels> segment in collisionSegments)
@@ -349,7 +349,7 @@ internal sealed class MotherBrainBody
             if (xOverlap < 0)
                 continue;
 
-            // Native clamps shallow contact UP to four pixels. The resulting words are
+            // Clamps shallow contact UP to four pixels. The resulting words are
             // consumed by Samus movement later in the frame, so overwrite rather than add.
             samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(WordWrap.Signed(Math.Max(xOverlap, 4)), 4));
             samus.InvincibilityTimer = WrappingCountdown.Start(96);
@@ -384,8 +384,8 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Ports charging initializer <c>$86:C605</c>. The body record—not the articulated
-    /// head—is the source: its extended map puts the hand at (+$40,-$30).
+    /// Runs the hand beam's charging initializer. The body record—not the articulated
+    /// head—is the source: its extended map puts the hand at (+64,-48).
     /// </summary>
     internal void SpawnMotherBrainHandBeamCharging(
         MotherBrainEnemyState state,
@@ -417,10 +417,10 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Literal body/BG2 movement helper at <c>$A9:9579</c>. The signed Y operand is added
+    /// Literal body/BG2 movement helper. The signed Y operand is added
     /// to the actor and subtracted from the background, keeping the large BG2 body art
     /// rigidly attached to its small OBJ hitbox record. X movement happens before this call
-    /// in the cartridge, so the derived scroll must sample the already-updated body X.
+    /// in the original game, so the derived scroll must sample the already-updated body X.
     /// </summary>
     private void MoveMotherBrainBody(Offset16<RoomPixels> displacement)
     {
@@ -433,7 +433,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Posture-transition variant at <c>$A9:9552</c>. Its X register is a scroll bias, not
+    /// Posture-transition variant. Its X register is a scroll bias, not
     /// actor displacement; only Y changes the physical body coordinate.
     /// </summary>
     private void MoveMotherBrainBodyWithScrollBias(
@@ -470,9 +470,9 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Ports the twelve calls to <c>SpawnEprojWithRoomGfx($C17E, A=0..$B)</c> made by
-    /// <c>InitAI_MotherBrainBody</c>. Allocation scans from native index $22 down, so request
-    /// zero lands in host slot 17 and request $B lands in slot 6.
+    /// Makes the twelve turret spawns
+    /// <c>InitAI_MotherBrainBody</c> requests. Allocation scans from the highest slot down, so request
+    /// zero lands in host slot 17 and request eleven lands in slot 6.
     /// </summary>
     private void SpawnMotherBrainInitialTurrets()
     {
@@ -480,7 +480,7 @@ internal sealed class MotherBrainBody
             SpawnMotherBrainTurret(parameter);
     }
 
-    /// <summary>Ports <c>InitAI_EnemyProjectile_MotherBrainsTurrets</c> at $86:BE4F.</summary>
+    /// <summary>Ports <c>InitAI_EnemyProjectile_MotherBrainsTurrets</c>.</summary>
     internal void SpawnMotherBrainTurret(int parameter)
     {
         if (parameter is < 0 or >= 12)
@@ -502,7 +502,7 @@ internal sealed class MotherBrainBody
         turret.State = new MotherBrainTurretState(parameter, MotherBrainTurretDefinitions.Ring.PositionOf(direction));
         turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.TurretPose, direction));
 
-        // The initializer makes two independent calls to the cartridge RNG for the turret's waits and clamps their low
+        // The initializer makes two independent calls to the original game RNG for the turret's waits and clamps their low
         // bytes upward.
         _projectileAttacks.ResetMotherBrainTurretRotationTimer(turret);
         _projectileAttacks.ResetMotherBrainTurretCooldown(turret);

@@ -21,13 +21,13 @@ public sealed class CrocomireDeathState
     /// </summary>
     public int BridgeFragmentsSpawned { get; internal set; }
 
-    /// <summary>Six-frame acid smoke cadence at $7E:9018.</summary>
+    /// <summary>Six-frame acid smoke cadence.</summary>
     public WrappingCountdown AcidSmokeTimer { get; internal set; }
 
     /// <summary>Thirty-two-frame acid damage sound cadence (Crocomire var $20).</summary>
     public WrappingCountdown AcidSoundTimer { get; internal set; }
 
-    /// <summary>One-shot dust latch for the $0600 bridge approach threshold.</summary>
+    /// <summary>One-shot dust latch for the 1536 bridge approach threshold.</summary>
     public bool BridgeDustAt1536Spawned { get; internal set; }
 
     /// <summary>One-shot crumble latch for bridge block $61.</summary>
@@ -92,7 +92,7 @@ public sealed class CrocomireDeathState
     /// <summary>Pixels per frame the rumble offset moves toward its target, loaded from each completed negative target.</summary>
     public int RumbleDelta { get; internal set; }
 
-    /// <summary>True once $A4:9B86 publishes area-miniboss bit $0002.</summary>
+    /// <summary>True once the death sequence publishes Crocomire's area-miniboss bit.</summary>
     public bool BossBitSet { get; internal set; }
 
     /// <summary>True once the skeleton-collapse state invokes the boss item-drop routine.</summary>
@@ -106,7 +106,7 @@ public sealed class CrocomireDeathState
     public CrocomireMeltDistortion MeltDistortion { get; internal set; } = CrocomireMeltDistortion.Level(0);
 
     /// <summary>
-    /// Whether the melting's per-line scroll distortion is running: $A4:9555 starts it and $A4:95CE ends it.
+    /// Whether the melting's per-line scroll distortion is running: the melting starts it and ends it.
     /// Levelling the stretch alone does not start it.
     /// </summary>
     public bool MeltingScrollActive { get; internal set; }

@@ -5,13 +5,13 @@ using SuperMetroid.Core.Enemies.Corpses;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Compiled bank-$A6 mechanics and dispatch metadata for Lower Norfair Ridley's
-/// twelve death-breakup actors. The selected instruction streams remain ROM-backed.
+/// Compiled mechanics and dispatch metadata for Lower Norfair Ridley's
+/// twelve death-breakup actors. The selected animation scripts remain authored data.
 /// </summary>
 internal static class RidleyExplosionDefinitions
 {
     /// <summary>
-    /// The breakup initializer ($A6:C696) draws a fragment's horizontal speed from one random word as the sum of two
+    /// The breakup initializer draws a fragment's horizontal speed from one random word as the sum of two
     /// selections: this one, 0 to 3 sixteenths of a pixel per frame, and <see cref="FragmentSpeedWholePixel"/>.
     /// </summary>
     internal static readonly RandomSampleField FragmentSpeedSixteenths = new(4, 2);
@@ -72,8 +72,8 @@ internal static class RidleyExplosionDefinitions
 
     /// <summary>
     /// Returns one of the ten body-relative positions consumed cyclically by
-    /// <c>SpawnSmallExplosionNearRidley</c> at <c>$A6:C623</c> (words $A6:C66E-$A6:C695,
-    /// shared with the Baby Metroid death).
+    /// <c>SpawnSmallExplosionNearRidley</c>
+    /// (shared with the Baby Metroid death).
     /// </summary>
     public static Offset16<RoomPixels> DeathExplosionPlacement(int index) =>
         DeathExplosionScatter.Offset(index);
@@ -90,7 +90,7 @@ internal static class RidleyExplosionDefinitions
     }.ToFrozenDictionary();
 
     /// <summary>
-    /// The body-relative position and pose of each body fragment by facing, loaded by <c>$A6:C7DA-$A6:C8D3</c>; a
+    /// The body-relative position and pose of each body fragment by facing, loaded by the breakup initializer; a
     /// right-facing record mirrors the left-facing one's X.
     /// </summary>
     internal static readonly FrozenDictionary<RidleyExplosionPartFacing, RidleyExplosionBodyPartDefinition> BodyParts =

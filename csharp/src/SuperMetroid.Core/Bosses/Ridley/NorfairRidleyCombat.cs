@@ -16,11 +16,11 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed class NorfairRidleyCombat
 {
-    /// <summary>Room services, level state, and native RNG for the Norfair fight.</summary>
+    /// <summary>Room services, level state, and RNG for the Norfair fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes tail-impact tremors to the room earthquake state.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Queues roars, tail impacts, and other enemy-bank sounds.</summary>
+    /// <summary>Queues roars, tail impacts, and other enemy sounds.</summary>
     private readonly EnemyAudioQueue _audio;
     /// <summary>Publishes Ridley's health and transition palettes.</summary>
     private readonly EnemyPresentation _presentation;
@@ -51,8 +51,8 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// Ports the area-two branch of the shared initializer at $A6:A0F5. A defeated Ridley
-    /// is deleted before any shared workspace or palette side effects, matching the native
+    /// Ports the area-two branch of the shared initializer. A defeated Ridley
+    /// is deleted before any shared workspace or palette side effects, matching the
     /// boss-bit gate; a live fight begins in layer five below the visible arena.
     /// </summary>
     internal void InitializeNorfairRidley(RoomEnemySlot slot)
@@ -60,7 +60,7 @@ internal sealed class NorfairRidleyCombat
         if (slot.SlotIndex != 0)
         {
             throw new InvalidDataException(
-                $"Lower Norfair Ridley requires native enemy slot zero, not slot {slot.SlotIndex}.");
+                $"Lower Norfair Ridley requires the first enemy slot, not slot {slot.SlotIndex}.");
         }
 
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
@@ -74,7 +74,7 @@ internal sealed class NorfairRidleyCombat
         slot.Colouring = RidleyEnemyState.OwnColours;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
-        // Native property $1000 blocks Plasma Beam penetration. Its meaning is established
+        // One property bit blocks Plasma Beam penetration. Its meaning is established
         // only for this boss, so preserve the raw bit instead of widening the shared enum.
         slot.Properties = slot.Properties.With(EnemyProperties.BlocksPlasmaBeam);
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -108,7 +108,7 @@ internal sealed class NorfairRidleyCombat
         };
         CeresRidleyFlight.StartRidleyProgram(_ridleyEncounter.Ridley, slot, RidleyBodyProgram.Initial);
 
-        // WriteColorsToTargetPalette($140, $A6:E1CF, $20) installs both body and manual
+        // WriteColorsToTargetPalette($140, $20) installs both body and manual
         // tail/wing source palettes. The following loops clear the two fifteen-color OBJ
         // ranges that the reveal gradually fills; color zero remains transparent.
         (_bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
@@ -119,8 +119,8 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// $A6:A478 advances an area-two-only fourteen-color fade every third dispatcher call.
-    /// A zero pointer terminates the table and activates the shared tail/wing composition.
+    /// The arena reveal advances an area-two-only fourteen-color fade every third dispatcher call.
+    /// A null entry terminates the table and activates the shared tail/wing composition.
     /// </summary>
     internal void TickNorfairRidleyArenaReveal(RoomEnemySlot slot, RidleyEnemyState state)
     {
@@ -134,7 +134,7 @@ internal sealed class NorfairRidleyCombat
         var colors = _bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
             "Norfair Ridley reveal requires installed colors.");
         if (step > NorfairRidleyPaletteDefinitions.RevealStepCount)
-            throw new InvalidDataException($"Norfair Ridley reveal step {step} escaped its native terminator.");
+            throw new InvalidDataException($"Norfair Ridley reveal step {step} escaped its terminator.");
         hasPalette = step < NorfairRidleyPaletteDefinitions.RevealStepCount;
         if (hasPalette)
             colors.ApplyReveal(_presentation.Colours, step);
@@ -208,7 +208,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// Ports $B5E5/$B613. These two states alternate side targets while Samus is spin
+    /// Runs the pogo's two side states. These two states alternate side targets while Samus is spin
     /// jumping; any other movement type immediately advances into the low arena attack.
     /// </summary>
     internal void TickNorfairRidleyPogo(
@@ -233,7 +233,7 @@ internal sealed class NorfairRidleyCombat
             return;
         }
 
-        // $A6:B669 uses the existing RNG byte; it does not advance the generator.
+        // The pogo choice uses the existing RNG byte; it does not advance the generator.
         if (SharedRandomState.LowerByte(_room.Random.Read()) >= 128 && !state.Roaring && state.FacingDirection != RidleyFacing.Turning)
             CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.Fireballing);
 
@@ -366,13 +366,13 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// Ports the four ROM-selected velocity tables consumed by $A6:B90F. The signedness
+    /// Runs the four authored velocity tables the pogo setup consumes. The signedness
     /// of the previous horizontal velocity chooses direction; magnitudes and both vertical
-    /// accelerations are compiled cartridge definitions indexed by Ridley's health stage.
+    /// accelerations are compiled definitions indexed by Ridley's health stage.
     /// </summary>
     internal void InitializeNorfairRidleyPogoVelocity(RidleyEnemyState state)
     {
-        // The native routine samples the current word; it does not advance shared RNG.
+        // The routine samples the current word; it does not advance shared RNG.
         int randomIndex = _room.Random.Read() & 3;
         var definition = RidleyPogo.Read(randomIndex, Math.Min(state.HealthStage, 3) + 2);
         state.PogoUpwardAcceleration = definition.UpwardAcceleration;
@@ -396,7 +396,7 @@ internal sealed class NorfairRidleyCombat
             return;
         }
 
-        // The native lunge is a passing attack, not indefinite pursuit. Test the
+        // The lunge is a passing attack, not indefinite pursuit. Test the
         // previous movement's boundary result before applying another acceleration.
         int deltaX = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole);
         bool passedSamus = state.FacingDirection == RidleyFacing.Right ? deltaX >= 0 : deltaX < 0;
@@ -418,7 +418,7 @@ internal sealed class NorfairRidleyCombat
 
         if (RidleyClawOverlapsSamus(slot, state, samus, new Extent16<RoomPixels>(8, 12)))
         {
-            // $A6:BB56-$BB5D reverses the lunge before the carry setup accelerates.
+            // The missed lunge reverses before the carry setup accelerates.
             state.Velocity = state.Velocity.WithY(state.Velocity.Y.Negated());
             BeginNorfairRidleyGrab(slot, state, samus);
         }
@@ -437,11 +437,11 @@ internal sealed class NorfairRidleyCombat
         if (slot.Health == 0)
         {
             StartNorfairRidleyDeathSequence(slot, state);
-            // $A6:BB8C tail-jumps to $C538 on the same successful zero-health grab.
+            // The grab tail-jumps to the move-to-death-spot function on the same successful zero-health grab.
             TickNorfairRidleyMoveToDeathSpot(slot, state);
             return;
         }
-        // $BB8F falls through $BBC4 on the grabbing update.
+        // The grab falls through into the carry on the grabbing update.
         BeginNorfairRidleyCarry(slot, state);
     }
 
@@ -536,8 +536,8 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// <c>LungeIfPowerBombActiveAndNotHoldingSamus</c> at $A6:BD2C, run before the function on
-    /// every main and even hurt frame. It reads $0CEE, which is set as soon as a power bomb is
+    /// <c>LungeIfPowerBombActiveAndNotHoldingSamus</c>, run before the function on
+    /// every main and even hurt frame. It reads the power-bomb state, which is set as soon as a power bomb is
     /// laid, so Ridley lunges in the same frame Samus lays one.
     /// </summary>
     internal static void PrepareNorfairRidleyCombatFrame(
@@ -549,7 +549,7 @@ internal sealed class NorfairRidleyCombat
         if (!sharedProjectiles.PowerBombExplosion.IsArmed || state.GrabState != RidleyGrabState.Released)
             return;
 
-        // Function $B84D resets both tail control words before the lunge.
+        // The power-bomb lunge function resets both tail control words before the lunge.
         state.TailFunctionIndex = RidleyTailFunction.Neutral;
         state.TailAngleDelta = 1;
         state.Function = RidleyAiFunction.NorfairGrabApproach;
@@ -569,7 +569,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// $A6:C538 keeps the already-grabbed Samus attached while accelerating Ridley toward
+    /// Keeps the already-grabbed Samus attached while accelerating Ridley toward
     /// the four-pixel rectangle centered at (128,328). Reaching it immediately tail-calls
     /// the roar setup instead of spending a host-only transition frame.
     /// </summary>
@@ -583,7 +583,7 @@ internal sealed class NorfairRidleyCombat
             BeginNorfairRidleyDeathRoar(body, state);
     }
 
-    /// <summary>Ports $A6:C53E: select the death-roar list and arm its 32-frame move.</summary>
+    /// <summary>Selects the death-roar list and arms its 32-frame move.</summary>
     internal static void BeginNorfairRidleyDeathRoar(
         RoomEnemySlot body,
         RidleyEnemyState state)
@@ -593,7 +593,7 @@ internal sealed class NorfairRidleyCombat
         state.FunctionTimer = WrappingCountdown.Start(32);
     }
 
-    /// <summary>Ports $A6:BA85: death has priority over power-bomb dodge and ordinary retreat.</summary>
+    /// <summary>Handles a missed lunge: death has priority over power-bomb dodge and ordinary retreat.</summary>
     private void HandleNorfairRidleyMissedLunge(RoomEnemySlot slot, RidleyEnemyState state)
     {
         if (state.ZeroHealthLungeCount >= RidleyLungeDefinitions.DeathLungeLimit)
@@ -612,7 +612,7 @@ internal sealed class NorfairRidleyCombat
         state.TailWhipRequest = 1;
     }
 
-    /// <summary>Ports $A6:BD4E, the power-bomb branch of missed-lunge recovery.</summary>
+    /// <summary>Runs the power-bomb branch of missed-lunge recovery.</summary>
     internal void TickNorfairRidleyPowerBombDodge(RoomEnemySlot slot, RidleyEnemyState state)
     {
         if (_audio.PowerBomb is not { IsArmed: true } bomb)
@@ -631,7 +631,7 @@ internal sealed class NorfairRidleyCombat
         NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, target, ReadRidleyHealthMovementDivisorIndex(state));
     }
 
-    /// <summary>$A6:B8A9 chooses the next bounce's direction from position and the current seed.</summary>
+    /// <summary>Chooses the next bounce's direction from position and the current seed.</summary>
     internal void SetRidleyPogoHorizontalDirection(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus)
     {
         if (state.Velocity.X.RawValue == 0)

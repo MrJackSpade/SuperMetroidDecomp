@@ -26,7 +26,7 @@ internal sealed class DraygonSwoops
         _movement = movement;
     }
 
-    /// <summary>Ports swoop-right setup and table construction at <c>$A5:87F4-$88B0</c>.</summary>
+    /// <summary>Ports swoop-right setup and table construction.</summary>
     internal void SetupDraygonRightSwoop(
         DraygonEnemyState state,
         SamusState? samus,
@@ -78,7 +78,7 @@ internal sealed class DraygonSwoops
         state.SwoopEntry = frameCount;
     }
 
-    /// <summary>Ports the descending half at <c>$A5:88B1</c> (right) and <c>$A5:8A00</c> (left).</summary>
+    /// <summary>Runs the descending half of the swoop, right and left.</summary>
     internal void DescendDraygonSwoop(
         DraygonEnemyState state,
         SamusState? samus,
@@ -102,7 +102,7 @@ internal sealed class DraygonSwoops
         DraygonMovement.MoveDraygonHorizontally(state, side.Direction == HorizontalDirection.Right);
     }
 
-    /// <summary>Ports the velocity recalculation at the bottom of the swoop, $A5:8922.</summary>
+    /// <summary>Ports the velocity recalculation at the bottom of the swoop.</summary>
     internal void CrossDraygonRightSwoopApex(
         DraygonEnemyState state,
         SamusState? samus,
@@ -119,7 +119,7 @@ internal sealed class DraygonSwoops
     }
 
     /// <summary>
-    /// Ports the ascending half and random next-attack choice at $A5:8951 (right) and $A5:8A90 (left). Only the leftward
+    /// Runs the ascending half and random next-attack choice, right and left. Only the leftward
     /// ascent emits breath bubbles. At the top the rightward swoop chooses the left swoop or goop; the leftward one
     /// returns to the left reset point first and chooses the right swoop, at the reset height, or goop.
     /// </summary>
@@ -169,7 +169,7 @@ internal sealed class DraygonSwoops
         }
     }
 
-    /// <summary>Ports the mirrored left-swoop setup at <c>$A5:89B3</c>.</summary>
+    /// <summary>Ports the mirrored left-swoop setup.</summary>
     internal void SetupDraygonLeftSwoop(
         DraygonEnemyState state,
         SamusState? samus,
@@ -191,7 +191,7 @@ internal sealed class DraygonSwoops
         state.SwoopEntry = state.SwoopPathEntryCount;
     }
 
-    /// <summary>Ports the mirrored velocity calculation at <c>$A5:8A50</c>.</summary>
+    /// <summary>Ports the mirrored velocity calculation.</summary>
     internal void CrossDraygonLeftSwoopApex(
         DraygonEnemyState state,
         SamusState? samus,
@@ -203,9 +203,9 @@ internal sealed class DraygonSwoops
         if (frameCount == 0)
             throw new InvalidDataException("Draygon lost the swoop duration at the left apex.");
 
-        // The reset coordinate is negative in the retail room. $A5:8A66 explicitly
+        // The reset coordinate is negative in the retail room. The left ascent explicitly
         // negates it and adds the body's positive arena X, yielding the wrapped distance
-        // from the current point back to X=$FFB0.
+        // from the current point back to X=-80.
         int resetX = state.LeftSideReset.X;
         int distance = CoordinateAxis.AsSigned(resetX) < 0
             ? CoordinateAxis.Wrap(
@@ -217,7 +217,7 @@ internal sealed class DraygonSwoops
 
     /// <summary>
     /// Sets the swoop's 16.16 horizontal velocity: the whole-pixel distance promoted to 16.16 and divided by the path's
-    /// frame count, the quotient native code splits into the var_D/E whole and subpixel words.
+    /// frame count, the quotient code splits into the var_D/E whole and subpixel words.
     /// </summary>
     /// <param name="state">Draygon's state, which receives the velocity.</param>
     /// <param name="distance">The whole-pixel distance, 0 through 65535.</param>
@@ -225,7 +225,7 @@ internal sealed class DraygonSwoops
     private static void SetDraygonSwoopVelocity(DraygonEnemyState state, int distance, int frameCount) =>
         state.SwoopVelocity = SixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
 
-    /// <summary>Ports the regional four-pixel upward retreat at <c>$A5:9154</c>.</summary>
+    /// <summary>Ports the regional four-pixel upward retreat.</summary>
     internal void FlyDraygonStraightUp(
         DraygonEnemyState state,
         SamusState? samus,

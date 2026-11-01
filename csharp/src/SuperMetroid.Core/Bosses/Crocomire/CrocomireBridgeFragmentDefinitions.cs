@@ -4,14 +4,14 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireBridgeFragmentDefinitions
 {
     /// <summary>
-    /// <c>MainAI_Crocomire_DeathSequence_2_Falling.XPositions</c> at
-    /// <c>$A4:9156-$A4:916B</c>. The native cursor is a byte offset advancing by two.
+    /// <c>MainAI_Crocomire_DeathSequence_2_Falling.XPositions</c>.
+    /// The collapse steps through it one fragment at a time.
     /// </summary>
     /// <remarks>
     /// The eleven equal-width floor columns are visited in this destruction choreography:
-    /// 8,3,9,4,11,6,10,7,1,5,2. $A4:9136-$9153 advances the cursor by two and passes
-    /// each selected X to the same producer. $86:9286-$92B9 fixes Y187, X velocity0 and
-    /// graphics$0400; independently, each fragment gets Y velocity(RNG &amp; 63)+64.
+    /// 8,3,9,4,11,6,10,7,1,5,2. The falling sequence advances the cursor and passes
+    /// each selected X to the same producer. The fragment initializer fixes Y187, X velocity0 and
+    /// its graphics; independently, each fragment gets Y velocity(RNG &amp; 63)+64.
     /// No RNG, actor direction or data-dependent choice selects the
     /// order. The permutation is the authored ordering of the visual destruction, not
     /// sampled geometry. Retain only that order; coordinates calculate from the grid.
@@ -20,7 +20,7 @@ internal static class CrocomireBridgeFragmentDefinitions
     /// </remarks>
     private static ReadOnlySpan<byte> AuthoredCrumbleColumnOrder => [8, 3, 9, 4, 11, 6, 10, 7, 1, 5, 2];
 
-    /// <summary>$A4:9156-$916B cover eleven floor columns beginning at X$0710 with16-pixel spacing.</summary>
+    /// <summary>The eleven floor columns begin at X1808 with16-pixel spacing.</summary>
     private const int FirstColumnX = 1808;
 
     /// <summary>The number of bridge fragments the collapse launches, one per authored column.</summary>

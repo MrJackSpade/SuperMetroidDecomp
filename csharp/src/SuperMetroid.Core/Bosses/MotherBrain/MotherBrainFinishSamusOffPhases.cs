@@ -19,14 +19,14 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// <summary>Rainbow-beam palette animation index reset immediately before the final shot.</summary>
     public int RainbowBeamPaletteAnimationIndex { get; internal set; }
 
-    /// <summary>Applies Gravity/Varia damage reduction and the native extra scaling used only by the $50 beam strike.</summary>
+    /// <summary>Applies Gravity/Varia damage reduction and the extra scaling used only by the $50 beam strike.</summary>
     /// <remarks>The nominal damage is 80 or 160, so the scaled threshold never exceeds 340.</remarks>
     private static int CalculateFinishOffHealthThreshold(SamusState samus, int nominalDamage)
     {
-        // `$A0:A45E` gives Gravity Suit priority and divides damage by four. Otherwise
-        // Varia's bit zero divides by two; Power Suit leaves it untouched. `$A9:BD4C`
-        // then multiplies the divided `$50` result by four, while `$BD68` deliberately
-        // does not multiply the divided `$A0` result. The caller selects that distinction.
+        // Suit damage reduction gives Gravity Suit priority and divides damage by four. Otherwise
+        // Varia's bit zero divides by two; Power Suit leaves it untouched. The low-energy check
+        // then multiplies the divided 80 result by four, while the next check deliberately
+        // does not multiply the divided 160 result. The caller selects that distinction.
         int divided = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             ? nominalDamage >> 2
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
@@ -50,15 +50,15 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase finish samus off body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOff(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // `$A9:BD45-$BD54` asks whether one more ordinary phase-two hit could put
+        // The low-energy check asks whether one more ordinary phase-two hit could put
         // Samus at the encounter's intended low-energy floor. The first nominal
-        // damage is `$50`, suit-divided, multiplied by four, then padded by twenty.
-        // The native BPL comparison treats equality as done and changes the body
+        // damage is 80, suit-divided, multiplied by four, then padded by twenty.
+        // The BPL comparison treats equality as done and changes the body
         // function without falling into the stand-up handler on this call.
         if (CalculateFinishOffHealthThreshold(samus, 80) >= samus.Health)
         {
@@ -93,12 +93,12 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off stand up body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase finish samus off stand up body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffStandUp(MotherBrainRainbowBeamStepRequests requests)
     {
-        // `$A9:C670` reports carry only if pose was already zero at call entry.
+        // The standing helper reports carry only if pose was already zero at call entry.
         // Crouched/leaning poses request their matching stand animation and return
         // clear; walking/transition poses simply wait for their current bytecode.
         bool stoodUp = _state.MakeBodyStandUp(out bool postureRequested);
@@ -113,7 +113,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off admire body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase finish samus off admire body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffAdmire()
@@ -131,7 +131,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off charge final beam body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase finish samus off charge final beam body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffChargeFinalBeam()
@@ -147,12 +147,12 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off load baby tiles body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase finish samus off load baby tiles body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffLoadBabyTiles(MotherBrainRainbowBeamStepRequests requests)
     {
-        // `$A9:C5BE` processes exactly one seven-byte table entry per call. The
+        // The baby-tiles step processes exactly one seven-byte table entry per call. The
         // fourth entry sees the following zero terminator, clears its saved pointer,
         // and returns carry set on that same call.
         requests.SpritePage = NextBabyMetroidPage();
@@ -168,7 +168,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off fire final beam body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase finish samus off fire final beam body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffFireFinalBeam(MotherBrainRainbowBeamStepRequests requests)
@@ -188,14 +188,14 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase final rainbow beam holding body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase final rainbow beam holding body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal static bool RunSecondPhaseFinalRainbowBeamHolding()
     {
-        // `$A9:BE14` stores the address of its own RTS. Mother Brain remains here
+        // The final beam's holding step is empty. Mother Brain remains here
         // until the independently spawned Baby actor overwrites her body function
-        // with `$BE38` after latching onto her head.
+        // with the taken-aback step after latching onto her head.
         return false;
     }
 }

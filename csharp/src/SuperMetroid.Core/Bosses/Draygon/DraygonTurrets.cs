@@ -39,7 +39,7 @@ internal sealed class DraygonTurrets
             SpawnDraygonWallTurret(state, samus, random);
     }
 
-    /// <summary>Ports <c>HandleFiringWallTurret</c> and initializer <c>$86:8D40</c>.</summary>
+    /// <summary>Runs <c>HandleFiringWallTurret</c> and the wall turret projectile's initializer.</summary>
     internal void SpawnDraygonWallTurret(
         DraygonEnemyState state,
         SamusState samus,
@@ -68,8 +68,8 @@ internal sealed class DraygonTurrets
             new(CoordinateAxis.Difference(samus.Position.X.Whole, turret.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, turret.Position.Y.Whole))).ToTableAngle();
         DraygonParts.SetDraygonProjectileVelocity(turret, flightAngle, DraygonProjectileSpeeds.WallTurret);
 
-        // The definition says $8DFF, but init replaces it with RTS until the 84-frame muzzle
-        // bloom reaches instruction $8CF6 and explicitly enables flight.
+        // The definition names the flight step, but init replaces it with an empty step until the 84-frame muzzle
+        // bloom reaches its enable step and explicitly enables flight.
         turret.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         state.WallTurretsSpawned++;
     }

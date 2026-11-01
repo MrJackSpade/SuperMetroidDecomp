@@ -31,10 +31,10 @@ public sealed class CeresRidleyColorCatalog
 
     /// <summary>Returns one BGR555 retreat BG color, index 0..14, preserving supplied edits over the composition of body-fade row one, eye-fade row fourteen, and the neutral tail colors.</summary>
     public RgbColor ResolveRetreatBg(int color) => CeresRidleyColors.RetreatBg(this, color);
-    /// <summary>Returns one BGR555 retreat shared color, index 0..7; unedited values reuse startup colors 1..8, matching native $A6:AA01 and $A6:E171.</summary>
+    /// <summary>Returns one retreat shared color, index 0..7; unedited values reuse startup colors 1..8, as the retreat's palette copy does.</summary>
     public RgbColor ResolveRetreatShared(int color) => CeresRidleyColors.RetreatShared(this, color);
 
-    /// <summary>Copies the 32 startup colors from native $A6:E16F into CGRAM entries 160..191, initializing the door/container and Baby OBJ palettes.</summary>
+    /// <summary>Copies the 32 startup colors into colours 160..191, initializing the door/container and Baby sprite palettes.</summary>
     public void ApplyStart(GameplayColours colours) => CeresRidleyColors.ApplyStart(this, colours);
 
     /// <summary>Shows eye-fade shade <paramref name="shade"/>, 0..15, in Ceres Ridley's eye colours; the three-colour shades fade from full eye paint to black.</summary>
@@ -48,7 +48,7 @@ public sealed class CeresRidleyColorCatalog
     /// <summary>Shows self-destruct alarm step <paramref name="step"/>, 0..15, in the three EMERGENCY-text colours, preserving the reflected three-color cycle.</summary>
     public void ApplyAlarm(GameplayColours colours, int step) => CeresRidleyColors.ApplyAlarm(this, colours, step);
 
-    /// <summary>Installs the retreat's fifteen BG colors at CGRAM 81..95 and eight shared colors at both BG 33..40 and OBJ 241..248, matching $A6:A9E3/$AA01.</summary>
+    /// <summary>Installs the retreat's fifteen background colors at colours 81..95 and eight shared colors at both background colours 33..40 and sprite colours 241..248, as the retreat does.</summary>
     public void ApplyRetreat(GameplayColours colours) => CeresRidleyColors.ApplyRetreat(this, colours);
 
     /// <summary>Shows the Baby/container's <paramref name="shade"/> in the Baby's colours; shade selection and pose timing remain owned by the Baby's animation.</summary>

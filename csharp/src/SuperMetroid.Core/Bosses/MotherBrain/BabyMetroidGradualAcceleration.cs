@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// <c>GradduallyAccelerateTowardsPoint</c> ($A9:F46B) and <c>GraduallyAccelerateHorizontally</c>
-/// ($A9:F4E6), shared by the Tourian Shitroid and the Mother Brain baby-Metroid cutscene.
+/// The gradual acceleration toward a point and horizontally, shared by the Tourian Shitroid and the Mother Brain
+/// baby-Metroid cutscene.
 /// Each axis accelerates in runs of steps (<see cref="SeekingVelocityRun"/>): a step that carries
 /// the velocity across zero makes the run's next step a unit larger, and a step taken while already
 /// moving toward the target is a unit larger when the distance to the target wraps around the
@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class BabyMetroidGradualAcceleration
 {
-    /// <summary>Extra native speed adjustment while reversing direction toward the target.</summary>
+    /// <summary>Extra speed adjustment while reversing direction toward the target.</summary>
     private const int ReversalStep = 8;
     /// <summary>Horizontal signed-velocity clamp applied after the run.</summary>
     private const int MaxXSpeed = 2048;
@@ -82,7 +82,7 @@ internal static class BabyMetroidGradualAcceleration
         }
     }
 
-    /// <summary>Returns the new Y velocity (the vertical half of $A9:F46B).</summary>
+    /// <summary>Returns the new Y velocity (the vertical half of gradual acceleration).</summary>
     /// <param name="position">The mover's whole Y coordinate.</param>
     /// <param name="target">The target's whole Y coordinate.</param>
     /// <param name="velocity">The mover's Y velocity.</param>
@@ -122,7 +122,7 @@ internal static class BabyMetroidGradualAcceleration
         }
     }
 
-    /// <summary>Models $4204/$4206 distance division, replacing a zero quotient with one.</summary>
+    /// <summary>Models the distance division, replacing a zero quotient with one.</summary>
     private static int Step(int distance, int divisor)
     {
         if (divisor is < 1 or > 16)

@@ -30,12 +30,12 @@ internal sealed class TorizoEncounterAccess
             : throw new InvalidOperationException(
                 $"Enemy slot {torizo.SlotIndex} has no initialized Bomb Torizo state.");
 
-    /// <summary>Tests the native parameter-one XOR enemy-X minus Samus-X sign used by attack branches.</summary>
+    /// <summary>Tests the parameter-one XOR enemy-X minus Samus-X sign used by attack branches.</summary>
     internal bool BombTorizoFunction12IsNonNegative(
         RoomEnemySlot torizo,
         SamusState samus)
     {
-        // $AA:C58B calls Torizo_Func_12, whose operand is the facing bit XOR the sign of
+        // The awakening facing check calls Torizo_Func_12, whose operand is the facing bit XOR the sign of
         // enemyX-SamusX, rather than the SamusX-enemyX test used by the walkers.
         return FacesRight(torizo) == CoordinateAxis.Difference(torizo.Position.X.Whole, samus.Position.X.Whole) < 0;
     }

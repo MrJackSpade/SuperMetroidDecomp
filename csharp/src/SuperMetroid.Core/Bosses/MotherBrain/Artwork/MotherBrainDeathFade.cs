@@ -3,8 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
-/// One of Mother Brain's death fades. $AD:EA0A body/leg channels fade to black as (initial*(15-frame)+1)/15.
-/// $AD:F119 corpse channels interpolate between endpoints, rounded to nearest
+/// One of Mother Brain's death fades. The body/leg channels fade to black as (initial*(15-frame)+1)/15.
+/// The corpse channels interpolate between endpoints, rounded to nearest
 /// over seven intervals. These rules match every original intermediate color.
 /// Starting colors calculate from health state three; the corpse final palette calculates shared
 /// drained shade rules from the three narrowly approved drained-paint anchors.
@@ -58,7 +58,7 @@ internal sealed class MotherBrainDeathFade
     internal RgbColor Resolve(int frame, int color) =>
         supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
-    /// <summary>Interpolates a channel with the native black-fade bias or rounded corpse endpoint.</summary>
+    /// <summary>Interpolates a channel with the black-fade bias or rounded corpse endpoint.</summary>
     private RgbColor Calculate(int frame, int color)
     {
         int steps = FrameCount - 1;

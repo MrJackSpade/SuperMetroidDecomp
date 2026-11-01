@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class ColoredDoorPlmDrawDefinitions
 {
     /// <summary>
-    /// The four cells of each colour's cap frames, in native run order. Tiles advance four per colour, one per vertical
+    /// The four cells of each colour's cap frames, in authored run order. Tiles advance four per colour, one per vertical
     /// frame, or alternate tileset rows for horizontal frames; mirrors follow the facing and the cell's half of the cap.
     /// Closed caps keep the shootable and extension collision types. Final middle cells clear for every left cap,
     /// green and red right caps and yellow down caps; the other final caps stay solid.

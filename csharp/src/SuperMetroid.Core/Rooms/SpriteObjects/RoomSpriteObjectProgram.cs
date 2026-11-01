@@ -1,52 +1,52 @@
 namespace SuperMetroid.Core.Rooms.SpriteObjects;
 
-/// <summary>The bank-$B4 room sprite-object programs the named object kinds reach, by their native instruction lists.</summary>
+/// <summary>The room sprite-object programs the named object kinds reach, by their instruction lists.</summary>
 internal enum RoomSpriteObjectProgram
 {
-    /// <summary><c>InstList_SpriteObject_3D_DraygonFoamingAtTheMouth</c> at $B4:BE24.</summary>
+    /// <summary>Draygon foaming at the mouth animation script.</summary>
     DraygonFoamingAtTheMouth,
-    /// <summary><c>InstList_SpriteObject_3_SmallExplosion</c> at $B4:BEA4.</summary>
+    /// <summary>Small explosion animation script.</summary>
     SmallExplosion,
-    /// <summary><c>InstList_SpriteObject_6_DudShot</c> at $B4:BEEA.</summary>
+    /// <summary>Dud shot animation script.</summary>
     DudShot,
-    /// <summary><c>InstList_SpriteObject_9_SmallDudShot</c> at $B4:BF1C.</summary>
+    /// <summary>Small dud shot animation script.</summary>
     SmallDudShot,
-    /// <summary><c>InstList_SpriteObject_A_SpacePirateLandingDustCloud</c> at $B4:BF32.</summary>
+    /// <summary>Space Pirate landing dust cloud animation script.</summary>
     SpacePirateLandingDustCloud,
-    /// <summary><c>InstList_SpriteObject_C_Smoke</c> at $B4:BF56.</summary>
+    /// <summary>Smoke animation script.</summary>
     Smoke,
-    /// <summary><c>InstList_SpriteObject_1D_BigExplosion</c> at $B4:BF74.</summary>
+    /// <summary>Big explosion animation script.</summary>
     BigExplosion,
-    /// <summary><c>InstList_SpriteObject_12_ShortBigDustCloud</c> at $B4:C014.</summary>
+    /// <summary>Short big dust cloud animation script.</summary>
     ShortBigDustCloud,
-    /// <summary><c>InstList_SpriteObject_15_BigDustCloud</c> at $B4:C05E.</summary>
+    /// <summary>Big dust cloud animation script.</summary>
     BigDustCloud,
-    /// <summary><c>InstList_SpriteObject_18_ShortDraygonBreathBubbles</c> at $B4:C10C.</summary>
+    /// <summary>Short Draygon breath bubbles animation script.</summary>
     ShortDraygonBreathBubbles,
-    /// <summary><c>InstList_SpriteObject_2B_PuromiBody</c> at $B4:C30A.</summary>
+    /// <summary>Puromi body animation script.</summary>
     PuromiBody,
-    /// <summary><c>InstList_SpriteObject_2C_PuromiRightExplosion</c> at $B4:C33E.</summary>
+    /// <summary>Puromi right explosion animation script.</summary>
     PuromiRightExplosion,
-    /// <summary><c>InstList_SpriteObject_2D_PuromiLeftExplosion</c> at $B4:C35C.</summary>
+    /// <summary>Puromi left explosion animation script.</summary>
     PuromiLeftExplosion,
-    /// <summary><c>InstList_SpriteObject_2E_PuromiSplash</c> at $B4:C37A.</summary>
+    /// <summary>Puromi splash animation script.</summary>
     PuromiSplash,
-    /// <summary><c>InstList_SpriteObject_30_FallingSparkTrail</c> at $B4:C390.</summary>
+    /// <summary>Falling spark trail animation script.</summary>
     FallingSparkTrail,
-    /// <summary><c>InstList_SpriteObject_32_MetroidElectricity</c> at $B4:C3BA.</summary>
+    /// <summary>Metroid electricity animation script.</summary>
     MetroidElectricity,
-    /// <summary><c>UNUSED_InstList_SpriteObject_33_B4C436</c> at $B4:C436.</summary>
+    /// <summary>Unused animation script.</summary>
     Unused33,
-    /// <summary><c>InstList_SpriteObject_34_MetroidShell</c> at $B4:C4B6.</summary>
+    /// <summary>Metroid shell animation script.</summary>
     MetroidShell,
-    /// <summary><c>UNUSED_InstList_SpriteObject_35_B4C536</c> at $B4:C536.</summary>
+    /// <summary>Unused animation script.</summary>
     Unused35,
-    /// <summary><c>InstList_SpriteObject_38_YappingMawBaseFacingDown</c> at $B4:C5D8.</summary>
+    /// <summary>Yapping maw base facing down animation script.</summary>
     YappingMawBaseFacingDown,
-    /// <summary><c>InstList_SpriteObject_39_YappingMawBaseFacingUp</c> at $B4:C5DE.</summary>
+    /// <summary>Yapping maw base facing up animation script.</summary>
     YappingMawBaseFacingUp,
-    /// <summary><c>InstList_SpriteObject_3B_EvirFacingLeft</c> at $B4:C608.</summary>
+    /// <summary>Evir facing left animation script.</summary>
     EvirFacingLeft,
-    /// <summary><c>InstList_SpriteObject_3C_EvirFacingRight</c> at $B4:C61C.</summary>
+    /// <summary>Evir facing right animation script.</summary>
     EvirFacingRight,
 }

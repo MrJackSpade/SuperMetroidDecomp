@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 [NumberedIdentities("Each numbered door is one door of its room, named by its place in that room's door list; every door has its own destination and is used by name, never iterated or indexed.")]
 public static class DoorDefinitions
 {
-    /// <summary>Retail doors in the cartridge's record order.</summary>
+    /// <summary>Retail doors in their authored record order.</summary>
     internal static readonly DoorDefinition[] Definitions =
     [
         Door(nameof(CrateriaDoorDefinitions.LandingSiteLandingCutscene), RoomHeaderDefinitions.LandingSite, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(4, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),

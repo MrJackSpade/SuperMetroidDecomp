@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Bosses;
 /// lowering the velocity. A step that carries the velocity across zero, past either end of its word, makes the run's
 /// next step one unit (1/256 pixel per frame) larger; and the run's first step is one unit larger when the signed
 /// distance to the target wraps around the coordinate space, so the target lies the other way round from its plain
-/// order. Ceres and Norfair Ridley (<c>$A6:D559</c>-<c>$A6:D61B</c>, <c>$A6:D62F</c>, <c>$A6:D6A6</c>) and the baby
-/// Metroid (<c>$A9:F46B</c>, <c>$A9:F4E6</c>) seek this way; combining a run's steps into one integer sum changes their
+/// order. Ceres and Norfair Ridley and the baby
+/// Metroid seek this way; combining a run's steps into one integer sum changes their
 /// trajectories.
 /// </summary>
 internal struct SeekingVelocityRun

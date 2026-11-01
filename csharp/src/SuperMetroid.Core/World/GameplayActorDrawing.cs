@@ -32,7 +32,7 @@ internal sealed class GameplayActorDrawing
     /// <summary>Provides frame-counter cadence for blinking and drawing branches.</summary>
     private readonly FrameClock _clock;
 
-    /// <summary>Receives Samus's whole-frame draws in the same order as the OAM sprites around them.</summary>
+    /// <summary>Receives Samus's whole-frame draws in the same order as the sprites around them.</summary>
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Supplies Samus pose, palettes, grapple state, and movement effects.</summary>
     private readonly SamusFrameState _player;
@@ -64,8 +64,8 @@ internal sealed class GameplayActorDrawing
         bool deathOwnsSamus = owner == SamusDrawOwner.DeathSequence;
         if (_player.Samus is null || _room.Camera is null) return;
         _artwork.BindGrapplePresentation();
-        // $A0:884D draws bomb/projectile explosions before reaching the enemy-layer
-        // phase that calls DrawSamusAndProjectiles. Preserve that OAM ordering.
+        // The frame draws bomb/projectile explosions before reaching the enemy-layer
+        // phase that calls DrawSamusAndProjectiles. Preserve that sprite ordering.
         if (!deathOwnsSamus)
         {
             room.BombProjectiles.Draw(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
@@ -90,7 +90,7 @@ internal sealed class GameplayActorDrawing
 
         // The global layer loop emits layers zero through two before its phase-three
         // call to DrawSamusAndProjectiles. Landing Site's gunship definition selects
-        // layer two, so its hull correctly precedes (and can sit behind) Samus OAM.
+        // layer two, so its hull correctly precedes (and can sit behind) Samus's sprites.
         if (!deathOwnsSamus && room.Enemies.IsLoaded)
         {
             room.Enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 0, 2);
@@ -99,16 +99,16 @@ internal sealed class GameplayActorDrawing
 
         if (paletteEffects == SamusPaletteEffects.Advance)
         {
-            // `$91:D6F7` updates Samus's palette buffer during gameplay. The software PPU
-            // reads CGRAM directly, so perform the literal ROM pointer/table copy immediately
+            // Samus's palette update runs during gameplay. The renderer
+            // reads the colours directly, so perform the suit palette copy immediately
             // before the matching draw phase. This covers dry-room Speed Booster stage four
-            // and the normal-suit restoration requested by `$91:DE53` cancellation.
-            // A negative super-special flag is the first branch of `$91:D6F7` and returns
+            // and the normal-suit restoration requested by cancellation.
+            // A negative super-special flag is the first branch of the palette update and returns
             // immediately after the drained/rainbow handler. Its one-shot normal restore
-            // also models the direct palette loads in controller zero and command `$17`.
-            // Native cancellation/pose initialization copies the normal suit during
+            // also models the direct palette loads in controller zero and command 23.
+            // Cancellation/pose initialization copies the normal suit during
             // movement, before this dispatch. Flush that deferred write first so charge
-            // and drained palettes retain their native same-frame priority.
+            // and drained palettes retain their same-frame priority.
             if (!deathOwnsSamus)
                 _player.Samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
                     _player.Colours, _player.Samus.EquippedItems, _artwork.MapPresentation?.SamusSuitColors);
@@ -119,16 +119,16 @@ internal sealed class GameplayActorDrawing
             bool chargeGlowRestoredNormalPalette = false;
             if (!deathOwnsSamus && !drainedOwnsSamusPalette)
             {
-                // `$91:D708` always runs charge/post-shot handling before dispatching the
+                // The palette update always runs charge/post-shot handling before dispatching the
                 // selected special Samus palette. Ordinary charged shots paint colors 1-15
-                // white for three calls and restore the ROM suit on call four; Hyper shots
-                // step ten complete bank-$9B palettes on alternating calls before restore.
+                // white for three calls and restore the suit on call four; Hyper shots
+                // step ten complete palettes on alternating calls before restore.
                 LastBeamChargePaletteStep = room.Projectiles.UpdateBeamChargePalette(
                     _player.Colours,
                     _player.Samus,
                     _display.LayerBlendingDefaultConfig);
                 LastVisorPaletteStep = room.Projectiles.LastVisorPaletteStep;
-                // Native carry from HandleBeamChargePalettes bypasses the entire special
+                // Carry from HandleBeamChargePalettes bypasses the entire special
                 // dispatcher on glow expiry. In particular, stored shine must not tick
                 // or overwrite the restored suit on this frame.
                 chargeGlowRestoredNormalPalette =
@@ -141,7 +141,7 @@ internal sealed class GameplayActorDrawing
                         _player.Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) }, _speedBoosterOverrunColours,
                         suitColors: _artwork.MapPresentation?.SamusSuitColors, cycleColors: _artwork.MapPresentation?.SamusFullBodyCycleColors);
             }
-            // Palette handlers one and six run at the same `$91:D6F7` dispatch point. They
+            // Palette handlers one and six run at the same palette-update dispatch point. They
             // execute only when charge handling returned carry clear.
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
@@ -153,7 +153,7 @@ internal sealed class GameplayActorDrawing
             }
             // Handler seven owns all sixteen colors of sprite palette six during Crystal
             // Flash. It is mutually exclusive with shinespark/X-ray special handlers but
-            // intentionally runs at the same `$91:D6F7` dispatch point.
+            // intentionally runs at the same palette-update dispatch point.
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
                 _player.Samus.CrystalFlash.UpdatePalette(
@@ -162,8 +162,8 @@ internal sealed class GameplayActorDrawing
                     _artwork.BeamPalettes,
                     _artwork.MapPresentation?.CrystalFlashColors);
             }
-            // Handler eight changes only visor color four while active; `$FFFF` teardown
-            // restores the complete ROM-selected Power/Varia/Gravity suit palette once.
+            // Handler eight changes only visor color four while active; its teardown
+            // restores the complete Power/Varia/Gravity suit palette once.
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
                 _player.Samus.Xray.UpdatePalette(
@@ -171,7 +171,7 @@ internal sealed class GameplayActorDrawing
                     _player.Samus.EquippedItems,
                     _artwork.MapPresentation?.SamusSuitColors);
             }
-            // `$91:D8A5` runs after every charge and special-palette family. A Metroid's
+            // The Metroid-drain palette step runs after every charge and special-palette family. A Metroid's
             // nonnegative super-special flag takes the alternating boost/normal branch and
             // returns before ordinary hurt flash, just as drained rainbow's negative flag
             // took the routine's earlier branch.
@@ -203,14 +203,14 @@ internal sealed class GameplayActorDrawing
         }
         else
         {
-            // `DrawSamusSprites` begins with `$90:C5C4` before dispatching the default
+            // `DrawSamusSprites` begins with the arm-cannon cover update before dispatching the default
             // drawing handler. HUD-selection stability, cover transition, and the
             // pose-authored before/after-body mode must therefore settle before charge
-            // flare, atmospheric, or body OAM is appended.
+            // flare, atmospheric, or body sprites are appended.
             _player.Samus.ArmCannon.Update(_player.Samus);
 
-            // `$90:EB86` replaces the ordinary `$90:EB52` display handler while an
-            // elevator owns a front-facing body. It still arrives after `$90:C5C4`, so
+            // The elevator display handler replaces the ordinary display handler while an
+            // elevator owns a front-facing body. It still arrives after the cover update, so
             // the arm-cannon cover state above advances every frame. Odd frames return
             // immediately. Even frames call the fatal/no-animation body renderer, which
             // deliberately bypasses ordinary invincibility flicker and every auxiliary
@@ -224,8 +224,8 @@ internal sealed class GameplayActorDrawing
                 if (RoomMainRoutines.ShouldDrawSamusOnElevator(_clock.Counter))
                 {
                     // Omitting the live counter intentionally selects `Draw`'s default
-                    // even value. Native `$90:EB86` calls `$90:85D2`, below `$85E2`'s
-                    // ordinary invincibility test, so this path cannot flicker twice.
+                    // even value. The elevator handler calls the body renderer below the ordinary
+                    // invincibility test, so this path cannot flicker twice.
                     _player.Samus.Presentation.Draw(_player.Samus, 
                         _sprites,
                         _room.Camera.PixelPosition,
@@ -235,7 +235,7 @@ internal sealed class GameplayActorDrawing
             else if (_player.Samus.Shinespark.Phase is
                      ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle)
             {
-                // `$90:EBF3` is installed by `$90:D2BA` at the instant an active
+                // The shinespark-crash display handler is installed at the instant an active
                 // shinespark crashes. Unlike the default handler, it intentionally
                 // omits charging flare/audio, atmosphere, both arm-cannon priority
                 // paths, ordinary departing speed echoes, and grapple graphics. It
@@ -260,7 +260,7 @@ internal sealed class GameplayActorDrawing
 
                 if (grappleBeamSpecificPath)
                 {
-                    // Active `$90:EB86` begins with `$9B:C036`. Firing also refreshes
+                    // The active grapple display handler begins with the grapple flare. Firing also refreshes
                     // its hand origins here from Samus's post-movement position. This
                     // flare is a different animation owner from the charge flare below.
                     SamusGrappleBeamDrawing.DrawFlareBeforeSamus(
@@ -271,8 +271,8 @@ internal sealed class GameplayActorDrawing
                 }
                 else if (!grappleHandlerInstalled)
                 {
-                    // `$90:EB52` advances/emits the ordinary charge flare before it
-                    // falls through to `$90:EB55`. Grapple's handler never calls this,
+                    // The ordinary display handler advances/emits the ordinary charge flare before it
+                    // falls through to the shared drawing tail. Grapple's handler never calls this,
                     // including its cancel/release fallback frames.
                     // The flare animates as a simulation phase, then shows what it advanced to.
                     ChargeFlareComponents flare = room.Projectiles.AdvanceChargeFlare(_player.Samus);
@@ -289,9 +289,9 @@ internal sealed class GameplayActorDrawing
                         });
                 }
 
-                // `$90:EB55` begins here for all three routes: ordinary, active grapple,
+                // The shared drawing tail begins here for all three routes: ordinary, active grapple,
                 // and grapple teardown. Reverse atmospheric-slot order is therefore
-                // earlier in OAM than cannon/body, but later than either applicable
+                // earlier in the sprite list than cannon/body, but later than either applicable
                 // flare. This exact overlap order is visible through transparent pixels.
                 _player.Samus.LiquidPhysics.AtmosphericEffects.UpdateAndDraw(
                     _sprites,
@@ -299,7 +299,7 @@ internal sealed class GameplayActorDrawing
                     Ensure.BetweenInclusive(0, ushort.MaxValue, _player.Samus.LiquidPhysics.FxYPosition),
                     _player.Samus.Presentation.BodyFrames.Sheets);
 
-                // Drawing modes one and two differ only in OAM priority: one appends the
+                // Drawing modes one and two differ only in sprite priority: one appends the
                 // cannon before the body, while two appends it after. Mode zero suppresses
                 // the independent object even if a HUD-driven cover frame remains nonzero.
                 if (_player.Samus.ArmCannon.DrawOrder == SamusArmCannonDrawOrder.BeforeBody)
@@ -326,7 +326,7 @@ internal sealed class GameplayActorDrawing
 
                 if (grappleBeamSpecificPath)
                 {
-                    // Active `$90:EB86` deliberately omits `Samus_DrawEchoes`. It updates
+                    // The active grapple handler deliberately omits `Samus_DrawEchoes`. It updates
                     // endpoint/segment tiles after Samus, increments flare time, and only
                     // then emits rope pieces when length is nonzero.
                     SamusGrappleBeamDrawing.DrawConnectedBeam(
@@ -338,9 +338,9 @@ internal sealed class GameplayActorDrawing
                 }
                 else
                 {
-                    // Ordinary `$90:EB55` and grapple's signed-range fallback share this
+                    // The ordinary drawing tail and grapple's signed-range fallback share this
                     // exact echo tail. The latter still suppresses charge flare and rope
-                    // because `$90:EB52` and the active half of `$90:EB86` were bypassed.
+                    // because the ordinary flare and the active half of the grapple handler were bypassed.
                     _player.Samus.Presentation.DrawSpeedBoosterEchoes(_player.Samus, 
                         _sprites,
                         _room.Camera.PixelPosition);
@@ -351,31 +351,31 @@ internal sealed class GameplayActorDrawing
                 }
             }
 
-            // `$90:EB3B` draws Samus first and immediately calls `$93:8254`. This is
+            // The frame draws Samus first and immediately draws her projectiles. This is
             // deliberately after the grapple beam too in the translated composite pass;
-            // all live beam art still receives later OAM indices than Samus's body.
+            // all live beam art still receives later sprite indices than Samus's body.
             room.Projectiles.DrawLiveProjectiles(
                 _sprites,
                 _room.Camera.PixelPosition,
                 _clock.Counter, ProjectileArtwork);
-            // `$93:82F7` immediately follows the ordinary projectile draw with bank
-            // `$90:B6A9`. Trails are detached world-space objects, so they must keep
+            // The ordinary projectile draw is immediately followed by the projectile
+            // trails. Trails are detached world-space objects, so they must keep
             // animating after their source beam has collided or left the viewport.
             // Trails animate as a simulation phase, under time freeze too, then show where they are.
             room.Projectiles.AdvanceTrails(_freeze.TimeIsFrozen);
             room.Projectiles.DrawTrails(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
 
-            // The native post-draw input snapshot survives the next alpha pass. In
+            // The post-draw input snapshot survives the next alpha pass. In
             // particular, Fire can first cancel a spin and then start Grapple without
             // requiring another physical press after the prospective pose is applied.
             _player.Samus.InputSnapshot.SnapshotDrawInput(_controller1.Current, _controller1.NewlyPressed);
             SamusInputSnapshot.UpdateHurtFlashFromHealthLoss(_player.Samus);
-            // $91:F1EC never replaces the demo input handler with auto-jump.
+            // The demo input handler is never replaced with auto-jump.
             if (_attractSession.IsAttractDemo) _player.Samus.InputSnapshot.AutoJumpInputPending = false;
 
-            // `$90:F576` follows DrawSamusAndProjectiles. A counter-forty hurt update
+            // The charge-sound latch follows DrawSamusAndProjectiles. A counter-forty hurt update
             // may have armed this latch above; consuming it here preserves both the
-            // same-frame charging sound and native ordering after projectile drawing.
+            // same-frame charging sound and ordering after projectile drawing.
             SamusPostDrawAudio.Step(
                 _player.Samus,
                 _player.PreviousMovementTypeForXray,
@@ -406,8 +406,8 @@ internal sealed class GameplayActorDrawing
 
         if (!deathOwnsSamus && room.Enemies.IsLoaded && room.Enemies.DisplaySources.Draygon is { } draygon)
         {
-            // Native $A5:9342 runs AFTER drawing enemies. Camera scrolling has already
-            // run, so the body must use the same final camera as the appendage OAM above.
+            // Draygon's body draw runs AFTER drawing enemies. Camera scrolling has already
+            // run, so the body must use the same final camera as the appendage sprites above.
             // Placing it during enemy AI instead detaches the torso whenever scrolling
             // changes the camera between AI and drawing (especially during a grab). The
             // placement is Draygon's own published body position (#1354), not BG2's registers.
@@ -420,10 +420,10 @@ internal sealed class GameplayActorDrawing
 
         if (!deathOwnsSamus && room.Enemies.IsLoaded)
         {
-            // CeresRidley_Main installs $A6:A2F2 as EnemyGraphicsDrawnHook. It runs
+            // CeresRidley_Main installs his graphics-drawn hook as EnemyGraphicsDrawnHook. It runs
             // after every ordinary enemy layer and is the only producer of the Baby
             // Metroid OBJ (plus the arena-door overlay). Keeping this after layer seven
-            // preserves the hook's actual OAM position instead of inventing a Baby slot.
+            // preserves the hook's actual sprite position instead of inventing a Baby slot.
             room.Enemies.Ceres.DrawCeresRidleyPostEnemyHook(
                 _sprites,
                 _room.Camera.PixelPosition);
@@ -431,13 +431,13 @@ internal sealed class GameplayActorDrawing
     }
 
     /// <summary>
-    /// Most recent beam-charge/post-shot body-palette branch from `$91:D743`. This remains
+    /// Most recent beam-charge/post-shot body-palette branch. This remains
     /// distinct from the global Hyper Beam projectile palette object above: it owns Samus's
     /// OBJ palette four rather than projectile OBJ palette six.
     /// </summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; internal set; }
 
-    /// <summary>Most recent ordinary `$91:D83F` visor color-cycle step.</summary>
+    /// <summary>Most recent ordinary visor color-cycle step.</summary>
     public SamusVisorPaletteStepResult LastVisorPaletteStep { get; internal set; }
 
 

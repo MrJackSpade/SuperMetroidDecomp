@@ -1,11 +1,11 @@
 using System.Collections.Immutable;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Fixed hidden-wall rumble schedule from <c>$A4:98CE-$A4:9905</c>.</summary>
+/// <summary>Fixed hidden-wall rumble schedule.</summary>
 internal static class CrocomireRumbleDefinitions
 {
     /// <summary>
-    /// $A4:98FA: selected final repeat counter3 in the shake/sound performance.
+    /// Selected final repeat counter3 in the shake/sound performance.
     /// This counts completed oscillations, not elapsed frames. The consumer adds
     /// one final traversal before loading the next phase.
     /// </summary>

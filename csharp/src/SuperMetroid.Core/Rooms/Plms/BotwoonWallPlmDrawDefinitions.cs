@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The bounded nine-block vertical wall-clear draw at $84:930F.</summary>
+/// <summary>The bounded nine-block vertical wall-clear draw.</summary>
 internal static class BotwoonWallPlmDrawDefinitions
 {
     /// <summary>The nine cleared wall blocks of an already-defeated room; the crumble frames are shot-block breakup draws.</summary>

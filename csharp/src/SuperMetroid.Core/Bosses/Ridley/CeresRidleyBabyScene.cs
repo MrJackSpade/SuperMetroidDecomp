@@ -98,7 +98,7 @@ internal sealed class CeresRidleyBabyScene
     /// <summary>The Ceres Baby's anchor in Ridley's feet once retrieved, also the grasp point the retrieval compares.</summary>
     internal static Offset16<RoomPixels> CeresBabyFeetAnchor => new(14, 66);
 
-    /// <summary>Ports DrawRidleyTail $A6:DB2A and DrawRidleyWings $A6:DAD8.</summary>
+    /// <summary>Runs DrawRidleyTail and DrawRidleyWings.</summary>
     internal void DrawRidleySupplementalSprites(
         SpriteFrameBuffer sprites,
         RoomEnemySlot slot,
@@ -125,7 +125,7 @@ internal sealed class CeresRidleyBabyScene
                 tipFrame,
                 camera);
 
-            // $A6:DB59-$DBBF walks back from segment five to the base after emitting the
+            // The tail draw walks back from segment five to the base after emitting the
             // tip. Earlier draws win equal-priority overlap, so reversing this visually
             // changes the curl even though every individual piece is otherwise correct.
             for (int index = 5; index >= 0; index--)
@@ -148,9 +148,9 @@ internal sealed class CeresRidleyBabyScene
     }
 
     /// <summary>
-    /// Replays the direct branch to <c>$A6:A2E3</c> taken while Ridley's movement and
+    /// Replays the direct branch to the Baby and door draw taken while Ridley's movement and
     /// animation word is zero. This is deliberately separate from the deferred hook below:
-    /// the cartridge executes this path inside Ridley's enemy-main call, before the ordinary
+    /// the original game executes this path inside Ridley's enemy-main call, before the ordinary
     /// drawing queues, so the Baby appears with the room and before Ridley's composite.
     /// </summary>
     public void DrawCeresRidleyImmediateBabyAndDoor(
@@ -170,9 +170,9 @@ internal sealed class CeresRidleyBabyScene
     }
 
     /// <summary>
-    /// Replays the enemy-graphics-drawn hook installed by <c>$A6:A2E5</c>. The cartridge
+    /// Replays the enemy-graphics-drawn hook installed by Ceres Ridley's reveal. The original game
     /// installs it only after Ridley's animation word becomes nonzero; it then emits the
-    /// same private Baby instruction list after the ordinary enemy layer loop.
+    /// same private Baby animation script after the ordinary enemy layer loop.
     /// </summary>
     public void DrawCeresRidleyPostEnemyHook(
         SpriteFrameBuffer sprites,
@@ -188,7 +188,7 @@ internal sealed class CeresRidleyBabyScene
         DrawCeresRidleyBabyAndDoor(sprites, camera);
     }
 
-    /// <summary>Publishes the private Baby frame and hidden door overlay with the native secondary quake offset.</summary>
+    /// <summary>Publishes the private Baby frame and hidden door overlay with the secondary quake offset.</summary>
     private void DrawCeresRidleyBabyAndDoor(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera)
@@ -205,15 +205,15 @@ internal sealed class CeresRidleyBabyScene
             }
         }
 
-        // Enemy one is the ordinary Ridley-room door. Its $F69F instruction hands its
+        // Enemy one is the ordinary Ridley-room door. Its hiding step hands its
         // drawing to Ridley's scene when the common enemy pass intentionally hides the actor;
-        // $A6:A2FA then draws this fixed overlay after the Baby. This is a native cross-slot
+        // the Baby and door draw then draws this fixed overlay after the Baby. This is a cross-slot
         // draw hook, not a replacement for the door actor's own instruction interpreter.
         RoomEnemySlot door = _slotTable.Slots[1];
         if (door.Entity is IDrawnByCeresRidleyScene { HandsDrawingToRidley: true })
         {
-            // The private Ceres hook does not call WriteEnemyOAM and therefore owns a
-            // second, cartridge-authored quake adjustment at `$A6:A2F2-$A314`. Its `Y`
+            // The private Ceres hook does not call the common enemy sprite writer and therefore owns a
+            // second, authored quake adjustment. Its `Y`
             // index is the low two bits of the earthquake timer, but the table contains
             // words and the assembly omits an ASL. Preserve that retail byte-index read:
             // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
@@ -225,7 +225,7 @@ internal sealed class CeresRidleyBabyScene
     }
 
     /// <summary>
-    /// Runs the Baby's typed cutscene program one draw update and returns its current spritemap. $A6:DBE7 counts the
+    /// Runs the Baby's typed cutscene program one draw update and returns its current spritemap. The Baby's draw counts the
     /// elapsed updates up and advances once they reach the pose's duration; the next pose starts at one.
     /// </summary>
     internal EnemyFrameId? AdvanceCeresBabyDrawInstruction(RidleyEnemyState state)
@@ -259,9 +259,9 @@ internal sealed class CeresRidleyBabyScene
         switch (cue)
         {
             case CeresBabyCue.CryOrGoTo cryOrGoTo:
-                // $A6:BFC9: while the baby is falling ($880C nonzero) it always cries and
+                // While the baby is falling (its falling flag set) it always cries and
                 // continues. Otherwise it samples the live RNG word's low bit without
-                // calling GenerateRandomNumber; a set bit jumps silently ($A6:BFD5).
+                // calling GenerateRandomNumber; a set bit jumps silently.
                 if (state.BabyVerticalVelocity == 0 && (_room.Random.Read() & 1) != 0)
                     return cryOrGoTo.Target;
                 _audio.QueueEnemySound(Library3Sound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);

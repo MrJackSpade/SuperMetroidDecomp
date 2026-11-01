@@ -8,20 +8,20 @@ internal enum GreyDoorFrameBehavior
 {
     /// <summary>No pre-instruction.</summary>
     None = 1,
-    /// <summary><c>FrameBehavior_PLM_GotoLinkInstructionIfShot</c>.</summary>
+    /// <summary>PLM frame behaviour: goto link instruction if shot.</summary>
     WakeWhenShot = 2,
-    /// <summary><c>FrameBehavior_PLM_GotoLinkInstructionIfAreaBossDead</c>.</summary>
+    /// <summary>PLM frame behaviour: goto link instruction if area boss dead.</summary>
     WakeIfAreaBossDead = 3,
-    /// <summary><c>FrameBehavior_PLM_GotoLinkInstructionIfAreaMiniBossIsDead</c>.</summary>
+    /// <summary>PLM frame behaviour: goto link instruction if area Mini boss is dead.</summary>
     WakeIfAreaMiniBossDead = 4,
-    /// <summary><c>FrameBehavior_PLM_GotoLinkInstructionIfAreaTorizoIsDead</c>.</summary>
+    /// <summary>PLM frame behaviour: goto link instruction if area Torizo is dead.</summary>
     WakeIfAreaTorizoDead = 5,
-    /// <summary><c>PreInst_PLM_GotoLinkInst_SetZebesAwakeEventIfEnemiesDead</c>.</summary>
+    /// <summary>PLM frame behaviour: goto link inst, set Zebes awake event if enemies dead.</summary>
     WakeIfEnemiesDead = 6,
-    /// <summary><c>FrameBehavior_PLM_PlayDudSound</c>: the door never unlocks.</summary>
+    /// <summary>The door never unlocks.</summary>
     PlayDudSound = 7,
-    /// <summary><c>PreInst_PLM_GotoLinkInstIfTourianStatueFinishedProcessing</c>.</summary>
+    /// <summary>PLM frame behaviour: goto link inst if Tourian statue finished processing.</summary>
     WakeIfTourianStatueFinished = 8,
-    /// <summary><c>FrameBehavior_PLM_GotoLinkInstructionIfCrittersEscaped</c>.</summary>
+    /// <summary>PLM frame behaviour: goto link instruction if critters escaped.</summary>
     WakeIfCrittersEscaped = 9,
 }

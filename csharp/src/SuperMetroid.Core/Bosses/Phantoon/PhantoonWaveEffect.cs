@@ -23,7 +23,7 @@ public sealed class PhantoonWaveEffect
     /// <summary>
     /// Sine-table byte phase: setup seeds <see cref="PhantoonWaveDefinitions.InitialPhase"/> (two before the cycle's
     /// start), then each active call adds twice the mouth's phase step and keeps the remainder within one cycle, so the
-    /// phase is that seed or 0..511. The cartridge seeds its sixteen-bit counter two below a whole number of cycles,
+    /// phase is that seed or 0..511. The original game seeds its sixteen-bit counter two below a whole number of cycles,
     /// so its first remainder equals this one.
     /// </summary>
     public int Phase { get; private set; }
@@ -37,9 +37,9 @@ public sealed class PhantoonWaveEffect
     internal PhantoonWave? CurrentWave => _setupLength is { } length ? Describe(length, _built) : null;
 
     /// <summary>
-    /// The wave <paramref name="shape"/> shows at <paramref name="length"/> (#1468): BG2 at the shape's base scroll,
+    /// The wave <paramref name="shape"/> shows at <paramref name="length"/> (#1468): his body layer at the shape's base scroll,
     /// rippled down the whole screen by its amplitude from its phase's angle, over the length's period. The
-    /// cartridge's table of one cycle repeats down the screen from its first line and mirrors its first half, which is
+    /// original table of one cycle repeats down the screen from its first line and mirrors its first half, which is
     /// this one sine wave.
     /// </summary>
     /// <param name="length">The wave's length.</param>
@@ -58,13 +58,13 @@ public sealed class PhantoonWaveEffect
     };
 
     /// <summary>
-    /// $A7:D446-D451 flattens the wave on a fatal hit: every line shows the base scroll, a wave of
+    /// A fatal hit flattens the wave: every line shows the base scroll, a wave of
     /// zero amplitude, without advancing setup or changing the latched display.
     /// </summary>
     /// <param name="bg2HorizontalScroll">The second background layer's base horizontal scroll in whole pixels, which every line shows.</param>
     public void InitializeDeathScroll(int bg2HorizontalScroll) => _built = new(_built.Phase, 0, bg2HorizontalScroll);
 
-    /// <summary>$88:E487 requests a new wave; its setup runs at the next update of the per-line effect phase.</summary>
+    /// <summary>Requests a new wave; its setup runs at the next update of the per-line effect phase.</summary>
     /// <param name="length">The new wave's length. A new request replaces any pending length.</param>
     public void Begin(PhantoonWaveLength length)
     {

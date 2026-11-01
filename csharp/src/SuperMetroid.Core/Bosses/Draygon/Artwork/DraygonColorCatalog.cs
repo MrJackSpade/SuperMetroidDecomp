@@ -4,14 +4,14 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
 /// Draygon's editable RGB5 opening, normal, flash, and health-band colors. Health
-/// thresholds, hit reactions, and flash timing remain cartridge-mechanics code.
+/// thresholds, hit reactions, and flash timing remain mechanics code.
 /// </summary>
 public sealed class DraygonColorCatalog
 {
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => DraygonPalette.ContentIdentity(this);
 
-    /// <summary><c>Palette_Draygon_WhiteFlash</c> at $A5:A297: every visible flash ink is white.</summary>
+    /// <summary><c>Palette_Draygon_WhiteFlash</c>: every visible flash ink is white.</summary>
     internal static readonly RgbColor FlashInk = new(31, 31, 31);
 
     /// <summary>The selected opening, material, flash and health-band colours.</summary>
@@ -35,7 +35,7 @@ public sealed class DraygonColorCatalog
     /// <summary>Gets one of the four selected colors in an eight-row health palette table.</summary>
     public RgbColor ResolveHealthBand(int band, int color) => DraygonPalette.HealthBand(selection.HealthBands, band, color);
 
-    /// <summary>Installs the selected opening colors at their native CGRAM destination.</summary>
+    /// <summary>Installs the selected opening colors in their place among the colours.</summary>
     public void ApplyIntro(GameplayColours colours) => DraygonPalette.ApplyIntro(this, colours);
 
     /// <summary>Installs Draygon's normal or white-flash material colors and the active health band.</summary>

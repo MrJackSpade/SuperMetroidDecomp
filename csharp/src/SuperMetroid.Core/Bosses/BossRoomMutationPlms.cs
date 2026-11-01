@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses;
 /// <summary>Boss-room terrain PLMs: Botwoon's wall, the Spore Spawn ceiling, and the Kraid, Crocomire, baby Metroid wall and Mother Brain room mutations.</summary>
 internal sealed class BossRoomMutationPlms
 {
-    /// <summary>The shared native PLM allocation table used by each boss-room hardcoded spawn.</summary>
+    /// <summary>The shared PLM allocation table used by each boss-room hardcoded spawn.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Uses the room's PLM table so boss mutations contend with ordinary room PLMs for the same forty slots.</summary>
@@ -25,12 +25,12 @@ internal sealed class BossRoomMutationPlms
     /// setup routine and the retail descending 40-slot allocation order.
     /// </summary>
     /// <remarks>
-    /// Header <c>$B797</c> has an RTS setup and clears an already-defeated room on the next
-    /// handler pass. Header <c>$B79B</c> runs setup <c>$84:AB28</c>, which delays its crumble
+    /// The clearing header has an empty setup and clears an already-defeated room on the next
+    /// handler pass. The crumbling header's setup delays its crumble
     /// list for exactly 64 PLM frames. The live list itself moves one block downward after
-    /// each four-frame, four-image row and repeats nine times using PLM_Timers.
+    /// each four-frame, four-image row and repeats nine times using its frame hold.
     /// </remarks>
-    /// <returns>False only when all 40 native PLM slots are occupied.</returns>
+    /// <returns>False only when all 40 PLM slots are occupied.</returns>
     public bool TrySpawnBotwoonWall(RoomLevelData level, PlmHeaderId header)
     {
         Ensure.NotNull(level);
@@ -41,10 +41,10 @@ internal sealed class BossRoomMutationPlms
             throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
-                "Botwoon wall header must be $B797 (clear) or $B79B (crumble).");
+                "Botwoon wall header must be the wall's clearing or crumbling header.");
         }
 
-        // Both `$B3:9590` and `$B3:9ADD` pass the literal hardcoded coordinates (15,4).
+        // Both of Botwoon's spawn sites pass the literal hardcoded coordinates (15,4).
         // Validate through RoomLevelData rather than allowing a malformed fixture to install
         // a PLM whose later vertical draws would address unrelated host memory.
         int blockIndex = level.GetBlockIndex(new(15, 4));
@@ -61,7 +61,7 @@ internal sealed class BossRoomMutationPlms
             : BotwoonWallProgram.Crumble));
 
         // SpawnHardcodedPLM initializes a new slot's instruction timer to one. Only the
-        // live crumble header replaces it: setup `$84:AB28` writes $0040 to the separate
+        // live crumble header replaces it: its setup writes 64 to the separate
         // PLM instruction-timer allocation before returning to the enemy initializer.
         slot.FrameHold = WrappingCountdown.FromRaw(header == PlmHeaderId.CrumbleBotwoonWall
             ? 64
@@ -71,10 +71,10 @@ internal sealed class BossRoomMutationPlms
 
     /// <summary>
     /// Spawns Spore Spawn's hardcoded 2x2 ceiling mutation at room block (7,30).
-    /// Header $B78F animates three crumble frames and then falls through to $AB21's clear;
-    /// header $B793 starts directly at that clear list for an already-defeated room.
+    /// The crumbling header animates three crumble frames and then falls through to the clearing list;
+    /// the clearing header starts directly at that clear list for an already-defeated room.
     /// </summary>
-    /// <returns>False only when all 40 native PLM slots are occupied.</returns>
+    /// <returns>False only when all 40 PLM slots are occupied.</returns>
     public bool TrySpawnSporeSpawnCeiling(RoomLevelData level, PlmHeaderId header)
     {
         Ensure.NotNull(level);
@@ -85,7 +85,7 @@ internal sealed class BossRoomMutationPlms
             throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
-                "Spore Spawn ceiling header must be $B78F (crumble) or $B793 (clear).");
+                "Spore Spawn ceiling header must be the ceiling's crumbling or clearing header.");
         }
 
         int blockIndex = level.GetBlockIndex(new(7, 30));
@@ -102,12 +102,12 @@ internal sealed class BossRoomMutationPlms
     }
 
     /// <summary>
-    /// Spawns one hardcoded Kraid ceiling/platform mutation and runs setup $84:B3C1.
+    /// Spawns one hardcoded Kraid ceiling/platform mutation and runs its deactivating setup.
     /// Setup immediately deactivates the collision type while preserving priority and the
-    /// visual block index; the selected ROM list then draws its three crumble frames and
+    /// visual block index; the selected list then draws its three crumble frames and
     /// deletes the finite PLM on the authored cadence.
     /// </summary>
-    /// <returns>False only when all forty native PLM slots are occupied.</returns>
+    /// <returns>False only when all forty PLM slots are occupied.</returns>
     public bool TrySpawnKraidRoomMutation(
         RoomLevelData level,
         Position16<RoomBlocks> block,
@@ -423,11 +423,11 @@ internal sealed class BossRoomMutationPlms
     /// Spawns one of Crocomire's five hardcoded arena PLMs at its literal room-block origin.
     /// </summary>
     /// <remarks>
-    /// The instruction pointers are the words selected by entries $84:B747-$B757 after
-    /// their no-op setup. The shared instruction interpreter below already understands the
-    /// positive timer/draw pair and $86BC deletion used by every one of these lists.
+    /// The programs are those the five arena headers select after
+    /// their no-op setup. The shared animation-script interpreter below already understands the
+    /// positive timer/draw pair and deletion used by every one of these lists.
     /// </remarks>
-    /// <returns>False only when all 40 native PLM slots are occupied.</returns>
+    /// <returns>False only when all 40 PLM slots are occupied.</returns>
     public bool TrySpawnCrocomireArenaMutation(
         RoomLevelData level,
         Position16<RoomBlocks> block,
@@ -718,11 +718,11 @@ internal sealed class BossRoomMutationPlms
                 PlmHeaderId.ShotBlockReserveTank => throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
-                "Crocomire arena header must be $B747, $B74B, $B74F, $B753, or $B757."),
+                "Crocomire arena header must be one of the five Crocomire arena headers."),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
-                "Crocomire arena header must be $B747, $B74B, $B74F, $B753, or $B757."),
+                "Crocomire arena header must be one of the five Crocomire arena headers."),
         };
 
         int blockIndex = level.GetBlockIndex(block);
@@ -738,11 +738,11 @@ internal sealed class BossRoomMutationPlms
     }
 
     /// <summary>
-    /// Spawns Shitroid's hardcoded ten-block vertical wall mutation at `$84:B763/$B767`.
-    /// Setup executes synchronously inside <c>SpawnHardcodedPLM</c>: `$B763` makes each block
-    /// air and `$B767` makes it solid, preserving every authored block's appearance.
+    /// Spawns Shitroid's hardcoded ten-block vertical wall mutation.
+    /// Setup executes synchronously inside <c>SpawnHardcodedPLM</c>: the clearing header makes each block
+    /// air and the closing header makes it solid, preserving every authored block's appearance.
     /// </summary>
-    /// <returns>False when all forty native PLM slots are occupied; no terrain is changed.</returns>
+    /// <returns>False when all forty PLM slots are occupied; no terrain is changed.</returns>
     public bool TrySpawnShitroidWallMutation(
         RoomLevelData level,
         Position16<RoomBlocks> block,
@@ -756,7 +756,7 @@ internal sealed class BossRoomMutationPlms
             throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
-                "Shitroid wall header must be $B763 or $B767.");
+                "Shitroid wall header must be the wall's clearing or closing header.");
         }
 
         if (_slotTable.SpawnHardcoded() is not { } slot)
@@ -784,12 +784,12 @@ internal sealed class BossRoomMutationPlms
     }
 
     /// <summary>
-    /// Allocates one of Mother Brain's literal fake-death room mutations from
-    /// <c>$84:B673-$84:B6C7</c>. Every listed header uses setup $B3D0 (deactivate) and a
+    /// Allocates one of Mother Brain's literal fake-death room mutations. Every listed header uses the
+    /// deactivating setup and a
     /// one-frame draw/delete list, so the shared PLM interpreter—not boss-specific terrain
-    /// painting—owns the actual room edit and tilemap upload.
+    /// painting—owns the actual room edit and background redraw.
     /// </summary>
-    /// <returns>False only when all forty native PLM slots are occupied.</returns>
+    /// <returns>False only when all forty PLM slots are occupied.</returns>
     public bool TrySpawnMotherBrainMutation(
         RoomLevelData level,
         Position16<RoomBlocks> block,
@@ -1080,14 +1080,14 @@ internal sealed class BossRoomMutationPlms
                 PlmHeaderId.ShotBlockReserveTank => throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
-                "Mother Brain mutation header is outside $B673-$B6C7's authored set."),
+                "Mother Brain mutation header is outside Mother Brain's fake-death mutation set."),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
-                "Mother Brain mutation header is outside $B673-$B6C7's authored set."),
+                "Mother Brain mutation header is outside Mother Brain's fake-death mutation set."),
         };
 
-        // SpawnHardcodedPLM probes native slots $4E,$4C,...,$00. Do not reserve a boss
+        // SpawnHardcodedPLM probes slots $4E,$4C,...,$00. Do not reserve a boss
         // slot or coalesce adjacent row requests: their allocation order is observable.
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;

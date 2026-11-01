@@ -35,7 +35,7 @@ internal sealed class GameplayHudSetup
 
 
     /// <summary>
-    /// Selects the standard sprite characters over the start of the OBJ character table, as <c>$82:8318</c>'s setup does:
+    /// Selects the standard sprite characters over the start of the sprite character table, as gameplay setup does:
     /// enemy frames drawn over characters an earlier room's encounter replaced show the room's own pictures again from
     /// here (#1406). Setup selects them while the screen is blank, before any room loads its enemies' characters.
     /// </summary>
@@ -43,9 +43,9 @@ internal sealed class GameplayHudSetup
         _enemySession.SpriteLooks.Show(new InstalledArtworkCharacters(InstalledArtworkId.StandardObjectTiles));
 
     /// <summary>
-    /// Selects the standard sprite characters and initializes the HUD, as <c>$82:82E2</c> and <c>$80:9A79</c> do. The
-    /// HUD's rows and static top row are its own, and the accepted frame shows them in the BG3 word sheet's pictures, which
-    /// show the standard BG3 characters (#1466).
+    /// Selects the standard sprite characters and initializes the HUD, as gameplay setup does. The
+    /// HUD's rows and static top row are its own, and the accepted frame shows them in the HUD sheet's pictures, which
+    /// show the standard HUD characters (#1466).
     /// </summary>
     public void InitializeHud(HudSnapshot snapshot)
     {

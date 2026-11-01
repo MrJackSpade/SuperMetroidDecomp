@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// Application-owned copy of the fixed eleven-byte metadata preceding a retail room's
-/// native state-selection program.
+/// state-selection program.
 /// </summary>
 /// <param name="Name">The room's name.</param>
 /// <param name="RoomIndex">The room's index within its area, 0 through 255.</param>

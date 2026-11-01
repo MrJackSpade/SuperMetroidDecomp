@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.World;
 [ArchitectureReview("context-bag", "The installed PLM visual catalogs a host binds; every member is immutable artwork data, not a service.")]
 internal sealed class PlmShotBlockVisuals
 {
-    /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
+    /// <summary>Nonserialized visual-only shot-block selection; collision words remain compiled.</summary>
     [field: NonSerialized]
     public InstalledRoomPlmShotBlockVisuals? RoomPlmShotBlockVisuals { get; set; }
 
@@ -89,7 +89,7 @@ internal sealed class PlmShotBlockVisuals
     [field: NonSerialized]
     public InstalledRoomPlmSpeedBoosterVisuals? RoomPlmSpeedBoosterVisuals { get; set; }
 
-    /// <summary>Gets or replaces nonserialized Maridia elevatube artwork for the shared $84:9367 draw, selected by PLM ownership rather than borrowing Kraid's appearance.</summary>
+    /// <summary>Gets or replaces nonserialized Maridia elevatube artwork for the shared elevatube draw, selected by PLM ownership rather than borrowing Kraid's appearance.</summary>
     /// <remarks>The catalog is shared by reference. Null preserves the physical word's original appearance; tube collision and motion remain compiled.</remarks>
     [field: NonSerialized]
     public InstalledRoomPlmMaridiaElevatubeVisuals? RoomPlmMaridiaElevatubeVisuals { get; set; }
@@ -103,12 +103,12 @@ internal sealed class PlmShotBlockVisuals
     [field: NonSerialized]
     public InstalledRoomPlmSamusEaterVisuals? RoomPlmSamusEaterVisuals { get; set; }
 
-    /// <summary>Gets or replaces nonserialized appearance for $84:930F's nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
+    /// <summary>Gets or replaces nonserialized appearance for the nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
     /// <remarks>The catalog is shared by reference. Null uses the physical clear words' original visual fields.</remarks>
     [field: NonSerialized]
     public InstalledRoomPlmBotwoonWallVisuals? RoomPlmBotwoonWallVisuals { get; set; }
 
-    /// <summary>Gets or replaces nonserialized Kraid ceiling/spike PLM artwork, distinct from the boss's private BG2 body maps and from elevatube owners of the shared $84:9367 draw.</summary>
+    /// <summary>Gets or replaces nonserialized Kraid ceiling/spike PLM artwork, distinct from the boss's private body maps and from elevatube owners of the shared elevatube draw.</summary>
     /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; block collision and mutation timing remain compiled.</remarks>
     [field: NonSerialized]
     public InstalledRoomPlmKraidVisuals? RoomPlmKraidVisuals { get; set; }

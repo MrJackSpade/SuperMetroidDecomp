@@ -3,9 +3,9 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The straight-line bank-$8F door callbacks that only rewrite room scroll cells (#641). Each callback is
+/// The straight-line door callbacks that only rewrite room scroll cells (#641). Each callback is
 /// its ordered list of writes; a scroll index is the row-major cell number in the room's scroll grid.
-/// The setup-code identities name the callbacks in the cartridge's hexadecimal cell notation.
+/// The setup-code identities name the callbacks in hexadecimal cell notation.
 /// </summary>
 internal static class DoorScrollProgramDefinitions
 {

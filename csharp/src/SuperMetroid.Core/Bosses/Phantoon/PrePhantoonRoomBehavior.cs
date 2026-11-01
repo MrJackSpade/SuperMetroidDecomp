@@ -34,8 +34,8 @@ internal sealed class PrePhantoonRoomBehavior
             "The pre-Phantoon room projectile requires the runtime's background scroll words.");
 
     /// <summary>
-    /// Runs setup ASM $8F:C8C8: spawns projectile $A3B0 with room graphics. Its
-    /// initialization AI ($86:A3A3) zeroes BG2YOffset immediately.
+    /// Runs the pre-Phantoon room's setup: spawns its room-graphics projectile. Its
+    /// initialization AI zeroes BG2YOffset immediately.
     /// </summary>
     public void SpawnPrePhantoonRoomProjectile(BackgroundScrollState backgroundScroll)
     {

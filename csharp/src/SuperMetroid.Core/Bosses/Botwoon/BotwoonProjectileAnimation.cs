@@ -27,7 +27,7 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileProgramAnimati
 
     /// <summary>
     /// Switches a segment to <paramref name="program"/> from its first frame. An unchanged program keeps
-    /// running, as the cartridge only reinstalls a list that differs from the one it installed.
+    /// running, as the original game only reinstalls a list that differs from the one it installed.
     /// </summary>
     /// <returns>Whether the program changed.</returns>
     internal bool Install(BotwoonSegmentProgram program)

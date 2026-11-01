@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>How each noob tube draw is described, found and named.</summary>
 internal static class NoobTubePlmDraws
 {
-    /// <summary>Accepts only the seven known bank-$84 tube draw pointers.</summary>
+    /// <summary>Accepts only the seven known tube draw pointers.</summary>
     internal static bool TryDescribe(PlmDraw request, out Draw draw)
     {
         bool owned = request is PlmFrameDraw<NoobTubeDraw>;
@@ -42,7 +42,7 @@ internal static class NoobTubePlmDraws
         return true;
     }
 
-    /// <summary>Converts a validated native tube pointer to its artwork catalog ID.</summary>
+    /// <summary>Converts a validated tube pointer to its artwork catalog ID.</summary>
     internal static string VisualId(PlmDraw request) =>
         VisualId(PlmDraw.FrameOf<NoobTubeDraw>(request, "n00b-tube draw with a visual ID"));
 
@@ -59,7 +59,7 @@ internal static class NoobTubePlmDraws
         _ => throw new InvalidOperationException($"Undefined NoobTubeDraw {frame}."),
     };
 
-    /// <summary>Finds and materializes the native tube layout corresponding to an artwork catalog ID.</summary>
+    /// <summary>Finds and materializes the tube layout corresponding to an artwork catalog ID.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         foreach (NoobTubeDraw frame in Draws())

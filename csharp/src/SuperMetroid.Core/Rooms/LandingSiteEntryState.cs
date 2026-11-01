@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// The cartridge-defined parts of one door entry into Landing Site that are needed before
+/// The authored parts of one door entry into Landing Site that are needed before
 /// the first gameplay frame: camera screen and door-selected scrolling-sky transfer.
 /// </summary>
 [RoomLifetime]

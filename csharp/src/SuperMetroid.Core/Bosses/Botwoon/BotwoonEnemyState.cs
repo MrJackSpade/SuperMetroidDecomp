@@ -4,27 +4,27 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
-/// Debugger-facing projection of Botwoon's large extra-RAM allocation. The original uses several disjoint WRAM pages
+/// Debugger-facing projection of Botwoon's large extra state. The original uses several disjoint memory pages
 /// and aliases thirteen segment records through enemy-shaped structures. Named host fields retain those exact meanings
-/// without pretending the words belong to thirteen ordinary enemy slots. The values the cartridge keeps in the head's
+/// without pretending the words belong to thirteen ordinary enemy slots. The values the game keeps in the head's
 /// common record are emptied with it when the head is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class BotwoonEnemyState
 {
     /// <summary>
-    /// The bank-$B3 main-function pointer, owning initial waiting, traversal/spitting, and synchronized death
+    /// The main-function pointer, owning initial waiting, traversal/spitting, and synchronized death
     /// progression; none once a kill has emptied the record.
     /// </summary>
     public BotwoonEnemyFunction? Function { get; internal set; }
 
     /// <summary>
-    /// The independent bank-$B3 movement callback, choosing direct hole movement or an authored path;
+    /// The independent movement callback, choosing direct hole movement or an authored path;
     /// none once a kill has emptied the record.
     /// </summary>
     public BotwoonMovementFunction? MovementFunction { get; internal set; }
 
     /// <summary>
-    /// The independent bank-$B3 head callback, controlling movement orientation, aiming, spit-frame admission, and
+    /// The independent head callback, controlling movement orientation, aiming, spit-frame admission, and
     /// cooldown; none once a kill has emptied the record.
     /// </summary>
     public BotwoonHeadFunction? HeadFunction { get; internal set; }
@@ -93,7 +93,7 @@ public sealed class BotwoonEnemyState
     public int HalfHealth { get; internal set; }
     /// <summary>Initial maximum health shifted right two, used as the strict threshold for the fastest movement health phase.</summary>
     public int QuarterHealth { get; internal set; }
-    /// <summary>Native previous-health extended-word snapshot, initialized from the head's spawn health separately from its maximum/threshold fields.</summary>
+    /// <summary>Previous-health extended-word snapshot, initialized from the head's spawn health separately from its maximum/threshold fields.</summary>
     public int PreviousHealth { get; internal set; }
     /// <summary>Movement/spit speed record index 0, 1, or 2, refreshed when choosing a path outside a hole according to half/quarter-health thresholds.</summary>
     [IntegerQuantity("count of health thresholds passed, zero through two, indexing the speed records")]
@@ -120,14 +120,14 @@ public sealed class BotwoonEnemyState
     public bool LastBodySegmentLanded { get; internal set; }
     /// <summary>Witness that the specialized sixteen-pickup request sequence has been emitted after the final body landing.</summary>
     public bool DropRequested { get; internal set; }
-    /// <summary>Witness that initialization or death requested the appropriate bank-$84 Botwoon wall-clear/crumble PLM.</summary>
+    /// <summary>Witness that initialization or death requested the appropriate Botwoon wall-clear/crumble PLM.</summary>
     public bool WallCrumbleRequested { get; internal set; }
     /// <summary>Whether defeat persistence has been recognized or written; live death sets the area miniboss bit only after the complete wall-explosion phase.</summary>
     public bool BossBitSet { get; internal set; }
-    /// <summary>Ring index saved at a head hole crossing so delayed body samples toggle at the same position; null (native $FFFF) means no crossing remains pending.</summary>
+    /// <summary>Ring index saved at a head hole crossing so delayed body samples toggle at the same position; null means no crossing remains pending.</summary>
     public int? SavedHoleRingIndex { get; internal set; }
 
-    /// <summary>Thirteen actors, indexed by native spawn argument 0,2,...24 divided by two.</summary>
+    /// <summary>Thirteen actors, indexed by spawn argument 0,2,...24 divided by two.</summary>
     public RoomEnemyProjectileSlot?[] BodySegments { get; } =
         new RoomEnemyProjectileSlot?[13];
 
@@ -136,24 +136,24 @@ public sealed class BotwoonEnemyState
         throw new InvalidOperationException($"Botwoon body segment {index} has not spawned or lost its projectile slot.");
 
     /// <summary>
-    /// Native variable 10 for each aliased segment record. One means that body point is travelling inside the
+    /// Variable 10 for each aliased segment record. One means that body point is travelling inside the
     /// wall/hole; crossing the head's saved ring offset toggles it.
     /// </summary>
     internal bool[] SegmentInsideHole { get; } = new bool[13];
 
     /// <summary>
-    /// Each body segment's phase, by segment index (#1413). The cartridge kept it in the segment projectile's X-velocity
+    /// Each body segment's phase, by segment index (#1413). The original game kept it in the segment projectile's X-velocity
     /// word, which no body motion reads; the phase is the segment's own state here.
     /// </summary>
     internal BotwoonBodyFunction[] SegmentFunctions { get; } = new BotwoonBodyFunction[13];
 
-    /// <summary>One kilobyte of native position history, represented as 256 whole-pixel positions.</summary>
+    /// <summary>One kilobyte of position history, represented as 256 whole-pixel positions.</summary>
     internal Position16<RoomPixels>[] History { get; } = new Position16<RoomPixels>[256];
 
     /// <summary>Four delayed head positions used to choose the visible head orientation.</summary>
     internal Position16<RoomPixels>[] HeadHistory { get; } = new Position16<RoomPixels>[4];
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

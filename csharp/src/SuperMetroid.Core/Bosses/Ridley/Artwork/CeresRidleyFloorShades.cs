@@ -13,7 +13,7 @@ internal static class CeresRidleyFloorShades
         return steps.Resolve(zoomStep, color);
     }
 
-    /// <summary>Writes the fifteen-color zoom shade of <paramref name="zoomStep"/> to CGRAM 81..95.</summary>
+    /// <summary>Writes the fifteen-color zoom shade of <paramref name="zoomStep"/> to colours 81..95.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The zoom step is outside 0..8.</exception>
     internal static void Apply(CeresRidleyFloorPaint steps, GameplayColours colours, int zoomStep)
     {

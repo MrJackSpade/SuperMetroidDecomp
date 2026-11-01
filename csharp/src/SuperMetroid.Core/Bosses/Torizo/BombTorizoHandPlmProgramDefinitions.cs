@@ -4,9 +4,9 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.B
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// The Bomb Torizo hand's PLM programs (#1296), in place of its bank-$84 instruction list: the intact hand sleeps until
+/// The Bomb Torizo hand's PLM programs (#1296), in place of its instruction list: the intact hand sleeps until
 /// Samus has Bombs, then holds and drops eight fragments at quickening intervals before the cleared hand and the boss
-/// music. The cartridge's crumble list also loads the debris characters the fragments are drawn with (#1406); the
+/// music. The game's crumble list also loads the debris characters the fragments are drawn with (#1406); the
 /// fragments show their own pictures, so that load has no step here and takes no time.
 /// </summary>
 internal static class BombTorizoHandPlmProgramDefinitions

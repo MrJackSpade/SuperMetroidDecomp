@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// pages 0 through 3 again. The ocean table shows pages 0 through 3, skips page 4, then shows pages 5 and 6; its
 /// indices 6 through 8 read the code beside the table, which names no page, so those chunks show nothing. Index 255
 /// reads an instruction operand on either table and shows nothing either. Every other index is rejected. Each
-/// selection is verified against the pinned cartridge's tables.
+/// selection is verified against the pinned game data's tables.
 /// </remarks>
 public static class ScrollingSkyChunks
 {

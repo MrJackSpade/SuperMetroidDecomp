@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmSamusEaterVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmSamusEaterVisuals), content =>
     {
         Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[8];
@@ -41,9 +41,9 @@ public sealed class InstalledRoomPlmSamusEaterVisuals
             SamusEaterPlmDraws.All.Count());
     }
 
-    /// <summary>Resolves one selected plant block, translating native run-local indices into the flattened authored payload.</summary>
+    /// <summary>Resolves one selected plant block, translating run-local indices into the flattened authored payload.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="runIndex">Zero-based native draw-run ordinal 0..2.</param>
+    /// <param name="runIndex">Zero-based draw-run ordinal 0..2.</param>
     /// <param name="blockIndex">Zero-based block ordinal within the selected run.</param>
     /// <returns>The authored appearance, or the compiled terrain's appearance when unchanged.</returns>
     /// <exception cref="InvalidDataException">The draw is not a supported pose.</exception>

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <summary>The library-two sounds Spore Spawn queues.</summary>
 internal static class SporeSpawnSoundDefinitions
 {
-    /// <summary>The opening sound $2C, queued as the head opens ($A5:E6E7).</summary>
+    /// <summary>The opening sound $2C, queued as the head opens.</summary>
     internal static readonly SoundEffectId Opening = Library2Sound.ShotSporeSpawn;
     /// <summary>The hardening dust sound $29, queued with each hardening dust cloud.</summary>
     internal static readonly SoundEffectId HardeningDust = Library2Sound.HeavyRumble;

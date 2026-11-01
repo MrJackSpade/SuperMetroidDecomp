@@ -6,12 +6,12 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Visual-only Kraid ceiling and floor-spike selections. Native block appearances,
+/// Visual-only Kraid ceiling and floor-spike selections. Block appearances,
 /// animation timing and movement callbacks remain compiled and immutable.
 /// </summary>
 public sealed class InstalledRoomPlmKraidVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmKraidVisuals), content =>
     {
         foreach (KraidRoomDraw draw in ContentOrder.OrderBy(draw => KraidRoomPlmDraws.VisualId(PlmDraw.Of(draw)), StringComparer.Ordinal))
@@ -79,7 +79,7 @@ public sealed class InstalledRoomPlmKraidVisuals
 
     /// <summary>Resolves the installed appearance of one Kraid-layout block while its terrain remains compiled.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="runIndex">Native run ordinal; must be zero because each layout has one horizontal run.</param>
+    /// <param name="runIndex">Run ordinal; must be zero because each layout has one horizontal run.</param>
     /// <param name="blockIndex">Zero-based block ordinal along that run, not a room coordinate.</param>
     /// <returns>The copied frame's appearance.</returns>
     /// <exception cref="InvalidDataException">The draw is not a supported Kraid layout.</exception>

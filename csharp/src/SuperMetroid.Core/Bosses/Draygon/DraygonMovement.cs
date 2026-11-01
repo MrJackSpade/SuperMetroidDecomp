@@ -42,7 +42,7 @@ internal sealed class DraygonMovement
         }
     }
 
-    /// <summary>Adds or subtracts a sine-derived magnitude with native 16.16 wraparound.</summary>
+    /// <summary>Adds or subtracts a sine-derived magnitude with 16.16 wraparound.</summary>
     internal static FixedCoordinate AddDraygonAngleMagnitude(
         FixedCoordinate position,
         uint magnitude,

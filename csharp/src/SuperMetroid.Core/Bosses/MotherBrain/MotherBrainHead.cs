@@ -51,7 +51,7 @@ internal sealed class MotherBrainHead
         _access = dependencies.Access;
     }
 
-    /// <summary>Ports <c>InitAI_MotherBrainHead</c> at <c>$A9:8705</c>.</summary>
+    /// <summary>Ports <c>InitAI_MotherBrainHead</c>.</summary>
     internal void InitializeMotherBrainHead(RoomEnemySlot head)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ??
@@ -59,13 +59,13 @@ internal sealed class MotherBrainHead
         if (head.SlotIndex != 1)
         {
             throw new InvalidDataException(
-                $"Mother Brain's head requires native slot one, not slot {head.SlotIndex}.");
+                $"Mother Brain's head requires the second enemy slot, not slot {head.SlotIndex}.");
         }
 
         head.Health = 3000;
-        // `$A9:8714` gives the head enemy the dummy program for life (the encounter state's
-        // head-slot cursor starts there): its $A320 frame is the head's collision hitbox.
-        // The visible brain runs a separate program (`$A9:8734`).
+        // The brain initializer gives the head enemy the dummy program for life (the encounter state's
+        // head-slot cursor starts there): its dummy frame is the head's collision hitbox.
+        // The visible brain runs a separate program.
         head.FrameHold = WrappingCountdown.Start(1);
         head.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.MotherBrainHead];
         head.Properties = head.Properties.With(
@@ -82,7 +82,7 @@ internal sealed class MotherBrainHead
     {
         MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(head);
 
-        // `$A9:878B` first restores the global enemy-graphics-drawn hook to RTL. Only an
+        // The head main first restores the global enemy-graphics-drawn hook to an empty one. Only an
         // intentionally invisible head dispatches the shared brain function and replaces it.
         state.DrawBrain = false;
         state.DrawNeck = false;
@@ -111,10 +111,10 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Executes the hook installed by <c>$A9:87D0</c> after the ordinary enemy queues have
-    /// been written. The source is an ordinary bank-$A9 spritemap even though the population
-    /// record carries extended-spritemap bit <c>$0004</c>; routing it through the generic
-    /// extended parser is precisely the corruption the cartridge hook avoids.
+    /// Executes the brain draw hook after the ordinary enemy queues have
+    /// been written. The source is an ordinary spritemap even though the population
+    /// record carries the extended-spritemap property; routing it through the generic
+    /// extended parser is precisely the corruption the original game hook avoids.
     /// </summary>
     internal void DrawMotherBrainHook(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {
@@ -122,18 +122,18 @@ internal sealed class MotherBrainHead
         RoomEnemySlot? head = state?.Head;
         if (state?.DrawBrain != true || head is null)
             return;
-        // `$A9:9357-$936B` samples (never advances) the RNG before reading the brain frame,
+        // The brain draw samples (never advances) the RNG before reading the brain frame,
         // so the small breath can spawn even on a draw that then shows no brain.
         if (state.SmallPurpleBreathGenerationEnabled && !state.SmallPurpleBreathActive &&
             WordWrap.Signed(_room.Random.Read()) >= 0)
             SpawnMotherBrainPurpleBreathSmall(state);
-        // `$A9:936F` advances the brain list here, after every enemy's AI, and returns out
+        // The brain draw advances the brain list here, after every enemy's AI, and returns out
         // of the whole draw when the list is not live.
         if (AdvanceMotherBrainBrain(state, _deathsAndDrops.SamusForEnemyDrops) is not MotherBrainHeadFrame brainFrame)
             return;
 
         Offset16<RoomPixels> brainShake = GetMotherBrainBrainShake(state, head);
-        // The caller must cull before the nine-bit OAM coordinate loses world-space bits.
+        // The caller must cull before the nine-bit sprite coordinate loses world-space bits.
         // Otherwise a brain half a room to the left reappears in the approach hallway.
         if (CoordinateAxis.AsSigned(head.Position.X.Whole + brainShake.X +
                 MotherBrainDrawData.BrainLeftCullMargin - camera.X) >= 0)
@@ -151,7 +151,7 @@ internal sealed class MotherBrainHead
         if (!state.DrawNeck || state.Body.Properties.HasAny(EnemyProperties.Invisible))
             return;
 
-        // `$A9:930C-$9354` emits the joint nearest the brain first and the body-side joint
+        // The neck draw emits the joint nearest the brain first and the body-side joint
         // last. Equal-priority overlap therefore follows the same drawing precedence.
         int shakeIndex = head.FlashTimer.CyclePhase(2, 4);
         Offset16<RoomPixels> neckShake = MotherBrainBehavior.MotherBrainShakeOffsets[shakeIndex];
@@ -175,7 +175,7 @@ internal sealed class MotherBrainHead
         MotherBrainWorldFrame frame,
         Position16<RoomPixels> camera)
     {
-        // Mother Brain's private `$A9:93EE` writer rejects an entire map whose center begins
+        // Mother Brain's private sprite writer rejects an entire map whose center begins
         // above the screen. The generic writer intentionally wraps, so preserve that unique
         // vertical gate here before sharing its byte-exact map decoder.
         Position16<ScreenPixels> screen = frame.World.ToScreen(camera);
@@ -235,7 +235,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Ports <c>GetMotherBrainHeadSpritemapPointerInY</c> ($A9:92AF): returns the brain frame
+    /// Ports <c>GetMotherBrainHeadSpritemapPointerInY</c>: returns the brain frame
     /// to draw, or null when the brain is not live. With time frozen it only reads the current
     /// frame. Otherwise a frame holds while its duration minus the timer is not negative
     /// (CMP/BPL), the timer counting up; past it, cues run until the next frame, which
@@ -268,7 +268,7 @@ internal sealed class MotherBrainHead
             (cue, continuation) => ApplyMotherBrainHeadCue(state, samus, cue));
         if (advance is not AnimationProgramAdvance<MotherBrainHeadFrame>.Show shown)
             throw new InvalidOperationException($"Mother Brain's brain programs have no {advance} step.");
-        // The native pointer rests on the frame it shows, so the cursor steps back onto it.
+        // The pointer rests on the frame it shows, so the cursor steps back onto it.
         state.BrainCursor = cursor with { Position = cursor.Position - 1 };
         state.BrainFrameTimer = 1;
         return shown.Frame;
@@ -277,8 +277,8 @@ internal sealed class MotherBrainHead
     /// <summary>Carries out one cue of a brain program.</summary>
     /// <returns>The program a random hold or drool cue redirects to; otherwise null.</returns>
     /// <remarks>
-    /// The brain program advances in the <c>$A9:87D0</c> draw hook, after EnemyMain has collected the frame's legacy
-    /// sound slots, so its sounds go straight to the enemy audio queue at their native limits (#1391).
+    /// The brain program advances in the brain draw hook, after EnemyMain has collected the frame's legacy
+    /// sound slots, so its sounds go straight to the enemy audio queue at their limits (#1391).
     /// </remarks>
     private MotherBrainHeadProgram? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState? samus, MotherBrainHeadCue cue)
     {
@@ -332,7 +332,7 @@ internal sealed class MotherBrainHead
                 MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).ResetLiveBabyMetroidAttackCounter();
                 return null;
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
-                // `$A9:9DF7` skips the attack cry once the attack counter reaches eleven.
+                // The attack cry step skips the attack cry once the attack counter reaches eleven.
                 if (MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).Revival.BabyMetroidAttackCounter != 11)
                     _audio.QueueEnemySound(MotherBrainSoundDefinitions.AttackCry, priority: SoundRequestPriority.Normal);
                 return null;
@@ -343,15 +343,15 @@ internal sealed class MotherBrainHead
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle }:
                 SpawnMotherBrainRainbowChargingProjectile();
                 return null;
-            // `$A9:9CAD` holds the phase-two neutral pose again unless the random word reaches $F000 (15 in 16).
+            // The neutral hold holds the phase-two neutral pose again unless the random word reaches 61,440 (15 in 16).
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase2 }:
                 return _room.Random.Read() < 61440 ? MotherBrainHeadProgram.NeutralPhase2Hold : null;
             // Retail contains an unconditional BRA where the adjacent commentary might suggest a
             // carry branch: low-twelve random values below $EC0 hold the phase-three pose again.
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase3 }:
                 return (_room.Random.Read() & 4095) < 3776 ? MotherBrainHeadProgram.NeutralPhase3Hold : null;
-            // `$A9:9C65-$9C76` returns its destination in X: only low-twelve random values
-            // $FE0-$FFF burst into more drool; every other value keeps the one-frame loop.
+            // The drool hold returns its destination: only low-twelve random values
+            // 4064 through 4095 burst into more drool; every other value keeps the one-frame loop.
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeDroolAgain }:
                 return (_room.Random.Read() & 4095) >= 4064 ? MotherBrainHeadProgram.DyingDroolBurst : null;
             default:
@@ -359,16 +359,16 @@ internal sealed class MotherBrainHead
         }
     }
 
-    /// <summary>Fires the mouth laser at <c>$A9:9F46</c>, freezing the neck.</summary>
+    /// <summary>Fires the mouth laser, freezing the neck.</summary>
     private void SpawnMotherBrainMouthLaser(MotherBrainEnemyState state)
     {
         RoomEnemySlot head = state.Head;
         state.NeckMovementEnabled = false;
 
-        // `$A9:9F4E-$9F66` writes an explicit mouth coordinate into the common
-        // bank-$86 spawn scratch words, selects direction one (right), and invokes
-        // definition `$A17B`. The source header remains the head record, so shared
-        // initializer `$86:A009` obtains Mother Brain's authored contact damage and
+        // The bomb spawn writes an explicit mouth coordinate into the common
+        //  spawn scratch words, selects direction one (right), and invokes
+        // the bomb's definition. The source header remains the head record, so the shared
+        // initializer obtains Mother Brain's authored contact damage and
         // her parameter-one speed flag without any encounter-specific substitute.
         RoomEnemyProjectileSlot? laser = _roomActors.SpawnPirateLaser(
             head,
@@ -379,9 +379,9 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Shared `$A9:9E37/$9E5B` tail. Both target selectors subtract the same mouth offsets,
-    /// call the cartridge angle routine, rotate by `$80`, and clamp the launch arc to
-    /// `$10..$48`; only the source coordinate differs.
+    /// The shared onion-ring aim tail. Both target selectors subtract the same mouth offsets,
+    /// call the original game angle routine, rotate by a half turn, and clamp the launch arc to
+    /// 16..72; only the source coordinate differs.
     /// </summary>
     private static void AimMotherBrainOnionRingsAt(
         MotherBrainEnemyState state,
@@ -391,9 +391,9 @@ internal sealed class MotherBrainHead
         Position16<RoomPixels> mouth = head.Position.Whole + new Offset16<RoomPixels>(10, 16);
         int angle = EnemyMath.CalculateBearing(target - mouth).ToTableAngle().AddTableUnits(ByteAngle.QuarterTurn.RawValue).RawValue;
 
-        // `$9E86-$9E98` performs two signed-flag comparisons in 8-bit mode. The
-        // wraparound half maps $C0..FF and $00..0F to $10; the opposite half maps
-        // $48..BF to $48. Only $10..47 survives unchanged.
+        // The clamp performs two signed-flag comparisons in 8-bit mode. The
+        // wraparound half maps 192..255 and 0..15 to 16; the opposite half maps
+        // 72..191 to 72. Only 16..71 survives unchanged.
         state.OnionRingsTargetAngle = angle switch
         {
             >= 16 and < 72 => angle,
@@ -408,7 +408,7 @@ internal sealed class MotherBrainHead
     /// <summary>Updates an onion ring stays at Mother Brain's mouth before it flies.</summary>
     private const int MotherBrainOnionRingAttachDelay = 8;
 
-    /// <summary>Ports initializer <c>$86:C482-C4C7</c>.</summary>
+    /// <summary>Runs the bomb's initializer.</summary>
     private void SpawnMotherBrainBomb(
         MotherBrainEnemyState state,
         int afterburnCount)
@@ -434,9 +434,9 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Ports head opcode <c>$A9:9E29</c> and initializer <c>$86:C2F3</c>. The shared
+    /// Runs the head's onion-ring step and the ring's initializer. The shared
     /// allocator deliberately runs after the twelve room turrets and all lingering drool,
-    /// so pool saturation drops the ring exactly as it does on hardware.
+    /// so pool saturation drops the ring exactly as it does in the original game.
     /// </summary>
     internal void SpawnMotherBrainOnionRing(
         MotherBrainEnemyState state,
@@ -456,12 +456,12 @@ internal sealed class MotherBrainHead
             1104,
             angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
 
-        // `$C2F3` falls through into `$C320`, making the mouth position observable before
+        // The ring's initializer falls through into its attachment step, making the mouth position observable before
         // the projectile scheduler performs the first of eight delayed attachment frames.
         MotherBrainProjectiles.PinMotherBrainOnionRingToMouth(ring, state);
     }
 
-    /// <summary>Ports head opcode <c>$A9:9B3C</c> and initializer <c>$86:C843</c>.</summary>
+    /// <summary>Runs the head's drool step and the drool's initializer.</summary>
     internal void SpawnMotherBrainDrool(MotherBrainEnemyState state)
     {
         if (!state.DroolGenerationEnabled)
@@ -488,7 +488,7 @@ internal sealed class MotherBrainHead
         _projectileAttacks.RunMotherBrainAttachedDroolFrameBehavior(drool);
     }
 
-    /// <summary>Ports head opcode <c>$A9:9B6D</c> and initializer <c>$86:CA6A</c>.</summary>
+    /// <summary>Runs the head's big purple breath step and the breath's initializer.</summary>
     private void SpawnMotherBrainPurpleBreathBig(MotherBrainEnemyState state)
     {
         RoomEnemyProjectileSlot? breath = _projectiles.AllocateEnemyProjectile();
@@ -503,7 +503,7 @@ internal sealed class MotherBrainHead
         breath.Position = breath.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 6), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
     }
 
-    /// <summary>Ports the small-breath spawn at <c>$A9:9368</c> and initializer <c>$86:CA83</c>.</summary>
+    /// <summary>Runs the small-breath spawn and the breath's initializer.</summary>
     private void SpawnMotherBrainPurpleBreathSmall(MotherBrainEnemyState state)
     {
         RoomEnemyProjectileSlot? breath = _projectiles.AllocateEnemyProjectile();
@@ -519,7 +519,7 @@ internal sealed class MotherBrainHead
         state.SmallPurpleBreathActive = true;
     }
 
-    /// <summary>Ports `$86:C80A-$C828`, including the initializer's same-call pin.</summary>
+    /// <summary>Runs the rainbow charging projectile's spawn, including the initializer's same-call pin.</summary>
     internal void SpawnMotherBrainRainbowChargingProjectile()
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();

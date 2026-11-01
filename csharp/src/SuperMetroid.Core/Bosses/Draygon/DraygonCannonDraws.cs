@@ -20,7 +20,7 @@ internal static class DraygonCannonDraws
 
         /// <summary>Right frames draw two horizontal runs; left frames split the first row.</summary>
         public int RunCount => Right ? 2 : 3;
-        /// <summary>Rejects a draw-run index outside this frame's native write order.</summary>
+        /// <summary>Rejects a draw-run index outside this frame's write order.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
@@ -85,7 +85,7 @@ internal static class DraygonCannonDraws
     /// <summary>Finds a reachable cannon draw list by its editable visual ID.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
         ShotBlockPlmDraws.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
-    /// <summary>Maps a native cannon draw pointer to its facing, condition, and pose ID.</summary>
+    /// <summary>Maps a cannon draw pointer to its facing, condition, and pose ID.</summary>
     internal static string VisualId(PlmDraw request) =>
         DraygonCannonPlmDrawDefinitions.VisualIds.TryGetValue(
             PlmDraw.FrameOf<DraygonCannonDraw>(request, "Draygon cannon draw with a visual ID"), out string? id)

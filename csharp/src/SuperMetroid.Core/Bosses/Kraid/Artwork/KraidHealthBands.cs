@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>
-/// The nine $A7:B3D3/$B513 bands comprise a white flash and eight RGB5 health steps.
+/// The nine health bands comprise a white flash and eight RGB5 health steps.
 /// The flash, both endpoint bands and the two authored color-six steps come from
 /// <see cref="KraidPaint"/> unless supplied differently; interior bands
 /// interpolate the current endpoints, and their transparent slot is the final band's.
@@ -44,7 +44,7 @@ internal sealed class KraidHealthBands : IReadOnlyList<RgbColor>
         });
     }
 
-    /// <summary>White flash plus eight native sixteen-color health bands.</summary>
+    /// <summary>White flash plus eight sixteen-color health bands.</summary>
     public int Count => KraidPalettes.HealthBandCount * KraidPalettes.BandColors;
     /// <summary>Selected health color, preserving independent edits over calculated bands.</summary>
     public RgbColor this[int index]
@@ -70,7 +70,7 @@ internal sealed class KraidHealthBands : IReadOnlyList<RgbColor>
         return Interpolate(this[KraidPalettes.BandColors + color], this[finalBand + color], band);
     }
 
-    /// <summary>Visits flash and health bands in their native contiguous order.</summary>
+    /// <summary>Visits flash and health bands in their contiguous order.</summary>
     public IEnumerator<RgbColor> GetEnumerator()
     {
         for (int index = 0; index < Count; index++)

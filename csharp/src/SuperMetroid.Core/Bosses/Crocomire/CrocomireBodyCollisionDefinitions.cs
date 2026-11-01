@@ -4,15 +4,15 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Engine-owned collision data for Crocomire's fifty selected body frames at
-/// $A4:BFC4..CAC4 and their fifteen distinct hitbox lists at $A4:CB07..CC2D.
-/// OAM and BG2 art are deliberately absent: installed visual overrides cannot
-/// alter the cartridge's component offsets, rectangles, or callback identities.
-/// Values are pinned to the project's NTSC J/U v1.0 retail cartridge.
-/// Corpse-frame requests delegate to the separate native corpse collision catalog.
+/// Engine-owned collision data for Crocomire's fifty selected body frames
+/// and their fifteen distinct hitbox lists.
+/// Sprite and body-layer art are deliberately absent: installed visual overrides cannot
+/// alter the game's component offsets, rectangles, or callback identities.
+/// Values are pinned to the project's NTSC J/U v1.0 retail release.
+/// Corpse-frame requests delegate to the separate corpse collision catalog.
 /// </summary>
 /// <remarks>
-/// Reviewed for #1165. The 50 frame records lie in four contiguous runs, so frame pointers
+/// Reviewed for #1165. The 50 frame records lie in four contiguous runs, so frame identities
 /// derive from run starts and record sizes. Component placements (jaw, legs, body bands) and
 /// list rectangles are fitted to the drawings and retained; Crocomire has no mirrored facing.
 /// </remarks>

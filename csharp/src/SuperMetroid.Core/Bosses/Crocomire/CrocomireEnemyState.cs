@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's body state. These names come from the bank-$A4 disassembly. The values the body's record keeps are
+/// Crocomire's body state. These names come from the disassembly. The values the body's record keeps are
 /// emptied with the record when the body is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 /// <remarks>
@@ -31,9 +31,9 @@ public sealed class CrocomireEnemyState
     /// <summary>The queued step count (<see cref="StepCounter"/>).</summary>
     private int _stepCounter;
 
-    /// <summary>Physical $DDBF body record owning the fight and death state and room-pixel coordinates; his body layer follows this actor.</summary>
+    /// <summary>Physical body record owning the fight and death state and room-pixel coordinates; his body layer follows this actor.</summary>
     public RoomEnemySlot Body { get; }
-    /// <summary>Where the body's typed program resumes; it replaces the native instruction pointer.</summary>
+    /// <summary>Where the body's typed program resumes; it replaces the instruction pointer.</summary>
     internal AnimationProgramCursor<CrocomireBodyProgram> BodyCursor { get; set; }
 
     /// <summary>The body frame shown last, or null before the first frame.</summary>
@@ -41,7 +41,7 @@ public sealed class CrocomireEnemyState
 
     /// <summary>
     /// The program the body's cursor belongs to. A cursor resting on a fall-through already belongs to the next
-    /// program, as the native instruction pointer then points into it.
+    /// program, as the instruction pointer then points into it.
     /// </summary>
     internal CrocomireBodyProgram BodyResidentProgram => CrocomireBodyAnimations.Programs.ResidentProgram(BodyCursor);
 
@@ -54,13 +54,13 @@ public sealed class CrocomireEnemyState
     /// <summary>The next step of the tongue's program.</summary>
     internal int TonguePosition { get; set; }
 
-    /// <summary>Physical $DDFF tongue record, attached during initialization; bridge collapse sleeps and hides it, while later melting phases reuse its actor.</summary>
+    /// <summary>Physical tongue record, attached during initialization; bridge collapse sleeps and hides it, while later melting phases reuse its actor.</summary>
     public RoomEnemySlot? Tongue { get; internal set; }
 
     /// <summary>The main/death dispatcher phase; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.DefeatedRoomAdvance"/> displays an already-defeated corpse.</summary>
     public CrocomireDeathPhase DeathSequenceIndex { get; internal set; }
 
-    /// <summary>The fight latches. The cartridge keeps them in one value with <see cref="HitCount"/>; nothing reads that value another way.</summary>
+    /// <summary>The fight latches. The original game keeps them in one value with <see cref="HitCount"/>; nothing reads that value another way.</summary>
     public CrocomireFightFlags FightFlags { get; internal set; }
 
     /// <summary>The saturating count of mouth hits, 0..<see cref="CrocomireMouthHits.MaximumCount"/>.</summary>
@@ -85,7 +85,7 @@ public sealed class CrocomireEnemyState
         internal set => _stepCounter = Ensure.BetweenInclusive(0, MaximumStepCount, value);
     }
 
-    /// <summary>The largest queued step count the fight AI's signed comparisons read as the cartridge does.</summary>
+    /// <summary>The largest queued step count the fight AI's signed comparisons read as the original game does.</summary>
     private const int MaximumStepCount = short.MaxValue;
 
     /// <summary>
@@ -137,7 +137,7 @@ public sealed class CrocomireEnemyState
     public int ProjectileCounter { get; internal set; }
 
     /// <summary>
-    /// In the unused claw attack: the fight function restored when the claws stop. The cartridge parks it in the
+    /// In the unused claw attack: the fight function restored when the claws stop. The original game parks it in the
     /// projectile counter's value; only that unused attack writes or reads it, so it is kept apart.
     /// </summary>
     internal CrocomireFightFunction SavedFightFunction { get; set; }
@@ -166,7 +166,7 @@ public sealed class CrocomireEnemyState
         VerticalAcceleration = acceleration;
     }
 
-    /// <summary>Empties the values the cartridge keeps in the body's common record.</summary>
+    /// <summary>Empties the values the game keeps in the body's common record.</summary>
     [IntendedDuplicate("each state clears its own record values; the shared shape is only the assignment of zero")]
     internal void ClearWithRecord()
     {

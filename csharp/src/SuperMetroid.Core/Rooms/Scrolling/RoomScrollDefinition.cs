@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>
-/// The scroll data a room state selects: one native 50-byte allocation, or the implicit layout that marks every cell
+/// The scroll data a room state selects: one 50-byte allocation, or the implicit layout that marks every cell
 /// green except the bottom row. <see cref="RoomScrollGrid"/> checks the allocation's length and the bottom row's
 /// state when it loads them.
 /// </summary>

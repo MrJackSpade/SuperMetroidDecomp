@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Named equivalents of the entrance's bank-$A9 function pointers.</summary>
+/// <summary>Named equivalents of the entrance's function pointers.</summary>
 public enum BabyMetroidCutscenePhase
 {
     /// <summary>No Baby Metroid cutscene function is active.</summary>
@@ -9,7 +9,7 @@ public enum BabyMetroidCutscenePhase
     /// <summary>Moves the Baby rapidly into the room until it reaches the first scripted X threshold.</summary>
     DashOntoScreen,
 
-    /// <summary>Curves the Baby toward Mother Brain's head using the native angle and speed updates.</summary>
+    /// <summary>Curves the Baby toward Mother Brain's head using the angle and speed updates.</summary>
     CurveTowardMotherBrainHead,
 
     /// <summary>Closes the final gap to Mother Brain before the attachment state begins.</summary>
@@ -42,7 +42,7 @@ public enum BabyMetroidCutscenePhase
     /// <summary>Anchors the Baby to Samus and begins transferring drained energy to her.</summary>
     LatchOntoSamus,
 
-    /// <summary>Raises Samus's energy toward the native full-health target while the Baby remains attached.</summary>
+    /// <summary>Raises Samus's energy toward the full-health target while the Baby remains attached.</summary>
     HealSamusToFullHealth,
 
     /// <summary>Holds the attachment until the Baby's transfer reserve reaches zero.</summary>

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>One fourteen-byte entry consumed by <c>LoadFromLoadStation</c> at $80:C437.</summary>
+/// <summary>One fourteen-byte entry consumed by <c>LoadFromLoadStation</c>.</summary>
 /// <param name="Room">The room, or null for an unused slot.</param>
 /// <param name="Door">The door through which the room is entered, or null for an unused slot.</param>
 /// <param name="CameraPosition">Initial BG1 camera top-left (entry words 6 and 8).</param>
@@ -19,6 +19,6 @@ public sealed record LoadStationEntry(
     /// <summary>The camera-relative origin of <see cref="SamusOffset"/>: half a screen right of the camera.</summary>
     public static readonly Offset16<RoomPixels> SamusOffsetOrigin = new(128, 0);
 
-    /// <summary>World position assigned by the native load-station routine, wrapping each axis at sixteen bits.</summary>
+    /// <summary>World position assigned by the load-station routine, wrapping each axis at sixteen bits.</summary>
     public Position16<RoomPixels> SamusPosition => CameraPosition + SamusOffsetOrigin + SamusOffset;
 }

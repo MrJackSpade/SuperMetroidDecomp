@@ -50,7 +50,7 @@ internal static class BlueDoorCaps
     internal static PlmDraw VisualSource(PlmDraw request) =>
         request is PlmFrameDraw<Draw> { Frame: { Frame: BlueDoorPlmDrawDefinitions.AliasFrame } alias } ? PlmDraw.Of(alias with { Frame = 0 }) : request;
 
-    /// <summary>Builds an import/export draw DTO from the cap's cells for a recognized native pointer.</summary>
+    /// <summary>Builds an import/export draw DTO from the cap's cells for a recognized cap draw.</summary>
     /// <remarks>Runtime draws read cells directly rather than retaining these DTOs.</remarks>
     internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
         ShotBlockPlmDraws.TryCompileCap<Draw>(request, TryDescribe, out list);

@@ -8,25 +8,25 @@ using SuperMetroid.Core.Bosses.Ridley.Artwork;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Named projection of Ridley's common enemy slot and three extended WRAM workspaces.
-/// Ceres-only Baby/Mode-7 words and Norfair-only combat words intentionally coexist here:
+/// Named projection of Ridley's common enemy slot and three extended workspaces.
+/// Ceres-only Baby/rotating-getaway values and Norfair-only combat values intentionally coexist here:
 /// the original shared initializer owns one layout and only one Ridley can exist at a time.
 /// </summary>
 /// <remarks>
-/// The Lower Norfair combat words replace opaque numbered words with the meanings their bank-$A6 consumers establish.
-/// Ceres's private Baby actor and Mode-7 getaway reuse Ridley's extended workspaces, and the Ceres self-destruct
-/// presentation's function timer deliberately keeps the native phase values 0, 2, 4, 6, 8, 10 and 12.
+/// The Lower Norfair combat values replace opaque numbered words with the meanings their consumers establish.
+/// Ceres's private Baby actor and rotating getaway reuse Ridley's extended workspaces, and the Ceres self-destruct
+/// presentation's function timer deliberately keeps the phase values 0, 2, 4, 6, 8, 10 and 12.
 /// </remarks>
 public sealed class RidleyEnemyState
 {
-    /// <summary>Gets the live bank-$A6 AI function identity, shared by reveal logic and encounter-specific attack or escape phases.</summary>
+    /// <summary>Gets the live AI function identity, shared by reveal logic and encounter-specific attack or escape phases.</summary>
     public RidleyAiFunction Function { get; internal set; }
-    /// <summary>Gets the native encounter-mode word: zero during reveal, positive during combat, and $FFFF during Lower Norfair death.</summary>
+    /// <summary>Gets the encounter mode: zero during reveal, positive during combat, and dying during Lower Norfair death.</summary>
     public RidleyFightMode FightMode { get; internal set; }
     /// <summary>
     /// Gets the number of Ceres shots Ridley has taken, used for health-palette progression and the hundred-hit fake-retreat
     /// trigger. It only counts up, one per accepted shot, and shots stop landing once the retreat publishes the escape
-    /// handoff, so it stays far below the range where the cartridge's counter would wrap.
+    /// handoff, so it stays far below the range where the game's counter would wrap.
     /// </summary>
     public int HitCounter { get; internal set; }
     /// <summary>
@@ -46,7 +46,7 @@ public sealed class RidleyEnemyState
     internal static SpriteColouring OwnColours { get; } = new EncounterSpriteColouring(RidleyColourDefinitions.Health);
     /// <summary>Gets whether shared body motion and wing/tail updates run; cleared when the intact death body is hidden.</summary>
     public bool MovementAnimationEnabled { get; internal set; }
-    /// <summary>Gets the native facing-table index: zero for left, one for front-facing transition art, and two for right.</summary>
+    /// <summary>Gets the facing-table index: zero for left, one for front-facing transition art, and two for right.</summary>
     public RidleyFacing FacingDirection { get; internal set; }
     /// <summary>Gets whether neutral tail control may start random or proximity-triggered whips; the Ceres swoop disables it.</summary>
     public bool IdleTailWhipEnabled { get; internal set; }
@@ -59,21 +59,21 @@ public sealed class RidleyEnemyState
     /// fifteen), or the Lower Norfair reveal step (zero through fifteen). Each fade resets it to zero when it completes.
     /// </summary>
     public int FadeStep { get; internal set; }
-    /// <summary>Gets the movement clamp's minimum whole-pixel corner, retaining negative limits as wrapped native words.</summary>
+    /// <summary>Gets the movement clamp's minimum whole-pixel corner, retaining negative limits as wrapped words.</summary>
     public Position16<RoomPixels> MovementMinimum { get; internal set; }
     /// <summary>Gets the movement clamp's maximum whole-pixel corner.</summary>
     public Position16<RoomPixels> MovementMaximum { get; internal set; }
-    /// <summary>Nonzero predicate of $A6:D86B's hitARoomBoundary, consumed by $A6:BABC.</summary>
+    /// <summary>Whether Ridley's movement hit a room boundary, consumed by the swoop.</summary>
     public bool HitRoomBoundary { get; internal set; }
-    /// <summary>Gets Ridley's signed 8.8 velocity, each axis stored as its unchanged native word.</summary>
+    /// <summary>Gets Ridley's signed 8.8 velocity, each axis stored as its unchanged word.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>Gets the shared wing animation phase, zero through nine, advancing when its timer underflows.</summary>
     public int WingFrame { get; internal set; }
-    /// <summary>Gets the wing animation's native countdown accumulator, reloaded to $20 after signed underflow.</summary>
+    /// <summary>Gets the wing animation's countdown accumulator, reloaded to $20 after signed underflow.</summary>
     public WrappingCountdown WingAnimationTimer { get; internal set; }
     /// <summary>Gets the decrement (zero through 48) selected from velocity magnitude for the wing accumulator; nonnegative vertical motion halves it.</summary>
     public int WingAnimationTimerDelta { get; internal set; }
-    /// <summary>Gets the shared native tail-controller index; zero retains offsets, one selects neutral control, and the other defined indexes select pogo/stab variants.</summary>
+    /// <summary>Gets the shared tail-controller index; zero retains offsets, one selects neutral control, and the other defined indexes select pogo/stab variants.</summary>
     public RidleyTailFunction TailFunctionIndex { get; internal set; }
     /// <summary>Gets the angular step (zero through eight) used by shared tail segment motion and stagger propagation.</summary>
     public int TailAngleDelta { get; internal set; }
@@ -100,7 +100,7 @@ public sealed class RidleyEnemyState
     public int TailExtensionSpeed { get; internal set; }
     /// <summary>Gets the angular stagger threshold (eight through 23) used to propagate a wave or whip from one segment to the next.</summary>
     public int IdealInterSegmentTailAngle { get; internal set; }
-    /// <summary>Gets the seven native-order tail segments installed by shared initialization; the array is empty before that layout is initialized.</summary>
+    /// <summary>Gets the seven tail segments, base first, installed by shared initialization; the array is empty before that layout is initialized.</summary>
     public RidleyTailSegment[] TailSegments { get; internal set; } = [];
     /// <summary>Gets whether Ridley's instruction list has enabled the roar presentation.</summary>
     public bool Roaring { get; internal set; }
@@ -116,7 +116,7 @@ public sealed class RidleyEnemyState
     public Position16<RoomPixels> FireballBasePosition { get; internal set; }
     /// <summary>Gets the signed 8.8 velocity computed from the clamped fireball aim angle.</summary>
     public EightEightVector<RoomPixels> FireballVelocity { get; internal set; }
-    /// <summary>$7E:7800, independent swoop phase countdown used by $A6:B441-$B594.</summary>
+    /// <summary>Independent swoop phase countdown used by the swoop functions.</summary>
     public WrappingCountdown SwoopPhaseTimer { get; internal set; }
     /// <summary>Gets the swoop's heading, which wraps around the full turn; its table index selects the sine sample.</summary>
     public RotationAngle SwoopAngleAccumulator { get; internal set; }
@@ -169,7 +169,7 @@ public sealed class RidleyEnemyState
     internal int BabyPoseDuration { get; set; }
     /// <summary>Gets the Ceres Baby's elapsed draw-update count in its current pose, compared with the pose's duration and restarted at one.</summary>
     public int BabyFrameHold { get; internal set; }
-    /// <summary>Gets the Ceres Baby's native bank-$A6 behavior pointer selecting hand attachment, falling setup, falling motion, or idle.</summary>
+    /// <summary>Gets the Ceres Baby's behavior pointer selecting hand attachment, falling setup, falling motion, or idle.</summary>
     public CeresBabyFunction BabyFunction { get; internal set; }
     /// <summary>The pose the Ceres Baby's program currently shows, or null before it has shown one.</summary>
     internal CeresBabyPose? BabyCurrentPose { get; set; }
@@ -187,11 +187,11 @@ public sealed class RidleyEnemyState
     public bool GetawayActive { get; internal set; }
     /// <summary>Gets whether the Ceres getaway table reached its terminator and released the active transform.</summary>
     public bool GetawayFinished { get; internal set; }
-    /// <summary>Gets the frame index into Ceres's getaway motion table, advanced by one each update (native byte offset twice this).</summary>
+    /// <summary>Gets the frame index into Ceres's getaway motion table, advanced by one each update (byte offset twice this).</summary>
     public int GetawayFrameIndex { get; internal set; }
-    /// <summary>Gets the native wrapping angle for the Ceres getaway transform; its table index selects sine/cosine coefficients.</summary>
+    /// <summary>Gets the wrapping angle for the Ceres getaway transform; its table index selects sine/cosine coefficients.</summary>
     public RotationAngle FloorAngle { get; internal set; }
-    /// <summary>Gets the native signed M7HOFS/M7VOFS offset words applied to the Ceres getaway transform.</summary>
+    /// <summary>Gets the signed M7HOFS/M7VOFS offset words applied to the Ceres getaway transform.</summary>
     public Offset16<FloorPixels> FloorOffset { get; internal set; }
     /// <summary>
     /// Gets the getaway's zoom in 1/256 of unit scale, which scales its sine/cosine matrix: 2048 when the getaway

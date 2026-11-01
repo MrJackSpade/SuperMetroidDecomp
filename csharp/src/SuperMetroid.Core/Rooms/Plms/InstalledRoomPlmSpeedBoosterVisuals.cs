@@ -5,11 +5,11 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// Editable bomb-reveal appearance. The type-B collision and PLM timing
-/// remain in compiled cartridge definitions.
+/// remain in compiled definitions.
 /// </summary>
 public sealed class InstalledRoomPlmSpeedBoosterVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmSpeedBoosterVisuals),
         content => content.AppendAppearances("block", [appearance]));
 

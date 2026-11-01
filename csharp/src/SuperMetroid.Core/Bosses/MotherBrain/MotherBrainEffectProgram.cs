@@ -1,29 +1,29 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's onion-ring, bomb, rainbow-charge, drool, escape-door, purple-breath and subtitle programs (#641), one per bank-$86 list a spawn, branch or family routine enters, in authored order.
-/// Generated from the verified native lists; see <see cref="MotherBrainEffectAnimations"/>.
+/// Mother Brain's onion-ring, bomb, rainbow-charge, drool, escape-door, purple-breath and subtitle programs (#641), one per list a spawn, branch or family routine enters, in authored order.
+/// Generated from the verified lists; see <see cref="MotherBrainEffectAnimations"/>.
 /// </summary>
 internal enum MotherBrainEffectProgram
 {
-    /// <summary><c>InstList_EnemyProjectile_MotherBrainsOnionRings</c> at $86:C432.</summary>
+    /// <summary>Enemy projectile animation script: Mother brains onion rings.</summary>
     OnionRing,
-    /// <summary><c>InstList_EnemyProjectile_Hit_MotherBrainsOnionRings</c> at $86:C464.</summary>
+    /// <summary>Enemy projectile animation script: hit, Mother brains onion rings.</summary>
     OnionRingHit,
-    /// <summary><c>InstList_EnemyProjectile_MotherBrainBomb</c> at $86:C76E.</summary>
+    /// <summary>Enemy projectile animation script: Mother Brain Bomb.</summary>
     Bomb,
-    /// <summary><c>InstList_EnemyProjectile_MotherBrainRainbowBeam_Charging</c> at $86:C829.</summary>
+    /// <summary>Enemy projectile animation script: Mother Brain rainbow beam, charging.</summary>
     RainbowBeamCharging,
-    /// <summary><c>InstList_EnemyProjectile_MotherBrainsDrool</c> at $86:C8B0.</summary>
+    /// <summary>Enemy projectile animation script: Mother brains drool.</summary>
     Drool,
-    /// <summary><c>InstList_EnemyProjectile_MotherBrainsDrool_HitFloor</c> at $86:C8E1.</summary>
+    /// <summary>Enemy projectile animation script: Mother brains drool, hit floor.</summary>
     DroolHitFloor,
-    /// <summary><c>InstList_EnemyProj_MotherBrainExplodedEscapeDoorParticle</c> at $86:CA22.</summary>
+    /// <summary>Enemy proj animation script: Mother Brain exploded escape door particle.</summary>
     EscapeDoorParticle,
-    /// <summary><c>InstList_EnemyProjectile_MotherBrainPurpleBreath_Big</c> at $86:CAA4.</summary>
+    /// <summary>Enemy projectile animation script: Mother Brain purple breath, big.</summary>
     PurpleBreathBig,
-    /// <summary><c>InstList_EnemyProjectile_MotherBrainPurpleBreath_Small</c> at $86:CAC8.</summary>
+    /// <summary>Enemy projectile animation script: Mother Brain purple breath, small.</summary>
     PurpleBreathSmall,
-    /// <summary><c>InstList_EnemyProjectile_TimeBombSetJapanText</c> at $86:CB0D.</summary>
+    /// <summary>Enemy projectile animation script: time Bomb set japan text.</summary>
     EscapeSubtitle,
 }

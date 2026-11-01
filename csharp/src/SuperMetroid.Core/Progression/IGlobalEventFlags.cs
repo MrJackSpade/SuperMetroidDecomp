@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Progression;
 
-/// <summary>Global cartridge event bits.</summary>
+/// <summary>Global story-event bits.</summary>
 public interface IGlobalEventFlags
 {
     /// <summary>Whether <paramref name="eventNumber"/> is set.</summary>

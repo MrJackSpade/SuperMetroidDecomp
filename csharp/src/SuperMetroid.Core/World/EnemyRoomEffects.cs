@@ -42,7 +42,7 @@ internal sealed class EnemyRoomEffects
     }
 
     /// <summary>
-    /// Starts the Ceres escape timer: <c>$A6:C117</c> starts it on the same EnemyMain call that changes ceres_status
+    /// Starts the Ceres escape timer: Ceres Ridley starts it on the same EnemyMain call that changes ceres_status
     /// from one to two.
     /// </summary>
     internal void StartCeresEscape() => _escapeTimer.RequestCeresStart();
@@ -51,7 +51,7 @@ internal sealed class EnemyRoomEffects
     /// Applies the hardcoded PLMs and room effects that enemy AI requested during its pass.
     /// </summary>
     /// <remarks>
-    /// Native actors call <c>Spawn_Hardcoded_PLM</c> ($84:83D7) and their other room writes
+    /// Actors call <c>Spawn_Hardcoded_PLM</c> and their other room writes
     /// inside EnemyMain, and each PLM's setup edits the level at once. Applying them right
     /// after the enemy pass lets Samus's movement later in the frame meet the edited
     /// terrain; Baby Metroid clears its invisible wall this way just before Samus runs
@@ -69,8 +69,8 @@ internal sealed class EnemyRoomEffects
     }
 
     /// <summary>
-    /// Applies the cross-bank effect published by Botwoon's bank-$B3 AI through the shared
-    /// bank-$84 PLM owner. This is called at both native producer sites: room initialization
+    /// Applies the effect published by Botwoon's AI through the shared
+    ///  PLM owner. This is called at both producer sites: room initialization
     /// for an already-defeated boss and EnemyMain when the final body segment lands.
     /// </summary>
     internal void ApplyPendingBotwoonWallPlm(EnemyRoomEffectRequests requests, RoomPlmSystem plms)
@@ -83,23 +83,23 @@ internal sealed class EnemyRoomEffects
                 "Botwoon published a wall PLM without an active room level and scroll grid.");
         }
 
-        // SpawnHardcodedPLM silently returns when all native slots are occupied. Preserve
+        // SpawnHardcodedPLM silently returns when all slots are occupied. Preserve
         // that allocator behavior; normal load begins from Reset's empty pool, while an
         // artificial full-pool audit must not gain a host-only exception or terrain edit.
         plms.BossRoomMutations.TrySpawnBotwoonWall(_room.LevelData, header);
 
         if (header == PlmHeaderId.ClearBotwoonWall)
         {
-            // The already-defeated branch performs this 16-bit `$0101` store directly in
-            // `$B3:959E`; unlike the live crumble PLM, it does not wait for instruction
-            // `$84:AB51` during the first handler pass.
+            // The already-defeated branch clears the wall directly with one store
+            // during setup; unlike the live crumble PLM, it does not wait for its
+            // clearing step during the first handler pass.
             _room.Camera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Blue);
             _room.Camera.Scrolls.SetLogicalState(new(1, 0), RoomScrollState.Blue);
         }
     }
 
     /// <summary>
-    /// Applies Spore Spawn's bank-$A5 ceiling request through the shared bank-$84 PLM
+    /// Applies Spore Spawn's ceiling request through the shared PLM
     /// owner. Initialization publishes the clear entry for a defeated save; the live death
     /// reaction publishes the animated crumble entry on the exact collision frame.
     /// </summary>
@@ -115,17 +115,17 @@ internal sealed class EnemyRoomEffects
         if (request.Block != new Position16<RoomBlocks>(7, 30))
         {
             throw new InvalidDataException(
-                $"Spore Spawn published non-cartridge ceiling coordinates " +
+                $"Spore Spawn published ceiling coordinates other than its own wall " +
                 $"({request.Block.X},{request.Block.Y}).");
         }
 
-        // SpawnHardcodedPLM silently drops the request if all forty native slots are full.
+        // SpawnHardcodedPLM silently drops the request if all forty slots are full.
         plms.BossRoomMutations.TrySpawnSporeSpawnCeiling(_room.LevelData, request.Header);
     }
 
     /// <summary>
-    /// Applies Crocomire's bank-$A4 hardcoded arena mutations through the shared bank-$84
-    /// PLM owner. Consuming the full frame-local list preserves native publication order
+    /// Applies Crocomire's hardcoded arena mutations through the shared 
+    /// PLM owner. Consuming the full frame-local list preserves publication order
     /// and fixed-pool exhaustion behavior.
     /// </summary>
     internal void ApplyPendingCrocomireArenaPlms(EnemyRoomEffectRequests requests, RoomPlmSystem plms)
@@ -140,7 +140,7 @@ internal sealed class EnemyRoomEffects
 
         foreach (PlmSpawnRequest request in requests.CrocomirePlms)
         {
-            // SpawnHardcodedPLM silently loses a request when all forty native slots are
+            // SpawnHardcodedPLM silently loses a request when all forty slots are
             // occupied. TrySpawnCrocomireArenaMutation deliberately mirrors that result.
             plms.BossRoomMutations.TrySpawnCrocomireArenaMutation(
                 _room.LevelData,
@@ -150,7 +150,7 @@ internal sealed class EnemyRoomEffects
     }
 
     /// <summary>
-    /// Transfers Kraid's bank-$A7 hardcoded ceiling/platform calls into the shared bank-$84
+    /// Transfers Kraid's hardcoded ceiling/platform calls into the shared 
     /// PLM pool before the current frame's handler pass.
     /// </summary>
     internal void ApplyPendingKraidPlms(EnemyRoomEffectRequests requests, RoomPlmSystem plms)
@@ -170,9 +170,9 @@ internal sealed class EnemyRoomEffects
     }
 
     /// <summary>
-    /// Transfers Mother Brain's bank-$A9 hardcoded-PLM requests to the shared bank-$84
-    /// owner. The enemy state publishes requests in cartridge call order; consuming them
-    /// here retains the native descending-slot allocation and one-frame execution seam.
+    /// Transfers Mother Brain's hardcoded-PLM requests to the shared 
+    /// owner. The enemy state publishes requests in call order; consuming them
+    /// here retains the descending-slot allocation and one-frame execution seam.
     /// </summary>
     internal void ApplyPendingMotherBrainPlms(EnemyRoomEffectRequests requests, RoomPlmSystem plms, RoomLayer3FxState roomLayer3Fx, RoomPaletteFxSystem roomPaletteFx)
     {
@@ -191,7 +191,7 @@ internal sealed class EnemyRoomEffects
         }
         if (requests.MotherBrainFxEntry > 0)
         {
-            // The pending native LoadFxEntry call is applied once, on the pass that requested it. Reapplying it
+            // The pending LoadFxEntry call is applied once, on the pass that requested it. Reapplying it
             // each frame would reset its delay and prevent the acid from moving.
             RoomFxHeader fx = _room.LoadedRoom.State.Fx
                 ?? throw new InvalidOperationException("Mother Brain requested an FX entry in a room without FX.");
@@ -216,7 +216,7 @@ internal sealed class EnemyRoomEffects
     }
 
     /// <summary>
-    /// Transfers Shitroid's bank-$A9 hardcoded wall requests to the shared bank-$84 PLM
+    /// Transfers Shitroid's hardcoded wall requests to the shared PLM
     /// pool at both producer seams: enemy initialization and the end of each enemy pass.
     /// </summary>
     internal void ApplyPendingShitroidWallPlms(EnemyRoomEffectRequests requests, RoomPlmSystem plms)
@@ -239,7 +239,7 @@ internal sealed class EnemyRoomEffects
     }
 
     /// <summary>
-    /// Binds transient Chozo services and consumes pending bank-$AA terrain publications.
+    /// Binds transient Chozo services and consumes pending terrain publications.
     /// Also runs before movement so restored states cannot collide before their pending
     /// initialization setup has installed the hand block.
     /// </summary>
@@ -250,7 +250,7 @@ internal sealed class EnemyRoomEffects
             enemies.PlmRequests.ApplyPendingChozoStatuePlms(_room.LevelData, plms.ChozoStatue);
     }
 
-    /// <summary>Transfers bank-$84 downward-gate spawn/wake work into bank $86.</summary>
+    /// <summary>Transfers downward-gate spawn/wake work into the enemy-projectile pool.</summary>
     internal void ApplyPendingDownwardGateProjectileRequests(RoomPlmSystem plms, RoomEnemySystem enemies)
     {
         if (_room.LevelData is null)

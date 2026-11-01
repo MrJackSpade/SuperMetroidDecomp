@@ -3,14 +3,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Physical bank-$84 draw layouts selected by Mother Brain's glass PLM. The
-/// multi-run records include signed offsets from the PLM origin; the native
-/// instruction program still owns damage thresholds, shards, and timing.
+/// Physical draw layouts selected by Mother Brain's glass PLM. The
+/// multi-run records include signed offsets from the PLM origin; the authored
+/// animation program still owns damage thresholds, shards, and timing.
 /// </summary>
 internal static class MotherBrainGlassPlmDrawDefinitions
 {
     /// <summary>
-    /// The cells of the eleven glass states, one row per native draw run. Vertical panes reflect their lower halves;
+    /// The cells of the eleven glass states, one row per draw run. Vertical panes reflect their lower halves;
     /// the shifted pane mirrors its inner column, and shatter states clear the outer columns before replacing the
     /// centre supports. NTSC source: 84:9717..9846.
     /// </summary>

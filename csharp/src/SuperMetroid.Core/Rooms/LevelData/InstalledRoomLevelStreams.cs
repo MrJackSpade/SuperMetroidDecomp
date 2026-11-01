@@ -40,7 +40,7 @@ public sealed class InstalledRoomLevelStreams
     /// <summary>Reads one installed level.</summary>
     /// <param name="level">The level the room state names.</param>
     /// <returns>The level's installed terrain.</returns>
-    /// <exception cref="InvalidDataException">The requested level is not installed; room loads never fall back to the ROM.</exception>
+    /// <exception cref="InvalidDataException">The requested level is not installed; room loads never fall back to the original game data.</exception>
     public InstalledRoomLevel Get(RoomLevelId level) =>
         levels.TryGetValue(level, out InstalledRoomLevel? installed)
             ? installed

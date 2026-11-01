@@ -37,8 +37,8 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Ports <c>Function_DraygonBody_ChaseSamus</c> at <c>$A5:8E19</c>. The speed-divisor
-    /// test is the real communication channel from bank-$86 goop; no host-only encounter
+    /// Ports <c>Function_DraygonBody_ChaseSamus</c>. The speed-divisor
+    /// test is the real communication channel from goop; no host-only encounter
     /// flag or proximity shortcut is used to start this branch.
     /// </summary>
     internal void ChaseAndTryToGrabSamus(
@@ -59,7 +59,7 @@ internal sealed class DraygonGrab
             return;
         }
 
-        // Despite older labels calling $0400 “tangible”, this bit tells the common enemy
+        // Despite older labels calling the intangible property “tangible”, this bit tells the common enemy
         // collision pass to ignore Samus. Draygon's claw-window test below replaces the
         // ordinary body collision while he is deliberately chasing the gooped player.
         RoomEnemySlot body = state.Body;
@@ -92,8 +92,8 @@ internal sealed class DraygonGrab
 
         samus.DraygonGrabbed.Begin(samus, state.FacingRight);
         _frameResults.DraygonDiscardedSamusPoseRequests = true;
-        // `$A5:8EDB-$8EE5` set the whole spiral center only; the Y fraction (`$7E:7814`) carries over from
-        // the previous spiral of this fight, so the first lift after a re-grab borrows on the native frame.
+        // The spiral setup sets the whole spiral center only; the Y fraction carries over from
+        // the previous spiral of this fight, so the first lift after a re-grab borrows on the frame.
         state.SpiralCenter = state.SpiralCenter.WithWhole(DraygonBehavior.DraygonSpiralTarget);
         state.SpiralXRadius = SignedSixteenSixteen.Zero;
         state.SpiralAngle = DraygonBehavior.DraygonInitialSpiralAngle;
@@ -102,7 +102,7 @@ internal sealed class DraygonGrab
         state.SuccessfulGrabs++;
     }
 
-    /// <summary>Ports the one-frame grapple rejection at <c>$A5:8F10</c>.</summary>
+    /// <summary>Ports the one-frame grapple rejection.</summary>
     internal static void RepelDraygonWithGrapple(DraygonEnemyState state, SamusState? samus)
     {
         if (samus is null)
@@ -113,7 +113,7 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Ports <c>$A5:8F1E</c>: fly the grabbed pair toward the authored spiral center, then
+    /// Flies the grabbed pair toward the authored spiral center, then
     /// install the facing-specific roar before the expanding orbit begins.
     /// </summary>
     internal void CarrySamusToDraygonSpiral(DraygonEnemyState state, SamusState? samus)
@@ -146,8 +146,8 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Ports the expanding, rising spiral at <c>$A5:8FD6</c>. Radius growth, angular
-    /// deceleration, and center lift stay as separate native fixed-point word pairs.
+    /// Ports the expanding, rising spiral. Radius growth, angular
+    /// deceleration, and center lift stay as separate fixed-point word pairs.
     /// </summary>
     internal void CarrySamusInDraygonSpiral(DraygonEnemyState state, SamusState? samus)
     {
@@ -202,7 +202,7 @@ internal sealed class DraygonGrab
         MoveSamusWithDraygon(state, activeSamus);
     }
 
-    /// <summary>Ports the incidental 64-frame tail-whip pause at <c>$A5:90D4</c>.</summary>
+    /// <summary>Ports the incidental 64-frame tail-whip pause.</summary>
     internal void RunDraygonTailWhip(DraygonEnemyState state, SamusState? samus)
     {
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
@@ -223,7 +223,7 @@ internal sealed class DraygonGrab
         }
     }
 
-    /// <summary>Installs the four-repeat finishing whip list at <c>$A5:9105</c>.</summary>
+    /// <summary>Installs the four-repeat finishing whip list.</summary>
     internal void BeginDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus)
     {
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
@@ -236,25 +236,25 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Ports <c>$A5:9124</c>. The tail's cartridge list owns the duration and eventually
-    /// executes opcode <c>$9F57</c>, which changes the body function to release Samus.
+    /// Waits for the final tail whips. The tail's list owns the duration and eventually
+    /// executes its release step, which changes the body function to release Samus.
     /// </summary>
     internal void WaitForDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus) =>
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
 
-    /// <summary>Ports release, collision-bit cleanup, and tail flail at <c>$A5:9128</c>.</summary>
+    /// <summary>Ports release, collision-bit cleanup, and tail flail.</summary>
     internal void ReleaseSamusFromDraygon(DraygonEnemyState state, SamusState? samus)
     {
         if (samus is null)
             throw new InvalidOperationException("Draygon release requires the active Samus actor.");
 
         // Grapple rejection reaches this function without ever installing a grabbed pose.
-        // The normal route does own one, so invoke the bank-$90 release only in that case.
+        // The normal route does own one, so invoke the release only in that case.
         if (samus.DraygonGrabbed.IsActive)
         {
             ReleaseSamusDuringEnemyMain(samus);
-            // ReleaseSamusFromDraygon publishes bit one, and $A5:9128 immediately clears
-            // the complete native grapple-flags word. Consume the host projection here so
+            // ReleaseSamusFromDraygon publishes bit one, and the release immediately clears
+            // the complete grapple-flags word. Consume the host projection here so
             // a later encounter cannot observe a stale owner-release request.
             samus.DraygonGrabbed.ConsumeOwnerReleaseSignal();
         }
@@ -269,8 +269,8 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// <c>MoveSamusWithDraygon</c> ($A5:94A9). It places Samus without checking that she is
-    /// still held, and only then tests the escape bit bank $90 publishes. The first carry
+    /// <c>MoveSamusWithDraygon</c>. It places Samus without checking that she is
+    /// still held, and only then tests the escape bit Samus's grapple publishes. The first carry
     /// call after an escape therefore drags the released Samus once more before Draygon
     /// switches to flying straight up.
     /// </summary>
@@ -329,7 +329,7 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Runs <c>ReleaseSamusFromDraygon</c> ($90:E2DE) from Draygon's AI and publishes it so the
+    /// Runs <c>ReleaseSamusFromDraygon</c> from Draygon's AI and publishes it so the
     /// runtime clears the prospective poses alpha already chose, as the grab does.
     /// </summary>
     internal void ReleaseSamusDuringEnemyMain(SamusState samus)

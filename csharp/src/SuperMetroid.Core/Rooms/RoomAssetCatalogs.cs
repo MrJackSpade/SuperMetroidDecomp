@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>The installed catalogs one room's palette, block pictures, layout and grid are compiled from.</summary>
 public sealed record RoomAssetCatalogs
 {
-    /// <summary>Groups the complete installed catalogs required to compile a room state without cartridge reads.</summary>
+    /// <summary>Groups the complete installed catalogs required to compile a room state without reading the original game data.</summary>
     /// <param name="palettes">Static RGB5 palettes selected by the room graphics-set source.</param>
     /// <param name="visualLayouts">The rooms' replaceable initial block appearances, selected by level.</param>
     /// <param name="levelStreams">The installed terrain of every room level, selected by level.</param>

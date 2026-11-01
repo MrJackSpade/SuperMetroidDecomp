@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
-/// <summary>Native graphics-theme dispatch to independently installed room artwork resources.</summary>
+/// <summary>Graphics-theme dispatch to independently installed room artwork resources.</summary>
 public static class RoomTilesetDefinitions
 {
-    /// <summary>$8F:E7A7..E7DF: graphics themes $00..$1C precede unrelated data.</summary>
+    /// <summary>Graphics themes $00..$1C precede unrelated data.</summary>
     public const int Count = 29;
 
     /// <summary>The compressed block table each room theme's blocks use.</summary>

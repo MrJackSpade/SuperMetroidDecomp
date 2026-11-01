@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
-/// <summary>Native $A6:E2AA..E469 channel fades. Eye and body channels share the same biased integer quantizer.</summary>
+/// <summary>Ceres Ridley's channel fades. Eye and body channels share the same biased integer quantizer.</summary>
 internal sealed class CeresRidleyFade
 {
     /// <summary>Chooses eye or body row counts and their opposing fade phase directions.</summary>
@@ -13,10 +13,10 @@ internal sealed class CeresRidleyFade
     /// <summary>Selected body endpoint paints used only for body fade rows.</summary>
     private readonly CeresRidleyBodyPaint? bodyPaint;
 
-    /// <summary>Source eye paint at $A6:E2AA..E2AE (also Ridley palette slots 12..14 at $A6:E167..E16B). The selected warm highlight/middle/shadow paint uses saturated red, a shared red step, three green levels and no blue. Regenerating these categorical material choices without the source inputs would select different eye paint. Initial/explosion palette aliases are evidence only; their independent containers are not exempted.</summary>
+    /// <summary>Source eye paint (also Ridley palette slots 12..14). The selected warm highlight/middle/shadow paint uses saturated red, a shared red step, three green levels and no blue. Regenerating these categorical material choices without the source inputs would select different eye paint. Initial/explosion palette aliases are evidence only; their independent containers are not exempted.</summary>
     internal readonly record struct EyePaint(int RedStep, int HighlightGreen, int MiddleGreen, int ShadowGreen)
     {
-        /// <summary>Highest SNES five-bit color channel value used to derive the eye reds.</summary>
+        /// <summary>Highest five-bit color channel value used to derive the eye reds.</summary>
         private const int MaximumRgb5 = (1 << 5) - 1;
 
         /// <summary>Extracts the selected red step and three green levels from the eye endpoint row.</summary>
@@ -36,7 +36,7 @@ internal sealed class CeresRidleyFade
     /// <summary>Number of colors in a row of the selected fade table.</summary>
     private int Colors => kind == CeresRidleyFadeKind.Eyes
         ? CeresRidleyPaletteDefinitions.EyeFadeColorCount : CeresRidleyPaletteDefinitions.BodyFadeColorCount;
-    /// <summary>Number of native fade steps for the selected table.</summary>
+    /// <summary>Number of fade steps for the selected table.</summary>
     private int Rows => kind == CeresRidleyFadeKind.Eyes
         ? CeresRidleyPaletteDefinitions.EyeFadeShadeCount : CeresRidleyPaletteDefinitions.BodyFadeShadeCount;
 
@@ -60,7 +60,7 @@ internal sealed class CeresRidleyFade
         return overrides.TryGetValue(key, out RgbColor edited) ? edited : Calculate(row, color);
     }
 
-    /// <summary>Scale each RGB5 channel through fifteen intervals. Both select a one-unit numerator rounding bias; this is a common fade composition rule, not a claim about SNES hardware or the original authoring tool.</summary>
+    /// <summary>Scale each RGB5 channel through fifteen intervals. Both select a one-unit numerator rounding bias; this is a common fade composition rule, not a claim about the original authoring tool.</summary>
     private RgbColor Calculate(int row, int color)
     {
         RgbColor endpoint = kind == CeresRidleyFadeKind.Eyes ? eyePaint.Color(color)
@@ -69,7 +69,7 @@ internal sealed class CeresRidleyFade
         return Scale(endpoint, phase);
     }
 
-    /// <summary>Shared fifteen-interval channel quantizer used by native eye/body, retreat and zoom colors.</summary>
+    /// <summary>Shared fifteen-interval channel quantizer used by eye/body, retreat and zoom colors.</summary>
     internal static RgbColor Scale(RgbColor endpoint, int phase)
     {
         const int intervals = 15;

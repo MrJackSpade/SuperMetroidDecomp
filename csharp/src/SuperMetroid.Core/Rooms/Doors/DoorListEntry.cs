@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// One resolved entry of a room's bank-$8F door list: a physical door header, or one of the
+/// One resolved entry of a room's door list: a physical door header, or one of the
 /// elevator pseudo-doors (<see cref="ElevatorPseudoDoor.Shared"/>,
 /// <see cref="ElevatorPseudoDoor.MaridiaTourian"/>).
 /// </summary>
 /// <remarks>
-/// Native code tells them apart by bit 15 of the entry's destination word (<c>$94:938B</c>,
-/// <c>$94:93CE</c>): a pseudo-door's is zero, so collision treats the block as solid and
+/// The game tells them apart by the high bit of the entry's destination: a pseudo-door's is zero, so collision
+/// treats the block as solid and
 /// arms the elevator instead of publishing a transition. Its other ten bytes overlap the
 /// neighbouring physical record and are never consumed, so no header is modeled for it.
 /// </remarks>

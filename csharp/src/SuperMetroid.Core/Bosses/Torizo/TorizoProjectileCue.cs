@@ -2,7 +2,7 @@
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>One cue of Torizo's projectile programs, with the operands its native command carries.</summary>
+/// <summary>One cue of Torizo's projectile programs, with the operands its command carries.</summary>
 internal abstract record TorizoProjectileCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
@@ -10,12 +10,12 @@ internal abstract record TorizoProjectileCue
     {
     }
 
-    /// <summary>Turns behaviours off (<c>Instruction_EnemyProjectile_Properties_AndY</c>, $86:823C).</summary>
+    /// <summary>Turns behaviours off.</summary>
     /// <param name="Properties">The behaviours a property cue turns on or off.</param>
     /// <param name="Depth">The depth relative to Samus the cue moves the projectile to, or null to leave it.</param>
     internal sealed record ClearProperties(EnemyProjectilePropertyFlags Properties, EnemyProjectileDepth? Depth = null) : TorizoProjectileCue;
 
-    /// <summary>Turns behaviours on (<c>Instruction_EnemyProjectile_Properties_OrY</c>, $86:8230).</summary>
+    /// <summary>Turns behaviours on.</summary>
     /// <param name="Properties">The behaviours a property cue turns on or off.</param>
     /// <param name="Depth">The depth relative to Samus the cue moves the projectile to, or null to leave it.</param>
     internal sealed record SetProperties(EnemyProjectilePropertyFlags Properties, EnemyProjectileDepth? Depth = null) : TorizoProjectileCue;
@@ -24,7 +24,7 @@ internal abstract record TorizoProjectileCue
     /// <param name="Target">The program a conditional cue continues at.</param>
     internal sealed record GoToIfEyeBeamExplosionsDisabled(TorizoProjectileProgram Target) : TorizoProjectileCue;
 
-    /// <summary>Continues at the target one time in four (<c>Instruction_EnemyProjectile_GotoY_Probability_1_4</c>, $86:A456).</summary>
+    /// <summary>Continues at the target one time in four.</summary>
     /// <param name="Target">The program a conditional cue continues at.</param>
     internal sealed record GoToSometimes(TorizoProjectileProgram Target) : TorizoProjectileCue;
 
@@ -33,15 +33,15 @@ internal abstract record TorizoProjectileCue
     /// <param name="Priority">How strongly the sound competes for a place in its library's request queue.</param>
     internal sealed record PlaySound(SoundEffectId Sound, SoundRequestPriority Priority) : TorizoProjectileCue;
 
-    /// <summary>Scatters the projectile randomly about its position ($86:81DF).</summary>
+    /// <summary>Scatters the projectile randomly about its position.</summary>
     /// <param name="Spread">The random scatter a <see cref="Scatter"/> cue applies.</param>
     internal sealed record Scatter(EnemyProjectileScatter Spread) : TorizoProjectileCue;
 
-    /// <summary>Installs a movement routine (<c>Instruction_EnemyProjectile_FrameBehaviorInY</c>, $86:8161).</summary>
+    /// <summary>Installs a movement routine.</summary>
     /// <param name="FrameBehavior">The movement routine a <see cref="SetFrameBehavior"/> cue installs.</param>
     internal sealed record SetFrameBehavior(EnemyProjectileFrameBehavior FrameBehavior) : TorizoProjectileCue;
 
-    /// <summary>Sets the projectile's collision radius (<c>Instruction_EnemyProjectile_XYRadiusInY</c>, $86:8298).</summary>
+    /// <summary>Sets the projectile's collision radius.</summary>
     /// <param name="Radius">The collision radius a <see cref="SetRadius"/> cue sets.</param>
     internal sealed record SetRadius(Extent16<RoomPixels> Radius) : TorizoProjectileCue;
 

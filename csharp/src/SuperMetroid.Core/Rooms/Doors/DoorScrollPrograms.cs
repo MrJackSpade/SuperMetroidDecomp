@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>Runs the translated straight-line bank-$8F door callbacks that write the room scroll grid.</summary>
+/// <summary>Runs the translated straight-line door callbacks that write the room scroll grid.</summary>
 internal static class DoorScrollPrograms
 {
     /// <summary>True when the setup code selects a translated pure scroll callback.</summary>

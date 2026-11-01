@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's cannon PLM programs (#1296), one set per facing, in place of their bank-$84 lists.</summary>
+/// <summary>Draygon's cannon PLM programs (#1296), one set per facing, in place of their lists.</summary>
 internal enum DraygonCannonProgram
 {
     /// <summary>Links the hit program and arms the missile wake (<c>InstList_PLM_DraygonCannonWithShieldFacingRight_0</c>).</summary>

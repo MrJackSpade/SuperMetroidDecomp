@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>One immutable six-byte record decoded from a bank-$8F room population.</summary>
+/// <summary>One immutable six-byte record decoded from a room population.</summary>
 public readonly record struct RoomPlmPopulationRecord(
     int RecordIndex,
     PlmHeaderId Header,

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// Compiled collectible draw geometry and block. Only the low visual
-/// twelve bits may be overridden; pickup, collision, and persistence stay native.
+/// twelve bits may be overridden; pickup, collision, and persistence stay fixed.
 /// </summary>
 internal static class RoomPlmCollectibleDrawDefinitions
 {

@@ -25,8 +25,8 @@ internal sealed class SpeedBoosterEscapePlms
     }
 
     /// <summary>
-    /// Runs setup $84:B89C. Event $15 suppresses this actor on subsequent room loads; an
-    /// unset event leaves the preallocated slot and its ROM-selected $B88A list untouched.
+    /// Sets up the Speed Booster escape PLM. Event 21 suppresses this actor on subsequent room loads; an
+    /// unset event leaves the preallocated slot and its first script untouched.
     /// </summary>
     internal void SetupSpeedBoosterEscapeSlot(PlmSlot slot)
     {
@@ -42,7 +42,7 @@ internal sealed class SpeedBoosterEscapePlms
             slot.StartAnimation(new SpeedBoosterEscapePlmAnimation());
     }
 
-    /// <summary>Dispatches the exact callback pointer installed by the cartridge list.</summary>
+    /// <summary>Dispatches the exact callback pointer installed by the original game list.</summary>
     internal void RunSpeedBoosterEscapeFrameBehavior(PlmSlot slot, SpeedBoosterEscapeFrameBehavior frameBehavior)
     {
         IRoomFxMotion fx = _roomFx
@@ -94,7 +94,7 @@ internal sealed class SpeedBoosterEscapePlms
             return;
         }
 
-        // BMI at $84:B80D treats any $8000-$FFFF target as disabled and deletes the actor.
+        // The sign test treats any negative target as disabled and deletes the actor.
         if (CoordinateAxis.AsSigned(fx.TargetSurface.Y) < 0)
         {
             slot.Clear();
@@ -122,7 +122,7 @@ internal sealed class SpeedBoosterEscapePlms
             return;
         }
 
-        // BCC at $84:B852 returns while Samus remains left-to-right beyond this stage.
+        // BCC returns while Samus remains left-to-right beyond this stage.
         if (stage.Value.TargetSamusX < samus.Position.X.Whole)
             return;
 
@@ -135,9 +135,9 @@ internal sealed class SpeedBoosterEscapePlms
     }
 
     /// <summary>
-    /// Both $B7EF and $B82A set instruction timer one, advance past the sleeping word, and
-    /// clear PLM_Timers. The ordinary handler then consumes the next install/sleep pair in
-    /// the same frame, preserving the native coroutine cadence.
+    /// Both wake steps set frame hold one, advance past the sleeping step, and
+    /// clear the shot trigger. The ordinary handler then consumes the next install/sleep pair in
+    /// the same frame, preserving the coroutine cadence.
     /// </summary>
     private static void WakeAtNextInstruction(PlmSlot slot)
     {

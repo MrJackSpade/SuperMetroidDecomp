@@ -3,16 +3,16 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The state of a Rinka. The values the cartridge keeps in the enemy's common record are emptied with it when the enemy
+/// The state of a Rinka. The values the game keeps in the enemy's common record are emptied with it when the enemy
 /// is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class RinkaEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the typed animation (#641) resumes, in place of the instruction pointer.</summary>
     internal AnimationProgramCursor<RinkaProgram> Program { get; set; }
 
     /// <summary>
-    /// Same-bank $A2 routine word dispatched by main AI, changed by initialization, the fire instruction, aim
+    /// Routine dispatched by main AI, changed by initialization, the fire step, aim
     /// completion, or the special death tail; none once a kill has emptied the record.
     /// </summary>
     public RinkaEnemyFunction? Function { get; internal set; }
@@ -22,7 +22,7 @@ public sealed class RinkaEnemyState
 
     /// <summary>
     /// Reservation token of the spawn location a special Mother Brain Rinka holds: one of the even tokens 2 through 22
-    /// from $A2:B75B, or zero when it holds none.
+    /// from the spawn-point table, or zero when it holds none.
     /// </summary>
     public int SpawnResourceToken
     {
@@ -33,7 +33,7 @@ public sealed class RinkaEnemyState
     /// <summary>Wrapping 16-bit countdown used both before flight and before special respawn.</summary>
     public WrappingCountdown DelayTimer { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

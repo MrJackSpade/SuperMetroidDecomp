@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Bosses.Ridley.RidleyFireballProgram;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Ridley's typed fireball and afterburn programs (#641), in place of their bank-$86 lists.</summary>
+/// <summary>Ridley's typed fireball and afterburn programs (#641), in place of their lists.</summary>
 internal static class RidleyFireballAnimations
 {
     /// <summary>Poses in the flight loop.</summary>
@@ -13,11 +13,11 @@ internal static class RidleyFireballAnimations
     /// <summary>Poses in each afterburn run.</summary>
     internal const int AfterburnPoseCount = 5;
 
-    /// <summary>Each launch pose's dwell ($86:9554/955C).</summary>
+    /// <summary>Each launch pose's dwell.</summary>
     private const int LaunchDuration = 4;
-    /// <summary>Each flight pose's dwell ($86:9560..956C).</summary>
+    /// <summary>Each flight pose's dwell.</summary>
     private const int FlightDuration = 2;
-    /// <summary>Each afterburn pose's dwell ($86:9576..961A).</summary>
+    /// <summary>Each afterburn pose's dwell.</summary>
     private const int AfterburnDuration = 5;
 
     /// <summary>Every fireball and afterburn program.</summary>

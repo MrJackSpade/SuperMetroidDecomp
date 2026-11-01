@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Index into Mother Brain's three-entry phase-two attack dispatcher at
-/// <c>$A9:B654</c>. The values are array indices in the cartridge, not host-only states.
+/// Index into Mother Brain's three-entry phase-two attack dispatcher.
+/// The values are array indices in the original game, not host-only states.
 /// </summary>
 public enum MotherBrainAttackPhase
 {

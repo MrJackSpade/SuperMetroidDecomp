@@ -3,8 +3,8 @@
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The background scroll phase: scroll registers from the camera and layer-1 position adoption. Backgrounds render from
-/// level data through these registers, so nothing streams into VRAM (#1346).
+/// The background scroll phase: scroll offsets from the camera and layer-1 position adoption. Backgrounds render from
+/// level data through these offsets, so nothing streams into the backgrounds (#1346).
 /// </summary>
 internal sealed class BackgroundScrollPhase
 {
@@ -20,7 +20,7 @@ internal sealed class BackgroundScrollPhase
         _room = room;
     }
 
-    /// <summary>Copies the translated layer-1 camera into <c>$80:A3AB</c>'s scroll bookkeeping and steps the registers.</summary>
+    /// <summary>Copies the translated layer-1 camera into the background scroll bookkeeping and steps the scroll offsets.</summary>
     public void UpdateBackgroundScrollingFromCamera(bool timeIsFrozen = false)
     {
         if (_room.Camera is null)

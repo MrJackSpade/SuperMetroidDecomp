@@ -19,7 +19,7 @@ internal sealed class KraidCombat
     private readonly EnemyAudioQueue _audio;
     /// <summary>Spawns room sprite objects for Kraid's visual effects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
-    /// <summary>Provides the native body and seven part slots.</summary>
+    /// <summary>Provides the body and seven part slots.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Checks mouth, body, and part collisions against Samus and shots.</summary>
     private readonly EnemyCollision _collision;
@@ -95,11 +95,11 @@ internal sealed class KraidCombat
                                EnemyCollision.TouchAi(slot) == EnemyReaction.KraidArmTouch,
             context =>
             {
-                // `$A7:9490-$94A4` deliberately addresses physical enemy slot four,
+                // The arm's push deliberately addresses physical enemy slot four,
                 // rather than searching for a particular lint definition. The encounter's
-                // eight-record layout makes that the bottom lint; forcing `$B89B` here
+                // eight-record layout makes that the bottom lint; forcing its firing function here
                 // causes it to fire immediately after the arm launches Samus up and right.
-                // Native writes only the whole displacement words, so preserve both
+                // Writes only the whole displacement words, so preserve both
                 // fractional words exactly as they were before contact.
                 _ = _access.RequireKraidState(context.Slot);
                 context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWhole(new(4, -8));
@@ -109,17 +109,17 @@ internal sealed class KraidCombat
     }
 
     /// <summary>
-    /// Ports Kraid arm helper <c>SpawnExplosionProjectile</c> at `$A7:B0CB`, called by the
-    /// arm hitbox callback at `$A7:94B6`. Super Missiles select native dust animation `$1D`;
-    /// beams, missiles, and family-$0500 normal bombs select `$06`. The effect uses the
-    /// shared room-graphics projectile allocator and queues sound-library-one effect `$3D`.
+    /// Ports Kraid arm helper <c>SpawnExplosionProjectile</c>, called by the
+    /// arm hitbox callback. Super Missiles select the big dust animation;
+    /// beams, missiles, and normal bombs select the dud animation. The effect uses the
+    /// shared room-graphics projectile allocator and queues the sound-library-one explosion effect.
     /// </summary>
     private void SpawnKraidArmShotExplosion(
         SamusProjectileType projectileType,
         Position16<RoomPixels> position)
     {
         // Super Missiles, Power Bombs and beam explosions take the big explosion; the
-        // cartridge tests one bit of their family's table row.
+        // tests one bit of their family's table row.
         MiscDustAnimation animationIndex = projectileType.Family is SamusProjectileFamily.SuperMissile or
                 SamusProjectileFamily.PowerBomb or SamusProjectileFamily.BeamExplosion
             ? MiscDustAnimation.BigExplosion
@@ -129,13 +129,13 @@ internal sealed class KraidCombat
     }
 
     /// <summary>
-    /// Both passes return immediately once Kraid has begun sinking ($A7:AFAD/$B182).
+    /// Both passes return immediately once Kraid has begun sinking.
     /// </summary>
     private bool KraidSinkingSkipsProjectileCollision(RoomEnemySlot body) =>
         !KraidFunctionGroups.BeforeSinking.Contains(_access.Part(body).Function);
 
     /// <summary>
-    /// Ports <c>KraidsMouth_vs_Projectile_CollisionHandling</c> ($A7:AFAA). Projectile
+    /// Ports <c>KraidsMouth_vs_Projectile_CollisionHandling</c>. Projectile
     /// removal is deferred to the projectile pre-instruction.
     /// </summary>
     internal int ResolveKraidMouthProjectileHits(RoomEnemySlot body, KraidEnemyState state, KraidBehavior.KraidShotSlots shots)
@@ -212,7 +212,7 @@ internal sealed class KraidCombat
     }
 
     /// <summary>
-    /// Ports <c>KraidBody_vs_Projectile_CollisionHandling</c> ($A7:B181), the independent
+    /// Ports <c>KraidBody_vs_Projectile_CollisionHandling</c>, the independent
     /// outer mouth/body pass.
     /// </summary>
     internal int ResolveKraidBodyProjectileHits(RoomEnemySlot body, KraidEnemyState state, KraidBehavior.KraidShotSlots shots)
@@ -292,7 +292,7 @@ internal sealed class KraidCombat
         state.ClearMouthReactions();
         for (int slot = 0; slot < 6; slot++)
         {
-            // Native property `$0400` disables the ordinary touch list while the private
+            // The intangible property disables the ordinary touch list while the private
             // death state owns body movement and breakup effects.
             // Nails are separate projectile-like actors and delete themselves from HP zero.
             // Keeping this six-slot bound preserves that exact division.
@@ -303,7 +303,7 @@ internal sealed class KraidCombat
 
     /// <summary>Checks the body hitbox and applies contact damage to Samus.</summary>
     /// <remarks>These collision checks belong to actor AI rather than generic interactive hitboxes. The body's
-    /// permanent intangible flag and lint's ignoring touch reaction do not suppress these private native paths.</remarks>
+    /// permanent intangible flag and lint's ignoring touch reaction do not suppress these private paths.</remarks>
     internal void ResolveKraidBodyContact(RoomEnemySlot body, KraidEnemyState state, SamusState samus)
     {
         if (!KraidFunctionGroups.BeforeDeath.Contains(state.Parts[body.SlotIndex].Function))
@@ -331,7 +331,7 @@ internal sealed class KraidCombat
             KraidFootCollision.TryGetComponents(enemy.Frame, out var footComponents)))
             return null;
 
-        // Kraid's foot art is replaceable, but each native extended frame
+        // Kraid's foot art is replaceable, but each extended frame
         // still places two physical components against one shared hitbox list.
         foreach (KraidCollisionComponent component in footComponents)
         {
@@ -360,9 +360,9 @@ internal sealed class KraidCombat
             KraidArmCollision.TryGetComponents(enemy.Frame, out var kraidComponents)))
             return null;
 
-        // Kraid's arm art is editable, but the native extended spritemap
+        // Kraid's arm art is editable, but the extended spritemap
         // also carries a separate, ordered physical component stream.
-        // Read that stream from the immutable cartridge definition catalog.
+        // Read that stream from the immutable definition catalog.
         foreach (KraidCollisionComponent component in kraidComponents)
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;

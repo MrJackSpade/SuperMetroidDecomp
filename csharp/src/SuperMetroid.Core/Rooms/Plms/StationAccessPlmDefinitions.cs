@@ -1,34 +1,34 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Named station/side dispatch for behaviour $47..$4C, matching $94:91C7..91D2.
+/// Named station/side dispatch for the six station-access behaviours.
 /// Each case selects its retracted/extended arm draws.
 /// Energy and missile stations share access artwork on each side. Other behaviour
 /// values, including the save-floor trigger, are outside this extending domain.
 /// </summary>
 internal static class StationAccessPlmDefinitions
 {
-    /// <summary><c>$84:B6D7/$AD86</c>, map-station access from its right side.</summary>
+    /// <summary>Map-station access from its right side.</summary>
     public static StationAccessPlmDefinition MapRight =>
         new(StationDraw.MapRightRetracted, StationDraw.MapRightExtended);
 
-    /// <summary><c>$84:B6DB/$ADA4</c>, map-station access from its left side.</summary>
+    /// <summary>Map-station access from its left side.</summary>
     public static StationAccessPlmDefinition MapLeft =>
         new(StationDraw.MapLeftRetracted, StationDraw.MapLeftExtended);
 
-    /// <summary><c>$84:B6E3/$ADF1</c>, energy-station access from its right side.</summary>
+    /// <summary>Energy-station access from its right side.</summary>
     public static StationAccessPlmDefinition EnergyRight =>
         new(StationDraw.ResourceRightRetracted, StationDraw.ResourceRightExtended);
 
-    /// <summary><c>$84:B6E7/$AE13</c>, energy-station access from its left side.</summary>
+    /// <summary>Energy-station access from its left side.</summary>
     public static StationAccessPlmDefinition EnergyLeft =>
         new(StationDraw.ResourceLeftRetracted, StationDraw.ResourceLeftExtended);
 
-    /// <summary><c>$84:B6EF/$AE7B</c>, missile-station access from its right side.</summary>
+    /// <summary>Missile-station access from its right side.</summary>
     public static StationAccessPlmDefinition MissileRight =>
         new(StationDraw.ResourceRightRetracted, StationDraw.ResourceRightExtended);
 
-    /// <summary><c>$84:B6F3/$AE9D</c>, missile-station access from its left side.</summary>
+    /// <summary>Missile-station access from its left side.</summary>
     public static StationAccessPlmDefinition MissileLeft =>
         new(StationDraw.ResourceLeftRetracted, StationDraw.ResourceLeftExtended);
 }

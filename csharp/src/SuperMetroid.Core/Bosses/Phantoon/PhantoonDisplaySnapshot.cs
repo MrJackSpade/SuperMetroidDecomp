@@ -3,9 +3,9 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// Phantoon's presentation as the display latch captured it: the wave on BG2 (#1353, #1468), the blend configuration, and
-/// the BG2 mosaic size. Later passes cannot change them. His fades show through the body palette the frame's CGRAM
-/// snapshot carries, which is exact palette state.
+/// Phantoon's presentation as the display latch captured it: the wave on his body layer (#1353, #1468), the blend
+/// configuration, and the body layer's mosaic size. Later passes cannot change them. His fades show through the body
+/// palette the frame's colour snapshot carries, which is exact palette state.
 /// </summary>
 /// <param name="Wave">The active wave rippling BG2, or null when the wave channel is inactive.</param>
 /// <param name="Configuration">Latched blend configuration: room default, BG2 hidden, or BG2 semitransparent.</param>

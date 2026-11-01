@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// The base background colours one room graphics-set palette source gives each background set (#1464). The import
-/// pipeline decodes the installed palette, which keeps the cartridge's colour order, into the sets.
+/// pipeline decodes the installed palette, which keeps the original colour order, into the sets.
 /// </summary>
 public sealed class RoomStaticPalette
 {

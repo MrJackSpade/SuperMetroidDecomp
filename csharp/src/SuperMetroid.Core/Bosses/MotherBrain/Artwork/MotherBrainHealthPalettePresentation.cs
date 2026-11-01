@@ -10,7 +10,7 @@ public sealed class MotherBrainHealthPalettePresentation
     /// <summary>Rear-leg colors whose stock outline and gray basis depend on the selected body palette.</summary>
     internal readonly TintPalette backLegs;
 
-    /// <summary>Compiles body and rear-leg tint rows, retaining independently supplied colors when they differ from native shading.</summary>
+    /// <summary>Compiles body and rear-leg tint rows, retaining independently supplied colors when they differ from shading.</summary>
     internal MotherBrainHealthPalettePresentation(RgbColor[][] body, RgbColor[][] backLegs)
     {
         this.body = new TintPalette(body, MotherBrainPalettePart.Body);
@@ -18,17 +18,17 @@ public sealed class MotherBrainHealthPalettePresentation
     }
 
     /// <summary>
-    /// $A9:9474/9494 normal restoration repeats the $AD:E6AC/E74C health-state-zero bases.
+    /// The normal restoration repeats the health-state-zero bases.
     /// Independent installed documents use this only when their own supplied colors match.
     /// </summary>
     internal static RgbColor StockBaseColor(MotherBrainPalettePart part, int color) =>
         (part == MotherBrainPalettePart.BackLeg ? BasePalette.StockRear : BasePalette.StockBody).Color(color);
 
-    /// <summary>$AD:EA0A/EA26 and F119 use health state three as their death-fade starting point.</summary>
+    /// <summary>The death fades use health state three as their starting point.</summary>
     internal static RgbColor StockDeathStartColor(MotherBrainPalettePart part, int color) =>
         TintColor(StockBaseColor(part, color), 3, part);
 
-    /// <summary>Applies the native red tint in biased RGB8 space, with an extra rear-leg increment beyond state zero.</summary>
+    /// <summary>Applies the red tint in biased RGB8 space, with an extra rear-leg increment beyond state zero.</summary>
     private static RgbColor TintColor(RgbColor initial, int state, MotherBrainPalettePart part)
     {
         int amount = state * (state + 1) + (part == MotherBrainPalettePart.BackLeg && state != 0 ? 2 : 0);
@@ -39,7 +39,7 @@ public sealed class MotherBrainHealthPalettePresentation
             return (rgb8 * (30 - amount) + target * amount) / (30 * 8);
         });
     }
-    /// <summary>Calculates one damage-tinted color pair to the three native CGRAM destinations.</summary>
+    /// <summary>Calculates one damage-tinted color pair to the three colour destinations.</summary>
     /// <param name="gameplayColours">Mutable destination; body colors replace indices 65..79 and 145..159, while rear-leg colors replace indices 177..191. Transparent palette slots remain unchanged.</param>
     /// <param name="damageState">Zero-based health-band selector: zero for health at least 9000, one for 5400..8999, two for 1800..5399, and three below 1800; health selection itself remains in gameplay code.</param>
     /// <exception cref="ArgumentNullException"><paramref name="gameplayColours"/> is null.</exception>
@@ -63,7 +63,7 @@ public sealed class MotherBrainHealthPalettePresentation
     /// </summary>
     internal sealed class TintPalette
     {
-        /// <summary>State-zero colors used to derive the native damage tint curve.</summary>
+        /// <summary>State-zero colors used to derive the damage tint curve.</summary>
         internal readonly BasePalette basis;
         /// <summary>Selects the extra rear-leg tint strength after the undamaged state.</summary>
         private readonly MotherBrainPalettePart part;
@@ -81,7 +81,7 @@ public sealed class MotherBrainHealthPalettePresentation
                     { supplied = rows; return; }
         }
 
-        /// <summary>Selects an edited sample or the native tint of its state-zero basis color.</summary>
+        /// <summary>Selects an edited sample or the tint of its state-zero basis color.</summary>
         public RgbColor Color(int state, int color) => supplied is null ? Calculate(state, color) : supplied[state][color];
 
         /// <summary>Tints one selected basis ink for a health band.</summary>
@@ -105,9 +105,9 @@ public sealed class MotherBrainHealthPalettePresentation
         /// <summary>Selected body basis from which stock rear-leg outline and gray are derived.</summary>
         private readonly BasePalette? front;
 
-        /// <summary>Native state-zero body basis from reviewed paint colors.</summary>
+        /// <summary>State-zero body basis from reviewed paint colors.</summary>
         internal static BasePalette StockBody { get; } = new(MotherBrainPalettePart.Body);
-        /// <summary>Native rear-leg basis derived from the stock body basis.</summary>
+        /// <summary>Rear-leg basis derived from the stock body basis.</summary>
         internal static BasePalette StockRear { get; } = new(MotherBrainPalettePart.BackLeg);
 
         /// <summary>Initializes the reviewed stock body or rear-leg basis without storing a color row.</summary>
@@ -134,7 +134,7 @@ public sealed class MotherBrainHealthPalettePresentation
             return matches ? stock : new BasePalette(colors, part, front);
         }
 
-        /// <summary>Selects independent endpoint inks and retains the full row if native shade relationships do not reproduce it.</summary>
+        /// <summary>Selects independent endpoint inks and retains the full row if shade relationships do not reproduce it.</summary>
         public BasePalette(RgbColor[] colors, MotherBrainPalettePart part, BasePalette? front)
         {
             this.part = part;
@@ -153,7 +153,7 @@ public sealed class MotherBrainHealthPalettePresentation
         /// <summary>Selects one edited basis ink or its calculated stock shade.</summary>
         public RgbColor Color(int color) => supplied is null ? Calculate(color) : supplied[color];
 
-        /// <summary>Builds cortex, outline, gray, and tissue inks using the native quarter and fifth shade ramps.</summary>
+        /// <summary>Builds cortex, outline, gray, and tissue inks using the quarter and fifth shade ramps.</summary>
         private RgbColor Calculate(int color) => color switch
         {
             0 => part == MotherBrainPalettePart.BackLeg ? RgbColor.Black : highlight,

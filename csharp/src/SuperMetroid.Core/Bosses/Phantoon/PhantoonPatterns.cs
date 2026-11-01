@@ -77,7 +77,7 @@ internal sealed class PhantoonPatterns
 
         CountdownStep figureEight = state.Parts[state.Eye.SlotIndex].ClosedTimer.Decrement();
         state.Parts[state.Eye.SlotIndex].ClosedTimer = figureEight.Remaining;
-        // Native DEC/BEQ/BPL admits both zero and negative expiration. Waiting
+        // DEC/BEQ/BPL admits both zero and negative expiration. Waiting
         // for underflow adds a movement/flame frame before the eye-opening handoff.
         if (!figureEight.IsZeroOrNegative)
             return;
@@ -88,7 +88,7 @@ internal sealed class PhantoonPatterns
         SpawnPhantoonSpiralFlames(body);
     }
 
-    /// <summary>Advances the body and eye on their native figure-eight path.</summary>
+    /// <summary>Advances the body and eye on their figure-eight path.</summary>
     internal static void StepPhantoonFigureEight(RoomEnemySlot body, PhantoonPartState bodyPart, PhantoonPartState eyePart)
     {
         if (eyePart.FigureEightReversed)
@@ -170,7 +170,7 @@ internal sealed class PhantoonPatterns
                 body,
                 PhantoonMotionDefinitions.SlowFraction,
                 PhantoonMotionDefinitions.SlowWhole, direction: PhantoonSpeedChange.Decelerate);
-            // The whole speed is the cartridge's word; the cap is compared as that word.
+            // The whole speed is the game's word; the cap is compared as that word.
             int cap = WordWrap.Unsigned(PhantoonMotionDefinitions.ReverseSlowCap);
             if (body.SpeedWhole == cap || WordWrap.Signed(body.SpeedWhole - cap) < 0)
             {
@@ -187,7 +187,7 @@ internal sealed class PhantoonPatterns
                 body,
                 PhantoonMotionDefinitions.FastFraction,
                 PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Decelerate);
-            // The whole speed is the cartridge's word; the cap is compared as that word.
+            // The whole speed is the game's word; the cap is compared as that word.
             int cap = WordWrap.Unsigned(PhantoonMotionDefinitions.ReverseFastCap);
             if (body.SpeedWhole == cap || WordWrap.Signed(body.SpeedWhole - cap) < 0)
             {
@@ -211,7 +211,7 @@ internal sealed class PhantoonPatterns
         }
     }
 
-    /// <summary>Adds a native two-word speed value to the body motion accumulator, or subtracts it when slowing.</summary>
+    /// <summary>Adds a two-word speed value to the body motion accumulator, or subtracts it when slowing.</summary>
     private static void ChangePhantoonSpeed(PhantoonPartState body, int low, int high, PhantoonSpeedChange direction)
     {
         uint value = SixteenSixteen.Compose(Ensure.BetweenInclusive(0, ushort.MaxValue, body.SpeedWhole), Ensure.BetweenInclusive(0, ushort.MaxValue, body.SpeedFraction));
@@ -250,7 +250,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Starts the spiral-flame pattern around the body.</summary>
-    /// <remarks>The spiral fireballs are the first ordinary combat attack. Their exact bank-$86 translation belongs to
+    /// <remarks>The spiral fireballs are the first ordinary combat attack. Their exact translation belongs to
     /// the next combat slice; retaining the explicit call boundary prevents the eye-opening instruction from being
     /// mistaken for completed behavior.</remarks>
     private void SpawnPhantoonSpiralFlames(RoomEnemySlot body)
@@ -259,7 +259,7 @@ internal sealed class PhantoonPatterns
             SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Spiral, WordWrap.LowByte(direction));
     }
 
-    /// <summary>Ports the eye-open vulnerable window at $A7:D60D.</summary>
+    /// <summary>Ports the eye-open vulnerable window.</summary>
     internal static void RunPhantoonEyeTracking(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -268,7 +268,7 @@ internal sealed class PhantoonPatterns
         if (PhantoonPresentation.TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
         {
             // Variable B in the tentacle record is the damage accumulated during this
-            // opening. Native clears it before deciding whether a shot requested a swoop.
+            // opening. Clears it before deciding whether a shot requested a swoop.
             state.Parts[state.Tentacles.SlotIndex].RoundDamage = 0;
             if (!state.Parts[state.Tentacles.SlotIndex].SwoopRequested)
             {
@@ -278,7 +278,7 @@ internal sealed class PhantoonPatterns
                 body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
                 // This flag makes PickNewPhantoonPattern choose the initial flame-rain
-                // branch after the eye-close list invokes its $D076 callback.
+                // branch after the eye-close list invokes its flame-rain callback.
                 state.Parts[body.SlotIndex].FlameRainRequested = true;
                 return;
             }
@@ -291,7 +291,7 @@ internal sealed class PhantoonPatterns
         PointPhantoonEyeAtSamus(body, state, samus);
     }
 
-    /// <summary>Ports the one-frame opaque-swoop setup at $A7:D65C.</summary>
+    /// <summary>Ports the one-frame opaque-swoop setup.</summary>
     internal static void BeginPhantoonVulnerableSwoop(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -303,7 +303,7 @@ internal sealed class PhantoonPatterns
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.FullHitboxBody);
     }
 
-    /// <summary>Ports the 360-frame opaque swoop at $A7:D678.</summary>
+    /// <summary>Ports the 360-frame opaque swoop.</summary>
     internal static void RunPhantoonSwoop(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -346,7 +346,7 @@ internal sealed class PhantoonPatterns
             body.Function = PhantoonAiFunction.PickNextAppearance;
     }
 
-    /// <summary>Ports the hidden left/right placement and round-two picker at $A7:D6E2.</summary>
+    /// <summary>Ports the hidden left/right placement and round-two picker.</summary>
     internal void PlacePhantoonForNextFigureEight(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -367,7 +367,7 @@ internal sealed class PhantoonPatterns
         state.Parts[body.SlotIndex].SpeedFraction = 0;
         state.Parts[body.SlotIndex].FlameRainRequested = false;
 
-        // The native call deliberately installs a pattern function which is immediately
+        // The call deliberately installs a pattern function which is immediately
         // overwritten with the fade-in function. Its timer, direction, and movement-side
         // effects remain live, so call the shared callback implementation in full.
         PickPhantoonSecondRoundPattern(state);
@@ -385,7 +385,7 @@ internal sealed class PhantoonPatterns
             state.Parts[body.SlotIndex].Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
     }
 
-    /// <summary>Ports the visible setup for every flame-rain window at $A7:D73F.</summary>
+    /// <summary>Ports the visible setup for every flame-rain window.</summary>
     internal static void BeginPhantoonFlameRainVulnerableWindow(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -477,7 +477,7 @@ internal sealed class PhantoonPatterns
         StepPhantoonCasualFlameSchedule(state);
         CountdownStep closedStep = state.Parts[eye.SlotIndex].ClosedTimer.Decrement();
         state.Parts[eye.SlotIndex].ClosedTimer = closedStep.Remaining;
-        // $A7:D836 DEC/BEQ/BPL: reaching zero expires the timer, as does underflow.
+        // The timer's decrement: reaching zero expires the timer, as does underflow.
         if (!closedStep.IsZeroOrNegative)
             return;
 
@@ -523,7 +523,7 @@ internal sealed class PhantoonPatterns
         state.Parts[state.Eye.SlotIndex].FadeComplete = false;
     }
 
-    /// <summary>Ports all eight alternating radial flame waves at $A7:D8AC.</summary>
+    /// <summary>Ports all eight alternating radial flame waves.</summary>
     internal void RunPhantoonRage(RoomEnemySlot body, PhantoonEnemyState state)
     {
         if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
@@ -536,7 +536,7 @@ internal sealed class PhantoonPatterns
         }
         else
         {
-            // Native DEY/CPY/BPL includes direction eight: alternating waves
+            // DEY/CPY/BPL includes direction eight: alternating waves
             // intentionally contain seven and eight flames, not seven each.
             for (int direction = PhantoonRageDefinitions.OddWaveFirstDirection; direction >= PhantoonRageDefinitions.OddWaveLastDirection; direction--)
                 SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Enraged, WordWrap.LowByte(direction));
@@ -581,8 +581,8 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>
-    /// Ports $A7:D2D1 using the NTSC/Japan-USA regional immediates present in the target
-    /// cartridge. The asymmetric negative velocity thresholds are intentional; replacing
+    /// Moves Phantoon in a swoop using the NTSC/Japan-USA regional values present in the target
+    /// release. The asymmetric negative velocity thresholds are intentional; replacing
     /// them with tidy +/- clamps changes the retail swoop path.
     /// </summary>
     internal static void MovePhantoonInSwoop(
@@ -747,7 +747,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>
-    /// Initializes a destroyable flame ($86:9C29) from the casual, rage or spiral producer; rain flames spawn through
+    /// Initializes a destroyable flame from the casual, rage or spiral producer; rain flames spawn through
     /// <see cref="SpawnPhantoonRainFlame"/>.
     /// </summary>
     /// <param name="body">Phantoon's body.</param>
@@ -768,7 +768,7 @@ internal sealed class PhantoonPatterns
                 flame.FrameBehavior =
                     EnemyProjectileFrameBehavior.PhantoonCasualFlameFall;
 
-                // $86:985F changes the spawn definition's $8028 properties to $2028.
+                // The falling flame's step changes the spawn definition's harmful, shootable properties to harmless ones.
                 // The falling flame therefore cannot hurt Samus and cannot be shot until
                 // it has struck the floor and changed into the bouncing form.
                 flame.CanDamageSamus = false;
@@ -803,7 +803,7 @@ internal sealed class PhantoonPatterns
         return true;
     }
 
-    /// <summary>Initializes a rain flame ($86:9C29's rain producer) over a room column, falling after a delay.</summary>
+    /// <summary>Initializes a rain flame over a room column, falling after a delay.</summary>
     /// <param name="body">Phantoon's body.</param>
     /// <param name="column">The room column the flame falls in, 0 through 8.</param>
     /// <param name="fallDelay">The updates the flame waits before it falls.</param>

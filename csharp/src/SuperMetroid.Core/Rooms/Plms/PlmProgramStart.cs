@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// What a PLM starts running (#1296): one of the families' typed programs. Families that choose among starts hold this, so
-/// any family's program can stand where the cartridge names a list.
+/// any family's program can stand where the original game names a list.
 /// </summary>
 public readonly record struct PlmProgramStart
 {

@@ -41,7 +41,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         _deathsAndDrops = deathsAndDrops;
     }
 
-    /// <summary>Native countdown before a newly fired Rinka aims at Samus.</summary>
+    /// <summary>Countdown before a newly fired Rinka aims at Samus.</summary>
     private const int RinkaInitialDelay = 26;
     /// <summary>Health restored to a special Rinka after its death delay.</summary>
     private const int RinkaHealth = 10;
@@ -50,13 +50,13 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Rinkas loads.
     /// </summary>
     private static readonly GraphicsSetMemberColouring RinkaColouring = new(EnemyDefinitionId.Rinka);
-    /// <summary>Flight speed in 8.8 pixels per update (1 + 32/256 pixels), resolved along the cartridge angle into flight velocity.</summary>
+    /// <summary>Flight speed in 8.8 pixels per update (1 + 32/256 pixels), resolved along the original game angle into flight velocity.</summary>
     private const int RinkaSpeed = 288;
     /// <summary>Number of Mother Brain Rinka actors sharing the eleven spawn resources.</summary>
     private const int RinkaMaximumSpecialActors = 3;
 
     /// <summary>
-    /// The eleven authored Japan/USA spawn points at <c>$A2:B75B</c>. Mother Brain's
+    /// The eleven authored Japan/USA spawn points. Mother Brain's
     /// three special actors compete for these resources and may rewrite their spawn snapshots
     /// when the original point is outside the current screen. The even extra-RAM token is
     /// derived from each point's position in this table.
@@ -89,7 +89,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Mother Brain's request that special Rinkas be removed instead of launched or respawned.</summary>
     internal void RequestTermination() => _rinkaTerminationFlag = true;
-    /// <summary>Layer-1 camera coordinates used by the native spawn and flight windows.</summary>
+    /// <summary>Layer-1 camera coordinates used by the spawn and flight windows.</summary>
     private Position16<RoomPixels> _rinkaCamera;
     /// <summary>
     /// Special Rinka slots awaiting the door loader's camera for spawn selection, in the
@@ -98,7 +98,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly List<int> _deferredRinkaSpawnSlots = new();
 
     /// <summary>
-    /// Captures layer-1 coordinates used by $A2:B8D3/$B8FF. StepFrame refreshes these before
+    /// Captures layer-1 coordinates used by the Rinka's flight and spawn checks. StepFrame refreshes these before
     /// any Rinka AI; Load supplies the already-positioned destination camera for initialization.
     /// </summary>
     internal void SetRinkaCamera(Position16<RoomPixels> camera)
@@ -106,15 +106,15 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         _rinkaCamera = camera;
     }
 
-    /// <summary>Ports <c>Rinka_Init</c> at $A2:B602.</summary>
+    /// <summary>Ports <c>Rinka_Init</c>.</summary>
     internal void InitializeRinka(RoomEnemySlot slot)
     {
         var state = new RinkaEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // Both branches first clear the four native lifecycle/collision bits. The special
+        // Both branches first clear the four lifecycle/collision bits. The special
         // Mother Brain variant is always processed off-screen but never uses generic death
-        // respawn; ordinary room Rinkas retain $4000 so their death explosion resurrects
+        // respawn; ordinary room Rinkas retain the respawn property so their death explosion resurrects
         // the physical slot from its population snapshot.
         EnemyProperties resetMask =
             EnemyProperties.RespawnIfKilled |
@@ -124,7 +124,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.Without(resetMask);
         if (IsSpecialRinka(slot))
         {
-            // $A2:B69B tests its spawn points against layer 1. A door's loader runs this
+            // The spawn selection tests its spawn points against layer 1. A door's loader runs this
             // while the door transition is still scrolling, so that choice waits for the camera
             // of the update in which the loader reaches this slot.
             if (_frameContext.DeferLoaderTimeCameraReads)
@@ -148,13 +148,13 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         InitializeRinkaLife(slot, state);
     }
 
-    /// <summary>Ports <c>Rinka_Init2</c> and <c>Rinka_Init3</c> at $A2:B63E-$B69A.</summary>
+    /// <summary>Ports <c>Rinka_Init2</c> and <c>Rinka_Init3</c>.</summary>
     private void ReinitializeRinka(RoomEnemySlot slot, RinkaEnemyState state)
     {
         if (IsSpecialRinka(slot))
             ReserveSpecialRinkaSpawn(slot, state);
 
-        // EnemySpawnData is a separate WRAM array and survives clearing the common 64-byte
+        // EnemySpawnData is a separate array and survives clearing the common 64-byte
         // actor. Special spawn selection deliberately mutates that snapshot; ordinary
         // Rinkas continue to return to their original population coordinate.
         slot.Position = slot.Position.WithWhole(new(slot.Spawn.Population.Position.X, slot.Spawn.Population.Position.Y));
@@ -240,8 +240,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 state.Function = RinkaEnemyFunction.Flying;
 
-                // Special and ordinary branches have different source masks in native code,
-                // but both observable results clear $0400 and retain/set $0800 here.
+                // Special and ordinary branches have different source masks in code,
+                // but both observable results make the Rinka tangible and set its processing property here.
                 slot.Properties = slot.Properties
                     .Without(EnemyProperties.IgnoreSamusCollision)
                     .With(EnemyProperties.ProcessOffScreen);
@@ -278,7 +278,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Ports the family-specific tail run after common touch, shot, or power-bomb damage.
     /// Common damage deliberately leaves lethal Rinkas alive long enough for this method to
-    /// select their two distinct native death lifecycles.
+    /// select their two distinct death lifecycles.
     /// </summary>
     private void ResolveRinkaCombatAfterCommon(RoomEnemySlot slot)
     {
@@ -294,8 +294,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Special Mother Brain Rinkas do not clear their enemy slot. They hide, emit the
-        // room-graphics dust/explosion definition $86:E509 with parameter three, wait for
-        // the wrapping 1 -> 0 -> FFFF countdown, restore ten health, and select a spawn.
+        // room-graphics dust/explosion with parameter three, wait for
+        // the wrapping 1, 0, -1 countdown, restore ten health, and select a spawn.
         slot.Properties = slot.Properties.With(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
         SpawnRinkaDustExplosion(slot.Position.Whole);
@@ -356,7 +356,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         ReinitializeRinka(slot, state);
     }
 
-    /// <summary>Ports $A2:B69B/$B79D's fixed-resource selection without WRAM alias tricks.</summary>
+    /// <summary>Runs the special Rinka's fixed-resource spawn selection without memory alias tricks.</summary>
     private void ReserveSpecialRinkaSpawn(RoomEnemySlot slot, RinkaEnemyState state)
     {
         Position16<RoomPixels> spawn = slot.Spawn.Population.Position;
@@ -367,7 +367,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (mustRelocate)
         {
             // The first pass prefers a free point on the current camera. If all eleven are
-            // off-camera or occupied, native code performs a second pass that ignores the
+            // off-camera or occupied, code performs a second pass that ignores the
             // camera but still refuses to steal an occupied resource.
             int selectedIndex = -1;
             for (int index = 0; index < RinkaSpawnPoints.Length; index++)
@@ -392,7 +392,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
             }
 
-            // All eleven resources being occupied is a real native failure path: Rinka_1
+            // All eleven resources being occupied is a real failure path: Rinka_1
             // returns without inventing a twelfth location or overwriting another owner.
             if (selectedIndex < 0)
                 return;
@@ -411,7 +411,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpawnResourceToken = RinkaSpawnResourceAt(mappedIndex).Token;
     }
 
-    /// <summary>Finds the authored point for a population position, using native resource zero for an unknown point.</summary>
+    /// <summary>Finds the authored point for a population position, using resource zero for an unknown point.</summary>
     private static int FindRinkaSpawnResource(Position16<RoomPixels> position)
     {
         for (int index = 0; index < RinkaSpawnPoints.Length; index++)
@@ -443,7 +443,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpawnResourceToken = 0;
     }
 
-    /// <summary>Ports $A2:B8D3's asymmetric (-16..271, -16..239) flight rectangle.</summary>
+    /// <summary>The Rinka's asymmetric (-16..271, -16..239) flight rectangle.</summary>
     private bool RinkaIsOutsideFlightWindow(RoomEnemySlot slot)
     {
         if (CoordinateAxis.AsSigned(slot.Position.Y.Whole) < 0)
@@ -457,7 +457,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         return CoordinateAxis.AsSigned(relativeX) < 0 || !EnemyMath.IsNegative16(relativeX - 288);
     }
 
-    /// <summary>Ports $A2:B8FF's strict camera-origin test used only for special spawns.</summary>
+    /// <summary>The strict camera-origin test used only for special spawns.</summary>
     private bool RinkaSpawnIsOutsideCamera(Position16<RoomPixels> position)
     {
         if (CoordinateAxis.AsSigned(position.Y) < 0 ||
@@ -543,11 +543,11 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
     /// <summary>Room-graphics dust definition parameter used by special Rinka deaths.</summary>
     private const MiscDustAnimation RinkaDustAnimationIndex = MiscDustAnimation.SmallExplosion;
-    /// <summary>Allocates <c>SpawnEprojWithRoomGfx($E509, 3)</c>.</summary>
+    /// <summary>Allocates the room-graphics dust explosion with parameter three.</summary>
     internal void SpawnRinkaDustExplosion(Position16<RoomPixels> position)
         => _projectiles.SpawnRoomGraphicsDustExplosion(position, RinkaDustAnimationIndex);
 
-    /// <summary>Ports <c>RinkasDeathAnimation(0)</c> at $A0:A410.</summary>
+    /// <summary>Ports <c>RinkasDeathAnimation(0)</c>.</summary>
     internal void RunRinkaDeathAnimation(RoomEnemySlot slot)
     {
         _deathsAndDrops.RecordKill(slot);
@@ -573,7 +573,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         int slotIndex = slot.SlotIndex;
         slot.Clear();
 
-        // EnemySpawnData occupies a separate WRAM region and is not part of memset's
+        // EnemySpawnData occupies a separate memory region and is not part of memset's
         // 64-byte target. Preserve it even for a non-respawning special Rinka so debugger
         // state remains structurally faithful after the common record disappears.
         slot.Spawn = survivingSpawnSnapshot;
@@ -584,13 +584,13 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs $86:E4FE's strict 256x256 camera cull for dust/explosion actors.</summary>
+    /// <summary>Runs the strict 256x256 camera cull for dust/explosion actors.</summary>
     internal static void CullMiscDustOutsideCamera(
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        // $86:E6E0 compares the position against camera + $100 and culls on BPL, so
-        // a projectile exactly $100 past the camera is already off-screen.
+        // The cull compares the position against camera + 256 and culls when not below it, so
+        // a projectile exactly 256 past the camera is already off-screen.
         if (CoordinateAxis.Difference(projectile.Position.X.Whole, camera.X) < 0 ||
             CoordinateAxis.Difference(projectile.Position.X.Whole, (camera.X + 256)) >= 0 ||
             CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
@@ -600,7 +600,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Attaches the native camera cull to miscellaneous dust and explosion projectiles.</summary>
+    /// <summary>Attaches the camera cull to miscellaneous dust and explosion projectiles.</summary>
     internal static void AddMiscDustFrameBehavior(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

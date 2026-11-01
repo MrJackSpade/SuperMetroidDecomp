@@ -3,7 +3,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.R
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The n00b tube's PLM programs (#1296), in place of its bank-$84 instruction lists.</summary>
+/// <summary>The n00b tube's PLM programs (#1296), in place of its instruction lists.</summary>
 internal static class NoobTubePlmProgramDefinitions
 {
     /// <summary>How long the first broken image shows before the tube opens.</summary>

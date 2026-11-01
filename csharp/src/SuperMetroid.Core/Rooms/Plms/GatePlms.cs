@@ -38,7 +38,7 @@ internal sealed class GatePlms : IPlmFamilySource
 
     /// <summary>
     /// Returns and clears projectile work published by gate setup/list execution. Room load
-    /// consumes the initial closed actor after enemy loading clears bank $86's pool; normal
+    /// consumes the initial closed actor after enemy loading clears the enemy-projectile pool; normal
     /// gameplay consumes later close/wake commands immediately after the PLM handler.
     /// </summary>
     public IReadOnlyList<DownwardGateProjectileRequest> TakeDownwardGateProjectileRequests()
@@ -115,7 +115,7 @@ internal sealed class GatePlms : IPlmFamilySource
 
         // Spawn_PLM still probes the fixed pool even though every trigger setup deletes its
         // temporary slot synchronously. A saturated pool therefore drops the collision just
-        // as the cartridge does.
+        // as the original game does.
         if (_slotTable.SpawnAtCurrentBlock() is not { } temporary)
             return true;
         temporary.Header = HeaderForGateTrigger(trigger);
@@ -161,13 +161,13 @@ internal sealed class GatePlms : IPlmFamilySource
         return true;
     }
 
-    /// <summary><c>$84:BBE1</c>: requests the moving gate projectile that slides the gate down from the slot's block.</summary>
+    /// <summary>Requests the moving gate projectile that slides the gate down from the slot's block.</summary>
     internal void SpawnMovingGateProjectile(PlmSlot slot) =>
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
             DownwardGateProjectileOperation.Spawn, DownwardGateProjectileKind.Moving, slot.BlockIndex));
 
     /// <summary>
-    /// <c>$84:BBF0</c>: wakes the gate projectile whose variable E holds this PLM's block, so it slides back up.
+    /// Wakes the gate projectile whose variable E holds this PLM's block, so it slides back up.
     /// </summary>
     internal void WakeGateProjectile(PlmSlot slot) =>
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
@@ -235,7 +235,7 @@ internal sealed class GatePlms : IPlmFamilySource
         _ => throw new ArgumentOutOfRangeException(nameof(trigger), trigger, null),
     };
 
-    /// <summary>Applies cartridge projectile-family rules, including the right-yellow acceptance asymmetry.</summary>
+    /// <summary>Applies projectile-family rules, including the right-yellow acceptance asymmetry.</summary>
     private static bool GateTriggerAcceptsProjectile(
         DownwardGateTriggerBehavior trigger,
         SamusProjectileType projectileType)
@@ -251,7 +251,7 @@ internal sealed class GatePlms : IPlmFamilySource
             DownwardGateTriggerBehavior.YellowLeft => plainPowerBomb,
 
             // The retail right-yellow routine branches on BNE rather than BEQ. Preserve
-            // that cartridge asymmetry even though it looks like a likely original bug.
+            // that asymmetry even though it looks like a likely original bug.
             DownwardGateTriggerBehavior.YellowRight => !plainPowerBomb,
             _ => throw new InvalidOperationException($"Undefined gate trigger {trigger}."),
         };

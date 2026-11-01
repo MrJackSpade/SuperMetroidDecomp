@@ -30,7 +30,7 @@ internal static class MotherBrainGlassArtwork
             }
         });
 
-    /// <summary>Resolves one glass-layout visual block by translating native run-local indices into the flattened authored frame.</summary>
+    /// <summary>Resolves one glass-layout visual block by translating run-local indices into the flattened authored frame.</summary>
     /// <exception cref="InvalidDataException">The draw is not a supported glass layout.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the compiled draw shape.</exception>
     internal static RoomBlockAppearance Appearance(PlmVisualOverrides customBlocks, PlmDraw draw, int runIndex, int blockIndex)

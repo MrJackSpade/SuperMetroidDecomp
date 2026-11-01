@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 public static class MotherBrainSpecialSprites
 {
-    /// <summary>Copies the installed sheets after requiring exactly the four complete native sheets.</summary>
+    /// <summary>Copies the installed sheets after requiring exactly the four complete sheets.</summary>
     /// <exception cref="ArgumentNullException"><paramref name="sheets"/> is null.</exception>
-    /// <exception cref="InvalidDataException">A required sheet is missing/null, its compiled byte length differs from the native page extent, or the mapping contains additional identities.</exception>
+    /// <exception cref="InvalidDataException">A required sheet is missing/null, its compiled byte length differs from the page extent, or the mapping contains additional identities.</exception>
     internal static Dictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas> Validated(
         IReadOnlyDictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas> sheets)
     {
@@ -21,7 +21,7 @@ public static class MotherBrainSpecialSprites
                 !copied.TryGetValue(definition.Sheet, out RoomCharacterAtlas? artwork) ||
                 artwork is null || artwork.Characters.Length != definition.ByteCount))
             throw new InvalidDataException(
-                "Mother Brain special artwork requires all four nonnull native source sheets with complete transfer pages.");
+                "Mother Brain special artwork requires all four nonnull source sheets with complete transfer pages.");
         return copied;
     }
 

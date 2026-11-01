@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class BabyMetroidRouteDefinitions
 {
-    /// <summary>Number of authored route legs, <c>$A9:CA24</c> through <c>$A9:CA63</c>.</summary>
+    /// <summary>Number of authored route legs.</summary>
     internal const int RecordCount = 8;
 
     /// <summary>
@@ -23,7 +23,7 @@ internal static class BabyMetroidRouteDefinitions
     /// <summary>First route leg that switches from the extra-$10 to extra-$08 wrong-way correction.</summary>
     internal const int FirstExtraEightLeg = 5;
 
-    /// <summary>The wrong-way horizontal speed addition of each native movement callback.</summary>
+    /// <summary>The wrong-way horizontal speed addition of each movement callback.</summary>
     internal static readonly Dictionary<BabyMetroidRouteMovementFunction, int> WrongWayOffScreenXSpeeds = new()
     {
         [BabyMetroidRouteMovementFunction.GradualAccelerationExtraEight] = 8,

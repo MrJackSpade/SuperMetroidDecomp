@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// </remarks>
 public sealed class RoomScrollGrid
 {
-    /// <summary>Size in bytes of the fixed native room scroll-zone allocation.</summary>
+    /// <summary>Size in bytes of the fixed room scroll-zone allocation.</summary>
     public const int StorageByteCount = 50;
 
     /// <summary>The session's allocation, including bytes past this room's logical cells.</summary>
     internal readonly RoomScrollStorage Storage;
 
-    /// <summary>Validates screen-cell dimensions within the 50-byte native allocation.</summary>
+    /// <summary>Validates screen-cell dimensions within the 50-byte allocation.</summary>
     private RoomScrollGrid(RoomScrollStorage storage, Extent16<RoomScreens> size)
     {
         Storage = Ensure.NotNull(storage);
@@ -32,7 +32,7 @@ public sealed class RoomScrollGrid
     /// <summary>Gets the number of logical room cells within the fixed storage allocation.</summary>
     public int LogicalCellCount => Size.X * Size.Y;
 
-    /// <summary>Copies a compiled 50-byte allocation into the session's scroll storage, as <c>$82:E878</c> does.</summary>
+    /// <summary>Copies a compiled 50-byte allocation into the session's scroll storage, as the room loader does.</summary>
     public static RoomScrollGrid LoadCompiled(
         RoomScrollStorage storage,
         ReadOnlySpan<byte> compiled,
@@ -57,7 +57,7 @@ public sealed class RoomScrollGrid
     /// Builds the implicit scroll table used when a room state's scroll word is nonnegative.
     /// </summary>
     /// <remarks>
-    /// This is the literal nested loop at $82:E88D: every row begins as green value two,
+    /// This is the literal nested loop: every row begins as green value two,
     /// while the final row receives <paramref name="lastRowState" />. The loop writes only
     /// the room's width x height cells; the rest of the 50-byte allocation keeps what the
     /// previous room left there, and the scroll routines read it at the room's edges.
@@ -91,10 +91,9 @@ public sealed class RoomScrollGrid
     /// Reads the scroll-storage byte selected by a scroll calculation.
     /// </summary>
     /// <remarks>
-    /// Most accesses stay in <c>$CD20..CD51</c>, but the bottom row can legally select
-    /// index $32, which is the first byte of <c>ExploredMapTiles</c> at $CD52. The 65C816
-    /// does not know the C# array ended there, so camera code must observe the explored-map
-    /// byte that follows rather than throw or manufacture a clamped scroll cell.
+    /// Most accesses stay in the 50 scroll cells, but the bottom row can legally select
+    /// index 50, which is the first byte of the explored-map tiles that follow them in the original game. Camera code
+    /// must observe the explored-map byte that follows rather than throw or manufacture a clamped scroll cell.
     /// </remarks>
     public int ReadCameraStorage(int index)
     {

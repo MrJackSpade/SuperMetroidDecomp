@@ -7,12 +7,12 @@ namespace SuperMetroid.Core.Saves;
 /// <summary>What a save station, checkpoint or save editor hands a save slot to keep: Samus, options and progress.</summary>
 public sealed record SuperMetroidSaveSnapshot
 {
-    /// <summary>The seven configurable actions as a validated permutation of SNES button masks.</summary>
+    /// <summary>The seven configurable actions as a validated permutation of controller button masks.</summary>
     public ControllerBindings ControllerBindings { get; init; } = ControllerBindings.Default;
 
     /// <summary>Whether the options menu's moonwalk behavior is enabled.</summary>
     public bool MoonwalkEnabled { get; init; }
-    /// <summary>The checksummed cartridge debug value, carried unchanged; a new file holds one.</summary>
+    /// <summary>The checksummed debug value, carried unchanged; a new file holds one.</summary>
     public int DebugFlag { get; init; } = 1;
     /// <summary>The checksummed new-file marker, carried unchanged; a new file holds one.</summary>
     public int NewFileMarker { get; init; } = 1;
@@ -20,10 +20,10 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>Whether door transitions automatically clear the selected HUD item.</summary>
     public bool IconCancelEnabled { get; init; }
 
-    /// <summary>The persistent excess-missile accumulator written to WRAM <c>$09D8</c>.</summary>
+    /// <summary>The persistent excess-missile accumulator.</summary>
     public int ReserveMissiles { get; init; }
 
-    /// <summary>Whether the alternate Japanese text setting written to WRAM <c>$09E2</c> is enabled.</summary>
+    /// <summary>Whether the alternate Japanese text setting is enabled.</summary>
     public bool JapaneseText { get; init; }
 
     /// <summary>
@@ -44,7 +44,7 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>Bit mask of all beam upgrades Samus has collected.</summary>
     public SamusBeamFlags CollectedBeams { get; init; }
 
-    /// <summary>The native reserve-tank mode word; zero is unset, one is auto, and two is manual.</summary>
+    /// <summary>The reserve-tank mode; zero is unset, one is auto, and two is manual.</summary>
     public ReserveTankMode ReserveMode { get; init; }
 
     /// <summary>Samus's current energy in energy-point units.</summary>
@@ -71,7 +71,7 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>The acquired power bomb capacity.</summary>
     public int MaxPowerBombs { get; init; }
 
-    /// <summary>The native HUD selection index: beam, missile, super missile, power bomb, grapple, or X-ray.</summary>
+    /// <summary>The HUD selection: beam, missile, super missile, power bomb, grapple, or X-ray.</summary>
     public HudItem HudItem { get; init; }
 
     /// <summary>The acquired reserve-tank capacity in energy-point units.</summary>

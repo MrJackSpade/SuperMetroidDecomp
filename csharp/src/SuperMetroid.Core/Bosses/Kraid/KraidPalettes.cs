@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// The shapes of Kraid's five named palettes (#1413): sixteen-colour bands, and the two nine-band health sequences that
-/// begin with the hurt flash. Where each palette sits in the cartridge is the import's knowledge
+/// begin with the hurt flash. Where each palette sits in the original game is the import's knowledge
 /// (<c>AssetExtraction/Bosses/KraidPaletteSources</c>).
 /// </summary>
 public static class KraidPalettes

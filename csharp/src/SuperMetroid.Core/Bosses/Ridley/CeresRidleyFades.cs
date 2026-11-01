@@ -69,13 +69,13 @@ internal sealed class CeresRidleyFades
         if (state.FadeStep < CeresRidleyPaletteDefinitions.BodyFadeShadeCount)
             return;
 
-        // CeresRidley_Func_5 clears tangible bit $0400 after the final shade, waits
+        // CeresRidley_Func_5 makes Ridley intangible after the final shade, waits
         // five dispatcher calls, then begins the opening-roar list.
         slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         state.FadeStep = 0;
         state.Function = RidleyAiFunction.WaitBeforeRoar;
         state.FunctionTimer = WrappingCountdown.Start(4);
-        // `$A6:A449` queues track five immediately after the final body shade.
+        // The fade queues track five immediately after the final body shade.
         // This is the Ceres battle/escape track; it intentionally continues after Ridley
         // retreats, so omitting this single publication silences both scenes.
         _audio.RequestRidleyMusic(MusicRequest.SelectTrack(5));

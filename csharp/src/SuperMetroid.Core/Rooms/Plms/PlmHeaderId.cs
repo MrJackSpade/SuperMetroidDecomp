@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// The PLMs a room population, door, item or scripted spawner can install. The values are arbitrary and nothing
-/// reads them (#1414): a family recognises its PLMs by member, and verification translates the cartridge's header
-/// words through its native-word table. <see cref="None"/> marks an empty PLM slot.
+/// reads them (#1414): a family recognises its PLMs by member, and verification translates the game's PLM header
+/// identities through its own table. <see cref="None"/> marks an empty PLM slot.
 /// </summary>
 /// <remarks>
 /// The exposed, Chozo-orb and concealed shot-block permanent items each name one PLM per

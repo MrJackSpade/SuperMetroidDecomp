@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>Signed claw displacements used by Ridley's grab collision and carried-Samus placement.</summary>
 public static class RidleyClawOffsets
 {
-    /// <summary>$A6:B9D5 HoldingSamusXDispacement: left/turning/right displacements decrease twelve pixels per facing.</summary>
+    /// <summary>HoldingSamusXDispacement: left/turning/right displacements decrease twelve pixels per facing.</summary>
     public static int ReadX(RidleyFacing facing) => facing switch
     {
         RidleyFacing.Left => 12,
@@ -13,12 +13,12 @@ public static class RidleyClawOffsets
     };
 
     /// <summary>
-    /// $A6:B9DB HoldingSamusYDispacement: the claw's height below Ridley's origin for each claw-height pose (zero
+    /// HoldingSamusYDispacement: the claw's height below Ridley's origin for each claw-height pose (zero
     /// standing, one legs half extended, two legs extended), advancing 10.5 pixels per pose rounded upward.
     /// </summary>
     /// <remarks>
-    /// Ridley's body programs select only these three poses, so no other pose reaches the claw. The cartridge table is
-    /// followed by unrelated machine code that a larger index would read; that read is unreachable and is rejected.
+    /// Ridley's body programs select only these three poses, so no other pose reaches the claw. The original game table is
+    /// followed by unrelated data that a larger index would read; that read is unreachable and is rejected.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="footPose"/> is not one of the three poses.</exception>
     public static int ReadY(int footPose) => (uint)footPose < 3

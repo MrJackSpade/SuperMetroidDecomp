@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's onion-ring, bomb, rainbow-charge, drool, escape-door, purple-breath and subtitle programs (#641), in place of their bank-$86 lists. Generated from the verified native lists: each
+/// Mother Brain's onion-ring, bomb, rainbow-charge, drool, escape-door, purple-breath and subtitle programs (#641), in place of their lists. Generated from the verified lists: each
 /// frame shows a <see cref="MotherBrainEffectFrame"/> pose and each command becomes a <see cref="MotherBrainEffectCue"/> with its typed operands.
 /// </summary>
 internal static class MotherBrainEffectAnimations
@@ -147,6 +147,6 @@ internal static class MotherBrainEffectAnimations
     /// <summary>Continues at <paramref name="program"/>.</summary>
     private static AnimationProgramStep<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue> GoTo(MotherBrainEffectProgram program) => AnimationProgramStep<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue>.GoTo(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the script's sleep does.</summary>
     private static AnimationProgramStep<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue> Hold => AnimationProgramStep<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue>.Hold;
 }

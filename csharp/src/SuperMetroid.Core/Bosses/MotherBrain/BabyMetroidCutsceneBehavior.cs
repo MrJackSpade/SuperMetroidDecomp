@@ -25,11 +25,11 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Supplies current room bus, RNG, and installed Baby artwork.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Queues healing, death, and cutscene cues with native queue limits.</summary>
+    /// <summary>Queues healing, death, and cutscene cues with queue limits.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Allocates the Baby in the first free native enemy slot.</summary>
+    /// <summary>Allocates the Baby in the first free enemy slot.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Applies Baby and Mother Brain color changes to live CGRAM.</summary>
+    /// <summary>Applies Baby and Mother Brain color changes to the live colours.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies the enemy-frame counter used to gate incremental healing sound.</summary>
     private readonly EnemyFrameContext _frameContext;
@@ -56,7 +56,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         _projectiles = dependencies.Projectiles;
     }
 
-    /// <summary>Allocates the Baby in the first free native slot, runs its initializer, and preserves the post-init empty map until its first scheduled turn.</summary>
+    /// <summary>Allocates the Baby in the first free slot, runs its initializer, and preserves the post-init empty map until its first scheduled turn.</summary>
     internal void SpawnMotherBrainBabyMetroid(MotherBrainEnemyState state)
     {
         if (state.BabyMetroidSlot is { DefinitionId: not 0 })
@@ -82,7 +82,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         _dispatch.InitializeSlotFromDefinition(babySlot, population, definition);
         _dispatch.RunInitializationAi(babySlot, EnemySpawnSurroundings.None);
 
-        // SpawnEnemy installs the canonical empty map after init when property $2000 is set.
+        // SpawnEnemy installs the canonical empty map after init when the Baby's hide-drawing property is set.
         // The actor's list is still live and produces its first visible map on its first
         // scheduled turn; the active-index array was frozen before this allocation.
         babySlot.Frame = babySlot.Properties.HasAny(EnemyProperties.RunsAnimationScript)
@@ -113,12 +113,12 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         slot.FrameHold = baby.FrameHold;
         slot.Timer = WrappingCountdown.Start(0);
 
-        // The writer receives byte index $01E2 and count $000F. Color zero is deliberately
-        // skipped at source `$94D2+2`, preserving the room's transparent backdrop entry.
+        // The writer receives colour index 241 and count 15. Color zero is deliberately
+        // skipped in the source, preserving the room's transparent backdrop entry.
         LoadBabyMetroidCutsceneInitialPalette();
     }
 
-    /// <summary>Copies installed Baby start colors while leaving CGRAM's transparent entry untouched.</summary>
+    /// <summary>Copies installed Baby start colors while leaving the transparent entry untouched.</summary>
     internal void LoadBabyMetroidCutsceneInitialPalette()
     {
         var colors = _bossArtwork.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
@@ -154,7 +154,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             baby.Phase is BabyMetroidCutscenePhase.HealSamusToFullHealth or
                 BabyMetroidCutscenePhase.IdleUntilNoHealth)
         {
-            // `$A9:C7B7` clears the complete shared word and queues only one `$72`, even
+            // The ring hit check clears the complete shared value and queues only one cry, even
             // when several rings incremented it before this later enemy slot ran.
             state.PendingBabyCryCount = 0;
             _motherBrainEncounter.RequestBodySound(ShitroidSoundDefinitions.DrainCry);
@@ -166,17 +166,17 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             layer1: camera,
             enemyFrameCounter: slot.FrameCounter,
             randomNumber: _room.Random.Read());
-        // Both outcomes of the native heal helper call the sound helper after the
+        // Both outcomes of the heal helper call the sound helper after the
         // energy write. Use the phase that ran, including its final full-health call.
         if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
             target.Health >= MotherBrainHealthSounds.MinimumEnergy &&
             (_frameContext.RandomEnemyCounter & MotherBrainHealthSounds.EnemyClockMask) == 0)
             _audio.QueueEnemySound(Library3Sound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
-        // `$A9:C879` writes the body enemy's instruction words from this later Baby slot.
+        // The Baby's drain step writes the body enemy's animation script from this later Baby slot.
         // The reusable sequence retains the requested list, but the physical body already
         // completed its AI/instruction pass earlier this frame; install the list here so it
-        // begins on the next increasing-slot enemy pass exactly like the cross-WRAM write.
+        // begins on the next increasing-slot enemy pass exactly like the cross-actor write.
         if (step.BodyStumbleRequested)
         {
             MotherBrainBodyProgram bodyProgram = sequence.RequestedBodyProgram ?? throw new InvalidDataException(
@@ -274,7 +274,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>
     /// Runs the Baby's program where the enemy instruction interpreter would: the frame expires on the update its
-    /// native timer would, and a newly shown frame raises the new-frame flag.
+    /// timer would, and a newly shown frame raises the new-frame flag.
     /// </summary>
     internal void AdvanceBabyMetroidCutsceneAnimation(RoomEnemySlot slot)
     {
@@ -302,14 +302,14 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvance<BabyMetroidFrame>.Hold:
-                // The native sleep: the timer wraps from zero and the last frame stays.
+                // The script's sleep: the timer wraps from zero and the last frame stays.
                 return;
             default:
                 throw new InvalidOperationException($"The cutscene Baby's programs have no {advance} step.");
         }
     }
 
-    /// <summary>Restarts the Baby's slot on <paramref name="program"/>, as the native set-list helper does.</summary>
+    /// <summary>Restarts the Baby's slot on <paramref name="program"/>, as the set-list helper does.</summary>
     private static void SetBabyMetroidCutsceneProgram(MotherBrainEnemyState state, RoomEnemySlot slot, MotherBrainBabyProgram program)
     {
         state.BabyCursor = AnimationProgramCursor<MotherBrainBabyProgram>.Start(program);

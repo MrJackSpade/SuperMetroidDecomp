@@ -12,7 +12,7 @@ internal static class ZebetiteAnimations
         ZebetiteProgram.SplitAtLeast600, ZebetiteProgram.SplitAtLeast400, ZebetiteProgram.SplitAtLeast200,
         ZebetiteProgram.SplitBelow200);
 
-    /// <summary>Every health-tier program: its pose for one update, then the native sleep.</summary>
+    /// <summary>Every health-tier program: its pose for one update, then the script's sleep.</summary>
     internal static AnimationProgramSet<ZebetiteProgram, ZebetiteFrame, NoAnimationCue> Programs { get; } = new(
         Enum.GetValues<ZebetiteProgram>().ToDictionary(program => program, program =>
             new[]

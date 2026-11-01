@@ -64,7 +64,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     }
 
     /// <summary>
-    /// The bank-$85 message returns into the item's suspended instruction list, which draws
+    /// The message returns into the item's suspended instruction list, which draws
     /// the empty block and deletes itself within the same PLM_Handler call.
     /// </summary>
     internal void CompleteCollectibleMessage(RoomLevelData level)
@@ -99,7 +99,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// Consumes the one-shot music request published by a permanent-item instruction.
     /// </summary>
     /// <remarks>
-    /// The synchronous bank-$85 message pauses PLM_Handler, so the diagnostic pickup list
+    /// The synchronous message pauses PLM_Handler, so the diagnostic pickup list
     /// intentionally remains visible during many frames. Audio must not infer an
     /// edge from that retained list or it will clear/requeue the fanfare every frame.
     /// </remarks>
@@ -119,9 +119,9 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         .ToArray();
 
     /// <summary>
-    /// Publishes Samus contact with a visible type-$B/behaviour-$45 item. Native setup
-    /// <c>$84:EEAB</c> finds the item PLM sharing this block and writes <c>$00FF</c> to its
-    /// trigger timer; acquisition remains owned by the following PLM handler pass.
+    /// Publishes Samus contact with a visible item block. The item's touch setup
+    /// finds the item PLM sharing this block and arms its trigger timer;
+    /// acquisition remains owned by the following PLM handler pass.
     /// </summary>
     public bool TryNotifyCollectibleTouch(int blockIndex)
     {
@@ -131,7 +131,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 continue;
             // The pickup message retains both the visible block and its physical owner.
             // On message return, movement can touch that block before PLM_Handler runs
-            // the pending empty draw/delete. Native $EEAB matches the block index without
+            // the pending empty draw/delete. The touch setup matches the block index without
             // filtering the instruction phase; acknowledge this owner without collecting
             // again or disturbing its message-return continuation.
             if (item.Phase is CollectiblePhase.AwaitingMessage or CollectiblePhase.ResumeAfterMessage or
@@ -148,8 +148,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
 
     /// <summary>
     /// Publishes a shot/bomb/grapple reaction at a Chozo orb or concealed item block.
-    /// The projectile family is retained for diagnostics; header $EED3 itself accepts the
-    /// collision producer generically and reduces it to the same $00FF trigger word.
+    /// The projectile family is retained for diagnostics; the item's shot setup accepts any
+    /// collision producer and reduces it to the same trigger.
     /// </summary>
     public bool TryNotifyCollectibleProjectileHit(
         int blockIndex)
@@ -176,7 +176,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
 
     /// <summary>
     /// Runs one permanent-item setup on the slot selected by the shared room
-    /// loader. The setup remains table-driven by the cartridge header and presentation.
+    /// loader. The setup remains table-driven by the original game header and presentation.
     /// </summary>
     internal void SetupCollectibleSlot(
         PlmRoom room,
@@ -206,13 +206,13 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             : presentation switch
             {
                 CollectiblePresentation.Exposed => CollectiblePhase.Visible,
-                // Item orb lists test only the collected-item bit ($84:887C). A shell
+                // Item orb lists test only the collected-item bit. A shell
                 // broken on an earlier visit is rebuilt until the item is picked up.
                 CollectiblePresentation.ChozoOrb => CollectiblePhase.ChozoOrb,
                 CollectiblePresentation.ShotBlock => CollectiblePhase.ShotBlock,
                 _ => throw new ArgumentOutOfRangeException(nameof(presentation)),
             };
-        // Both native item setup paths increment the saved load counter, even for collected items.
+        // Both item setup paths increment the saved load counter, even for collected items.
         system.LoadedItemCount = WrappingCounter.IncrementWord(system.LoadedItemCount);
         slot.Family = new CollectiblePlmState(kind, presentation, graphicsSlot, phase);
     }
@@ -252,7 +252,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         return graphicsSlot;
     }
 
-    /// <summary>The collectible graphic slots instruction <c>$84:8764</c> rotates through.</summary>
+    /// <summary>The collectible graphic slots the collectible-rotation animation step rotates through.</summary>
     internal const int GraphicsSlots = 4;
 
     /// <summary>Advances one item's reveal, pickup, message wait, or shot-block respawn list.</summary>
@@ -263,7 +263,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             return false;
 
         // Collision runs before PLM_Handler. The shared item trigger written by setup
-        // $EEAB/$EED3 must therefore pre-empt an outstanding animation timer in this same
+        // for touch and shot must therefore pre-empt an outstanding animation timer in this same
         // handler pass; otherwise touching an item can leave Samus embedded in its solid
         // type-$B word for up to four extra frames.
         bool triggerPreemptsTimer = item.Triggered && item.Phase is
@@ -289,7 +289,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 return true;
 
             case CollectiblePhase.EmptyAwaitingDelete:
-                // InstList_PLM_EmptyItem's Instruction_PLM_Delete ($84:DFAD).
+                // InstList_PLM_EmptyItem's Instruction_PLM_Delete.
                 slot.Delete();
                 slot.Header = 0;
                 return true;
@@ -332,8 +332,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             case CollectiblePhase.ChozoOrb:
                 if (item.Triggered)
                 {
-                    // Breaking the shell persists nothing. $84:8865 (chozo block destroyed)
-                    // belongs only to the unused chozo-block PLMs $D700/$D708.
+                    // Breaking the shell persists nothing. The chozo-block-destroyed step
+                    // belongs only to the unused chozo-block PLMs.
                     item.Triggered = false;
                     item.Phase = CollectiblePhase.ChozoOrbBurst;
                     item.AnimationIndex = 0;
@@ -494,7 +494,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             return;
         }
 
-        // $84:DFA9: InstList_PLM_EmptyItem draws for one frame; its delete runs on the
+        // InstList_PLM_EmptyItem draws for one frame; its delete runs on the
         // following PLM_Handler pass.
         DrawCollectible(level, slot, RoomPlmCollectibleDrawDefinitions.Empty);
         item.Phase = CollectiblePhase.EmptyAwaitingDelete;
@@ -543,7 +543,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 SamusEquipmentFlags equipmentMask = GetEquipmentMask(kind);
                 samus.EquippedItems |= equipmentMask;
                 samus.CollectedItems |= equipmentMask;
-                // Every Varia/Gravity presentation executes `$84:E29D` immediately before
+                // Every Varia/Gravity presentation clears the suit-pickup state immediately before
                 // PickUpEquipment and the synchronous message. It is not part of the later
                 // transformation and therefore must already be clear throughout the fanfare.
                 if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
@@ -558,7 +558,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 samus.CollectedBeams |= beamMask;
                 samus.EquippedBeams |= beamMask;
 
-                // Spazer and Plasma are the only mutually exclusive beam pair: $84:88B0 shifts the
+                // Spazer and Plasma are the only mutually exclusive beam pair: the beam pickup shifts the
                 // collected beam onto its partner, so collecting either one unequips the other.
                 if ((beamMask & SamusBeamFlags.Spazer) != SamusBeamFlags.None)
                     samus.EquippedBeams &= ~SamusBeamFlags.Plasma;
@@ -570,7 +570,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         }
     }
 
-    /// <summary>Maps an equipment pickup to the native bit written in equipped and collected items.</summary>
+    /// <summary>Maps an equipment pickup to the bit written in equipped and collected items.</summary>
     private static SamusEquipmentFlags GetEquipmentMask(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.Bombs => SamusEquipmentFlags.Bombs,
@@ -597,7 +597,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not an equipment collectible."),
     };
 
-    /// <summary>Maps a beam pickup to its native bit for collected and equipped beams.</summary>
+    /// <summary>Maps a beam pickup to its bit for collected and equipped beams.</summary>
     private static SamusBeamFlags GetBeamMask(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.ChargeBeam => SamusBeamFlags.Charge,
@@ -624,7 +624,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
     };
 
-    /// <summary>Selects the bank-$85 message shown synchronously after a permanent pickup.</summary>
+    /// <summary>Selects the message shown synchronously after a permanent pickup.</summary>
     private static GameplayMessageId GetMessageBoxIndex(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.EnergyTank => GameplayMessageIds.EnergyTank,

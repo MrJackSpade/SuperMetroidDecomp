@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Editable rainbow, drain, revival, and normal-restoration colors for Mother Brain.</summary>
 public sealed class MotherBrainRainbowPalettePresentation
 {
-    /// <summary>Ten color phases read by the native rainbow list.</summary>
+    /// <summary>Ten color phases read by the rainbow list.</summary>
     internal readonly PaletteFrame[] rainbow;
     /// <summary>Drain sequence whose last rear shade can share stock paint.</summary>
     internal readonly PaletteFade toGrey;
-    /// <summary>Revival sequence with independently retained native exceptions.</summary>
+    /// <summary>Revival sequence with independently retained exceptions.</summary>
     internal readonly RevivalPaletteFade fromGrey;
     /// <summary>Brain-only descent used during the staged fake death.</summary>
     internal readonly PaletteFade fakeDeathToGrey;
@@ -83,15 +83,15 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 
     /// <summary>
-    /// $88:E833-E8C7, Set_RainbowBeam_ColorMathSubscreenBackdropColor.table:
-    /// five linear hue legs sampled every other word. The native blue-to-magenta leg
+    /// Set_RainbowBeam_ColorMathSubscreenBackdropColor.table:
+    /// five linear hue legs sampled every other word. The blue-to-magenta leg
     /// delays red by one step and adds a one-step green tint in its upper half.
     /// Falling green/blue changes its rounding bias after local step eight.
     /// These phase boundaries preserve the source's asymmetric wheel exactly.
     /// </summary>
     internal sealed class BeamColors
     {
-        /// <summary>Retained only when an edited sample differs from the native five-leg wheel.</summary>
+        /// <summary>Retained only when an edited sample differs from the five-leg wheel.</summary>
         internal readonly RgbColor[]? supplied;
         /// <summary>Number of actual color samples, excluding the control terminator.</summary>
         public int Length { get; }
@@ -103,10 +103,10 @@ public sealed class MotherBrainRainbowPalettePresentation
                 if (colors[index] != Calculate(index))
                 { supplied = colors; return; }
         }
-        /// <summary>Reads an authored override or reconstructs the matching native wheel sample.</summary>
+        /// <summary>Reads an authored override or reconstructs the matching wheel sample.</summary>
         public RgbColor this[int index] => supplied is null ? Calculate(index) : supplied[index];
 
-        /// <summary>Reconstructs the five hue legs using the cartridge's asymmetric blue-to-magenta shift.</summary>
+        /// <summary>Reconstructs the five hue legs using the game's asymmetric blue-to-magenta shift.</summary>
         private static RgbColor Calculate(int index)
         {
             int step = index * MotherBrainBeamDefinitions.HueStepsPerColor;
@@ -161,7 +161,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         return true;
     }
 
-    /// <summary>Copies one cartridge rainbow-list entry to the three body/brain/leg slots.</summary>
+    /// <summary>Copies one rainbow-list entry to the three body/brain/leg slots.</summary>
     public void ApplyRainbow(GameplayColours gameplayColours, int frame) => ApplyFull(gameplayColours, rainbow, frame);
 
     /// <summary>Restores the two fixed normal-palette sources after the beam finishes.</summary>
@@ -172,7 +172,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     public void ApplyToGrey(GameplayColours gameplayColours, int frame) =>
         ApplyGrey(gameplayColours, toGrey, frame);
 
-    /// <summary>Copies a revival fade, preserving the two native body/brain tail colors.</summary>
+    /// <summary>Copies a revival fade, preserving the two body/brain tail colors.</summary>
     public void ApplyFromGrey(GameplayColours gameplayColours, int frame) =>
         ApplyGrey(gameplayColours, fromGrey, frame);
 
@@ -187,7 +187,7 @@ public sealed class MotherBrainRainbowPalettePresentation
                 fakeDeathToGrey.Body(frame, color));
     }
 
-    /// <summary>Restores only those three colors, reusing the cartridge's revival source table.</summary>
+    /// <summary>Restores only those three colors, reusing the game's revival source table.</summary>
     public void ApplyFakeDeathFromGrey(GameplayColours gameplayColours, int frame)
     {
         Ensure.NotNull(gameplayColours);
@@ -197,7 +197,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             new MotherBrainColours(gameplayColours).FakeDeathBrain.Write(color, fromGrey.Body(frame, color));
     }
 
-    /// <summary>Copies a complete selected rainbow phase into body, brain, and rear-leg CGRAM slots.</summary>
+    /// <summary>Copies a complete selected rainbow phase into body, brain, and rear-leg palette slots.</summary>
     private static void ApplyFull(GameplayColours gameplayColours, PaletteFrame[] frames, int frame)
     {
         Ensure.NotNull(gameplayColours);
@@ -207,8 +207,8 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 
     /// <summary>
-    /// Copies a grey-transition phase. The cartridge also writes the trailing rear color to <c>$7E:017C</c>, a word
-    /// nothing reads, so the port does not keep it.
+    /// Copies a grey-transition phase. The original game also writes the trailing rear color to a spill
+    /// colour nothing reads, so the port does not keep it.
     /// </summary>
     private static void ApplyGrey(GameplayColours gameplayColours, IPaletteFade frames, int frame)
     {
@@ -295,7 +295,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         }
         /// <summary>Number of rear-leg colors this phase publishes.</summary>
         public int LegCount { get; }
-        /// <summary>WRAM spill color, drawn from the shared rear source when an endpoint matches.</summary>
+        /// <summary>Spill color past the rear legs, drawn from the shared rear source when an endpoint matches.</summary>
         public RgbColor? TrailingColor => rearSource is not null
             ? rearSource.Leg(MotherBrainDrainedPaletteDefinitions.TrailingRearSourceColor)
             : drainedRear || normalRearSubset ? Leg(1) : field;
@@ -516,7 +516,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         }
         /// <summary>Drained-paint interpolation selected when the entire row agrees.</summary>
         internal readonly DrainedBodyColors? drained;
-        /// <summary>Number of body/brain CGRAM inks represented by this row.</summary>
+        /// <summary>Number of body/brain inks represented by this row.</summary>
         public int Length { get; }
         /// <summary>Recognizes stock or drained paint, otherwise retains every supplied RGB5 ink.</summary>
         public BodyColors(RgbColor[] colors)
@@ -540,7 +540,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 
     /// <summary>
-    /// $AD:F0BF/F1EB and EEB8 share drained body paint. Cortex shades interpolate
+    /// The drained palettes share drained body paint. Cortex shades interpolate
     /// in RGB5 over three intervals; tissue shades interpolate before RGB5 quantization
     /// over four intervals. Plates reuse normal health paint; white/black are neutral.
     /// Stock uses the three narrowly approved drained paint anchors; independent edits
@@ -602,7 +602,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Reads a calculated drained shade or its exact authored replacement.</summary>
         internal RgbColor this[int color] => supplied is null ? Calculate(color) : supplied[color];
 
-        /// <summary>Interpolates cortex and tissue paint while preserving the native RGB5 rounding rules.</summary>
+        /// <summary>Interpolates cortex and tissue paint while preserving the RGB5 rounding rules.</summary>
         private RgbColor Calculate(int color)
         {
             if (color is >= 4 and <= 7)
@@ -641,10 +641,10 @@ public sealed class MotherBrainRainbowPalettePresentation
         internal readonly PaletteFrame first;
         /// <summary>Normal ending colors for interpolation.</summary>
         internal readonly PaletteFrame last;
-        /// <summary>Authored inks that differ from the native revival interpolation.</summary>
+        /// <summary>Authored inks that differ from the revival interpolation.</summary>
         internal readonly Dictionary<RainbowPaletteColorKey, RgbColor> suppliedOverrides = new();
 
-        /// <summary>Captures only phase/color differences from the native endpoint interpolation.</summary>
+        /// <summary>Captures only phase/color differences from the endpoint interpolation.</summary>
         public RevivalPaletteFade(PaletteFrame[] frames)
         {
             first = frames[0];
@@ -677,7 +677,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Maps a flattened body, rear, or trailing index into one supplied frame.</summary>
         private RgbColor ReadColor(PaletteFrame palette, int color) => color < BodyCount ? palette.Body[color]
             : color < BodyCount + LegCount ? palette.Leg(color - BodyCount)
-            : palette.TrailingColor ?? throw new InvalidDataException("A supplied revival frame has no WRAM spill color.");
+            : palette.TrailingColor ?? throw new InvalidDataException("A supplied revival frame has no spill color.");
 
         /// <summary>The image whose shade revival colour <paramref name="color"/> shows on <paramref name="frame"/>: the held tissue colour repeats its preceding shade for one step.</summary>
         private static int RevivalInterpolationFrame(int frame, int color) =>
@@ -686,7 +686,7 @@ public sealed class MotherBrainRainbowPalettePresentation
                 ? frame - 1
                 : frame;
 
-        /// <summary>Applies the native per-ink revival frame choice before nearest RGB5 interpolation.</summary>
+        /// <summary>Applies the per-ink revival frame choice before nearest RGB5 interpolation.</summary>
         private RgbColor Interpolate(int frame, int color)
         {
             frame = RevivalInterpolationFrame(frame, color);
@@ -738,7 +738,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Reads an authored rear-leg row or its straight-fade approximation.</summary>
         public RgbColor Leg(int frame, int color) => supplied is null
             ? Interpolate(first.Leg(color), last.Leg(color), frame) : supplied[frame].Leg(color);
-        /// <summary>Interpolates the WRAM spill only when both endpoints provide it.</summary>
+        /// <summary>Interpolates the spill colour only when both endpoints provide it.</summary>
         public RgbColor? Trailing(int frame) => supplied is not null ? supplied[frame].TrailingColor
             : first.TrailingColor is RgbColor start && last.TrailingColor is RgbColor end
                 ? Interpolate(start, end, frame) : null;

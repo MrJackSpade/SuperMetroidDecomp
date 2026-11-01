@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Calculated geometry and bounded native overreads for Kraid's fingernail contour.</summary>
+/// <summary>Calculated geometry and bounded overreads for Kraid's fingernail contour.</summary>
 /// <remarks>
-/// The contour has four ledges; a nail below all of them reads two more records from the code that follows the table
-/// ($A7:BF2D..BF34). Those records are gameplay: they decide where a low nail is pushed. Their values are stated here
-/// as the offsets and bounds the contour reads (#1413); the ROM oracle confirms they are the cartridge's words.
+/// The contour has four ledges; a nail below all of them reads two more records from the data that follows the
+/// table. Those records are gameplay: they decide where a low nail is pushed. Their values are stated here
+/// as the offsets and bounds the contour reads (#1413); the import oracle confirms they are the game's values.
 /// </remarks>
 internal static class KraidNailContourDefinitions
 {

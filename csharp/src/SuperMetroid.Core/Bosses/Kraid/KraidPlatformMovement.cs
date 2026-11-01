@@ -1,16 +1,16 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Cartridge movement data used by Kraid's belly-platform firing routine.</summary>
+/// <summary>Movement data used by Kraid's belly-platform firing routine.</summary>
 internal static class KraidPlatformMovement
 {
     /// <summary>
     /// Negative 16.16 displacement from KraidLint_XSubSpeed / KraidLint_XSpeed
-    /// at $A7:A926/A928, subtracted by $A7:B89B and the riding branch at $A7:B8EB.
+    /// subtracted by the lint's firing function and the riding branch.
     /// </summary>
     public const int FiringDisplacement = -229376;
 
     /// <summary>
-    /// Minimum whole-pixel extra Samus X displacement at $A7:B8FB-B903. Native
+    /// Minimum whole-pixel extra Samus X displacement. The game
     /// clamps the whole word to -16 without changing the fractional word.
     /// </summary>
     public const int MinimumCarryWholePixels = -16;

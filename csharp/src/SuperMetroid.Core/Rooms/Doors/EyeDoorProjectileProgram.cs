@@ -3,17 +3,17 @@ using SuperMetroid.Core.Enemies.EyeDoor;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The eye door projectile's flight, impact and shot programs (#641), one per bank-$86 list a spawn, branch or family routine enters, in authored order.
-/// Generated from the verified native lists; see <see cref="EyeDoorProjectileAnimations"/>.
+/// The eye door projectile's flight, impact and shot programs (#641), one per animation script a spawn, branch or family routine enters, in authored order.
+/// Generated from the verified authored scripts; see <see cref="EyeDoorProjectileAnimations"/>.
 /// </summary>
 internal enum EyeDoorProjectileProgram
 {
-    /// <summary><c>InstList_EnemyProjectile_EyeDoorProjectile_Normal_0</c> at $86:B5D9.</summary>
+    /// <summary>Enemy projectile animation script: eye door projectile, normal, part 0.</summary>
     Initial,
-    /// <summary><c>InstList_EnemyProjectile_EyeDoorProjectile_Normal_1</c> at $86:B5EB.</summary>
+    /// <summary>Enemy projectile animation script: eye door projectile, normal, part 1.</summary>
     FlyingLoop,
-    /// <summary><c>InstList_EnemyProjectile_EyeDoorProjectile_Explode</c> at $86:B5F3.</summary>
+    /// <summary>Enemy projectile animation script: eye door projectile, explode.</summary>
     Impact,
-    /// <summary><c>InstList_EnemyProjectile_Shot_EyeDoorProjectile</c> at $86:B603.</summary>
+    /// <summary>Enemy projectile animation script: shot, eye door projectile.</summary>
     Shot,
 }

@@ -3,9 +3,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Mother Brain's twenty-two fake-death room mutation programs (#1296), in authored order.</summary>
 internal enum MotherBrainFakeDeathProgram
 {
-    /// <summary>Fills the wall (header $B673).</summary>
+    /// <summary>Fills the wall.</summary>
     FillWall,
-    /// <summary>Draws the opened escape door (header $B677).</summary>
+    /// <summary>Draws the opened escape door.</summary>
     EscapeDoor,
     /// <summary>Installs background row two's thirteen-block layout.</summary>
     BackgroundRow2,
@@ -31,9 +31,9 @@ internal enum MotherBrainFakeDeathProgram
     BackgroundRowC,
     /// <summary>Installs background row thirteen's layout.</summary>
     BackgroundRowD,
-    /// <summary>The cartridge-unused background row fourteen.</summary>
+    /// <summary>The original game-unused background row fourteen.</summary>
     BackgroundRowE,
-    /// <summary>The cartridge-unused background row fifteen.</summary>
+    /// <summary>The original game-unused background row fifteen.</summary>
     BackgroundRowF,
     /// <summary>Clears the ceiling block.</summary>
     ClearCeilingBlock,

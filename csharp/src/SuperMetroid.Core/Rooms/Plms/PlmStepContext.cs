@@ -17,7 +17,7 @@ internal readonly record struct PlmStepContext(
     internal void Draw(PlmSlot slot, PlmDraw draw) => Plms.Drawing.Draw(Level, slot.BlockIndex, draw);
 
     /// <summary>
-    /// Redraws the slot's saved terrain at its block, as <c>$84:8B17 Instruction_PLM_DrawPLMBlock</c> restores a
+    /// Redraws the slot's saved terrain at its block, as the draw-block step restores a
     /// respawning block.
     /// </summary>
     internal void DrawRestoredBlock(PlmSlot slot) =>
@@ -27,7 +27,7 @@ internal readonly record struct PlmStepContext(
     internal void QueueSound(SoundEffectId sound, SoundRequestPriority priority) =>
         Plms.Sounds.Queue(sound, Priority: priority);
 
-    /// <summary>Moves the slot's origin by whole blocks, as the cartridge's move-PLM instructions do.</summary>
+    /// <summary>Moves the slot's origin by whole blocks, as the game's move-PLM instructions do.</summary>
     internal void MoveOrigin(PlmSlot slot, int columns, int rows) =>
         slot.BlockIndex = checked(slot.BlockIndex + columns + rows * Level.Size.X);
 }

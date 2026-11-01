@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Mother Brain's repeatable phase-two rainbow-beam, finish-off, and Baby-drain/corpse
-/// function chains at <c>$A9:B8EB-$A9:BFCF</c>.
+/// function chains.
 /// </summary>
 /// <remarks>
 /// The earlier general attack-selection logic and the spawned Baby Metroid's independent AI
@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class MotherBrainRainbowBeamAttackSequence
 {
     /// <summary>
-    /// Signed beam-explosion positions from $A9:BCA6/$BCB6. The index increments before
+    /// Signed beam-explosion positions. The index increments before
     /// lookup, so its initial zero value selects the second record.
     /// </summary>
     internal static readonly Offset16<RoomPixels>[] ExplosionOffsets =
@@ -69,21 +69,21 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public RotationAngle RainbowBeamAngle => _movement.RainbowBeamAngle;
 
     /// <summary>
-    /// Lower neck angle updated by the brain-slot handler at <c>$A9:9072</c>. The final
-    /// beam has already lowered it to <c>$3000</c> before the Baby interrupts the body.
+    /// Lower neck angle updated by the brain-slot handler. The final
+    /// beam has already lowered it to three sixteenths of a turn before the Baby interrupts the body.
     /// </summary>
     public RotationAngle LowerNeckAngle { get; internal set; } = RotationAngle.FromRaw(12288);
 
-    /// <summary>Upper neck angle, correspondingly lowered to <c>$2000</c>.</summary>
+    /// <summary>Upper neck angle, correspondingly lowered to an eighth of a turn.</summary>
     public RotationAngle UpperNeckAngle { get; internal set; } = RotationAngle.FromRaw(8192);
 
     /// <summary>
-    /// Number of live Mother Brain bomb enemy projectiles at body WRAM <c>$7E:802A</c>.
+    /// Number of live Mother Brain bomb enemy projectiles.
     /// </summary>
     /// <remarks>
-    /// The counter belongs to Mother Brain even though bank <c>$86</c> owns each bomb's
-    /// motion. Bomb initialization increments it and both native deletion paths decrement
-    /// it. Keeping the mutation behind these two methods makes that cross-bank ownership
+    /// The counter belongs to Mother Brain even though the enemy-projectile system owns each bomb's
+    /// motion. Bomb initialization increments it and both deletion paths decrement
+    /// it. Keeping the mutation behind these two methods makes that cross-actor ownership
     /// visible instead of silently deriving a count from the host projectile collection.
     /// </remarks>
     public int BombCounter { get; private set; }
@@ -92,14 +92,14 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     internal void ShareWalkCounter(MotherBrainWalkCounter walk) => ThirdPhaseFight.ShareWalkCounter(Ensure.NotNull(walk));
 
     /// <summary>
-    /// Inherits word <c>$0FF2</c> from the room's encounter state when the live sequence
+    /// Inherits the death-and-escape explosion index from the room's encounter state when the live sequence
     /// attaches; the fake-death ascent dust last wrote it.
     /// </summary>
     internal void InheritDeathAndEscapeExplosionIndex(WrappingCountdown bodySubFunctionTimer) =>
         ThirdPhaseDeath.DeathAndEscapeExplosionIndex = bodySubFunctionTimer;
 
     /// <summary>
-    /// Starts the repeatable rainbow-beam cycle at `$A9:B8EB`, before its two charge waits.
+    /// Starts the repeatable rainbow-beam cycle, before its two charge waits.
     /// </summary>
     public void StartAttackCycle()
     {
@@ -144,67 +144,67 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     internal MotherBrainBodyProgram? RequestedBodyProgram => State.Body.Program;
 
     /// <summary>
-    /// Ports the cross-enemy function-pointer write at <c>$A9:C8CD</c>. The Baby actor
-    /// installs <c>$BE38</c> after it has reached the brain; Mother Brain executes that new
+    /// Ports the cross-enemy function-pointer write. The Baby actor
+    /// installs the taken-aback step after it has reached the brain; Mother Brain executes that new
     /// function on her next enemy-AI turn rather than inside the Baby's current turn.
     /// </summary>
     public void InterruptFinalBeamForBabyDrain()
     {
         State.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback;
-        State.RainbowBeamSoundPlaying = true; // `$A9:C8DA-$C8DD` writes the shared SFX flag.
+        State.RainbowBeamSoundPlaying = true; // The Baby's drain writes the shared SFX flag.
     }
 
     /// <summary>
-    /// Ports the Baby's cross-enemy write at <c>$A9:CB23</c>. The native routine does not
+    /// Ports the Baby's cross-enemy write. The routine does not
     /// wait for Mother Brain's stand-up animation before repeatedly requesting the backward
-    /// walk; the later Baby route decides when to replace this function with <c>$C19A</c>.
+    /// walk; the later Baby route decides when to replace this function with the final attack.
     /// </summary>
     public void PrepareForFinalBabyMetroidAttack() =>
         State.Phase = MotherBrainBodyFunction.SecondPhasePrepareForFinalBabyAttack;
 
     /// <summary>
-    /// Ports the Baby's cross-enemy write at <c>$A9:CBA8</c>. Mother Brain installs one last
-    /// `$9DB1` four-ring head program and then leaves her body function at the native RTS.
+    /// Ports the Baby's cross-enemy write. Mother Brain installs one last
+    /// four-ring head program and then leaves her body function at the empty holding step.
     /// </summary>
     public void ExecuteFinalBabyMetroidAttack() =>
         State.Phase = MotherBrainBodyFunction.SecondPhaseExecuteFinalBabyAttack;
 
     /// <summary>
-    /// Applies physical head opcode <c>$A9:9EA3</c>. Live gameplay advances the ordinary
-    /// room instruction list, while the reusable head verifier advances its private list;
-    /// both must mutate this one native saturating counter.
+    /// Applies the head's attack-counter step. Live gameplay advances the ordinary
+    /// room animation script, while the reusable head verifier advances its private list;
+    /// both must mutate this one saturating counter.
     /// </summary>
     internal void IncrementLiveBabyMetroidAttackCounter() =>
         Revival.BabyMetroidAttackCounter = Math.Min(Revival.BabyMetroidAttackCounter + 1, 12);
 
-    /// <summary>Applies physical head opcode <c>$A9:9EB5</c>.</summary>
+    /// <summary>Applies the head's attack-counter reset step.</summary>
     internal void ResetLiveBabyMetroidAttackCounter() => Revival.BabyMetroidAttackCounter = 0;
 
     /// <summary>
-    /// Ports the Baby's final cross-enemy write at <c>$A9:CD02-$CD05</c>. The body does
-    /// not execute <c>$C1CF</c> inside the Baby's slot; increasing-slot enemy order makes
+    /// Ports the Baby's final cross-enemy write. The body does
+    /// not execute the recovery inside the Baby's slot; increasing-slot enemy order makes
     /// this installed phase visible on Mother Brain's following frame.
     /// </summary>
     public void BeginPhase3RecoveryFromBabyCutscene()
     {
         State.Phase = MotherBrainBodyFunction.ThirdPhaseRecoverMakeSomeDistance;
 
-        // Native clears only the shared enemy-slot index. This host flag is the equivalent
+        // Clears only the shared enemy-slot index. This host flag is the equivalent
         // liveness witness used by head attack selection after the actor has deleted itself.
         State.BabyMetroidSpawned = false;
     }
 
     /// <summary>
     /// Applies the movement/recoil half of Mother Brain's shared phase-two/three shot
-    /// reaction at <c>$A9:B562-$B5C4</c>. The ordinary enemy-shot routine owns damage,
+    /// reaction. The ordinary enemy-shot routine owns damage,
     /// projectile deletion, and flash time; this method intentionally does not duplicate
     /// any of those separately translated systems.
     /// </summary>
     public void ApplyPhase2Or3ShotReaction(MotherBrainProjectileType projectileType)
     {
-        // `$B58E` masks the projectile type to three bits before indexing an eight-byte
+        // The shot reaction masks the projectile type to three bits before indexing an eight-byte
         // table. Validate the host enum so a caller cannot accidentally smuggle a larger
-        // value past that native domain.
+        // value past that domain.
         MotherBrainShotReactionResult reaction =
             MotherBrainShotReaction.Resolve(State.Body.Form, projectileType, ThirdPhaseFight.Phase3WalkCounter);
         ThirdPhaseFight.Phase3WalkCounter = reaction.WalkCredit;
@@ -218,7 +218,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// Ports the Baby's <c>$A9:C879</c> call to the standard backwards-walk helper using
+    /// Runs the Baby's call to the standard backwards-walk helper using
     /// animation-delay index two and target <c>Body.X-1</c>.
     /// </summary>
     public bool RequestBabyStumbleBackward()

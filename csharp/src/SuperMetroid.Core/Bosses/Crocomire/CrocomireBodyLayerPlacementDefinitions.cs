@@ -3,14 +3,14 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Fixed placement data of his body layer, used by <c>Update Crocomire BG2 scroll</c> at $A4:8B5B.
-/// The cartridge searches 17 body frames in reverse order and, on a match, adds that frame's fourth-component Y
+/// Fixed placement data of his body layer, used by <c>Update Crocomire BG2 scroll</c>.
+/// The original game searches 17 body frames in reverse order and, on a match, adds that frame's fourth-component Y
 /// offset.
 /// This is camera/presentation alignment, not editable boss artwork.
 /// </summary>
 internal static class CrocomireBodyLayerPlacementDefinitions
 {
-    /// <summary>Native $A4:8B5B vertical-scroll origin.</summary>
+    /// <summary>The body layer's vertical-scroll origin.</summary>
     internal const int VerticalOrigin = 67;
 
     /// <summary>

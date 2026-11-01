@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Cartridge definitions for PLM $84:BB30, which clears the Crateria mainstreet escape
-/// passage when the critters escaped. Room setup $8F:9194 spawns it during the escape.
+/// Definitions for the PLM that clears the Crateria mainstreet escape
+/// passage when the critters escaped. The room's setup spawns it during the escape.
 /// </summary>
 internal static class CrateriaMainstreetEscapePassagePlmDefinitions
 {
-    /// <summary>$8F:9198: the hardcoded spawn's block X.</summary>
+    /// <summary>The hardcoded spawn's block X.</summary>
     internal const int BlockX = 61;
-    /// <summary>$8F:9199: the hardcoded spawn's block Y.</summary>
+    /// <summary>The hardcoded spawn's block Y.</summary>
     internal const int BlockY = 11;
 
     /// <summary>The passage's one draw.</summary>

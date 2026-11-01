@@ -21,7 +21,7 @@ public static class GameSaveJsonCodec
     private static readonly BossBits AllBossFlags =
         Enum.GetValues<BossBits>().Aggregate((left, right) => left | right);
 
-    /// <summary>Captures all meaningful persistent state without a duplicate native-memory image.</summary>
+    /// <summary>Captures all meaningful persistent state without a duplicate raw save-memory image.</summary>
     public static GameSaveJsonDocument Capture(SaveSlotStore saves)
     {
         Ensure.NotNull(saves);
@@ -96,7 +96,7 @@ public static class GameSaveJsonCodec
         return saves;
     }
 
-    /// <summary>Projects one native save slot into named resources, flags, events, and explored map cells.</summary>
+    /// <summary>Projects one save slot into named resources, flags, events, and explored map cells.</summary>
     private static GameSaveSlotJsonDocument CaptureSlot(SuperMetroidSaveSlot slot) => new()
     {
         Slot = slot.Slot,
@@ -161,7 +161,7 @@ public static class GameSaveJsonCodec
             [.. progress.ExploredCells(area).Select(MapCoordinateJsonDocument.FromCell)]))],
     };
 
-    /// <summary>Reconstructs the native save snapshot from one validated named slot.</summary>
+    /// <summary>Reconstructs the save snapshot from one validated named slot.</summary>
     private static SuperMetroidSaveSnapshot ToSnapshot(GameSaveSlotJsonDocument slot)
     {
         ValidateSlot(slot, slot.Slot);
@@ -211,7 +211,7 @@ public static class GameSaveJsonCodec
         };
     }
 
-    /// <summary>Requires a supported schema, valid selected slot, and exactly the native slot count.</summary>
+    /// <summary>Requires a supported schema, valid selected slot, and exactly the game's slot count.</summary>
     private static void Validate(GameSaveJsonDocument document)
     {
         Ensure.NotNull(document);

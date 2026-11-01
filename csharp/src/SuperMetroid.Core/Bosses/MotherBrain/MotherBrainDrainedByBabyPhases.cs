@@ -12,7 +12,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         _state = state;
     }
 
-    /// <summary>Current zero-based painful-walk stage at WRAM <c>$7E:802A</c>, 0 through 8.</summary>
+    /// <summary>Current zero-based painful-walk stage, 0 through 8.</summary>
     [IntegerQuantity("zero-based count of painful-walk steps taken, 0 through 8")]
     public int PainfulWalkingStage { get; internal set; }
 
@@ -28,7 +28,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// <summary>Alternates painful forward and backward walk requests, advancing the stage only after its pause expires.</summary>
     internal bool StepPainfulWalking()
     {
-        // The native stores four separate function pointers (request forward, wait forward,
+        // The game stores four separate function pointers (request forward, wait forward,
         // request backward, wait backward). Two booleans express the same state without
         // hiding when a body instruction list is actually installed.
         if (!PainfulWalkingFunctionTimer.IsZero)
@@ -54,14 +54,14 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby taken aback body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase drained by baby taken aback body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyTakenAback()
     {
-        // `$A9:BE38` is not executed by the Baby. It runs on Mother Brain's next
-        // actor turn, changes form/neck geometry, seeds `$30`, and falls through so
-        // that this first regain-balance call immediately decrements it to `$2F`.
+        // The taken-aback step is not executed by the Baby. It runs on Mother Brain's next
+        // actor turn, changes form/neck geometry, seeds 48, and falls through so
+        // that this first regain-balance call immediately decrements it to 47.
         _state.Body.Form = MotherBrainForm.DrainedByBabyMetroid;
         _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
         _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Raise;
@@ -72,7 +72,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby regain balance body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase drained by baby regain balance body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyRegainBalance(MotherBrainRainbowBeamStepRequests requests)
@@ -81,9 +81,9 @@ internal sealed class MotherBrainDrainedByBabyPhases
         _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
         if (_state.FunctionTimer.IsNegative)
         {
-            // `$BE80-$BE83` contains an apparent missing STA: it loads one and then
+            // The regain-balance step contains an apparent missing store: it loads one and then
             // immediately reloads the neck-enable flag. Preserve that no-op rather
-            // than silently "fixing" the cartridge.
+            // than silently "fixing" the original game.
             PainfulWalkingForward = true;
             PainfulWalkingStage = 0;
             PainfulWalkingAnimationDelay = 2;
@@ -96,12 +96,12 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby firing rainbow beam body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase drained by baby firing rainbow beam body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyFiringRainbowBeam(MotherBrainRainbowBeamStepRequests requests)
     {
-        // `$BE96` refreshes the shake timer only if another subsystem has cleared it.
+        // The rainbow step refreshes the shake timer only if another subsystem has cleared it.
         // The head animation owns any decrement; retaining the write gate avoids
         // fabricating a body-side countdown that does not exist in this routine.
         if (_state.BrainMainShakeTimer.IsZero)
@@ -129,7 +129,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby rainbow beam run out body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase drained by baby rainbow beam run out body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyRainbowBeamRunOut(MotherBrainRainbowBeamStepRequests requests)
@@ -148,14 +148,14 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby move to back of room body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase drained by baby move to back of room body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyMoveToBackOfRoom(MotherBrainRainbowBeamStepRequests requests)
     {
-        // `$BF41` does not reload Y before the shared walk helper. The surrounding
-        // sequence's final painful-animation selector is `$000A`, so the observable
-        // retail list is the really-slow backward program at `$993A`.
+        // The walk step does not reload Y before the shared walk helper. The surrounding
+        // sequence's final painful-animation selector is ten, so the observable
+        // retail list is the really-slow backward program.
         MotherBrainWalkResult moveToBack = _state.RequestWalkBackwardReallySlow(targetX: 40);
         requests.BodyWalkRequested = moveToBack.Requested;
         if (moveToBack.ReachedTarget)
@@ -168,7 +168,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby go into low power mode body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase drained by baby go into low power mode body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyGoIntoLowPowerMode(MotherBrainRainbowBeamStepRequests requests)
@@ -190,7 +190,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby prepare transition to grey body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase drained by baby prepare transition to grey body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyPrepareTransitionToGrey()
@@ -207,7 +207,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby transition to grey body function. True when it installs the next body function and the cartridge runs
+    /// Runs the second phase drained by baby transition to grey body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyTransitionToGrey(MotherBrainRainbowBeamStepRequests requests)
@@ -217,7 +217,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         {
             _state.FunctionTimer = WrappingCountdown.Start(16);
 
-            // Bank `$AD:EF4A` has eight nonzero palette pointers followed by zero.
+            // The grey-transition list has eight nonzero palette entries followed by an end marker.
             // The caller increments its counter, passes the old index, and treats
             // the ninth (index-eight) probe as completion without copying colours.
             int paletteIndex = _state.GreyTransitionCounter;

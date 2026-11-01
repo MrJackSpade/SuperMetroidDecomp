@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// One of the seven twenty-byte logical tail entries initialized by $A6:D2D6. The tail
+/// One of the seven logical tail entries initialized by Ridley's tail initialization. The tail
 /// is shared by Ceres Ridley and Lower Norfair Ridley; encounter-specific controllers only
 /// change these common targets and activation words.
 /// </summary>
@@ -13,7 +13,7 @@ public sealed class RidleyTailSegment
     /// Gets the accumulated angular stagger, in tail-angle units, before this segment activates the next segment. It counts
     /// up from zero (seventeen at initialization) by the tail's angular step until it reaches the ideal inter-segment angle,
     /// then has none (null) once the next segment has been activated: no stagger compares below the ideal angle, as the
-    /// cartridge's -1 word does not (#1413).
+    /// original game's minus-one value does not (#1413).
     /// </summary>
     public int? StaggerAngle { get; internal set; }
     /// <summary>Gets whether this segment moves clockwise, toward decreasing angles; otherwise it moves counterclockwise.</summary>

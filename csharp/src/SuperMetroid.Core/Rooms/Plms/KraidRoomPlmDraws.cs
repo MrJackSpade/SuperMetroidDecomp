@@ -76,7 +76,7 @@ internal static class KraidRoomPlmDraws
     /// <summary>A horizontal, single-run Kraid draw evaluated without stored blocks.</summary>
     internal readonly record struct Draw(KraidRoomDraw Frame)
     {
-        /// <summary>Gets the number of blocks in this single horizontal native run.</summary>
+        /// <summary>Gets the number of blocks in this single horizontal run.</summary>
         internal int BlockCount => CountFor(Frame);
         /// <summary>Calculates the terrain of a block in this draw.</summary>
         internal RoomTerrainBlock BlockAt(int index) =>

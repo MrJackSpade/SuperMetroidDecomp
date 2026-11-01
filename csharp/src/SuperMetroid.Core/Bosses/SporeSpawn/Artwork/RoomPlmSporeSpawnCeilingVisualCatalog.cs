@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 /// </summary>
 public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => SporeSpawnCeilingArtwork.ContentIdentity(this);
 
     /// <summary>Owned visual-only edits keyed by draw; stock draws use their compiled blocks.</summary>

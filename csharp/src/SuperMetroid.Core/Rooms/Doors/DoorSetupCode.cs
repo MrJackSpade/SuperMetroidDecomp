@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// The setup routine a door runs while Samus passes through it: the complete set the retail doors name, plus none.
-/// The values are arbitrary; the import pipeline translates the cartridge's routine words (#1414).
+/// The values are arbitrary; the import pipeline translates the doors' setup routines (#1414).
 /// </summary>
 public enum DoorSetupCode
 {
@@ -254,7 +254,7 @@ public enum DoorSetupCode
 
     /// <summary>
     /// Door callback. The inherited disassembly label says cells 8/9, but the
-    /// cartridge operands are <c>Scrolls+$18</c> and <c>Scrolls+$19</c>.
+    /// door's own operands are cells 24 and 25.
     /// </summary>
     DoorASM_Scroll_18_Blue_19_Red = 81,
 

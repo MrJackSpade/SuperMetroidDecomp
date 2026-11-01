@@ -4,14 +4,14 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Saves;
 
-/// <summary>One valid cartridge slot expressed as named gameplay domains.</summary>
+/// <summary>One valid save slot expressed as named gameplay domains.</summary>
 /// <remarks>
 /// The numeric fields are JSON numbers. The codec accepts each only inside the range the slot can hold
 /// (<see cref="SaveFieldValue"/>) and decodes the reserve mode and HUD item into their domains.
 /// </remarks>
 public sealed record GameSaveSlotJsonDocument
 {
-    /// <summary>The zero-based cartridge slot whose state this object represents.</summary>
+    /// <summary>The zero-based save slot whose state this object represents.</summary>
     public required int Slot { get; init; }
 
     /// <summary>The area and load-station pair used to resume gameplay.</summary>
@@ -23,10 +23,10 @@ public sealed record GameSaveSlotJsonDocument
     /// <summary>Collected and equipped item/beam bit sets.</summary>
     public required SaveInventoryJsonDocument Inventory { get; init; }
 
-    /// <summary>The cartridge-compatible four-component gameplay clock.</summary>
+    /// <summary>The four-component gameplay clock.</summary>
     public required SaveGameTimeJsonDocument GameTime { get; init; }
 
-    /// <summary>The seven configurable gameplay actions as SNES button masks.</summary>
+    /// <summary>The seven configurable gameplay actions as controller button masks.</summary>
     public required SaveControllerJsonDocument Controller { get; init; }
 
     /// <summary>Persistent world events, room bits, station bits, and explored map tiles.</summary>

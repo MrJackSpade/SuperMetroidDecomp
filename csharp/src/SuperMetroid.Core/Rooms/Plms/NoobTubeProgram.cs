@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The n00b tube's four PLM programs (#1296), in place of its bank-$84 lists at $84:D4D4..D524.</summary>
+/// <summary>The n00b tube's four PLM programs (#1296), in place of its lists.</summary>
 internal enum NoobTubeProgram
 {
     /// <summary>Skips to the broken tube once its event is set; otherwise draws the intact tube and waits for a power bomb.</summary>

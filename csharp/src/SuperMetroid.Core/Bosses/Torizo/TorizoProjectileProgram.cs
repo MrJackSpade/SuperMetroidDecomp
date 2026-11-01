@@ -1,134 +1,134 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Bomb and Golden Torizo's typed projectile programs (#641), one per bank-$86 list a spawn, pre-instruction, branch
-/// or resumed sleep enters, in authored order. Generated from the verified native lists; see
+/// Bomb and Golden Torizo's typed projectile programs (#641), one per list a spawn, pre-instruction, branch
+/// or resumed sleep enters, in authored order. Generated from the verified lists; see
 /// <see cref="TorizoProjectileAnimations"/>.
 /// </summary>
 internal enum TorizoProjectileProgram
 {
-    /// <summary>The native list at $86:A3CB.</summary>
+    /// <summary>Where the animation starts.</summary>
     ExplosionLowHealthInitial,
-    /// <summary>The loop at $86:A3D5.</summary>
+    /// <summary>The animation's repeating part.</summary>
     ExplosionLowHealthInitialLoop,
-    /// <summary>The native list at $86:A3FA.</summary>
+    /// <summary>Where the animation starts.</summary>
     ExplosionDeathInitial,
-    /// <summary>The loop at $86:A408.</summary>
+    /// <summary>The animation's repeating part.</summary>
     ExplosionDeathInitialLoop,
-    /// <summary>The native list at $86:A431.</summary>
+    /// <summary>Where the animation starts.</summary>
     ExplosionDeathSmokeSetup,
-    /// <summary>The loop at $86:A435.</summary>
+    /// <summary>The animation's repeating part.</summary>
     ExplosionDeathSmokeSetupLoop,
-    /// <summary>The native list at $86:A46A.</summary>
+    /// <summary>Where the animation starts.</summary>
     DroolFourFrameDelay,
-    /// <summary>The native list at $86:A46E.</summary>
+    /// <summary>Where the animation starts.</summary>
     DroolTwoFrameDelay,
-    /// <summary>The native list at $86:A472.</summary>
+    /// <summary>Where the animation starts.</summary>
     DroolNoDelay,
-    /// <summary>The native list at $86:A482.</summary>
+    /// <summary>Where the animation starts.</summary>
     DroolFallingLoop,
-    /// <summary>The native list at $86:A48A.</summary>
+    /// <summary>Where the animation starts.</summary>
     DroolWallImpact,
-    /// <summary>The native list at $86:A48E.</summary>
+    /// <summary>Where the animation starts.</summary>
     DroolFloorImpact,
-    /// <summary>The native list at $86:A4AA.</summary>
+    /// <summary>Where the animation starts.</summary>
     SwipeInitial,
-    /// <summary>The native list at $86:A4C3.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment0,
-    /// <summary>The native list at $86:A4D4.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment1,
-    /// <summary>The native list at $86:A4E5.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment2,
-    /// <summary>The native list at $86:A4F6.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment3,
-    /// <summary>The native list at $86:A507.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment4,
-    /// <summary>The native list at $86:A518.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment5,
-    /// <summary>The native list at $86:A529.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment6,
-    /// <summary>The native list at $86:A53A.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment7,
-    /// <summary>The native list at $86:A54B.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment8,
-    /// <summary>The native list at $86:A55C.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment9,
-    /// <summary>The native list at $86:A56D.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment10,
-    /// <summary>The native list at $86:A57E.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment11,
-    /// <summary>The native list at $86:A58F.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment12,
-    /// <summary>The native list at $86:A5A0.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment13,
-    /// <summary>The native list at $86:A5B1.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment14,
-    /// <summary>The native list at $86:A5C2.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment15,
-    /// <summary>The native list at $86:AB15.</summary>
+    /// <summary>Where the animation starts.</summary>
     ChozoOrbMovingLeft,
-    /// <summary>The native list at $86:AB1D.</summary>
+    /// <summary>Where the animation starts.</summary>
     ChozoOrbMovingRight,
-    /// <summary>The native list at $86:AB25.</summary>
+    /// <summary>Where the animation starts.</summary>
     ChozoOrbWallImpact,
-    /// <summary>The native list at $86:AB41.</summary>
+    /// <summary>Where the animation starts.</summary>
     ChozoOrbFloorImpact,
-    /// <summary>The native list at $86:AB68.</summary>
+    /// <summary>Where the animation starts.</summary>
     ChozoOrbShot,
-    /// <summary>The native list at $86:ADBF.</summary>
+    /// <summary>Where the animation starts.</summary>
     SonicBoomFiredLeft,
-    /// <summary>The native list at $86:ADCA.</summary>
+    /// <summary>Where the animation starts.</summary>
     SonicBoomMovingLeft,
-    /// <summary>The native list at $86:ADD2.</summary>
+    /// <summary>Where the animation starts.</summary>
     SonicBoomFiredRight,
-    /// <summary>The native list at $86:ADDD.</summary>
+    /// <summary>Where the animation starts.</summary>
     SonicBoomMovingRight,
-    /// <summary>The native list at $86:ADE5.</summary>
+    /// <summary>Where the animation starts.</summary>
     SonicBoomWallImpact,
-    /// <summary>The native list at $86:ADF1.</summary>
+    /// <summary>Where the animation starts.</summary>
     SonicBoomWallImpactLoop,
-    /// <summary>The native list at $86:AF9D.</summary>
+    /// <summary>Where the animation starts.</summary>
     LandingDustRightFoot,
-    /// <summary>The native list at $86:AFB5.</summary>
+    /// <summary>Where the animation starts.</summary>
     LandingDustLeftFoot,
-    /// <summary>The native list at $86:B104.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggBouncingLeft,
-    /// <summary>The native list at $86:B10A.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggBouncingLeftHatching,
-    /// <summary>The native list at $86:B11C.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggBouncingRight,
-    /// <summary>The native list at $86:B122.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggBouncingRightHatching,
-    /// <summary>The native list at $86:B134.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggHatch,
-    /// <summary>The native list at $86:B14B.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggHatchedLeft,
-    /// <summary>The loop at $86:B152.</summary>
+    /// <summary>The animation's repeating part.</summary>
     EggHatchedLeftLoop,
-    /// <summary>The native list at $86:B166.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggHatchedRight,
-    /// <summary>The loop at $86:B16D.</summary>
+    /// <summary>The animation's repeating part.</summary>
     EggHatchedRightLoop,
-    /// <summary>The native list at $86:B190.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggBreakLeft,
-    /// <summary>The native list at $86:B1A8.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggBreakRight,
-    /// <summary>The native list at $86:B293.</summary>
+    /// <summary>Where the animation starts.</summary>
     SuperMissileRightInitial,
-    /// <summary>The native list at $86:B29D.</summary>
+    /// <summary>Where the animation starts.</summary>
     SuperMissileRightLoop,
-    /// <summary>The native list at $86:B2C1.</summary>
+    /// <summary>Where the animation starts.</summary>
     SuperMissileLeftInitial,
-    /// <summary>The native list at $86:B2CB.</summary>
+    /// <summary>Where the animation starts.</summary>
     SuperMissileLeftLoop,
-    /// <summary>The native list at $86:B2EF.</summary>
+    /// <summary>Where the animation starts.</summary>
     SuperMissileImpact,
-    /// <summary>The native list at $86:B3CD.</summary>
+    /// <summary>Where the animation starts.</summary>
     EyeBeamWallImpact,
-    /// <summary>The native list at $86:B3E5.</summary>
+    /// <summary>Where the animation starts.</summary>
     EyeBeamFloorImpact,
-    /// <summary>The native list at $86:B3E7.</summary>
+    /// <summary>Where the animation starts.</summary>
     EyeBeamFloorImpactLoop,
-    /// <summary>The native list at $86:B410.</summary>
+    /// <summary>Where the animation starts.</summary>
     EyeBeamNormal,
 }

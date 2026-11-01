@@ -5,12 +5,12 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// Visual-only wall-clear block selections. The nine physical block appearances and
-/// the crumble program remain compiled cartridge mechanics. Crumble frames
+/// the crumble program remain compiled mechanics. Crumble frames
 /// share the existing shot-block visual resource.
 /// </summary>
 public sealed class InstalledRoomPlmBotwoonWallVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmBotwoonWallVisuals),
         content =>
         {

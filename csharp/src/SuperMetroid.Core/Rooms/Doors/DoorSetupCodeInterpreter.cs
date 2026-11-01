@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>Pure scroll-byte portion of translated bank-$8F door setup programs.</summary>
+/// <summary>Scroll-cell portion of translated door setup programs.</summary>
 internal static class DoorSetupCodeInterpreter
 {
     /// <summary>Applies only scroll-byte effects of a door setup program; non-scroll setup remains with the runtime.</summary>
@@ -22,13 +22,13 @@ internal static class DoorSetupCodeInterpreter
             case DoorSetupCode.DoorASM_SetupElevatubeFromSouth:
             case DoorSetupCode.DoorASM_SetupElevatubeFromNorth:
             case DoorSetupCode.DoorASM_ResetElevatubeOnNorthExit:
-                // The two Ceres routines change PPU/Mode-7 state, not room scroll bytes.
+                // The two Ceres routines change the rotating-room view, not room scroll cells.
                 // The treadmill and first three elevatube routines likewise own only
                 // object/Samus state. Their non-scroll effects are applied by the runtime.
                 return;
 
             case DoorSetupCode.DoorASM_ResetElevatubeOnSouthExit:
-                // $8F:E309 performs one 16-bit $0202 store at $7E:CD20. The typed grid
+                // The routine performs one 16-bit store over the first two cells. The typed grid
                 // expresses the same two green storage bytes before Samus is unlocked.
                 scrolls.SetStorage(0, RoomScrollState.Green);
                 scrolls.SetStorage(1, RoomScrollState.Green);

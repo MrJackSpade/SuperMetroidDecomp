@@ -6,7 +6,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The state of the Shitroid, with its extended enemy WRAM. The values the cartridge keeps in the enemy's common record
+/// The state of the Shitroid, with its extended enemy state. The values the game keeps in the enemy's common record
 /// are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class ShitroidEnemyState
@@ -24,7 +24,7 @@ public sealed class ShitroidEnemyState
     internal AnimationProgramCursor<ShitroidProgram> Cursor { get; set; }
 
     /// <summary>
-    /// Gets the current bank-$A9 Shitroid AI function pointer; none once a kill has emptied the record.
+    /// Gets the current Shitroid AI function pointer; none once a kill has emptied the record.
     /// </summary>
     public ShitroidAiFunction? Function { get; internal set; }
 
@@ -58,23 +58,23 @@ public sealed class ShitroidEnemyState
     /// <summary>Gets the current AI state's general-purpose countdown.</summary>
     public WrappingCountdown StateTimer { get; internal set; }
 
-    /// <summary>Native extended word 01: randomized vertical-follow duration.</summary>
+    /// <summary>Extended word 01: randomized vertical-follow duration.</summary>
     public WrappingCountdown HoverTimer { get; internal set; }
 
     /// <summary>
-    /// Horizontal-lock accumulator (native extended word 02): gains two each update the Shitroid is horizontally
+    /// Horizontal-lock accumulator (extended word 02): gains two each update the Shitroid is horizontally
     /// aligned with its target and loses one, never below zero, otherwise.
     /// </summary>
     public int HorizontalLockAccumulator { get; internal set; }
 
-    /// <summary>Whether the periodic Shitroid cry is enabled (native extended word 04).</summary>
+    /// <summary>Whether the periodic Shitroid cry is enabled (extended word 04).</summary>
     public bool CryEnabled { get; internal set; }
 
-    /// <summary>Palette cycles toward the next periodic cry, 0 through 3 (native extended word 05).</summary>
+    /// <summary>Palette cycles toward the next periodic cry, 0 through 3 (extended word 05).</summary>
     public int CryCounter { get; internal set; }
 
     /// <summary>
-    /// Diagnostic mirror of native word 08 in physical slot one. Shitroid writes the actual dead-sidehopper palette
+    /// Diagnostic mirror of word 08 in physical slot one. Shitroid writes the actual dead-sidehopper palette
     /// stage through <c>ActivateDeadSidehopperVictim</c>; retaining this value on the boss state makes that cross-slot
     /// side effect directly auditable.
     /// </summary>
@@ -91,7 +91,7 @@ public sealed class ShitroidEnemyState
     /// </summary>
     public bool ReactsToSamus { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         ReactsToSamus = false;

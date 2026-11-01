@@ -5,9 +5,9 @@ using static SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyBodyPaintDefinit
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
-/// Body-fade endpoint paint at $A6:E454-E469. First eight words exactly alias
-/// Golden Torizo low-front armor $84:8034-8043; use its immutable stock provider.
-/// Three remaining wing membrane paints at $A6:E464-E469 share saturated red and
+/// Body-fade endpoint paint. First eight words exactly alias
+/// Golden Torizo's low-front armor colours; use its immutable stock provider.
+/// Three remaining wing membrane paints share saturated red and
 /// blue-minus-green tint5. Selected green18/1 and dark red20/blue4 (dark green zero)
 /// define categorical membrane highlight/middle/shadow; replacing these levels
 /// invents different paint, without exempting initial palettes, pixels or timing.
@@ -29,7 +29,7 @@ internal sealed class CeresRidleyBodyPaint
     internal CeresRidleyBodyPaint(ReadOnlySpan<RgbColor> endpoint)
         : this(EndpointColor(endpoint, 8), EndpointColor(endpoint, 9), EndpointColor(endpoint, 10)) { }
 
-    /// <summary>Shared membrane material, also present at $A6:E1F9-E1FE in the Baby palette.</summary>
+    /// <summary>Shared membrane material, also present in the Baby palette.</summary>
     internal CeresRidleyBodyPaint(RgbColor highlight, RgbColor middle, RgbColor dark)
     {
         highlightGreen = highlight.Green;

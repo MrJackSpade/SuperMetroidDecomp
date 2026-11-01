@@ -14,7 +14,7 @@ internal static class MotherBrainExplodedDoorPaint
         return true;
     }
 
-    /// <summary>Builds the violet gamma ramp, yellow ramp, neutral metal shades, and terminal white door ink by native color index.</summary>
+    /// <summary>Builds the violet gamma ramp, yellow ramp, neutral metal shades, and terminal white door ink by color index.</summary>
     internal static RgbColor Color(int color)
     {
         if ((uint)color >= ColorCount) throw new ArgumentOutOfRangeException(nameof(color));
@@ -38,6 +38,6 @@ internal static class MotherBrainExplodedDoorPaint
 
     /// <summary>Interpolates a channel across the four authored shade positions using integer truncation.</summary>
     private static int Interpolate(int first, int last, int shade) => (first * (ShadeIntervals - shade) + last * shade) / ShadeIntervals;
-    /// <summary>Combines calculated RGB5 channels into the door's opaque CGRAM color word.</summary>
+    /// <summary>Combines calculated RGB5 channels into the door's opaque colour.</summary>
     private static RgbColor Pack(int red, int green, int blue) => new RgbColor(red, green, blue);
 }

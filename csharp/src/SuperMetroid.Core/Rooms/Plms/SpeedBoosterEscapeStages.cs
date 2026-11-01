@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class SpeedBoosterEscapeStages
 {
     /// <summary>
-    /// Selects the three position-triggered actions at $84:B846, in east-to-west order.
+    /// Selects the three position-triggered actions, in east-to-west order.
     /// Each case supplies an unsigned X threshold, unsigned maximum lava Y and packed
     /// signed 8.8 rise velocity for the supported NTSC revision. These are checkpoint
     /// actions, not samples to interpolate: the caller executes at most one per frame
@@ -19,7 +19,7 @@ internal static class SpeedBoosterEscapeStages
         {
             throw new InvalidDataException(
                 $"Speed Booster escape PLM timer ${tableByteOffset:X4} is not a valid " +
-                "offset into table $84:B876.");
+                "offset into the Speed Booster escape stage table.");
         }
 
         return Stages[tableByteOffset / RecordByteCount];

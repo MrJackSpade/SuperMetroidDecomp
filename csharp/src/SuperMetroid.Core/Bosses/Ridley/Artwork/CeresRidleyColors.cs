@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
 /// Ceres Ridley's installed colours at work: building them from their rows, composing and resolving the retreat
-/// colours, and installing each family at its native CGRAM destination.
+/// colours, and installing each family in its place among the colours.
 /// </summary>
 internal static class CeresRidleyColors
 {
@@ -62,7 +62,7 @@ internal static class CeresRidleyColors
             : CalculateRetreatBg(colors.selection.BodyFade, colors.selection.EyeFade, color);
     }
 
-    /// <summary>Composes the native retreat background from body-fade row one, eye-fade row fourteen, and its neutral final color.</summary>
+    /// <summary>Composes the retreat background from body-fade row one, eye-fade row fourteen, and its neutral final color.</summary>
     private static RgbColor CalculateRetreatBg(CeresRidleyFade bodyFade, CeresRidleyFade eyeFade, int color) =>
         color < 11 ? bodyFade.Resolve(1, color)
             : color < 14 ? eyeFade.Resolve(14, color - 11) : CeresRidleyFloorPaint.RetreatNeutral;
@@ -75,7 +75,7 @@ internal static class CeresRidleyColors
         return colors.selection.RetreatShared.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : colors.selection.Start.Resolve(color + 1);
     }
 
-    /// <summary>Copies the 32 startup colors into CGRAM entries 160..191.</summary>
+    /// <summary>Copies the 32 startup colors into colours 160..191.</summary>
     internal static void ApplyStart(CeresRidleyColorCatalog colors, GameplayColours colours)
     {
         Ensure.NotNull(colours);

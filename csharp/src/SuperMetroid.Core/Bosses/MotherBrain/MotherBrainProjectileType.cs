@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Low-three-bit projectile classes consumed by `$A9:B58E`.</summary>
+/// <summary>Low-three-bit projectile classes the later forms' shot reaction consumes.</summary>
 public enum MotherBrainProjectileType
 {
     /// <summary>Low-three-bit class zero: an ordinary beam projectile for damage lookup.</summary>

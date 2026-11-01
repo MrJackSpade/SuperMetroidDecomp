@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// Pre-instruction callbacks used by the resident gate coroutine. The values are arbitrary (#1452); verification's
-/// native view names each member's routine word.
+/// view names each member's routine word.
 /// </summary>
 internal enum DownwardGateFrameBehavior
 {

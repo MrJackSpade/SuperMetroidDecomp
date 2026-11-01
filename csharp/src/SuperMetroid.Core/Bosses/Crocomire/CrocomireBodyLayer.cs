@@ -58,7 +58,7 @@ internal sealed class CrocomireBodyLayer
     internal void LevelCrocomireMeltDistortion(int verticalScroll) =>
         _access.RequireCrocomireDeath().MeltDistortion = CrocomireMeltDistortion.Level(verticalScroll);
 
-    /// <summary>Ports $A4:8B5B: places his body layer vertically at the body, then falls through into $A4:8BA4.</summary>
+    /// <summary>Places his body layer vertically at the body, then falls through into the horizontal placement.</summary>
     internal void PlaceCrocomireBodyLayer(CrocomireEnemyState state)
     {
         RoomEnemySlot body = state.Body;
@@ -67,13 +67,13 @@ internal sealed class CrocomireBodyLayer
         PlaceCrocomireTongueAndBodyLayerHorizontally(state);
     }
 
-    /// <summary>Ports $A4:8BA4: places the tongue and his body layer horizontally at the body.</summary>
+    /// <summary>Places the tongue and his body layer horizontally at the body.</summary>
     internal void PlaceCrocomireTongueAndBodyLayerHorizontally(CrocomireEnemyState state)
     {
         RoomEnemySlot body = state.Body;
 
         // The tongue is a normal second enemy actor placed at its body-relative X offset.
-        // $8BA4 updates it even while the body's bulk is shown on his body layer.
+        // The horizontal placement updates it even while the body's bulk is shown on his body layer.
         if (state.Tongue is { } tongue)
         {
             int offset = (tongue.SpeciesState<CrocomireTongueState>()

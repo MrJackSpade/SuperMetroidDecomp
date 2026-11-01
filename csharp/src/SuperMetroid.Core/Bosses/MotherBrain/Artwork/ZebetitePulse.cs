@@ -18,7 +18,7 @@ internal static class ZebetitePulse
             }
         });
 
-    /// <summary>Keeps the selected pulse colours that differ from the calculated native pulse.</summary>
+    /// <summary>Keeps the selected pulse colours that differ from the calculated pulse.</summary>
     internal static Dictionary<ColourCell, RgbColor> Edits(RgbColor[][] frames)
     {
         var edits = new Dictionary<ColourCell, RgbColor>();
@@ -29,7 +29,7 @@ internal static class ZebetitePulse
         return edits;
     }
 
-    /// <summary>Selects an edited pulse color when present, otherwise the symmetric native color.</summary>
+    /// <summary>Selects an edited pulse color when present, otherwise the symmetric color.</summary>
     internal static RgbColor Resolve(Dictionary<ColourCell, RgbColor> edits, int frame, int color) =>
         edits.TryGetValue(new ColourCell(frame, color), out RgbColor edited)
             ? edited : ZebetitePulsePaint.Color(frame, color);

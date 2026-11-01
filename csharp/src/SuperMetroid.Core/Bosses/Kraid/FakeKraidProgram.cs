@@ -1,29 +1,29 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Mini-Kraid's action choice, step and spit animations as typed programs (#641), one per bank-$A6 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="FakeKraidAnimations"/>.
+/// Mini-Kraid's action choice, step and spit animations as typed programs (#641), one per list a spawn, branch or resumed sleep enters, in authored order.
+/// Generated from the verified lists; see <see cref="FakeKraidAnimations"/>.
 /// </summary>
 internal enum FakeKraidProgram
 {
-    /// <summary><c>InstList_MiniKraid_ChooseAction</c> at $A6:99AC.</summary>
+    /// <summary>Mini Kraid animation script: choose action.</summary>
     ChooseActionFacingLeft,
-    /// <summary><c>InstList_MiniKraid_StepForwards_FacingLeft</c> at $A6:99AE.</summary>
+    /// <summary>Mini Kraid animation script: step forwards, facing left.</summary>
     StepForwardsFacingLeft,
-    /// <summary><c>InstList_MiniKraid_ChooseAction_duplicate</c> at $A6:99C4.</summary>
+    /// <summary>Mini Kraid animation script: choose action, duplicate.</summary>
     ChooseAlternateActionFacingLeft,
-    /// <summary><c>InstList_MiniKraid_StepBackwards_FacingLeft</c> at $A6:99C6.</summary>
+    /// <summary>Mini Kraid animation script: step backwards, facing left.</summary>
     StepBackwardsFacingLeft,
-    /// <summary><c>InstList_MiniKraid_FireSpit_FacingLeft</c> at $A6:99DC.</summary>
+    /// <summary>Mini Kraid animation script: fire spit, facing left.</summary>
     FireSpitFacingLeft,
-    /// <summary><c>InstList_MiniKraid_ChooseAction_duplicate_again2</c> at $A6:99FA.</summary>
+    /// <summary>Mini Kraid animation script: choose action, duplicate, again 2.</summary>
     ChooseActionFacingRight,
-    /// <summary><c>InstList_MiniKraid_StepForwards_FacingRight</c> at $A6:99FC.</summary>
+    /// <summary>Mini Kraid animation script: step forwards, facing right.</summary>
     StepForwardsFacingRight,
-    /// <summary><c>InstList_MiniKraid_ChooseAction_duplicate_again3</c> at $A6:9A12.</summary>
+    /// <summary>Mini Kraid animation script: choose action, duplicate, again 3.</summary>
     ChooseAlternateActionFacingRight,
-    /// <summary><c>InstList_MiniKraid_StepBackwards_FacingRight</c> at $A6:9A14.</summary>
+    /// <summary>Mini Kraid animation script: step backwards, facing right.</summary>
     StepBackwardsFacingRight,
-    /// <summary><c>InstList_MiniKraid_FireSpit_FacingRight</c> at $A6:9A2A.</summary>
+    /// <summary>Mini Kraid animation script: fire spit, facing right.</summary>
     FireSpitFacingRight,
 }

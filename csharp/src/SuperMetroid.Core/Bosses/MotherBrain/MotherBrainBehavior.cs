@@ -79,7 +79,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
 
-    /// <summary>Ports the common body main/hurt entry at <c>$A9:873E</c>.</summary>
+    /// <summary>Ports the common body main/hurt entry.</summary>
     internal void RunMotherBrainBodyMain(
         RoomEnemySlot body,
         SamusState? samus,
@@ -87,13 +87,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         MotherBrainEnemyState state = Access.RequireCompleteMotherBrainState(body);
 
-        // `$A9:873E` advances the independent room-palette instruction list before it
+        // The body main advances the independent room-palette animation script before it
         // dispatches the body function. Keeping that order is visible on the exact frame
         // the fake-death flash begins and later when the main tube stops the loop.
         RunMotherBrainRoomPalette(state);
         RunMotherBrainBodyFunction(state, samus, sharedProjectiles);
         // Every body function returns through the common contact tail. The first-phase
-        // function also has its own authored contact call; retain both native sites.
+        // function also has its own authored contact call; retain both sites.
         if (samus is not null)
             MotherBrainBody.ResolveMotherBrainSamusCollision(state, samus);
     }
@@ -249,7 +249,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         Head.RunMotherBrainHeadMain(slot, frame.Samus);
     }
-    /// <summary>Native sequence of explosion positions used by the fake-death collapse.</summary>
+    /// <summary>Sequence of explosion positions used by the fake-death collapse.</summary>
     internal static readonly Position16<RoomPixels>[] MotherBrainFakeDeathExplosionPositions =
     [
         new Position16<RoomPixels>(136, 116),
@@ -261,16 +261,16 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         new Position16<RoomPixels>(138, 72),
         new Position16<RoomPixels>(120, 206),
     ];
-    /// <summary>$A9:8C61: authored smoke puff X offsets cycled while a tube lands.</summary>
+    /// <summary>Authored smoke puff X offsets cycled while a tube lands.</summary>
     internal static readonly int[] MotherBrainFallingTubeSmokeXOffsets = [-8, 2, -4, 6];
 
-    /// <summary>Dispatches the body pointer after the phase-one function changes to $881D.</summary>
+    /// <summary>Dispatches the body function after the phase-one function changes to fake death.</summary>
     internal void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState? samus)
     {
         switch (state.Function)
         {
             case MotherBrainBodyFunction.FakeDeathDescentInitialPause:
-                // `$A9:881D` installs the following countdown and falls through to it. The
+                // The fake-death start installs the following countdown and falls through to it. The
                 // first observable value is therefore 63, not the host-friendly value 64.
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeLock;
                 state.FunctionTimer = WrappingCountdown.Start(64);
@@ -294,7 +294,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.FakeDeathDescentPauseBeforeUnlock:
                 if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
                     return;
-                // $A9:8874: Samus command one restores the normal handler pair.
+                // Samus command one restores the normal handler pair.
                 samus?.Control.Unlock();
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeFlash;
                 state.FunctionTimer = WrappingCountdown.Start(8);
@@ -305,7 +305,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
                     return;
 
-                // `$A9:88A0-$88AF` starts the looping room flash, selects FX entry two,
+                // The fake-death flash starts the looping room flash, selects FX entry two,
                 // arms the head's independent tube sequence, and clears both fade words.
                 state.RoomFlashFrame = 0;
                 state.RoomFlashTimer = 1;
@@ -477,11 +477,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
             return;
 
-        // $A9:8836 loads TWO bytes, masks with $00FF, then stores TWO bytes. This
+        // The arena lock loads two scroll cells, masks the second, then stores both. This
         // preserves scroll zero and clears scroll one, locking the arena to screen zero.
         SamusState requiredSamus = samus ?? throw new InvalidOperationException(
             "Mother Brain's fake-death input lock requires the active Samus state.");
-        // $A9:8832 runs Samus command zero, the stationary lock: its alpha handler places
+        // The arena lock runs Samus command zero, the stationary lock: its alpha handler places
         // no bombs and fires nothing new while the arena drains.
         requiredSamus.Control.LockStationary();
         _room.Services.RoomScroll.Write(1, RoomScrollState.RedBoundary);
@@ -492,7 +492,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs Mother Brain's room flash ($A9:D192): each of its fourteen frames stays two updates, the timer counting
+    /// Runs Mother Brain's room flash: each of its fourteen frames stays two updates, the timer counting
     /// up from one, and the last loops to the first.
     /// </summary>
     internal void RunMotherBrainRoomPalette(MotherBrainEnemyState state)
@@ -511,11 +511,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             "Mother Brain room flash requires installed colors."))
             .ApplyFlash(_presentation.Colours, frame);
     }
-    /// <summary>Native X positions cycled when Mother Brain's ascent emits floor dust.</summary>
+    /// <summary>X positions cycled when Mother Brain's ascent emits floor dust.</summary>
     internal static readonly ushort[] MotherBrainAscentDustXPositions =
         [61, 84, 32, 53, 90, 67, 103, 41];
 
-    /// <summary>Dispatches $A9:8D49-$8F45 without collapsing native same-frame fallthroughs.</summary>
+    /// <summary>Dispatches the phase-two ascent without collapsing same-frame fallthroughs.</summary>
     private void RunMotherBrainPhaseTwoAscent(
         MotherBrainEnemyState state,
         SamusState? samus,

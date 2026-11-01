@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The mutually exclusive Mother Brain component owning a Samus-contact list.</summary>
 internal enum MotherBrainContactPart
 {
-    /// <summary>Lower and upper body regions, tested in that native order.</summary>
+    /// <summary>Lower and upper body regions, tested in that order.</summary>
     Body,
     /// <summary>Upper and lower brain regions meeting between local Y zero and one.</summary>
     Brain,

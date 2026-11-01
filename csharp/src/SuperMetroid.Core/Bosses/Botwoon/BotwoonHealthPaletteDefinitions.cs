@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
 /// Fixed health-band policy for Botwoon's palette handler. The eight authored color images are independently
-/// extractable visual assets; where they sit in the cartridge is the import's knowledge (#1413).
+/// extractable visual assets; where they sit in the original game is the import's knowledge (#1413).
 /// </summary>
 internal static class BotwoonHealthPaletteDefinitions
 {

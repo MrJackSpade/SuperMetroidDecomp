@@ -4,7 +4,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.R
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The eye door's PLM programs (#1296), in place of its bank-$84 lists at $84:D81E..DA8B. Both facings run the same
+/// The eye door's PLM programs (#1296). Both facings run the same
 /// programs; the right-facing components pulse faster, and each facing mirrors its draws and projectile operands.
 /// </summary>
 internal static class EyeDoorPlmProgramDefinitions

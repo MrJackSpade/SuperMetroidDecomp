@@ -1,13 +1,13 @@
 ﻿namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>What a cue of Torizo's projectile programs does: one per bank-$86 command its lists use.</summary>
+/// <summary>What a cue of Torizo's projectile programs does: one per command its lists use.</summary>
 internal enum TorizoProjectileCueKind
 {
-    /// <summary>Stops the projectile's movement (<c>Instruction_EnemyProjectile_ClearFrameBehavior</c>, $86:816A).</summary>
+    /// <summary>Stops the projectile's movement.</summary>
     ClearFrameBehavior,
-    /// <summary>Deletes the projectile (<c>Instruction_EnemyProjectile_Delete</c>, $86:8154).</summary>
+    /// <summary>Deletes the projectile.</summary>
     Delete,
-    /// <summary>Continues at the egg's facing hatched list (<c>Instruction_EnemyProjectile_GoldenTorizoEgg_GoToHatched</c>, $86:B13E).</summary>
+    /// <summary>Continues at the egg's facing hatched list.</summary>
     Hatch,
     /// <summary>Aims a thrown super missile at Samus.</summary>
     AimSuperMissileTowardSamus,
@@ -15,9 +15,9 @@ internal enum TorizoProjectileCueKind
     AimSuperMissileAwayFromSamus,
     /// <summary>Requests the Chozo orb's drop from the loaded Torizo's orb header.</summary>
     SpawnOrbDrops,
-    /// <summary>Returns the projectile to the origin its spawn recorded (<c>Instruction_EnemyProjectile_Torizo_ResetPosition</c>, $86:A3BE).</summary>
+    /// <summary>Returns the projectile to the origin its spawn recorded.</summary>
     ReturnToOrigin,
-    /// <summary>Raises a landing dust cloud four pixels (<c>Instruction_EnemyProjectile_TorizoLandingDustClouds</c>, $86:AF92).</summary>
+    /// <summary>Raises a landing dust cloud four pixels.</summary>
     RaiseDust,
     /// <summary>Stops blocking Samus's projectiles.</summary>
     StopBlockingShots,
@@ -25,6 +25,6 @@ internal enum TorizoProjectileCueKind
     StopHarmingSamus,
     /// <summary>Moves the projectile in front of Samus.</summary>
     DrawInFront,
-    /// <summary>Does nothing: the sonic boom's wall-impact loop calls the bare return at $86:81DE.</summary>
+    /// <summary>Does nothing: the sonic boom's wall-impact loop calls the bare return.</summary>
     NoOperation,
 }

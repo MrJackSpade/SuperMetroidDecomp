@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon mouth schedules retain the native header and reverse-read timer layout.</summary>
+/// <summary>Phantoon mouth schedules retain the header and reverse-read timer layout.</summary>
 public static class PhantoonCasualFlameDefinitions
 {
     /// <summary>
@@ -9,8 +9,8 @@ public static class PhantoonCasualFlameDefinitions
     public const int NoActiveSchedule = -1;
 
     /// <summary>
-    /// The native casual-flame tables at $A7:CD05, $A7:CD13, $A7:CD1D and $A7:CD2F, selected by $A7:CCFD: flame count,
-    /// 180-update cooldown, then one interval per flame. $A7:CCFD selects five-, three-, seven-flame uniform bursts,
+    /// The casual-flame tables, selected by the casual-flame update: flame count,
+    /// 180-update cooldown, then one interval per flame. The update selects five-, three-, seven-flame uniform bursts,
     /// then an irregular seven-flame burst whose seven reverse-read intervals are independent timing. Uniform holds are
     /// 16 ticks per burst rank, with rank 1..3 containing 2*rank+1 flames. Timing words count mouth-scheduler updates;
     /// the scheduler reads intervals from the end toward the header before starting each flame's mouth animation.

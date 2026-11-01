@@ -129,7 +129,7 @@ internal static class CrocomirePaint
         (int)Math.Floor((from + to + 2 * Math.Sqrt(from * to)) / 4);
     /// <summary>Constructs a hardware BGR555 word from its separate five-bit paint channels.</summary>
     private static RgbColor Rgb(int red, int green, int blue) => new RgbColor(red, green, blue);
-    /// <summary>Transparent OBJ ink zero retains the cartridge's unused blue metadata channel.</summary>
+    /// <summary>Transparent OBJ ink zero retains the game's unused blue metadata channel.</summary>
     private static RgbColor Transparent => Rgb(0, 0, TransparentBlue);
     /// <summary>Full-intensity neutral paint reused by the body, skeleton, and spike palettes.</summary>
     private static RgbColor White => Rgb(31, 31, 31);

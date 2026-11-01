@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's typed programs (#641), in place of its bank-$A5 instruction lists.</summary>
+/// <summary>Draygon's typed programs (#641), in place of its instruction lists.</summary>
 internal static class DraygonAnimations
 {
     /// <summary>Every body, eye, tail and arms program.</summary>
@@ -574,7 +574,7 @@ internal static class DraygonAnimations
     private static AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue> RepeatWhileCounting(DraygonProgram program) =>
         AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.RepeatWhileCounting(program);
 
-    /// <summary>Holds the last frame: the native sleep.</summary>
+    /// <summary>Holds the last frame: the script's sleep.</summary>
     private static AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue> Hold =>
         AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.Hold;
 

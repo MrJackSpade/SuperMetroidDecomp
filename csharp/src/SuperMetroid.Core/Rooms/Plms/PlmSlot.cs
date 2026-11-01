@@ -39,7 +39,7 @@ internal sealed class PlmSlot
     public WrappingCountdown LoopTimer { get; set; }
     /// <summary>
     /// The projectile hit on the slot's trigger block that its pre-instruction has not yet consumed, or null for none.
-    /// The cartridge keeps the hit in the loop counter's storage; no PLM that reads hits runs a counted loop while its
+    /// The original game keeps the hit in the loop counter's storage; no PLM that reads hits runs a counted loop while its
     /// block still triggers (the eye door turns its block into a blue door before its counted opening flashes), so the
     /// two are kept apart.
     /// </summary>

@@ -1,19 +1,19 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Selects the cartridge path that owns initial BG1 tilemap publication for a room load.
+/// Selects how the room's initial background is published for a room load.
 /// </summary>
 internal enum RoomViewportLoadMode
 {
     /// <summary>
-    /// Load stations, startup, and explicit debug loads call <c>$80:A176</c> to draw all
+    /// Load stations, startup, and explicit debug loads draw all
     /// seventeen visible block columns immediately.
     /// </summary>
     DisplayInitialViewport,
 
     /// <summary>
-    /// State-$0B door loads retain the source-room VRAM ring and replace it one boundary
-    /// row or column at a time through <c>$80:AD30-$80:AFC0</c>.
+    /// Door loads retain the source room's background and replace it one boundary
+    /// row or column at a time as the door scrolls.
     /// </summary>
     StreamThroughDoor,
 }

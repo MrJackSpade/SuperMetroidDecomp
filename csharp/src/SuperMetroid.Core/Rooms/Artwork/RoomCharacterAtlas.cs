@@ -16,7 +16,7 @@ public sealed class RoomCharacterAtlas
     /// <param name="planar">Whole 4-bpp characters the import pipeline compiled.</param>
     internal RoomCharacterAtlas(byte[] planar) => this.planar = planar;
 
-    /// <summary>Read-only view of the compiled, row-major 8x8 SNES 4-bpp characters, excluding unused PNG cells.</summary>
+    /// <summary>Read-only view of the compiled, row-major 8x8 4-bpp characters, excluding unused PNG cells.</summary>
     public ReadOnlyMemory<byte> Characters => planar;
 
     /// <summary>Identity of selected decoded pixels; PNG metadata and display padding do not participate.</summary>

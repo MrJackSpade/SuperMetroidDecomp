@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// Named logical room identities that are actually inspected by translated behavior.
-/// Storage addresses remain in the separate ROM-pointer catalogs.
+/// Where each room is stored is the import pipeline's knowledge.
 /// </summary>
 public static class RoomIdentities
 {
@@ -53,7 +53,7 @@ public static class RoomIdentities
         new(AreaId.Brinstar, 8);
 
     /// <summary>
-    /// Reproduces the shared room-index test at <c>$91:F0D1</c> without allowing an equal
+    /// Reproduces the shared room-index test without allowing an equal
     /// room byte from an unrelated area to masquerade as the same logical room.
     /// </summary>
     public static bool UsesTourianStyleLandingDust(RoomIdentity room) =>

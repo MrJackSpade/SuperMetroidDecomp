@@ -199,7 +199,7 @@ internal sealed class MotherBrainProjectiles
         });
     }
 
-    /// <summary>Ports pre-instruction <c>$86:C4C8-C604</c>.</summary>
+    /// <summary>Runs the bomb's frame behaviour.</summary>
     internal void RunMotherBrainBombFrameBehavior(
         RoomEnemyProjectileSlot bomb,
         SamusBombProjectileSystem? samusBombs)
@@ -276,7 +276,7 @@ internal sealed class MotherBrainProjectiles
         return false;
     }
 
-    /// <summary>Advances a bomb through its native trajectory and reports arena-boundary expiry.</summary>
+    /// <summary>Advances a bomb through its trajectory and reports arena-boundary expiry.</summary>
     private static bool MoveMotherBrainBomb(
         RoomEnemyProjectileSlot bomb,
         int acceleration)
@@ -308,7 +308,7 @@ internal sealed class MotherBrainProjectiles
         int afterburnCount = WordWrap.LowByte(bomb.Position.X.Fraction);
         DeleteMotherBrainBomb(bomb, state);
 
-        // `$C50B-$C54B` clears the source slot before both allocations. They therefore use
+        // The bomb's explosion clears the source slot before both allocations. They therefore use
         // the normal descending shared-pool competition, including legitimate same-slot
         // replacement that the outer scheduler will continue processing on this pass.
         _roomActors.SpawnAfterburnCenter(
@@ -319,7 +319,7 @@ internal sealed class MotherBrainProjectiles
         _motherBrainEncounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
     }
 
-    /// <summary>Clears a bomb slot when its native lifetime or collision ends.</summary>
+    /// <summary>Clears a bomb slot when its lifetime or collision ends.</summary>
     private static void DeleteMotherBrainBomb(
         RoomEnemyProjectileSlot bomb,
         MotherBrainEnemyState state)
@@ -374,7 +374,7 @@ internal sealed class MotherBrainProjectiles
         subtitle.Position = subtitle.Position.WithWhole(new(MotherBrainDeathDefinitions.SubtitleX, MotherBrainDeathDefinitions.SubtitleY));
     }
 
-    /// <summary>Runs pre-instruction $86:CBE7 for the four falling ceiling-tube actors.</summary>
+    /// <summary>Runs the frame behaviour of the four falling ceiling-tube actors.</summary>
     internal void RunMotherBrainTopTubeFrameBehavior(RoomEnemyProjectileSlot projectile)
     {
         MotherBrainTopTubeState tube = projectile.StateOf<MotherBrainTopTubeState>();
@@ -397,8 +397,8 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>
-    /// Consumes one request emitted by PLM instruction <c>$D30B</c>. The request retains the
-    /// executing PLM's block origin because initializer <c>$CDC5</c> calls
+    /// Consumes one request emitted by the glass PLM's shard step. The request retains the
+    /// executing PLM's block origin because the shard initializer calls
     /// <c>CalculatePlmBlockCoords(plm_id)</c> after the shared projectile allocator runs.
     /// </summary>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request)
@@ -425,9 +425,9 @@ internal sealed class MotherBrainProjectiles
             RoomEnemyProjectileKind.MotherBrainGlassShard,
             graphics: default);
 
-        // `$86:CDC5` doubles the complete RNG word and masks it to an even nine-bit angle.
+        // The shard initializer doubles the complete RNG word and masks it to an even nine-bit angle.
         // The low eight-bit angle selects signed sine/cosine velocities; bits 5..8 choose
-        // one of sixteen ROM-authored shard animation lists.
+        // one of sixteen authored shard animation lists.
         int angleOffset = (_room.Random.Generate() * 2) & 510;
         int angle = angleOffset >> 1;
         shard.Velocity = shard.Velocity.WithX(new SignedEightEight(ReadSignedSineSample(angle + 64)));
@@ -449,12 +449,12 @@ internal sealed class MotherBrainProjectiles
             shard.Position.Y.Whole + (_room.Random.Generate() % 16) - 8);
     }
 
-    /// <summary>Ports glass-shard pre-instruction <c>$86:CE9B</c>.</summary>
+    /// <summary>Runs the glass shard's frame behaviour.</summary>
     internal void RunMotherBrainGlassShardFrameBehavior(RoomEnemyProjectileSlot shard)
     {
         shard.Position = shard.Position.Advance(shard.Velocity.ToSixteenSixteen());
 
-        // Native tests the whole-coordinate high byte rather than camera visibility. A shard
+        // Tests the whole-coordinate high byte rather than camera visibility. A shard
         // is deleted as soon as wrapped Y leaves page zero; X may freely leave the viewport.
         if (RoomGridConversions.PixelToScreen(shard.Position.Y.Whole) != 0)
         {
@@ -471,7 +471,7 @@ internal sealed class MotherBrainProjectiles
             SpawnMotherBrainGlassSparkle(shard);
     }
 
-    /// <summary>Ports sparkle initializer <c>$86:CE6D</c> using the spawning shard as parameter.</summary>
+    /// <summary>Runs the sparkle initializer using the spawning shard as parameter.</summary>
     internal void SpawnMotherBrainGlassSparkle(RoomEnemyProjectileSlot source)
     {
         RoomEnemyProjectileSlot? sparkle = _projectiles.AllocateEnemyProjectile();
@@ -489,15 +489,15 @@ internal sealed class MotherBrainProjectiles
         sparkle.Graphics = MotherBrainGlassShardDefinitions.Graphics;
     }
 
-    /// <summary>Reads the native signed sine table as its raw two-byte sample.</summary>
+    /// <summary>Reads the signed sine table as its raw two-byte sample.</summary>
     internal static int ReadSignedSineSample(int index) =>
         WordWrap.Unsigned(Trigonometry.SignedNegativeCosineWord(index));
 
     /// <summary>
-    /// Ports fired-child initializer <c>$86:C684-C75C</c>. Each child first advances the
+    /// Runs the fired child's initializer. Each child first advances the
     /// shared aimed cursor, then receives a randomized secondary displacement used only for
     /// its spawn frame. Surviving actors become stationary animated emitters; out-of-bounds
-    /// children turn into the cartridge's large impact dust and earthquake.
+    /// children turn into the game's large impact dust and earthquake.
     /// </summary>
     internal void SpawnMotherBrainHandBeamFired()
     {
@@ -553,7 +553,7 @@ internal sealed class MotherBrainProjectiles
         CoordinateAxis.Difference(beam.Position.X.Whole, 2) < 0 ||
         CoordinateAxis.Difference(beam.Position.X.Whole, 238) >= 0;
 
-    /// <summary>Exact six-position mouth attachment table at <c>$86:C86E-C885</c>.</summary>
+    /// <summary>Exact six-position mouth attachment table.</summary>
     internal void RunMotherBrainAttachedDroolFrameBehavior(
         RoomEnemyProjectileSlot drool)
     {
@@ -567,8 +567,8 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>
-    /// Ports <c>$86:C886-C8AF</c>. The native actor uses signed 8.8 velocity, adds twelve
-    /// units of gravity per frame, and switches to its four-map splash at world Y $D7.
+    /// Runs the falling drool's frame behaviour. The actor uses signed 8.8 velocity, adds twelve
+    /// units of gravity per frame, and switches to its four-map splash at world Y 215.
     /// </summary>
     internal static void RunMotherBrainFallingDroolFrameBehavior(
         RoomEnemyProjectileSlot drool)
@@ -583,7 +583,7 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>
-    /// Ports <c>$86:C335-C431</c>. A live Baby slot is tested before Samus and the room,
+    /// Runs the onion ring's frame behaviour. A live Baby slot is tested before Samus and the room,
     /// matching the private projectile's cross-enemy collision order during phase three.
     /// </summary>
     internal void RunMotherBrainOnionRingFrameBehavior(
@@ -608,8 +608,8 @@ internal sealed class MotherBrainProjectiles
         BabyMetroidCutsceneState? baby = state.BabyMetroid;
         if (baby is { IsDeleted: false })
         {
-            // `$C3B1-$C3C8` deletes every later ring as soon as the still-registered Baby
-            // reaches zero health. Native clears only the projectile ID on this branch.
+            // The ring deletes every later ring as soon as the still-registered Baby
+            // reaches zero health. Clears only the projectile ID on this branch.
             if (baby.Health == 0)
             {
                 ring.Kind = RoomEnemyProjectileKind.None;
@@ -620,7 +620,7 @@ internal sealed class MotherBrainProjectiles
             {
                 state.PendingBabyCryCount++;
                 _ = baby.ApplyMotherBrainOnionRingHit();
-                // `$86:C399-$C3A5` writes the Baby slot's Enemy.health from this projectile
+                // The ring writes the Baby slot's Enemy.health from this projectile
                 // pass; it must not wait for the Baby's next AI turn to publish it.
                 RoomEnemySlot babySlot = state.BabyMetroidSlot ?? throw new InvalidDataException(
                     "A Mother Brain onion ring hit the Baby without its physical slot.");
@@ -696,7 +696,7 @@ internal sealed class MotherBrainProjectiles
         RoomEnemyProjectileSlot ring,
         Position16<RoomPixels> position)
     {
-        // `$C410` clears the source before allocating parameter-three room dust. If the
+        // The ring's impact clears the source before allocating parameter-three room dust. If the
         // allocator reuses this physical slot, the outer projectile scheduler will advance
         // the newborn dust list during the same pass, matching EprojRunOne's original X.
         ring.Clear();
@@ -752,7 +752,7 @@ internal sealed class MotherBrainProjectiles
         }
     }
 
-    /// <summary>Ports the signed direction-delta and allowed-rotation test at $86:C050.</summary>
+    /// <summary>Ports the signed direction-delta and allowed-rotation test.</summary>
     internal static void SelectNextMotherBrainTurretDirection(RoomEnemyProjectileSlot turret)
     {
         MotherBrainTurretState state = turret.StateOf<MotherBrainTurretState>();
@@ -770,7 +770,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         // A disallowed next step reverses the signed high-byte delta and immediately takes
-        // one step in the new direction. The cartridge does not perform a second mask test.
+        // one step in the new direction. The original game does not perform a second mask test.
         // The direction and the delta each keep eight bits, so the reversed step wraps the
         // way the stored bytes do.
         state.RotationStep = -rotationDelta;
@@ -791,7 +791,7 @@ internal sealed class MotherBrainProjectiles
         turret.StateOf<MotherBrainTurretState>().FiringWait = WrappingCountdown.Start(Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown));
     }
 
-    /// <summary>Ports the asymmetric viewport bounds at $86:C0B4.</summary>
+    /// <summary>Ports the asymmetric viewport bounds.</summary>
     private static bool MotherBrainTurretIsOnScreen(
         RoomEnemyProjectileSlot turret,
         Position16<RoomPixels> camera)
@@ -808,7 +808,7 @@ internal sealed class MotherBrainProjectiles
             CoordinateAxis.Wrap(turret.Position.X.Whole + 4 - camera.X) < 264;
     }
 
-    /// <summary>Ports turret-bullet initialization at $86:BF59.</summary>
+    /// <summary>Ports turret-bullet initialization.</summary>
     internal void SpawnMotherBrainTurretBullet(RoomEnemyProjectileSlot turret)
     {
         RoomEnemyProjectileSlot? bullet = _projectiles.AllocateEnemyProjectile();
@@ -825,7 +825,7 @@ internal sealed class MotherBrainProjectiles
             MotherBrainTurrets.ForDirection(direction);
         bullet.Velocity = definition.BulletVelocity;
         bullet.Position = bullet.Position.WithWhole(turret.Position.Whole + definition.BulletOffset);
-        // The bullet list's first instruction (`$86:C173`) jumps to the pose for this direction.
+        // The bullet list's first instruction jumps to the pose for this direction.
         bullet.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.BulletPose, direction));
     }
 
@@ -834,7 +834,7 @@ internal sealed class MotherBrainProjectiles
         RoomEnemyProjectileSlot bullet,
         RoomLevelData level)
     {
-        // Property $8000 is toggled before the projectile-vs-projectile pass every frame,
+        // The vulnerability bit is toggled before the projectile-vs-projectile pass every frame,
         // reproducing the bullet's alternating vulnerability rather than a visual alpha hack.
         bullet.BlocksSamusProjectiles = !bullet.BlocksSamusProjectiles;
         bullet.Position = bullet.Position.Advance(bullet.Velocity.ToSixteenSixteen());

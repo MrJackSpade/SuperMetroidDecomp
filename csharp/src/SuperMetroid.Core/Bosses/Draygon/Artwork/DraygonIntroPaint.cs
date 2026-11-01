@@ -4,9 +4,9 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
-/// $A5:A217-A248, copied uniformly to CGRAM144..168 by InitAI_DraygonBody
-/// ($A5:8687). First16 words alias the primary material, the next is its clear
-/// target, and the final8 alias escape-door surface paint ($A6:F50E-F51D).
+/// Copied uniformly to colours 144..168 by InitAI_DraygonBody.
+/// First16 words alias the primary material, the next is its clear
+/// target, and the final8 alias escape-door surface paint.
 /// These existing source identities introduce no new independent paint inputs.
 /// Installed occurrences retain independent edits, including the copied clear target.
 /// </summary>
@@ -16,10 +16,10 @@ internal sealed class DraygonIntroPaint
     internal readonly DraygonMaterialPaint primary;
     /// <summary>Final eight colors, aliased to the Ceres escape-door surface material.</summary>
     internal readonly CeresDoorEscapeSurfacePaint surface;
-    /// <summary>Independent edit of the copied clear target, or null when it retains the native value.</summary>
+    /// <summary>Independent edit of the copied clear target, or null when it retains the value.</summary>
     internal readonly RgbColor? clearEdit;
 
-    /// <summary>Splits the 25 copied CGRAM colors into primary, clear-target, and door-surface aliases.</summary>
+    /// <summary>Splits the 25 copied colours into primary, clear-target, and door-surface aliases.</summary>
     internal DraygonIntroPaint(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, 25);

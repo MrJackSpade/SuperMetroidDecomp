@@ -38,13 +38,13 @@ internal sealed class CrocomireBridgeCollapse
         _access = access;
     }
 
-    /// <summary>True after the $640 X threshold starts the native bridge-collapse phase.</summary>
+    /// <summary>True after the $640 X threshold starts the bridge-collapse phase.</summary>
     public bool CrocomireBridgeCollapseStarted { get; private set; }
 
     /// <summary>
-    /// Ports the state transition at $A4:8D5E. The individual bridge PLMs and subsequent
+    /// Ports the state transition. The individual bridge PLMs and subsequent
     /// melting sequence remain a separate translation boundary, but the actor/tongue state
-    /// changes occur on the exact native X threshold.
+    /// changes occur on the exact X threshold.
     /// </summary>
     internal void HandleCrocomireBridgeThreshold(CrocomireEnemyState state)
     {
@@ -69,15 +69,15 @@ internal sealed class CrocomireBridgeCollapse
 
         if (state.Tongue is { } tongue)
         {
-            // The sleep is installed behind the native maximum timer, so it is reached only after 32767 updates.
+            // The sleep is installed behind the maximum timer, so it is reached only after 32767 updates.
             CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Sleep, WrappingCountdown.Start(32767));
             tongue.Properties = tongue.Properties.With(EnemyProperties.Invisible);
         }
     }
 
     /// <summary>
-    /// Ports the bridge effects in $A4:8D5E, staged at Crocomire X $0600, $0610 and $0620.
-    /// Each stage's dust lands one block ahead, at $0600, $0620 and $0630.
+    /// Runs the bridge effects of the bridge approach, staged at Crocomire X 1536, 1552 and 1568.
+    /// Each stage's dust lands one block ahead, and at 1584.
     /// </summary>
     private void HandleCrocomireBridgeApproach(RoomEnemySlot body)
     {
@@ -100,8 +100,8 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
 
-        // $A4:8DA4-8DDB: one block deep crumbles the first bridge block. The flag
-        // resets at $8DDC and $8E2D sit behind comparisons these ranges already passed
+        // One block deep crumbles the first bridge block. The flag
+        // resets and the collapse step sit behind comparisons these ranges already passed
         // and never execute.
         if (CoordinateAxis.Difference(body.Position.X.Whole, 1568) < 0)
         {
@@ -115,7 +115,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
 
-        // $A4:8DED-8E2C: two blocks deep crumbles the next pair.
+        // Two blocks deep crumbles the next pair.
         if (CoordinateAxis.Difference(body.Position.X.Whole, 1584) < 0 &&
             !death.BridgeBlocksAt1584Crumbling)
         {
@@ -130,15 +130,15 @@ internal sealed class CrocomireBridgeCollapse
 
     /// <summary>
     /// Ports <c>Crocomire_8EE5</c>: clear all ten bridge blocks and burst dust.
-    /// The ten native PLM operand records at $A4:8EE9 + 8*i exactly use
-    /// block X=$61+i, block Y=$0B, and header $B74F for i=0..9. The
+    /// The ten PLM operand records exactly use
+    /// block X=97+i, block Y=11, and the bridge-block clearing header for i=0..9. The
     /// inclusive production loop preserves their ascending publication
-    /// order; $A4:8F35 starts dust setup, not an eleventh clear record.
-    /// The seven dust positions in the pinned NTSC J/U v1.0 ROM follow the
-    /// exact bounded rule X=$0600+$0010*i for i=0..6; Y=$00B0 at i=0 or 2
-    /// and $00C0 otherwise. Native $A4:8F35-$8FB4 encodes these as ordered
+    /// order; the dust setup follows, not an eleventh clear record.
+    /// The seven dust positions follow the
+    /// exact bounded rule X=1536+16*i for i=0..6; Y=176 at i=0 or 2
+    /// and 192 otherwise. The original encodes these as ordered
     /// immediate operands, not a contiguous table. All seven pairs and their
-    /// order match the local span; there is no eighth dust spawn.
+    /// order match the authored ones; there is no eighth dust spawn.
     /// </summary>
     private void PublishCrocomireBridgeCollapsePlms()
     {
@@ -153,8 +153,8 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>
-    /// $A4:8F35-8FC1 (seven unrolled spawns): puffs sixteen pixels apart along the bridge from
-    /// X $600; the first and third rise sixteen pixels above the others' Y $C0.
+    /// The seven unrolled dust spawns: puffs sixteen pixels apart along the bridge from
+    /// X 1536; the first and third rise sixteen pixels above the others' Y 192.
     /// </summary>
     internal static Position16<RoomPixels> CrocomireBridgeDustPosition(int puff) =>
         (uint)puff < CrocomireBehavior.CrocomireBridgeDustCount
@@ -220,7 +220,7 @@ internal sealed class CrocomireBridgeCollapse
         state.VerticalSpeed = EightEight.FromWhole(CrocomireBehavior.MaximumSinkSpeedWhole);
     }
 
-    /// <summary>Byte-for-byte fixed-point fall from <c>SinkCrocomireDown</c> at $A4:91C1.</summary>
+    /// <summary>Byte-for-byte fixed-point fall from <c>SinkCrocomireDown</c>.</summary>
     internal void RunCrocomireSink(CrocomireEnemyState state)
     {
         _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
@@ -265,7 +265,7 @@ internal sealed class CrocomireBridgeCollapse
         EightEight.FromWhole(Math.Min(EightEight.WholeOf(value), maximumWhole)) +
         EightEight.FractionOf(value);
 
-    /// <summary>Byte-for-byte fixed-point rise from $A4:92D8.</summary>
+    /// <summary>Byte-for-byte fixed-point rise.</summary>
     internal void RunCrocomireRise(CrocomireEnemyState state)
     {
         _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
@@ -326,11 +326,11 @@ internal sealed class CrocomireBridgeCollapse
         if (state.Tongue is { } tongue)
             tongue.Properties = tongue.Properties.With(EnemyProperties.Deleted);
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(78, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
-        _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking; // $A4:90D8
+        _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking;
         _access.RequireCrocomireDeath().SkeletonChunksShown = 0;
     }
 
-    /// <summary>Ports <c>Crocomire_Func_52</c> and initializer $86:9286.</summary>
+    /// <summary>Runs <c>Crocomire_Func_52</c> and the bridge fragment's initializer.</summary>
     internal void SpawnNextCrocomireBridgeFragment()
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
@@ -339,7 +339,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
 
         // The fragment counts as launched even when no projectile slot is free. The graphics argument the
-        // cartridge passes alongside it is immaterial: the definition initializer immediately replaces it.
+        // passes alongside it is immaterial: the definition initializer immediately replaces it.
         death.BridgeFragmentsSpawned = fragment + 1;
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -353,7 +353,7 @@ internal sealed class CrocomireBridgeCollapse
         projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(fragment));
         projectile.Position = projectile.Position.WithWholeY(187).WithFractionX(0).WithFractionY(0);
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(0));
-        // $86:92A5 reads RandomNumberSeed; it does not advance it.
+        // The fragment initializer reads RandomNumberSeed; it does not advance it.
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped((_room.Random.Read() & 63) + 64));
         // The fragments draw in the wall colours Crocomire's encounter installs.
         projectile.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.CrocomireWall));

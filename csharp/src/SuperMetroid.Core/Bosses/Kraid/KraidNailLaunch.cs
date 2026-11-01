@@ -5,8 +5,8 @@ public static class KraidNailLaunch
 {
     /// <summary>The launch velocity for a sibling moving at whole Y word <paramref name="siblingYWhole"/>.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against the native $A7:BD60-BD98 selector
-    /// and all eight records in the pinned NTSC J/U v1.0 source. CMP #0 / BPL
+    /// Independently reviewed for #1165 against the nail launch selector
+    /// and all eight records in the pinned NTSC J/U v1.0 source. The signed compare
     /// tests the signed whole word: zero belongs to the nonnegative branch.
     /// All 65,536 input words are supported. The three constant fields and the
     /// sign-selected Y whole word have separate original-record proofs; no

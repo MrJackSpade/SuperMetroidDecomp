@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Shared translation of Mother Brain's bank-$A9 neck math. Both the live room-enemy actor
+/// Shared translation of Mother Brain's neck math. Both the live room-enemy actor
 /// and the later rainbow-beam sequence use these exact angle handlers; keeping them here
 /// prevents the two encounter halves from slowly acquiring different articulation rules.
 /// </summary>
@@ -24,7 +24,7 @@ internal static class MotherBrainNeckKinematics
     /// <summary>How far the upper neck's raised limit leads the lower neck's angle, in 8.8 angle units.</summary>
     private const int UpperLeadOverLower = 2048;
 
-    /// <summary>Advances the lower and upper neck angles through bobbing or one-way raise/lower movement at <c>$A9:9072-$91B7</c>.</summary>
+    /// <summary>Advances the lower and upper neck angles through bobbing or one-way raise/lower movement.</summary>
     /// <remarks>The upper dispatcher runs second and observes the lower angle and movement state changed in the same frame.</remarks>
     internal static void StepAngles(
         ref RotationAngle lowerAngle,
@@ -39,7 +39,7 @@ internal static class MotherBrainNeckKinematics
         {
             case MotherBrainNeckMovement.None:
                 break;
-            case MotherBrainNeckMovement.BobDown: // Bob down to $2800, then reverse.
+            case MotherBrainNeckMovement.BobDown: // Bob down to five thirty-seconds of a turn, then reverse.
             {
                 RotationAngle candidate = lowerAngle.AddRaw(-angleDelta);
                 if (candidate.CompareTo(LowerBobFloor) < 0)
@@ -50,7 +50,7 @@ internal static class MotherBrainNeckKinematics
                 lowerAngle = candidate;
                 break;
             }
-            case MotherBrainNeckMovement.BobUp: // Bob up to $9000 unless the brain is already above Y=$3C.
+            case MotherBrainNeckMovement.BobUp: // Bob up to nine sixteenths of a turn unless the brain is already above Y=60.
                 if (CoordinateAxis.Difference(brainY, 60) < 0)
                 {
                     lowerMovementIndex = MotherBrainNeckMovement.BobDown;
@@ -93,7 +93,7 @@ internal static class MotherBrainNeckKinematics
                     $"Unsupported lower-neck movement {lowerMovementIndex}.");
         }
 
-        // Native runs the upper dispatcher after the lower dispatcher, so it observes the
+        // Runs the upper dispatcher after the lower dispatcher, so it observes the
         // lower angle and movement-index mutations made immediately above on this frame.
         switch (upperMovementIndex)
         {
@@ -128,7 +128,7 @@ internal static class MotherBrainNeckKinematics
                 upperAngle = candidate;
                 break;
             }
-            case MotherBrainNeckMovement.Lower: // One-way lower to $2000.
+            case MotherBrainNeckMovement.Lower: // One-way lower to an eighth of a turn.
             {
                 RotationAngle candidate = upperAngle.AddRaw(-angleDelta);
                 if (candidate.CompareTo(UpperFloor) < 0)
@@ -139,7 +139,7 @@ internal static class MotherBrainNeckKinematics
                 upperAngle = candidate;
                 break;
             }
-            case MotherBrainNeckMovement.Raise: // One-way raise to lower angle + $0800.
+            case MotherBrainNeckMovement.Raise: // One-way raise to lower angle plus a thirty-second of a turn.
             {
                 RotationAngle target = lowerAngle.AddRaw(UpperLeadOverLower);
                 RotationAngle candidate = upperAngle.AddRaw(angleDelta);
@@ -157,15 +157,15 @@ internal static class MotherBrainNeckKinematics
         }
     }
 
-    /// <summary>Ports all five signed sine/cosine position writes at $A9:91B8-$92AA: each joint's room-pixel position, indexed by joint.</summary>
+    /// <summary>Ports all five signed sine/cosine position writes: each joint's room-pixel position, indexed by joint.</summary>
     /// <param name="body">The body's position.</param>
     /// <param name="lowerAngle">The angle the lower joints hang at.</param>
     /// <param name="upperAngle">The angle the upper joints hang at.</param>
     /// <param name="distances">Each joint's distance from its anchor, indexed by joint.</param>
     internal static ImmutableArray<Position16<RoomPixels>> CalculateGeometry(Position16<RoomPixels> body, RotationAngle lowerAngle, RotationAngle upperAngle, IReadOnlyList<int> distances)
     {
-        // `$7E:7814/16` is a deliberately offset body reference point. Adding $70/$FFA0
-        // below reduces it to body+($20,-$32), but retaining the two native stages makes the
+        // The body reference point is deliberately offset. Adding (112,-96)
+        // below reduces it to body+($20,-$32), but retaining the two stages makes the
         // individual segment equations auditable against the disassembly.
         Position16<RoomPixels> reference = body + new Offset16<RoomPixels>(-80, 46);
         ByteAngle lower = lowerAngle.ToByteAngle();
@@ -187,14 +187,14 @@ internal static class MotherBrainNeckKinematics
         reference + new Offset16<RoomPixels>(112, -96) + CalculatePolarOffset(angle, distance);
 
     /// <summary>
-    /// One joint's displacement: <c>$A9:C46C</c> for the angle (X) and the angle plus a
+    /// One joint's displacement: the sine multiply for the angle (X) and the angle plus a
     /// quarter turn (Y), each added to the anchor with 16-bit wrap.
     /// </summary>
     private static Offset16<RoomPixels> CalculatePolarOffset(ByteAngle angle, int distance) =>
         new(CalculateSignedComponent(angle, distance),
             CalculateSignedComponent(angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue), distance));
 
-    /// <summary>Exact signed multiply/high-word behavior of <c>$A9:C46C</c>.</summary>
+    /// <summary>Exact signed multiply/high-word behavior of the sine multiply.</summary>
     internal static int CalculateSignedComponent(
         ByteAngle angle,
         int distance)

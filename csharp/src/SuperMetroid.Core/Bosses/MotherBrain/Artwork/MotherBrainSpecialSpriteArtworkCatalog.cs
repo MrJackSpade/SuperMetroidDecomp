@@ -19,9 +19,9 @@ public sealed class MotherBrainSpecialSpriteArtworkCatalog
     private readonly Dictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas> sheets;
 
     /// <summary>Installs the four complete sheets for phase-two legs, Baby Metroid, restored attack characters, and the exploded escape door, copying the lookup while retaining each compiled atlas.</summary>
-    /// <param name="sheets">Exactly the four sheets of <see cref="MotherBrainSpecialSpriteArtworkDefinitions.All"/>: legs with eight $0200-byte pages, Baby Metroid and attack four each, and the exploded door two.</param>
+    /// <param name="sheets">Exactly the four sheets of <see cref="MotherBrainSpecialSpriteArtworkDefinitions.All"/>: legs with eight 512-byte pages, Baby Metroid and attack four each, and the exploded door two.</param>
     /// <exception cref="ArgumentNullException"><paramref name="sheets"/> is null.</exception>
-    /// <exception cref="InvalidDataException">A required sheet is missing/null, its compiled byte length differs from the native page extent, or the mapping contains additional identities.</exception>
+    /// <exception cref="InvalidDataException">A required sheet is missing/null, its compiled byte length differs from the page extent, or the mapping contains additional identities.</exception>
     public MotherBrainSpecialSpriteArtworkCatalog(
         IReadOnlyDictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas> sheets) =>
         this.sheets = MotherBrainSpecialSprites.Validated(sheets);

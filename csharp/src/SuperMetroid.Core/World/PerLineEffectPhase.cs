@@ -21,8 +21,8 @@ namespace SuperMetroid.Core.World;
 /// update that draws a random number (gameplay, a message box's restoring update, the door transition's waits and
 /// fades, and the update before the pause screen opens), before the draw. Created with each gameplay runtime, whose
 /// lifetime its state shares (the liquid and the statues live in the loaded room scope it is handed). Evidence: the
-/// original main loop runs its per-line effect objects (<c>$88:84B9</c>) and then draws its random number
-/// (<c>$82:894F</c>) on every pass; the Ridley full-movie check compares the random number on every update of a door
+/// original main loop runs its per-line effect objects and then draws its random number
+///  on every pass; the Ridley full-movie check compares the random number on every update of a door
 /// transition.
 /// </para>
 /// </remarks>

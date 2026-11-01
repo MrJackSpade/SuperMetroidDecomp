@@ -23,7 +23,7 @@ internal sealed record CeresRidleyColorSelection
     /// <summary>Only retreat BG colors that differ from the body, eye, and neutral composition.</summary>
     public required Dictionary<ColourCell, RgbColor> RetreatBg { get; init; }
 
-    /// <summary>Only supplied differences from the first eight door paints: native $A6:AA01-AA10 repeats $A6:E171-E180.</summary>
+    /// <summary>Only supplied differences from the first eight door paints, which the retreat colours repeat.</summary>
     public required Dictionary<ColourCell, RgbColor> RetreatShared { get; init; }
 
     /// <summary>Private Baby draw shades retain their link to the body fade family.</summary>

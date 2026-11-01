@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Rooms.SpriteObjects.RoomSpriteObjectProgram;
 namespace SuperMetroid.Core.Rooms.SpriteObjects;
 
 /// <summary>
-/// Every bank-$B4 room sprite-object list the named object kinds reach, as a typed program generated from the native
+/// Every room sprite-object list the named object kinds reach, as a typed program generated from the authored
 /// lists: each timed record shows a <see cref="RoomSpriteObjectFrame"/>, the repeat-last instruction holds the last frame,
 /// delete stops the program, and a goto continues at another program.
 /// </summary>

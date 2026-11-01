@@ -33,7 +33,7 @@ internal sealed class TorizoAttacks
         _access = access;
     }
 
-    /// <summary>Golden Torizo's state while definition $EF7F owns slot zero.</summary>
+    /// <summary>Golden Torizo's state while Golden Torizo owns slot zero.</summary>
     public TorizoEnemyState? GoldenTorizo =>
         _access.TorizoState is { IsGolden: true } ? _access.TorizoState : null;
 
@@ -190,7 +190,7 @@ internal sealed class TorizoAttacks
     internal void SpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo) =>
         SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoLowHealthDrool);
 
-    /// <summary>Allocates either drool program and consumes room RNG in the native variant-specific order.</summary>
+    /// <summary>Allocates either drool program and consumes room RNG in the variant-specific order.</summary>
     internal void SpawnBombTorizoDrool(
         RoomEnemySlot torizo,
         RoomEnemyProjectileKind kind)
@@ -217,13 +217,13 @@ internal sealed class TorizoAttacks
         }
         if (kind == RoomEnemyProjectileKind.BombTorizoInitialDrool)
         {
-            // $86:A66D-$A683 chain the carry: CLC; ADC Y; ADC #$FFFB, then the Y velocity's
-            // ADC #$0030 adds that second addition's carry, which is set whenever the lift does not wrap.
+            // The drool's initializer chains the carry: it adds Y and the lift, then the Y velocity's
+            // addition adds that second addition's carry, which is set whenever the lift does not wrap.
             int jitteredY = (random & 3) + torizo.Position.Y.Whole;
             int liftCarry = jitteredY >= TorizoMotionDefinitions.InitialDroolLift ? 1 : 0;
             projectile.Position = projectile.Position.WithWrappedWholeY(jitteredY - TorizoMotionDefinitions.InitialDroolLift);
             projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(TorizoRandomDefinitions.DroolFallJitter.Of(random) + 48 + liftCarry));
-            // $86:A68D-$A6C3: a jitter that carries the drool past the last pixel of the coordinate space moves
+            // A jitter that carries the drool past the last pixel of the coordinate space moves
             // its side offset one pixel further right. Every branch stores a zero X velocity.
             int jitteredX = (_room.Random.Generate() & 3) + torizo.Position.X.Whole;
             int pastLastPixel = jitteredX > ushort.MaxValue ? 1 : 0;
@@ -237,7 +237,7 @@ internal sealed class TorizoAttacks
         }
         projectile.Position = projectile.Position.WithWrappedWholeY(torizo.Position.Y.Whole - 5);
 
-        // The recurring low-health drool chooses a random direction ($86:A5F9-$A62C). The
+        // The recurring low-health drool chooses a random direction. The
         // turning branch's word index is random & $1FE; the X velocity is the sign-extended
         // sine and the Y velocity the negative cosine of that angle.
         int angle;
@@ -260,7 +260,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>
-    /// Applies the native <c>LSR / AND #$000E</c> index into the eight-entry <c>$86:A64D</c> low-health-drool list table,
+    /// Applies the shift-and-mask index into the eight-entry low-health-drool list table,
     /// whose entries repeat the no-delay, two-frame and four-frame lists.
     /// </summary>
     internal static TorizoProjectileProgram SelectLowHealthDroolProgram(int random) =>
@@ -402,7 +402,7 @@ internal sealed class TorizoAttacks
                 facingRight: _access.FacesRight(torizo)));
     }
 
-    /// <summary>Starts a Golden egg with the cartridge's fixed 66-frame hatch timer and randomized launch speed.</summary>
+    /// <summary>Starts a Golden egg with the game's fixed 66-frame hatch timer and randomized launch speed.</summary>
     internal void SpawnGoldenTorizoEgg(RoomEnemySlot torizo)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -456,10 +456,10 @@ internal sealed class TorizoAttacks
             torizo,
             TorizoRandomizedProjectiles.GoldenEyeBeam(facingRight));
 
-        // The cartridge works in word indices, twice these table units, and wraps its sum at a full circle; the sum
+        // The original game works in word indices, twice these table units, and wraps its sum at a full circle; the sum
         // never leaves the circle, so the wrap never applies.
         int sineIndex = _room.Random.Next(TorizoRandomDefinitions.EyeBeamSpread) - 8 + 96 + (facingRight ? 0 : 64);
-        // The native combined table starts at negative cosine, not sine. Its
+        // The combined table starts at negative cosine, not sine. Its
         // quarter-turn offset selects sine for X; the unshifted sample gives Y.
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(8 *
             Trigonometry.SignedNegativeCosineWord(sineIndex + 64)));
@@ -475,7 +475,7 @@ internal sealed class TorizoAttacks
     {
         projectile.StartAnimation(new TorizoProjectileAnimation(definition.Program));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + definition.Offset);
-        // The native initializer draws the X jitter before the Y jitter.
+        // The initializer draws the X jitter before the Y jitter.
         projectile.Velocity = new EightEightVector<RoomPixels>(
             WordWrap.Signed(definition.BaseVelocity.X.SignedRawValue + SharedRandomState.LowerByte(_room.Random.Generate()) - 128),
             WordWrap.Signed(definition.BaseVelocity.Y.SignedRawValue + SharedRandomState.LowerByte(_room.Random.Generate()) - 128));
@@ -542,9 +542,9 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>
-    /// Ports <c>$86:A887</c>, shared by Bomb Torizo's six gut-break droplets and its
+    /// Runs the drool's frame behaviour, shared by Bomb Torizo's six gut-break droplets and its
     /// low-health initial drool. The peculiar positive-three clamp is authentic: both the
-    /// negative and nonnegative drag branches load <c>$0003</c> when they cross zero.
+    /// negative and nonnegative drag branches load three when they cross zero.
     /// </summary>
     internal static void RunBombTorizoDroolFrameBehavior(
         RoomEnemyProjectileSlot projectile,
@@ -716,7 +716,7 @@ internal sealed class TorizoAttacks
             projectile.Clear();
     }
 
-    /// <summary>Aims the thrown missile toward or away from Samus using the native up-zero angle convention.</summary>
+    /// <summary>Aims the thrown missile toward or away from Samus using the up-zero angle convention.</summary>
     internal static void SetGoldenTorizoSuperMissileVelocity(
         RoomEnemyProjectileSlot projectile,
         SamusState samus,
@@ -726,7 +726,7 @@ internal sealed class TorizoAttacks
             new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ReinterpretAsTableAngle();
         int angle = (awayFromSamus ? bearing.InSecondHalfTurn() : bearing.InFirstHalfTurn()).RawValue;
 
-        // Preserve the native up-zero angle convention: X is sine, Y is
+        // Preserve the up-zero angle convention: X is sine, Y is
         // negative cosine. Starting both reads at sine rotates the shot.
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(4 *
             Trigonometry.SignedNegativeCosineWord(angle + 64)));
@@ -754,7 +754,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>
-    /// Ports instruction <c>$86:AB8A</c>. Its two inline header operands are Bomb Torizo's area-zero orb and Golden
+    /// Runs the orb's drop step. Its two inline header operands are Bomb Torizo's area-zero orb and Golden
     /// Torizo's nonzero-area orb, which the cue carries as its typed meaning. This runtime already identifies the
     /// concrete loaded variant, which is the exact room-scoped equivalent of consulting the global area byte.
     /// </summary>
@@ -780,9 +780,8 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>
-    /// Allocates the room-graphics enemy projectile requested by PLM instruction
-    /// <c>$84:D357</c>, then runs initializer <c>$86:A764</c> against the publishing PLM's
-    /// block coordinates.
+    /// Allocates the room-graphics enemy projectile a PLM's script requests, then runs the statue fragment's
+    /// initializer against the publishing PLM's block coordinates.
     /// </summary>
     public RoomEnemyProjectileSlot? SpawnBombTorizoStatueBreakingProjectile(
         BombTorizoStatueProjectileRequest request)
@@ -808,7 +807,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>
-    /// Ports pre-instruction <c>$86:A8EF</c>: a rising or still-airborne piece accelerates by
+    /// Runs the statue fragment's frame behaviour: a rising or still-airborne piece accelerates by
     /// <see cref="FirstSlotFallAcceleration"/>.
     /// </summary>
     internal void RunBombTorizoStatueBreakingFrameBehavior(
@@ -834,14 +833,14 @@ internal sealed class TorizoAttacks
     }
     /// <summary>
     /// Whether a falling projectile has run away: its raw 8.8 speed is at least sixteen pixels per frame and below
-    /// thirty-two, the range whose top four bits the cartridge compares with one.
+    /// thirty-two, the range whose top four bits the original game compares with one.
     /// </summary>
     private static bool IsRunaway(SignedEightEight speed) =>
         speed.RawValue is >= TorizoMotionDefinitions.RunawaySpeed and < 2 * TorizoMotionDefinitions.RunawaySpeed;
 
     /// <summary>
     /// Whether a bounced Chozo orb's rebound has settled: an upward speed under half a pixel per frame, the range whose
-    /// top nine bits the cartridge tests all set.
+    /// top nine bits the original game tests all set.
     /// </summary>
     private static bool HasSettled(SignedEightEight speed) =>
         speed.SignedRawValue is < 0 and >= -TorizoMotionDefinitions.SettledBounceSpeed;

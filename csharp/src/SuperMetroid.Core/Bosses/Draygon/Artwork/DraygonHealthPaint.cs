@@ -3,9 +3,9 @@ using static SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonHealthPaintDefiniti
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
-/// Four belly-material shades across eight health bands at $A5:96AF-96EE.
-/// Native $A5:9701-9735 selects a band by health and copies its four colors
-/// unchanged; hurt restoration at $A5:958C-959A copies the same shades.
+/// Four belly-material shades across eight health bands.
+/// The health-palette update selects a band by health and copies its four colors
+/// unchanged; hurt restoration copies the same shades.
 /// </summary>
 internal sealed class DraygonHealthPaint
 {
@@ -25,7 +25,7 @@ internal sealed class DraygonHealthPaint
         ? edited : Calculate(band, shade);
 
     /// <summary>
-    /// The critical endpoint $A5:96E7-96EE is the selected pure-red quarter-shade
+    /// The critical endpoint is the selected pure-red quarter-shade
     /// ramp, nearest-rounded from RGB5 maximum. All intermediate channels use
     /// nearest sevenths; there are no retained output samples. The gold-to-red
     /// hue transition and shade assignment are selected health-color composition.

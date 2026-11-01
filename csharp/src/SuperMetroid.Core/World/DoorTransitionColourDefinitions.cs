@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.World;
 
-/// <summary>The colours a door's source-room fade keeps (#1405), as <c>GameState_A_LoadingNextRoom</c> copies them at $82:E1F1-$E264.</summary>
+/// <summary>The colours a door's source-room fade keeps (#1405), as <c>GameState_A_LoadingNextRoom</c> copies them.</summary>
 public static class DoorTransitionColourDefinitions
 {
-    /// <summary>The ordinary green visor colour $82:E52B loads when door scrolling completes.</summary>
+    /// <summary>The ordinary green visor colour loaded when door scrolling completes.</summary>
     public static readonly RgbColor DoorCompletionVisorGreen = new(0, 31, 14);
 
     /// <summary>The minimap's explored colours and its explored feature colour, always kept.</summary>

@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonMaterialPaintDefini
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
-/// Shared primary Draygon paint at $A5:A1F7-A236 and $A5:A277-A296.
+/// Shared primary Draygon paint and the sprite palette.
 /// Highlights, outlines and clipped green-carapace ramps are selected material
 /// content; the four gold belly shades use their existing health-paint owner.
 /// Replacing the selected highlight/outline/eye levels or these precise material

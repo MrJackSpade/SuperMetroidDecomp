@@ -14,9 +14,9 @@ internal static class KraidLintInitializationDefinitions
     }.ToFrozenDictionary();
 
     /// <summary>
-    /// KraidLint_InitialFunctionTimers at $A7:A916/A918/A91A supply the top,
-    /// middle and bottom delays. $A7:AE32-AE47 enables each named part separately;
-    /// $A7:B923-B93E aligns it while its timer counts down to LintProduce.
+    /// KraidLint_InitialFunctionTimers supply the top,
+    /// middle and bottom delays. Each lint's initializer enables its named part separately;
+    /// the lint's alignment step aligns it while its timer counts down to LintProduce.
     /// These cases express independent per-part policies, not a calculated sequence.
     /// </summary>
     internal static readonly FrozenDictionary<KraidLintPart, int> InitialDelays = new Dictionary<KraidLintPart, int>

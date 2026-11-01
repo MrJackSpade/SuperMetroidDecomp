@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
-/// <summary>Horizontal camera target offsets consumed by $90:95A0.</summary>
+/// <summary>Horizontal camera target offsets the horizontal camera follow uses.</summary>
 internal static class HorizontalCameraTargets
 {
     /// <summary>
-    /// $90:963F/9647 select Samus's screen-relative target. Normal tracking places
-    /// Samus32 pixels either side of viewport center; boss tracking uses its distinct
-    /// facing policy. Edge modes ignore facing. The caller retains the native reversal rules.
+    /// Select Samus's screen-relative target. Normal tracking places
+    /// Samus 32 pixels either side of viewport center; boss tracking uses its distinct
+    /// facing policy. Edge modes ignore facing. The caller retains the original reversal rules.
     /// </summary>
     internal static int Offset(CameraDistanceMode mode, bool facingRight) => mode switch
     {

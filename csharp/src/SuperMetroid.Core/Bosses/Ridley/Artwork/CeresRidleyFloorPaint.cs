@@ -4,10 +4,10 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
-/// Zoom-linked Ridley paints $A6:B107-B224. Fourteen endpoint paints share the
-/// reviewed body/eye definitions. Native $A6:B0EF-B106 copies all fifteen colors.
+/// Zoom-linked Ridley paints. Fourteen endpoint paints share the
+/// reviewed body/eye definitions. The getaway copies all fifteen colors.
 /// Neutral level3 is bounded copied metadata: no pixel in the entire 256-character
-/// native C1:8DA9 Mode7 domain references slot15, yet its CGRAM copy is observable.
+/// rotating floor references slot15, yet its colour copy is observable.
 /// Its grey endpoint reuses the reviewed Golden Torizo contour; two-rate zoom exposure
 /// is this exact composition,
 /// not a visible-paint claim or exemption for pixels, motion or timing.
@@ -21,7 +21,7 @@ internal sealed class CeresRidleyFloorPaint
     /// <summary>Extracted colors that differ from the computed contour at a step and color index.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
-    /// <summary>Builds the shared contours from the first native step and retains only differences in later steps.</summary>
+    /// <summary>Builds the shared contours from the first step and retains only differences in later steps.</summary>
     internal CeresRidleyFloorPaint(RgbColor[][] steps)
     {
         body = new(steps[0].AsSpan(0, 11));
@@ -31,12 +31,12 @@ internal sealed class CeresRidleyFloorPaint
             if (Calculate(step, color) != steps[step][color]) edits.Add(new ColourCell(step, color), steps[step][color]);
     }
 
-    /// <summary>$A6:B123 (also header E16D) equals the canonical Golden low contour at $84:8050; no duplicate grey input.</summary>
+    /// <summary>The neutral floor colour (also in the header palette) equals the canonical Golden low contour; no duplicate grey input.</summary>
     private static RgbColor Neutral => GoldenTorizoHealthPaint.Color(0, 15, rear: false);
-    /// <summary>$A6:A9FF: the same neutral endpoint at retreat exposure1/15.</summary>
+    /// <summary>The same neutral endpoint at retreat exposure1/15.</summary>
     internal static RgbColor RetreatNeutral => CeresRidleyFade.Scale(Neutral, 1);
 
-    /// <summary>Uses a reviewed native color override when present, otherwise scales the shared contour for this zoom step.</summary>
+    /// <summary>Uses a reviewed color override when present, otherwise scales the shared contour for this zoom step.</summary>
     internal RgbColor Resolve(int step, int color)
     {
         if ((uint)step >= CeresRidleyPaletteDefinitions.GetawayZoomStepCount) throw new ArgumentOutOfRangeException(nameof(step));

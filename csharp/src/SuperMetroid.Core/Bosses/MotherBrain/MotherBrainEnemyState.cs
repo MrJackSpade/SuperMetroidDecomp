@@ -9,9 +9,9 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Shared state behind retail enemy records <c>$EC7F</c> (body) and <c>$EC3F</c> (brain).
-/// The SNES stores most of these words in named extended WRAM rather than in either common
-/// <c>$40</c>-byte enemy slot. A dedicated object therefore preserves both the physical slot
+/// Shared state behind Mother Brain's two retail enemy records, the body and the brain.
+/// The original stores most of these values in named extended memory rather than in either common
+/// enemy slot. A dedicated object therefore preserves both the physical slot
 /// boundary and the original one-owner/two-record relationship.
 /// </summary>
 public sealed class MotherBrainEnemyState
@@ -19,10 +19,10 @@ public sealed class MotherBrainEnemyState
     /// <summary>Starts the shared encounter state with the physical body slot before the head is attached.</summary>
     internal MotherBrainEnemyState(RoomEnemySlot body) => Body = body;
 
-    /// <summary>Physical slot zero, enemy definition <c>$EC7F</c>.</summary>
+    /// <summary>Physical slot zero, the body's enemy definition.</summary>
     public RoomEnemySlot Body { get; }
 
-    /// <summary>Physical slot one, enemy definition <c>$EC3F</c>.</summary>
+    /// <summary>Physical slot one, the brain's enemy definition.</summary>
     public RoomEnemySlot Head { get => field ?? throw new InvalidOperationException("Mother Brain's head slot is not attached; head initialization attaches it."); internal set; }
 
     /// <summary>The encounter stage that shot, bomb and footstep handling branch on; the glass phase at room entry.</summary>
@@ -31,14 +31,14 @@ public sealed class MotherBrainEnemyState
     /// <summary>The contact regions that currently hurt Samus: the brain alone at room entry, all three from the ascent.</summary>
     public MotherBrainHitboxParts HitboxesEnabled { get; internal set; }
 
-    /// <summary>The body record's bank-$A9 function pointer, selecting first-phase, resurrection, combat, or cutscene control for its next AI turn.</summary>
+    /// <summary>The body record's function pointer, selecting first-phase, resurrection, combat, or cutscene control for its next AI turn.</summary>
     public MotherBrainBodyFunction Function { get; internal set; }
-    /// <summary>The brain record's independent bank-$A9 function pointer selecting its custom head-only or head-and-neck draw setup.</summary>
+    /// <summary>The brain record's independent function pointer selecting its custom head-only or head-and-neck draw setup.</summary>
     public MotherBrainBrainFunction BrainFunction { get; internal set; }
 
     /// <summary>
-    /// Native <c>mbn_var_F</c>. Every fake-death pause decrements this unsigned word and
-    /// branches when bit 15 becomes set; zero therefore expires immediately to $FFFF.
+    /// <c>mbn_var_F</c>. Every fake-death pause decrements this unsigned word and
+    /// branches when bit 15 becomes set; zero therefore expires immediately to -1.
     /// </summary>
     public WrappingCountdown FunctionTimer { get; internal set; }
 
@@ -59,10 +59,10 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// The room flash's current frame (#641), or null while no flash runs. Its timer counts upward, unlike enemy
-    /// instruction timers, because handler $D192 compares elapsed frames with each duration.
+    /// animation frame holds, because the room-flash handler compares elapsed frames with each duration.
     /// </summary>
     public int? RoomFlashFrame { get; internal set; }
-    /// <summary>Elapsed-update count for the current room-flash frame, advanced upward by $A9:D192 and reset when the frame changes; never above the frame's two-update duration.</summary>
+    /// <summary>Elapsed-update count for the current room-flash frame, advanced upward by the room-flash handler and reset when the frame changes; never above the frame's two-update duration.</summary>
     public int RoomFlashTimer { get; internal set; }
 
     /// <summary>Head-record sub-dispatch and its independent underflow timer.</summary>
@@ -85,13 +85,13 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// The brain's own program (#641), separate from the head enemy's dummy program: the cursor rests on the frame
-    /// being shown, as <c>MotherBrainBody.brainInstListPointer</c> ($7E:8002) does. Null means the brain is not live
-    /// and not drawn. Only the program setter (<c>$A9:C447</c>) and the draw-time runner (<c>$A9:92AF</c>) write it.
+    /// being shown, as <c>MotherBrainBody.brainInstListPointer</c> does. Null means the brain is not live
+    /// and not drawn. Only the program setter and the draw-time runner write it.
     /// </summary>
     internal AnimationProgramCursor<MotherBrainHeadProgram>? BrainCursor { get; set; }
 
     /// <summary>
-    /// <c>MotherBrainBody.brainFrameHold</c> ($7E:8000). It counts draws up from one
+    /// <c>MotherBrainBody.brainFrameHold</c>. It counts draws up from one
     /// and the program advances once it exceeds the frame's duration, so each frame shows for
     /// its duration plus one draw.
     /// </summary>
@@ -112,21 +112,21 @@ public sealed class MotherBrainEnemyState
     public bool DeleteTurretsAndRinkas { get; internal set; }
 
     /// <summary>
-    /// Set by the head main on frames where the cartridge's enemy-graphics-drawn hook points
-    /// at <c>$A9:87DD</c>. It is deliberately rebuilt every frame rather than treated as
-    /// ordinary visibility because both physical records carry property bit <c>$0100</c>.
+    /// Set by the head main on frames where the game's enemy-graphics-drawn hook points
+    /// at the brain draw. It is deliberately rebuilt every frame rather than treated as
+    /// ordinary visibility because both physical records carry the hide-drawing property.
     /// </summary>
     public bool DrawBrain { get; internal set; }
 
-    /// <summary>Byte cursor at $7E:7842 into Mother Brain's rainbow palette list: an even offset from zero to two bytes per rainbow frame.</summary>
+    /// <summary>Byte cursor into Mother Brain's rainbow palette list: an even offset from zero to two bytes per rainbow frame.</summary>
     public int RainbowPaletteCursor { get; internal set; }
 
-    /// <summary>Whether the active bank-$A9 draw hook appends five articulated neck joints.</summary>
+    /// <summary>Whether the active draw hook appends five articulated neck joints.</summary>
     public bool DrawNeck { get; internal set; }
 
     /// <summary>
     /// Each neck joint's pixel distance from its anchor, indexed by joint (<see cref="MotherBrainNeckJointDefinitions"/>):
-    /// the lower joints' from the shared body anchor, the upper joints' from the upper-neck anchor. <c>$A9:903F</c>
+    /// the lower joints' from the shared body anchor, the upper joints' from the upper-neck anchor. The main tube's landing
     /// initializes them.
     /// </summary>
     public int[] NeckJointDistances { get; } = new int[MotherBrainNeckJointDefinitions.Count];
@@ -142,7 +142,7 @@ public sealed class MotherBrainEnemyState
     public RotationAngle LowerNeckAngle { get; internal set; }
     /// <summary>Upper-neck angle; moved with full-turn wraparound like the lower angle, and its table index places joints 3 and 4.</summary>
     public RotationAngle UpperNeckAngle { get; internal set; }
-    /// <summary>Neck angular speed in 8.8 angle units, added or subtracted by both neck motion dispatchers each enabled update; every producer writes a positive speed of at most $0900.</summary>
+    /// <summary>Neck angular speed in 8.8 angle units, added or subtracted by both neck motion dispatchers each enabled update; every producer writes a positive speed of at most 2304.</summary>
     public int NeckAngleDelta { get; internal set; }
     /// <summary>Whether articulated neck angle dispatch is enabled; positions and custom drawing remain separate from this motion flag.</summary>
     public bool NeckMovementEnabled { get; internal set; }
@@ -184,7 +184,7 @@ public sealed class MotherBrainEnemyState
     public bool DeathHidesBodyLayer { get; internal set; }
     /// <summary>One-shot latch for the AFE0 clearing of her body layer.</summary>
     public bool DeathBodyLayerCleared { get; internal set; }
-    /// <summary>Live escape message owner installed by $A6:C23F.</summary>
+    /// <summary>Live escape message owner installed by the escape setup.</summary>
     public EscapeTypewriterState? EscapeTypewriter { get; internal set; }
 
     /// <summary>
@@ -207,14 +207,14 @@ public sealed class MotherBrainEnemyState
     public bool SmallPurpleBreathGenerationEnabled { get; internal set; }
 
     /// <summary>
-    /// <c>MotherBrainBody.smallPurpleBreathActiveFlag</c> ($7E:786A): set by the small breath's
-    /// initializer ($86:CA9B) and cleared by its last instruction ($86:CAEE), so at most one
+    /// <c>MotherBrainBody.smallPurpleBreathActiveFlag</c>: set by the small breath's
+    /// initializer and cleared by its last instruction, so at most one
     /// small breath is alive.
     /// </summary>
     public bool SmallPurpleBreathActive { get; internal set; }
 
     /// <summary>
-    /// Attached-mouth offset selector used by drool opcode <c>$A9:9B3C</c>. Native
+    /// Attached-mouth offset selector used by the drool step. The game
     /// increments before spawning and wraps at six, so a zero-initialized encounter emits
     /// parameter one first.
     /// </summary>
@@ -231,13 +231,13 @@ public sealed class MotherBrainEnemyState
     }
 
     /// <summary>
-    /// Native <c>attackPhase</c> dispatch index used by <c>$A9:B64B</c>. Head animation
+    /// <c>attackPhase</c> dispatch index used by the attack dispatcher. Head animation
     /// runs independently while this advances from selection, through 64 cooldown frames,
     /// and back to the ordinary thinking function.
     /// </summary>
     public MotherBrainAttackPhase AttackPhase { get; internal set; }
 
-    /// <summary>Unsigned 64-frame attack cooldown decremented by <c>$A9:B764</c>.</summary>
+    /// <summary>Unsigned 64-frame attack cooldown the attack's cooldown phase decrements.</summary>
     public WrappingCountdown AttackCooldown { get; internal set; }
 
     /// <summary>
@@ -246,7 +246,7 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public int BombCounter { get; internal set; }
 
-    /// <summary>Counts a bomb the shared bank-$86 bomb initializer has just spawned.</summary>
+    /// <summary>Counts a bomb the shared bomb initializer has just spawned.</summary>
     internal void RecordBombSpawned() => BombCounter++;
 
     /// <summary>
@@ -258,26 +258,26 @@ public sealed class MotherBrainEnemyState
         : throw new InvalidOperationException("A Mother Brain bomb was deleted while none was counted.");
 
     /// <summary>
-    /// Native <c>bodyTargetXPosition</c> used while the bomb decision walks the body toward
+    /// <c>bodyTargetXPosition</c> used while the bomb decision walks the body toward
     /// X=$40 or $60 before entering its posture sequence.
     /// </summary>
     public int BodyTargetXPosition { get; internal set; }
 
     /// <summary>
-    /// Native <c>deathBeamAttackPhase</c> consumed by <c>$A9:B87D</c>. Despite the historical
+    /// <c>deathBeamAttackPhase</c> consumed by the hand-beam dispatcher. Despite the historical
     /// symbol name, this is the ordinary phase-two red hand-beam attack, not the later
     /// rainbow beam used when the head's health reaches zero.
     /// </summary>
     public MotherBrainHandBeamPhase HandBeamPhase { get; internal set; }
 
     /// <summary>
-    /// Shared cursor used by the bank-$86 hand-beam projectile chain. Every fired child
+    /// Shared cursor used by the hand-beam projectile chain. Every fired child
     /// starts from this exact 16.16 position, advances the cursor by the aimed velocity,
     /// then receives its own randomized secondary velocity.
     /// </summary>
     /// <remarks>Charging starts it at the beam position with zero subpixels (body Y minus $30).</remarks>
     public FixedPosition<RoomPixels> HandBeamNextPosition { get; internal set; }
-    /// <summary>Signed native 8.8 aimed velocity; advances the shared cursor before each child receives its independent randomized scatter velocity.</summary>
+    /// <summary>Signed 8.8 aimed velocity; advances the shared cursor before each child receives its independent randomized scatter velocity.</summary>
     public EightEightVector<RoomPixels> HandBeamNextVelocity { get; internal set; }
     /// <summary>Aim angle in 256-unit-turn table units (0 through 255), calculated from hand to Samus at charging setup and used as the children's randomized scatter-angle base.</summary>
     public int HandBeamNextAngle { get; internal set; }
@@ -286,7 +286,7 @@ public sealed class MotherBrainEnemyState
     /// The already verified rainbow/finish-off/Baby/phase-three state machine, attached to
     /// the real body/head pair only after phase-two health reaches zero. Physical actor
     /// coordinates and bytecode remain owned by this room system; this object owns the long
-    /// bank-$A9 function chain and forced-Samus calculations.
+    ///  function chain and forced-Samus calculations.
     /// </summary>
     public MotherBrainRainbowBeamAttackSequence? RainbowBeamSequence
     {
@@ -300,9 +300,9 @@ public sealed class MotherBrainEnemyState
     }
 
     /// <summary>
-    /// The dynamically allocated physical <c>$ECBF</c> enemy record created by
-    /// <c>$A9:BE1B</c>. Keeping the slot and its extended cutscene state side by side makes
-    /// the native cross-enemy index observable without pretending the Baby is a draw-only
+    /// The dynamically allocated physical Baby Metroid enemy record created by
+    /// the final beam's Baby spawn. Keeping the slot and its extended cutscene state side by side makes
+    /// the cross-enemy index observable without pretending the Baby is a draw-only
     /// effect owned by Mother Brain's body.
     /// </summary>
     public RoomEnemySlot? BabyMetroidSlot { get; internal set; }
@@ -313,7 +313,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>
     /// Last Baby program copied into its physical slot. The slot's cursor advances
     /// independently, so this latch changes only when Baby AI explicitly invokes the
-    /// native set-list helper.
+    /// set-list helper.
     /// </summary>
     internal MotherBrainBabyProgram BabyAppliedProgram { get; set; }
 
@@ -321,9 +321,9 @@ public sealed class MotherBrainEnemyState
     internal AnimationProgramCursor<MotherBrainBabyProgram> BabyCursor { get; set; }
 
     /// <summary>
-    /// Shared cry counter incremented by bank-$86 onion-ring collision and consumed by the
+    /// Shared cry counter incremented by onion-ring collision and consumed by the
     /// Baby's later healing/idle functions. It is deliberately a count, not a boolean:
-    /// native <c>INC</c> permits more than one ring to land before the next Baby turn.
+    /// <c>INC</c> permits more than one ring to land before the next Baby turn.
     /// </summary>
     internal int PendingBabyCryCount { get; set; }
 
@@ -331,7 +331,7 @@ public sealed class MotherBrainEnemyState
     public bool RainbowBeamActive { get; internal set; }
     /// <summary>The rainbow beam's colour and cone, advanced by the simulation rather than by painting a frame.</summary>
     public MotherBrainRainbowBeamEffect RainbowBeam { get; } = new();
-    /// <summary>Current native angular aim published from the beam's forced-movement owner and consumed by the rainbow beam effect.</summary>
+    /// <summary>Current angular aim published from the beam's forced-movement owner and consumed by the rainbow beam effect.</summary>
     public RotationAngle RainbowBeamAngle { get; internal set; }
     /// <summary>Rainbow-beam angular width in 8.8 table units, published by body AI as the beam widens or narrows; independent of pixel width at a given scanline.</summary>
     public int RainbowBeamAngularWidth { get; internal set; }
@@ -342,7 +342,7 @@ public sealed class MotherBrainEnemyState
     /// Last brain program copied from the rainbow state machine into the brain.
     /// The brain cursor advances away from the program start, so comparing against it
     /// would reinstall the program and reset its timer every frame. This separate
-    /// producer-owned latch mirrors the fact that `$A9:C447` runs only when body AI
+    /// producer-owned latch mirrors the fact that the brain-program request runs only when body AI
     /// explicitly requests a different brain program.
     /// </summary>
     internal MotherBrainHeadProgram? RainbowAppliedHeadProgram { get; set; }
@@ -356,8 +356,8 @@ public sealed class MotherBrainEnemyState
 
 
     /// <summary>
-    /// Clamped aim angle in 256-unit-turn table units, 16 through 72, written by head opcode
-    /// <c>$A9:9E5B</c> and consumed by the next <c>$A9:9E29</c> onion-ring spawn.
+    /// Clamped aim angle in 256-unit-turn table units, 16 through 72, written by the head's aim step
+    /// and consumed by the next onion-ring spawn.
     /// </summary>
     public int OnionRingsTargetAngle { get; internal set; }
 

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Physical bank-$84 draw lists selected by the n00b-tube PLM. The native
-/// coroutine still owns power-bomb gating, shard release, room FX, the event
+/// Physical draw lists selected by the n00b-tube PLM. The tube's
+/// script still owns power-bomb gating, shard release, room FX, the event
 /// bit and Samus's input lock; these definitions only replace immutable draw
 /// payload reads.
 /// </summary>

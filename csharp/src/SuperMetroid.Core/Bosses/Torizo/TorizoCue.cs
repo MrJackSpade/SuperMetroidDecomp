@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>One cue of Torizo's body programs, with the operands its native instruction carries.</summary>
+/// <summary>One cue of Torizo's body programs, with the operands its instruction carries.</summary>
 internal abstract record TorizoCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
@@ -37,21 +37,20 @@ internal abstract record TorizoCue
     internal sealed record ParameterizedSpawn(TorizoParameterizedSpawnKind Kind, int Parameter) : TorizoCue;
 
     /// <summary>
-    /// Spawns the low-health explosions and flashes; the program then waits forty updates
-    /// (<c>Instruction_Torizo_Spawn5LowHealthExplosion_SleepFor28Frames</c>, $AA:C303).
+    /// Spawns the low-health explosions and flashes; the program then waits forty updates.
     /// </summary>
     /// <param name="Site">Where the explosions burst.</param>
     internal sealed record LowHealthExplosions(BombTorizoExplosionSite Site) : TorizoCue;
 
-    /// <summary>Selects the main-AI function (<c>Instruction_Torizo_FunctionInY</c>, $AA:B09C).</summary>
+    /// <summary>Selects the main-AI function.</summary>
     /// <param name="Function">The main-AI function a <see cref="SetFunction"/> cue selects.</param>
     internal sealed record SetFunction(TorizoFunction Function) : TorizoCue;
 
-    /// <summary>Installs the body's pre-instruction (<c>Instruction_CommonAA_Enemy0FB2_InY</c>, $AA:806B).</summary>
+    /// <summary>Installs the body's pre-instruction.</summary>
     /// <param name="FrameBehavior">The pre-instruction a <see cref="SetFrameBehavior"/> cue installs.</param>
     internal sealed record SetFrameBehavior(TorizoFrameBehavior FrameBehavior) : TorizoCue;
 
-    /// <summary>Shows a piece of artwork under the body's poses (the cartridge's common <c>$814B</c> copy).</summary>
+    /// <summary>Shows a piece of artwork under the body's poses (the game's common artwork copy).</summary>
     /// <param name="Swap">The artwork a <see cref="ShowArtwork"/> cue shows.</param>
     internal sealed record ShowArtwork(TorizoArtworkSwap Swap) : TorizoCue;
 

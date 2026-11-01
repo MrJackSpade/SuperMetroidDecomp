@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's glass PLM ($D6DE): its setup, shatter projectiles and the room argument it keeps after deletion.</summary>
+/// <summary>Mother Brain's glass PLM: its setup, shatter projectiles and the room argument it keeps after deletion.</summary>
 [RoomLifetime]
 internal sealed class MotherBrainGlassPlms
 {
@@ -75,9 +75,9 @@ internal sealed class MotherBrainGlassPlms
     }
 
     /// <summary>
-    /// Implements Mother Brain head shot AI's direct <c>INC $1DC7</c>. This is intentionally
-    /// separate from the block-hit pre-instruction: a missile can overlap the brain record
-    /// before its terrain probe reaches the glass block, and native code counts that hit
+    /// Implements Mother Brain head shot AI's direct increment of the glass PLM's hit count. This is intentionally
+    /// separate from the block-hit frame behaviour: a missile can overlap the brain record
+    /// before its terrain probe reaches the glass block, and code counts that hit
     /// immediately in the enemy collision pass.
     /// </summary>
     public void IncrementMotherBrainGlassRoomArgument()
@@ -85,7 +85,7 @@ internal sealed class MotherBrainGlassPlms
         if (!MotherBrainGlassWasLoaded)
         {
             throw new InvalidOperationException(
-                "Mother Brain head damage requires loaded room PLM $D6DE.");
+                "Mother Brain head damage requires Mother Brain's glass PLM to be loaded.");
         }
 
         if (TryGetMotherBrainGlassSlot(out PlmSlot? slot))
@@ -111,12 +111,12 @@ internal sealed class MotherBrainGlassPlms
     internal bool IsGlassDestroyed() => _events?.Has(EventNumber.MotherBrainGlassDestroyed) == true;
 
     /// <summary>
-    /// <c>$84:D30B</c>: queues the shatter sound and spawns a burst of four shard projectiles at the glass's block.
+    /// Queues the shatter sound and spawns a burst of four shard projectiles at the glass's block.
     /// </summary>
     internal void SpawnShards(PlmSlot slot, IReadOnlyList<MotherBrainGlassShard> shards)
     {
         _sounds.Queue(Library3Sound.MotherBrainGlassShatter, Priority: ShatterSoundPriority);
-        // The native fragment spawn carries both block coordinates as bytes.
+        // The fragment spawn carries both block coordinates as bytes.
         Position16<RoomBlocks> glassBlock = new(slot.BlockIndex % _motherBrainGlassRoomWidth,
             slot.BlockIndex / _motherBrainGlassRoomWidth);
         foreach (MotherBrainGlassShard shard in shards)

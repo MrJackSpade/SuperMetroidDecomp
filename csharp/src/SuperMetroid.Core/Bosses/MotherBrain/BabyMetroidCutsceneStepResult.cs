@@ -16,11 +16,11 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     MotherBrainSpritePage? AttackPage,
     int? RecoveryLightsFrame)
 {
-    /// <summary>The one-call fatal-impact edge at $A9:CBF2-CC3D, before the ongoing shake phase.</summary>
+    /// <summary>The one-call fatal-impact edge, before the ongoing shake phase.</summary>
     public bool FatalBlowStarted => PhaseBefore == BabyMetroidCutscenePhase.FinalCharge &&
         PhaseAfter == BabyMetroidCutscenePhase.TakeFinalBlow;
 
-    /// <summary>The $A9:CC60 timer expiry queues the theme before entering Hyper Beam preparation.</summary>
+    /// <summary>The theme timer's expiry queues the theme before entering Hyper Beam preparation.</summary>
     public bool SamusThemeStarted => PhaseBefore == BabyMetroidCutscenePhase.PlaySamusTheme &&
         PhaseAfter == BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
 }

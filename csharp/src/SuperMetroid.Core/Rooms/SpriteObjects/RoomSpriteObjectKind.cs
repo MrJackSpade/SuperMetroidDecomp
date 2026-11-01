@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Rooms.SpriteObjects;
 
 /// <summary>
-/// The room sprite object an owner spawns. Its values are arbitrary; verification's native view names each kind's
-/// cartridge object number.
+/// The room sprite object an owner spawns. Its values are arbitrary; verification's catalog names each kind's
+/// object number.
 /// </summary>
 public enum RoomSpriteObjectKind
 {

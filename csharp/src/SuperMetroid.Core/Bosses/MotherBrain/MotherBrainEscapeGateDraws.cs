@@ -29,7 +29,7 @@ internal static class MotherBrainEscapeGateDraws
         return owned;
     }
 
-    /// <summary>Materializes the open, half-closed, and closed gate images in native pointer order.</summary>
+    /// <summary>Materializes the open, half-closed, and closed gate images in pointer order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -53,7 +53,7 @@ internal static class MotherBrainEscapeGateDraws
         return true;
     }
 
-    /// <summary>Maps a native gate draw pointer to its stable authored visual identifier.</summary>
+    /// <summary>Maps a gate draw pointer to its stable authored visual identifier.</summary>
     internal static string VisualId(PlmDraw request) =>
         MotherBrainEscapeGatePlmDrawDefinitions.VisualIds.TryGetValue(
             PlmDraw.FrameOf<MotherBrainEscapeGateDraw>(request, "Mother Brain escape-gate draw"), out string? id)

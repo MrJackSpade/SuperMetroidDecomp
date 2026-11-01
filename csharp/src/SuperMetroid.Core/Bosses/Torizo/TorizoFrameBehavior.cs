@@ -1,23 +1,23 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>The movement step a Torizo runs before its instructions; each member names the bank-$AA routine it replaced (#1413: the values are arbitrary).</summary>
+/// <summary>The movement step a Torizo runs before its instructions; each member names the routine it replaced (#1413: the values are arbitrary).</summary>
 public enum TorizoFrameBehavior
 {
-    /// <summary>$AA:C95E, the shared no-op movement step.</summary>
+    /// <summary>The shared no-op movement step.</summary>
     Idle = 1,
 
-    /// <summary><c>Function_Torizo_Movement_Walking</c> at $AA:C752.</summary>
+    /// <summary>Torizo behaviour: movement, walking.</summary>
     AirTransition,
 
-    /// <summary><c>Function_Torizo_Movement_Attacking</c> at $AA:C828.</summary>
+    /// <summary>Torizo behaviour: movement, attacking.</summary>
     Gravity,
 
-    /// <summary><c>Function_Torizo_Movement_Jumping_Falling</c> at $AA:C82C.</summary>
+    /// <summary>Torizo behaviour: movement, jumping, falling.</summary>
     Jump,
 
-    /// <summary><c>Function_GoldenTorizo_Movement_Walking</c> at $AA:D5F1.</summary>
+    /// <summary>Golden Torizo behaviour: movement, walking.</summary>
     GoldenAirTransition,
 
-    /// <summary><c>Function_GoldenTorizo_Movement_Attacking</c> at $AA:D5ED.</summary>
+    /// <summary>Golden Torizo behaviour: movement, attacking.</summary>
     GoldenGravity,
 }

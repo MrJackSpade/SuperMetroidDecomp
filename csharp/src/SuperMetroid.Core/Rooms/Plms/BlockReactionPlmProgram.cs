@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// The block-reaction PLMs' programs (#1296): crumble reveals, contact crumbles and the shot, Super Missile, Power Bomb,
-/// bomb and grapple blocks, in place of their bank-$84 lists. A <c>Break</c> program is the bomb blocks' shared tail,
+/// bomb and grapple blocks, in place of their lists. A <c>Break</c> program is the bomb blocks' shared tail,
 /// which normal bombs enter past the reaction sound.
 /// </summary>
 internal enum BlockReactionPlmProgram

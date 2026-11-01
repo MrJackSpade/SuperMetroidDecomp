@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
-/// The presentation boundary of Ridley's fireballs and afterburns (#641): the bank-$86 list entries the projectile
+/// The presentation boundary of Ridley's fireballs and afterburns (#641): the list entries the projectile
 /// definitions name, and the projectile frame each typed frame shows.
 /// </summary>
 internal static class RidleyFireballVisualDefinitions

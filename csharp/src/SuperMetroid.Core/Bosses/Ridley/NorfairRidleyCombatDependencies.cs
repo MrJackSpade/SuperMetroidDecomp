@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed record NorfairRidleyCombatDependencies
 {
-    /// <summary>Room services, level state, and native RNG for the Norfair fight.</summary>
+    /// <summary>Room services, level state, and RNG for the Norfair fight.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>Publishes tail-impact tremors to the room earthquake state.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Queues roars, tail impacts, and other enemy-bank sounds.</summary>
+    /// <summary>Queues roars, tail impacts, and other enemy sounds.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
     /// <summary>Publishes Ridley's health and transition palettes.</summary>

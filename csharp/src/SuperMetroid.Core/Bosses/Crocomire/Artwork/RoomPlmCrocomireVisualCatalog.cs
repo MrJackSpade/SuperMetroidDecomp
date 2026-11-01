@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// </summary>
 public sealed class RoomPlmCrocomireVisualCatalog
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => CrocomireArenaArtwork.ContentIdentity(this);
 
     /// <summary>Copied visual-only differences for the five compiled Crocomire arena layouts.</summary>
@@ -24,7 +24,7 @@ public sealed class RoomPlmCrocomireVisualCatalog
         customAppearances = new PlmVisualOverrides(entries, "Crocomire", CrocomireArenaDraws.TryGetByVisualId,
             CrocomireArenaDraws.All.Count());
 
-    /// <summary>Resolves one arena-layout block, translating native run-local indices into the flattened visual override.</summary>
+    /// <summary>Resolves one arena-layout block, translating run-local indices into the flattened visual override.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
     /// <param name="runIndex">Zero-based ordinal of the compiled draw run.</param>
     /// <param name="blockIndex">Zero-based cell ordinal within that run, not a flattened entry index or room coordinate.</param>

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
 /// The eight directions Botwoon's head and body segments face, clockwise from up: the order of
-/// the cartridge's 32-unit angle octants, so octant <c>n</c> faces <c>(BotwoonFacing)n</c>.
+/// the game's 32-unit angle octants, so octant <c>n</c> faces <c>(BotwoonFacing)n</c>.
 /// </summary>
 internal enum BotwoonFacing
 {

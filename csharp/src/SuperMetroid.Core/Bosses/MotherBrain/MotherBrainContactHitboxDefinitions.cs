@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainContactHitboxDefinitions
 {
-    /// <summary>The native ordered collision rectangles of each physical component.</summary>
+    /// <summary>The ordered collision rectangles of each physical component.</summary>
     internal static readonly Dictionary<MotherBrainContactPart, MotherBrainContactHitboxes> Parts = new()
     {
         [MotherBrainContactPart.Body] = new(MotherBrainContactPart.Body),

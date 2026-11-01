@@ -3,15 +3,15 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>Direct load-station placement selection for native LoadFromLoadStation ($80:C437).</summary>
-/// <remarks>Area lists are consecutive fourteen-byte records starting at $80:C4C5.
+/// <summary>Direct load-station placement selection for LoadFromLoadStation.</summary>
+/// <remarks>Area lists are consecutive fourteen-byte records starting.
 /// Named area/station cases select active room, door, behaviour and placement settings;
-/// valid unused slots select the native inert placeholder. Ceres repeats one
+/// valid unused slots select the inert placeholder. Ceres repeats one
 /// placement with Y offset72 for station0 and64 for stations1..16. Debug-area data
 /// beginning atCC19 is outside the accepted domain. No record or pointer array is stored.</remarks>
 public static class LoadStationDefinitions
 {
-    /// <summary>Native list lengths, including inert placeholders.</summary>
+    /// <summary>List lengths, including inert placeholders.</summary>
     internal static readonly IReadOnlyDictionary<AreaId, int> Counts = new Dictionary<AreaId, int>
     {
         [AreaId.Crateria] = 19,
@@ -84,7 +84,7 @@ public static class LoadStationDefinitions
         [new(AreaId.Tourian, 17)] = new(RoomHeaderDefinitions.RinkaShaft, TourianDoorDefinitions.BigBoy0, new(0, 0), new(0, 128)),
     };
 
-    /// <summary>The native inert record an unused station slot receives.</summary>
+    /// <summary>The inert record an unused station slot receives.</summary>
     internal static readonly LoadStationDefinition Placeholder = new(null, null, new(1024, 1024), new(0, 176));
 
     /// <summary>Compiled room, door, camera, and Samus offsets before projection into a load entry.</summary>

@@ -13,9 +13,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed class NorfairRidleyDeath
 {
-    /// <summary>Enemy dispatcher used for Ridley's registered native callbacks.</summary>
+    /// <summary>Enemy dispatcher used for Ridley's registered callbacks.</summary>
     private readonly IEnemyDispatch _dispatch;
-    /// <summary>Room services, level state, and native RNG for the Norfair fight.</summary>
+    /// <summary>Room services, level state, and RNG for the Norfair fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Handles common combat damage and enemy drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
@@ -47,7 +47,7 @@ internal sealed class NorfairRidleyDeath
         samus?.Control.Unlock();
         state.TailWhipRequest = 1;
         state.TailFunctionIndex = RidleyTailFunction.Neutral;
-        // $A6:BC8F-BC93 leaves the timer untouched once death owns the fight.
+        // The hurt timer is left untouched once death owns the fight.
         if (state.FightMode != RidleyFightMode.Dying)
         {
             SamusMovementType movement = samus is null ? SamusMovementType.Standing : SamusPoseMetadata.ReadMovementType(samus);
@@ -67,7 +67,7 @@ internal sealed class NorfairRidleyDeath
     public bool RidleyDeathDropRequested { get; private set; }
 
     /// <summary>
-    /// Ports $A6:C551. Ridley continues converging on the death point throughout the roar;
+    /// Runs the death roar. Ridley continues converging on the death point throughout the roar;
     /// expiry freezes velocity and starts lowering the room acid before entering the long
     /// small-explosion phase in the same dispatcher call.
     /// </summary>
@@ -91,7 +91,7 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>
-    /// Ports $A6:C588. A ROM-positioned small explosion appears every five calls while the
+    /// Runs the death explosions. An authored-position small explosion appears every five calls while the
     /// acid lowers. When the 160-frame clock expires, Samus is released and Ridley's twelve
     /// independently moving body/tail breakup enemies are allocated from the real slot pool.
     /// </summary>
@@ -112,7 +112,7 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>
-    /// $A6:C5A8 performs one final small-explosion tick, hides the intact body, and disables
+    /// The breakup performs one final small-explosion tick, hides the intact body, and disables
     /// shared wing/tail movement so only the breakup actors remain visible.
     /// </summary>
     internal void BeginNorfairRidleyBreakup(
@@ -126,7 +126,7 @@ internal sealed class NorfairRidleyDeath
         state.FunctionTimer = WrappingCountdown.Start(32);
     }
 
-    /// <summary>$A6:C5C8's deliberate 32-frame pre-wait before the final 256 frames.</summary>
+    /// <summary>The breakup's deliberate 32-frame pre-wait before the final 256 frames.</summary>
     internal static void TickNorfairRidleyBreakupWait(RidleyEnemyState state)
     {
         if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
@@ -136,7 +136,7 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>
-    /// Ports $A6:C5DA. Boss persistence is published before the slot is deleted, exactly
+    /// Finishes the death. Boss persistence is published before the slot is deleted, exactly
     /// when the retail item drop and delayed music-track-three request occur.
     /// </summary>
     internal void TickNorfairRidleyDeathFinish(
@@ -149,9 +149,9 @@ internal sealed class NorfairRidleyDeath
         _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
         state.BossDefeatPublished = true;
 
-        // $A0:B8AC scatters sixteen pickups through Ridley's authored 128x64 arena
+        // The death drops scatter sixteen pickups through Ridley's authored 128x64 arena
         // rectangle. The body is deleted immediately afterward, so the drop actors must
-        // retain header $E17F themselves.
+        // retain Ridley's header themselves.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.Ridley,
             count: 16,
@@ -165,7 +165,7 @@ internal sealed class NorfairRidleyDeath
         state.Function = RidleyAiFunction.NorfairDeathComplete;
     }
 
-    /// <summary>Ports $A6:C623 and its ten signed X/Y offset pairs at $A6:C66E.</summary>
+    /// <summary>Spawns a small explosion at one of its ten signed X/Y offset pairs.</summary>
     internal void SpawnSmallExplosionNearNorfairRidley(
         RoomEnemySlot body,
         RidleyEnemyState state)
@@ -210,7 +210,7 @@ internal sealed class NorfairRidleyDeath
                     EnemyProperties.IgnoreSamusCollision,
                 ExtraProperties: EnemyExtraProperties.None,
                 SpawnSettings: new RidleyExplosionSpawnSettings(part));
-            // The explosion's initialization AI ($A6:C696) starts each part from the still-live shared Ridley joints.
+            // The explosion's initialization AI starts each part from the still-live shared Ridley joints.
             if (_dispatch.SpawnEnemy(population) is null)
             {
                 throw new InvalidOperationException(
@@ -219,7 +219,7 @@ internal sealed class NorfairRidleyDeath
         }
     }
 
-    /// <summary>Ports initialization AI $A6:C696 for one parameter $00..$16.</summary>
+    /// <summary>Runs the breakup actor's initialization AI for one parameter 0..22.</summary>
     internal void InitializeNorfairRidleyExplosion(
         RoomEnemySlot fragment,
         RoomEnemySlot body,
@@ -270,7 +270,7 @@ internal sealed class NorfairRidleyDeath
     private static void StartRidleyBreakupProgram(RidleyEnemyState state, RoomEnemySlot fragment, RidleyBreakupFrame frame) =>
         state.BreakupPrograms[fragment.SlotIndex] = AnimationProgramCursor<RidleyBreakupFrame>.Start(frame);
 
-    /// <summary>Ports main AI $A6:C8D4: flicker, drag, gravity, movement, and lifetime.</summary>
+    /// <summary>Runs the breakup actor's main AI: flicker, drag, gravity, movement, and lifetime.</summary>
     internal void RunNorfairRidleyExplosionMain(RoomEnemySlot fragment)
     {
         if ((fragment.FrameCounter & 1) != 0)
@@ -294,7 +294,7 @@ internal sealed class NorfairRidleyDeath
         if (lifetime.IsNonNegative)
             return;
 
-        // $A6:C90B calls EnemyDeathAnimation(0): clear the slot immediately and
+        // The breakup actor calls EnemyDeathAnimation(0): clear the slot immediately and
         // retain the fragment header/position in the shared explosion-to-pickup actor.
         _deathsAndDrops.StartGenericEnemyDeath(fragment, deathAnimation: EnemyDeathExplosion.Small);
     }

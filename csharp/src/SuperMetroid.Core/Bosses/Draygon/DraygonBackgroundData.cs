@@ -13,9 +13,9 @@ internal static class DraygonBackgroundData
     public const int TopBandEnd = 96;
     /// <summary>The bottom band runs from line 128 to the bottom of the screen.</summary>
     public const int BottomBandStart = 128;
-    /// <summary>$A5:9342, Draygon_Func_36: horizontal artwork origin subtracted after camera minus body X.</summary>
+    /// <summary>Horizontal artwork origin subtracted after camera minus body X.</summary>
     public const int HorizontalOrigin = 450;
 
-    /// <summary>$A5:9342, Draygon_Func_36: vertical artwork origin subtracted after camera minus body Y.</summary>
+    /// <summary>Vertical artwork origin subtracted after camera minus body Y.</summary>
     public const int VerticalOrigin = 192;
 }

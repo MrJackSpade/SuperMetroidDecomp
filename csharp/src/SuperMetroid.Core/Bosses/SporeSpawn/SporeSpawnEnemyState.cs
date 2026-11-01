@@ -5,9 +5,9 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
-/// Debugger-visible state that the cartridge stores beyond Spore Spawn's common enemy words.
+/// Debugger-visible state that the original game stores beyond Spore Spawn's common enemy words.
 /// Naming these fields keeps the boss's angle, stalk anchor, and death velocity from being
-/// hidden in unrelated generic variables while retaining their native 16-bit arithmetic.
+/// hidden in unrelated generic variables while retaining their 16-bit arithmetic.
 /// </summary>
 public sealed class SporeSpawnEnemyState
 {
@@ -19,18 +19,18 @@ public sealed class SporeSpawnEnemyState
 
     /// <summary>Live common enemy slot owned by the room enemy system; shared by movement, combat, instruction, and stalk-projectile owners.</summary>
     public RoomEnemySlot Body { get; }
-    /// <summary>Current bank-$A5 main-AI pointer, corresponding to native variable A at WRAM $0FA8.</summary>
+    /// <summary>Current main-AI function, its variable A.</summary>
     public SporeSpawnFunction Function { get; internal set; }
     /// <summary>Where the body's typed program resumes (#641).</summary>
     internal AnimationProgramCursor<SporeSpawnBodyProgram> BodyProgram { get; set; }
     /// <summary>
     /// Fixed stalk interpolation anchor in room pixels: the spawn body's X and a Y 72 pixels
-    /// above it; native <c>stalkXOrigin</c>/<c>stalkYOrigin</c> at $7E:7808/$7E:780A.
+    /// above it; <c>stalkXOrigin</c>/<c>stalkYOrigin</c>.
     /// </summary>
     public Position16<RoomPixels> StalkAnchor { get; internal set; }
     /// <summary>
     /// Original body position in room pixels, the sway centre, retained before the live spawn
-    /// is raised 128 pixels; native <c>XOrigin</c>/<c>YOrigin</c> at WRAM $0FAC/$0FAE.
+    /// is raised 128 pixels; its <c>XOrigin</c>/<c>YOrigin</c>.
     /// </summary>
     public Position16<RoomPixels> MovementCenter { get; internal set; }
     /// <summary>
@@ -52,13 +52,13 @@ public sealed class SporeSpawnEnemyState
     public bool SporeGenerationSuppressed { get; internal set; }
     /// <summary>One-hit guard for an open phase: once set, further hits neither reverse the sway nor close the head until the program clears it.</summary>
     public bool Damaged { get; internal set; }
-    /// <summary>Health value last recorded by the guarded damaging-hit palette update, native $7E:8800; used to avoid reloading an unchanged health palette.</summary>
+    /// <summary>Health value last recorded by the guarded damaging-hit palette update; used to avoid reloading an unchanged health palette.</summary>
     public int PreviousHealth { get; internal set; }
     /// <summary>Fixed death-drift direction toward (128,624) in 256ths of a turn: zero is right, a quarter turn up, a half turn left and three quarters down.</summary>
     public RotationAngle DeathAngle { get; internal set; }
     /// <summary>
-    /// Unsigned 16.16 pixels-per-update death-drift magnitude per axis, combining native death
-    /// speed/subspeed words $7E:8010/$8012 (X) and $7E:8014/$8016 (Y); <see cref="DeathAngle"/>
+    /// Unsigned 16.16 pixels-per-update death-drift magnitude per axis, combining the death
+    /// speed and subspeed of X and of Y; <see cref="DeathAngle"/>
     /// supplies each axis's movement sign.
     /// </summary>
     public FixedVector<RoomPixels> DeathVelocityMagnitude { get; internal set; }

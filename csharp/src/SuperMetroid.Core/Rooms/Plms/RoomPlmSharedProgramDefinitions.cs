@@ -3,7 +3,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.R
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The shared one-instruction PLM programs (#1296), in place of their bank-$84 lists.</summary>
+/// <summary>The shared one-instruction PLM programs (#1296), in place of their lists.</summary>
 internal static class RoomPlmSharedProgramDefinitions
 {
     /// <summary>Both shared programs.</summary>

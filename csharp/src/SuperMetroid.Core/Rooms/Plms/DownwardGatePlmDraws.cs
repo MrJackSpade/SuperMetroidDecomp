@@ -42,7 +42,7 @@ internal static class DownwardGatePlmDraws
             yield return PlmDraw.Of(gate);
     }
 
-    /// <summary>Reconstructs one supported native draw list from its column or trigger geometry.</summary>
+    /// <summary>Reconstructs one supported draw list from its column or trigger geometry.</summary>
     internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -64,12 +64,12 @@ internal static class DownwardGatePlmDraws
         if (!TryDescribe(request, out var draw))
             throw new InvalidDataException($"Downward gate draw list {request} has no visual ID.");
         if (draw.Column) return $"column-frame-{draw.Frame}";
-        // Keep published artwork IDs: the historic green/red names differ from native order.
+        // Keep published artwork IDs: the historic green/red names differ from order.
         string color = draw.Frame switch { 0 => "blue", 1 => "green", 2 => "red", _ => "yellow" };
         return $"{color}-{(draw.Right ? "right" : "left")}-trigger";
     }
 
-    /// <summary>Looks up a published visual name against supported native column and trigger draws.</summary>
+    /// <summary>Looks up a published visual name against supported column and trigger draws.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
         ShotBlockPlmDraws.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
 
@@ -86,7 +86,7 @@ internal static class DownwardGatePlmDraws
         }
     }
 
-    /// <summary>Decoded column step or colored trigger shape; physical block words are calculated from this native draw identity.</summary>
+    /// <summary>Decoded column step or colored trigger shape; physical block words are calculated from this draw identity.</summary>
     internal readonly record struct Draw(DownwardGatePart Part, [property: IntegerQuantity("gate animation frame index")] int Frame)
     {
         /// <summary>Whether the list writes the gate column.</summary>

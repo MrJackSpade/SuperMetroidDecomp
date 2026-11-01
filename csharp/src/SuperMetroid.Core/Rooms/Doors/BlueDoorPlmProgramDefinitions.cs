@@ -4,7 +4,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.R
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The blue door caps' PLM programs (#1296), in place of their bank-$84 instruction lists: a shot cap opens and
+/// The blue door caps' PLM programs (#1296): a shot cap opens and
 /// deletes; a cap closing behind Samus closes, restores its behaviour and deletes.
 /// </summary>
 internal static class BlueDoorPlmProgramDefinitions

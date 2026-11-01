@@ -55,13 +55,13 @@ internal sealed class DraygonParts
     /// <summary>The typed encounter extension while the retail Draygon population is loaded.</summary>
     public DraygonEnemyState? Draygon { get; internal set; }
 
-    /// <summary>Ports <c>InitAI_DraygonBody</c> at <c>$A5:8687</c>.</summary>
+    /// <summary>Ports <c>InitAI_DraygonBody</c>.</summary>
     internal void InitializeDraygonBody(RoomEnemySlot body)
     {
         if (body.SlotIndex != 0)
-            throw new InvalidDataException("Draygon's body must own native enemy slot $0000.");
+            throw new InvalidDataException("Draygon's body must own the first enemy slot.");
 
-        // The native copy targets colors 144..168. This runtime has one concrete CGRAM
+        // The copy targets colors 144..168. This runtime has one concrete colour
         // surface instead of a second fade-target array, so publish those exact 25 colors
         // immediately; the room's normal fade-in controls when they become visible.
         (_bossArtwork.Artwork?.DraygonColors ?? throw new InvalidOperationException(
@@ -85,7 +85,7 @@ internal sealed class DraygonParts
         Draygon.DisabledCannons.Add(DraygonWallCannon.UnusedBottom);
     }
 
-    /// <summary>Ports the independent initializers at <c>$A5:C46B/C599/C5AD</c>.</summary>
+    /// <summary>Ports the independent initializers.</summary>
     internal void InitializeDraygonPart(RoomEnemySlot part)
     {
         DraygonEnemyState state = Draygon ??
@@ -96,7 +96,7 @@ internal sealed class DraygonParts
         {
             case DraygonPart.Eye:
                 if (part.SlotIndex != 1)
-                    throw new InvalidDataException("Draygon's eye must own native slot $0040.");
+                    throw new InvalidDataException("Draygon's eye must own the second enemy slot.");
                 // Inert until the body publishes facing AI.
                 var eyeState = new DraygonEyeState { Function = DraygonEyeFunction.Inert };
                 part.SetSpeciesState(eyeState, eyeState.ClearWithRecord);
@@ -106,7 +106,7 @@ internal sealed class DraygonParts
 
             case DraygonPart.Tail:
                 if (part.SlotIndex != 2)
-                    throw new InvalidDataException("Draygon's tail must own native slot $0080.");
+                    throw new InvalidDataException("Draygon's tail must own the third enemy slot.");
                 part.Colouring = new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite);
                 state.Tail = part;
                 state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.TailFacingLeftInitialFakeWhip));
@@ -114,9 +114,9 @@ internal sealed class DraygonParts
 
             case DraygonPart.Arms:
                 if (part.SlotIndex != 3)
-                    throw new InvalidDataException("Draygon's arms must own native slot $00C0.");
-                // Body init briefly writes $9813 before this record exists. Retail part init
-                // clears that lost write and installs the ordinary idle loop at $97E7.
+                    throw new InvalidDataException("Draygon's arms must own the fourth enemy slot.");
+                // Body init briefly writes a body function before this record exists. Retail part init
+                // clears that lost write and installs the ordinary idle loop.
                 part.Colouring = new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite);
                 part.Layer = 2;
                 state.Arms = part;
@@ -155,7 +155,7 @@ internal sealed class DraygonParts
         }
     }
 
-    /// <summary>Restarts a linked Draygon part's program on its next update, as a native list install does.</summary>
+    /// <summary>Restarts a linked Draygon part's program on its next update, as a list install does.</summary>
     internal void StartDraygonProgram(RoomEnemySlot part, DraygonProgram program)
     {
         DraygonEnemyState state = Draygon ??
@@ -166,8 +166,8 @@ internal sealed class DraygonParts
 
     /// <summary>
     /// Runs a Draygon part's program where the enemy instruction interpreter would: the frame expires on the update
-    /// its native timer would, a new frame raises the new-frame flag, waits keep the frame, and a stop deletes the
-    /// part. The part's loop counter is its native timer word.
+    /// its timer would, a new frame raises the new-frame flag, waits keep the frame, and a stop deletes the
+    /// part. The part's loop counter is its timer word.
     /// </summary>
     internal void AdvanceDraygonPartAnimation(RoomEnemySlot part, SamusState? samus)
     {
@@ -199,11 +199,11 @@ internal sealed class DraygonParts
                 part.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(waiting.Duration));
                 return;
             case AnimationProgramAdvance<DraygonFrame>.Hold:
-                // The native sleep: the timer wraps from zero and the last frame stays.
+                // The script's sleep: the timer wraps from zero and the last frame stays.
                 state.SetCursor(part, cursor);
                 return;
             case AnimationProgramAdvance<DraygonFrame>.Stop:
-                // The native stop deletes the part and leaves its instruction pointer unwritten.
+                // The stop deletes the part and leaves its instruction pointer unwritten.
                 part.Properties = part.Properties.With(EnemyProperties.Deleted);
                 return;
             default:
@@ -213,7 +213,7 @@ internal sealed class DraygonParts
 
     /// <summary>
     /// Carries out one cue of a Draygon program run by <paramref name="part"/>. Program starts write the parts'
-    /// stored cursors, so the running part's own write is replaced when its update ends, as the native interpreter's
+    /// stored cursors, so the running part's own write is replaced when its update ends, as the interpreter's
     /// final instruction-pointer store replaces it.
     /// </summary>
     /// <returns>Always null: Draygon's cues never redirect the running program.</returns>
@@ -286,10 +286,10 @@ internal sealed class DraygonParts
     internal void RequestDraygonMusic(MusicRequest request) =>
         _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Draygon, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
-    /// <summary>Ports the eye direction partition at <c>$A5:C48D/C513</c>.</summary>
+    /// <summary>Ports the eye direction partition.</summary>
     internal void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState? samus, HorizontalDirection facing)
     {
-        // Native emission precedes the angle-change early return, so a stationary
+        // Emission precedes the angle-change early return, so a stationary
         // target must not suppress the periodic particle. It shares the real pool.
         if ((eye.FrameCounter & DraygonEyeEffects.CadenceMask) == 0)
             _projectiles.SpawnRoomGraphicsDustExplosion(
@@ -345,7 +345,7 @@ internal sealed class DraygonParts
         }
     }
 
-    /// <summary>Ports tail instruction <c>$A5:9B9A</c>, including suit damage.</summary>
+    /// <summary>Applies the tail whip's hit to grabbed Samus, including suit damage.</summary>
     private void ApplyDraygonTailWhipHit(DraygonEnemyState state, SamusState? samus)
     {
         if (samus is null)
@@ -362,8 +362,8 @@ internal sealed class DraygonParts
             ? 0
             : samus.Health - damage;
 
-        // `$A5:9B9A` also publishes the same 32-frame, type-seven quake used by the
-        // cartridge's grabbed-tail impact. Keeping it on the shared room-enemy surface lets
+        // The tail hit also publishes the same 32-frame, type-seven quake used by the
+        // original grabbed-tail impact. Keeping it on the shared room-enemy surface lets
         // the ordinary camera renderer observe the hit instead of reducing it to HP loss.
         _earthquake.EarthquakeTimer = WrappingCountdown.Start(32);
         _earthquake.EarthquakeType = 7;
@@ -375,7 +375,7 @@ internal sealed class DraygonParts
             graphics: default);
     }
 
-    /// <summary>Ports the two body instruction producers at <c>$A5:9F7C/9FAE</c>.</summary>
+    /// <summary>Ports the two body instruction producers.</summary>
     internal void SpawnDraygonGoop(DraygonEnemyState state, bool movingRight)
     {
         RoomEnemyProjectileSlot? goop = _projectiles.AllocateEnemyProjectile();

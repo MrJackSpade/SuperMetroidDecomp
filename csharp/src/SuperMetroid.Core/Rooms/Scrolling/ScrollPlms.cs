@@ -14,7 +14,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
             TryStepScrollPlm(context.Level, context.Frame.Scrolls, slot) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
     }
 
-    /// <summary>Native-order PLM slots searched for resident scroll triggers.</summary>
+    /// <summary>PLM slots, in the game's search order, searched for resident scroll triggers.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Binds scroll-trigger operations to the room's PLM slot table.</summary>
@@ -22,7 +22,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
     {
         _slotTable = slotTable;
     }
-    /// <summary>Every live cartridge-authored scroll trigger, by slot ordinal.</summary>
+    /// <summary>Every live room-authored scroll trigger, by slot ordinal.</summary>
     public IReadOnlyList<ScrollPlmSnapshot> Snapshots => _slotTable.Slots
         .Where(slot => slot.Active && slot.Family is ScrollPlmState)
         .Select(slot => new ScrollPlmSnapshot(
@@ -63,7 +63,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
         if (slot.Family is not ScrollPlmState scroll)
             return false;
         if (!scroll.Triggered)
-            return true; // $86B4 sleep leaves this resident trigger dormant.
+            return true; // The sleep leaves this resident trigger dormant.
         if (scrolls is null)
             throw new InvalidOperationException("A triggered scroll PLM requires the active scroll grid.");
 
@@ -413,7 +413,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
             level.SetBehavior(slot.BlockIndex, RoomBlockBehavior.OfExtensionOffset(offset));
 
             // Every extension setup ends in DeletePLM. Clearing this preallocated slot is
-            // what permits the following ROM record to reuse the same highest native ID.
+            // what permits the following authored record to reuse the same highest ID.
             slot.Clear();
             return;
         }

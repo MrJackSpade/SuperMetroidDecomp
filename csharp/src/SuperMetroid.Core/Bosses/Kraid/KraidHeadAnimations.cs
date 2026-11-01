@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>
 /// Kraid's head programs (#641) as typed steps, and what collision and growth read at each step. The head shows a
 /// pose for its duration, cries between poses and holds at each program's end; the body's head timer gates every
-/// advance. Checked against the cartridge's head lists by <c>KraidHeadAnimationsVerification</c>.
+/// advance. Checked against the game's head lists by <c>KraidHeadAnimationsVerification</c>.
 /// </summary>
 internal static class KraidHeadAnimations
 {

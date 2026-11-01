@@ -22,7 +22,7 @@ internal sealed class CrocomireSkeleton
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Draws Crocomire's body, skeleton and melt, and holds the colours and background pictures they show.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Produces the native distributed drops at skeleton collapse.</summary>
+    /// <summary>Produces the distributed drops at skeleton collapse.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Owns camera-distance mode changes during Crocomire's arena sequence.</summary>
     private readonly ZebetiteBehavior _zebetiteBehavior;
@@ -70,7 +70,7 @@ internal sealed class CrocomireSkeleton
         _room.Services.RoomScroll.Write(3, RoomScrollState.RedBoundary);
         _room.Services.RoomScroll.Write(4, RoomScrollState.Blue);
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(48, 3), PlmHeaderId.CreateCrocomireInvisibleWall);
-        _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.RightEdge; // $A4:97F3-97F6
+        _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.RightEdge;
         RoomEnemySlot body = state.Body;
         body.Properties = body.Properties.Replace(
             EnemyProperties.SolidToSamus | EnemyProperties.IgnoreSamusCollision,
@@ -213,9 +213,9 @@ internal sealed class CrocomireSkeleton
         state.Body.Radius = new(40, 28);
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(48, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
 
-        // $A0:B995 emits sixteen independent $F337 projectiles across Crocomire's
+        // The death drops emit sixteen independent pickup projectiles across Crocomire's
         // authored arena rectangle. These are not a single pickup at the corpse position:
-        // each actor advances RNG again while selecting its own drop from header $DDBF.
+        // each actor advances RNG again while selecting its own drop from Crocomire's header.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.Crocomire,
             count: 16,
@@ -240,7 +240,7 @@ internal sealed class CrocomireSkeleton
     internal void CompleteCrocomireBoss(CrocomireEnemyState state)
     {
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest);
-        _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking; // $A4:9B8D
+        _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking;
         _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
         _access.RequireCrocomireDeath().BossBitSet = true;
         _access.SpawnCrocomireDust(state, -16);
@@ -279,13 +279,12 @@ internal sealed class CrocomireSkeleton
     }
 
     /// <summary>
-    /// Ports the eight descending allocations at $A4:99B6 and initializer
-    /// $86:90CF. Its Y-position table at $86:9105-$9114 has eight unsigned
-    /// words, all exactly $0038 + $0010*i for i=0..7 in the pinned NTSC
-    /// J/U v1.0 ROM. Native even byte offsets 0..14 correspond to physical
+    /// Runs the eight descending allocations and the spike-wall piece
+    /// initializer. Its Y-position table has eight unsigned
+    /// values, all exactly 56 + 16*i for i=0..7. Entries 0..7 correspond to physical
     /// projectile slots 10..17; the checked managed index is slot minus 10.
-    /// Clearing the pool before this call makes the spawn order Y=$A8 down
-    /// to $38. $86:9115 starts the next routine, not a ninth table word.
+    /// Clearing the pool before this call makes the spawn order Y=168 down
+    /// to 56. The table has no ninth entry.
     /// </summary>
     internal void SpawnCrocomireSpikeWallPieces()
     {
@@ -293,7 +292,7 @@ internal sealed class CrocomireSkeleton
             throw new InvalidOperationException("Crocomire spike wall spawned without an owner.");
         SpriteGraphics graphics = state.Body.Graphics;
 
-        // The initializer indexes Y by native projectile index minus $14. Clearing the pool
+        // The initializer indexes Y by projectile index minus $14. Clearing the pool
         // immediately before this call guarantees slots 17..10 and Y=$38,$48,...,$A8.
         for (int count = 0; count < 8; count++)
         {

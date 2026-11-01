@@ -96,7 +96,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>
-    /// Ports hurt AI <c>$A5:954D</c>. The body is rendered partly through BG2 palette five
+    /// Runs Draygon's hurt AI. The body is rendered partly through background palette five
     /// and partly through sprite palette seven, so a valid flash must update both surfaces.
     /// </summary>
     internal void ApplyDraygonHurt(
@@ -132,7 +132,7 @@ internal sealed class DraygonCombat
             state.SwoopAcceleration = candidate;
     }
 
-    /// <summary>Ports the common post-touch/shot/power-bomb reaction at <c>$A5:960D</c>.</summary>
+    /// <summary>Ports the common post-touch/shot/power-bomb reaction.</summary>
     internal void ResolveDraygonReaction(RoomEnemySlot body, SamusState? samus)
     {
         DraygonEnemyState state = RequireCompleteDraygonState(body);
@@ -146,7 +146,7 @@ internal sealed class DraygonCombat
     }
 
     /// <remarks>
-    /// `DraygonReaction_Common`'s dead branch ($A5:9618) has no "already dying" test. Every
+    /// `DraygonReaction_Common`'s dead branch has no "already dying" test. Every
     /// touch, shot or power-bomb reaction on a zero-health body runs it again: the dying
     /// arm and eye lists restart, the drift function is reinstalled and Samus is released.
     /// </remarks>
@@ -167,7 +167,7 @@ internal sealed class DraygonCombat
         (DraygonParts.RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Function = DraygonEyeFunction.Inert;
         state.Function = DraygonAiFunction.Dying;
 
-        // The native death callback releases Samus unconditionally, even during an
+        // The death callback releases Samus unconditionally, even during an
         // unrelated movement handler. In particular, this can interrupt a shinespark.
         // The caller then clears the grapple word, including the owner-release signal.
         if (samus is not null)
@@ -189,11 +189,11 @@ internal sealed class DraygonCombat
         CopyDraygonHealthColors(state);
     }
 
-    /// <summary>The installed health band; native code reads $7E:781C only after initialization installs one.</summary>
+    /// <summary>The installed health band; code reads it only after initialization installs one.</summary>
     private static int RequireHealthPaletteBand(DraygonEnemyState state) => state.HealthPaletteBand
         ?? throw new InvalidOperationException("Draygon has no installed health palette band.");
 
-    /// <summary>Copies the selected installed health palette band into live CGRAM.</summary>
+    /// <summary>Copies the selected installed health palette band into the live colours.</summary>
     internal void CopyDraygonHealthColors(DraygonEnemyState state)
     {
         (_bossArtwork.Artwork?.DraygonColors ?? throw new InvalidDataException(
@@ -213,7 +213,7 @@ internal sealed class DraygonCombat
                     throw new InvalidDataException("Draygon requires his authored extended shot hitboxes.");
                 if (c.HitboxShotAi == EnemyReaction.DudShot)
                 {
-                    // Body, claws, and shell use shared `$A0:8046`; only the first
+                    // Body, claws, and shell use the shared common touch; only the first
                     // eye rectangle in maps $1A/$2D reaches Draygon's damage callback.
                     c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
                     _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
@@ -239,7 +239,7 @@ internal sealed class DraygonCombat
         if (!DraygonCombat.IsDraygonDefinition(enemy.DefinitionId))
             return null;
 
-        // Both OAM and BG2 art are replaceable presentation. Their native
+        // Both sprite and body-layer art are replaceable presentation. Their
         // component offsets and hitbox pointers remain fixed gameplay data.
         foreach (EnemyCollisionComponent component in
                  DraygonCollision.ComponentsAt(enemy.Frame))

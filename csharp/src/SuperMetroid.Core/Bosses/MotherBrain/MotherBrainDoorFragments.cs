@@ -5,7 +5,7 @@ internal static class MotherBrainDoorFragments
 {
     /// <summary>
     /// Returns the fragment selected by enemy-projectile parameter zero through seven. The
-    /// interleaved offsets at <c>$86:C992-$86:C9B1</c> are a zero X and a Y that steps eight
+    /// interleaved offsets are a zero X and a Y that steps eight
     /// pixels from 32 above the door.
     /// </summary>
     internal static MotherBrainDoorFragmentDefinition ForParameter(int parameter)

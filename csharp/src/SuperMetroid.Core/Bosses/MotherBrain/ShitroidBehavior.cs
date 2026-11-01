@@ -31,7 +31,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ShitroidEntity(this, slot, common);
 
-    /// <summary>Provides scratch WRAM, room scroll words, RNG, and installed encounter colors.</summary>
+    /// <summary>Provides scratch state, room scroll values, RNG, and installed encounter colors.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Locates the physical slot-one Sidehopper victim beside Shitroid's slot zero.</summary>
     private readonly EnemySlotTable _slotTable;
@@ -78,19 +78,19 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RequestShitroidMusic(MusicRequest request) =>
         _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Shitroid, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
-    /// <summary>Ports <c>Shitroid_Init</c> at <c>$A9:EF37</c>.</summary>
+    /// <summary>Ports <c>Shitroid_Init</c>.</summary>
     internal void InitializeShitroid(RoomEnemySlot slot, int cameraX)
     {
         if (slot.SlotIndex != 0)
         {
             throw new InvalidDataException(
-                $"Shitroid requires native enemy slot zero, not slot {slot.SlotIndex}.");
+                $"Shitroid requires the first enemy slot, not slot {slot.SlotIndex}.");
         }
         if (Shitroid is not null)
             throw new InvalidDataException("A room population contains more than one Shitroid.");
 
-        // `$2000` is the scheduler's instruction-processing bit; `$1000` blocks plasma
-        // from piercing the actor. The upstream C symbol calls `$2000` DisableSamusColl,
+        // The processing property is the scheduler's animation-processing bit; another bit blocks plasma
+        // from piercing the actor. The upstream C symbol calls the processing bit DisableSamusColl,
         // but the executable scheduler also consumes that same bit for instructions, so
         // the translated property enum retains the directly observed scheduler meaning.
         slot.Properties = slot.Properties.With(
@@ -108,7 +108,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         if (CoordinateAxis.AsSigned(cameraX) < 0)
         {
-            // `$0400` removes the actor from ordinary interaction and `$0100` suppresses
+            // The intangible property removes the actor from ordinary interaction and the hide-drawing property suppresses
             // drawing. Keep the former raw: its historical disassembly name "tangible" is
             // contradicted by the collision walkers that explicitly reject the bit.
             slot.Properties = slot.Properties.With(
@@ -135,14 +135,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 "Shitroid target palette requires installed artwork.")).TargetColor(target, color);
             state.TargetColours(target)[color] = value;
 
-            // This runtime currently presents completed room fades directly in CGRAM.
+            // This runtime currently presents completed room fades directly in the live colours.
             // Keep the separate target copy above, but install the same completed value so
             // the encounter does not wait on an untranslated global palette-fade owner.
             _presentation.BossColours().ShitroidTarget(target).Write(color, value);
         }
     }
 
-    /// <summary>Ports <c>Shitroid_Main</c> at <c>$A9:EFC5</c>.</summary>
+    /// <summary>Ports <c>Shitroid_Main</c>.</summary>
     internal void RunShitroidMain(
         RoomEnemySlot slot,
         SamusState? samus,
@@ -153,7 +153,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _shitroidCamera = camera;
 
         // Shitroid's private shot handler applies recoil but no health loss. The main AI
-        // redundantly restores $7FFF every processed frame, exactly as the cartridge does.
+        // redundantly restores 32,767 health every processed frame, exactly as the original game does.
         slot.Health = short.MaxValue;
         DispatchShitroidState(slot, state, samus, sharedProjectiles);
         DeadTorizoBehavior.MoveWithEightEightVelocity(slot, state.Velocity);
@@ -342,7 +342,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (ShitroidOverlapsRectangle(slot, new(WordWrap.Unsigned(-128), 64), new(8, 8)))
                 {
                     state.Velocity = default;
-                    // `$A9:F39A` clears instruction processing and invisibility as Shitroid
+                    // The leave step clears instruction processing and invisibility as Shitroid
                     // reaches the off-screen destination, leaving a dormant non-drawn actor.
                     slot.Properties = slot.Properties.Without(
                         EnemyProperties.RunsAnimationScript | EnemyProperties.Invisible);
@@ -384,7 +384,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(_shitroidCamera.X, 513) >= 0)
             return;
 
-        // Native writes layer1_x_pos directly and zero-extends scroll bytes zero and two
+        // Writes layer1_x_pos directly and zero-extends scroll bytes zero and two
         // into their adjacent bytes. The paired calls below preserve the observable four
         // byte scroll array without pretending that this is ordinary camera tracking.
         _frameResults.LayerOneXOverride = 512;
@@ -506,8 +506,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         sharedProjectiles?.SetSharedCooldown(8);
         sharedProjectiles?.SetSharedBombCounter(5);
         samus.XSpeedDivisor = 2;
-        // CMP #4 ($A9:F238) leaves carry = (Y speed >= 4, unsigned) through the clamp and
-        // the shake-table loads; $A9:F24D adds Samus's X with no CLC, so that carry is one
+        // CMP #4 leaves carry = (Y speed >= 4, unsigned) through the clamp and
+        // the shake-table loads; the X step adds Samus's X with no carry clear, so that carry is one
         // extra pixel. BMI reads only the sign of the difference.
         int ySpeed = samus.Kinematics.YSpeed.Whole;
         int xCarry = ySpeed >= 4 ? 1 : 0;
@@ -518,7 +518,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWhole(
             samus.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(WordWrap.Signed(xCarry), -20));
 
-        // `$A9:C560-$C57C` subtracts four without Varia and two with it. The native
+        // The drain step subtracts four without Varia and two with it. The original
         // expression is written as `health + (equipped & 1) + (-4 or -3)`, so reducing
         // those branches to three/two loses one point on both paths and materially shifts
         // the frame on which the Super Metroid forces Samus into drained crouching art.
@@ -563,7 +563,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Uses the bank-$A9 divisor table to steer both axes, with an offscreen horizontal reversal kick.</summary>
+    /// <summary>Uses the divisor table to steer both axes, with an offscreen horizontal reversal kick.</summary>
     private void GraduallyAccelerateShitroid(
         RoomEnemySlot slot,
         ShitroidEnemyState state,
@@ -573,7 +573,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if ((uint)divisorTableIndex >= 16)
             throw new ArgumentOutOfRangeException(nameof(divisorTableIndex));
-        // GradualAccelerationDivisorTable ($A9:F56A) holds $10 down to $01.
+        // GradualAccelerationDivisorTable holds $10 down to $01.
         int divisor = 16 - divisorTableIndex;
         state.Velocity = state.Velocity.WithX(BabyMetroidGradualAcceleration.AccelerateHorizontally(
             slot.Position.X.Whole, target.X, state.Velocity.X, divisor, offscreenReversalKick,
@@ -642,7 +642,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         return new ShitroidAxisStep(crossed, velocityWord);
     }
 
-    /// <summary>Tests inclusive-radius overlap between two enemy rectangles using signed native coordinate deltas.</summary>
+    /// <summary>Tests inclusive-radius overlap between two enemy rectangles using signed coordinate deltas.</summary>
     private static bool ShitroidActorsOverlap(RoomEnemySlot left, RoomEnemySlot right) =>
         CoordinateAxis.Distance(right.Position.X.Whole, left.Position.X.Whole) <
             left.Radius.X + right.Radius.X + 1 &&
@@ -657,7 +657,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         CoordinateAxis.Distance(center.X, slot.Position.X.Whole) < slot.Radius.X + radius.X + 1 &&
         CoordinateAxis.Distance(center.Y, slot.Position.Y.Whole) < slot.Radius.Y + radius.Y + 1;
 
-    /// <summary>Ports the private touch callback at <c>$A9:F789</c>.</summary>
+    /// <summary>Ports the private touch callback.</summary>
     private void ResolveShitroidTouch(RoomEnemySlot slot, SamusState samus)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
@@ -668,7 +668,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.SpinJumping &&
             CoordinateAxis.Difference(samus.Position.X.Whole, 512) >= 0)
         {
-            // The native expression `$80-angle+$80`, truncated to a byte, is simply the
+            // The expression `$80-angle+$80`, truncated to a byte, is simply the
             // negated source angle. Magnitude $40 is added to the current 8.8 velocity.
             RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
                 CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole),
@@ -702,7 +702,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the recoil-only shot callback at <c>$A9:F842</c>.</summary>
+    /// <summary>Ports the recoil-only shot callback.</summary>
     private void ResolveShitroidShot(
         RoomEnemySlot slot,
         int collisionDamage,
@@ -727,7 +727,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()));
     }
 
-    /// <summary>Ports <c>Shitroid_Powerbomb</c> at <c>$A9:EFBA</c>.</summary>
+    /// <summary>Ports <c>Shitroid_Powerbomb</c>.</summary>
     private void ResolveShitroidPowerBomb(RoomEnemySlot slot, SamusState? samus)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
@@ -809,7 +809,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private static SamusState RequireShitroidSamus(SamusState? samus) => samus ??
         throw new InvalidOperationException("The active Shitroid state requires Samus.");
 
-    /// <summary>Applies the native wrapping countdown and reports its signed-negative transition.</summary>
+    /// <summary>Applies the wrapping countdown and reports its signed-negative transition.</summary>
     private static bool PredecrementShitroidTimerBecameNegative(ShitroidEnemyState state)
     {
         CountdownStep timer = state.StateTimer.Decrement();
@@ -820,8 +820,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Uses bomb damage for recoil strength but ordinary slot zero for its direction, without health loss.</summary>
     internal void AddShitroidBombReactions(EnemySharedReactions table)
     {
-        // `$A9:F842` reads damage from the selected physical projectile slot, but always reads aim coordinates from
-        // ordinary slot zero. For a bomb collision that means family-$0500 damage controls recoil strength while
+        // The Shitroid's shot handler reads damage from the selected physical projectile slot, but always reads aim coordinates from
+        // ordinary slot zero. For a bomb collision that means the bomb's damage controls recoil strength while
         // whatever stale/live shot occupies slot zero controls direction. It never enters vulnerability damage.
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.BabyMetroid &&
                                   c.SelectedShotAi == EnemyReaction.ShitroidShot,
@@ -842,7 +842,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs the Shitroid's program where the enemy instruction interpreter would: the frame expires on the update its
-    /// native timer would, and a newly shown frame raises the new-frame flag.
+    /// timer would, and a newly shown frame raises the new-frame flag.
     /// </summary>
     internal void AdvanceShitroidAnimation(RoomEnemySlot slot)
     {
@@ -901,7 +901,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.BabyMetroid &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.ShitroidShot)
         {
-            // Like Dead Torizo, Shitroid receives the bank-$A0 projectile prelude but never creates an impact or
+            // Like Dead Torizo, Shitroid receives the projectile prelude but never creates an impact or
             // enters vulnerability damage. Its own callback converts shot strength and slot-zero aim into recoil.
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
@@ -915,7 +915,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Uses cutscene latching or recoil on contact instead of ordinary Samus damage.</summary>
     internal void AddShitroidTouch(EnemySharedReactions table)
     {
-        // `$A9:F789` replaces normal touch damage entirely. Depending on its current cutscene state, contact either
+        // The Shitroid's touch replaces normal touch damage entirely. Depending on its current cutscene state, contact either
         // starts pursuit/latching or adds a spin-jump recoil vector to the actor itself; Samus is never hurt here.
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.BabyMetroid &&
                                EnemyCollision.TouchAi(slot) == EnemyReaction.ShitroidTouch,

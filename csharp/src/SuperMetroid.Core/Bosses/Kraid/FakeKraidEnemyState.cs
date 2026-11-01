@@ -4,12 +4,12 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// The state of Fake Kraid. “Mini-Kraid” is the name used by
-/// the item-drop and projectile routines; both names refer to definition <c>$E0FF</c>. The values the cartridge keeps
+/// the item-drop and projectile routines; both names refer to the same enemy definition. The values the game keeps
 /// in the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class FakeKraidEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the typed animation (#641) resumes, in place of the instruction pointer.</summary>
     internal AnimationProgramCursor<FakeKraidProgram> Program { get; set; }
 
     /// <summary>Signed whole-pixel walk delta.</summary>
@@ -29,7 +29,7 @@ public sealed class FakeKraidEnemyState
 
     /// <summary>
     /// Three independent spike clocks. Main AI
-    /// visits exactly one clock per frame in the native order 0, 1, 2, 0..., counting a running clock down to zero
+    /// visits exactly one clock per frame in the order 0, 1, 2, 0..., counting a running clock down to zero
     /// without wrapping and reloading it when it is found at zero.
     /// </summary>
     public WrappingCountdown[] SpikeTimers { get; } = new WrappingCountdown[3];
@@ -44,7 +44,7 @@ public sealed class FakeKraidEnemyState
     /// <summary>Number of spit projectiles successfully allocated by this actor.</summary>
     public int SpawnedSpitCount { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         WalkDelta = 0;

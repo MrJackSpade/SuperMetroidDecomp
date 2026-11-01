@@ -26,10 +26,10 @@ using SuperMetroid.Core.Enemies.YappingMaws;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>The bank-$A1 placement lists of the Norfair room-header region, in native table order.</summary>
+/// <summary>The placement lists of the Norfair room-header region, in authored order.</summary>
 internal static class NorfairRoomEnemyPopulationDefinitions
 {
-    /// <summary>The region's lists, in native table order.</summary>
+    /// <summary>The region's lists, in authored order.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
         new(nameof(RoomEnemyPopulationDefinitions.GrappleTutorial3),

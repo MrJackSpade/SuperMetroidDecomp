@@ -15,7 +15,7 @@ internal sealed class KraidLimbs
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Provides the native body and seven part slots.</summary>
+    /// <summary>Provides the body and seven part slots.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
@@ -29,7 +29,7 @@ internal sealed class KraidLimbs
         _access = access;
     }
 
-    /// <summary>Installs the arm part in its native slot with the rising-or-sinking program.</summary>
+    /// <summary>Installs the arm part in its slot with the rising-or-sinking program.</summary>
     internal void InitializeKraidArm(RoomEnemySlot arm)
     {
         KraidEnemyState state = _access.RequireKraidState(arm);
@@ -65,14 +65,14 @@ internal sealed class KraidLimbs
 
     /// <summary>
     /// The program a part's stored cursor belongs to. A cursor resting on a fall-through already belongs to the next
-    /// program, as the native instruction pointer then points into it.
+    /// program, as the instruction pointer then points into it.
     /// </summary>
     private KraidPartProgram KraidPartResidentProgram(RoomEnemySlot part) =>
         KraidAnimations.Programs.ResidentProgram(_access.RequireKraidState(part).Parts[part.SlotIndex].Cursor);
 
     /// <summary>
     /// Runs a Kraid part's program where the enemy instruction interpreter would: the frame expires on the update
-    /// its native timer would, and a newly shown frame raises the new-frame flag.
+    /// its timer would, and a newly shown frame raises the new-frame flag.
     /// </summary>
     internal void AdvanceKraidPartAnimation(RoomEnemySlot part)
     {
@@ -155,7 +155,7 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>
-    /// Ports <c>$A7:8A8F</c>: below half health the arm switches to its slow swing, unless its stored program is
+    /// Below half health the arm switches to its slow swing, unless its stored program is
     /// already the slow one or a later program.
     /// </summary>
     private KraidPartProgram? SelectKraidArmSpeedProgram()
@@ -175,8 +175,8 @@ internal sealed class KraidLimbs
         RoomEnemySlot body = _slotTable.Slots[0];
         arm.Position = arm.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole - 44)));
 
-        // `$B7D3-$B7F0` hides only the arm when its anchor leaves the 224-line gameplay
-        // viewport. This is actor visibility, not BG priority, so preserve property $0100.
+        // The arm hides only when its anchor leaves the 224-line gameplay
+        // viewport. This is actor visibility, not background priority, so preserve the hide-drawing property.
         bool onScreen = CoordinateAxis.Difference(arm.Position.Y.Whole, cameraY) >= 0 &&
             CoordinateAxis.Difference(arm.Position.Y.Whole - cameraY, 224) < 0;
         arm.Properties = onScreen

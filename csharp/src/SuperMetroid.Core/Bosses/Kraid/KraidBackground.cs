@@ -14,7 +14,7 @@ internal sealed class KraidBackground
 {
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Applies Kraid palettes, background tiles, and OAM presentation.</summary>
+    /// <summary>Applies Kraid palettes, background tiles, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
@@ -31,7 +31,7 @@ internal sealed class KraidBackground
         _access = access;
     }
 
-    /// <summary>Separates immutable RGB5 artwork from Kraid's native palette timing.</summary>
+    /// <summary>Separates immutable RGB5 artwork from Kraid's palette timing.</summary>
     internal RgbColor ReadKraidColor(KraidPaletteSource source, int index)
     {
         if ((uint)index >= KraidPalettes.ColorCount(source))
@@ -67,7 +67,7 @@ internal sealed class KraidBackground
     private static RgbColor TransitionKraidColor(int step, RgbColor current, RgbColor target) =>
         current.Zip(target, (_, from, to) => TransitionKraidComponent(step, from, to));
 
-    /// <summary>Moves one color channel toward its target under the native step rule.</summary>
+    /// <summary>Moves one color channel toward its target under the step rule.</summary>
     private static int TransitionKraidComponent(int step, int current, int target)
     {
         if (step == 0)

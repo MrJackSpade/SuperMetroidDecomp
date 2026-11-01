@@ -3,7 +3,7 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The AI functions and part programs Kraid's encounter tests as groups (#1452). The cartridge compares a function or
+/// The AI functions and part programs Kraid's encounter tests as groups (#1452). The original game compares a function or
 /// instruction-list pointer against one routine's or list's address, so each test admits what it lays out on one side
 /// of it; each group names those members instead of ordering the identities. The rise functions are laid out after the
 /// death functions, so a test for "the death sequence has begun" also admits them.

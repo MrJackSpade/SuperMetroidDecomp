@@ -62,7 +62,7 @@ internal sealed class CrocomireFight
         _access = dependencies.Access;
     }
 
-    /// <summary>Ports <c>InitAI_Crocomire</c> at $A4:8A5A.</summary>
+    /// <summary>Ports <c>InitAI_Crocomire</c>.</summary>
     internal void InitializeCrocomire(RoomEnemySlot slot)
     {
         _roomStatus.Boss = AreaBoss.Crocomire;
@@ -78,7 +78,7 @@ internal sealed class CrocomireFight
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
         {
             // The dead-room state keeps only Crocomire's skeleton display actor. Property
-            // mask $7BFF and these radii/coordinates are literal writes at $A4:8AEA-$8B35.
+            // mask and these radii/coordinates are literal writes.
             slot.Properties = slot.Properties.Replace(
                 EnemyProperties.SolidToSamus |
                     EnemyProperties.IgnoreSamusCollision,
@@ -101,7 +101,7 @@ internal sealed class CrocomireFight
         state.DeathSequenceIndex = CrocomireDeathPhase.Fighting;
         state.ReactionTimer = 0;
         state.FightFunction = CrocomireFightFunction.Sleeping;
-        // $A4:8ABA-8ABD, on the living branch only.
+        // On the living branch only.
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.BossTracking;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.Initial);
         slot.ExtraProperties = slot.ExtraProperties.With(
@@ -111,12 +111,12 @@ internal sealed class CrocomireFight
 
         // The initializer copies seventeen words, not sixteen: X starts at $20 and reaches
         // zero inclusively. Preserve that palette-boundary write because later fades compare
-        // the exact target image produced by the cartridge.
+        // the exact target image produced by the original game.
         (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
             "Crocomire requires installed color artwork.")).ApplyInitial(_presentation.Colours);
     }
 
-    /// <summary>Ports <c>InitAI_CrocomireTongue</c> at $A4:F67A.</summary>
+    /// <summary>Ports <c>InitAI_CrocomireTongue</c>.</summary>
     internal void InitializeCrocomireTongue(RoomEnemySlot slot)
     {
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
@@ -139,7 +139,7 @@ internal sealed class CrocomireFight
         slot.Colouring = new GraphicsSetMemberColouring(EnemyDefinitionId.Crocomire);
     }
 
-    /// <summary>Ports the artificial left-side wall in <c>$A4:8C95</c>.</summary>
+    /// <summary>Runs the artificial left-side wall.</summary>
     internal void HandleCrocomireInvisibleWall(
         RoomEnemySlot body,
         CrocomireEnemyState state,
@@ -158,7 +158,7 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>
-    /// Runs the tongue's animation where the enemy instruction interpreter would, with the native timer gate
+    /// Runs the tongue's animation where the enemy instruction interpreter would, with the timer gate
     /// and new-frame flag.
     /// </summary>
     internal void AdvanceCrocomireTongueAnimation(RoomEnemySlot tongue)
@@ -178,7 +178,7 @@ internal sealed class CrocomireFight
         AnimationProgramAdvance<CrocomireTongueFrame> advance = CrocomireAnimations.TonguePrograms.Advance(ref cursor,
             cue => throw new InvalidOperationException($"A Crocomire tongue program published cue {cue}."));
         state.TonguePosition = cursor.Position;
-        // A hold is the native sleep: the timer wraps from zero and the last frame stays.
+        // A hold is the script's sleep: the timer wraps from zero and the last frame stays.
         if (advance is AnimationProgramAdvance<CrocomireTongueFrame>.Hold)
             return;
         if (advance is not AnimationProgramAdvance<CrocomireTongueFrame>.Show shown)
@@ -189,9 +189,9 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>
-    /// Runs Crocomire's body program where the enemy instruction interpreter would: the frame expires on the
-    /// update its native timer would, and a newly shown frame raises the new-frame flag exactly as a native
-    /// timed frame does.
+    /// Runs Crocomire's body program where the enemy animation-script interpreter would: the frame expires on the
+    /// update its timer would, and a newly shown frame raises the new-frame flag exactly as an
+    /// authored timed frame does.
     /// </summary>
     internal void AdvanceCrocomireBodyAnimation(RoomEnemySlot body, SamusState? samus, RoomLevelData? level, int cameraX)
     {
@@ -211,7 +211,7 @@ internal sealed class CrocomireFight
                 CrocomireBodyAnimations.Programs.ResidentProgram(continuation)));
         state.BodyCursor = cursor;
         body.Timer = counter;
-        // A hold is the native sleep: the timer wraps from zero and the last frame stays. The body programs
+        // A hold is the script's sleep: the timer wraps from zero and the last frame stays. The body programs
         // have no waits or stops.
         if (advance is not AnimationProgramAdvance<CrocomireBodyFrame>.Show shown)
         {
@@ -329,7 +329,7 @@ internal sealed class CrocomireFight
     private static bool CrocomireBodyIsOnScreen(RoomEnemySlot body, int cameraX) =>
         CoordinateAxis.Difference(body.Position.X.Whole - body.Radius.X - 260, cameraX) < 0;
 
-    /// <summary>Ports $A4:86B3-$8A39, including the shipped but normally unused states.</summary>
+    /// <summary>Runs Crocomire's fight AI, including the shipped but normally unused states.</summary>
     private CrocomireBodyProgram? RunCrocomireFightInstruction(
         CrocomireEnemyState state,
         SamusState? samus,
@@ -438,7 +438,7 @@ internal sealed class CrocomireFight
             case CrocomireFightFunction.PowerBombCharge:
             {
                 // The charge consumes one step and ends once fewer than two remain; a count that would drop below
-                // zero ends it the same way, as the cartridge's wrapped word reads negative.
+                // zero ends it the same way, as the game's wrapped word reads negative.
                 int remaining = state.StepCounter - 1;
                 if (remaining < 2)
                 {
@@ -553,7 +553,7 @@ internal sealed class CrocomireFight
         }
     }
 
-    /// <summary>Holds the damage-reaction instruction until its native timer permits the next step.</summary>
+    /// <summary>Holds the damage-reaction instruction until its timer permits the next step.</summary>
     private static CrocomireBodyProgram? RunCrocomireWaitingForDamage(
         CrocomireEnemyState state,
         CrocomireBodyProgram continuation,
@@ -594,7 +594,7 @@ internal sealed class CrocomireFight
             throw new InvalidOperationException("Crocomire movement requires room level data.");
     }
 
-    /// <summary>Ports <c>EprojInit_CrocomireProjectile</c> at $86:9023.</summary>
+    /// <summary>Ports <c>EprojInit_CrocomireProjectile</c>.</summary>
     internal void SpawnCrocomireProjectile(RoomEnemySlot body, int spawnParameter)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();

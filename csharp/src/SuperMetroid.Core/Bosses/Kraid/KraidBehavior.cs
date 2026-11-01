@@ -63,11 +63,11 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.SpriteObjects, dependencies.SlotTable, dependencies.Collision, Access);
     }
 
-    /// <summary>The native maximum timer the still lint and fingernail parts wait behind before their first frame.</summary>
+    /// <summary>The maximum timer the still lint and fingernail parts wait behind before their first frame.</summary>
     internal const int KraidStillPartTimer = 32767;
 
     /// <summary>
-    /// Ports <c>MainAI_Kraid</c> ($A7:AC21): mouth-projectile collision, palette handling,
+    /// Ports <c>MainAI_Kraid</c>: mouth-projectile collision, palette handling,
     /// body-projectile collision and body-vs-Samus collision precede the function. A
     /// killing mouth hit therefore reaches palette handling, which zeroes the hurt frame,
     /// before the death initializer runs in this same frame.
@@ -90,7 +90,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             Combat.ResolveKraidBodyProjectileHits(body, state, bodyShots);
         if (samus is not null)
             Combat.ResolveKraidBodyContact(body, state, samus);
-        // `$A7:AC21` places his body layer to follow Kraid rather than the room. X radius is the native
+        // The body-layer placement places his body layer to follow Kraid rather than the room. X radius is the authored
         // body's right-edge origin adjustment; 152 is the authored vertical anchor.
         state.BodyLayerPlacement = new Position16<BackgroundPixels>(
             CoordinateAxis.Wrap(camera.X - body.Position.X.Whole + body.Radius.X),
@@ -135,29 +135,29 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The counter-indexed shot view both passes use. The cartridge starts at the count
+    /// The counter-indexed shot view both passes use. The original game starts at the count
     /// itself, not count - 1, and does not inspect active-slot sentinels; count five
     /// therefore includes the first physical bomb.
     /// </summary>
     [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
     internal readonly struct KraidShotSlots
     {
-        /// <summary>Five physical Samus shot slots indexed by the native shot counter.</summary>
+        /// <summary>Five physical Samus shot slots indexed by the shot counter.</summary>
         private readonly SamusProjectileSystem _projectiles;
-        /// <summary>Shared bomb slot reached when the native count includes a sixth projectile.</summary>
+        /// <summary>Shared bomb slot reached when the count includes a sixth projectile.</summary>
         private readonly SamusBombProjectileSystem _sharedProjectiles;
 
-        /// <summary>Captures the shot count and validates its bounded native slot domain.</summary>
+        /// <summary>Captures the shot count and validates its bounded slot domain.</summary>
         public KraidShotSlots(SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles)
         {
             _projectiles = projectiles;
             _sharedProjectiles = sharedProjectiles;
             LastSlot = projectiles.SlotTable.ProjectileCounter;
             if (LastSlot > SamusProjectileSystem.SlotCount)
-                throw new InvalidDataException($"Kraid projectile counter {LastSlot} exceeds the bounded native slot domain.");
+                throw new InvalidDataException($"Kraid projectile counter {LastSlot} exceeds Kraid's projectile slots.");
         }
 
-        /// <summary>Inclusive last index selected by the native projectile counter.</summary>
+        /// <summary>Inclusive last index selected by the projectile counter.</summary>
         public int LastSlot { get; }
 
         /// <summary>Reads the selected shot or shared bomb's position, radius, type, and damage.</summary>

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 [NumberedIdentities("Each numbered member is the enemy population of one numbered room or room state, named for it; no caller indexes the populations by number.")]
 public static class RoomEnemyPopulationDefinitions
 {
-    /// <summary>Retail populations in the cartridge's list order, checked complete before gameplay can use them.</summary>
+    /// <summary>Retail populations in their authored list order, checked complete before gameplay can use them.</summary>
     internal static readonly RoomEnemyPopulationDefinition[] Definitions = RoomEnemyPopulations.Complete(
     [
         ..CrateriaRoomEnemyPopulationDefinitions.Build(),

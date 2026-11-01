@@ -3,15 +3,15 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Logical room identity formed by the cartridge's mutually exclusive area and per-area
-/// room bytes. This deliberately does not contain a bank-$8F room-header pointer: pointers
-/// identify storage, while this value identifies the room as understood by game logic.
+/// Logical room identity formed by the mutually exclusive area and per-area
+/// room index. This deliberately does not contain where the room's header is stored:
+/// storage is the import pipeline's, while this value identifies the room as understood by game logic.
 /// </summary>
 public readonly record struct RoomIdentity
 {
-    /// <summary>Creates a logical gameplay room key from a validated retail area and that area's native room byte.</summary>
+    /// <summary>Creates a logical gameplay room key from a validated retail area and that area's room index.</summary>
     /// <param name="area">One of the seven retail world-area identities.</param>
-    /// <param name="roomIndex">Native per-area room index, 0 through 255; values are intentionally not globally unique.</param>
+    /// <param name="roomIndex">Per-area room index, 0 through 255; values are intentionally not globally unique.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is outside the retail domain.</exception>
     public RoomIdentity(AreaId area, int roomIndex)
     {
@@ -25,9 +25,9 @@ public readonly record struct RoomIdentity
     /// <summary>The room's validated retail world area.</summary>
     public AreaId Area { get; }
 
-    /// <summary>The native room index, whose meaning is local to <see cref="Area"/>.</summary>
+    /// <summary>The room index, whose meaning is local to <see cref="Area"/>.</summary>
     public int RoomIndex { get; }
 
-    /// <summary>Formats the native logical pair used in diagnostics and debugger watches.</summary>
+    /// <summary>Formats the area/room pair used in diagnostics and debugger watches.</summary>
     public override string ToString() => $"${AreaIds.ToIndex(Area):X2}/${RoomIndex:X2}";
 }

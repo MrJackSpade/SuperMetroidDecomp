@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
-/// The twelve bank-$A5 Spore Spawn extended OAM frames at $EE65-$EF61 and
+/// The twelve Spore Spawn extended frames and
 /// their fixed gameplay hitboxes. Version 6 mislabeled their visual keys as
 /// Draygon, but collision always follows the actual Spore Spawn program.
 /// </summary>

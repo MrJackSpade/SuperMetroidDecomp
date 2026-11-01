@@ -31,7 +31,7 @@ internal sealed class BotwoonWallPlmAnimation(BotwoonWallProgram program)
             case BotwoonWallCue.SetScrollsBlue:
                 RoomScrollGrid scrolls = context.Frame.Scrolls ?? throw new InvalidOperationException(
                     "Botwoon's scroll PLM requires the active room scroll grid.");
-                // `$84:AB51` performs one 16-bit store to the first two cells of the scroll grid.
+                // The wall's opening step performs one 16-bit store to the first two cells of the scroll grid.
                 scrolls.SetLogicalState(new(0, 0), RoomScrollState.Blue);
                 scrolls.SetLogicalState(new(1, 0), RoomScrollState.Blue);
                 return null;

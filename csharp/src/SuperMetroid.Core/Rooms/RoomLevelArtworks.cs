@@ -41,7 +41,7 @@ public sealed class RoomLevelArtworks
         }
     });
 
-    /// <summary>Resolves installed initial artwork by the room state's level, without selecting room state or reading cartridge bytes.</summary>
+    /// <summary>Resolves installed initial artwork by the room state's level, without selecting room state or reading the original game data.</summary>
     /// <param name="level">The level the room state names, used as the installation key.</param>
     /// <returns>The matching validated visual layout.</returns>
     /// <exception cref="InvalidDataException">The requested level is not installed.</exception>

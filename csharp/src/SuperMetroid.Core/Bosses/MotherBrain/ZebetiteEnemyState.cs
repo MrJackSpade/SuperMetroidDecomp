@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The state of one half of Tourian's Zebetite barrier. The values the cartridge keeps in the enemy's common record are
+/// The state of one half of Tourian's Zebetite barrier. The values the game keeps in the enemy's common record are
 /// emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class ZebetiteEnemyState
@@ -19,7 +19,7 @@ public sealed class ZebetiteEnemyState
     }
 
     /// <summary>
-    /// The bank-$A6 indirect main-AI entry, independent for each physical half; none once a kill has emptied the
+    /// The indirect main-AI entry, independent for each physical half; none once a kill has emptied the
     /// record.
     /// </summary>
     public ZebetiteAiFunction? Function { get; internal set; }
@@ -53,7 +53,7 @@ public sealed class ZebetiteEnemyState
     /// <summary>Whether this is the linked bottom half (nonzero parameter one); it skips primary palette cycling and dies without publishing the next generation's events or respawn.</summary>
     public bool IsSecondaryHalf { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

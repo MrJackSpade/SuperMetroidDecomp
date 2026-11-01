@@ -57,8 +57,8 @@ internal sealed class RuntimeArtwork
     /// <summary>Installed colors used at construction and on each room-entry palette restore.</summary>
     [field: NonSerialized]
     public GameplayBasePalette? InitialPaletteArt { get; set; }
-    /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named VRAM assets.</summary>
-    /// <remarks>Binding nonnull artwork rebinds the presentation owners; assigning null removes them. The HUD shows the BG3 word sheet's pictures, so no characters are shown again.</remarks>
+    /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named artwork assets.</summary>
+    /// <remarks>Binding nonnull artwork rebinds the presentation owners; assigning null removes them. The HUD shows the HUD word sheet's pictures, so no characters are shown again.</remarks>
     [field: NonSerialized]     public IGameplayPresentationContent? MapPresentation
     {
         get;
@@ -91,13 +91,13 @@ internal sealed class RuntimeArtwork
         _player.Samus.Presentation.SuitColors = MapPresentation?.SamusSuitColors;
         _player.Samus.Presentation.FullBodyCycleColors = MapPresentation?.SamusFullBodyCycleColors;
         _player.Samus.Presentation.ChargeColors = MapPresentation?.SamusChargeColors;
-        // All Samus constructors call this rebind before priming the first visual DMA.
+        // All Samus constructors call this rebind before priming the first visual transfer.
         _player.Samus.Presentation.BodyFrames.BindArtwork(SamusBodyArt);
         _player.Samus.Presentation.BodyFrames.BindSheets(SpriteSheets);
         _player.Samus.ArmCannon.Artwork = SamusBodyArt?.ArmCannon;
     }
 
-    /// <summary>Rebinds authored visual frame choices to both native projectile slot owners.</summary>
+    /// <summary>Rebinds authored visual frame choices to both projectile slot owners.</summary>
     [field: NonSerialized]     public InstalledProjectileFrameBindings? ProjectileFrameBindings
     {
         get;
@@ -163,14 +163,14 @@ internal sealed class RuntimeArtwork
     public HyperBeamFxColours? HyperBeamFxColors { get; set; }
 
     /// <summary>
-    /// The equipped-beam word whose characters <c>Update_Beam_Tiles_and_Palette</c> ($90:AC8D) last loaded. The
+    /// The equipped-beam word whose characters <c>Update_Beam_Tiles_and_Palette</c> last loaded. The
     /// projectile sheets show this beam's characters until the next update, even when code changes the equipment in
     /// between: the Golden Torizo code grants beams during room initialization, after the entering beam was loaded.
     /// </summary>
     public SuperMetroid.Core.Progression.SamusBeamFlags LoadedBeams { get; private set; }
 
     /// <summary>
-    /// Ports <c>Update_Beam_Tiles_and_Palette</c> at $90:AC8D: latches the beam whose characters the projectile sheets
+    /// Ports <c>Update_Beam_Tiles_and_Palette</c>: latches the beam whose characters the projectile sheets
     /// show and loads its palette.
     /// </summary>
     internal void UpdateBeamTilesAndPalette(SamusColours colours, SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams)

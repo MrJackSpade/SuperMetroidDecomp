@@ -18,7 +18,7 @@ internal static class BabyMetroidRoute
             ? Record(leg)
             : throw new InvalidDataException($"Baby route leg {leg} is not one of the {BabyMetroidRouteDefinitions.RecordCount} authored legs.");
 
-    /// <summary>Resolves a native movement callback to its wrong-way horizontal speed addition.</summary>
+    /// <summary>Resolves a movement callback to its wrong-way horizontal speed addition.</summary>
     internal static int GetWrongWayOffScreenXSpeed(BabyMetroidRouteMovementFunction movementFunction) =>
         BabyMetroidRouteDefinitions.WrongWayOffScreenXSpeeds.TryGetValue(movementFunction, out int speed)
             ? speed

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The downward gate's PLM programs (#1296), in place of its bank-$84 lists at $84:BC13..BCDE.</summary>
+/// <summary>The downward gate's PLM programs (#1296), in place of its lists.</summary>
 internal enum DownwardGateProgram
 {
     /// <summary>Draws the open gate and sleeps until shot (<c>InstList_PLM_DownwardsOpenGate</c>).</summary>

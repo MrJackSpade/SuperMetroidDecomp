@@ -5,22 +5,22 @@ using P = SuperMetroid.Core.Bosses.Ridley.RidleyBodyProgram;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Ridley's typed body programs (#641), shared by Ceres and Lower Norfair, in place of their bank-$A6 lists.</summary>
+/// <summary>Ridley's typed body programs (#641), shared by Ceres and Lower Norfair, in place of their lists.</summary>
 internal static class RidleyAnimations
 {
-    /// <summary>How long the standing pose lasts before the program sleeps ($A6:E53C).</summary>
+    /// <summary>How long the standing pose lasts before the program sleeps.</summary>
     private const int StandingDuration = 12;
-    /// <summary>The lunge's full leg extension ($A6:E560).</summary>
+    /// <summary>The lunge's full leg extension.</summary>
     private const int LungeExtendedDuration = 80;
-    /// <summary>The opening roar's open-mouth hold ($A6:E69E).</summary>
+    /// <summary>The opening roar's open-mouth hold.</summary>
     private const int OpeningRoarDuration = 96;
-    /// <summary>The death roar's open-mouth hold ($A6:E6D6).</summary>
+    /// <summary>The death roar's open-mouth hold.</summary>
     private const int DeathRoarDuration = 16;
-    /// <summary>The pause between the two fireball bursts ($A6:E778).</summary>
+    /// <summary>The pause between the two fireball bursts.</summary>
     private const int BurstPauseDuration = 32;
-    /// <summary>The open-mouth hold after a fireball burst ($A6:E76C).</summary>
+    /// <summary>The open-mouth hold after a fireball burst.</summary>
     private const int BurstTailDuration = 48;
-    /// <summary>Each lift-off pose after the jump ($A6:E93B/E93F).</summary>
+    /// <summary>Each lift-off pose after the jump.</summary>
     private const int LiftoffPoseDuration = 17;
 
     /// <summary>The claw-height pose for standing legs.</summary>
@@ -205,7 +205,7 @@ internal static class RidleyAnimations
     private static AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue> FallInto(RidleyBodyProgram program) =>
         AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the script's sleep does.</summary>
     private static AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue> Hold =>
         AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue>.Hold;
 }

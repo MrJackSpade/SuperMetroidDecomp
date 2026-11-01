@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// Immutable physical components and ordered touch/shot rectangles selected by
-/// the 22 Kraid-arm extended frames at $A7:8F59-92B4. The second ten frames
-/// reuse the first ten physical layouts but have independent editable OAM.
+/// the 22 Kraid-arm extended frames. The second ten frames
+/// reuse the first ten physical layouts but have independent editable sprite art.
 /// </summary>
 internal static class KraidArmCollisionDefinitions
 {
@@ -62,7 +62,7 @@ internal static class KraidArmCollisionDefinitions
 
     /// <summary>Twenty-four rectangles selected by the compiled arm frame families.</summary>
     internal const int RectangleCount = 24;
-    /// <summary>First compiled rectangle from $A7:9411, Hitbox_KraidArm_10, using normal background touch.</summary>
+    /// <summary>First compiled rectangle, Hitbox_KraidArm_10, using normal background touch.</summary>
     internal const int FirstBackgroundRectangle = 17;
 
     /// <summary>The seven articulated shapes components 0 and 3 advance through.</summary>

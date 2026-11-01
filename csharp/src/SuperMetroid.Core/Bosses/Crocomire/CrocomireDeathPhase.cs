@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's death phases (variable A, $0FA8), in the order of the bank-$A4 death dispatcher's table. The
+/// Crocomire's death phases (variable A), in the order of the death dispatcher's table. The
 /// slot stores the member, not the table's even byte offset.
-/// Keeping this table separate from the executor makes the ROM-authored sequence readable
+/// Keeping this table separate from the executor makes the authored sequence readable
 /// without mixing identity declarations into the state-transition implementation.
 /// </summary>
 public enum CrocomireDeathPhase
@@ -72,7 +72,7 @@ public enum CrocomireDeathPhase
     FinalSink,
     /// <summary>Waits behind the wall for Samus to return left.</summary>
     WaitForSamusAtWall,
-    /// <summary>Rumbles the hidden wall using the ROM's signed table.</summary>
+    /// <summary>Rumbles the hidden wall using the authored signed table.</summary>
     RumbleHiddenWall,
     /// <summary>Loads skeleton OBJ tiles and breaks the spike wall.</summary>
     BreakSpikeWall,

@@ -11,11 +11,11 @@ internal static class CeresRidleyEyeFade
     /// </summary>
     /// <remarks>
     /// #625 / #651 exact NTSC J/U v1.0 algorithm: offset 0..15 selects shade
-    /// 15-offset, offset 16..63 selects shade zero, and offset 64 is the $FF
-    /// completion marker. All 65 bytes at $A6:E269-$E2A9 match the pinned ROM
-    /// and bank-A6 disassembly. Native code reads a word at each byte offset
-    /// and masks its low byte; the overlapping high byte is discarded. Offset
-    /// 65 would read the adjacent eye-palette byte and is outside this schedule.
+    /// 15-offset, offset 16..63 selects shade zero, and offset 64 is the
+    /// completion marker. All 65 entries match the pinned release
+    /// and its disassembly. The original reads overlapping pairs at each offset
+    /// and keeps the low one. Offset 65 would read past the schedule
+    /// into the eye palette and is outside this schedule.
     /// VerifyCeresRidleyEyeFadeDefinitions checks every shade and the terminal
     /// transition through the real fade consumer with schedule reads forbidden.
     /// </remarks>

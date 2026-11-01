@@ -30,7 +30,7 @@ public abstract record BossArtworkCatalog
     /// <summary>Installed Kraid RGB5 artwork; null only for constructed fixtures.</summary>
     public KraidColorCatalog? KraidColors { get; init; }
 
-    /// <summary>Editable source tile sheet for Mother Brain's corpse-rotting WRAM staging.</summary>
+    /// <summary>Editable source tile sheet for Mother Brain's corpse-rotting staging.</summary>
     public RoomCharacterAtlas? MotherBrainCorpse { get; init; }
 
     /// <summary>Editable Mother Brain death-fade and exploded-door colors.</summary>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Which way a glass shard projectile flies: its bank-$86 spawn parameter (#1296).</summary>
+/// <summary>Which way a glass shard projectile flies: its spawn parameter (#1296).</summary>
 internal enum MotherBrainGlassShard
 {
     /// <summary>Flies right.</summary>

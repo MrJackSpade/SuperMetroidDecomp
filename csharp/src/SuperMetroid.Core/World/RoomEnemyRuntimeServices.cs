@@ -11,7 +11,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The runtime's cartridge state as the services one room's enemy AI calls (#633): the shared
+/// The runtime's state as the services one room's enemy AI calls (#633): the shared
 /// RNG, event and boss bits, the room's scroll zones, Samus's control lock, Mother Brain's room
 /// effects and the active PLM population. Boss bits address the room's area.
 /// </summary>

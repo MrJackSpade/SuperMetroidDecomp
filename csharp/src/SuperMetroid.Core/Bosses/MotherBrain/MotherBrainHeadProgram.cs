@@ -1,68 +1,68 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's brain (head) programs in bank $A9 order, run by her dedicated brain list rather than an enemy
-/// slot. The unreachable frames after the initial dummy and the unused flash at <c>$A9:9C7F</c> and
-/// <c>$A9:9CE7</c> are not authored.
+/// Mother Brain's brain (head) programs order, run by her dedicated brain list rather than an enemy
+/// slot. The unreachable frames after the initial dummy and the unused flash and
+/// unused head program are not authored.
 /// </summary>
 public enum MotherBrainHeadProgram
 {
-    /// <summary><c>InstList_MotherBrainHead_Stretching_Phase2_0</c> (<c>$A9:9B7F</c>).</summary>
+    /// <summary>Mother Brain head animation script: stretching, phase 2, part 0.</summary>
     StretchingPhase2,
-    /// <summary><c>InstList_MotherBrainHead_Stretching_Phase2_1</c> (<c>$A9:9BAB</c>).</summary>
+    /// <summary>Mother Brain head animation script: stretching, phase 2, part 1.</summary>
     StretchingPhase2Loop,
-    /// <summary><c>InstList_MotherBrainHead_Stretching_Phase3_0</c> (<c>$A9:9BB3</c>).</summary>
+    /// <summary>Mother Brain head animation script: stretching, phase 3, part 0.</summary>
     StretchingPhase3,
-    /// <summary><c>InstList_MotherBrainHead_Stretching_Phase3_1</c> (<c>$A9:9BDF</c>).</summary>
+    /// <summary>Mother Brain head animation script: stretching, phase 3, part 1.</summary>
     StretchingPhase3Loop,
-    /// <summary><c>InstList_MotherBrainHead_HyperBeamRecoil_0</c> (<c>$A9:9BE7</c>).</summary>
+    /// <summary>Mother Brain head animation script: hyper beam recoil, part 0.</summary>
     HyperBeamRecoil,
-    /// <summary><c>InstList_MotherBrainHead_HyperBeamRecoil_1</c> (<c>$A9:9C0B</c>).</summary>
+    /// <summary>Mother Brain head animation script: hyper beam recoil, part 1.</summary>
     HyperBeamRecoilLoop,
-    /// <summary><c>InstList_MotherBrainHead_Initial</c> (<c>$A9:9C21</c>).</summary>
+    /// <summary>Mother Brain head animation script: initial.</summary>
     Initial,
-    /// <summary><c>InstList_MotherBrainHead_Decapitated_0</c> (<c>$A9:9C29</c>).</summary>
+    /// <summary>Mother Brain head animation script: decapitated, part 0.</summary>
     Decapitated,
-    /// <summary><c>InstList_MotherBrainHead_Decapitated_1</c> (<c>$A9:9C31</c>).</summary>
+    /// <summary>Mother Brain head animation script: decapitated, part 1.</summary>
     DecapitatedLoop,
-    /// <summary><c>InstList_MotherBrainHead_DyingDrool_0</c> (<c>$A9:9C39</c>).</summary>
+    /// <summary>Mother Brain head animation script: dying drool, part 0.</summary>
     DyingDrool,
-    /// <summary><c>InstList_MotherBrainHead_DyingDrool_1</c> (<c>$A9:9C47</c>).</summary>
+    /// <summary>Mother Brain head animation script: dying drool, part 1.</summary>
     DyingDroolBurst,
-    /// <summary><c>InstList_MotherBrainHead_DyingDrool_2</c> (<c>$A9:9C5F</c>).</summary>
+    /// <summary>Mother Brain head animation script: dying drool, part 2.</summary>
     DyingDroolLoop,
-    /// <summary><c>InstList_MotherBrainHead_FiringRainbowBeam</c> (<c>$A9:9C77</c>).</summary>
+    /// <summary>Mother Brain head animation script: firing rainbow beam.</summary>
     FiringRainbowBeam,
-    /// <summary><c>InstList_MotherBrainHead_Neutral_Phase2_0</c> (<c>$A9:9C87</c>).</summary>
+    /// <summary>Mother Brain head animation script: neutral, phase 2, part 0.</summary>
     NeutralPhase2,
-    /// <summary><c>InstList_MotherBrainHead_Neutral_Phase2_1</c> (<c>$A9:9C9F</c>).</summary>
+    /// <summary>Mother Brain head animation script: neutral, phase 2, part 1.</summary>
     NeutralPhase2Hold,
-    /// <summary><c>InstList_MotherBrainHead_Neutral_Phase3_0</c> (<c>$A9:9CB9</c>).</summary>
+    /// <summary>Mother Brain head animation script: neutral, phase 3, part 0.</summary>
     NeutralPhase3,
-    /// <summary><c>InstList_MotherBrainHead_Neutral_Phase3_1</c> (<c>$A9:9CD1</c>).</summary>
+    /// <summary>Mother Brain head animation script: neutral, phase 3, part 1.</summary>
     NeutralPhase3Hold,
-    /// <summary><c>InstList_MotherBrainHead_Corpse_0</c> (<c>$A9:9D25</c>).</summary>
+    /// <summary>Mother Brain head animation script: corpse, part 0.</summary>
     Corpse,
-    /// <summary><c>InstList_MotherBrainHead_Corpse_1</c> (<c>$A9:9D35</c>).</summary>
+    /// <summary>Mother Brain head animation script: corpse, part 1.</summary>
     CorpseLoop,
-    /// <summary><c>InstList_MotherBrainHead_Attacking_4OnionRings_Phase2</c> (<c>$A9:9D3D</c>).</summary>
+    /// <summary>Mother Brain head animation script: attacking, 4 onion rings, phase 2.</summary>
     FourOnionRingsPhase2,
-    /// <summary><c>InstList_MotherBrainHead_Attacking_2OnionRings_Phase2</c> (<c>$A9:9D7F</c>).</summary>
+    /// <summary>Mother Brain head animation script: attacking, 2 onion rings, phase 2.</summary>
     TwoOnionRingsPhase2,
-    /// <summary><c>InstList_MotherBrainHead_Attacking_BabyMetroid</c> (<c>$A9:9DB1</c>).</summary>
+    /// <summary>Mother Brain head animation script: attacking, Baby Metroid.</summary>
     AttackingBabyMetroid,
-    /// <summary><c>InstList_MotherBrainHead_AttackingSamus_4OnionRings_Phase3</c> (<c>$A9:9DBB</c>).</summary>
+    /// <summary>Mother Brain head animation script: attacking Samus, 4 onion rings, phase 3.</summary>
     AttackingSamusFourOnionRingsPhase3,
-    /// <summary><c>InstList_MotherBrainHead_Attacking_4OnionRings_Phase3</c> (<c>$A9:9DC1</c>).</summary>
+    /// <summary>Mother Brain head animation script: attacking, 4 onion rings, phase 3.</summary>
     FourOnionRingsPhase3,
-    /// <summary><c>InstList_MotherBrainHead_Attacking_Bomb_Phase2</c> (<c>$A9:9ECC</c>).</summary>
+    /// <summary>Mother Brain head animation script: attacking, Bomb, phase 2.</summary>
     BombPhase2,
-    /// <summary><c>InstList_MotherBrainHead_Attacking_Bomb_Phase3</c> (<c>$A9:9F00</c>).</summary>
+    /// <summary>Mother Brain head animation script: attacking, Bomb, phase 3.</summary>
     BombPhase3,
-    /// <summary><c>InstList_MotherBrainHead_Attacking_Laser</c> (<c>$A9:9F34</c>).</summary>
+    /// <summary>Mother Brain head animation script: attacking, laser.</summary>
     Laser,
-    /// <summary><c>InstList_MotherBrainHead_ChargingRainbowBeam_0</c> (<c>$A9:9F6C</c>).</summary>
+    /// <summary>Mother Brain head animation script: charging rainbow beam, part 0.</summary>
     ChargingRainbowBeam,
-    /// <summary><c>InstList_MotherBrainHead_ChargingRainbowBeam_1</c> (<c>$A9:9F7A</c>).</summary>
+    /// <summary>Mother Brain head animation script: charging rainbow beam, part 1.</summary>
     ChargingRainbowBeamLoop,
 }

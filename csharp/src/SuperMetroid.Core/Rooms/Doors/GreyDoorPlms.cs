@@ -21,7 +21,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     private readonly AreaId _area;
     /// <summary>The Tourian statue sequence's progress.</summary>
     private readonly ITourianStatueProgress? _tourianStatue;
-    /// <summary>Queues the cartridge's dud sound for shots rejected while the door is locked.</summary>
+    /// <summary>Queues the dud sound for shots rejected while the door is locked.</summary>
     private readonly PlmSoundQueue _sounds;
     /// <summary>The coloured-door owner whose door-bit bookkeeping grey caps share.</summary>
     private readonly DoorPlms _doors;
@@ -76,7 +76,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
         }
     }
 
-    /// <summary><c>$84:BDC4</c>: a shot on a locked cap queues the dud sound; the hit is consumed either way.</summary>
+    /// <summary>A shot on a locked cap queues the dud sound; the hit is consumed either way.</summary>
     private void PlayDudSoundIfShot(PlmSlot slot)
     {
         if (slot.ProjectileHit is not null)
@@ -87,7 +87,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     /// <summary>The dud sound's request priority.</summary>
     private static readonly SoundRequestPriority DudSoundPriority = SoundRequestPriority.Normal;
 
-    /// <summary><c>$84:8A91</c>: counts a hit on a grey cap; true when it opens the door.</summary>
+    /// <summary>Counts a hit on a grey cap; true when it opens the door.</summary>
     internal bool CountGreyDoorHit(PlmSlot slot)
     {
         GreyDoorPlmState door = (slot.Family as GreyDoorPlmState)
@@ -125,7 +125,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     /// <summary>Installs the resident projectile-trigger collision type while preserving the block's appearance.</summary>
     private static void ApplyGreyDoorSetup(RoomLevelData level, int blockIndex)
     {
-        // Setup_GreyDoor and Setup_ColoredDoor share the exact `$C044` collision write.
+        // Setup_GreyDoor and Setup_ColoredDoor share the exact same collision write.
         // Preserve the authored appearance while replacing only collision and behaviour.
         level.SetTerrain(blockIndex,
             level.GetCollisionBlockByIndex(blockIndex).Terrain.WithCollision(RoomCollisionType.ShootableBlock));
@@ -133,7 +133,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     }
 
     /// <summary>
-    /// Setup <c>$84:C794</c> for a grey cap: decodes its unlock condition from the room argument, installs its shootable
+    /// Sets up a grey cap: decodes its unlock condition from the room argument, installs its shootable
     /// collision and starts its waiting program.
     /// </summary>
     internal static void SetupGreyDoorSlot(
@@ -159,7 +159,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
 
     /// <summary>
     /// Maps the four grey doors and Bomb Torizo's right-facing grey door to their facing (#1414: matched by member,
-    /// replacing the header range and six-byte stride the cartridge's header words implied).
+    /// replacing the header range and six-byte stride the PLM headers implied).
     /// </summary>
     internal static bool TryIdentifyGreyDoor(
         PlmHeaderId header,

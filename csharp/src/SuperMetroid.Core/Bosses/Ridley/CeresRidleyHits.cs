@@ -37,8 +37,8 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Runs Ceres Ridley's bank-$A6 shot-overlap seam against the five ordinary Samus
-    /// projectile slots. The native shot handler increments a dedicated counter and never
+    /// Runs Ceres Ridley's shot-overlap seam against the five ordinary Samus
+    /// projectile slots. The shot handler increments a dedicated counter and never
     /// subtracts enemy health; the projectile owner performs its normal explosion change.
     /// </summary>
     public int ResolveCeresRidleyProjectileHits(
@@ -82,8 +82,8 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Executes the non-area-two half of <c>EnemyShot_Ridley</c> at $A6:DF8A after bank
-    /// $A0 has accepted and marked an overlapping projectile. Both the ordinary-shot and
+    /// Executes the non-area-two half of <c>EnemyShot_Ridley</c> after the projectile
+    /// collision has accepted and marked an overlapping projectile. Both the ordinary-shot and
     /// physical normal-bomb walkers dispatch this exact callback; keeping the reaction here
     /// prevents those two collision owners from acquiring subtly different cinematic rules.
     /// </summary>
@@ -97,7 +97,7 @@ internal sealed class CeresRidleyHits
                 $"definition {slot.DefinitionId}.");
         }
 
-        // `$DF99-$DFA9` starts with Y=13, shifts the old nonzero timer once, and selects
+        // The hurt flash starts with Y=13, shifts the old nonzero timer once, and selects
         // 14 only when that shift produced carry. In host terms this is precisely old bit
         // zero; testing bit one (or simply toggling the new value) changes repeated-hit
         // timing and eventually moves the escape threshold relative to the hurt palette.
@@ -106,9 +106,9 @@ internal sealed class CeresRidleyHits
             : 13);
         state.HitCounter++;
 
-        // The cartridge draws the hurt palette from the enemy frame that just completed.
+        // The original game draws the hurt palette from the enemy frame that just completed.
         // Collision runs afterward, so publish that same pre-increment frame immediately
-        // for standalone renderers inspecting CGRAM before the next enemy dispatcher call.
+        // for standalone renderers inspecting the colours before the next enemy dispatcher call.
         UpdateRidleyHurtFlashPalettes(
             slot,
             state,
@@ -117,8 +117,8 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Ports <c>RidleyHurtFlashHandling</c> at $A6:D4DA and the common extended-enemy
-    /// palette override at $A0:9497. Ridley's composite is split between those two writers:
+    /// Ports <c>RidleyHurtFlashHandling</c> and the common extended-enemy
+    /// palette override. Ridley's composite is split between those two writers:
     /// the ordinary body uses the current execution counter, while the manual tail/wings
     /// deliberately test the counter after an increment.
     /// </summary>
@@ -139,7 +139,7 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Ports $A6:D4B5-$D4D7. Ceres uses shot count in place of health, including the
+    /// Updates the health palette. Ceres uses shot count in place of health, including the
     /// original missing branch after the 90-shot comparison: 50-69 selects health band zero,
     /// and every value from 70 onward selects health band two.
     /// </summary>
@@ -156,11 +156,11 @@ internal sealed class CeresRidleyHits
             .ApplyHealth(_presentation.Colours, band);
     }
 
-    /// <summary>Routes exploding normal bombs to Ceres Ridley's shot counter after common bank-$A0 overlap.</summary>
+    /// <summary>Routes exploding normal bombs to Ceres Ridley's shot counter after common overlap.</summary>
     internal void AddCeresRidleyBombReactions(EnemySharedReactions table)
     {
-        // `$A6:DF8A` branches on area index before it ever reaches common vulnerability damage. Ceres therefore
-        // treats an exploding normal bomb exactly like an ordinary shot for its cinematic counter: the bank-$A0
+        // EnemyShot_Ridley branches on area index before it ever reaches common vulnerability damage. Ceres therefore
+        // treats an exploding normal bomb exactly like an ordinary shot for its cinematic counter: the 
         // walker has already marked the physical bomb, while Ridley alternates hurt timing and advances the 100-hit
         // escape condition.
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.RidleyCeres &&
@@ -168,13 +168,13 @@ internal sealed class CeresRidleyHits
             c => ResolveCeresRidleyShotAfterCollision(c.Enemy));
     }
 
-    /// <summary>Tests Samus against Ridley's extended body and applies contact response after native invincibility gating.</summary>
+    /// <summary>Tests Samus against Ridley's extended body and applies contact response after invincibility gating.</summary>
     internal bool ResolveRidleyBodySamusContact(SamusState samus)
     {
         Ensure.NotNull(samus);
         _room.EnsureLoaded();
-        // $A0:9A8B-$9A98 gates ordinary contact only on the contact-damage mode and
-        // Samus's invincibility timer. It does not inspect the bank-$90 knockback-active
+        // Samus contact gates ordinary contact only on the contact-damage mode and
+        // Samus's invincibility timer. It does not inspect the knockback-active
         // word. The extra host guard previously made a stale/ongoing aerial knockback
         // suppress every later Ridley overlap even after invincibility had expired.
         RoomEnemySlot slot = _slotTable.Slots[0];
@@ -212,7 +212,7 @@ internal sealed class CeresRidleyHits
                 $"{EnemyReaction.RidleyExtendedTouch} from map {slot.Frame}.");
         }
 
-        // $A6:DF59 enters the common no-death-check handler. That distinction matters for
+        // Ridley's touch enters the common no-death-check handler. That distinction matters for
         // Screw Attack: a lethal body touch leaves Lower Norfair Ridley alive long enough
         // to select the forced zero-health lunge and grab Samus for the authored death.
         _collision.ResolveNormalEnemyTouch(
@@ -223,8 +223,8 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Shared port of the rectangle walk used by $A0:9A5A (Samus contact) and $A0:9B7F
-    /// (projectile contact). Every component offset and every rectangle comes from the
+    /// Shared port of the rectangle walk used by Samus contact and
+    /// projectile contact. Every component offset and every rectangle comes from the
     /// active extended spritemap; the tiny 8x8 radius in Ridley's enemy header is not his
     /// body and must never be substituted for this data.
     /// </summary>
@@ -249,7 +249,7 @@ internal sealed class CeresRidleyHits
                 int right = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right);
                 int bottom = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom);
 
-                // $A0:9B14/$9B20/$9B2C/$9B38 use signed comparisons and treat touching
+                // The rectangle checks use signed comparisons and treat touching
                 // right/bottom edges as non-overlap. Ceres coordinates remain in the low
                 // positive room range, so these integer comparisons are the same result.
                 if (CoordinateAxis.Difference(left, subjectRight) <= 0 &&

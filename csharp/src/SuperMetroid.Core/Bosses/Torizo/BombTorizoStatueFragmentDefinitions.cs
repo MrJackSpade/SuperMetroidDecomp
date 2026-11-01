@@ -6,9 +6,9 @@ internal static class BombTorizoStatueFragmentDefinitions
     /// <summary>The fragments the breaking statue hand emits.</summary>
     internal const int FragmentCount = 16;
 
-    /// <summary>$86:A7FB: every fragment's initial downward velocity.</summary>
+    /// <summary>Every fragment's initial downward velocity.</summary>
     internal const int YVelocity = 256;
 
-    /// <summary>$86:A80B: every fragment's downward acceleration.</summary>
+    /// <summary>Every fragment's downward acceleration.</summary>
     internal const int Acceleration = 16;
 }

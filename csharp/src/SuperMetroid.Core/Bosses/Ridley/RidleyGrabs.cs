@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>Whether Ridley may grab Samus in her current movement, and how long she stays intangible after release.</summary>
 internal static class RidleyGrabs
 {
-    /// <summary>$A6:BCFC transfers movement bit7 to carry, permitting Ridley's grab when set.</summary>
+    /// <summary>The grab check transfers movement bit7 to carry, permitting Ridley's grab when set.</summary>
     internal static bool CanGrab(SamusMovementType movement) => Policy(movement) != GrabPolicy.Immune;
 
-    /// <summary>$A6:BC98 loads6 frames for morphed overflow; $A6:BC9D otherwise loads10.</summary>
+    /// <summary>The release loads6 frames for morphed overflow and otherwise loads10.</summary>
     internal static int ReleaseIntangibilityFrames(SamusMovementType movement) =>
         Policy(movement) == GrabPolicy.Morphed
             ? RidleySamusInteractionDefinitions.MorphedReleaseIntangibilityFrames

@@ -7,7 +7,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.R
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// The block-reaction PLMs' programs (#1296), step for step their bank-$84 lists: the reaction sound, the breakup images
+/// The block-reaction PLMs' programs (#1296), step for step their lists: the reaction sound, the breakup images
 /// with their durations, the respawn and the restored block, and the delete.
 /// </summary>
 internal static class BlockReactionPlmProgramDefinitions

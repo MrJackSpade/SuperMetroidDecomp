@@ -5,7 +5,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.B
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's arena PLM programs (#1296), in place of their bank-$84 instruction lists at $84:AFCA..AFE7: each
+/// Crocomire's arena PLM programs (#1296), in place of their instruction lists: each
 /// draws its arena layout for one update, then deletes the PLM.
 /// </summary>
 internal static class CrocomireArenaPlmProgramDefinitions

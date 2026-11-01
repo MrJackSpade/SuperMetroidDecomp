@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 public static class KraidCeilingRockPositionDefinitions
 {
     /// <summary>
-    /// $A7:ACB3: the room X of each ceiling rock, in the order Kraid's growth drops them. The rocks alternate between
+    /// The room X of each ceiling rock, in the order Kraid's growth drops them. The rocks alternate between
     /// the gaps at block columns 2..6 and 10..13, taking each gap's right then left remaining edge inward, at each
     /// block's center (16 * column + 8).
     /// </summary>

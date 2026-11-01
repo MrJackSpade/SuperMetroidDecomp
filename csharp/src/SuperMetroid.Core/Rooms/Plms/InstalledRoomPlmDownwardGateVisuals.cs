@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmDownwardGateVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmDownwardGateVisuals), content =>
     {
         Span<RoomBlockAppearance> buffer = stackalloc RoomBlockAppearance[5];
@@ -73,9 +73,9 @@ public sealed class InstalledRoomPlmDownwardGateVisuals
         if (selected.Count != 0) customBlocks = selected;
     }
 
-    /// <summary>Resolves one gate or shot-trigger appearance using the compiled layout's native run structure.</summary>
+    /// <summary>Resolves one gate or shot-trigger appearance using the compiled layout's run structure.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="runIndex">Zero-based ordinal of the native draw run.</param>
+    /// <param name="runIndex">Zero-based ordinal of the draw run.</param>
     /// <param name="blockIndex">Zero-based block ordinal within that run, not a room coordinate.</param>
     /// <returns>The selected appearance, or the compiled terrain's appearance when unchanged.</returns>
     /// <exception cref="InvalidDataException">The draw is not a supported gate or shot-trigger layout.</exception>

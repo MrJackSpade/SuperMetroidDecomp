@@ -4,12 +4,12 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Complete station presentation selection. Native
+/// Complete station presentation selection. Station
 /// animation, activation, rewards, save behavior and collision stay compiled.
 /// </summary>
 public sealed class InstalledRoomPlmStationVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmStationVisuals), content =>
     {
         Span<RoomBlockAppearance> buffer = stackalloc RoomBlockAppearance[2];
@@ -30,7 +30,7 @@ public sealed class InstalledRoomPlmStationVisuals
     /// <summary>Deep-copied visual overrides keyed by draw; absent frames use stock artwork.</summary>
     private readonly Dictionary<PlmDraw, RoomBlockAppearance[][]>? customBlocks;
 
-    /// <summary>Validates and captures the complete twenty-frame station artwork selection while retaining native run geometry, collision, activation, and reward behavior.</summary>
+    /// <summary>Validates and captures the complete twenty-frame station artwork selection while retaining run geometry, collision, activation, and reward behavior.</summary>
     /// <param name="entries">Every compiled map, energy, missile, save, and access frame exactly once, with its original run/cell counts and valid visual-only appearances.</param>
     /// <remarks>Changed frames are deep-copied; stock-identical frames resolve from compiled definitions. Later caller-array edits do not affect either path.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
@@ -76,7 +76,7 @@ public sealed class InstalledRoomPlmStationVisuals
 
     /// <summary>Resolves a station cell's selected appearance, using compiled appearance for an unchanged frame.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="runIndex">Zero-based native horizontal draw-run ordinal; geometry is frame-specific, with save-pod runs ordered from floor to cap rather than screen-top downward.</param>
+    /// <param name="runIndex">Zero-based horizontal draw-run ordinal; geometry is frame-specific, with save-pod runs ordered from floor to cap rather than screen-top downward.</param>
     /// <param name="blockIndex">Zero-based left-to-right cell within the selected run's compiled length.</param>
     /// <returns>The twelve-bit metatile/parent-flip reference, without the separately applied physical collision nibble.</returns>
     /// <exception cref="InvalidDataException"><paramref name="draw"/> does not identify a compiled station frame.</exception>

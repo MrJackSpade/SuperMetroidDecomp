@@ -7,7 +7,7 @@ internal readonly record struct MotherBrainBeamQuadrants(int LeftEdge, int Right
 {
     /// <summary>
     /// The way the beam opens for edge-quadrant pair <paramref name="pair"/> (left-edge quadrant times four plus
-    /// right-edge quadrant), as the cartridge's rasterizer table at $AD:DE5F selects it.
+    /// right-edge quadrant), as the game's rasterizer table selects it.
     /// </summary>
     internal static MotherBrainBeamDirection DirectionForPair(int pair)
     {

@@ -4,7 +4,7 @@ using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameProgram;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon's typed flame programs (#641), in place of their bank-$86 lists.</summary>
+/// <summary>Phantoon's typed flame programs (#641), in place of their lists.</summary>
 internal static class PhantoonFlameAnimations
 {
     /// <summary>Poses in the idle, bouncing and starting loops.</summary>
@@ -18,11 +18,11 @@ internal static class PhantoonFlameAnimations
     /// <summary>Poses a shot flame shows while bursting.</summary>
     internal const int ShotPoseCount = 4;
 
-    /// <summary>Each flame pose's dwell ($86:975C..9806).</summary>
+    /// <summary>Each flame pose's dwell.</summary>
     private const int PoseDuration = 5;
-    /// <summary>The rain flame's impact dwell ($86:97AC).</summary>
+    /// <summary>The rain flame's impact dwell.</summary>
     private const int RainImpactDuration = 8;
-    /// <summary>How many times each falling phase repeats its two poses ($86:97B6/97C6/97D6).</summary>
+    /// <summary>How many times each falling phase repeats its two poses.</summary>
     private const int FallingRepeatCount = 4;
 
     /// <summary>Every flame program.</summary>
@@ -102,7 +102,7 @@ internal static class PhantoonFlameAnimations
     private static AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue> FallInto(P program) =>
         AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep and deletion do.</summary>
+    /// <summary>Holds the last frame, as the script's sleep and deletion do.</summary>
     private static AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue> Hold =>
         AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>.Hold;
 }

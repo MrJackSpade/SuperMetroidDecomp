@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Rooms.Doors;
 public enum ElevatorPseudoDoor
 {
     /// <summary>
-    /// The shared elevator pseudo-door, <c>Door_VariousRooms_Elevator</c>. Its zero destination word is the native
-    /// discriminator; the remaining bytes overlap the first physical door record because collision never consumes them
+    /// The shared elevator pseudo-door, <c>Door_VariousRooms_Elevator</c>. Its zero destination is what marks
+    /// it as a pseudo-door; the remaining bytes overlap the first physical door record because collision never consumes them
     /// for this entry.
     /// </summary>
     Shared,

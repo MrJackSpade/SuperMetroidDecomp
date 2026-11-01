@@ -2,7 +2,7 @@
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>One cue of Mother Brain's onion rings, bombs, breath, drool, door fragments and subtitle programs, with the operands its native command carries.</summary>
+/// <summary>One cue of Mother Brain's onion rings, bombs, breath, drool, door fragments and subtitle programs, with the operands its command carries.</summary>
 internal abstract record MotherBrainEffectCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
@@ -10,11 +10,11 @@ internal abstract record MotherBrainEffectCue
     {
     }
 
-    /// <summary>Installs a movement routine (<c>Instruction_EnemyProjectile_FrameBehaviorInY</c>, $86:8161).</summary>
+    /// <summary>Installs a movement routine.</summary>
     /// <param name="FrameBehavior">The movement routine the cue installs.</param>
     internal sealed record SetFrameBehavior(EnemyProjectileFrameBehavior FrameBehavior) : MotherBrainEffectCue;
 
-    /// <summary>Sets the projectile's packed X and Y collision radii (<c>Instruction_EnemyProjectile_XYRadiusInY</c>, $86:8298).</summary>
+    /// <summary>Sets the projectile's packed X and Y collision radii.</summary>
     /// <param name="Radius">The collision half-extents <see cref="SetRadius"/> installs.</param>
     internal sealed record SetRadius(Extent16<RoomPixels> Radius) : MotherBrainEffectCue;
 

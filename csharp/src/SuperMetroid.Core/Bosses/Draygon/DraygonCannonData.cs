@@ -4,8 +4,8 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's wall cannons and matching projectile origins. Bank $84 writes these
-/// words when a wall cannon is destroyed; bank $A5 reads the same words before firing.
+/// Draygon's wall cannons and matching projectile origins. A destroyed wall cannon's PLM writes these
+/// values; Draygon's firing selector reads the same values before firing.
 /// </summary>
 public static class DraygonCannonData
 {
@@ -15,7 +15,7 @@ public static class DraygonCannonData
         DraygonFiringCannon.LowerLeft, DraygonFiringCannon.UpperRight, DraygonFiringCannon.LowerRight, DraygonFiringCannon.UnusedBottom,
     ];
 
-    /// <summary>$A5:87AA HandleFiringWallTurret selects four roles; $A5:87E4..87F3 holds their wall muzzle coordinates.</summary>
+    /// <summary>HandleFiringWallTurret selects four roles; this holds their wall muzzle coordinates.</summary>
     internal static DraygonCannonTarget FiringTarget(DraygonFiringCannon cannon) => cannon switch
     {
         DraygonFiringCannon.LowerLeft => new(DraygonWallCannon.LowerLeft, new(52, 303)),

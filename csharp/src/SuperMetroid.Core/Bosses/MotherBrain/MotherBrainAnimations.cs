@@ -5,7 +5,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's typed body and brain programs (#641), in place of their bank-$A9 instruction lists.</summary>
+/// <summary>Mother Brain's typed body and brain programs (#641), in place of their instruction lists.</summary>
 internal static class MotherBrainAnimations
 {
     /// <summary>Every body program.</summary>
@@ -196,7 +196,7 @@ internal static class MotherBrainAnimations
     private static AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue> Pose(MotherBrainBodyPose pose) =>
         BodyCue(new MotherBrainBodyCue.SetPose(pose));
 
-    /// <summary>The native sleep that ends a body program.</summary>
+    /// <summary>The script's sleep that ends a body program.</summary>
     private static AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue> BodyHold =>
         AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue>.Hold;
 

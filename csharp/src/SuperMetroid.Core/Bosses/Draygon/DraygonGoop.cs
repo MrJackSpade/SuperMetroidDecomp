@@ -35,15 +35,15 @@ internal sealed class DraygonGoop
         _movement = movement;
     }
 
-    /// <summary>Ports the two mirrored goop setup functions at $A5:8B0A/$8C8E.</summary>
+    /// <summary>Ports the two mirrored goop setup functions.</summary>
     internal void SetupDraygonGoopPass(
         DraygonEnemyState state,
         HorizontalDirection direction,
         SamusState? samus,
         int frameCounterLow)
     {
-        // Only the rightward setup calls HandleFiringWallTurret; the leftward entry at
-        // $8C8E omits it. That asymmetry changes the random seed and is therefore material.
+        // Only the rightward setup calls HandleFiringWallTurret; the leftward setup omits it.
+        // That asymmetry changes the random seed and is therefore material.
         if (direction == HorizontalDirection.Right)
             _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
 
@@ -65,7 +65,7 @@ internal sealed class DraygonGoop
         state.FacingRight = direction == HorizontalDirection.Right;
     }
 
-    /// <summary>Ports the oscillating approach at $A5:8B52/$8CD4.</summary>
+    /// <summary>Ports the oscillating approach.</summary>
     internal void ApproachSamusForDraygonGoop(
         DraygonEnemyState state,
         HorizontalDirection direction,
@@ -88,7 +88,7 @@ internal sealed class DraygonGoop
         MoveDraygonAlongGoopPath(state, direction == HorizontalDirection.Right);
     }
 
-    /// <summary>Ports the firing and off-screen selection at $A5:8BAE/$8D30.</summary>
+    /// <summary>Ports the firing and off-screen selection.</summary>
     internal void FireDraygonGoop(
         DraygonEnemyState state,
         HorizontalDirection direction,
@@ -142,7 +142,7 @@ internal sealed class DraygonGoop
             : DraygonAiFunction.GoopLeftRecovery;
     }
 
-    /// <summary>Ports the final off-screen movement at $A5:8C33/$8DB2.</summary>
+    /// <summary>Ports the final off-screen movement.</summary>
     internal void ExitDraygonGoopPass(
         DraygonEnemyState state,
         HorizontalDirection direction,
@@ -197,7 +197,7 @@ internal sealed class DraygonGoop
 
         table.AddFrameBehavior(context =>
         {
-            // $86:8DFF deletes a power-bombed shot, then still moves the released slot.
+            // The goop's power-bomb step deletes a power-bombed shot, then still moves the released slot.
             DeleteEnemyProjectileIfPowerBombed(context.Projectile, context.Samus);
             MoveDraygonProjectile(context.Projectile);
             DeleteDraygonProjectileOutsideRoom(context.Projectile);
@@ -244,7 +244,7 @@ internal sealed class DraygonGoop
     internal static void MoveDraygonProjectile(RoomEnemyProjectileSlot projectile) =>
         projectile.StateOf<AngledFlightState>().Advance(projectile);
 
-    /// <summary>Deletes a projectile that has left Draygon's room (<c>$86:E722</c>).</summary>
+    /// <summary>Deletes a projectile that has left Draygon's room.</summary>
     private static void DeleteDraygonProjectileOutsideRoom(RoomEnemyProjectileSlot projectile)
     {
         if (IsOutsideDraygonRoom(projectile))
@@ -256,7 +256,7 @@ internal sealed class DraygonGoop
         RoomEnemyProjectileSlot goop,
         SamusState? samus)
     {
-        // $86:8E0F: a power-bombed goop loses its ID but the routine still moves it and
+        // A power-bombed goop loses its ID but the routine still moves it and
         // tests Samus. Contact is tested before the room boundary, so a goop that touches
         // Samus outside the boundary still runs its touch list instead of being deleted.
         DeleteEnemyProjectileIfPowerBombed(goop, samus);
@@ -282,7 +282,7 @@ internal sealed class DraygonGoop
         RoomEnemyProjectileSlot goop,
         SamusState? samus)
     {
-        // $86:8D99 runs the power-bomb deletion first, then attaches regardless.
+        // The goop's attach step runs the power-bomb deletion first, then attaches regardless.
         DeleteEnemyProjectileIfPowerBombed(goop, samus);
         if (samus is null)
             return;
@@ -306,7 +306,7 @@ internal sealed class DraygonGoop
         RoomEnemyProjectileSlot goop,
         SamusState? samus)
     {
-        // $86:8DCA: the power-bomb deletion does not end this pre-instruction.
+        // The power-bomb deletion does not end this pre-instruction.
         DeleteEnemyProjectileIfPowerBombed(goop, samus);
         if (samus is null)
             return;
@@ -337,7 +337,7 @@ internal sealed class DraygonGoop
     }
 
     /// <summary>
-    /// Ports <c>Delete_EnemyProjectile_IfPowerBombed</c> at $86:8D5C for the Draygon goop
+    /// Ports <c>Delete_EnemyProjectile_IfPowerBombed</c> for the Draygon goop
     /// and wall-turret shot. Inside the explosion's ellipse it clears the projectile ID and
     /// <c>XSpeedDivisor</c> only; the calling routine continues on the released slot.
     /// </summary>

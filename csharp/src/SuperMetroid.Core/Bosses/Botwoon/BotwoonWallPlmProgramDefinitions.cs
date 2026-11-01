@@ -5,7 +5,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.B
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
-/// Botwoon's wall PLM programs (#1296), in place of their bank-$84 instruction lists at $84:AB31 and $84:AB67. The
+/// Botwoon's wall PLM programs (#1296), in place of their animation scripts. The
 /// crumble opens the first two scroll cells and crumbles the wall one row at a time, top to bottom.
 /// </summary>
 internal static class BotwoonWallPlmProgramDefinitions

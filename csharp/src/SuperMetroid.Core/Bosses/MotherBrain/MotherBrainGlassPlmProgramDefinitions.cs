@@ -4,7 +4,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.B
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's glass PLM programs (#1296), in place of its bank-$84 instruction lists. On entry the glass shows
+/// Mother Brain's glass PLM programs (#1296), in place of its instruction lists. On entry the glass shows
 /// cleared once the boss is dead, shattered once destroyed, and otherwise arms its hit wake and holds each of nine
 /// stages until the glass has taken two more hits; later stages burst into shards, and the last sets the destroyed
 /// event.

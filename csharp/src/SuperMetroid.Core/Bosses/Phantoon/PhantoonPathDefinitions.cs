@@ -3,10 +3,10 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>Exact discrete Phantoon figure-eight movement, not a sampled analytic curve.</summary>
 public static class PhantoonPathDefinitions
 {
-    /// <summary>$A7:E3D2..E7FD, PhantoonMovementData: 534 signed X/Y unit steps.</summary>
+    /// <summary>PhantoonMovementData: 534 signed X/Y unit steps.</summary>
     public const int Length = 534;
 
-    /// <summary>Lossless keypad notation for native unit steps with screen Y increasing downward; source rows are formatting only.</summary>
+    /// <summary>Lossless keypad notation for unit steps with screen Y increasing downward; source rows are formatting only.</summary>
     /// <remarks>8/6/2/4 mean north/east/south/west; 7/9/1/3 are diagonals. The movement cursor crosses string-row boundaries without resetting.</remarks>
     internal const string Directions =
         "8686898686886868688686868686886868686868668686868668668668668666" +

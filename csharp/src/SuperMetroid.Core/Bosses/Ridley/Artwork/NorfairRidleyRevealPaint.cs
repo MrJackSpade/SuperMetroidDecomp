@@ -3,8 +3,8 @@ using static SuperMetroid.Core.Bosses.Ridley.Artwork.NorfairRidleyRevealPaintDef
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
-/// Arena reveal $A6:A50B-A6AE, ending at the fourteen room-theme9 palette7
-/// colors also present in decompressed $C2:B5E4. Native $A6:A4D6-A4EA uniformly
+/// The arena reveal, ending at the fourteen room-theme9 palette7
+/// colors also present in the room's own palette. The reveal step uniformly
 /// copies the selected step. Every channel uses the existing fifteen-interval
 /// biased fade; no intermediate sample is independently stored.
 /// </summary>
@@ -30,7 +30,7 @@ internal sealed class NorfairRidleyRevealPaint
         return edits.TryGetValue(new ColourCell(step, color), out RgbColor edited) ? edited : Calculate(step, color);
     }
 
-    /// <summary>Restricts lookup to the fifteen native reveal phases.</summary>
+    /// <summary>Restricts lookup to the fifteen reveal phases.</summary>
     internal static void ValidateStep(int step)
     {
         if ((uint)step >= Steps) throw new ArgumentOutOfRangeException(nameof(step));
@@ -40,7 +40,7 @@ internal sealed class NorfairRidleyRevealPaint
     private static RgbColor Calculate(int step, int color) => CeresRidleyFade.Scale(Endpoint(color), step + 1);
 
     /// <summary>
-    /// Immutable stock material operation for $A6:A693-A6AE and theme9 slots113..126.
+    /// Immutable stock material operation for the reveal's last step and theme9 slots113..126.
     /// Panel shade12 reuses masonry middle; cavern shade13 reuses cavern middle;
     /// slot14 is a copied white target (RGB5 maximum), not a visibility exemption.
     /// RoomStaticPalette's separate occurrence remains independently accounted.

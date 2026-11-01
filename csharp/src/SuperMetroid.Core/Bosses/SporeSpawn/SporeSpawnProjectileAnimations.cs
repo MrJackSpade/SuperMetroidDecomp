@@ -4,14 +4,14 @@ using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnProjectileProgram;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>Spore Spawn's typed projectile programs (#641), in place of their bank-$86 lists.</summary>
+/// <summary>Spore Spawn's typed projectile programs (#641), in place of their lists.</summary>
 internal static class SporeSpawnProjectileAnimations
 {
-    /// <summary>The emitter's release poses' dwells ($86:DC06..DC18).</summary>
+    /// <summary>The emitter's release poses' dwells.</summary>
     internal static readonly int[] ReleaseDurations = [1, 6, 16, 6, 1];
-    /// <summary>Each falling-spore and stalk pose's dwell ($86:DC1E..DC2E).</summary>
+    /// <summary>Each falling-spore and stalk pose's dwell.</summary>
     private const int SporeDuration = 5;
-    /// <summary>The shot spore's poses' dwells ($86:DC34..DC50).</summary>
+    /// <summary>The shot spore's poses' dwells.</summary>
     internal static readonly int[] ShotDurations = [1, 3, 6, 5, 5, 5, 6];
     /// <summary>The falling spore's poses.</summary>
     internal const int SporePoseCount = 3;
@@ -63,7 +63,7 @@ internal static class SporeSpawnProjectileAnimations
     private static AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Cue(SporeSpawnProjectileCue cue) =>
         AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue>.Publish(cue);
 
-    /// <summary>Holds the last frame, as the native sleep and deletion do.</summary>
+    /// <summary>Holds the last frame, as the script's sleep and deletion do.</summary>
     private static AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Hold =>
         AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue>.Hold;
 }

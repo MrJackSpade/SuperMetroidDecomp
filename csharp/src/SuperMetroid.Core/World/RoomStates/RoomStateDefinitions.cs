@@ -2,13 +2,13 @@ namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
 /// The initialization settings of each of the 323 retail room states, named by the disassembly's RoomState_ labels.
-/// Each field preserves its native byte/word width from LoadStateHeader ($82:DEF2).
+/// Each field keeps the value range of its room-state header field.
 /// </summary>
 [NumberedIdentities("Each numbered state is one state of its room, chosen by its own event condition; the number tells the states apart and no caller indexes them.")]
 public static class RoomStateDefinitions
 {
 
-    /// <summary>Every retail room state, in native order.</summary>
+    /// <summary>Every retail room state, in authored order.</summary>
     public static IReadOnlyList<RoomStateSettings> All { get; } =
     [
         CrateriaRoomStateDefinitions.LandingSite0,

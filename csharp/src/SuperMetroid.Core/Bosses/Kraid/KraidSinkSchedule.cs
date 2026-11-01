@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidSinkSchedule
 {
     /// <summary>
-    /// $A7:C5E7..C68F, ShrinkingKraidTable: twenty-eight rows spaced eight pixels
-    /// apart, terminated by FFFF. Six rows crumble platforms; the remaining rows
-    /// invoke the distinct empty RTS. Tilemap offsets are presentation data.
+    /// ShrinkingKraidTable: twenty-eight rows spaced eight pixels
+    /// apart, terminated by an end marker. Six rows crumble platforms; the remaining rows
+    /// invoke the distinct empty callback. Tilemap offsets are presentation data.
     /// </summary>
     public static KraidSinkCallback? CallbackAt(int y)
     {

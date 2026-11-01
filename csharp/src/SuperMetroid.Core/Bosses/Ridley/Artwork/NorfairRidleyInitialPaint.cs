@@ -5,11 +5,11 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
-/// Initial Ridley OBJ targets at $A6:E1CF-E20E. The first material is the escape
+/// Initial Ridley sprite targets. The first material is the escape
 /// door's grey-blue paint; the second is the Baby/container initial material.
 /// Each occurrence owns its supplied channel edits. The two copied clear-slot
-/// blue14 targets specify the exact copied metadata at $A6:E1CF/E1EF, shared
-/// across the two clear slots. $A6:A1C7-A1D0 uniformly copies these observable
+/// blue14 targets specify the exact copied metadata, shared
+/// across the two clear slots. Norfair Ridley's initialization uniformly copies these observable
 /// targets; transparency does not choose their value. Replacing that datum would
 /// invent different source content. Independent supplied clear-slot edits survive.
 /// Arena reveal colors are independent of this initial material operation.
@@ -22,7 +22,7 @@ internal sealed class NorfairRidleyInitialPaint
     internal readonly CeresBabyPaint organ;
     /// <summary>Copied blue channel shared by the two clear-slot source records.</summary>
     private readonly int clearBlue;
-    /// <summary>Supplied clear-slot colors that differ from the copied native metadata.</summary>
+    /// <summary>Supplied clear-slot colors that differ from the copied metadata.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Splits 32 supplied targets into two materials and preserves independent clear-slot edits.</summary>
@@ -36,7 +36,7 @@ internal sealed class NorfairRidleyInitialPaint
         organ = new(colors.Slice(17, 15));
     }
 
-    /// <summary>Reconstructs the native clear-slot value from the source's copied blue channel.</summary>
+    /// <summary>Reconstructs the clear-slot value from the source's copied blue channel.</summary>
     private RgbColor ClearSlot => new(0, 0, clearBlue);
 
     /// <summary>Uses an edited clear slot when supplied; otherwise resolves the matching armor or organ material.</summary>

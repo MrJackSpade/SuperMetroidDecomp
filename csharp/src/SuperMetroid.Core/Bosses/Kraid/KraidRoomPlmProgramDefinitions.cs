@@ -5,8 +5,8 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The Kraid room's ceiling, platform and spike PLM programs (#1296), in place of their bank-$84 instruction lists
-/// at $84:AB6D..ABE2. A crumble shows three crumble frames for three updates each before its final block; the spike
+/// The Kraid room's ceiling, platform and spike PLM programs (#1296), in place of their animation scripts.
+/// A crumble shows three crumble frames for three updates each before its final block; the spike
 /// program crumbles eleven pairs of columns.
 /// </summary>
 internal static class KraidRoomPlmProgramDefinitions

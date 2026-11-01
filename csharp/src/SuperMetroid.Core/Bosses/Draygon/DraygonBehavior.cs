@@ -74,7 +74,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         Combat = new DraygonCombat(dependencies.Projectiles, dependencies.Presentation, dependencies.Collision, Parts, Grab, _bossArtwork);
     }
 
-    /// <summary>Ports <c>MainAI_DraygonBody</c> at <c>$A5:86FC</c>.</summary>
+    /// <summary>Ports <c>MainAI_DraygonBody</c>.</summary>
     private void RunDraygonBodyMain(RoomEnemySlot body, SamusState? samus, int frameCounterLow)
     {
         DraygonEnemyState state = Combat.RequireCompleteDraygonState(body);
@@ -196,16 +196,16 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal sealed record DraygonSwoopSide(HorizontalDirection Direction, DraygonProgram ArmsNearApex, DraygonProgram ArmsIdle,
         DraygonAiFunction Apex, DraygonAiFunction Ascending);
 
-    /// <summary>The swoop from the left edge to the right, $A5:88B1-$8951.</summary>
+    /// <summary>The swoop from the left edge to the right.</summary>
     internal static readonly DraygonSwoopSide RightSwoop = new(HorizontalDirection.Right, DraygonProgram.ArmsFacingRightNearSwoopApex,
         DraygonProgram.ArmsFacingRightIdle, DraygonAiFunction.SwoopRightApex, DraygonAiFunction.SwoopRightAscending);
 
-    /// <summary>The mirrored swoop from the right edge to the left, $A5:8A00-$8A90.</summary>
+    /// <summary>The mirrored swoop from the right edge to the left.</summary>
     internal static readonly DraygonSwoopSide LeftSwoop = new(HorizontalDirection.Left, DraygonProgram.ArmsFacingLeftNearSwoopApex,
         DraygonProgram.ArmsFacingLeftIdle, DraygonAiFunction.SwoopLeftApex, DraygonAiFunction.SwoopLeftAscending);
 
     /// <summary>
-    /// <c>$FFB0</c>: the X Draygon parks at off the left edge (-80 as a signed word); a goop pass leftwards ends once
+    /// The X Draygon parks at off the left edge (-80 as a signed word); a goop pass leftwards ends once
     /// the body crosses it.
     /// </summary>
     internal static readonly int DraygonOffscreenLeftX = CoordinateAxis.Wrap(-80);
@@ -256,7 +256,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const int DraygonDeathTargetY = 480;
     /// <summary>Y threshold below the room where Draygon's burial is complete.</summary>
     internal const int DraygonBurialFinishedY = 576;
-    /// <summary>Native wait before the burial Evirs and sinking phase proceed.</summary>
+    /// <summary>Wait before the burial Evirs and sinking phase proceed.</summary>
     internal const int DraygonDeathWaitFramesUs = 416;
     /// <summary>Whole-pixel speed of Draygon's direct chase before the carry spiral.</summary>
     internal const int DraygonChaseSpeed = 2;
@@ -272,7 +272,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const int DraygonMaximumSpiralRadius = 160;
     /// <summary>Upper room boundary for the spiral center's vertical lift.</summary>
     internal const int DraygonMinimumSpiralCenterY = 64;
-    /// <summary>The spiral center's per-frame 16.16 lift, -$0000.4000.</summary>
+    /// <summary>The spiral center's per-frame 16.16 lift, a quarter pixel upward.</summary>
     internal static readonly SignedSixteenSixteen DraygonSpiralCenterLift = SignedSixteenSixteen.FromRaw(-16384);
     /// <summary>Number of AI calls in Draygon's tail-whip phase.</summary>
     internal const int DraygonTailWhipDuration = 64;
@@ -280,7 +280,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const int DraygonTailWhipStartFrame = 63;
 
     /// <summary>
-    /// Implements bank $84's write through <c>PLM_Variable</c>. Cannon setup names one of
+    /// Disables a wall cannon for the PLM that names it. Cannon setup names one of
     /// Draygon's wall cannons, then the damage instruction disables it here.
     /// </summary>
     public void DisableDraygonCannon(DraygonWallCannon cannon)
@@ -292,7 +292,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Registers $A5:954D hurt AI: flashes body, eye, and tail together, while connected
+    /// Registers Draygon's hurt AI: flashes body, eye, and tail together, while connected
     /// grapple electrocution may drain another 256 health every eighth frame.
     /// </summary>
     internal void AddDraygonHurtAi(EnemySharedReactions table) =>

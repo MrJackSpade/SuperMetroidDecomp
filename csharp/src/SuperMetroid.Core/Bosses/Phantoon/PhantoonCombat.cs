@@ -46,14 +46,14 @@ internal sealed class PhantoonCombat
     internal void AddPhantoonBombReactions(EnemySharedReactions table)
     {
         // Common bomb damage. Rinka, Skree, and Powamp deliberately call the no-death-animation form of common shot
-        // AI; their private callbacks own slot cleanup or a staged death. Bank-$A8 callbacks reuse the same
+        // AI; their private callbacks own slot cleanup or a staged death. Gameplay-enemy callbacks reuse the same
         // translated post-common routines as beams. Normal bombs cannot freeze, but their damage, staged-death,
         // child synchronization, recoil, release, and attack side effects are otherwise the same callback tails.
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.PhantoonBody &&
                                                        c.SelectedShotAi == EnemyReaction.PhantoonShot)
         {
             RunsGenericDeath = false,
-            // Phantoon's `$A7:DD9B` hitbox callback enters the same no-death common-damage routine for bombs as it
+            // Phantoon's hitbox callback enters the same no-death common-damage routine for bombs as it
             // does for beams and missiles, then consumes the exact damage delta in its encounter reaction state
             // machine. A lethal hit begins the authored death sequence, while sub-threshold damage feeds the
             // eye-close/rage accumulator instead of deleting a slot.
@@ -133,9 +133,9 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>
-    /// Runs bank-$A0's five-slot beam/missile walk for Phantoon, then dispatches the
-    /// selected bank-$A7 hitbox callback. One projectile resolves per pass, matching the
-    /// native early exit after the first overlapping enemy/component pair.
+    /// Runs 's five-slot beam/missile walk for Phantoon, then dispatches the
+    /// selected hitbox callback. One projectile resolves per pass, matching the
+    /// early exit after the first overlapping enemy/component pair.
     /// </summary>
     public int ResolvePhantoonProjectileHits(
         SamusProjectileSystem projectiles,
@@ -189,7 +189,7 @@ internal sealed class PhantoonCombat
                 continue;
             }
 
-            // `$A0:9B7F` applies this before calling the selected component function. A
+            // The extended-hitbox walker applies this before calling the selected component function. A
             // no-op shell hit therefore still marks the beam and shakes for a Super Missile.
             if (family == SamusProjectileFamily.SuperMissile)
             {
@@ -215,7 +215,7 @@ internal sealed class PhantoonCombat
                     $"Phantoon hitbox shot AI {hitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
             }
 
-            // The native extended-hitbox walker marks the projectile before $A7:DD9B.
+            // The extended-hitbox walker marks the projectile before Phantoon's hitbox callback.
             // That callback's damage helper does not convert it into an explosion:
             // the projectile pre-instruction owns the following-frame deletion, while
             // penetrating Plasma retains its type, direction, and instruction stream.
@@ -243,7 +243,7 @@ internal sealed class PhantoonCombat
                     body.FlashTimer = WrappingCountdown.Start(body.HurtFlashFrames + 8);
                     body.AiStates |= EnemyAiStates.Hurt;
                     // Plasma alone installs this clock; ordinary missiles retain
-                    // the timer behavior of the shared native damage helper.
+                    // the timer behavior of the shared damage helper.
                     if (projectileType.HasAnyBeam(SamusBeamFlags.Plasma))
                         body.InvincibilityTimer = WrappingCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
                     body.Health = damage >= body.Health
@@ -265,7 +265,7 @@ internal sealed class PhantoonCombat
         return 0;
     }
 
-    /// <summary>Ports the boss-owned tail of $A7:DD9B after common vulnerability damage.</summary>
+    /// <summary>Runs the boss-owned tail of Phantoon's hitbox callback after common vulnerability damage.</summary>
     internal void ResolvePhantoonShotReaction(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -303,7 +303,7 @@ internal sealed class PhantoonCombat
                 return;
             }
 
-            // The round's damage shares its word with other parts' state, so a sum past the word wraps as the cartridge's does.
+            // The round's damage shares its word with other parts' state, so a sum past the word wraps as the game's does.
             state.Parts[state.Tentacles.SlotIndex].RoundDamage = WrappingCounter.AddWord(
                 state.Parts[state.Tentacles.SlotIndex].RoundDamage, damage);
             if (state.Parts[state.Tentacles.SlotIndex].RoundDamage >= PhantoonBehavior.PhantoonDamageThreshold)
@@ -332,7 +332,7 @@ internal sealed class PhantoonCombat
             }
         }
 
-        // Native writes this otherwise-unused marker even when a valid damaging shot lands
+        // Writes this otherwise-unused marker even when a valid damaging shot lands
         // outside the three reaction states. Retain it because the four records are exposed
         // to the debugger and later reverse-engineering may identify another consumer.
         state.Parts[state.Tentacles.SlotIndex].HitReaction = 2;
@@ -524,7 +524,7 @@ internal sealed class PhantoonCombat
             if (rain.FallDelay != 0)
                 return;
             // Expiry falls through to movement on this call, including signed
-            // underflow. Keep each actor's native queue call rather than a last-SFX latch.
+            // underflow. Keep each actor's queue call rather than a last-SFX latch.
             _audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundPriority);
         }
 
@@ -572,7 +572,7 @@ internal sealed class PhantoonCombat
         flame.Position = flame.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(body.Position.Y.Whole + 16 + yOffset)));
     }
 
-    /// <summary>Ports $86:9BA2/$9BF3: unsigned half-wave multiplication followed by whole-result negation.</summary>
+    /// <summary>Unsigned half-wave multiplication followed by whole-result negation, as the flame orbit computes it.</summary>
     /// <param name="angle">The flame's orbit angle.</param>
     /// <param name="radius">The orbit radius, of which only the low eight bits are read.</param>
     internal static int ReadPhantoonFlameComponent(ByteAngle angle, int radius)
@@ -595,8 +595,8 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>
-    /// Ports projectile instruction <c>$86:980E</c>. The cartridge forwards the flame's
-    /// exact position and enemy header <c>$A0:E4FF</c> to <c>Spawn_Enemy_Drops</c>; the
+    /// Runs the flame's drop step. The original game forwards the flame's
+    /// exact position and the Phantoon-eye enemy header to <c>Spawn_Enemy_Drops</c>; the
     /// translated pickup owner is still an outer subsystem, so publish the same semantic
     /// request with the header-derived item table rather than silently discarding the drop.
     /// </summary>
@@ -605,7 +605,7 @@ internal sealed class PhantoonCombat
         if (flame.Kind != RoomEnemyProjectileKind.PhantoonDestroyableFlame)
         {
             throw new InvalidOperationException(
-                $"Projectile {flame.Kind} reached Phantoon drop opcode $980E.");
+                $"Projectile {flame.Kind} reached Phantoon's flame drop step.");
         }
 
         RoomEnemyDefinition eye = _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.PhantoonEye);
@@ -618,7 +618,7 @@ internal sealed class PhantoonCombat
     /// <summary>Active four-slot encounter state when retail Phantoon occupies slot zero.</summary>
     public PhantoonEnemyState? Phantoon { get; internal set; }
 
-    /// <summary>Requires the native slot-zero body before handling another Phantoon part.</summary>
+    /// <summary>Requires the slot-zero body before handling another Phantoon part.</summary>
     internal PhantoonEnemyState RequirePhantoonState(RoomEnemySlot slot)
     {
         if (Phantoon is null ||
@@ -630,7 +630,7 @@ internal sealed class PhantoonCombat
         return Phantoon;
     }
 
-    /// <summary>Recognizes the four native enemy definitions that share Phantoon encounter state.</summary>
+    /// <summary>Recognizes the four enemy definitions that share Phantoon encounter state.</summary>
     internal static bool IsPhantoonPartDefinition(EnemyDefinitionId definition) => definition is
         EnemyDefinitionId.PhantoonBody or EnemyDefinitionId.PhantoonEye or
         EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth;
@@ -664,8 +664,8 @@ internal sealed class PhantoonCombat
 
         // Phantoon's extended frame roots include hitbox-list pointers,
         // but its editable BG2 tilemap writes must never become collision
-        // data. Preserve the native component and rectangle order from
-        // the compiled bank-$A7 definitions, including point no-ops.
+        // data. Preserve the component and rectangle order from
+        // the compiled definitions, including point no-ops.
         foreach (EnemyCollisionComponent component in
                  PhantoonCollision.ComponentsAt(enemy.Frame))
         {

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
-/// <summary>Immutable NTSC mechanics; the PAL cartridge has different movement records.</summary>
+/// <summary>Immutable NTSC mechanics; the PAL has different movement records.</summary>
 public static class BotwoonSpeedDefinitions
 {
     /// <summary>

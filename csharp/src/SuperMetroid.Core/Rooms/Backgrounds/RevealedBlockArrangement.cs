@@ -17,7 +17,7 @@ public enum RevealedBlockArrangement
 
     /// <summary>
     /// Its two tile rows swapped and the tiles left unflipped: an item or room overlay the level flips vertically, as
-    /// <c>$91:D0A6</c> draws it.
+    /// the X-ray reveal draws it.
     /// </summary>
     RowsSwapped,
 }

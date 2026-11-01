@@ -30,7 +30,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Queues the statue-break sound with the enemy audio limits.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Exposes the two live CGRAM rows occupied by Torizo's body.</summary>
+    /// <summary>Exposes the two live palette rows occupied by Torizo's body.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Provides the frame counter used by Torizo instruction choices.</summary>
     private readonly EnemyFrameContext _frameContext;
@@ -77,7 +77,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Health below which the later core-break list interrupts active AI.</summary>
     internal const int BombTorizoCoreExplosionHealth = 100;
 
-    /// <summary>Creates the per-statue gradual color transition against the live CGRAM image on first use.</summary>
+    /// <summary>Creates the per-statue gradual color transition against the live colours on first use.</summary>
     private GradualPaletteTransition GetTorizoPaletteTransition(TorizoEnemyState state) =>
         state.PaletteTransition ??= new GradualPaletteTransition(
             new ColourImage([.. TorizoBodyColours.Runs]), TorizoPaletteDefinitions.FadeDenominator, _presentation.GradualColorChange);
@@ -107,7 +107,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case TorizoFunction.WaitForHandTrigger:
-                // $AA:C6C6 scans all forty PLM headers for $D6EA. A supplied PLM owner is
+                // The awakening check scans all forty PLM slots for the hand-trigger PLM. A supplied PLM owner is
                 // authoritative; standalone enemy audits omit it and therefore model the
                 // already-collected item/removed hand trigger.
                 torizo.Properties = torizo.Properties.With(EnemyProperties.SolidToSamus);
@@ -125,7 +125,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case TorizoFunction.GoldenWaitForSamus:
-                // $AA:D5C2 advances the list operand only after Samus has entered the
+                // The wake-up step advances the list operand only after Samus has entered the
                 // lower-right trigger rectangle. This is the authored statue wake-up gate.
                 if (samus is not null && samus.Position.Y.Whole > 320 && samus.Position.X.Whole > 368)
                 {
@@ -171,7 +171,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Services.Bosses.SetDefeated(BossBits.AreaTorizo);
         state.BossBitSet = true;
 
-        // The two statues share header $EEFF's chance table but use different native
+        // The two statues share one chance table but use different
         // arena rectangles: Bomb Torizo uses the 128x64 upper room region, while Golden
         // Torizo uses a 256x64 strip much lower in its room.
         _deathsAndDrops.SpawnEnemyDropScatter(
@@ -226,7 +226,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         TorizoEnemyState state = Access.RequireBombTorizoState(torizo);
         AnimationProgramCursor<TorizoBodyProgram> cursor = state.BodyProgram;
-        // The death and wake repeats count the body's timer word, as the native timer commands do.
+        // The death and wake repeats count the body's timer word, as the timer commands do.
         EnemyProgramAnimation.RunTo(torizo, TorizoAnimations.Programs, ref cursor, TorizoFrameDefinitions.ShownFrames.Of,
             (cue, continuation) => ApplyTorizoCue(torizo, state, inputs, cue, continuation));
         state.BodyProgram = cursor;
@@ -338,13 +338,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.LowHealthExplosions explosions:
                 for (int explosion = 0; explosion < 6; explosion++)
                     Attacks.SpawnBombTorizoLowHealthExplosion(torizo, explosions.Site);
-                // The program then waits forty updates, as the native callback's sleep does.
+                // The program then waits forty updates, as the callback's sleep does.
                 torizo.FlashTimer = WrappingCountdown.Start(40);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.SpawnDeathExplosion }:
                 Attacks.SpawnBombTorizoDeathExplosion(torizo);
-                // The program then waits one update, as the native callback's sleep does.
+                // The program then waits one update, as the callback's sleep does.
                 torizo.FlashTimer = WrappingCountdown.Start(1);
                 return null;
 

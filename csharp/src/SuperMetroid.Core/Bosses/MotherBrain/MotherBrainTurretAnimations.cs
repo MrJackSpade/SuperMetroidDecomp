@@ -3,7 +3,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.B
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The turrets' and bullets' typed programs (#641), in place of their bank-$86 instruction lists.</summary>
+/// <summary>The turrets' and bullets' typed programs (#641), in place of their instruction lists.</summary>
 internal static class MotherBrainTurretAnimations
 {
     /// <summary>Frames in the impact smoke.</summary>

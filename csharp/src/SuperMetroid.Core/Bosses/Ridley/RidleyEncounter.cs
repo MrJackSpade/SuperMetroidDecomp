@@ -4,8 +4,8 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Ridley encounter state shared by the Ceres and Lower Norfair fights, and the native
-/// <c>ceres_status</c> escape handoff word that Ceres Ridley publishes.
+/// Ridley encounter state shared by the Ceres and Lower Norfair fights, and the
+/// <c>ceres_status</c> escape handoff value that Ceres Ridley publishes.
 /// </summary>
 internal sealed class RidleyEncounter : ICeresEscapeStatus
 {
@@ -28,7 +28,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
     internal RoomEnemySlot Body => _slotTable.Slots[0];
 
     /// <summary>
-    /// Ridley's bank-$A6 state extension while either encounter owns slot zero. The native actor
+    /// Ridley's state extension while either encounter owns slot zero. The actor
     /// extends far beyond the common $40-byte enemy record, so exposing a deliberately named
     /// object is both more accurate and considerably easier to inspect than aliasing dozens
     /// of unrelated generic slot words.
@@ -54,7 +54,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
         set => _session.CeresStatus = value;
     }
 
-    /// <summary>Requires a slot-zero Ridley definition and its shared bank-$A6 state extension.</summary>
+    /// <summary>Requires a slot-zero Ridley definition and its shared state extension.</summary>
     internal RidleyEnemyState RequireRidley(RoomEnemySlot slot)
     {
         if (!RidleyInteractions.IsRidleyDefinition(slot.DefinitionId) ||
@@ -63,7 +63,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
         {
             throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} executed shared Ridley code without an " +
-                "$E13F/$E17F slot-zero state extension.");
+                "extended Ridley state in the first enemy slot.");
         }
         return Ridley;
     }
@@ -89,7 +89,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
         {
             throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} executed a Ceres Ridley routine without " +
-                "the $E13F slot-zero state extension.");
+                "the extended Ceres Ridley state in the first enemy slot.");
         }
 
         return Ridley;

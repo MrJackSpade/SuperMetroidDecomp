@@ -1,42 +1,42 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The programs of Kraid's foot, arm, lints and fingernails, declared in the order the cartridge authors them in
-/// bank $A7. Kraid's routines depend on that order: they ask whether a part's program lies before a given program,
-/// as the native routines compare instruction pointers.
+/// The programs of Kraid's foot, arm, lints and fingernails, declared in the order the original game authors them.
+/// Kraid's routines depend on that order: they ask whether a part's program lies before a given program,
+/// as the original routines compare script positions.
 /// </summary>
 public enum KraidPartProgram
 {
-    /// <summary><c>InstList_KraidFoot_Initial</c> (<c>$A7:86E7</c>).</summary>
+    /// <summary>Kraid foot animation script: initial.</summary>
     FootInitial,
-    /// <summary><c>InstList_KraidFoot_KraidIsBig_Neutral</c> (<c>$A7:86ED</c>).</summary>
+    /// <summary>Kraid foot animation script: Kraid is big, neutral.</summary>
     FootNeutral,
-    /// <summary><c>InstList_KraidFoot_KraidIsBig_WalkingForward_0</c> (<c>$A7:86F3</c>).</summary>
+    /// <summary>Kraid foot animation script: Kraid is big, walking forward, part 0.</summary>
     FootWalkingForward,
-    /// <summary><c>InstList_KraidFoot_KraidIsBig_WalkingForward_1</c> (<c>$A7:87BB</c>).</summary>
+    /// <summary>Kraid foot animation script: Kraid is big, walking forward, part 1.</summary>
     FootWalkingForwardFinished,
-    /// <summary><c>InstList_KraidFoot_LungeForward_0</c> (<c>$A7:87BD</c>).</summary>
+    /// <summary>Kraid foot animation script: lunge forward, part 0.</summary>
     FootLungeForward,
-    /// <summary><c>InstList_KraidFoot_LungeForward_1</c> (<c>$A7:8885</c>).</summary>
+    /// <summary>Kraid foot animation script: lunge forward, part 1.</summary>
     FootLungeForwardFinished,
-    /// <summary><c>InstList_KraidFoot_KraidIsBig_WalkingBackwards_0</c> (<c>$A7:8887</c>).</summary>
+    /// <summary>Kraid foot animation script: Kraid is big, walking backwards, part 0.</summary>
     FootWalkingBackward,
-    /// <summary><c>InstList_KraidFoot_KraidIsBig_WalkingBackwards_1</c> (<c>$A7:8939</c>).</summary>
+    /// <summary>Kraid foot animation script: Kraid is big, walking backwards, part 1.</summary>
     FootWalkingBackwardLoop,
-    /// <summary><c>InstList_KraidArm_Normal_0</c> (<c>$A7:89F3</c>).</summary>
+    /// <summary>Kraid arm animation script: normal, part 0.</summary>
     ArmNormal,
-    /// <summary><c>InstList_KraidArm_Normal_1</c> (<c>$A7:8A37</c>).</summary>
+    /// <summary>Kraid arm animation script: normal, part 1.</summary>
     ArmNormalPause,
-    /// <summary><c>InstList_KraidArm_Slow</c> (<c>$A7:8A41</c>).</summary>
+    /// <summary>Kraid arm animation script: slow.</summary>
     ArmSlow,
-    /// <summary><c>InstList_KraidArm_RisingSinking</c> (<c>$A7:8AA4</c>).</summary>
+    /// <summary>Kraid arm animation script: rising sinking.</summary>
     ArmRisingOrSinking,
-    /// <summary><c>InstList_KraidArm_Dying_PreparingToLungeForward</c> (<c>$A7:8AF0</c>).</summary>
+    /// <summary>Kraid arm animation script: dying, preparing to lunge forward.</summary>
     ArmDyingOrPreparingToLunge,
-    /// <summary><c>kKraid_Ilist_8AFE</c> (<c>$A7:8AFE</c>).</summary>
+    /// <summary><c>kKraid_Ilist_8AFE</c>.</summary>
     LintInitial,
-    /// <summary><c>kKraid_Ilist_8B04</c> (<c>$A7:8B04</c>).</summary>
+    /// <summary><c>kKraid_Ilist_8B04</c>.</summary>
     LintPostGrowth,
-    /// <summary><c>InstList_KraidNail</c> (<c>$A7:8B0A</c>).</summary>
+    /// <summary>Kraid nail animation script.</summary>
     NailLoop,
 }

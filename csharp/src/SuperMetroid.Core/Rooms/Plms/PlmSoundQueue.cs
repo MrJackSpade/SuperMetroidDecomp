@@ -26,7 +26,7 @@ internal sealed class PlmSoundQueue
     public void BindPowerBombAudio(IActivePowerBomb powerBomb) => _audioPowerBomb = powerBomb;
 
     /// <summary>
-    /// Captures the explosion guard when the PLM queues a sound, as native QueueSfx does;
+    /// Captures the explosion guard when the PLM queues a sound, as QueueSfx does;
     /// a later change to that guard cannot alter the pending gate sound.
     /// </summary>
     internal SoundRequest CreateSoundRequest(SoundEffectId soundEffect, SoundRequestPriority Priority) =>

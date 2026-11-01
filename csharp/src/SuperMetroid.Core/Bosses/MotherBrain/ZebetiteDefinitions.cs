@@ -12,11 +12,11 @@ internal static class ZebetiteDefinitions
     /// <summary>The steps of the shared pulse cycle physical enemy slot zero counts through before it restarts.</summary>
     public const int PaletteCycleLength = 8;
 
-    /// <summary>Embedded primary spawn record at <c>$A6:FCE1-$A6:FCF0</c>.</summary>
+    /// <summary>Embedded primary spawn record.</summary>
     internal static readonly RoomEnemyPopulationRecord PrimarySpawn =
         new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
 
-    /// <summary>Embedded linked-half spawn record at <c>$A6:FCF9-$A6:FD08</c>.</summary>
+    /// <summary>Embedded linked-half spawn record.</summary>
     internal static readonly RoomEnemyPopulationRecord LinkedSpawn =
         new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyProperties.RunsAnimationScript, EnemyExtraProperties.None, new ZebetiteSpawnSettings(ZebetiteHalf.Linked));
 

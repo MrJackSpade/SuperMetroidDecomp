@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmNoobTubeVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmNoobTubeVisuals), content =>
     {
         Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[48];
@@ -31,7 +31,7 @@ public sealed class InstalledRoomPlmNoobTubeVisuals
     private readonly PlmVisualOverrides customBlocks;
 
     /// <summary>Validates all seven N00b-tube layouts and copies visual differences without changing power-bomb gating, debris, event timing, water physics, or physical draw geometry.</summary>
-    /// <param name="entries">One visual-only entry per compiled layout, retaining the full flattened count of its single-block or twelve-block native runs.</param>
+    /// <param name="entries">One visual-only entry per compiled layout, retaining the full flattened count of its single-block or twelve-block runs.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     public InstalledRoomPlmNoobTubeVisuals(
@@ -41,9 +41,9 @@ public sealed class InstalledRoomPlmNoobTubeVisuals
             NoobTubePlmDraws.All.Count());
     }
 
-    /// <summary>Resolves one N00b-tube visual block by projecting native run-local indices into the flattened authored layout.</summary>
+    /// <summary>Resolves one N00b-tube visual block by projecting run-local indices into the flattened authored layout.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="runIndex">Zero-based native run ordinal; layouts contain one, three, or four horizontal runs.</param>
+    /// <param name="runIndex">Zero-based run ordinal; layouts contain one, three, or four horizontal runs.</param>
     /// <param name="blockIndex">Zero-based block ordinal within that run, not a flattened entry index or room coordinate.</param>
     /// <returns>The authored appearance, or appearance from the compiled terrain when unchanged.</returns>
     /// <exception cref="InvalidDataException">The draw is not a supported N00b-tube layout.</exception>

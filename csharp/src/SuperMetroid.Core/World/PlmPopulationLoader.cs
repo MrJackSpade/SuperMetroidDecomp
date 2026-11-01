@@ -12,7 +12,7 @@ using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.World;
 
-/// <summary>Loads a room PLM population: installs the room bindings, allocates native slots and runs each family setup in record order.</summary>
+/// <summary>Loads a room PLM population: installs the room bindings, allocates slots and runs each family setup in record order.</summary>
 [RoomLifetime]
 internal sealed class PlmPopulationLoader
 {
@@ -20,13 +20,13 @@ internal sealed class PlmPopulationLoader
     private readonly BombTorizoHandPlms _bombTorizoHand;
     /// <summary>Sets up permanent item slots and their dynamic graphics.</summary>
     private readonly CollectiblePlms _collectiblePlms;
-    /// <summary>Sets up eye-door headers after allocating their native PLM slots.</summary>
+    /// <summary>Sets up eye-door headers after allocating their PLM slots.</summary>
     private readonly EyeDoorPlms _eyeDoors;
     /// <summary>Sets up downward gates and their collision changes.</summary>
     private readonly GatePlms _gates;
     /// <summary>Initializes the Mother Brain glass room object.</summary>
     private readonly MotherBrainGlassPlms _motherBrainGlass;
-    /// <summary>Native descending slot array shared by population and runtime spawns.</summary>
+    /// <summary>Descending slot array shared by population and runtime spawns.</summary>
     private readonly PlmSlotTable _slotTable;
     /// <summary>Initializes the Speed Booster escape object when its header appears.</summary>
     private readonly SpeedBoosterEscapePlms _speedBoosterEscape;
@@ -45,8 +45,8 @@ internal sealed class PlmPopulationLoader
     /// <summary>
     /// Allocates one decoded room population exactly once, in increasing source-record
     /// order. Each record is allocated before its setup routine runs, matching
-    /// <c>Spawn_Room_PLM</c> at <c>$84:846A</c>. A setup may immediately delete its slot;
-    /// the next record can consequently reuse that same highest native slot. Retail
+    /// <c>Spawn_Room_PLM</c>. A setup may immediately delete its slot;
+    /// the next record can consequently reuse that same highest slot. Retail
     /// loads require decoded records; no population or header can be read from a bus.
     /// </summary>
     public int LoadRoomPopulation(PlmRoom room, RoomPlmPopulation population, RoomPlmServices services)
@@ -71,9 +71,9 @@ internal sealed class PlmPopulationLoader
             int blockIndex;
             try
             {
-                // `$84:8482-$849F` allocates the ID first and converts the two unsigned
+                // A room PLM spawn allocates the ID first and converts the two unsigned
                 // coordinates with the room-width multiplier without checking logical
-                // dimensions. The bounded native allocation preserves that ordering for
+                // dimensions. The bounded allocation preserves that ordering for
                 // the two shipped off-room door records; setup routines that genuinely
                 // require authored terrain still validate when they consume the index.
                 blockIndex = room.Level.GetPlmBlockIndex(record.Block);
@@ -82,19 +82,19 @@ internal sealed class PlmPopulationLoader
             {
                 throw new InvalidDataException(
                     $"Room PLM population {population.Name} record {recordIndex} " +
-                    $"header {header} has block outside safe native allocation " +
+                    $"header {header} has block outside the room's allocated blocks " +
                     $"({record.Block.X},{record.Block.Y}) and argument {record.Argument}.",
                     error);
             }
 
             PlmSlot? slot = AllocateRoomPopulationSlot(record, blockIndex);
             if (slot is null)
-                continue; // The native routine returns carry set when all forty IDs are live.
+                continue; // The routine returns carry set when all forty IDs are live.
 
             if (!TryRunRoomPopulationSetup(room, services.Bosses, record, slot, placement))
             {
                 // Do not leave the preallocated but untranslated actor resident. The load is
-                // intentionally loud and includes every value needed to locate the exact ROM
+                // intentionally loud and includes every value needed to locate the exact authored
                 // record without relying on a room-name special case.
                 slot.Clear();
                 throw new NotSupportedException(
@@ -110,7 +110,7 @@ internal sealed class PlmPopulationLoader
         return spawnedRecordCount;
     }
 
-    /// <summary>Claims the highest inactive native slot, resets recycled family state, and installs record identity before setup runs.</summary>
+    /// <summary>Claims the highest inactive slot, resets recycled family state, and installs record identity before setup runs.</summary>
     private PlmSlot? AllocateRoomPopulationSlot(
         RoomPlmPopulationRecord record,
         int blockIndex)
@@ -197,8 +197,8 @@ internal sealed class PlmPopulationLoader
 
         if (header == PlmHeaderId.WreckedShipAttic)
         {
-            // Setup $84:BAFA deliberately performs no state mutation. Keeping an explicit
-            // branch matters: the actor must still consume its native slot and run its
+            // The no-op setup deliberately performs no state mutation. Keeping an explicit
+            // branch matters: the actor must still consume its slot and run its
             // program instead of being mistaken for an unknown header.
             slot.StartAnimation(new WreckedShipAtticPlmAnimation());
             return true;

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// Physical four-block level writes for the four opening frames of each blue-door cap.
-/// The bank-$84 instruction programs still own sound, frame timing, and deletion.
+/// The PLM programs still own sound, frame timing, and deletion.
 /// </summary>
 internal static class BlueDoorPlmDrawDefinitions
 {
@@ -12,7 +12,7 @@ internal static class BlueDoorPlmDrawDefinitions
     internal const int AliasFrame = -1;
 
     /// <summary>
-    /// The four cells of each of the twenty blue-cap draws, in native run order. Vertical caps advance one tile per
+    /// The four cells of each of the twenty blue-cap draws, in authored run order. Vertical caps advance one tile per
     /// frame with a 32-tile inner row; horizontal caps alternate tileset rows and advance two tiles per frame pair.
     /// Mirrors follow the facing and the cell's half of the cap. The alias shows frame zero's tiles but makes only its
     /// first cell solid; final vertical frames clear their middle cells, and horizontal frames stay solid.

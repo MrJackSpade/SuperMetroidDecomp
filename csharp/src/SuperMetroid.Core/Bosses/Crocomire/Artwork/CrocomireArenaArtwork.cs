@@ -29,7 +29,7 @@ internal static class CrocomireArenaArtwork
             }
         });
 
-    /// <summary>Resolves one arena-layout block, translating native run-local indices into the flattened visual override.</summary>
+    /// <summary>Resolves one arena-layout block, translating run-local indices into the flattened visual override.</summary>
     /// <exception cref="InvalidDataException">The draw is not a supported arena layout.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the compiled draw shape.</exception>
     internal static RoomBlockAppearance Appearance(PlmVisualOverrides customAppearances, PlmDraw draw, int runIndex, int blockIndex)

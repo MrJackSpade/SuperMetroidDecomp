@@ -3,23 +3,23 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Shared Kraid encounter state at WRAM <c>$7E:7800</c>, plus the room-level effects whose
-/// native owners sit outside an individual enemy record. No host-only combat simplification
-/// is represented here: thresholds and function pointers are copied from retail arithmetic.
+/// Shared Kraid encounter state, plus the room-level effects whose
+/// owners sit outside an individual enemy record. No host-only combat simplification
+/// is represented here: thresholds and functions are copied from retail arithmetic.
 /// </summary>
 public sealed class KraidEnemyState
 {
-    /// <summary>Gets eight native-order part workspaces: body, arm, three lints, foot, and two fingernails; they remain owned by the room after the body is deleted.</summary>
+    /// <summary>Gets eight part workspaces in slot order: body, arm, three lints, foot, and two fingernails; they remain owned by the room after the body is deleted.</summary>
     public KraidPartState[] Parts { get; } = Enumerable.Range(0, 8)
         .Select(_ => new KraidPartState())
         .ToArray();
 
     /// <summary>
-    /// An unresolved encounter value: mouth-reopen continuations set it to two ($A7:AF24/$BC58) and nothing reads it.
+    /// An unresolved encounter value: mouth-reopen continuations set it to two and nothing reads it.
     /// It holds zero or two.
     /// </summary>
     public int Unknown2 { get; internal set; }
-    /// <summary>Gets the body think countdown selected from the native random-delay table and consumed before the next mouth attack.</summary>
+    /// <summary>Gets the body think countdown selected from the random-delay table and consumed before the next mouth attack.</summary>
     public WrappingCountdown ThinkingTimer { get; internal set; }
     /// <summary>
     /// Gets the room position whose Y is the highest Samus may be pushed to when Kraid's body ejects her: Y 324 for the
@@ -36,7 +36,7 @@ public sealed class KraidEnemyState
     public int PendingMouthReopens { get; internal set; }
     /// <summary>Health captured by the living initializer before combat can change it.</summary>
     public int InitialHealth { get; internal set; }
-    /// <summary>Returns the cartridge threshold for the selected eighth of the initializer's captured health.</summary>
+    /// <summary>Returns the original game threshold for the selected eighth of the initializer's captured health.</summary>
     /// <param name="index">A zero-based table index from zero through seven, selecting one through eight eighths.</param>
     /// <returns>The initial health truncated to one eighth, multiplied by the selected number of eighths.</returns>
     public int HealthEighthThreshold(int index) => KraidHealthThresholds.Eighth(InitialHealth, index);
@@ -64,20 +64,20 @@ public sealed class KraidEnemyState
         : throw new InvalidOperationException($"Stepping Kraid's hurt phase {HurtFrame} breaks its caller's running-phase guard.");
 
     /// <summary>
-    /// Arms three mouth reopens. The cartridge merges the count bitwise into what remains, which from any count it
+    /// Arms three mouth reopens. The original game merges the count bitwise into what remains, which from any count it
     /// reaches (zero to three) leaves three.
     /// </summary>
     internal void ArmMouthReopens() => PendingMouthReopens |= ArmedMouthReopens;
 
     /// <summary>
-    /// Removes one pending mouth reopen. The count wraps from zero to two hundred fifty-five as the cartridge's count
+    /// Removes one pending mouth reopen. The count wraps from zero to two hundred fifty-five as the game's count
     /// byte does; every caller reaches here only while a reopen is pending.
     /// </summary>
     internal void RemoveOneMouthReopen() => PendingMouthReopens = PendingMouthReopens == 0
         ? MaximumPendingMouthReopens
         : PendingMouthReopens - 1;
 
-    /// <summary>Clears every mouth latch and the pending reopen count together, as the cartridge clears their shared word.</summary>
+    /// <summary>Clears every mouth latch and the pending reopen count together, as the original game clears their shared word.</summary>
     internal void ClearMouthReactions()
     {
         MouthFlags = KraidMouthFlags.None;
@@ -107,7 +107,7 @@ public sealed class KraidEnemyState
     public bool ShowsBodyLayer { get; internal set; }
 
     /// <summary>
-    /// Kraid's body is ready to show (<c>$A7:AAC6</c>): his body appears behind the room's sprites, which his installed
+    /// Kraid's body is ready to show: his body appears behind the room's sprites, which his installed
     /// body sheet pictures, and his body layer is shown from here (#1352, #1466).
     /// </summary>
     internal void InitializeBodyLayer()
@@ -131,22 +131,22 @@ public sealed class KraidEnemyState
     /// </summary>
     public Position16<BackgroundPixels> BodyLayerPlacement { get; internal set; }
 
-    /// <summary>Number of `$A7:C995` rock/quake spawn requests made by retail cadence.</summary>
+    /// <summary>Number of rock/quake spawn requests made by retail cadence.</summary>
     public int RiseRockSpawnRequestCount { get; internal set; }
 
-    /// <summary>Rise-rock requests that acquired a real bank-$86 projectile slot.</summary>
+    /// <summary>Rise-rock requests that acquired a real projectile slot.</summary>
     public int SpawnedRiseRockCount { get; internal set; }
 
-    /// <summary>Retail `$BC0A` spat-rock requests issued while head tilemap three is active.</summary>
+    /// <summary>Retail spat-rock requests issued while head tilemap three is active.</summary>
     public int SpitRockRequestCount { get; internal set; }
 
-    /// <summary>Spat-rock requests that acquired a real bank-$86 projectile slot.</summary>
+    /// <summary>Spat-rock requests that acquired a real projectile slot.</summary>
     public int SpawnedSpitRockCount { get; internal set; }
 
-    /// <summary>Number of private `$AF94` roar opcodes consumed from the head stream.</summary>
+    /// <summary>Number of private roar steps consumed from the head stream.</summary>
     public int RoarRequestCount { get; internal set; }
 
-    /// <summary>Gets the number of growth-sequence ceiling rocks that acquired a live bank-$86 projectile slot.</summary>
+    /// <summary>Gets the number of growth-sequence ceiling rocks that acquired a live projectile slot.</summary>
     public int CeilingRockSpawnCount { get; internal set; }
 
     /// <summary>Gets whether growth has relinquished the first-screen camera lock for the enlarged encounter.</summary>

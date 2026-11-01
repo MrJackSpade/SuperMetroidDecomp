@@ -3,32 +3,32 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>The downward gate's draw lists (#1296).</summary>
 internal enum DownwardGateDraw
 {
-    /// <summary><c>DrawInst_DownwardsGateOpen</c>.</summary>
+    /// <summary>Downwards gate open draw.</summary>
     Open,
-    /// <summary><c>DrawInst_DownwardsGateOpenClosed_0</c>: the gate a quarter down.</summary>
+    /// <summary>The gate a quarter down.</summary>
     Lowered1,
-    /// <summary><c>DrawInst_DownwardsGateOpenClosed_1</c>: the gate halfway down.</summary>
+    /// <summary>The gate halfway down.</summary>
     Lowered2,
-    /// <summary><c>DrawInst_DownwardsGateOpenClosed_2</c>: the gate three quarters down.</summary>
+    /// <summary>The gate three quarters down.</summary>
     Lowered3,
-    /// <summary><c>DrawInst_DownwardsGateOpenClosed_3</c>: the gate all the way down.</summary>
+    /// <summary>The gate all the way down.</summary>
     Lowered4,
-    /// <summary><c>DrawInst_DownwardsGateClosed</c>.</summary>
+    /// <summary>Downwards gate closed draw.</summary>
     Closed,
-    /// <summary><c>DrawInst_GateShotblockDownwardsBlueLeft</c>.</summary>
+    /// <summary>Gate shotblock downwards blue left draw.</summary>
     TriggerBlueLeft,
-    /// <summary><c>DrawInst_GateShotblockDownwardsBlueRight</c>.</summary>
+    /// <summary>Gate shotblock downwards blue right draw.</summary>
     TriggerBlueRight,
-    /// <summary><c>DrawInst_GateShotblockDownwardsRedLeft</c>.</summary>
+    /// <summary>Gate shotblock downwards red left draw.</summary>
     TriggerRedLeft,
-    /// <summary><c>DrawInst_GateShotblockDownwardsRedRight</c>.</summary>
+    /// <summary>Gate shotblock downwards red right draw.</summary>
     TriggerRedRight,
-    /// <summary><c>DrawInst_GateShotblockDownwardsGreenLeft</c>.</summary>
+    /// <summary>Gate shotblock downwards green left draw.</summary>
     TriggerGreenLeft,
-    /// <summary><c>DrawInst_GateShotblockDownwardsGreenRight</c>.</summary>
+    /// <summary>Gate shotblock downwards green right draw.</summary>
     TriggerGreenRight,
-    /// <summary><c>DrawInst_GateShotblockDownwardsYellowLeft</c>.</summary>
+    /// <summary>Gate shotblock downwards yellow left draw.</summary>
     TriggerYellowLeft,
-    /// <summary><c>DrawInst_GateShotblockDownwardsYellowRight</c>.</summary>
+    /// <summary>Gate shotblock downwards yellow right draw.</summary>
     TriggerYellowRight,
 }

@@ -17,8 +17,8 @@ internal static class RidleyBreakup
     }
 
     /// <summary>
-    /// Selects the tail pose loaded by <c>$A6:C6FE-$A6:C7B9</c>; the tip's comes from its orientation, as the sixteen
-    /// tip lists selected at $A6:C7BA do. <paramref name="tailTipOrientation"/> is ignored for the first six segments.
+    /// Selects the tail pose the breakup initializer loads; the tip's comes from its orientation, as the sixteen
+    /// tip lists selected do. <paramref name="tailTipOrientation"/> is ignored for the first six segments.
     /// </summary>
     public static RidleyBreakupFrame SelectTailFrame(RidleyExplosionPart parameter, int tailTipOrientation)
     {
@@ -34,8 +34,8 @@ internal static class RidleyBreakup
     }
 
     /// <summary>
-    /// Selects the body-relative position and pose loaded by
-    /// <c>$A6:C7DA-$A6:C8D3</c>. Facing zero selects the native left-facing record.
+    /// Selects the body-relative position and pose the breakup initializer
+    /// loads. Facing zero selects the left-facing record.
     /// </summary>
     public static RidleyExplosionBodyPartDefinition SelectBodyPart(RidleyExplosionPart parameter, bool facingRight) =>
         BodyParts.TryGetValue(new RidleyExplosionPartFacing(parameter, facingRight), out RidleyExplosionBodyPartDefinition part)

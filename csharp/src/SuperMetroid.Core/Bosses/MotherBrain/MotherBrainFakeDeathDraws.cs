@@ -10,15 +10,15 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainFakeDeathDraws
 {
-    /// <summary>Enumerates wall, door, mural rows and tube-clear draws in native family order.</summary>
+    /// <summary>Enumerates wall, door, mural rows and tube-clear draws in family order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
         BoundaryDraws().Concat(BackgroundDraws()).Concat(RegularDraws());
 
-    /// <summary>Validates a native draw pointer before assigning its editable artwork ID.</summary>
+    /// <summary>Validates a draw pointer before assigning its editable artwork ID.</summary>
     internal static string VisualId(PlmDraw request) => VisualId(
         PlmDraw.FrameOf<MotherBrainFakeDeathDraw>(request, "Mother Brain fake-death draw with a visual ID"));
 
-    /// <summary>Maps the closed bank-$84 draw domain to stable visual document names.</summary>
+    /// <summary>Maps the closed draw domain to stable visual document names.</summary>
     internal static string VisualId(MotherBrainFakeDeathDraw frame) =>
         MotherBrainFakeDeathPlmDrawDefinitions.VisualIds.TryGetValue(frame, out string? id)
             ? id
@@ -79,7 +79,7 @@ internal static class MotherBrainFakeDeathDraws
         throw new InvalidOperationException($"Undefined MotherBrainFakeDeathDraw {list}.");
     }
 
-    /// <summary>Expands a regular shape into ordered PLM runs with native vertical flags and continuation offsets.</summary>
+    /// <summary>Expands a regular shape into ordered PLM runs with vertical flags and continuation offsets.</summary>
     internal static bool TryGetRegular(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         draw = default;

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidArmCollision
 {
     /// <summary>Selects the arm pushback/lint reaction for active shapes, ordinary touch for background/lunge shapes.</summary>
-    /// <remarks>Independently reviewed for #1165 against all selected bank_A7 native
+    /// <remarks>Independently reviewed for #1165 against all selected authored
     /// rectangles. The selected lists through Hitbox_KraidArm_F use arm touch;
     /// Hitbox_KraidArm_10..12 and both dying/lunge lists use background touch.</remarks>
     internal static EnemyReaction TouchReaction(int rectangle)
@@ -35,7 +35,7 @@ internal static class KraidArmCollision
     }
 
     /// <summary>Calculates the physical hitbox identity for a normalized arm pose and component.</summary>
-    /// <remarks>Independently checked for #1165 against both native ten-frame groups.
+    /// <remarks>Independently checked for #1165 against both ten-frame groups.
     /// Components0/3 advance through seven articulated shapes with different timing.
     /// Components1/4 choose connecting shapes and component2 chooses body shapes.
     /// Poses10/11 are the single-component dying/lunge frames. Coordinates are separate.</remarks>
@@ -61,7 +61,7 @@ internal static class KraidArmCollision
 
     /// <summary>Constructs one physical component with the rectangles its calculated hitbox selector names.</summary>
     /// <remarks>Component2 in the twenty general/rising frames and both final
-    /// single-component records are anchored at the enemy origin. All22 native
+    /// single-component records are anchored at the enemy origin. All22 authored
     /// zero-coordinate pairs are independently confirmed for #1165; the remaining
     /// articulated positions have separate, unfinished review scope.</remarks>
     internal static KraidCollisionComponent Component(int pose, int component)
@@ -87,13 +87,13 @@ internal static class KraidArmCollision
     }
 
     /// <summary>
-    /// Bank-$A7 hitbox lists $92D1-$948A; the first overlapping rectangle wins.
+    /// Kraid's arm hitbox lists; the first overlapping rectangle wins.
     /// The reactions are the arm's touch or the background touch, and the arm's shot.
     /// </summary>
     /// <remarks>Independently reviewed for #1165: these cases select ordered
-    /// rectangle slices for native arm shapes 0..6, 8..A, F..12 and the two
+    /// rectangle slices for arm shapes 0..6, 8..A, F..12 and the two
     /// dying/lunge shapes. Starts are ordinals in the selected 24-record geometry
-    /// domain, not native byte offsets; lengths match each original count word.
+    /// domain, not byte offsets; lengths match each original count word.
     /// Shape7, B..E, foot/lint lists, record interiors and every other ushort
     /// identity remain rejected. Rectangle-edge data has a separate disposition.</remarks>
     internal static ImmutableArray<EnemyCollisionHitbox> HitboxesAt(KraidArmHitboxList list) =>
@@ -105,7 +105,7 @@ internal static class KraidArmCollision
     private static readonly Dictionary<KraidArmHitboxList, ImmutableArray<EnemyCollisionHitbox>> HitboxLists = HitboxListSlices.ToDictionary(
         slice => slice.List, slice => Enumerable.Range(slice.First, slice.Count).Select(Rectangle).ToImmutableArray());
 
-    /// <summary>Each physical pose's components in native order: five for the ten shared poses, one for the two dying poses.</summary>
+    /// <summary>Each physical pose's components in authored order: five for the ten shared poses, one for the two dying poses.</summary>
     private static readonly ImmutableArray<KraidCollisionComponent>[] PoseComponents =
         [.. Enumerable.Range(0, 12).Select(pose => Enumerable.Range(0, pose < 10 ? 5 : 1).Select(component => Component(pose, component)).ToImmutableArray())];
 }

@@ -38,7 +38,7 @@ internal sealed class RidleyInteractions
         if (state.HealthStage == 0)
             return;
 
-        // Norfair and Ceres select the same authored $A6:E46A health bands. Keep
+        // Norfair and Ceres select the same authored health bands. Keep
         // Norfair's health thresholds here, but use the installed palette so
         // editing that one asset updates both encounters consistently.
         int band = state.HealthStage - 1;
@@ -48,8 +48,8 @@ internal sealed class RidleyInteractions
     }
 
     /// <summary>
-    /// Ports the collision-relevant portion of <c>HandleRidleySamusInteractionBit</c> at
-    /// $A6:BCB4. Off-screen bodies disable collision and suspend the release timer.
+    /// Runs the collision-relevant portion of <c>HandleRidleySamusInteractionBit</c>.
+    /// Off-screen bodies disable collision and suspend the release timer.
     /// On-screen fight AI clears the gate before ticking that timer. EnemyMain has
     /// already consumed the previous gate value for this update's body collision.
     /// </summary>
@@ -98,7 +98,7 @@ internal sealed class RidleyInteractions
         });
     }
 
-    /// <summary>Routes bombs through Ridley's native shot callback without generic death.</summary>
+    /// <summary>Routes bombs through Ridley's shot callback without generic death.</summary>
     internal static void AddRidleyBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Ridley &&
@@ -117,8 +117,8 @@ internal sealed class RidleyInteractions
             probe.ArtworkInstalled)))
             return null;
 
-        // The OAM component offsets in an installed composition are editable.
-        // Contact and shot collision instead use the eleven fixed cartridge
+        // The sprite component offsets in an installed composition are editable.
+        // Contact and shot collision instead use the eleven fixed authored
         // body frames and their engine-owned hitbox lists.
         foreach (RidleyCollisionComponent component in
                  RidleyCollision.ComponentsAt(enemy.Frame))

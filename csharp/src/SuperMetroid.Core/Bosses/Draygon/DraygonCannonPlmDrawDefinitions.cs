@@ -27,7 +27,7 @@ internal static class DraygonCannonPlmDrawDefinitions
     };
 
     /// <summary>
-    /// The cells of each of the twelve 2x2 cannon frames, one row per run in native write order. Right lists have two
+    /// The cells of each of the twelve 2x2 cannon frames, one row per run in the original write order. Right lists have two
     /// horizontal rows; left lists split the first row into origin and left cells. Shield frames advance two tiles;
     /// damaged frames advance one and leave the cells beside the core empty. Lower tiles are one tileset row (32 tiles)
     /// below their upper partners. Right art mirrors X.

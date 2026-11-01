@@ -112,7 +112,7 @@ internal sealed class DoorOpeningScrollState
         };
 
     /// <summary>
-    /// <c>$82:E3C0</c> replaces both whole coordinates with layer one plus the
+    /// The door setup replaces both whole coordinates with layer one plus the
     /// low position byte, preserving the fractions and deferring final nudges.
     /// </summary>
     internal static FixedPosition<RoomPixels> RebaseSamus(DoorDefinition door, FixedPosition<RoomPixels> setup)
@@ -146,7 +146,7 @@ internal sealed class DoorOpeningScrollState
     }
 
     /// <summary>
-    /// Applies setup's first directional call before <c>$82:E3C0</c> replaces the
+    /// Applies setup's first directional call before the door setup replaces the
     /// whole position words. Downward setup stages a row without moving Samus.
     /// </summary>
     internal static FixedPosition<RoomPixels> ApplySetupMovement(
@@ -181,7 +181,7 @@ internal sealed class DoorOpeningScrollState
     }
 
     /// <summary>
-    /// Applies the door loader's <c>PlaceSamusOnElevator</c> ($A3:9612): whole X, and Y
+    /// Applies the door loader's <c>PlaceSamusOnElevator</c>: whole X, and Y
     /// with a zero fraction. Later scroll updates move Samus on from this position.
     /// </summary>
     public void PlaceSamusOnElevator(Position16<RoomPixels> position) =>

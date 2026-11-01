@@ -333,8 +333,8 @@ internal sealed class PhantoonCombat
         }
 
         // Writes this otherwise-unused marker even when a valid damaging shot lands
-        // outside the three reaction states. Retain it because the four records are exposed
-        // to the debugger and later reverse-engineering may identify another consumer.
+        // outside the three reaction states; nothing reads it, and it is kept as the game
+        // writes it.
         state.Parts[state.Tentacles.SlotIndex].HitReaction = 2;
     }
 

@@ -482,9 +482,8 @@ internal sealed class MotherBrainHead
         MotherBrainProjectileStarts.Initialize(drool, kind, graphics: default);
         drool.State = new MotherBrainDroolState(parameter);
 
-        // SpawnEnemyProjectile runs initializer C843 immediately. It falls through into
-        // the attached pre-instruction, so debugger-visible coordinates are valid before
-        // the later global projectile pass repeats the same attachment calculation.
+        // Spawning the drool attaches it to the head at once, so its position is already
+        // right before the later projectile pass repeats the same attachment.
         _projectileAttacks.RunMotherBrainAttachedDroolFrameBehavior(drool);
     }
 

@@ -4,9 +4,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
-/// Debugger-facing projection of Botwoon's large extra state. The original uses several disjoint memory pages
-/// and aliases thirteen segment records through enemy-shaped structures. Named host fields retain those exact meanings
-/// without pretending the words belong to thirteen ordinary enemy slots. The values the game keeps in the head's
+/// Botwoon's state beyond the head's enemy record, including its thirteen body segments, which are not
+/// ordinary enemies and so are named here rather than given enemy records. The values the game keeps in the head's
 /// common record are emptied with it when the head is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class BotwoonEnemyState

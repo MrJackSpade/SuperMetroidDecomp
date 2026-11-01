@@ -4,10 +4,9 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// Debugger-facing state shared by Phantoon's four consecutive physical enemy records.
-/// Most gameplay words deliberately remain on those records: code aliases the same
-/// offsets by adding enemy indexes <c>$00/$40/$80/$C0</c>, and flattening them would hide
-/// exactly the relationships a decompilation is supposed to expose.
+/// State shared by Phantoon's four consecutive enemy records: body, eye, tentacles and mouth.
+/// Most gameplay values remain on those records, because the parts' behaviour reads one
+/// another's records, and keeping the values per part keeps those relationships visible.
 /// </summary>
 public sealed class PhantoonEnemyState
 {

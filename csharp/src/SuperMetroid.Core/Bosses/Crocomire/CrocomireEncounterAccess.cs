@@ -29,7 +29,7 @@ internal sealed class CrocomireEncounterAccess
         _audio = audio;
     }
 
-    /// <summary>Debugger-visible Crocomire owner while the current room contains Crocomire.</summary>
+    /// <summary>Crocomire's state while the current room contains Crocomire.</summary>
     public CrocomireEnemyState? Crocomire { get; internal set; }
 
     /// <summary>Typed extended state used by Crocomire's bridge/melting/skeleton graph.</summary>

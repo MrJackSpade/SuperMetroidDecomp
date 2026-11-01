@@ -3,7 +3,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Debugger witness for one Mother Brain active-rainbow body-function call.</summary>
+/// <summary>What one step of Mother Brain's rainbow beam attack did: its phase before and after, Samus's forced movement and the requests it made.</summary>
 [IndependentFlag("independent requests and edges one attack step reports to the room")]
 public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     MotherBrainBodyFunction? PhaseBefore,

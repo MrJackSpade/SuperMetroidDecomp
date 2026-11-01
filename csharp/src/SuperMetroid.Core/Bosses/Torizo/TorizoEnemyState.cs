@@ -5,10 +5,8 @@ using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Debugger-visible state that extends Bomb Torizo's ordinary $40-byte enemy slot. The
-/// original actor aliases the boss variable arrays; spelling those
-/// words out here keeps the state inspectable without pretending unrelated common slot
-/// fields have the same meaning.
+/// Torizo's state beyond its ordinary enemy record, kept in named fields rather than in
+/// shared boss variables, so no common enemy field takes on a second meaning.
 /// </summary>
 public sealed class TorizoEnemyState
 {

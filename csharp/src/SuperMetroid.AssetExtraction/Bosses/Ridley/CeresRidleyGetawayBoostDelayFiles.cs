@@ -64,7 +64,34 @@ public static class CeresRidleyGetawayBoostDelayFiles
             JsonAssetDocument.Read<CeresRidleyGetawayBoostDelayDocument>(json, ArtworkJson.Options, "Ceres Ridley getaway boost delay");
         if (document.Version != CeresRidleyGetawayBoostDelayFormat.Version)
             throw new InvalidDataException($"Ceres Ridley getaway boost delays require version {CeresRidleyGetawayBoostDelayFormat.Version}.");
-        return CeresRidleyGetawayBoostDelays.Load(Frames(document.WingFrames));
+        return new CeresRidleyGetawayBoostDelays(Validated(Frames(document.WingFrames)));
+    }
+
+    /// <summary>
+    /// Validates the installed delays: two wing frames of <see cref="UnauthoredBoostCadence.FrameCount"/> delays, each
+    /// 0 through <see cref="UnauthoredBoostCadence.LongestDelay"/> ticks.
+    /// </summary>
+    /// <param name="wings">Each wing frame's delays, by frame then running frame.</param>
+    /// <returns>A copy of the delays.</returns>
+    /// <exception cref="InvalidDataException">A frame or delay is missing, extra or out of range.</exception>
+    private static int[][] Validated(int[][] wings)
+    {
+        if (wings.Length != CeresRidleyGetawayBoostDelays.WingFrameCount)
+            throw new InvalidDataException($"Ceres Ridley's getaway needs {CeresRidleyGetawayBoostDelays.WingFrameCount} wing frames' delays; found {wings.Length}.");
+        var copy = new int[CeresRidleyGetawayBoostDelays.WingFrameCount][];
+        for (int frame = 0; frame < CeresRidleyGetawayBoostDelays.WingFrameCount; frame++)
+        {
+            int[] delays = wings[frame] ?? throw new InvalidDataException($"Ceres Ridley wing frame {frame} has no delays.");
+            if (delays.Length != UnauthoredBoostCadence.FrameCount)
+                throw new InvalidDataException($"Ceres Ridley wing frame {frame} needs {UnauthoredBoostCadence.FrameCount} delays; found {delays.Length}.");
+            foreach (int delay in delays)
+            {
+                if (delay is < 0 or > UnauthoredBoostCadence.LongestDelay)
+                    throw new InvalidDataException($"Ceres Ridley wing frame {frame} leaves a {delay}-tick delay, outside 0 through {UnauthoredBoostCadence.LongestDelay}.");
+            }
+            copy[frame] = [.. delays];
+        }
+        return copy;
     }
 
     /// <summary>The document's wing frames, which a malformed document can leave out.</summary>

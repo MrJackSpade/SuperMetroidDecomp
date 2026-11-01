@@ -15,7 +15,7 @@ public sealed record CollectibleSlotAppearance(int Slot) : AppearanceInput
     public int Slot { get; } = Ensure.BetweenInclusive(0, CollectiblePlms.GraphicsSlots - 1, Slot);
 
     /// <inheritdoc />
-    public override string Token => $"{AppearanceInputTokens.CollectibleSlotPrefix}{Slot}";
+    public override string Token { get; } = $"{AppearanceInputTokens.CollectibleSlotPrefix}{Slot}";
 
     /// <summary>How a picture's name spells <paramref name="kind"/> showing in a slot.</summary>
     public static string ValueOf(InWorldCollectibleKind kind) => kind.ToString();

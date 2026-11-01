@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Text;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 
@@ -15,20 +14,27 @@ public static class AppearancePictureNames
     public static string Of(string subject, ImmutableArray<AppearanceInput> inputs, ReadOnlySpan<string> values)
     {
         ArgumentException.ThrowIfNullOrEmpty(subject);
-        return subject + Spelling(inputs, values);
+        Ensure.LengthEqual(values, inputs.Length);
+        // Extraction names a picture for every assignment of every block, cell and written subject: the name is spelled
+        // into one buffer and copied once into the string, so naming allocates only the name.
+        int length = subject.Length;
+        for (int input = 0; input < inputs.Length; input++)
+            length += 1 + inputs[input].Token.Length + 1 + values[input].Length;
+        Span<char> name = length <= NameBufferChars ? stackalloc char[NameBufferChars] : new char[length];
+        subject.CopyTo(name);
+        int written = subject.Length;
+        for (int input = 0; input < inputs.Length; input++)
+        {
+            name[written++] = '|';
+            inputs[input].Token.CopyTo(name[written..]);
+            written += inputs[input].Token.Length;
+            name[written++] = '=';
+            values[input].CopyTo(name[written..]);
+            written += values[input].Length;
+        }
+        return new string(name[..length]);
     }
 
-    /// <summary>
-    /// How a picture's name spells <paramref name="inputs"/> taking <paramref name="values"/>: each input's token and
-    /// value, in order; empty for a subject that depends on no input.
-    /// </summary>
-    /// <exception cref="ArgumentException">There is not one value for each input.</exception>
-    public static string Spelling(ImmutableArray<AppearanceInput> inputs, ReadOnlySpan<string> values)
-    {
-        Ensure.LengthEqual(values, inputs.Length);
-        var name = new StringBuilder();
-        for (int input = 0; input < inputs.Length; input++)
-            name.Append('|').Append(inputs[input].Token).Append('=').Append(values[input]);
-        return name.ToString();
-    }
+    /// <summary>The characters of a name spelled on the stack; longer names are spelled on the heap.</summary>
+    private const int NameBufferChars = 256;
 }

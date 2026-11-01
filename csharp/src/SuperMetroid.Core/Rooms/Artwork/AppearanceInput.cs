@@ -9,7 +9,10 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// </summary>
 public abstract record AppearanceInput
 {
-    /// <summary>How a picture's name spells the input.</summary>
+    /// <summary>
+    /// How a picture's name spells the input. Each input spells it once, as it is made: composition and the room read it
+    /// for every picture they name.
+    /// </summary>
     public abstract string Token { get; }
 
     /// <summary>The value the input takes in <paramref name="appearance"/>, as a picture's name spells it.</summary>

@@ -9,8 +9,11 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <param name="Animation">The animation.</param>
 public sealed record AnimationAppearance(ArtworkAnimation Animation) : AppearanceInput
 {
+    /// <summary>The animation.</summary>
+    public ArtworkAnimation Animation { get; } = Animation;
+
     /// <inheritdoc />
-    public override string Token => AppearanceInputTokens.AnimationPrefix + Animation.Name;
+    public override string Token { get; } = AppearanceInputTokens.AnimationPrefix + Animation.Name;
 
     /// <summary>How a picture's name spells <paramref name="frame"/> showing.</summary>
     public static string ValueOf(ArtworkFrame frame) => frame.Name;

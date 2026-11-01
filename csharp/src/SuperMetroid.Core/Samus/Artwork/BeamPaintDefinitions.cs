@@ -14,6 +14,6 @@ internal static class BeamPaintDefinitions
 {
     /// <summary>Highest channel value in a five-bit RGB component.</summary>
     internal const int Rgb5Maximum = (1 << 5) - 1;
-    /// <summary>Every row's first colour and its slot0 aliases copy this blue target despite sprite transparency.</summary>
+    /// <summary>Every beam selection's first colour and its slot0 aliases copy this blue target despite sprite transparency.</summary>
     internal const int ClearTargetBlue = 14;
 }

@@ -43,7 +43,7 @@ public static class PowerBombExplosionDefinitions
     internal const int CrystalFlashInitialFadeSteps = 14;
     /// <summary>
     /// The explosion divides the consumed unsigned 8.8 radius by 2048 to
-    /// select a color. Crystal Flash reaches only the first four yellow rows.
+    /// select a color. Crystal Flash reaches only the first four yellow colour steps.
     /// </summary>
     internal const int CrystalFlashColorRadiusShift = 11;
     /// <summary>Byte reloaded by ordinary and Crystal Flash afterglow handlers.</summary>

@@ -51,10 +51,10 @@ internal static class SamusPaletteDefinitionsVerification
         TouchRange(bus, SamusPaletteDefinitions.Common.NormalSuitPointers,
             3 * sizeof(ushort), "normal suit palette pointers");
         TouchRange(bus, SamusSourceDefinitions.HurtFlashColors.Value,
-            SamusPaletteDefinitions.Common.ColoursPerRow * sizeof(ushort),
+            SamusPaletteDefinitions.Common.ColoursPerSet * sizeof(ushort),
             "Samus hurt-flash colors");
         TouchRange(bus, SamusSourceDefinitions.IntroHurtFlashColors.Value,
-            SamusPaletteDefinitions.Common.ColoursPerRow * sizeof(ushort),
+            SamusPaletteDefinitions.Common.ColoursPerSet * sizeof(ushort),
             "intro Samus colors");
         TouchRange(bus, SamusSourceDefinitions.VisorColors.Value,
             SamusPaletteDefinitions.Visor.CycleEndShade * sizeof(ushort),

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
 /// Samus's full-body cycle colours by cycle palette (#1464): for each family's shade and suit, the colours her suit shows.
-/// The import pipeline decodes them from the installed document, whose row order is its own knowledge; the cycles that
+/// The import pipeline decodes them from the installed document, whose palette order is its own knowledge; the cycles that
 /// choose a palette are Samus's.
 /// </summary>
 public sealed class SamusFullBodyCycleColours

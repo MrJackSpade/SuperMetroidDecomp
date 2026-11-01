@@ -18,7 +18,7 @@ public sealed class InstalledCrystalFlashColors
     /// <summary>Compares all supplied frames with color rules before retaining only independent edits.</summary>
     internal InstalledCrystalFlashColors(RgbColor[][] body, RgbColor[][] bubble)
     {
-        // Discard stock body rows only after checking every supplied color. Edited
+        // Discard stock body frames only after checking every supplied color. Edited
         // resources keep their complete, independent palette content.
         bool calculated = true;
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
@@ -34,7 +34,7 @@ public sealed class InstalledCrystalFlashColors
                 this.bubble.Add(new ColourCell(frame, color), bubble[frame][color]);
     }
 
-    /// <summary>Returns one editable body color for a playback record, calculating stock rows when they require no stored overrides.</summary>
+    /// <summary>Returns one editable body color for a playback record, calculating stock frames when they require no stored overrides.</summary>
     /// <param name="frame">Zero-based body record index, 0 through 9 in playback order.</param>
     /// <param name="color">Zero-based color within the ten-color body portion, including transparent color zero.</param>
     /// <returns>RGB555 color word, with red in bits 0..4, green in bits 5..9, and blue in bits 10..14.</returns>
@@ -77,7 +77,7 @@ public sealed class InstalledCrystalFlashColors
     }
 
     /// <summary>
-    /// The bubble rows rotate six pink-to-white levels one color per frame.
+    /// The bubble frames rotate six pink-to-white levels one color per frame.
     /// Red stays31; green/blue descend from31 to25 with nearest-integer interpolation
     /// across five intervals. Frame5/color0 is independently painted white
     /// rather than the ramp's 31711. The uniform five-tick traversal

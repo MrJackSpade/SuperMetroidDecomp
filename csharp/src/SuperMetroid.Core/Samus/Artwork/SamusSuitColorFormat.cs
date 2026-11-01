@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public static class SamusSuitColorFormat
 {
     /// <summary>Number of OBJ palette colors stored for each suit, including the transparent slot.</summary>
-    public const int ColorsPerSuit = SamusPaletteDefinitions.Common.ColoursPerRow;
+    public const int ColorsPerSuit = SamusPaletteDefinitions.Common.ColoursPerSet;
 }

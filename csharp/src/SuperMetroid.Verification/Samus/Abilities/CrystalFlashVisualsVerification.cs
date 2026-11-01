@@ -42,7 +42,7 @@ internal static class CrystalFlashVisualsVerification
 
         var pixels = DisplayRendering.Render(packet);
         var colors = packet.Paint.Colors.ToArray();
-        Array.Clear(colors, SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart, Common.ColoursPerRow);
+        Array.Clear(colors, SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart, Common.ColoursPerSet);
         // Samus's draws show her own colours, resolved when the frame is published (#1405), not the frame's: the body's
         // row is muted where she holds it, her beam ink row, as the native check mutes its colour row (#1457).
         var mutedMemory = FramePaint.FromNative(colors, MuteBeamInkRow(packet.Paint.SpriteDraws, runtime.Player.Colours));

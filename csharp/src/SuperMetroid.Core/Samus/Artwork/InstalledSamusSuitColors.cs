@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// does not determine those chosen intensities. An index fit would encode the
 /// painting. Color-zero payloads are also selected source data; OBJ rendering
 /// skips zero-index pixels before reading their color. Shared suit words are
-/// removed independently, and generated animation/tint rows are reviewed in
+/// removed independently, and generated animation/tint steps are reviewed in
 /// their own owners. This exception covers these base inks, not all palettes.</remarks>
 public sealed class InstalledSamusSuitColors
 {

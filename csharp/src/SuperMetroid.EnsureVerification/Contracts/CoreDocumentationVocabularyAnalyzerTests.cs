@@ -23,6 +23,9 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { string Name => \"OAM capacity\"; }", "('OAM')");
         Expect("class P { string Name => $\"{1} native words\"; }", "('native')");
         Expect("class P { /// <summary>Reads the cartridge's banks.</summary>\nvoid Read() { } }", "('cartridge')");
+        Expect("class P { // matches the 65C816 routine in the disassembly\n }", "('65C816')");
+        // An allowance marker is enforcement syntax; its own words are not read.
+        Expect("class P { int M(int a) => a; // cartridge-encoding: allow(Wrap) - a signed delta word\n }");
         // Game prose is not hardware: whole words only.
         Expect("/// <summary>Samus jumps from the riverbank toward Kraid's chamber.</summary>\nclass P { }");
         Expect("class P { string Name => \"Brinstar\"; }");

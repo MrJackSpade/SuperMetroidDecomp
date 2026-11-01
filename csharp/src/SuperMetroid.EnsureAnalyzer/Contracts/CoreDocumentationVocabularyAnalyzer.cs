@@ -28,8 +28,11 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
 
     /// <summary>The machine's vocabulary in prose, as whole words with a plural or verb ending.</summary>
     private static readonly Regex HardwareProse = new(
-        @"\b(WRAM|VRAM|CGRAM|OAM|DMA|HDMA|NMI|SNES|APU|SPC|DSP|PPU|ROM|Native|Bank|Cartridge|RTS|RTL|JSR|JSL|JMP|JML)(s|es|ed|ing)?\b",
+        @"\b(WRAM|VRAM|CGRAM|OAM|DMA|HDMA|NMI|SNES|APU|SPC|DSP|PPU|ROM|Native|Bank|Cartridge|RTS|RTL|JSR|JSL|JMP|JML)(s|es|ed|ing)?\b|\b65C?816\b|\bdisassembl\w*",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>The analyzers' same-line allowance markers: enforcement syntax, not prose, so their words are not read.</summary>
+    private static readonly Regex AllowanceMarker = new(@"(cartridge-encoding|magic-number-audit): allow\(", RegexOptions.CultureInvariant);
 
     /// <summary>The attributes whose types may describe the hardware.</summary>
     private static readonly ImmutableHashSet<string> HardwareOwners =
@@ -86,6 +89,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// <summary>Reports <paramref name="text"/> once when it names the hardware outside a hardware-owning type.</summary>
     private static void Report(SyntaxTreeAnalysisContext context, string text, Location location, SyntaxNode? owner)
     {
+        text = AllowanceMarker.Replace(text, string.Empty);
         string? word = Address.Match(text) is { Success: true } address ? address.Value
             : HardwareProse.Match(text) is { Success: true } prose ? prose.Value
             : null;

@@ -24,8 +24,12 @@ internal static class PrivateInstallationAnalyzerTests
         {
             public static class EnemyTileArtworkFiles
             {
-                public static void Extract(string root) { }
+                public static void Extract(string directory) { }
                 public static bool Exists(string root) => false;
+            }
+            public static class EnemyPaletteExtractor
+            {
+                public static byte[] Extract(object bus) => [];
             }
         }
         static class Archive { public static void Extract(string root) { } }
@@ -76,6 +80,8 @@ internal static class PrivateInstallationAnalyzerTests
         // Other members of an extraction type, and an Extract outside the import pipeline, build nothing.
         Expect("static class C { static bool M() => EnemyTileArtworkFiles.Exists(\"root\"); }");
         Expect("static class C { static void M() => Archive.Extract(\"root\"); }");
+        // An extractor that decodes the cartridge in memory, writing no directory, builds no installation.
+        Expect("static class C { static byte[] M() => EnemyPaletteExtractor.Extract(new object()); }");
         // Assemblies that are not verification are not checked.
         Expect("static class C { static void M() => GameAssetInstaller.Install(\"rom\", \"root\"); }", assembly: "SuperMetroid.Tooling");
         Expect("static class C { static void M() => EnemyTileArtworkFiles.Extract(\"root\"); }", assembly: "SuperMetroid.Desktop");

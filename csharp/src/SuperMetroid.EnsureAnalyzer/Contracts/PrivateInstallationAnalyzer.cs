@@ -8,9 +8,11 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <summary>
 /// A private installation in verification states its reason (SME6455, #1487): in a verification assembly, a call to
 /// <c>GameAssetInstaller.Install</c>, <c>EnsureInstalled</c> or <c>OpenOrRepair</c>, or to a static <c>Extract</c> of an
-/// import-pipeline component (a type in a <c>SuperMetroid.AssetExtraction</c> namespace, such as
-/// <c>EnemyTileArtworkFiles.Extract</c>), builds an installation of its own from the ROM. Verification reads the shared
-/// <c>RepositoryInstallation.Installation</c>, or writes into a <c>RepositoryInstallation.CopyTo</c> copy; a member that
+/// import-pipeline component that writes installation files into a directory (a type in a <c>SuperMetroid.AssetExtraction</c>
+/// namespace whose <c>Extract</c> takes a <c>string</c> directory, such as <c>EnemyTileArtworkFiles.Extract</c>), builds an
+/// installation of its own from the ROM. An extractor that only decodes the cartridge in memory builds none. Verification
+/// reads the shared <c>RepositoryInstallation.Installation</c>, or writes into an <c>InstalledFixtures.CreatePrivateCopy</c>
+/// copy; a member that
 /// must install anyway carries <c>[PrivateInstallation("reason")]</c> with a non-empty reason. The call's owner is the
 /// innermost method, constructor or property around it; lambdas and local functions belong to the member that contains
 /// them. One diagnostic per call or method reference; there is no allowance list.
@@ -33,6 +35,9 @@ public sealed class PrivateInstallationAnalyzer : DiagnosticAnalyzer
     /// <summary>The name of a component extractor's entry point.</summary>
     private const string ExtractMethod = "Extract";
 
+    /// <summary>How an extractor's parameter naming the directory it writes into ends.</summary>
+    private const string DirectorySuffix = "directory";
+
     /// <summary>The stating attribute's type name.</summary>
     private const string AttributeName = "PrivateInstallationAttribute";
 
@@ -42,7 +47,7 @@ public sealed class PrivateInstallationAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor Rule = new(
         PrivateInstallationId,
         "Verification builds an installation of its own",
-        "'{0}' builds an installation of its own; read RepositoryInstallation.Installation, write into RepositoryInstallation.CopyTo, or state why with [PrivateInstallation(\"reason\")]",
+        "'{0}' builds an installation of its own; read RepositoryInstallation.Installation, write into an InstalledFixtures.CreatePrivateCopy copy, or state why with [PrivateInstallation(\"reason\")]",
         "Performance",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
@@ -88,15 +93,20 @@ public sealed class PrivateInstallationAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// Whether <paramref name="method"/> is one of the installer's entry points, or a static <c>Extract</c> of a type in
-    /// the import pipeline's namespaces.
+    /// the import pipeline's namespaces that writes installation files into a directory it is given.
     /// </summary>
     private static bool BuildsInstallation(IMethodSymbol method)
     {
         if (method.ContainingType is not { } type || !InExtractionNamespace(type.ContainingNamespace))
             return false;
         return (type.Name == InstallerType && InstallerMethods.Contains(method.Name)) ||
-            (method.IsStatic && method.Name == ExtractMethod);
+            (method.IsStatic && method.Name == ExtractMethod && method.Parameters.Any(WritesDirectory));
     }
+
+    /// <summary>Whether <paramref name="parameter"/> names the directory an extractor writes installation files into.</summary>
+    private static bool WritesDirectory(IParameterSymbol parameter) =>
+        parameter.Type.SpecialType == SpecialType.System_String &&
+        parameter.Name.EndsWith(DirectorySuffix, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Whether <paramref name="space"/> is <c>SuperMetroid.AssetExtraction</c> or a namespace within it.</summary>
     private static bool InExtractionNamespace(INamespaceSymbol? space)

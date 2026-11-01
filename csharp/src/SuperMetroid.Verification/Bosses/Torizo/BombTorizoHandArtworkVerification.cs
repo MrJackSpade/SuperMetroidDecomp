@@ -1,17 +1,13 @@
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.TestSupport.VerificationOracles;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
-using SuperMetroid.AssetExtraction.Assets;
 
 /// <summary>Checks Bomb Torizo hand debris art from extraction through installed overrides.</summary>
 internal static class BombTorizoHandArtworkVerification
@@ -63,14 +59,6 @@ internal static class BombTorizoHandArtworkVerification
         AssertThrows<FileNotFoundException>(() => EnemyTileArtworkFiles.Load(directory, null),
             "a missing required debris page is rejected at installation loading, not during play");
     }
-
-    /// <summary>Creates the minimal valid palette catalog for a ROM-free hand artwork fixture.</summary>
-    internal static GameplayBasePalette BombTorizoHandFixturePalette() =>
-        GameplayBasePaletteFiles.Read(new MemoryStream(GameplayBasePaletteFiles.Write(
-            new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
-                Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),
-                Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount)
-                    .Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray()))));
 
     /// <summary>Runs the Bomb Torizo hand artwork extraction and override checks.</summary>
     [VerificationCommand("--bomb-torizo-hand-artwork")]

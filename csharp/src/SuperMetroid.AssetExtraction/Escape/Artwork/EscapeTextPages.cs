@@ -1,6 +1,9 @@
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Escape.Artwork;
 using static SuperMetroid.Core.Escape.Artwork.EscapeTextArtworkDefinitions;
+using static SuperMetroid.AssetExtraction.Escape.Artwork.EscapeTextSheetFormat;
 
-namespace SuperMetroid.Core.Escape.Artwork;
+namespace SuperMetroid.AssetExtraction.Escape.Artwork;
 
 /// <summary>
 /// Locates each of the five escape-text character pages (<see cref="EscapeTextArtworkDefinitions"/>) in the installed sheet

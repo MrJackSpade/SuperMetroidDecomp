@@ -96,7 +96,7 @@ internal static class EscapeTimerPresentationVerification
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, EscapeTimerPresentationDefinitions.FileName);
         using (var output = File.Create(replacement))
-            EscapeTimerPresentation.Write(output, document);
+            EscapeTimerPresentationExtractor.Write(output, document);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "timer override changes catalog identity");
@@ -113,9 +113,9 @@ internal static class EscapeTimerPresentationVerification
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
             "corrupt timer override fails loudly");
         using (var output = File.Create(replacement))
-            EscapeTimerPresentation.Write(output, document);
+            EscapeTimerPresentationExtractor.Write(output, document);
 
-        AssertThrows<InvalidDataException>(() => EscapeTimerPresentation.Write(
+        AssertThrows<InvalidDataException>(() => EscapeTimerPresentationExtractor.Write(
             Stream.Null, document with { DigitSpacing = 256 }), "timer resource rejects invalid spacing");
 
         IndexedPngImage image;

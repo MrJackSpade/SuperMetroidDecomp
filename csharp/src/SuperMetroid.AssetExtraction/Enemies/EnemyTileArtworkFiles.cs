@@ -31,13 +31,13 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Escape.Artwork;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Assets;
+using SuperMetroid.AssetExtraction.Escape.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Exports every retail room-enemy graphics sheet; user PNG overrides live outside stock content.</summary>
@@ -263,7 +263,7 @@ public static class EnemyTileArtworkFiles
         // typewriter characters. Keep their override separate from corpse decay.
         byte[] escapeTextPlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             EscapeSourceDefinitions.TextCharacters,
-            EscapeTextArtworkDefinitions.ByteCount);
+            EscapeTextSheetFormat.ByteCount);
         byte[] escapeTextPixels = SnesGraphics.DecodePlanarTiles(escapeTextPlanar, 4,
             RoomCharacterAtlasFormat.TileColumns,
             out Extent16<ImagePixels> escapeTextSize);
@@ -273,12 +273,12 @@ public static class EnemyTileArtworkFiles
         byte[] escapeTextPng = escapeTextStream.ToArray();
         RoomCharacterAtlas escapeTextRoundtrip = RoomCharacterAtlasPng.Read(
             new MemoryStream(escapeTextPng, writable: false),
-            EscapeTextArtworkDefinitions.ByteCount);
+            EscapeTextSheetFormat.ByteCount);
         if (!escapeTextRoundtrip.Characters.Span.SequenceEqual(escapeTextPlanar))
             throw new InvalidDataException(
                 "Mother Brain escape-text PNG changed native pixels during extraction.");
         File.WriteAllBytes(Path.Combine(directory,
-            EscapeTextArtworkDefinitions.FileName), escapeTextPng);
+            EscapeTextSheetFormat.FileName), escapeTextPng);
         var motherBrainSpecialHashes = new Dictionary<int, string>();
         foreach (MotherBrainSpecialSpriteSheetDefinition sheet in
                  MotherBrainSpecialSpriteArtworkDefinitions.All)
@@ -809,16 +809,16 @@ public static class EnemyTileArtworkFiles
         try
         {
             byte[] selected = ReadStockOrOverride(
-                EscapeTextArtworkDefinitions.FileName,
+                EscapeTextSheetFormat.FileName,
                 manifest.MotherBrainEscapeTextSha256);
             motherBrainEscapeText = RoomCharacterAtlasPng.Read(
                 new MemoryStream(selected, writable: false),
-                EscapeTextArtworkDefinitions.ByteCount);
+                EscapeTextSheetFormat.ByteCount);
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                $"Invalid Mother Brain escape-text PNG {EscapeTextArtworkDefinitions.FileName}: {error.Message}",
+                $"Invalid Mother Brain escape-text PNG {EscapeTextSheetFormat.FileName}: {error.Message}",
                 error);
         }
         var motherBrainSpecialSheets = new Dictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas>();

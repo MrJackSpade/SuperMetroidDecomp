@@ -11,6 +11,7 @@ using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Assets;
+using SuperMetroid.AssetExtraction.Escape.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 

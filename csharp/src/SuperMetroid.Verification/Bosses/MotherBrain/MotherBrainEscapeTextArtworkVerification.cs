@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Escape.Artwork;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Checks installed Mother Brain escape-text art and its five OBJ VRAM transfers.</summary>
@@ -28,7 +29,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         byte[] native = RomDataReader.ReadFixedBank(rom,
             EscapeSourceDefinitions.TextCharacters,
-            EscapeTextArtworkDefinitions.ByteCount);
+            EscapeTextSheetFormat.ByteCount);
         AssertTrue(artwork.Characters.Span.SequenceEqual(native),
             "installed Mother Brain escape-text PNG preserves native characters");
 
@@ -57,9 +58,9 @@ internal static class MotherBrainEscapeTextArtworkVerification
                 $"installed and cartridge Mother Brain escape-text VRAM page {page} agree");
         }
 
-        string fileName = EscapeTextArtworkDefinitions.FileName;
+        string fileName = EscapeTextSheetFormat.FileName;
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(
-            EscapeTextArtworkDefinitions.ByteCount);
+            EscapeTextSheetFormat.ByteCount);
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
         int rows = (tileCount + columns - 1) / columns;
         using var input = new MemoryStream(File.ReadAllBytes(Path.Combine(directory, fileName)));

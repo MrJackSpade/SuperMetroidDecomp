@@ -12,6 +12,7 @@ using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Escape.Artwork;
 
 namespace SuperMetroid.Verification.Areas;
 

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Reviewed final-health paints used as the Baby's six displayed fade endpoints.
-/// Only these endpoint choices and material shade dependencies are covered, not other health rows or timing.</summary>
+/// Only these endpoint choices and material shade dependencies are covered, not other health bands or timing.</summary>
 internal static class BabyMetroidFinalHealthPaintDefinitions
 {
     /// <summary>Final-health visible ink1: yellow-green dome highlight.</summary>

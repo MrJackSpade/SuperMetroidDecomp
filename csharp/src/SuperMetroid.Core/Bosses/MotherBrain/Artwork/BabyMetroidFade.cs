@@ -9,22 +9,22 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 internal sealed class BabyMetroidFade
 {
-    /// <summary>Stores edited rows only when they differ from the final-health fade formula.</summary>
+    /// <summary>Stores the edited frames only when they differ from the final-health fade formula.</summary>
     internal readonly RgbColor[][]? supplied;
 
-    /// <summary>Uses the composition for stock rows and retains any independently authored edits.</summary>
+    /// <summary>Uses the composition for stock frames and retains any independently authored edits.</summary>
     internal BabyMetroidFade(RgbColor[][] frames)
     {
         for (int frame = 0; frame < frames.Length; frame++)
         for (int color = 0; color < frames[frame].Length; color++)
             if (Calculate(frame, color) != frames[frame][color])
             {
-                supplied = frames.Select(row => row.ToArray()).ToArray();
+                supplied = frames.Select(fadeFrame => fadeFrame.ToArray()).ToArray();
                 return;
             }
     }
 
-    /// <summary>Hashes the initial image, then the six resolved fade rows.</summary>
+    /// <summary>Hashes the initial image, then the six resolved fade frames.</summary>
     internal static string ContentIdentity(BabyMetroidCutsceneColorCatalog colors) =>
         SelectedPresentationHash.Create("BabyMetroidCutsceneColorCatalog-v1", content =>
         {
@@ -43,7 +43,7 @@ internal sealed class BabyMetroidFade
             : throw new ArgumentOutOfRangeException(nameof(paletteIndex),
                 $"Cutscene Baby fade index {paletteIndex}, color {color} is outside the authored images.");
 
-    /// <summary>Retrieves one displayed color from edited rows or the composition.</summary>
+    /// <summary>Retrieves one displayed color from the edited frames or the composition.</summary>
     internal RgbColor Resolve(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
     /// <summary>Looks up the matching final-health paint before applying fade intensity.</summary>
@@ -57,15 +57,15 @@ internal sealed class BabyMetroidFade
         return Endpoint(color).Map((_, channel) => channel * remaining / intervals);
     }
 
-    /// <summary>Hashes the six resolved rows so and equivalent supplied artwork share an identity.</summary>
+    /// <summary>Hashes the six resolved frames so and equivalent supplied artwork share an identity.</summary>
     internal void AppendIdentity(SelectedPresentationHash content)
     {
         content.Append("fade", BabyMetroidCutsceneColorDefinitions.FadeFrameCount);
-        Span<RgbColor> row = stackalloc RgbColor[BabyMetroidCutsceneColorDefinitions.FadeColorCount];
+        Span<RgbColor> frameColors = stackalloc RgbColor[BabyMetroidCutsceneColorDefinitions.FadeColorCount];
         for (int frame = 0; frame < BabyMetroidCutsceneColorDefinitions.FadeFrameCount; frame++)
         {
-            for (int color = 0; color < row.Length; color++) row[color] = Resolve(frame, color);
-            content.AppendColors("row", row);
+            for (int color = 0; color < frameColors.Length; color++) frameColors[color] = Resolve(frame, color);
+            content.AppendColors("row", frameColors);
         }
     }
 }

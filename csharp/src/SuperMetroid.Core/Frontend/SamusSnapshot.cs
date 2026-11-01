@@ -4,7 +4,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 

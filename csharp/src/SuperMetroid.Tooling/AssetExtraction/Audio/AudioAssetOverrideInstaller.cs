@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.AssetExtraction.Audio;
 

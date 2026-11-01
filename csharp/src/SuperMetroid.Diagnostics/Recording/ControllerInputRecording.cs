@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Installation;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Input;

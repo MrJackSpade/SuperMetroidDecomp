@@ -29,7 +29,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>
 /// Every installed presentation catalog the frontend binds: maps, room and PLM art, cinematic, ending, Samus,
 /// enemy and projectile artwork. Hosts load one set from an installation and bind it with
-/// <see cref="SuperMetroidGame.BindArtwork"/>; a restored debugger state rebinds the same set.
+/// <see cref="SuperMetroidGame.BindArtwork"/>; a game brought back from a saved session is bound to the same set.
 /// </summary>
 [ArchitectureReview("context-bag", "The installed artwork set a host binds as one value; every member is an immutable artwork catalog, not a service.")]
 public sealed record GameArtwork : IGameplayArtwork

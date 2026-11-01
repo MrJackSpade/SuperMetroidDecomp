@@ -59,7 +59,7 @@ public sealed class SuperMetroidGame
     private AttractGamePhases AttractPhases => field ??= new AttractGamePhases(Session);
 
     /// <summary>
-    /// Binds installed artwork at startup and after debugger-state restoration (<see cref="GameSessionComposer"/>). Each
+    /// Binds installed artwork whenever a host binds the game to its content (<see cref="GameSessionComposer.Bind"/>). Each
     /// catalog whose reference changed reaches the scenes that hold it; unchanged catalogs are left alone. The live runtime
     /// binds through <see cref="SuperMetroidRuntime.BindArtwork"/>.
     /// </summary>
@@ -120,7 +120,7 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>
-    /// Binds the extracted audio catalog at startup and after debugger-state restoration, so
+    /// Binds the extracted audio catalog whenever a host binds the game to its content, so
     /// every following update also synthesizes host PCM (<see cref="CopyAudioFrame"/>).
     /// </summary>
     /// <remarks>

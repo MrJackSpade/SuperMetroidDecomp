@@ -374,8 +374,7 @@ public sealed class PlayableGameControl : UserControl
         finally { if (!IsDisposed) Enabled = true; }
         if (rendererStopping || IsDisposed) return;
         addressSpace = loaded.AddressSpace;
-        game = loaded.Game;
-        GameSessionComposer.Restore(game, content ?? throw new InvalidOperationException(
+        game = loaded.BindGame(content ?? throw new InvalidOperationException(
             "Restored desktop session has no installed content."), saveFile);
         pendingDisplay = PresentationFrame(game.GetRetainedDisplay());
         displayedRoom = null;

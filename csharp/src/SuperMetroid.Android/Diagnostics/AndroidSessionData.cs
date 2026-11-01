@@ -130,7 +130,7 @@ internal sealed class AndroidSessionData : IDisposable
         // All decoding/validation happens before replacing the live game, including the
         // audio binding, which rejects a state whose session never bound clips. Retain the
         // precise seed before future saves can overwrite this user-visible slot.
-        GameSessionComposer.Restore(loaded.Game, content, saveFile);
+        loaded.BindGame(content, saveFile);
         recorder.Dispose();
         Bus = loaded.AddressSpace;
         Game = loaded.Game;

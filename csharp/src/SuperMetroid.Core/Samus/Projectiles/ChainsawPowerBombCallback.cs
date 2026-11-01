@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// The Chainsaw callback, reached by uncharged beam combination thirteen: it runs the Power Bomb pre-instruction over the
-/// shot. Its misaligned store into the cached window registers is a presentation quirk the port drops (#1407).
+/// shot. Its misaligned store into the cached window edges is a presentation quirk the port drops (#1407).
 /// </summary>
 internal sealed class ChainsawPowerBombCallback
 {

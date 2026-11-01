@@ -1,9 +1,9 @@
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -33,6 +33,6 @@ internal static class EncounterCharacterDefinitions
             [EnemyDefinitionId.GoldenTorizo] = TorizoArtworkSwapDefinitions.Sources,
             [EnemyDefinitionId.RidleyCeres] = CeresEscapeObjectPages.ObjectPages,
             [EnemyDefinitionId.CeresDoor] = [CeresDoorCharacters.Shown],
-            [EnemyDefinitionId.MotherBrainHead] = MotherBrainCharacterSources.All,
+            [EnemyDefinitionId.MotherBrainHead] = MotherBrainPageCharacters.All,
         };
 }

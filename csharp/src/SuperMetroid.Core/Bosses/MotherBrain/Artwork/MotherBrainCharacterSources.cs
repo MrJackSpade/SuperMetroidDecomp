@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 internal static class MotherBrainCharacterSources
 {
-    /// <summary>Every page's artwork, in the order <see cref="MotherBrainSpritePage.All"/> lists the pages, which the catalogue names them by.</summary>
-    internal static IReadOnlyList<SpriteArtworkSource> All { get; } = [.. MotherBrainSpritePage.All.Select(Of)];
-
     /// <summary>The artwork <paramref name="page"/> shows.</summary>
     /// <exception cref="InvalidOperationException">The page's sheet is not one of Mother Brain's.</exception>
     internal static SpriteArtworkSource Of(MotherBrainSpritePage page) => page.Sheet switch

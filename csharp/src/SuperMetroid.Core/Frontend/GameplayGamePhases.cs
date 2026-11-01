@@ -398,6 +398,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         SamusState samus = session.Runtime.Player.Samus
             ?? throw new InvalidOperationException(
                 "A confirmed save station has no live Samus state.");
+        // Saving first stores the live explored map as the current area's.
+        session.Runtime.System.StoredExploredMaps.StoreLiveMap(request.AreaIndex);
         session.saves.SaveSlot(
             session.SelectedSaveSlot,
             SuperMetroidSaveSnapshot.Capture(samus, session.Runtime.System, new SaveSnapshotContext { Area = request.AreaIndex, SaveStation = request.StationIndex, GameTime = session.Runtime.GameTime, ControllerBindings = session.Runtime.Options.ControllerBindings, MoonwalkEnabled = session.Runtime.Options.MoonwalkEnabled, IconCancelEnabled = session.Runtime.Options.IconCancelEnabled, JapaneseText = session.Runtime.JapaneseText }));

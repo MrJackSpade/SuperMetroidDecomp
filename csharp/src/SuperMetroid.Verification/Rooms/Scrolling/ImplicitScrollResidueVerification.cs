@@ -18,7 +18,7 @@ internal static class ImplicitScrollResidueVerification
     /// </summary>
     internal static void VerifyImplicitScrollResidue()
     {
-        var storage = new RoomScrollStorage();
+        var storage = new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn());
         SelectedRoom previous = SelectedRoom.LoadUsingCompiledSelection(RoomHeaderDefinitions.BusinessCenter);
         SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(RoomHeaderDefinitions.CathedralEntrance);
         AssertTrue(unchecked((short)room.State.ScrollPointer) >= 0, "$A7B3 uses an implicit scroll table");
@@ -28,11 +28,12 @@ internal static class ImplicitScrollResidueVerification
         RoomScrollGrid grid = RoomScrollGrid.FromDefinition(storage, room.State.Scroll, room.Size);
 
         AssertEqual(6, grid.LogicalCellCount, "$A7B3 is three screens by two");
-        // #1336: past the 50 cells the scroll reads land in the saved explored-map planes, which read as zero.
-        AssertEqual(RoomScrollDefinitions.ExploredMapOverreadByte, grid.ReadCameraStorage(RoomScrollGrid.StorageByteCount),
-            "index $32 reads the explored-map byte as the cartridge's zero");
-        AssertEqual(RoomScrollDefinitions.ExploredMapOverreadByte, grid.ReadCameraStorage(ushort.MaxValue),
-            "the last index a 16-bit register selects reads zero too");
+        // #1336, #1500: past the 50 cells the scroll reads land in the stored explored maps, unexplored at power-on, and
+        // past every stored map they are rejected.
+        AssertEqual(RoomScrollState.RedBoundary, grid.ReadCameraState(RoomScrollGrid.StorageByteCount),
+            "index $32 reads Crateria's unexplored stored map as red");
+        AssertThrows<ArgumentOutOfRangeException>(() => grid.ReadCameraState(ushort.MaxValue),
+            "the last index a 16-bit register selects lies past every stored map");
         AssertEqual((byte)RoomScrollState.Blue, (byte)grid.ReadCameraState(3), "the bottom row is blue");
         for (int index = grid.LogicalCellCount; index < RoomScrollGrid.StorageByteCount; index++)
             AssertEqual(previousTail[index], grid.ReadStorage(index), $"scroll byte {index} keeps the previous room's value");

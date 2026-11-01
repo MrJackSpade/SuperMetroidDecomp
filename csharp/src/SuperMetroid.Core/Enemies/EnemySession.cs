@@ -61,6 +61,12 @@ public sealed class EnemySession : ISpriteObjectPage
     internal RainbowBeamCameraCheckpoint? RainbowBeamCameraCheckpoint { get; set; }
 
     /// <summary>
+    /// The installation's services reproducing what Kraid's fingernails and Crocomire's volley read past their data
+    /// (#1500); the runtime binds them, and a boss that reads past its data without them fails.
+    /// </summary>
+    internal BossAndIntroOverreadServices? BossOverreads { get; set; }
+
+    /// <summary>
     /// The sprite looks gameplay has shown, which enemy frames select their pictures from (#1463): the standard sprites,
     /// each room's graphics-set members and its encounters' looks, in the order shown. They outlive each room, as what a
     /// room showed stays shown until something replaces it.

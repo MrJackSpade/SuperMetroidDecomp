@@ -29,21 +29,32 @@ public sealed class SharedGameState
     {
     }
 
-    /// <summary>Creates the shared state over the session's random-number generator, for a session whose power-on adds no rumble delay.</summary>
+    /// <summary>
+    /// Creates the shared state over the session's random-number generator, for a session whose power-on adds no rumble
+    /// delay and whose explored maps are its own.
+    /// </summary>
     /// <param name="random">The session's random-number word, which this state reads and advances.</param>
     public SharedGameState(SharedRandom random)
-        : this(random, PowerOnEarthquakeSoundDelay.None)
+        : this(random, PowerOnEarthquakeSoundDelay.None, StoredExploredMapLoads.PowerOn())
     {
     }
 
-    /// <summary>Creates the shared state over the session's random-number generator and its power-on rumble delay.</summary>
+    /// <summary>Creates the shared state over the session's random-number generator, rumble delay and stored explored maps.</summary>
     /// <param name="random">The session's random-number word, which this state reads and advances.</param>
     /// <param name="earthquakeSoundDelay">The frame the save file found at power-on adds to every earthquake rumble's delay.</param>
-    public SharedGameState(SharedRandom random, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
+    /// <param name="storedExploredMaps">The session's live and stored explored maps, which outlive each runtime.</param>
+    public SharedGameState(SharedRandom random, PowerOnEarthquakeSoundDelay earthquakeSoundDelay, StoredExploredMaps<AreaId> storedExploredMaps)
     {
         Random = Ensure.NotNull(random);
         EarthquakeSoundDelay = Ensure.NotNull(earthquakeSoundDelay);
+        StoredExploredMaps = Ensure.NotNull(storedExploredMaps);
     }
+
+    /// <summary>
+    /// The session's live and stored explored maps, which a camera scroll check past the room's scroll cells reads; the
+    /// live map is marked with every cell this state marks explored.
+    /// </summary>
+    public StoredExploredMaps<AreaId> StoredExploredMaps { get; }
 
     /// <summary>The session's persistent progress: events, bosses, orbs, items, doors, stations, maps and exploration.</summary>
     public PersistentProgress Progress { get; } = new();
@@ -278,7 +289,12 @@ public sealed class SharedGameState
 
     /// <summary>Marks a cell of <paramref name="area"/>'s map as explored, as Samus's map-exploration update does.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The cell is outside the area map.</exception>
-    public void MarkExploredMapTile(AreaId area, Position16<MapTiles> cell) => Progress.SetExplored(area, cell, explored: true);
+    public void MarkExploredMapTile(AreaId area, Position16<MapTiles> cell)
+    {
+        Progress.SetExplored(area, cell, explored: true);
+        // The game marks one live map whatever area's map it holds; the stored maps receive it when it is stored.
+        StoredExploredMaps.MarkLiveMapCell(cell);
+    }
 
     /// <summary>Whether a cell of <paramref name="area"/>'s map has been visited.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The cell is outside the area map.</exception>

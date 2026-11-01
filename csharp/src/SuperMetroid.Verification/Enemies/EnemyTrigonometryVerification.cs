@@ -589,6 +589,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyCompiledZoaSpeeds), () => VerifyCompiledZoaSpeeds(LoadRepositoryRom())),
         new(nameof(VerifyCompiledGrowingShutters), () => VerifyCompiledGrowingShutters(LoadRepositoryRom())),
         new(nameof(VerifyCompiledIntroEggMotion), () => VerifyCompiledIntroEggMotion(LoadRepositoryRom())),
+        new(nameof(VerifyShellFragmentFallPastCurve), () => VerifyShellFragmentFallPastCurve(LoadRepositoryRom())),
         new(nameof(VerifyCompiledPowerBombShape), () => VerifyCompiledPowerBombShape(LoadRepositoryRom())),
         new(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(LoadRepositoryRom())),
         new(nameof(VerifyCompiledRidleyInertia), () => VerifyCompiledRidleyInertia(LoadRepositoryRom())),

@@ -54,7 +54,7 @@ internal static class PlmPopulationInputBoundaryVerification
             "typed trigger setup publishes its native collision behavior");
         AssertEqual((int)RoomCollisionType.HorizontalExtension, (int)level.GetCollisionBlock(new(4, 3)).CollisionType,
             "typed extension setup publishes its native collision type");
-        var scrolls = RoomScrollGrid.CreateImplicit(new RoomScrollStorage(), new Extent16<RoomScreens>(2, 2), RoomScrollState.RedBoundary);
+        var scrolls = RoomScrollGrid.CreateImplicit(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), new Extent16<RoomScreens>(2, 2), RoomScrollState.RedBoundary);
         AssertTrue(plms.Scrolls.TryNotifyScrollTouch(level.GetBlockIndex(new(3, 3))), "typed trigger wakes at its placement");
         plms.Step(level, scrolls);
         AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(1), "decoded pairs mutate the intended live scroll cell");

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// Moves the intro egg's shell fragments and slime (<see cref="IntroEggMotionDefinitions"/>): the bounded gravity curves each
-/// follows, and the shell's overread past its curve.
+/// follows, and the shell's steps past its curve, which the installed <see cref="ShellFragmentFallPastCurve"/> holds.
 /// </summary>
 internal static class IntroEggMotion
 {
@@ -49,12 +49,14 @@ internal static class IntroEggMotion
     }
 
     /// <summary>
-    /// Shell gravity record <paramref name="frame"/>: the bounded curve's 38 records, then the three words fragments zero
-    /// and one overread before the ground test deletes them. Other frames throw.
+    /// Shell gravity step <paramref name="frame"/>: the bounded curve's 38 records, then the steps fragments zero and one
+    /// read past it before the ground test deletes them, from <paramref name="pastCurve"/>. Negative frames throw.
     /// </summary>
-    public static SignedSixteenSixteen FragmentY(int frame) =>
-        frame >= FragmentCurveFrames && frame < FragmentCurveFrames + FragmentOverreads.Length
-            ? FragmentOverreads[frame - FragmentCurveFrames]
+    /// <param name="frame">The frames the fragment has fallen.</param>
+    /// <param name="pastCurve">The installed steps a fragment falls by past the curve.</param>
+    public static SignedSixteenSixteen FragmentY(int frame, ShellFragmentFallPastCurve pastCurve) =>
+        frame >= FragmentCurveFrames
+            ? Ensure.NotNull(pastCurve).Step(frame - FragmentCurveFrames)
             : Curve(frame, FragmentCurveFrames, 2);
 
     /// <summary>Returns one shell fragment's final world-space spawn position.</summary>

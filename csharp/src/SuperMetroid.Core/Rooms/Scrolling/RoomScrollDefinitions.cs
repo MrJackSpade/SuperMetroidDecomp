@@ -4,14 +4,6 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 [NumberedIdentities("Each numbered member is the scroll layout of a distinct numbered room (Metroids1-4, TourianEscape1-4), named for that room.")]
 public static class RoomScrollDefinitions
 {
-    /// <summary>
-    /// The byte the camera's scroll checks read past the 50 scroll cells, where the saved explored-map planes
-    /// follow. With the clamped camera the reachable indexes are 50-55, Crateria's padding row and two cells no room
-    /// marks, all zero (#1336). The explored maps have never been mirrored after the scroll cells, so every such read has
-    /// always returned zero; the 100% movie also reads index 1022 (update 101214) and matches the original game with it.
-    /// </summary>
-    internal const int ExploredMapOverreadByte = 0;
-
     /// <summary>Retail explicit allocations in their authored order, including trailing storage beyond logical screen cells.</summary>
     private static readonly RoomScrollDefinition[] Definitions =
     [

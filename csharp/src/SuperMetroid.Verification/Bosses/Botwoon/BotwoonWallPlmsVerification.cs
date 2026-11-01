@@ -82,7 +82,7 @@ internal static class BotwoonWallPlmsVerification
             $"Botwoon {(clear ? "clear" : "crumble")} PLM allocates");
         var guarded = NewBotwoonWallSourceGuard(new TestAddressSpace());
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
-            new RoomScrollStorage(), new Extent16<RoomScreens>(2, 1), RoomScrollState.RedBoundary);
+            new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), new Extent16<RoomScreens>(2, 1), RoomScrollState.RedBoundary);
         int deletionFrame = -1;
         int soundCount = 0;
         for (int frame = 0; frame < 220 && plms.SlotTable.ActiveCount != 0; frame++)

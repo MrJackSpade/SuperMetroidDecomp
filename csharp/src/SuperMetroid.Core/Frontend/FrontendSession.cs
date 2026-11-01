@@ -55,6 +55,8 @@ internal sealed class FrontendSession
     internal readonly UnauthoredBoostCadence unauthoredBoostCadence = new();
     /// <summary>When an open save confirmation reads the controller; every runtime's message box consults it.</summary>
     internal readonly SaveChoiceInputCadence saveChoiceInput = new();
+    /// <summary>The live and stored explored maps the game keeps from power-on across every game and demo of the session.</summary>
+    internal readonly StoredExploredMaps<AreaId> storedExploredMaps = StoredExploredMapLoads.PowerOn();
     /// <summary>The assists a selected game plays under; attract demos always play unassisted.</summary>
     public GameplayAssists Assists { get; internal set; }
     /// <summary>Owns scene capture and raster publication for the current frontend frame.</summary>
@@ -144,6 +146,19 @@ internal sealed class FrontendSession
         SelectedSaveSlot = slot;
         LoadingExistingSave = existing;
         saves.SelectSlot(slot);
+        if (existing)
+        {
+            // Selecting a save loads it, its explored maps with it, and loads the live map from its area's.
+            SuperMetroidSaveSlot save = saves.ReadSlot(slot)
+                ?? throw new InvalidDataException($"Selected save slot {slot} holds no valid save.");
+            StoredExploredMapLoads.LoadFile(storedExploredMaps, save.Progression);
+            storedExploredMaps.LoadLiveMap(AreaIds.FromIndex(WordWrap.LowByte(save.Area), $"Save slot {slot}"));
+        }
+        else
+        {
+            // Selecting an empty slot starts a new file, which clears every stored map and leaves the live map as it was.
+            StoredExploredMapLoads.ClearForNewFile(storedExploredMaps);
+        }
     }
     /// <summary>The next load continues the selected slot's save.</summary>
     internal void ContinueSavedGame() => LoadingExistingSave = true;
@@ -406,6 +421,7 @@ internal sealed class FrontendSession
                 UnauthoredBoostCadence = unauthoredBoostCadence,
                 EarthquakeSoundDelay = earthquakeSoundDelay,
                 SaveChoiceInput = saveChoiceInput,
+                StoredExploredMaps = storedExploredMaps,
             },
             Layer1 = menuLayer1,
             Artwork = Artwork,

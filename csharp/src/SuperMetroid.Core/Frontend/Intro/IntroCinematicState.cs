@@ -151,6 +151,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal readonly SamusProjectileSystem flashbackProjectiles;
     /// <summary>The installed services reproducing Samus's glitch reads, handed to the flashbacks' Samus and projectiles.</summary>
     private readonly SamusOverreadServices samusOverreads;
+    /// <summary>The installed steps the egg's shell fragments fall by past their gravity curve, handed to the discovery scene.</summary>
+    private readonly ShellFragmentFallPastCurve shellFallPastCurve;
     /// <summary>Runs the shared bomb owner, including projectile cooldown, in flashbacks.</summary>
     private readonly SamusBombProjectileSystem flashbackBombProjectiles = new();
     /// <summary>The installed intro colours, by owner, that transitions back from gameplay flashbacks restore.</summary>
@@ -227,7 +229,10 @@ public sealed class IntroCinematicState : IFrontendScreen
     private int timer = 8;
 
     /// <summary>Creates the opening cinematic and performs its initial graphics and music setup.</summary>
-    /// <param name="samusOverreads">The installed services reproducing Samus's glitch reads, for the flashbacks' Samus and projectiles.</param>
+    /// <param name="overreads">
+    /// The installed services reproducing Samus's glitch reads, for the flashbacks' Samus and projectiles, and the steps
+    /// the egg's shell fragments fall by past their gravity curve.
+    /// </param>
     /// <param name="audio">Optional audio state that owns queued music and sound effects.</param>
     /// <param name="introFont">The installed opening-cinematic font atlas.</param>
     /// <param name="characterArtwork">The installed opening-cinematic BG and OBJ artwork.</param>
@@ -235,7 +240,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <param name="samusBodyArtwork">Optional installed Samus body artwork used by gameplay flashbacks.</param>
     /// <param name="japaneseText">The options menu's Japanese text setting.</param>
     public IntroCinematicState(
-        SamusOverreadServices samusOverreads,
+        IntroCinematicOverreads overreads,
         AudioQueues? audio = null,
         IntroFontAtlas? introFont = null,
         IntroCinematicArtwork? characterArtwork = null,
@@ -243,7 +248,9 @@ public sealed class IntroCinematicState : IFrontendScreen
         InstalledSamusBodyArtwork? samusBodyArtwork = null,
         bool japaneseText = false)
     {
-        this.samusOverreads = Ensure.NotNull(samusOverreads);
+        Ensure.NotNull(overreads);
+        samusOverreads = Ensure.NotNull(overreads.Samus);
+        shellFallPastCurve = Ensure.NotNull(overreads.ShellFall);
         flashbackProjectiles = new SamusProjectileSystem(new BeamChargeState(), samusOverreads);
 
         subtitles = new IntroJapaneseSubtitles(japaneseText);
@@ -728,7 +735,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // 32x16 collision room, carries Samus into new egg/baby/demo owners, and reuses the same
         // text-to-gameplay palette crossfade as the Mother Brain scene.
         CurrentBabyDiscovery = new IntroBabyDiscoveryState(Random, CurrentFlashbackSamus
-            ?? throw new InvalidOperationException("Discovery setup requires the preceding flashback Samus state."), audio);
+            ?? throw new InvalidOperationException("Discovery setup requires the preceding flashback Samus state."), shellFallPastCurve, audio);
 
         // The old gameplay objects have reached their delete lists. Releasing the scoped
         // references prevents their projectile/collision handlers from running behind the

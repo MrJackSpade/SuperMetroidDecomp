@@ -990,12 +990,12 @@ internal static class LookupStream3Verification
         foreach (DoorSetupCode pointer in expectedDoorCallbacks)
         {
             byte[] expected = Enumerable.Repeat((byte)0x7f, RoomScrollGrid.StorageByteCount).ToArray();
-            var actual = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), expected, new Extent16<RoomScreens>(10, 5));
+            var actual = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), expected, new Extent16<RoomScreens>(10, 5));
             ExecuteStream3DoorScroll(rom, DoorIdentityWords.SetupRoutines.Word(pointer), expected);
             AssertTrue(SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.TryApply(pointer, actual), "stream 3 callback recognized");
             AssertTrue(actual.StorageBytes.ToArray().SequenceEqual(expected), "stream 3 native ordered door writes and all untouched cells");
         }
-        var unchangedScroll = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), new byte[50], new Extent16<RoomScreens>(10, 5));
+        var unchangedScroll = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), new byte[50], new Extent16<RoomScreens>(10, 5));
         AssertTrue(!SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.TryApply(DoorSetupCode.None, unchangedScroll), "stream 3 setup without scroll writes is a no-op");
         for (int pair = 0; pair < 16; pair++)
         {
@@ -3061,7 +3061,7 @@ internal static class LookupStream3Verification
         AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
         AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
         var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-        var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, introFont: font, characterArtwork: stock,
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), introFont: font, characterArtwork: stock,
             beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes)
         {
             Random = new SharedRandom(),
@@ -3264,7 +3264,7 @@ internal static class LookupStream3Verification
         AssertTrue(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span).AsSpan().SequenceEqual(native), "background edits do not cross-couple pages");
         AssertEqual(hash, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
         var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-        var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, introFont: font, characterArtwork: stock,
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), introFont: font, characterArtwork: stock,
             beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes)
         {
             Random = new SharedRandom(),
@@ -3396,7 +3396,7 @@ BranchesToSharedBody:true),
         AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "portrait edits do not cross-mutate stock");
         AssertEqual(hash, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
         var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-        var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, introFont: font, characterArtwork: stock,
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), introFont: font, characterArtwork: stock,
             beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes)
         {
             Random = new SharedRandom(),

@@ -57,6 +57,11 @@ internal sealed class EnemyRoomBinding
     internal EnemyOverreadServices Overreads => Session.Overreads ?? throw new InvalidOperationException(
         "An enemy read past its authored data in an enemy session without installed enemy over-read services.");
 
+    /// <summary>The session's installed services reproducing what Kraid's nails and Crocomire's volley read past their data.</summary>
+    /// <exception cref="InvalidOperationException">The session has none bound.</exception>
+    internal BossAndIntroOverreadServices BossOverreads => Session.BossOverreads ?? throw new InvalidOperationException(
+        "Kraid's fingernails and Crocomire's volley require the installed boss and intro overread services.");
+
     /// <summary>The bound enemy definition source; enemy work requires a loaded room population.</summary>
     internal IRoomEnemyDefinitionSource LoadedDefinitions =>
         Definitions ?? throw new InvalidOperationException("A room enemy population must be loaded first.");

@@ -38,6 +38,13 @@ internal static class InstalledFixtures
     /// <summary>The installation's services reproducing what enemies read past their authored data.</summary>
     internal static SuperMetroid.Core.Enemies.EnemyOverreadServices EnemyOverreads => enemyOverreads.Value;
 
+    /// <summary>The installation's services reproducing Kraid's, Crocomire's and the intro egg shell's reads past their data, loaded once.</summary>
+    private static readonly Lazy<SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices> bossAndIntroOverreads =
+        new(() => RepositoryInstallation.Installation.LoadBossAndIntroOverreads());
+
+    /// <summary>The installation's services reproducing Kraid's, Crocomire's and the intro egg shell's reads past their data.</summary>
+    internal static SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices BossAndIntroOverreads => bossAndIntroOverreads.Value;
+
     /// <summary>The installation's continuation of a Samus animation frame past its pose's program, which every Samus takes.</summary>
     internal static SuperMetroid.Core.Compatibility.LaidOutProgramContinuation<SuperMetroid.Core.Samus.Poses.SamusPoseId> AnimationContinuation =>
         SamusOverreads.AnimationContinuation;
@@ -195,7 +202,7 @@ internal static class InstalledFixtures
         IntroFontAtlas? introFont = null, IntroCinematicArtwork? characterArtwork = null,
         InstalledBeamPalettes? beamPalettes = null, InstalledSamusBodyArtwork? samusBodyArtwork = null)
     {
-        var intro = new IntroCinematicState(SamusOverreads, audio, introFont ?? Maps.IntroFont,
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(SamusOverreads, BossAndIntroOverreads.ShellFragmentFallPastCurve), audio, introFont ?? Maps.IntroFont,
             characterArtwork ?? IntroArtwork, beamPalettes ?? Projectiles.BeamTiles.Palettes, samusBodyArtwork ?? SamusBody)
         {
             Random = new SharedRandom(),

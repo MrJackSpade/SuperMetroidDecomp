@@ -9,9 +9,15 @@ internal sealed class IntroEggParticle
     /// <summary>Generic cinematic sprite retaining this fragment's motion timer and current instruction cursor.</summary>
     internal readonly IntroDiscoverySprite sprite;
 
+    /// <summary>The installed steps the fragment falls by once it has fallen past its gravity curve.</summary>
+    private readonly ShellFragmentFallPastCurve fallPastCurve;
+
     /// <summary>Spawns one of six shell fragments at its compiled position with its selected animation.</summary>
-    public IntroEggParticle(int index)
+    /// <param name="index">The fragment, 0 through 5.</param>
+    /// <param name="fallPastCurve">The installed steps a fragment falls by once it has fallen past its gravity curve.</param>
+    public IntroEggParticle(int index, ShellFragmentFallPastCurve fallPastCurve)
     {
+        this.fallPastCurve = Ensure.NotNull(fallPastCurve);
         CinematicActorDefinition definition = IntroEggParticleActors.Particle(index);
         // The spawn indexes interleaved (X-10h,Y-3Bh) pairs with parameter*4, then restores
         // the two fixed biases. The compiled catalog is independently checked against all
@@ -54,8 +60,8 @@ internal sealed class IntroEggParticle
         // frames fallen. Each velocity is a signed 16.16 pair stored high-word first,
         // exactly matching the actor's whole/subposition addition order.
         AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotion.FragmentX(Fragment));
-        AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotion.FragmentY(FramesFallen));
-        if (CoordinateAxis.Difference(sprite.WholePosition.Y, 168) >= 0)
+        AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotion.FragmentY(FramesFallen, fallPastCurve));
+        if (CoordinateAxis.Difference(sprite.WholePosition.Y, IntroEggMotionDefinitions.FragmentFloorY) >= 0)
         {
             // The game primes the shared one-word delete animation, which the generic handler
             // consumes later in this same object call.

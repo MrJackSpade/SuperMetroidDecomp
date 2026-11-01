@@ -542,8 +542,8 @@ internal static void VerifySamusStoredShineAndShinespark()
             }
             ShinesparkDepartureAngles angles = ShinesparkEchoDepartures.DepartureAngles(pose, drained);
             int pair = 0x90d4c6 + (number - 0xc9) * 2;
-            AssertEqual((int)rom.ReadCartridgeByte(pair), (int)angles.First.TableIndex, $"pose {number} first echo angle");
-            AssertEqual((int)rom.ReadCartridgeByte(pair + 1), (int)angles.Second.TableIndex, $"pose {number} second echo angle");
+            AssertEqual(rom.ReadCartridgeByte(pair), (int)angles.First.TableIndex, $"pose {number} first echo angle");
+            AssertEqual(rom.ReadCartridgeByte(pair + 1), (int)angles.Second.TableIndex, $"pose {number} second echo angle");
             if (drainedPose)
                 AssertEqual(angles, drained.Departures(pose), $"drained pose {number} reads its angles from the installed service");
             else

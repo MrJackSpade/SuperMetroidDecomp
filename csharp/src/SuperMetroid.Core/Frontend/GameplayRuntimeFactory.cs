@@ -21,9 +21,7 @@ internal static class GameplayRuntimeFactory
         if ((start.Purpose == GameplayRuntimePurpose.SelectedGame) != (start.Selected is not null))
             throw new ArgumentException($"A {start.Purpose} runtime start {(start.Selected is null ? "requires" : "takes no")} selected-game options.", nameof(start));
 
-        GameplaySessionCarryover carryover = start.Carryover;
-        var runtime = new SuperMetroidRuntime(start.Assists, start.Artwork, carryover.Clock, carryover.UnauthoredBoostCadence,
-            carryover.Random, carryover.EarthquakeSoundDelay, carryover.SaveChoiceInput);
+        var runtime = new SuperMetroidRuntime(start.Assists, start.Artwork, start.Carryover);
         start.Layer1.PublishTo(runtime);
         runtime.BindArtwork(start.Artwork, previous: null);
         if (start.Selected is { } selected)

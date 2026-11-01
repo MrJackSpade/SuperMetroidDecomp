@@ -48,7 +48,7 @@ internal static class StandardObjectArtworkVerification
 
         var guard = NewFrontendCartridgeReadGuard(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, initialPaletteArt: palettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: palettes);
         runtime.HudSetup.ShowStandardObjectCharacters();
         AssertTrue(ShownStandardObjects(runtime, baseline).SequenceEqual(baseline.Characters.Span),
             "gameplay setup selects the installed OBJ bytes without reading ROM");
@@ -69,7 +69,7 @@ internal static class StandardObjectArtworkVerification
         RoomCharacterAtlas edited = StandardObjectArtworkFiles.Load(stock, overrides);
         AssertTrue(!edited.Characters.Span.SequenceEqual(baseline.Characters.Span),
             "selected indexed PNG changes the native standard OBJ transfer");
-        var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, initialPaletteArt: palettes);
+        var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: palettes);
         editedRuntime.HudSetup.ShowStandardObjectCharacters();
         AssertTrue(ShownStandardObjects(editedRuntime, edited).SequenceEqual(edited.Characters.Span),
             "edited OBJ tile is what gameplay setup selects over the OBJ characters");

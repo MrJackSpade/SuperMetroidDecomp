@@ -147,22 +147,24 @@ internal sealed class SuperMetroidRuntime
     /// <param name="assists">The assists the runtime plays under; <see cref="GameplayAssists.None"/> for the unassisted game.</param>
     /// <param name="artwork">
     /// The installed catalogs; their initial palette is loaded into the colour table during construction, their Samus overread services
-    /// are handed to the owners that consult them, and <see cref="BindArtwork"/> binds the rest.
+    /// are handed to the owners that consult them, their boss overread services are bound to the enemy session, and
+    /// <see cref="BindArtwork"/> binds the rest.
     /// </param>
-    /// <param name="clock">The session's frame clock, shared with the frontend that counts while no runtime exists.</param>
-    /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives each runtime; its enemies and every Samus it creates share it.</param>
-    /// <param name="random">The session's random-number word, which outlives each runtime and is never copied.</param>
-    /// <param name="earthquakeSoundDelay">The frame the save file found at power-on adds to every earthquake rumble's delay.</param>
-    /// <param name="saveChoiceInput">The session's cadence of an open save confirmation's controller reads.</param>
-    internal SuperMetroidRuntime(GameplayAssists assists, IGameplayArtwork artwork,
-        FrameClock clock, UnauthoredBoostCadence unauthoredBoostCadence, SharedRandom random,
-        PowerOnEarthquakeSoundDelay earthquakeSoundDelay, SaveChoiceInputCadence saveChoiceInput)
+    /// <param name="session">
+    /// What the session keeps across its runtimes: the frame clock it shares with the frontend, the random-number word,
+    /// the unauthored Speed Booster cadence its enemies and every Samus share, the power-on earthquake delay, the save
+    /// confirmation's input cadence and the live and stored explored maps.
+    /// </param>
+    internal SuperMetroidRuntime(GameplayAssists assists, IGameplayArtwork artwork, GameplaySessionCarryover session)
     {
         Ensure.NotNull(artwork);
-        MessageBox = new GameplayMessageBoxState(saveChoiceInput);
+        Ensure.NotNull(session);
+        FrameClock clock = session.Clock;
+        UnauthoredBoostCadence unauthoredBoostCadence = session.UnauthoredBoostCadence;
+        MessageBox = new GameplayMessageBoxState(session.SaveChoiceInput);
         SamusOverreads = artwork.SamusOverreads ?? throw new InvalidOperationException(
             "Gameplay requires the installed Samus overread services.");
-        System = new SharedGameState(random, earthquakeSoundDelay);
+        System = new SharedGameState(session.Random, session.EarthquakeSoundDelay, session.StoredExploredMaps);
         Display = new GameplayDisplayState();
         var spriteSets = new SpriteColourSets();
         Player = new SamusFrameState(spriteSets);
@@ -173,6 +175,8 @@ internal sealed class SuperMetroidRuntime
         Options = new GameplayOptions();
         EnemySession = new EnemySession(unauthoredBoostCadence);
         EnemySession.RainbowBeamCameraCheckpoint = RainbowBeamCameraCheckpoint;
+        EnemySession.BossOverreads = artwork.BossAndIntroOverreads ?? throw new InvalidOperationException(
+            "Gameplay requires the installed boss and intro overread services.");
 
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);

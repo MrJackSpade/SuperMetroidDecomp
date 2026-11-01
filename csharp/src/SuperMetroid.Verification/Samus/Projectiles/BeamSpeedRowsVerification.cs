@@ -61,8 +61,8 @@ internal static class BeamSpeedRowsVerification
                 AssertThrows<ArgumentOutOfRangeException>(() => unauthored.Speed(beams, diagonal: false), $"{beams}'s authored speeds are not read past the table");
                 continue;
             }
-            AssertEqual((int)unchecked((short)retail.ReadCartridgeWord(row)), unauthored.Speed(beams, diagonal: false), $"{beams} cardinal speed read past the table");
-            AssertEqual((int)unchecked((short)retail.ReadCartridgeWord(row + 2)), unauthored.Speed(beams, diagonal: true), $"{beams} diagonal speed read past the table");
+            AssertEqual(unchecked((short)retail.ReadCartridgeWord(row)), unauthored.Speed(beams, diagonal: false), $"{beams} cardinal speed read past the table");
+            AssertEqual(unchecked((short)retail.ReadCartridgeWord(row + 2)), unauthored.Speed(beams, diagonal: true), $"{beams} diagonal speed read past the table");
         }
         // Exercise the actual initializer to detect a dropped combination index.
         var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>((records, launched) =>

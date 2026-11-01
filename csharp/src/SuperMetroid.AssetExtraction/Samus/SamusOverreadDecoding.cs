@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Progression;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Programs;
@@ -348,8 +349,8 @@ internal static class SamusOverreadDecoding
         [.. Enumerable.Range(0, ChainsawBeamColours<RgbColor>.ColourCount).Select(colour =>
         {
             int place = SamusOverreadSourceDefinitions.ChainsawPaletteStart + colour * RgbColor.ByteCount;
-            ushort word = colour == 0
-                ? unchecked((ushort)(SamusOverreadSourceDefinitions.ChainsawPaletteOpenBusByte | cartridge.ReadCartridgeByte(place + 1) << 8))
+            int word = colour == 0
+                ? LittleEndianWord.Unsigned(SamusOverreadSourceDefinitions.ChainsawPaletteOpenBusByte, cartridge.ReadCartridgeByte(place + 1))
                 : cartridge.ReadCartridgeWord(place);
             return PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         })];

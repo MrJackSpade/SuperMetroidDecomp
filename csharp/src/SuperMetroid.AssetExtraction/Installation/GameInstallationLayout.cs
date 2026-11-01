@@ -25,6 +25,8 @@ public static class GameInstallationLayout
     public const string SamusOverreadDirectoryName = "samus-overreads";
     /// <summary>Content child directory for what enemies read past their authored data, decoded from the cartridge (#1500).</summary>
     public const string EnemyOverreadDirectoryName = "enemy-overreads";
+    /// <summary>Content child directory for what Kraid's nails, Crocomire's volley and the intro egg shell read past their data.</summary>
+    public const string BossAndIntroOverreadDirectoryName = "boss-intro-overreads";
     /// <summary>Pre-coloured sprite sheets and their frame manifests.</summary>
     public const string SpriteSheetDirectoryName = "sprite-sheets";
     /// <summary>Pre-coloured enemy sheets and the manifest naming each graphics set's sheet for each enemy.</summary>
@@ -110,7 +112,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; incompatible stock content requires validation and repair before opening.</summary>
-    public const int FormatVersion = 188;
+    public const int FormatVersion = 189;
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";
     /// <summary>Prefix for a stock tree being prepared before publication.</summary>

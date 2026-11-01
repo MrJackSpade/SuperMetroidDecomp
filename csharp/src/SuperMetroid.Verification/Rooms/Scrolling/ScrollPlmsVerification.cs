@@ -65,7 +65,7 @@ internal static class ScrollPlmsVerification
             "up extension points one row down");
 
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
-            new RoomScrollStorage(), size: new Extent16<RoomScreens>(2, 2),
+            new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), size: new Extent16<RoomScreens>(2, 2),
             lastRowState: RoomScrollState.RedBoundary);
 
         // $94:9956 reacts only to the center sample, including extension resolution.

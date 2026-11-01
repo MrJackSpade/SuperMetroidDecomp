@@ -107,6 +107,8 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     {
         Ensure.NotNull(scene);
         _system.Progress.CopyFrom(DemoProgress());
+        // The demo load clears the Zebes areas' stored explored maps and leaves the live map as the session left it.
+        StoredExploredMapLoads.ClearForDemo(_system.StoredExploredMaps);
 
         _player.Samus = new SamusState(_animationContinuation, _enemySession.UnauthoredBoostCadence)
         {

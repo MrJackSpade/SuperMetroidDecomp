@@ -104,7 +104,8 @@ internal static class InstallationOverrideLifecycleVerification
     /// Installed domains with no persistent override: room level streams are the block and collision data rooms run on
     /// (#1332); room metatiles are the import pipeline's input the block sheets are composed from, and the block sheet is
     /// what a player overrides (#1431); Samus's overreads are the stock cartridge bytes her overrun glitches read (#1444),
-    /// and the enemy overreads are what enemies read past their authored data (#1500).
+    /// and the enemy, boss and intro overreads are what enemies, Kraid's nails, Crocomire's volley and the egg shell read
+    /// past their data (#1500).
     /// </summary>
     private static readonly string[] StockOnlyDomains =
     [
@@ -114,6 +115,7 @@ internal static class InstallationOverrideLifecycleVerification
         nameof(GameInstallationLayout.RoomMetatileDirectoryName),
         nameof(GameInstallationLayout.SamusOverreadDirectoryName),
         nameof(GameInstallationLayout.EnemyOverreadDirectoryName),
+        nameof(GameInstallationLayout.BossAndIntroOverreadDirectoryName),
     ];
 
     /// <summary>Copies every declared installed domain into persistent overrides and adds an unrecognized user note.</summary>
@@ -153,12 +155,14 @@ internal static class InstallationOverrideLifecycleVerification
         var result = new Dictionary<string, string>(StringComparer.Ordinal);
         // This reflection is verification-only: enumerate declared loading APIs so
         // a future catalog cannot silently escape the persistence acceptance gate.
-        // Samus's and the enemies' overreads are stock decoded cartridge reads; they have no override to persist.
+        // Samus's, the enemies' and the boss and intro overreads are stock decoded cartridge reads; they have no override
+        // to persist.
         foreach (MethodInfo loader in typeof(GameInstallation).GetMethods()
                      .Where(method => method.Name.StartsWith("Load", StringComparison.Ordinal) &&
                          method.GetParameters().Length == 0 &&
                          method.Name != nameof(GameInstallation.LoadSamusOverreads) &&
-                         method.Name != nameof(GameInstallation.LoadEnemyOverreads)).OrderBy(method => method.Name, StringComparer.Ordinal))
+                         method.Name != nameof(GameInstallation.LoadEnemyOverreads) &&
+                         method.Name != nameof(GameInstallation.LoadBossAndIntroOverreads)).OrderBy(method => method.Name, StringComparer.Ordinal))
         {
             object catalog;
             try { catalog = (loader.Invoke(installation, null) ?? throw new InvalidOperationException("Verification requires loader.Invoke(installation, null).")); }

@@ -2,6 +2,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 
@@ -23,7 +24,7 @@ internal static class IntroEggEffectDefinitionsVerification
 
         var guarded = NewIntroEggEffectDefinitionGuard(retail);
         var particles = Enumerable.Range(0, IntroEggEffectDefinitions.ParticleCount)
-            .Select(index => new IntroEggParticle((byte)index))
+            .Select(index => new IntroEggParticle((byte)index, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve))
             .ToArray();
         for (int index = 0; index < particles.Length; index++)
         {

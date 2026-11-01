@@ -314,9 +314,11 @@ internal sealed class KraidProjectiles
     internal bool KraidBodyContourReflectsNail(RoomEnemySlot nail)
     {
         RoomEnemySlot body = _slotTable.Slots[0];
-        int contourX = CoordinateAxis.Wrap(
-            body.Position.X.Whole + KraidNailContour.LeftOffset(
-                CoordinateAxis.Wrap(nail.Position.Y.Whole - body.Position.Y.Whole)));
+        int relativeY = CoordinateAxis.Wrap(nail.Position.Y.Whole - body.Position.Y.Whole);
+        // A nail above every ledge is pushed back at the record the contour walk reads after them.
+        int leftOffset = KraidNailContour.LedgeLeftOffset(relativeY) ??
+            _room.BossOverreads.KraidNailPastLedges.LeftOffset(relativeY);
+        int contourX = CoordinateAxis.Wrap(body.Position.X.Whole + leftOffset);
         return CoordinateAxis.AsSigned(nail.Position.X.Whole + nail.Radius.X - contourX) >= 0 &&
             _access.Part(nail).NailVelocity.X.WholePixels >= 0;
     }

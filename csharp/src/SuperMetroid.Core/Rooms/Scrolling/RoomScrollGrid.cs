@@ -88,27 +88,23 @@ public sealed class RoomScrollGrid
     public RoomScrollState ReadState(int index) => RoomScrollStates.FromStorageByte(ReadStorage(index));
 
     /// <summary>
-    /// Reads the scroll-storage byte selected by a scroll calculation.
+    /// The scroll state a camera check reads at the cell a scroll calculation selects. A byte past the three authored
+    /// states reads as the camera treats it, <see cref="RoomScrollState.Green"/>.
     /// </summary>
     /// <remarks>
-    /// Most accesses stay in the 50 scroll cells, but the bottom row can legally select
-    /// index 50, which is the first byte of the explored-map tiles that follow them in the original game. Camera code
-    /// must observe the explored-map byte that follows rather than throw or manufacture a clamped scroll cell.
+    /// Most reads stay in the 50 scroll cells, but the bottom row can select the cells just past them, and a camera
+    /// above the room selects a row far past them; such a read observes the session's stored explored maps that
+    /// follow the cells (<see cref="RoomScrollStorage.ReadPastCells"/>) rather than throwing or clamping to a cell.
     /// </remarks>
-    public int ReadCameraStorage(int index)
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0 through 65535, or past every stored map.</exception>
+    public RoomScrollState ReadCameraState(int index)
     {
         if ((uint)index > ushort.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(index));
-        return index < StorageByteCount ? Storage[index] : RoomScrollDefinitions.ExploredMapOverreadByte;
+        return index < StorageByteCount
+            ? RoomScrollStates.FromStorageByte(Storage[index])
+            : Storage.ReadPastCells(index - StorageByteCount);
     }
-
-    /// <summary>
-    /// Typed view of a scroll-storage read, including the legal read past its end. A byte past the three
-    /// authored states reads as the camera treats it, <see cref="RoomScrollState.Green"/>; the raw byte stays
-    /// available through <see cref="ReadCameraStorage"/>.
-    /// </summary>
-    public RoomScrollState ReadCameraState(int index) =>
-        RoomScrollStates.FromStorageByte(ReadCameraStorage(index));
 
     /// <summary>
     /// Writes one raw byte in the fixed 50-byte scroll allocation. Enemy and PLM scripts use

@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 
@@ -16,7 +17,12 @@ internal static class KraidNailContourVerification
         ushort Word(int a) => LittleEndianBytes.Word(KraidNailContourRomByte(rom, a), KraidNailContourRomByte(rom, a + 1));
         Suite(nameof(VerifyKraidNailLeftOffsets), () => VerifyKraidNailLeftOffsets(rom));
         Suite(nameof(VerifyKraidNailTopBoundaries), () => VerifyKraidNailTopBoundaries(rom));
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        Suite(nameof(VerifyKraidNailPastLedges), () => VerifyKraidNailPastLedges(rom));
+        var session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        {
+            BossOverreads = InstalledFixtures.BossAndIntroOverreads,
+        };
+        var enemies = new RoomEnemySystem(session, definitions: CompiledRoomEnemyDefinitions.Instance);
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;
         Func<RoomEnemySlot, bool> reflect = enemies.KraidBehavior.Projectiles.KraidBodyContourReflectsNail;
@@ -39,6 +45,12 @@ internal static class KraidNailContourVerification
             AssertTrue(record < 6, "Every native relative-Y walk terminates within six records");
             histogram[record]++;
             if (record >= 4) overreadCases++;
+            if (record > KraidNailContourDefinitions.LedgeCount)
+            {
+                // No nail in Kraid's room lies this far above his body; the installed record past the ledges rejects it.
+                AssertThrows<ArgumentOutOfRangeException>(() => reflect(nail), "A nail beyond the record past the ledges is rejected");
+                continue;
+            }
             ushort nativeLeft = Word(0xa7bf1d + record * 4);
 
             ushort edge = unchecked((ushort)(body.Position.X.Whole + nativeLeft));
@@ -54,7 +66,7 @@ internal static class KraidNailContourVerification
         AssertTrue(overreadCases > 0, "Fixture exercises adjacent instruction words, not just authored geometry");
         int[] expectedHistogram = [32768, 56, 56, 32, 20928, 11696];
         for (int i = 0; i < histogram.Length; i++) AssertEqual(expectedHistogram[i], histogram[i], "Native contour selection distribution");
-        Console.WriteLine($"Kraid nail contour: 983040 actual edge/direction probes pass bus-free; {overreadCases} relative-Y words select adjacent records.");
+        Console.WriteLine($"Kraid nail contour: actual edge/direction probes pass bus-free; {overreadCases} relative-Y words select records past the ledges.");
     }
 
     /// <summary>Reads the retail contour as an independent oracle for the compiled lookup.</summary>

@@ -164,6 +164,7 @@ using static SuperMetroid.Verification.Runtime.HeroShotRuntimeVerification;
 using static SuperMetroid.Verification.Runtime.HeroShotsVerification;
 using static SuperMetroid.Verification.Audio.HostIndependentAudioAcknowledgementsVerification;
 using static SuperMetroid.Verification.Rooms.Scrolling.ImplicitScrollResidueVerification;
+using static SuperMetroid.Verification.Rooms.Scrolling.StoredExploredMapsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroBabyActorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicRomDataVerification;
@@ -824,6 +825,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyEnemyExtendedFramePlacements), () => VerifyEnemyExtendedFramePlacements()),
         new(nameof(VerifyElevatorStandUpContact), () => VerifyElevatorStandUpContact()),
         new(nameof(VerifyImplicitScrollResidue), () => VerifyImplicitScrollResidue()),
+        new(nameof(VerifyStoredExploredMaps), () => VerifyStoredExploredMaps()),
+        new(nameof(VerifyExploredMapExchangeDoors), () => VerifyExploredMapExchangeDoors(RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(VerifySuperMissileDeathAnimation), () => VerifySuperMissileDeathAnimation()),
         new(nameof(VerifyDoorSoundsDuringPowerBomb), () => VerifyDoorSoundsDuringPowerBomb()),
         new(nameof(VerifyHostIndependentAudioAcknowledgements), () => VerifyHostIndependentAudioAcknowledgements()),

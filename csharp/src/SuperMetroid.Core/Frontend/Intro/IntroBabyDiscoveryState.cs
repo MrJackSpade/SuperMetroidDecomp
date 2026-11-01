@@ -26,6 +26,8 @@ internal sealed class IntroBabyDiscoveryState
     private readonly List<IntroEggSlimeDrop> slimeDrops = [];
     /// <summary>The session's random-number word, which the demo's Samus animation draws from.</summary>
     private readonly SharedRandom random;
+    /// <summary>The installed steps the egg's shell fragments fall by past their gravity curve.</summary>
+    private readonly ShellFragmentFallPastCurve shellFallPastCurve;
     /// <summary>The egg actor whose list pointer controls the hatch sequence.</summary>
     internal readonly IntroDiscoverySprite egg;
     /// <summary>The baby actor that waits for the egg's completed frame before moving.</summary>
@@ -35,9 +37,12 @@ internal sealed class IntroBabyDiscoveryState
     /// <param name="random">The session's random-number word, which the demo's Samus animation draws from.</param>
     /// <param name="audio">The audio owner the scene's sounds publish to, or null for none.</param>
     /// <param name="existingSamus">The flashback's Samus the scene carries on with.</param>
-    public IntroBabyDiscoveryState(SharedRandom random, SamusState existingSamus, AudioQueues? audio = null)
+    /// <param name="shellFallPastCurve">The installed steps the egg's shell fragments fall by past their gravity curve.</param>
+    public IntroBabyDiscoveryState(SharedRandom random, SamusState existingSamus, ShellFragmentFallPastCurve shellFallPastCurve,
+        AudioQueues? audio = null)
     {
         this.random = Ensure.NotNull(random);
+        this.shellFallPastCurve = Ensure.NotNull(shellFallPastCurve);
 
         this.audio = audio;
 
@@ -225,7 +230,7 @@ internal sealed class IntroBabyDiscoveryState
                 // The six particle spawns use six consecutive definitions
                 // and init parameters zero through five, in this exact order.
                 for (int index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
-                    eggParticles.Add(new IntroEggParticle(index));
+                    eggParticles.Add(new IntroEggParticle(index, shellFallPastCurve));
                 audio?.QueueSound(
                     IntroCinematicDefinitions.Objects.EggHatch,
                     priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);

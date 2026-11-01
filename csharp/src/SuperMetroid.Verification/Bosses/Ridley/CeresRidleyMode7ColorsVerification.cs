@@ -67,7 +67,7 @@ internal static class CeresRidleyMode7ColorsVerification
         AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Mode-7 color edit changes installed identity");
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
         AssertTrue(ReferenceEquals(edited.CeresRidleyFloorColors,
             runtime.BossArtwork.CeresRidleyFloorColors),

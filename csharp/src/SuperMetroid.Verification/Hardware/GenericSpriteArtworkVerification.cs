@@ -82,7 +82,7 @@ internal static class GenericSpriteArtworkVerification
         expected.FinalizeFrame();
         EqualSprites(expected, title.objects, "title copyright owner parity");
 
-        var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, introFont: maps.IntroFont,
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), introFont: maps.IntroFont,
             characterArtwork: introArtwork, beamPalettes: projectiles.BeamTiles.Palettes,
             samusBodyArtwork: body)
         {

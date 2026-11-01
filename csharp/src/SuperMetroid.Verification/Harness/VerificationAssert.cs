@@ -3919,7 +3919,7 @@ internal static class VerificationAssert
             "Kraid nail oracle is NTSC J/U v1.0");
         Suite(nameof(VerifyKraidNailLeftOffsets), () => VerifyKraidNailLeftOffsets(nailOracle));
         Suite(nameof(VerifyKraidNailTopBoundaries), () => VerifyKraidNailTopBoundaries(nailOracle));
-        Console.WriteLine("Kraid nail contour: all 12 original words, all 65536 wrapped relative-Y selections and bounds pass.");
+        Console.WriteLine("Kraid nail contour: all 8 ledge words, all 65536 wrapped relative-Y selections and bounds pass.");
         return 0;
     }
 

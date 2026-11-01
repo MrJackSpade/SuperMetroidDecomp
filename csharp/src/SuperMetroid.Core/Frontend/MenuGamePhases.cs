@@ -24,6 +24,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         // A soft reset discards every gameplay
         // owner. The reseeded random generator and the frame clock already live in the session.
         session.DiscardRuntime();
+        // The reset forgets everything the game kept, the live and stored explored maps with it.
+        StoredExploredMapLoads.ClearAll(session.storedExploredMaps);
         session.Show(new TitleSequenceState(
             session.audio,
             session.Artwork.MapPresentation?.TitleGradient,
@@ -62,6 +64,12 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.ActiveFileSelect.Step(controllerInput);
         if (session.ActiveFileSelect.SavesChangedThisFrame)
             session.RaiseSavesChanged();
+        if (session.ActiveFileSelect.ClearedSaveThisFrame)
+        {
+            // Clearing a file starts a new one, which clears every stored explored map, then loads the live map from a
+            // stored map that is now empty.
+            StoredExploredMapLoads.ClearAll(session.storedExploredMaps);
+        }
         session.display.PublishMenu(session.ActiveFileSelect);
         if (session.ActiveFileSelect.TitleRequested)
         {
@@ -292,9 +300,11 @@ internal sealed class MenuGamePhases(FrontendSession session)
     /// <summary>Starts the opening cinematic in the text language the options menu selected.</summary>
     private IntroCinematicState CreateIntroCinematic(bool japaneseText)
     {
-        var cinematic = new IntroCinematicState(
+        var cinematic = new IntroCinematicState(new IntroCinematicOverreads(
             session.Artwork.SamusOverreads ?? throw new InvalidOperationException(
                 "The opening cinematic's flashbacks require the installed Samus overread services."),
+            session.Artwork.BossAndIntroOverreads?.ShellFragmentFallPastCurve ?? throw new InvalidOperationException(
+                "The opening cinematic's egg shell requires the installed boss and intro overread services.")),
             session.audio, session.Artwork.MapPresentation?.IntroFont, session.Artwork.IntroCinematicArt,
             session.Artwork.BeamPalettes, session.Artwork.SamusBodyArt, japaneseText)
         {

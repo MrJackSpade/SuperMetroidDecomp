@@ -2,6 +2,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleFiringDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
@@ -14,6 +15,8 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Samus.Hud;
+
+using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks compiled Samus HUD posture and movement policy against retail definitions and live consumers.</summary>
 internal static class SamusHudDefinitionsVerification
@@ -45,8 +48,8 @@ internal static class SamusHudDefinitionsVerification
             state.PendingTransitionShot = turn == 0 ? null : new SamusTransitionShot(turn & byte.MaxValue);
         for (byte movement = 0; movement < 28; movement++)
         {
-            ushort handler = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90dd05 + movement * 2));
-            AssertEqual(handler, (ushort)SamusHudObservations.MovementHandler(SamusMovementTypeNumbers.Of(movement)), "All 28 native HUD handler identities");
+            SamusHudHandler handler = HandlerOf(rom, movement);
+            AssertEqual(handler, SamusHudObservations.MovementHandler(SamusMovementTypeNumbers.Of(movement)), "All 28 native HUD handler identities");
             for (int pose = 0; pose < 253; pose++)
             foreach (bool locked in new[] { false, true })
             foreach (ushort selected in new ushort[] { 3, 4 })
@@ -57,8 +60,9 @@ internal static class SamusHudDefinitionsVerification
                 if (locked) samus.Control.LockHandlers(); else samus.Control.Unlock();
                 samus.SelectedHudItem = HudItems.Decode(selected); setTurn(samus, turn);
                 bool expected = !locked && pose is not (0 or 0x9b) && selected == 4 &&
-                    (handler is 0xdd3d or 0xdd6f or 0xddd8 || handler == 0xdd74 && turn != 0 ||
-                        handler == 0xdd8c && Transition(SamusPoseNumbering.FromNumber(pose), false));
+                    (handler is SamusHudHandler.Standard or SamusHudHandler.Grapple or SamusHudHandler.DraygonHeld ||
+                        handler == SamusHudHandler.Turning && turn != 0 ||
+                        handler == SamusHudHandler.Transition && Transition(SamusPoseNumbering.FromNumber(pose), false));
                 AssertEqual(expected, SamusGrappleHudInput.IsSelectedAndAdmitted(samus, InstalledFixtures.SamusOverreads.PostureAdmission), "Actual Grapple HUD admission");
             }
         }
@@ -79,12 +83,12 @@ internal static class SamusHudDefinitionsVerification
             AssertEqual(10, shots.Charge.FlareCounter, "Fixture charge earned through real producer");
             metadataPose = samus.Pose = pose;
             setTurn(samus, turn);
-            ushort handler = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90dd05 + movement * 2));
+            SamusHudHandler handler = HandlerOf(rom, movement);
             bool ball = SamusPoseNumbering.InRange(pose, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.MorphBallMovingLeftPose) ||
                 pose is SamusPoseId.MorphBallFallingRightPose or SamusPoseId.MorphBallFallingLeftPose or SamusPoseId.MorphBallGroundLeftPose ||
                 SamusPoseNumbering.InRange(pose, SamusPoseId.SpringBallGroundRightPose, SamusPoseId.SpringBallJumpLeftPose);
-            bool preserves = ball || pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose || handler == 0xddb6 || handler == 0xdd74 && turn == 0 ||
-                handler == 0xdd8c && !Transition(pose, false);
+            bool preserves = ball || pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose || handler == SamusHudHandler.Jump ||
+                handler == SamusHudHandler.Turning && turn == 0 || handler == SamusHudHandler.Transition && !Transition(pose, false);
             shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = 0 }, new(0, 0), bombs);
             // An admitted nonzero turn handoff forces release before held-input charge
             // processing; with no new Shoot edge this partial charge emits no projectile.
@@ -96,6 +100,41 @@ internal static class SamusHudDefinitionsVerification
                 SamusHudDefinitions.NonFiringTransitionStart, InstalledFixtures.SamusOverreads.PostureAdmission),
             "posture observation rejects the native prefiltered range");
         Console.WriteLine("Samus HUD definitions: 28 handler words, all 219 bounded posture-index observations, 512 transition cases, 3036 native-pose Grapple admission cases and 506 real charge-preservation cases pass with policy reads forbidden.");
+    }
+
+    /// <summary>Runs the Samus HUD definition checks against the pinned cartridge revision.</summary>
+    [VerificationCommand("--samus-hud-definitions")]
+    internal static int SamusHudDefinitionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Samus HUD oracle revision");
+        Suite(nameof(VerifySamusHudDefinitions), () => VerifySamusHudDefinitions(rom));
+        return 0;
+    }
+
+    /// <summary>
+    /// The HUD handler each cartridge movement-handler pointer names (#1491): the import side of the identity check, so
+    /// the comparison is of identities and nothing reads the enum's values.
+    /// </summary>
+    private static readonly Dictionary<ushort, SamusHudHandler> HandlerAt = new()
+    {
+        [0xdd3d] = SamusHudHandler.Standard,
+        [0xbf9d] = SamusHudHandler.MorphBall,
+        [0xddb6] = SamusHudHandler.Jump,
+        [0xdd6f] = SamusHudHandler.Grapple,
+        [0xddd8] = SamusHudHandler.DraygonHeld,
+        [0xdd74] = SamusHudHandler.Turning,
+        [0xdd8c] = SamusHudHandler.Transition,
+    };
+
+    /// <summary>The HUD handler the cartridge's movement-handler table names for <paramref name="movement"/>.</summary>
+    /// <exception cref="InvalidDataException">The table names a handler the identity table does not know.</exception>
+    private static SamusHudHandler HandlerOf(SuperMetroidAddressSpace rom, int movement)
+    {
+        ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusCartridgeTablesConstants.HudMovementHandlers + movement * 2);
+        return HandlerAt.TryGetValue(word, out SamusHudHandler handler) ? handler
+            : throw new InvalidDataException($"Movement type {movement} names unknown HUD handler ${word:X4}.");
     }
 
     /// <summary>Forbids converted movement-handler and posture-flag ROM reads during HUD policy checks.</summary>

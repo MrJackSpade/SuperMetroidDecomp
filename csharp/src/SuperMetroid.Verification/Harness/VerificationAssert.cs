@@ -254,7 +254,6 @@ using static SuperMetroid.Verification.Samus.Drawing.SamusAtmosphericEffectDefin
 using static SuperMetroid.Verification.Samus.Palettes.SamusChargeColorsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusFullBodyCycleColorsVerification;
-using static SuperMetroid.Verification.Samus.Hud.SamusHudDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusHurtColorsVerification;
 using static SuperMetroid.Verification.Samus.SamusIndexedSpeedsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SamusShinesparkVerification;
@@ -1480,7 +1479,6 @@ internal static class VerificationAssert
         Suite(nameof(VerifyMetroidsClearedStatePlm), () => VerifyMetroidsClearedStatePlm(new TestAddressSpace()));
         Suite(nameof(MetroidBehaviorVerification.VerifyMetroidBehavior), () => MetroidBehaviorVerification.VerifyMetroidBehavior());
         Suite(nameof(VerifySamusAtmosphericEffectDefinitions), () => VerifySamusAtmosphericEffectDefinitions(rom));
-        Suite(nameof(VerifySamusHudDefinitions), () => VerifySamusHudDefinitions(rom));
         Suite(nameof(VerifySamusStoredShineAndShinespark), () => VerifySamusStoredShineAndShinespark());
         Suite(nameof(VerifySamusArmCannonDefinitions), () => VerifySamusArmCannonDefinitions(rom));
         Suite(nameof(VerifyPoseDispatchDefinitions), () => VerifyPoseDispatchDefinitions(rom));

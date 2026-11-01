@@ -76,7 +76,7 @@ public sealed class SuperMetroidGame
 
 
     /// <summary>Creates a reset-state session, reading the selected save slot and capturing the boot carry before any dispatcher frame runs.</summary>
-    /// <param name="saves">The battery-backed saves the session owns; the host loads them and persists them on <see cref="SaveRamChanged"/>.</param>
+    /// <param name="saves">The saves the session owns; the host loads them and persists them on <see cref="SavesChanged"/>.</param>
     /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
     public SuperMetroidGame(
         SaveSlotStore saves,
@@ -93,7 +93,7 @@ public sealed class SuperMetroidGame
     /// Frontend screens are always rendered because their state machines own their own compositors; only
     /// gameplay updates publish through <see cref="SuperMetroidGameHostServices.GameplayFrames"/>.
     /// </remarks>
-    /// <param name="saves">The battery-backed saves the session owns.</param>
+    /// <param name="saves">The saves the session owns.</param>
     /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
     /// <param name="hostServices">The compatibility services and display policy; replay verification supplies recorded evidence here.</param>
     /// <param name="random">The session's random-number word, which the frontend and every gameplay runtime share.</param>
@@ -106,17 +106,17 @@ public sealed class SuperMetroidGame
         Session = new FrontendSession(saves, gameOptions, hostServices, random);
     }
 
-    /// <summary>The session's battery-backed saves, which the host persists after <see cref="SaveRamChanged"/>.</summary>
+    /// <summary>The session's saves, which the host persists after <see cref="SavesChanged"/>.</summary>
     public SaveSlotStore Saves => Session.saves;
 
     /// <summary>
-    /// Raised after translated code changes the battery-backed saves. The core owns them as
-    /// <see cref="Saves"/>; a desktop/console host owns the choice of durable storage medium.
+    /// Raised after the game changes its saves. The game owns them as <see cref="Saves"/>; the host chooses where they
+    /// are kept.
     /// </summary>
-    public event Action? SaveRamChanged
+    public event Action? SavesChanged
     {
-        add => Session.SaveRamChanged += value;
-        remove => Session.SaveRamChanged -= value;
+        add => Session.SavesChanged += value;
+        remove => Session.SavesChanged -= value;
     }
 
     /// <summary>

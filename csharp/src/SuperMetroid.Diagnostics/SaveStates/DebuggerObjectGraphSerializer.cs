@@ -540,9 +540,7 @@ internal static class DebuggerObjectGraphSerializer
             .SelectMany(level => level.GetFields(
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic |
                 BindingFlags.DeclaredOnly))
-            .Where(field => !field.IsStatic && !field.IsDefined(typeof(NonSerializedAttribute), false) &&
-                !(field.DeclaringType?.FullName == "SuperMetroid.Core.Frontend.SuperMetroidGame" &&
-                    field.Name == "SaveRamChanged"))
+            .Where(field => !field.IsStatic && !field.IsDefined(typeof(NonSerializedAttribute), false))
             .OrderBy(field => ReflectionBoundary.DeclaringType(field).FullName, StringComparer.Ordinal)
             .ThenBy(field => field.MetadataToken)
             .ToArray();

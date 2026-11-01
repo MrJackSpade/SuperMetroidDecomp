@@ -89,7 +89,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
             session.ActiveEndingCredits.Stage.Phase == EndingCreditsPhase.SeeYouNextMission)
         {
             session.saves.SetGameCompleted(true);
-            session.RaiseSaveRamChanged();
+            session.RaiseSavesChanged();
         }
         session.display.PublishEnding(session.ActiveEndingCredits);
     }

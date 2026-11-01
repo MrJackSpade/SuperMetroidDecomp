@@ -3,7 +3,7 @@ using SuperMetroid.Core.Map;
 namespace SuperMetroid.Core.Saves;
 
 /// <summary>
-/// The session's battery-backed saves as owned state (#1322): three slots (null is empty or invalid), the menu's
+/// The session's saves as owned state (#1322): three slots (null is empty or invalid), the menu's
 /// selected slot and game completion. Gameplay, menus, checkpoints and JSON read and write it directly; the raw
 /// save image is only the hosts' import and export format.
 /// </summary>
@@ -58,7 +58,7 @@ public sealed class SaveSlotStore
         return store;
     }
 
-    /// <summary>Whether the marker field holds the corrupt-SRAM signature boot writes when every slot is invalid.</summary>
+    /// <summary>Whether the marker field holds the corrupt-saves signature boot writes when every slot is invalid.</summary>
     public bool CorruptMarkerWritten { get; private set; }
 
     /// <summary>Installs map rules after a host binds artwork, or after restoring a store that did not serialize them.</summary>
@@ -87,7 +87,7 @@ public sealed class SaveSlotStore
         RequireSlot(sourceSlot);
         RequireSlot(destinationSlot);
         if (sourceSlot == destinationSlot)
-            throw new ArgumentException("File copy requires two different SRAM slots.");
+            throw new ArgumentException("File copy requires two different save slots.");
         SuperMetroidSaveSlot source = slots[sourceSlot] ??
             throw new InvalidOperationException($"Cannot copy empty save slot {sourceSlot}.");
         slots[destinationSlot] = Detached(source, destinationSlot);
@@ -138,7 +138,7 @@ public sealed class SaveSlotStore
 
     /// <summary>
     /// Boot's <c>DetermineNumberOfDemoSets</c>, called once. When all three slots are invalid
-    /// it overwrites the completion marker with the corrupt-SRAM signature and
+    /// it overwrites the completion marker with the corrupt-saves signature and
     /// enables three demo sets; otherwise the completion signature enables the fourth. The game never re-evaluates
     /// the count before reset.
     /// </summary>

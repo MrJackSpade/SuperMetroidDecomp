@@ -174,7 +174,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // the screen is blanked. This is the durable post-Ridley Ceres
             // checkpoint the retail loader later replaces with Zebes arrival.
             AutomaticCheckpointSaver.SaveCeresDeparture(session.saves, session.GameplayRuntime, session.SelectedSaveSlot);
-            session.RaiseSaveRamChanged();
+            session.RaiseSavesChanged();
             session.GameplayRuntime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
             session.GameplayRuntime.EscapeTimer.Clear();
             // Stop music and silence all three sound libraries.
@@ -401,6 +401,6 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.saves.SaveSlot(
             session.SelectedSaveSlot,
             SuperMetroidSaveSnapshot.Capture(samus, session.Runtime.System, new SaveSnapshotContext { Area = request.AreaIndex, SaveStation = request.StationIndex, GameTime = session.Runtime.GameTime, ControllerBindings = session.Runtime.Options.ControllerBindings, MoonwalkEnabled = session.Runtime.Options.MoonwalkEnabled, IconCancelEnabled = session.Runtime.Options.IconCancelEnabled, JapaneseText = session.Runtime.JapaneseText }));
-        session.RaiseSaveRamChanged();
+        session.RaiseSavesChanged();
     }
 }

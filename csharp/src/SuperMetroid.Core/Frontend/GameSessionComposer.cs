@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend;
 public static class GameSessionComposer
 {
     /// <summary>Creates a game running on its own timing, with its installed content bound before the first frame.</summary>
-    /// <param name="saves">The battery-backed saves the session owns.</param>
+    /// <param name="saves">The saves the session owns.</param>
     /// <param name="gameOptions">The options the game reads.</param>
     /// <param name="content">The installed content.</param>
     /// <param name="storage">Where the saves are kept after the game changes them; null when a session's saves are not kept, as a replay's are not.</param>
@@ -49,6 +49,6 @@ public static class GameSessionComposer
         game.BindAudio(content.AudioClips);
         game.BindArtwork(content.Artwork);
         if (storage is not null)
-            game.SaveRamChanged += () => storage.Persist(game.Saves);
+            game.SavesChanged += () => storage.Persist(game.Saves);
     }
 }

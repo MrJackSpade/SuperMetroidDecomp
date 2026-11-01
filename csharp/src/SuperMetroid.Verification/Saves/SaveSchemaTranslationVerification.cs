@@ -195,7 +195,7 @@ internal static class SaveSchemaTranslationVerification
         frontend.Session.Show(ending);
         frontend.GameState = SuperMetroidGameState.EndingAndCredits;
         int writes = 0;
-        frontend.SaveRamChanged += () => writes++;
+        frontend.SavesChanged += () => writes++;
         frontend.Step(0);
         AssertTrue(ram.HasCompletedGame, "ending final-message transition persists completion");
         AssertEqual(1, writes, "ending requests durable save exactly on completion transition");

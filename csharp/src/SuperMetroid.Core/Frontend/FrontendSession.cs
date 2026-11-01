@@ -18,11 +18,11 @@ using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Core.Frontend;
 
-/// <summary>The frontend's shared state and its owners: the runtime, audio, display, save RAM, scenes, fades and demo counters that the game-state phases run against.</summary>
+/// <summary>The frontend's shared state and its owners: the runtime, audio, display, saves, scenes, fades and demo counters that the game-state phases run against.</summary>
 internal sealed class FrontendSession
 {
     /// <summary>Creates a reset-state session, reading the selected save slot and the earthquake rumble delay power-on gives.</summary>
-    /// <param name="saves">The battery-backed saves the session reads and writes for its whole lifetime.</param>
+    /// <param name="saves">The saves the session reads and writes for its whole lifetime.</param>
     /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
     /// <param name="hostServices">The hardware-timing policies the session runs against for its whole lifetime.</param>
     /// <param name="random">The session's random-number word, which the frontend and every gameplay runtime share.</param>
@@ -59,7 +59,7 @@ internal sealed class FrontendSession
     public SuperMetroidGameOptions ConfiguredOptions { get; internal set; }
     /// <summary>Owns scene capture and raster publication for the current frontend frame.</summary>
     internal readonly FrontendDisplay display;
-    /// <summary>Battery-backed save slots and the menu selection; the host persists them.</summary>
+    /// <summary>The save slots and the menu selection; the host persists them.</summary>
     internal readonly SaveSlotStore saves;
     /// <summary>The frame the save file found at power-on adds to every earthquake rumble's delay; fixed for the session.</summary>
     internal readonly PowerOnEarthquakeSoundDelay earthquakeSoundDelay;
@@ -134,7 +134,7 @@ internal sealed class FrontendSession
     internal readonly SamusReserveAutoRecoveryState reserveRecovery = new();
     /// <summary>Door approach and destination loading state across gameplay states.</summary>
     internal readonly DoorTransitionState doorTransition = new();
-    /// <summary>Current battery-backed save slot selected by the frontend.</summary>
+    /// <summary>The save slot the frontend has selected.</summary>
     internal int SelectedSaveSlot { get; private set; }
     /// <summary>Distinguishes a saved-game load from fresh Ceres setup.</summary>
     internal bool LoadingExistingSave { get; set; }
@@ -210,13 +210,13 @@ internal sealed class FrontendSession
         LastAudioRoomState = null;
     }
     /// <summary>
-    /// Raised after translated code changed save RAM. The handlers belong to the host, not the simulation: a debugger
-    /// state leaves them out, and the host subscribes again to a restored game.
+    /// Raised after the game changed its saves. The handlers belong to the host, not the game: a saved session leaves
+    /// them out, and the host subscribes again when it binds a game to its save storage.
     /// </summary>
     [field: NonSerialized]
-    internal event Action? SaveRamChanged;
-    /// <summary>Raises the game's save-RAM-changed event after translated code changed save RAM.</summary>
-    internal void RaiseSaveRamChanged() => SaveRamChanged?.Invoke();
+    internal event Action? SavesChanged;
+    /// <summary>Raises <see cref="SavesChanged"/> after the game changed its saves.</summary>
+    internal void RaiseSavesChanged() => SavesChanged?.Invoke();
     /// <summary>The phase the game is in.</summary>
     public SuperMetroidGameState GameState { get; internal set; } = SuperMetroidGameState.Reset;
     /// <summary>The compatibility services fixed at construction; production uses the game's own timing.</summary>
@@ -476,7 +476,7 @@ internal sealed class FrontendSession
             restartedSamus.SelectedHudItem = HudItem.Beam;
             restartedSamus.AutoCancelHudItemIndex = HudItem.Beam;
             AutomaticCheckpointSaver.SaveCeresArrival(saves, runtime, SelectedSaveSlot);
-            RaiseSaveRamChanged();
+            RaiseSavesChanged();
             spacetimeIntroRestartSlot = null;
             LoadingExistingSave = false;
             return true;
@@ -548,7 +548,7 @@ internal sealed class FrontendSession
         // full cinematic and host-configured skip converge here, so neither path can omit
         // the automatic checkpoint.
         AutomaticCheckpointSaver.SaveCeresArrival(saves, runtime, SelectedSaveSlot);
-        RaiseSaveRamChanged();
+        RaiseSavesChanged();
         return true;
     }
     /// <summary>
@@ -581,7 +581,7 @@ internal sealed class FrontendSession
         if (runtime is null ||
             !AutomaticCheckpointSaver.TrySaveGunshipLanding(saves, runtime, SelectedSaveSlot))
             return;
-        RaiseSaveRamChanged();
+        RaiseSavesChanged();
     }
     /// <summary>Where the attract demos are.</summary>
     internal AttractDemoSchedule Demo { get; } = new();

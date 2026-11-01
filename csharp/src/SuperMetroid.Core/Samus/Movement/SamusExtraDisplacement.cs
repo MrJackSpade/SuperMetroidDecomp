@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Shared arithmetic for the four external-displacement WRAM words consumed by bank `$90`.
+/// Shared arithmetic for the four external-displacement words consumed by Samus's movement.
 /// </summary>
 /// <remarks>
 /// These values are not velocity and are not one-frame impulses. Enemy, PLM, and room
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 internal static class SamusExtraDisplacement
 {
     /// <summary>
-    /// Adds `$0B5C.$0B5A` to a signed movement displacement using native wrapping 32-bit
-    /// arithmetic. `$90:90E2` does this after choosing up/down from the separate Y-direction
+    /// Adds the external Y displacement to a signed movement displacement using wrapping 32-bit
+    /// arithmetic. The vertical move does this after choosing up/down from the separate Y-direction
     /// word, so a strong external value may reverse the actual collision scan direction.
     /// </summary>
     public static int AddToVerticalSpeedDisplacement(
@@ -25,7 +25,7 @@ internal static class SamusExtraDisplacement
     }
 
     /// <summary>
-    /// Computes `$90:923F`, the no-speed vertical movement used by grounded families.
+    /// Computes the no-speed vertical movement used by grounded families.
     /// </summary>
     /// <remarks>
     /// A nonzero external value completely replaces the slope-following probe. Positive
@@ -53,9 +53,9 @@ internal static class SamusExtraDisplacement
     }
 
     /// <summary>
-    /// Computes `$90:9288`, used by jump-transition frames that accept external Y movement
+    /// Computes the transition vertical movement, used by jump-transition frames that accept external Y movement
     /// but deliberately skip ordinary gravity. Null means both producer words were zero and
-    /// native returned without invoking collision at all.
+    /// the game returned without invoking collision at all.
     /// </summary>
     public static int? CalculateExtraOnlyVerticalDisplacement(
         SamusKinematicsState kinematics)

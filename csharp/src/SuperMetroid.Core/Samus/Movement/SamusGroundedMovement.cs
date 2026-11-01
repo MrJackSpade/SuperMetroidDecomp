@@ -7,28 +7,28 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Verified grounded movement slices from Samus's ordinary bank-$90 movement dispatcher.
+/// Verified grounded movement slices from Samus's ordinary movement dispatcher.
 /// </summary>
 /// <remarks>
 /// This is deliberately not a generic platformer controller. The entry points below
-/// correspond only to movement types zero, one, $0E, $10, and $15. Air/water/lava ROM X
+/// correspond only to movement types zero, one, $0E, $10, and $15. Air/water/lava X
 /// tables and submerged Dash gating are translated; enemy collision, conveyor displacement,
 /// and knockback remain separate. Ordinary Dash and equipped-Speed-Booster accumulation/
 /// staging are translated; palette/echo rendering lives outside movement. Each
-/// omitted system has observable native state and must be ported before its branch is
+/// omitted system has observable game state and must be ported before its branch is
 /// enabled; none is silently replaced with desktop physics.
 /// </remarks>
 public static class SamusGroundedMovement
 {
     /// <summary>
-    /// Ports front-view movement at `$90:A383-$90:A3AB`, including the active-elevator
+    /// Ports front-view movement, including the active-elevator
     /// one-pixel downward block scan.
     /// </summary>
     /// <remarks>
-    /// Poses `$00/$9B` share movement type zero with ordinary standing, but the cartridge
+    /// Poses `$00/$9B` share movement type zero with ordinary standing, but the game
     /// returns before horizontal movement, speed cleanup, and the one-pixel grounding probe.
     /// It only clears <c>SamusSolidVerticalCollisionResult</c> while elevator status is zero.
-    /// A nonzero status calls `$94:9763` with exactly `1.0000` downward displacement before
+    /// A nonzero status calls the downward block collision with exactly one pixel of downward displacement before
     /// clearing that result. The elevator actor remains a separate producer of the status
     /// word and platform art; this method translates the complete Samus-side consumer.
     /// </remarks>
@@ -54,14 +54,14 @@ public static class SamusGroundedMovement
         BlockMoveResult? vertical = null;
         if (elevatorIsMoving)
         {
-            // `$90:A397-$A3A4` publishes collision direction two and calls the bank-$94
-            // downward mover with `$12.$14 = 0001.0000`. That entry deliberately skips
+            // Publishes collision direction two and calls the
+            // downward mover with one whole pixel. That entry deliberately skips
             // solid-enemy collision but retains ordinary room-block and behaviour scanning and the
             // alternating left/right order selected from the frame counter's parity.
             vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 1 << 16, ScanLeftToRight = (frameCounter & 1) == 0, IncludeSolidEnemies = false, PublishDoorSideEffects = publishDoorSideEffects });
         }
 
-        // `$90:A3A8` is the only write in the ordinary no-elevator path. In particular,
+        // Is the only write in the ordinary no-elevator path. In particular,
         // stale base/extra X speed is retained; MakeSamusFaceForward clears those words at
         // setup time, not every frame in this movement dispatcher.
         samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
@@ -69,7 +69,7 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports the movement-relevant portion of <c>Samus_Movement_00_Standing</c> at <c>$90:A383</c> for either facing:
+    /// Ports the movement-relevant portion of <c>Samus_Movement_00_Standing</c> for either facing:
     /// the right-facing $01/$03/$05/$07 family or the left-facing $02/$04/$06/$08 family.
     /// </summary>
     internal static GroundedMovementResult StepStanding(
@@ -93,11 +93,11 @@ public static class SamusGroundedMovement
         ResetStandingShotAnimation(samus, controllerInput);
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
-        // $90:A39E calls Samus_Move_NoBaseSpeed_X, which still passes zero through
-        // Samus_MoveX and the pose direction's displacement calculator ($90:8EA9). That
+        // Calls Samus_Move_NoBaseSpeed_X, which still passes zero through
+        // Samus_MoveX and the pose direction's displacement calculator. That
         // calculation publishes total-X speed before collision; do not skip it merely because
         // a freshly spawned standing Samus normally has zero base/extra speed. A left-facing
-        // pose's direction byte is $04, so the native helper is the LEFT form even though its
+        // pose's direction byte is $04, so the helper is the LEFT form even though its
         // base argument is zero, which matters once extra displacement contributes.
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: 0);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
@@ -111,9 +111,9 @@ public static class SamusGroundedMovement
             frameCounter,
             plms);
 
-        // $90:A3A7-$90:A3D7 cancels speed boost and clears extra speed, base speed, and
+        // Cancels speed boost and clears extra speed, base speed, and
         // acceleration mode after both movement calls, whichever way Samus faces. Speed-booster
-        // bookkeeping itself is outside this no-equipment slice, but these five WRAM words are
+        // bookkeeping itself is outside this no-equipment slice, but these five words are
         // exact and live.
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         return new GroundedMovementResult(horizontal, vertical);
@@ -128,7 +128,7 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports <c>Samus_Movement_01_Running</c> at <c>$90:A3E5</c> in dry air, including ordinary Dash, for either
+    /// Ports <c>Samus_Movement_01_Running</c> in dry air, including ordinary Dash, for either
     /// facing: the $09/$0D/$0F/$11 right-moving family or the $0A/$0E/$10/$12 left-moving family.
     /// </summary>
     internal static GroundedMovementResult StepRunning(
@@ -151,12 +151,12 @@ public static class SamusGroundedMovement
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
-        // `$90:9BD1` can replace the block reaction's ordinary `$9F55` pointer with the
+        // Can replace the block reaction's ordinary speed table with the
         // complete water/lava table after comparing Samus's bottom boundary.
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectEnvironmentSpeedTable(liquidMedium);
 
-        // `$90:8E64` handles Dash before calculating base speed. With no equipped Speed
+        // Handles Dash before calculating base speed. With no equipped Speed
         // Booster, B establishes momentum, adds exactly 0.1000 per frame, and caps the
         // extra component at 2.0000. The flag retains that component after B is released.
         speed.HandleExtraRunSpeed(
@@ -165,8 +165,8 @@ public static class SamusGroundedMovement
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
-        // `$90:8E64 -> $90:9A7E` advances the split 16.16 base speed. The following
-        // `$90:8EA9` direction selector is shared by every horizontal movement family:
+        // The horizontal speed calculation advances the split 16.16 base speed. The following
+        // direction selector is shared by every horizontal movement family:
         // modes zero and two obey the pose's direction byte, while every other nonzero
         // value reverses it. Mode one is therefore not an invalid running state; it is the
         // one-frame-old momentum that can survive a pose transition into this body. Do not
@@ -177,7 +177,7 @@ public static class SamusGroundedMovement
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(movesLeft, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
 
-        // $90:93B1 invokes Samus_ClearXSpeedIfColl immediately after block collision. Total
+        // Invokes Samus_ClearXSpeedIfColl immediately after block collision. Total
         // speed deliberately remains published: the following grounding routine reads it
         // even if base speed was just cleared by a wall.
         if (horizontal.Collided)
@@ -193,10 +193,10 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports the grounded branches of <c>SamusMovement_TurningAround_OnGround</c> at
-    /// <c>$90:A67C</c> and <c>SamusMovement_TurningAround_Jumping</c> at <c>$90:A790</c>.
+    /// Ports the grounded branches of <c>SamusMovement_TurningAround_OnGround</c>
+    /// and <c>SamusMovement_TurningAround_Jumping</c>.
     /// The latter name is misleading for `$97-$9A/$A2/$A3`: crouched entry leaves Y direction
-    /// zero, so native runs its no-speed grounding probe rather than airborne gravity.
+    /// zero, so the game runs its no-speed grounding probe rather than airborne gravity.
     /// </summary>
     internal static GroundedMovementResult StepTurningOnGround(
 
@@ -234,11 +234,11 @@ public static class SamusGroundedMovement
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectEnvironmentSpeedTable(liquidMedium);
 
-        // The native type-$0E/$17 handler calls the complete `$90:8E64` X routine before
-        // cancelling boost. Because this movement type is not running, `$90:973E` cannot
+        // The type-$0E/$17 handler calls the complete X routine before
+        // cancelling boost. Because this movement type is not running, the Dash acceleration cannot
         // add speed; it either clears an unowned pair or preserves an already established
         // momentum pair for this final movement frame. The unconditional cancellation and
-        // zero writes below then retire it in the cartridge's original order.
+        // zero writes below then retire it in the game's original order.
         speed.HandleExtraRunSpeed(
             movementType,
             controllerInput: 0,
@@ -247,11 +247,11 @@ public static class SamusGroundedMovement
 
         // The pose's literal `$0E` or `$17` twelve-byte speed-table record supplies the
         // deceleration. If subtraction crosses below zero,
-        // $90:9B0A clears both speed halves AND mode before $90:8EA9 chooses direction.
+        // the calculation clears both speed halves AND mode before the direction selector chooses direction.
         uint baseSpeed = speed.CalculateBaseSpeed(movementType);
 
-        // `$90:8EA9` reads the pose definition rather than the English-facing name. Keeping
-        // the literal direction byte also preserves the cartridge's behavior for unexpected
+        // Reads the pose definition rather than the English-facing name. Keeping
+        // the literal direction byte also preserves the game's behavior for unexpected
         // nonzero acceleration-mode values instead of manufacturing another unsupported arm.
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
@@ -265,9 +265,9 @@ public static class SamusGroundedMovement
             frameCounter,
             plms);
 
-        // `$90:A685` calls `Samus_CancelSpeedBoost` on every turn frame. This matters even
-        // without the Speed Booster item: `$91:F8D3` folded the numeric extra component but
-        // deliberately left `$0B3C` set until this movement handler. Then `$90:A689-$A68C`
+        // Calls `Samus_CancelSpeedBoost` on every turn frame. This matters even
+        // without the Speed Booster item: the turn initializer folded the numeric extra component but
+        // deliberately left the running-momentum flag set until this movement handler. Then the handler
         // perform the separately observable zero writes to the two extra-speed words.
         speed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         speed.ExtraRunSpeed = default;
@@ -275,7 +275,7 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports <c>SamusMovement_Moonwalking</c> at <c>$90:A694</c> for stable poses
+    /// Ports <c>SamusMovement_Moonwalking</c> for stable poses
     /// `$49/$4A/$75-$78`, including the complete shared extra-run-speed prepass.
     /// </summary>
     internal static GroundedMovementResult StepMoonwalking(
@@ -299,7 +299,7 @@ public static class SamusGroundedMovement
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectEnvironmentSpeedTable(liquidMedium);
 
-        // `$90:A697` calls `Samus_X_Movement`, whose first operation is `$90:973E`.
+        // Calls `Samus_X_Movement`, whose first operation is the Dash acceleration.
         // Movement type `$10` can never enter that routine's Dash-acceleration arm, but an
         // existing momentum flag deliberately carries the extra pair through moonwalking;
         // without the flag the pair is cleared before displacement is calculated.
@@ -318,7 +318,7 @@ public static class SamusGroundedMovement
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
-        // `$90:A69A` is the same no-speed-calculation grounding probe used by running.
+        // Is the same no-speed-calculation grounding probe used by running.
         // It deliberately scales the downward probe by the total horizontal magnitude.
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
 
@@ -330,7 +330,7 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports <c>Samus_Movement_15_RanIntoWall</c> at <c>$90:A75F</c> for
+    /// Ports <c>Samus_Movement_15_RanIntoWall</c> for
     /// `$89/$8A/$CF-$D2` in the block-only dry-room slice.
     /// </summary>
     internal static GroundedMovementResult StepRanIntoWall(
@@ -352,17 +352,17 @@ public static class SamusGroundedMovement
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
-        // `$90:A75F` calls the same no-base-speed X routine as standing. Direction still
+        // Calls the same no-base-speed X routine as standing. Direction still
         // comes from the literal pose definition: `$89/$CF/$D1` store eight (right), while
         // `$8A/$D0/$D2` store four (left). Extra speed is included in the requested move
-        // before the handler's unconditional cleanup, matching the native call order.
+        // before the handler's unconditional cleanup, matching the call order.
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), samus, baseSpeed: 0);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
         // The one-or-more-pixel downward grounding probe runs before all X words are
-        // cleared. This preserves the same ledge behavior as `$90:A762` even though the
+        // cleared. This preserves the same ledge behavior as ordinary wall stops even though the
         // ordinary wall-stop state normally begins with zero speed.
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
 
@@ -371,7 +371,7 @@ public static class SamusGroundedMovement
             frameCounter,
             plms);
 
-        // `$90:A766-$A77F` cancels speed boost and clears both run/base components plus
+        // Cancels speed boost and clears both run/base components plus
         // acceleration mode on every frame. The speed-booster counters themselves remain
         // outside this slice; the five movement words are exact and debugger-visible.
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
@@ -380,8 +380,8 @@ public static class SamusGroundedMovement
 
     /// <summary>
     /// Runs movement type zero for every translated landing pose: `$A4-$A7` for the ordinary
-    /// and spin families, plus `$E0-$E7` for aimed and horizontally firing landings. Native
-    /// landing animation is cosmetic with respect to movement: every member uses standing's
+    /// and spin families, plus `$E0-$E7` for aimed and horizontally firing landings.
+    /// Landing animation is cosmetic with respect to movement: every member uses standing's
     /// zero-base-speed horizontal pass, grounding probe, and momentum cleanup until animation
     /// command `$F8` returns to pose `$01/$02`.
     /// </summary>
@@ -420,16 +420,16 @@ public static class SamusGroundedMovement
             frameCounter,
             plms);
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-        // Landing art still uses native standing movement: it does not reset Y words.
+        // Landing art still uses standing movement: it does not reset Y words.
         // Collision command five owns landing cleanup; a later hurt expiry may write
         // direction two while this pose remains active, and that value must survive.
         return new GroundedMovementResult(horizontal, vertical);
     }
 
     /// <summary>
-    /// Executes movement type <c>$0A</c>'s ordinary handler at <c>$90:A5FC</c> after a
+    /// Executes movement type <c>$0A</c>'s ordinary handler after a
     /// special owner (normal damage knockback or Ceres Ridley's ejection) has restored the
-    /// normal dispatcher while leaving pose <c>$53/$54</c> current. Native clears the
+    /// normal dispatcher while leaving pose <c>$53/$54</c> current. The game clears the
     /// vertical-collision result and performs only the shared no-speed Y probe; it does not
     /// invent another knockback arc or silently reinterpret the hurt body as standing.
     /// </summary>
@@ -458,7 +458,7 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports <c>Samus_Move_NoSpeedCalc_Y</c> at <c>$90:923F</c>, including the external-Y
+    /// Ports <c>Samus_Move_NoSpeedCalc_Y</c>, including the external-Y
     /// replacement path and its asymmetric positive one-pixel bias.
     /// </summary>
     internal static BlockMoveResult RunNoSpeedCalculationGroundingProbe(
@@ -472,7 +472,7 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             samus.HorizontalSpeed);
 
-        // $94:9763 alternates its left-to-right and right-to-left horizontal scan order on
+        // Alternates its left-to-right and right-to-left horizontal scan order on
         // the frame counter's parity. That parity can affect which simultaneous
         // collision side effect wins, so it remains an explicit input even in this slice.
         return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });

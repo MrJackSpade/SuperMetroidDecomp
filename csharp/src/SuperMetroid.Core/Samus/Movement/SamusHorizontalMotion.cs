@@ -23,7 +23,7 @@ internal static class SamusHorizontalMotion
     };
 
     /// <summary>
-    /// Resolves exact records in the three adjacent native tables by row. Table selection adds the
+    /// Resolves exact records in the three adjacent speed tables by row. Table selection adds the
     /// movement type to the table's first row, so air movement types 26/27 deliberately read water rows
     /// 0/1. Rows past the authored records are not treated as additional mechanics definitions.
     /// </summary>

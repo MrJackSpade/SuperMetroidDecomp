@@ -3,18 +3,18 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Cartridge-derived primitives used by Samus's non-square slope collision path in bank $94.
+/// Primitives used by Samus's non-square slope collision path.
 /// </summary>
 /// <remarks>
 /// Super Metroid does not reduce slopes to a line equation. behaviour bits select one of 32
 /// sixteen-sample height profiles, while a separate table scales grounded horizontal
 /// displacement. Compiled profiles and multipliers preserve the exact discrete geometry
-/// and integer movement calculations without reading cartridge tables at runtime.
+/// and integer movement calculations without reading game tables at runtime.
 /// </remarks>
 public static class SamusSlopePhysics
 {
     /// <summary>
-    /// Ports <c>BlockColl_Horiz_Slope_NonSquare</c> at <c>$94:84D6</c>.
+    /// Ports <c>BlockColl_Horiz_Slope_NonSquare</c>.
     /// </summary>
     /// <param name="behavior">
     /// The slope block's behaviour. Bits 0–4 choose the profile; bit 7 marks a ceiling slope.
@@ -22,7 +22,7 @@ public static class SamusSlopePhysics
     /// <param name="displacement">Signed 16.16 horizontal displacement.</param>
     /// <param name="verticalSpeed">
     /// Unsigned high/low pair of <c>samus_y_speed</c>/<c>samus_y_subspeed</c>. Any nonzero
-    /// value suppresses grounded slope scaling exactly as the native routine does.
+    /// value suppresses grounded slope scaling exactly as the routine does.
     /// </param>
     public static int ScaleGroundedHorizontalDisplacement(
         int behavior,
@@ -70,7 +70,7 @@ public static class SamusSlopePhysics
     {
 
         // behaviour bit $40 mirrors the profile horizontally. XORing the complete coordinate by
-        // $000F is equivalent to flipping its low nibble while retaining native word math.
+        // 15 is equivalent to flipping its low nibble while retaining sixteen-bit word math.
         int sampledX = behavior.SlopeFlipsHorizontally
             ? CoordinateAxis.Wrap(xPosition ^ 15)
             : xPosition;
@@ -78,7 +78,7 @@ public static class SamusSlopePhysics
     }
 
     /// <summary>
-    /// Ports <c>Samus_AlignYPosSlope</c> at <c>$94:87F4</c>, the post-horizontal correction
+    /// Ports <c>Samus_AlignYPosSlope</c>, the post-horizontal correction
     /// for non-square floor and ceiling slopes.
     /// </summary>
     /// <remarks>
@@ -101,7 +101,7 @@ public static class SamusSlopePhysics
 
         bool adjusted = false;
 
-        // $94:87F4 first probes the center-X block containing Samus's bottom pixel. Only
+        // First probes the center-X block containing Samus's bottom pixel. Only
         // type 1, shapes >=5, and behaviour bit $80 clear participate as floor slopes.
         int bottomPosition = CoordinateAxis.Wrap(yPosition + yRadius - 1);
         if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, bottomPosition), out RoomCollisionBlock bottom) &&
@@ -122,7 +122,7 @@ public static class SamusSlopePhysics
         }
 
         // Recompute the top probe after any floor correction. Ceiling slopes use behaviour bit
-        // $80 set and reverse the same signed correction, matching $94:887A-$94:88F3.
+        // $80 set and reverse the same signed correction.
         int topPosition = CoordinateAxis.Wrap(yPosition - yRadius);
         if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, topPosition), out RoomCollisionBlock top) &&
             top.CollisionType == RoomCollisionType.Slope &&

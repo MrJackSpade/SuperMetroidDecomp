@@ -2,7 +2,7 @@ using System.Collections.Frozen;
 
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>Pinned bank-$90 horizontal mechanics, separate from animation and palette definitions.</summary>
+/// <summary>Pinned horizontal mechanics, separate from animation and palette definitions.</summary>
 internal static class SamusHorizontalMotionDefinitions
 {
     /// <summary>Deceleration of every air record, half a pixel per update per update.</summary>
@@ -46,9 +46,9 @@ internal static class SamusHorizontalMotionDefinitions
     /// <summary>The authored acceleration of every other movement, three quarters of a pixel per update per update.</summary>
     internal static SignedSixteenSixteen DefaultAcceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(12);
 
-    /// <summary>$90:9F55..A08C normal-air speed records end after damage boost.</summary>
+    /// <summary>Normal-air speed records end after damage boost.</summary>
     internal const int AirRecordCount = 26;
-    /// <summary>$90:A08D and A1DD water/lava records additionally include held and special movement.</summary>
+    /// <summary>And A1DD water/lava records additionally include held and special movement.</summary>
     internal const int LiquidRecordCount = 28;
     /// <summary>Records across the three adjacent tables: air, then water, then lava/acid.</summary>
     internal const int RowCount = AirRecordCount + 2 * LiquidRecordCount;
@@ -75,13 +75,13 @@ internal static class SamusHorizontalMotionDefinitions
     internal static readonly FrozenDictionary<SamusMovementType, int> RecordPosition =
         Enumerable.Range(0, RecordOrder.Length).ToFrozenDictionary(position => RecordOrder[position]);
 
-    /// <summary>$90:9F25 XAccelSpeeds_DiagonalBombJump: acceleration, maximum and deceleration whole/fraction pairs.</summary>
+    /// <summary>XAccelSpeeds_DiagonalBombJump: acceleration, maximum and deceleration whole/fraction pairs.</summary>
     internal static readonly SpeedTableEntry DiagonalBombJump = new(
         Acceleration: SignedSixteenSixteen.FromParts(0, 12288),
         MaximumSpeed: SignedSixteenSixteen.FromParts(3, 0),
         Deceleration: SignedSixteenSixteen.FromParts(0, 2048));
 
-    /// <summary>$90:9F31/$9F3D/$9F49 XAccelSpeeds_DisconnectGrappleInAir/InWater/InLavaAcid: three identical authored records.</summary>
+    /// <summary>XAccelSpeeds_DisconnectGrappleInAir/InWater/InLavaAcid: three identical authored records.</summary>
     internal static readonly SpeedTableEntry GrappleRelease = new(
         Acceleration: SignedSixteenSixteen.FromParts(0, 12288),
         MaximumSpeed: SignedSixteenSixteen.FromParts(15, 0),

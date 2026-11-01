@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>How Samus's base horizontal speed changes this frame (WRAM <c>$0B4A</c>).</summary>
+/// <summary>How Samus's base horizontal speed changes this frame.</summary>
 public enum SamusAccelerationMode
 {
-    /// <summary>Ordinary forward acceleration; selected by $91:ECD0 and no-dash aerial initialization.</summary>
+    /// <summary>Ordinary forward acceleration; selected by momentum cancellation and no-dash aerial initialization.</summary>
     Accelerating,
 
     /// <summary>
@@ -13,7 +13,7 @@ public enum SamusAccelerationMode
     Turning,
 
     /// <summary>
-    /// Retained-momentum deceleration, selected by $91:F543/$91:F60D when extra dash speed remains; the airborne
+    /// Retained-momentum deceleration, selected by the jump and fall initializers when extra dash speed remains; the airborne
     /// deceleration-disallowed path tests only the turning bit, so it keeps accelerating there.
     /// </summary>
     Decelerating,

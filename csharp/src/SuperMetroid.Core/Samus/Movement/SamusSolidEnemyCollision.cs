@@ -3,8 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Literal translation of Samus-versus-solid-enemy collision detection at
-/// <c>$A0:A8F0-$A0:AB18</c>.
+/// Literal translation of Samus-versus-solid-enemy collision detection.
 /// </summary>
 /// <remarks>
 /// This is intentionally a probe, not an enemy simulation. The caller supplies the current
@@ -16,16 +15,16 @@ namespace SuperMetroid.Core.Samus.Movement;
 public static class SamusSolidEnemyCollision
 {
     /// <summary>
-    /// Runs one native bank-$A0 directional probe without moving Samus.
+    /// Runs one directional probe without moving Samus.
     /// </summary>
     /// <param name="state">Samus's current whole/subpixel position and collision radii.</param>
     /// <param name="interactiveEnemies">
     /// Active interactive enemies in slot order. Non-solid, unfrozen entries remain in
-    /// the list because the native loop encounters and rejects them individually.
+    /// the list because the loop encounters and rejects them individually.
     /// </param>
-    /// <param name="direction">Low two bits of native collision movement direction.</param>
-    /// <param name="distance">Whole-pixel half of native scratch pair <c>$12.$14</c>.</param>
-    /// <param name="distanceSubposition">Fractional half of native scratch pair <c>$12.$14</c>.</param>
+    /// <param name="direction">Low two bits of collision movement direction.</param>
+    /// <param name="distance">Whole-pixel half of scratch pair <c>$12.$14</c>.</param>
+    /// <param name="distanceSubposition">Fractional half of scratch pair <c>$12.$14</c>.</param>
     /// <returns>The first qualifying body's current leading-edge gap, or the requested whole distance with no enemy when no collision is found.</returns>
     /// <remarks>No whole position or enemy body is changed. Exact current-edge contact clears <paramref name="state"/>'s Y subposition even for horizontal probes. The distance pair is an unsigned 16.16 magnitude; direction supplies its sign.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="state"/> or <paramref name="interactiveEnemies"/> is null.</exception>
@@ -44,11 +43,11 @@ public static class SamusSolidEnemyCollision
             SamusCollisionDirection.Up or SamusCollisionDirection.Down))
             throw new ArgumentOutOfRangeException(nameof(direction));
 
-        // `$A0:A90A-$A0:A9B7` constructs only a whole-pixel target for the broad overlap
+        // Constructs only a whole-pixel target for the broad overlap
         // test. Fractional motion is rounded one extra pixel outward whenever its resulting
         // subposition is nonzero, and two pixels whenever the subposition carries or
         // borrows. Although this can look like an off-by-one in C#, it is the exact SEC/SBC
-        // or CLC/ADC plus DEC/INC sequence in the ROM, whose BEQ reads the flags of the last
+        // or add-with-carry plus decrement/increment sequence in the game, whose zero test reads the flags of the last
         // instruction that ran.
         Position16<RoomPixels> target = BuildRoundedTarget(
             state, direction, FixedCoordinate.Of(distance, distanceSubposition));
@@ -58,8 +57,8 @@ public static class SamusSolidEnemyCollision
             if (!enemy.Solid)
                 continue;
 
-            // `$A0:A9EB-$A0:AA30`: the rounded future center must overlap on both axes.
-            // Tangency is not overlap here; the native CMP/BCC sequence requires the
+            // The rounded future center must overlap on both axes.
+            // Tangency is not overlap here; the CMP/BCC sequence requires the
             // center distance to be strictly less than the sum of both radii.
             if (!StrictlyOverlaps(target.X, state.Radius.X, enemy.Position.X, enemy.Radius.X) ||
                 !StrictlyOverlaps(target.Y, state.Radius.Y, enemy.Position.Y, enemy.Radius.Y))
@@ -69,7 +68,7 @@ public static class SamusSolidEnemyCollision
 
             // The broad test says the future boxes overlap. The directional test now uses
             // the *current* leading edges to distinguish an approaching gap from an enemy
-            // Samus is already embedded in. A negative native/BPL result skips that enemy.
+            // Samus is already embedded in. A negative result skips that enemy.
             int gap = direction switch
             {
                 SamusCollisionDirection.Left => CoordinateAxis.Wrap(
@@ -92,7 +91,7 @@ public static class SamusSolidEnemyCollision
             bool wasTouching = gap == 0;
             if (wasTouching)
             {
-                // `$A0:AAC8` executes STZ $0AFC for every direction. Yes, that clears
+                // Clears Y subposition for every direction. Yes, that clears
                 // Samus's *Y* subposition even for a left/right touch. The disassembly calls
                 // this out as an original-game bug; preserving it prevents one-pixel drift
                 // differences when repeatedly pressing into a solid or frozen enemy.
@@ -115,7 +114,7 @@ public static class SamusSolidEnemyCollision
             WasTouching: false);
     }
 
-    /// <summary>Applies the directional 16.16 movement to the relevant axis and rounds its fractional target outward for the native broad-phase test.</summary>
+    /// <summary>Applies the directional 16.16 movement to the relevant axis and rounds its fractional target outward for the broad-phase test.</summary>
     private static Position16<RoomPixels> BuildRoundedTarget(
         SamusKinematicsState state,
         SamusCollisionDirection direction,
@@ -135,9 +134,9 @@ public static class SamusSolidEnemyCollision
     }
 
     /// <summary>
-    /// Models native subtraction, including fractional borrow and the extra outward decrement selected by the assembly's
+    /// Models the game's subtraction, including fractional borrow and the extra outward decrement selected by the
     /// zero flag. The whole target is a room coordinate word: each decrement wraps at sixteen bits through the
-    /// compatibility counter, so a target at zero continues from $FFFF exactly as the cartridge's DEC does.
+    /// compatibility counter, so a target at zero continues from 65535 exactly as the game's decrement does.
     /// </summary>
     private static int RoundNegative(FixedCoordinate target, FixedCoordinate reach)
     {
@@ -147,7 +146,7 @@ public static class SamusSolidEnemyCollision
         // because the subtraction below keeps only the fraction word.
         bool borrowed = target.Fraction < reach.Fraction;
         int fraction = CoordinateAxis.Wrap(target.Fraction - reach.Fraction);
-        // `$A0:A931/$A980`: after a borrow the DEC sets Z from the whole target, so the BEQ
+        // After a borrow the DEC sets Z from the whole target, so the BEQ
         // tests that word rather than the fraction and a second DEC follows unless it is 0.
         if (borrowed)
         {
@@ -164,19 +163,19 @@ public static class SamusSolidEnemyCollision
     }
 
     /// <summary>
-    /// Models native addition, including fractional carry and the extra outward increment selected by the assembly's
+    /// Models the game's addition, including fractional carry and the extra outward increment selected by the
     /// zero flag. Each increment wraps the whole coordinate word at sixteen bits through the compatibility counter, so
-    /// $FFFF continues at zero exactly as the cartridge's INC does.
+    /// 65535 continues at zero exactly as the game's increment does.
     /// </summary>
     private static int RoundPositive(FixedCoordinate target, FixedCoordinate reach)
     {
         int whole = CoordinateAxis.Wrap(target.Whole + reach.Whole);
 
-        // CLC/ADC carries the fractional overflow into the whole word before the native
+        // The add carries the fractional overflow into the whole word before the
         // nonzero-fraction INC performs its outward pixel rounding.
         int fractionSum = target.Fraction + reach.Fraction;
         int fraction = WordWrap.Unsigned(fractionSum);
-        // `$A0:A959/$A9A7`: after a carry the INC sets Z from the whole target, so the BEQ
+        // After a carry the INC sets Z from the whole target, so the BEQ
         // tests that word rather than the fraction and a second INC follows unless it is 0.
         if (fractionSum > ushort.MaxValue)
         {
@@ -192,15 +191,15 @@ public static class SamusSolidEnemyCollision
         return whole;
     }
 
-    /// <summary>Compares wrapped 16-bit center distance against both radii using the native unsigned borrow and strict comparison rules.</summary>
+    /// <summary>Compares wrapped 16-bit center distance against both radii using the unsigned borrow and strict comparison rules.</summary>
     private static bool StrictlyOverlaps(
         int firstPosition,
         int firstRadius,
         int secondPosition,
         int secondRadius)
     {
-        // `$A0:A9F1` obtains a 16-bit absolute center delta with EOR #$FFFF / INC. This
-        // intentionally leaves $8000 unchanged, matching the native two's-complement edge.
+        // Obtains a 16-bit absolute center delta by negating it. This
+        // intentionally leaves 32768 unchanged, matching the two's-complement edge.
         int signedDelta = CoordinateAxis.Wrap(secondPosition - firstPosition);
         int absoluteDelta = WordWrap.Signed(signedDelta) >= 0
             ? signedDelta

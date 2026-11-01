@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>Spin-jump animation frames that wall contact rewinds to at <c>$90:9D96-$90:9DA6</c>.</summary>
+/// <summary>Spin-jump animation frames that wall contact rewinds to.</summary>
 internal static class SamusWallContactAnimationDefinitions
 {
     /// <summary>

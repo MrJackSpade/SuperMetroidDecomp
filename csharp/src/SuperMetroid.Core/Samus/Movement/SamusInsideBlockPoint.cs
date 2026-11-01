@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>The body point whose block a <c>$94:9B60</c> inside reaction is running for.</summary>
+/// <summary>The body point whose block an inside-block reaction is running for.</summary>
 public enum SamusInsideBlockPoint
 {
     /// <summary><c>InsideBlockReactionSamusPoint</c> = 0: one pixel above the bottom boundary.</summary>

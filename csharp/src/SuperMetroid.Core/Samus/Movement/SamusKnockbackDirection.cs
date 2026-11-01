@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Which way a hit knocks Samus. The values follow the cartridge's knockback table for the native snapshot import; its
+/// Which way a hit knocks Samus. The values follow the game's knockback table for the snapshot import; its
 /// unused straight-up entry is not a member, so a knockback that reaches it is rejected.
 /// </summary>
 public enum SamusKnockbackDirection

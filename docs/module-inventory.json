@@ -520,7 +520,7 @@
     {
       "module": "csharp/src/SuperMetroid.EnsureAnalyzer",
       "role": "analyzer",
-      "files": 92,
+      "files": 93,
       "dependsOn": []
     },
     {
@@ -534,7 +534,7 @@
     {
       "module": "csharp/src/SuperMetroid.EnsureVerification",
       "role": "verification",
-      "files": 42,
+      "files": 43,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -18702,6 +18702,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianFrameBehaviors.cs",
+      "module": "csharp/src/SuperMetroid.Core/Areas",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Areas.Tourian",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Rooms"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianPlms.cs",
       "module": "csharp/src/SuperMetroid.Core/Areas",
       "role": "production",
@@ -18716,19 +18729,6 @@
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianPreInstructions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Areas",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Areas.Tourian",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Rooms"
       ]
     },
     {
@@ -22668,6 +22668,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonFrameBehaviors.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.Draygon",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Rooms"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonOrientation.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
@@ -22732,19 +22745,6 @@
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonPreInstructions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Bosses",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Bosses.Draygon",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Rooms"
       ]
     },
     {
@@ -27106,6 +27106,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainGlassFrameBehaviors.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.MotherBrain",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Rooms"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainGlassPlmAnimation.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
@@ -27191,19 +27204,6 @@
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainGlassPreInstructions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Bosses",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Bosses.MotherBrain",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Rooms"
       ]
     },
     {
@@ -32319,6 +32319,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandFrameBehaviors.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.Torizo",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Rooms"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandPlmAnimation.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
@@ -32372,19 +32385,6 @@
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandPreInstructions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Bosses",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Bosses.Torizo",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Rooms"
       ]
     },
     {
@@ -32919,6 +32919,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoFrameBehavior.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.Torizo",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoFunction.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
@@ -33061,16 +33071,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoPostureKind.cs",
-      "module": "csharp/src/SuperMetroid.Core/Bosses",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Bosses.Torizo",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoPreInstruction.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
       "namespace": "SuperMetroid.Core.Bosses.Torizo",
@@ -34497,6 +34497,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Animals/EscapeEtecoonFrameBehavior.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Animals",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/Animals/EscapeEtecoonInitialization.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -34507,16 +34517,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Animals/EscapeEtecoonPreInstruction.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies.Animals",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
       ]
     },
     {
@@ -37199,6 +37199,29 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueFrameBehavior.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Chozo",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueFrameBehaviors.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Chozo",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Rooms"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueFxData.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -37310,29 +37333,6 @@
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Samus"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatuePreInstruction.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies.Chozo",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatuePreInstructions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies.Chozo",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Rooms"
       ]
     },
     {
@@ -46166,6 +46166,41 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileFrameBehavior.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Projectiles",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileFrameBehaviorContext.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Projectiles",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Samus",
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileFrameBehaviorHandler.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Projectiles",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileFrameId.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -46200,41 +46235,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileOffScreenDefinitions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies.Projectiles",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectilePreInstruction.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies.Projectiles",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectilePreInstructionContext.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies.Projectiles",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Rooms",
-        "csharp/src/SuperMetroid.Core/Samus",
-        "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectilePreInstructionHandler.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Projectiles",
@@ -47701,6 +47701,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolFrameBehavior.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Shaktool",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolInstructionDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -47758,16 +47768,6 @@
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolPreInstruction.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies.Shaktool",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
       ]
     },
     {
@@ -47847,7 +47847,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolRoomPreInstructions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolRoomFrameBehaviors.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Shaktool",
@@ -49993,6 +49993,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipAtticFrameBehaviors.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.WreckedShip",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Rooms"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipAtticPlmAnimation.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -50017,19 +50030,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Programs",
-        "csharp/src/SuperMetroid.Core/Rooms"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipAtticPreInstructions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies.WreckedShip",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
         "csharp/src/SuperMetroid.Core/Rooms"
       ]
     },
@@ -54154,16 +54154,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Frontend/GameOver/GameOverBabyInstruction.cs",
-      "module": "csharp/src/SuperMetroid.Core/Frontend",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Frontend.GameOver",
-      "layer": "Frontend",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Frontend/GameOver/GameOverBabyPalette.cs",
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
@@ -54175,6 +54165,16 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Frontend/GameOver/GameOverBabyPalettes.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend.GameOver",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/GameOver/GameOverBabyScriptStep.cs",
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
       "namespace": "SuperMetroid.Core.Frontend.GameOver",
@@ -54757,7 +54757,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicSpritePose.cs",
+      "path": "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicSpriteFrameBehavior.cs",
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
       "namespace": "SuperMetroid.Core.Frontend.Intro",
@@ -54767,7 +54767,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicSpritePreInstruction.cs",
+      "path": "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicSpritePose.cs",
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
       "namespace": "SuperMetroid.Core.Frontend.Intro",
@@ -57961,7 +57961,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Frontend/Title/TitleSequenceInstruction.cs",
+      "path": "csharp/src/SuperMetroid.Core/Frontend/Title/TitleSequencePhase.cs",
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
       "namespace": "SuperMetroid.Core.Frontend.Title",
@@ -57971,7 +57971,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Frontend/Title/TitleSequencePhase.cs",
+      "path": "csharp/src/SuperMetroid.Core/Frontend/Title/TitleSequenceScriptStep.cs",
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
       "namespace": "SuperMetroid.Core.Frontend.Title",
@@ -59206,6 +59206,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxFrameBehavior.cs",
+      "module": "csharp/src/SuperMetroid.Core/Fx",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Fx.PaletteFx",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxHeatData.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
@@ -59263,16 +59273,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxObject.cs",
-      "module": "csharp/src/SuperMetroid.Core/Fx",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Fx.PaletteFx",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxPreInstruction.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -61338,6 +61338,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Input/DemoInputFrameBehavior.cs",
+      "module": "csharp/src/SuperMetroid.Core/Input",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Input",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Input/DemoInputObjectDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Input",
       "role": "production",
@@ -61349,16 +61359,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Input/DemoInputObjectDefinitions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Input",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Input",
-      "layer": "Foundation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Input/DemoInputPreInstruction.cs",
       "module": "csharp/src/SuperMetroid.Core/Input",
       "role": "production",
       "namespace": "SuperMetroid.Core.Input",
@@ -63812,6 +63812,26 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/ColoredDoorFrameBehavior.cs",
+      "module": "csharp/src/SuperMetroid.Core/Rooms",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Rooms.Doors",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/ColoredDoorFrameBehaviors.cs",
+      "module": "csharp/src/SuperMetroid.Core/Rooms",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Rooms.Doors",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/ColoredDoorOrientation.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
@@ -63861,26 +63881,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/ColoredDoorPlmState.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.Doors",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/ColoredDoorPreInstruction.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.Doors",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/ColoredDoorPreInstructions.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
       "namespace": "SuperMetroid.Core.Rooms.Doors",
@@ -64277,6 +64277,26 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorFrameBehavior.cs",
+      "module": "csharp/src/SuperMetroid.Core/Rooms",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Rooms.Doors",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorFrameBehaviors.cs",
+      "module": "csharp/src/SuperMetroid.Core/Rooms",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Rooms.Doors",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorOrientation.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
@@ -64378,26 +64398,6 @@
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorPreInstruction.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.Doors",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorPreInstructions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.Doors",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
       ]
     },
     {
@@ -64530,6 +64530,26 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/GreyDoorFrameBehavior.cs",
+      "module": "csharp/src/SuperMetroid.Core/Rooms",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Rooms.Doors",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/GreyDoorFrameBehaviors.cs",
+      "module": "csharp/src/SuperMetroid.Core/Rooms",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Rooms.Doors",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/GreyDoorPlmAnimation.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
@@ -64591,26 +64611,6 @@
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Progression"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/GreyDoorPreInstruction.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.Doors",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Doors/GreyDoorPreInstructions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.Doors",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
       ]
     },
     {
@@ -65553,6 +65553,26 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/DownwardGateFrameBehavior.cs",
+      "module": "csharp/src/SuperMetroid.Core/Rooms",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Rooms.Plms",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/DownwardGateFrameBehaviors.cs",
+      "module": "csharp/src/SuperMetroid.Core/Rooms",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Rooms.Plms",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/DownwardGatePart.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
@@ -65610,26 +65630,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Compatibility"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/DownwardGatePreInstruction.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.Plms",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/DownwardGatePreInstructions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.Plms",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
       ]
     },
     {
@@ -65903,7 +65903,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/IPlmPreInstruction.cs",
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/IPlmFrameBehavior.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
       "namespace": "SuperMetroid.Core.Rooms.Plms",
@@ -66448,6 +66448,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/NoobTubeFrameBehaviors.cs",
+      "module": "csharp/src/SuperMetroid.Core/Rooms",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Rooms.Plms",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/NoobTubePlmAnimation.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
@@ -66499,7 +66509,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/NoobTubePlmPreInstruction.cs",
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/NoobTubePlmFrameBehavior.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
       "namespace": "SuperMetroid.Core.Rooms.Plms",
@@ -66535,16 +66545,6 @@
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Input",
         "csharp/src/SuperMetroid.Core/Progression"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/NoobTubePreInstructions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.Plms",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
       ]
     },
     {
@@ -66757,6 +66757,26 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmFrameBehavior.cs",
+      "module": "csharp/src/SuperMetroid.Core/Rooms",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Rooms.Plms",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmFrameBehaviors.cs",
+      "module": "csharp/src/SuperMetroid.Core/Rooms",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Rooms.Plms",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmFrameDraw.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
@@ -66812,26 +66832,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmNoDraw.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.Plms",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmPreInstruction.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.Plms",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmPreInstructions.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
       "namespace": "SuperMetroid.Core.Rooms.Plms",
@@ -67382,6 +67382,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/SamusEaterFrameBehaviors.cs",
+      "module": "csharp/src/SuperMetroid.Core/Rooms",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Rooms.Plms",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/SamusEaterPlmAnimation.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
@@ -67469,16 +67479,6 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/SamusEaterPreInstructions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.Plms",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
       ]
     },
     {
@@ -67600,7 +67600,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/ScriptedRoomPlmPreInstruction.cs",
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/ScriptedRoomPlmFrameBehavior.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
       "namespace": "SuperMetroid.Core.Rooms.Plms",
@@ -67794,6 +67794,26 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/SpeedBoosterEscapeFrameBehavior.cs",
+      "module": "csharp/src/SuperMetroid.Core/Rooms",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Rooms.Plms",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/SpeedBoosterEscapeFrameBehaviors.cs",
+      "module": "csharp/src/SuperMetroid.Core/Rooms",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Rooms.Plms",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/SpeedBoosterEscapePhases.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
@@ -67842,26 +67862,6 @@
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/SpeedBoosterEscapePreInstruction.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.Plms",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/SpeedBoosterEscapePreInstructions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.Plms",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
       ]
     },
     {
@@ -74841,6 +74841,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileFrameBehavior.cs",
+      "module": "csharp/src/SuperMetroid.Core/Samus",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Samus.Projectiles",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileFrameResult.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
@@ -74876,16 +74886,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileMotionDefinitions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Projectiles",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectilePreInstruction.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
       "namespace": "SuperMetroid.Core.Samus.Projectiles",
@@ -79975,6 +79975,15 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/CoreDocumentationVocabularyAnalyzer.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.Contracts",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/CoreVocabularyAnalyzer.cs",
       "module": "csharp/src/SuperMetroid.EnsureAnalyzer",
       "role": "analyzer",
@@ -80745,6 +80754,18 @@
     },
     {
       "path": "csharp/src/SuperMetroid.EnsureVerification/Contracts/CompatibilityServiceAnalyzerTests.cs",
+      "module": "csharp/src/SuperMetroid.EnsureVerification",
+      "role": "verification",
+      "namespace": "SuperMetroid.EnsureVerification.Contracts",
+      "assemblies": [
+        "SuperMetroid.EnsureVerification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureVerification/Contracts/CoreDocumentationVocabularyAnalyzerTests.cs",
       "module": "csharp/src/SuperMetroid.EnsureVerification",
       "role": "verification",
       "namespace": "SuperMetroid.EnsureVerification.Contracts",
@@ -86996,17 +87017,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Projectiles/EnemyProjectileInstruction.cs",
-      "module": "csharp/src/SuperMetroid.Tooling",
-      "role": "tooling",
-      "namespace": "SuperMetroid.Core.Enemies.Projectiles",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Projectiles/EnemyProjectilePreInstructionWords.cs",
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Projectiles/EnemyProjectileFrameBehaviorWords.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
       "namespace": "SuperMetroid.Core.Enemies.Projectiles",
@@ -87016,6 +87027,16 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Projectiles/EnemyProjectileInstruction.cs",
+      "module": "csharp/src/SuperMetroid.Tooling",
+      "role": "tooling",
+      "namespace": "SuperMetroid.Core.Enemies.Projectiles",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Tooling"
       ]
     },
     {
@@ -87784,6 +87805,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/RoomPlmAnimationScriptsTooling.cs",
+      "module": "csharp/src/SuperMetroid.Tooling",
+      "role": "tooling",
+      "namespace": "SuperMetroid.Core.Rooms.Plms",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/RoomPlmCollectibleDrawDefinitionsTooling.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
@@ -87794,16 +87825,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Rooms"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/RoomPlmInstructionListsTooling.cs",
-      "module": "csharp/src/SuperMetroid.Tooling",
-      "role": "tooling",
-      "namespace": "SuperMetroid.Core.Rooms.Plms",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Tooling"
       ]
     },
     {
@@ -116364,6 +116385,18 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Verification/Input/NativeDemoFrameBehavior.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Input",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/test-support/VerificationAccess.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Verification/Input/NativeDemoInputReference.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -116374,18 +116407,6 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Input",
-        "csharp/test-support/VerificationAccess.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Verification/Input/NativeDemoPreInstruction.cs",
-      "module": "csharp/src/SuperMetroid.Verification",
-      "role": "verification",
-      "namespace": "SuperMetroid.Verification.Input",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -119074,6 +119095,21 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmAnimationScriptCatalogVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Rooms.Plms",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Tooling",
+        "csharp/test-support/VerificationAccess.Core",
+        "csharp/test-support/VerificationAccess.Tooling"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmHeaderCatalogVerification.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -119087,21 +119123,6 @@
         "csharp/src/SuperMetroid.Core/World",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/VerificationAccess.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmInstructionListCatalogVerification.cs",
-      "module": "csharp/src/SuperMetroid.Verification",
-      "role": "verification",
-      "namespace": "SuperMetroid.Verification.Rooms.Plms",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Tooling",
-        "csharp/test-support/VerificationAccess.Core",
-        "csharp/test-support/VerificationAccess.Tooling"
       ]
     },
     {
@@ -133622,6 +133643,24 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Projectiles/EnemyProjectileFrameBehaviorAccess.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Enemies.Projectiles",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Tooling",
+        "csharp/test-support/VerificationAccess.Tooling"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Projectiles/EnemyProjectileFramesAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -133640,24 +133679,6 @@
     },
     {
       "path": "csharp/test-support/VerificationAccess.Core/Enemies/Projectiles/EnemyProjectileNativeImportAccess.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Enemies.Projectiles",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Tooling",
-        "csharp/test-support/VerificationAccess.Tooling"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Projectiles/EnemyProjectilePreInstructionAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Enemies.Projectiles",
@@ -135512,20 +135533,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Frontend/Intro/CinematicSpriteInstruction.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Frontend.Intro",
-      "layer": "Frontend",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/Frontend/Intro/CinematicSpritePreInstructionAccess.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Frontend/Intro/CinematicSpriteFrameBehaviorAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Frontend.Intro",
@@ -135538,6 +135546,19 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Frontend"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Frontend/Intro/CinematicSpriteInstruction.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Frontend.Intro",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ]
     },
     {
@@ -136660,6 +136681,19 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/AnimatedTileAnimationScriptPointers.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Fx",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Fx/AnimatedTileFrameArtwork.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -136697,19 +136731,6 @@
     },
     {
       "path": "csharp/test-support/VerificationAccess.Core/Fx/AnimatedTileInstruction.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Fx",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/AnimatedTileInstructionListPointers.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx",
@@ -137278,7 +137299,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxHeatInstructionListDefinitions.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxHeatAnimationScriptDefinitions.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -137291,7 +137312,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxHeatInstructionListDefinitionsAccess.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxHeatAnimationScriptDefinitionsAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -137307,7 +137328,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxHeatInstructionListDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxHeatAnimationScriptDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -140625,24 +140646,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Rooms/Plms/PlmNativeWords.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Rooms.Plms",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core/Rooms"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/Rooms/Plms/PlmPreInstructionDefinitions.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Rooms/Plms/PlmFrameBehaviorDefinitions.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Rooms.Plms",
@@ -140655,7 +140659,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Rooms/Plms/PlmPreInstructionNativeRoutines.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Rooms/Plms/PlmFrameBehaviorNativeRoutines.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Rooms.Plms",
@@ -140675,7 +140679,24 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Rooms/Plms/PlmPreInstructionNativeWords.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Rooms/Plms/PlmFrameBehaviorNativeWords.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Rooms.Plms",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Rooms"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Rooms/Plms/PlmNativeWords.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Rooms.Plms",
@@ -140706,6 +140727,19 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Rooms"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationAccess.Core/Rooms/Plms/RoomPlmAnimationScriptsConstants.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Rooms.Plms",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ]
     },
     {
@@ -140989,19 +141023,6 @@
     },
     {
       "path": "csharp/test-support/VerificationAccess.Core/Rooms/Plms/RoomPlmInstruction.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Rooms.Plms",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/Rooms/Plms/RoomPlmInstructionListsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Rooms.Plms",
@@ -143315,7 +143336,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Samus/Projectiles/SamusBeamPreInstructionCodes.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Samus/Projectiles/SamusBeamFrameBehaviorCodes.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Samus.Projectiles",
@@ -144415,7 +144436,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Tooling/Core/Enemies/Projectiles/EnemyProjectilePreInstructionWordsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Tooling/Core/Enemies/Projectiles/EnemyProjectileFrameBehaviorWordsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Tooling",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Enemies.Projectiles",

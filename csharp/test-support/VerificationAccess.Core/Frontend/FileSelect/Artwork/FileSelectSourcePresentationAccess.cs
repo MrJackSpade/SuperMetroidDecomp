@@ -15,7 +15,7 @@ internal static class FileSelectSourcePresentationAccess
         /// <summary>Copies one named full page into a 1024-cell destination tilemap.</summary>
         internal void CopyPage(FileSelectPage page, Span<BackgroundTile> destination)
         {
-            Ensure.LengthEqual(destination, FileSelectPresentationDefinitions.CellCount);
+            Ensure.LengthEqual(destination, FileSelectPresentationFormat.CellCount);
             self.pages[page].CopyTo(destination);
         }
         /// <summary>Places an ENERGY, NO DATA, or time-colon patch relative to its tile anchor.</summary>
@@ -25,7 +25,7 @@ internal static class FileSelectSourcePresentationAccess
             for (int index = 0; index < patch.Count; index++)
             {
                 FileSelectCompiledPatchCell cell = patch.Cell(index);
-                tilemap[FileSelectPresentationDefinitions.PageSize.RowMajorIndex(anchor + cell.Offset)] = cell.Tile;
+                tilemap[FileSelectPresentationFormat.PageSize.RowMajorIndex(anchor + cell.Offset)] = cell.Tile;
             }
         }
         /// <summary>Writes one decimal digit using edited glyph art when supplied.</summary>
@@ -41,7 +41,7 @@ internal static class FileSelectSourcePresentationAccess
         internal BackgroundTile[] LayOut(ShownFileSelectPage shown)
         {
             Ensure.NotNull(shown);
-            var tiles = new BackgroundTile[FileSelectPresentationDefinitions.CellCount];
+            var tiles = new BackgroundTile[FileSelectPresentationFormat.CellCount];
             self.CopyPage(shown.Page, tiles);
             foreach (PlacedFrame placed in shown.Pictures(self).Skip(1))
             {

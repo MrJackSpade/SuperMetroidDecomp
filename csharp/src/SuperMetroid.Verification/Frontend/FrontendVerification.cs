@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Verification.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -15,7 +16,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Saves;
-using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -132,7 +132,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     using var overrideRootScratch = new TestScratchDirectory("file-select-label-fixture");
     string overrideRoot = overrideRootScratch.Root;
     Directory.CreateDirectory(overrideRoot);
-    File.WriteAllBytes(Path.Combine(overrideRoot, FileSelectPresentationDefinitions.FileName),
+    File.WriteAllBytes(Path.Combine(overrideRoot, FileSelectPresentationFormat.FileName),
         SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(addressSpace));
     var fixturePresentation = MapPresentationFiles.Load(
         RepositoryInstallation.Installation.MapDirectory, overrideRoot);

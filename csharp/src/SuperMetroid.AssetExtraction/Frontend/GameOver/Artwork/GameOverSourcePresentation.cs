@@ -68,17 +68,17 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
             throw new InvalidDataException("Invalid game-over presentation JSON.", error);
         }
 
-        if (document.Version != GameOverPresentationDefinitions.Version)
+        if (document.Version != GameOverPresentationFormat.Version)
             throw new InvalidDataException(
-                $"Game-over presentation version must be {GameOverPresentationDefinitions.Version}.");
+                $"Game-over presentation version must be {GameOverPresentationFormat.Version}.");
         if (document.Tilemap is null ||
             document.Tilemap.Length != GameOverPageDefinitions.TilemapCellCount)
             throw new InvalidDataException("Game-over presentation requires a complete 32x32 tilemap.");
         if (document.Sprites is null ||
-            document.Sprites.Count != GameOverPresentationDefinitions.SpriteNames.Length)
+            document.Sprites.Count != GameOverPresentationFormat.SpriteNames.Length)
             throw new InvalidDataException("Game-over presentation requires all eight named sprite compositions.");
         if (document.BabyPalettes is null ||
-            document.BabyPalettes.Count != GameOverPresentationDefinitions.BabyPaletteNames.Length)
+            document.BabyPalettes.Count != GameOverPresentationFormat.BabyPaletteNames.Length)
             throw new InvalidDataException("Game-over presentation requires all four named Baby palettes.");
         ValidatePoint(document.BabyAnchor, "Baby anchor");
         ValidateCoordinate(document.CursorX, nameof(document.CursorX));

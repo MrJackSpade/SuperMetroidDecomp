@@ -37,7 +37,7 @@ internal static class GameOptionsSheetComposer
             string name = GameOptionsNames.HeadingSpriteName(menuPage);
             frames.Add(new(name, source.headingSprites[menuPage].ToFrame(name, 0), page, palette));
         }
-        for (int frame = 0; frame < GameOptionsPresentationDefinitions.CursorFrameCount; frame++)
+        for (int frame = 0; frame < GameOptionsPresentationFormat.CursorFrameCount; frame++)
         {
             string name = GameOptionsNames.CursorSpriteName(frame);
             frames.Add(new(name, source.cursorSprites[frame].ToFrame(name, 0), page, palette));

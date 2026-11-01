@@ -25,7 +25,7 @@ internal static class GameOptionsPresentationVerification
         string overrides,
         AreaMapPresentation original)
     {
-        string stockPath = Path.Combine(stock, GameOptionsPresentationDefinitions.FileName);
+        string stockPath = Path.Combine(stock, GameOptionsPresentationFormat.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed options JSON is the deterministic cartridge extraction");
@@ -91,7 +91,7 @@ internal static class GameOptionsPresentationVerification
             cursorPart with { FlipY = !cursorPart.FlipY };
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides,
-            GameOptionsPresentationDefinitions.FileName);
+            GameOptionsPresentationFormat.FileName);
         using (var output = File.Create(replacement))
             GameOptionsSourcePresentation.Write(output, document);
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);

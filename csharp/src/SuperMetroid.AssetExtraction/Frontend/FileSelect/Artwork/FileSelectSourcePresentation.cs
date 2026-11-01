@@ -80,7 +80,7 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
     internal IEnumerable<ScreenPictureSubject> Subjects()
     {
         yield return ScreenPictureSubject.Page(FileSelectParts.BackgroundFrame, background, FileSelectPresentationDefinitions.Width);
-        foreach (FileSelectPage page in FileSelectPresentationDefinitions.Pages)
+        foreach (FileSelectPage page in FileSelectPresentationFormat.Pages)
             yield return ScreenPictureSubject.Page(FileSelectParts.PageFrame(page), pages[page], FileSelectPresentationDefinitions.Width);
         foreach (ScreenPictureSubject field in FieldSubjects())
             yield return field;
@@ -93,7 +93,7 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
     internal IEnumerable<ScreenPictureSubject> FieldSubjects()
     {
         Extent16<TilemapCells> cell = new(1, 1);
-        foreach (FileSelectPatch name in FileSelectPresentationDefinitions.Patches)
+        foreach (FileSelectPatch name in FileSelectPresentationFormat.Patches)
         {
             FileSelectCompiledPatch patch = patches[name];
             FileSelectCompiledPatchCell[] cells = [.. Enumerable.Range(0, patch.Count).Select(patch.Cell)];
@@ -139,13 +139,13 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
             throw new InvalidDataException("Invalid file-select presentation JSON.", error);
         }
 
-        if (document.Version != FileSelectPresentationDefinitions.Version)
+        if (document.Version != FileSelectPresentationFormat.Version)
             throw new InvalidDataException(
-                $"File-select presentation version must be {FileSelectPresentationDefinitions.Version}.");
+                $"File-select presentation version must be {FileSelectPresentationFormat.Version}.");
         ValidateExactKeys(document.Pages,
-            [FileSelectPresentationDefinitions.BackgroundPageName, .. FileSelectPresentationDefinitions.Pages.Select(FileSelectParts.PageName)],
+            [FileSelectPresentationFormat.BackgroundPageName, .. FileSelectPresentationFormat.Pages.Select(FileSelectParts.PageName)],
             "file-select pages");
-        ValidateExactKeys(document.Patches, FileSelectPresentationDefinitions.Patches.Select(FileSelectParts.PatchName),
+        ValidateExactKeys(document.Patches, FileSelectPresentationFormat.Patches.Select(FileSelectParts.PatchName),
             "file-select patches");
         ValidateExactKeys(document.Sprites, FileSelectParts.SpriteNames,
             "file-select sprites");
@@ -175,11 +175,11 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
             document.HelmetFrameDuration is < 1 or > ushort.MaxValue)
             throw new InvalidDataException("File-select actor durations must be 1..65535.");
 
-        var pages = FileSelectPresentationDefinitions.Pages.ToDictionary(page => page,
+        var pages = FileSelectPresentationFormat.Pages.ToDictionary(page => page,
             page => CompilePage(document, FileSelectParts.PageName(page)));
-        BackgroundTile[] background = CompilePage(document, FileSelectPresentationDefinitions.BackgroundPageName);
+        BackgroundTile[] background = CompilePage(document, FileSelectPresentationFormat.BackgroundPageName);
         var patches = new Dictionary<FileSelectPatch, FileSelectCompiledPatch>();
-        foreach (FileSelectPatch kind in FileSelectPresentationDefinitions.Patches)
+        foreach (FileSelectPatch kind in FileSelectPresentationFormat.Patches)
         {
             string name = FileSelectParts.PatchName(kind);
             FileSelectPatchDocument patch = document.Patches[name] ??
@@ -209,9 +209,9 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
         var borderSprites = FileSelectPresentationDefinitions.Borders.ToDictionary(border => border,
             border => MenuHeadingBorder.CalculateIfMatching(Ensure.Listed(FileSelectSpriteDefinitions.Headings, border),
                 MenuBorderParts.CalculateIfMatching(CompileSprite(document, FileSelectParts.BorderSpriteName(border)))));
-        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, FileSelectPresentationDefinitions.CursorFrameCount).Select(frame =>
+        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, FileSelectPresentationFormat.CursorFrameCount).Select(frame =>
             MenuCursorParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectParts.CursorSpriteName(frame))))];
-        SpriteComposition[] helmetSprites = [.. Enumerable.Range(0, FileSelectPresentationDefinitions.HelmetFrameCount).Select(frame =>
+        SpriteComposition[] helmetSprites = [.. Enumerable.Range(0, FileSelectPresentationFormat.HelmetFrameCount).Select(frame =>
             FileSelectHelmetParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectParts.HelmetSpriteName(frame))))];
 
         foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
@@ -269,7 +269,7 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
     private static BackgroundTile[] CompilePage(FileSelectPresentationDocument document, string name)
     {
         MapPresentationCell[] cells = document.Pages[name];
-        if (cells is null || cells.Length != FileSelectPresentationDefinitions.CellCount)
+        if (cells is null || cells.Length != FileSelectPresentationFormat.CellCount)
             throw new InvalidDataException($"File-select page {name} requires 1024 cells.");
         return CompileCells(cells, $"file-select page {name}");
     }
@@ -291,11 +291,11 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
     private static BackgroundTile CompileCell(MapPresentationCell? cell, string owner)
     {
         if (cell is null ||
-            (uint)cell.TileColumn >= FileSelectPresentationDefinitions.CharacterColumns ||
-            (uint)cell.TileRow >= FileSelectPresentationDefinitions.CharacterRows ||
+            (uint)cell.TileColumn >= FileSelectPresentationFormat.CharacterColumns ||
+            (uint)cell.TileRow >= FileSelectPresentationFormat.CharacterRows ||
             (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
             throw new InvalidDataException($"{owner} has an invalid character or palette.");
-        return new BackgroundTile(cell.TileRow * FileSelectPresentationDefinitions.CharacterColumns + cell.TileColumn,
+        return new BackgroundTile(cell.TileRow * FileSelectPresentationFormat.CharacterColumns + cell.TileColumn,
             cell.Palette, cell.FlipX, cell.FlipY, cell.Priority);
     }
 
@@ -331,7 +331,7 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
     /// <summary>Restricts a dynamic field anchor to the 32-by-32 tilemap.</summary>
     private static void ValidateTilePoint(Position16<TilemapCells> point, string owner)
     {
-        if (!FileSelectPresentationDefinitions.PageSize.Contains(point))
+        if (!FileSelectPresentationFormat.PageSize.Contains(point))
             throw new InvalidDataException(
                 $"File-select {owner} requires a coordinate inside the 32x32 page.");
     }

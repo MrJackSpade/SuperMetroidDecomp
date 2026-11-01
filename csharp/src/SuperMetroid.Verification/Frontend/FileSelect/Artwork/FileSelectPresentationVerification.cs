@@ -24,7 +24,7 @@ internal static class FileSelectPresentationVerification
         string overrides,
         AreaMapPresentation original)
     {
-        string stockPath = Path.Combine(stock, FileSelectPresentationDefinitions.FileName);
+        string stockPath = Path.Combine(stock, FileSelectPresentationFormat.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed file-select JSON is the deterministic cartridge extraction");
@@ -94,7 +94,7 @@ internal static class FileSelectPresentationVerification
             energyCell with { Cell = energyCell.Cell with { FlipY = !energyCell.Cell.FlipY } };
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides,
-            FileSelectPresentationDefinitions.FileName);
+            FileSelectPresentationFormat.FileName);
         using (var output = File.Create(replacement))
             FileSelectSourcePresentation.Write(output, document);
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);

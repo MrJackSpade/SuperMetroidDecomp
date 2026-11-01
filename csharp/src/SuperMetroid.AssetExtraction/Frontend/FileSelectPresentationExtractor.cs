@@ -71,7 +71,7 @@ public static class FileSelectPresentationExtractor
 
         var pages = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal)
         {
-            [FileSelectPresentationDefinitions.BackgroundPageName] = Cells(
+            [FileSelectPresentationFormat.BackgroundPageName] = Cells(
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.Background,
                     MapSourceDefinitions.Menu.TilemapBytes)),
             [FileSelectParts.PageName(FileSelectPage.MainWithData)] = Cells(mainWithData),
@@ -129,7 +129,7 @@ public static class FileSelectPresentationExtractor
         using var output = new MemoryStream();
         FileSelectSourcePresentation.Write(output, new()
         {
-            Version = FileSelectPresentationDefinitions.Version,
+            Version = FileSelectPresentationFormat.Version,
             Pages = pages,
             Patches = patches,
             Digits = digits,
@@ -266,7 +266,7 @@ public static class FileSelectPresentationExtractor
         Position16<TilemapCells> anchor = Point(byteOffset);
         foreach (RawPatchCell cell in patch.Cells)
         {
-            int index = FileSelectPresentationDefinitions.PageSize.RowMajorIndex(anchor + cell.Offset);
+            int index = FileSelectPresentationFormat.PageSize.RowMajorIndex(anchor + cell.Offset);
             if ((uint)index >= page.Length)
                 throw new InvalidDataException("Extracted file-select text escaped its page.");
             page[index] = cell.Word.Raw;
@@ -276,7 +276,7 @@ public static class FileSelectPresentationExtractor
     /// <summary>Fills a complete file-select page with the cartridge's blank tile word.</summary>
     private static ushort[] BlankPage()
     {
-        var page = new ushort[FileSelectPresentationDefinitions.CellCount];
+        var page = new ushort[FileSelectPresentationFormat.CellCount];
         Array.Fill(page, BackgroundTileWords.ToWord(FileSelectFieldTileDefinitions.BlankTile));
         return page;
     }
@@ -327,8 +327,8 @@ public static class FileSelectPresentationExtractor
         var word = new SnesBgTilemapWord(checked((ushort)raw));
         return new()
         {
-            TileColumn = word.CharacterIndex % FileSelectPresentationDefinitions.CharacterColumns,
-            TileRow = word.CharacterIndex / FileSelectPresentationDefinitions.CharacterColumns,
+            TileColumn = word.CharacterIndex % FileSelectPresentationFormat.CharacterColumns,
+            TileRow = word.CharacterIndex / FileSelectPresentationFormat.CharacterColumns,
             Palette = word.PaletteIndex,
             Priority = word.HasPriority,
             FlipX = word.FlipHorizontally,

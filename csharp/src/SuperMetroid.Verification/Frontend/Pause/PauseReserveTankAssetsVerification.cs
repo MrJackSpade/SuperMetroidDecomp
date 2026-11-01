@@ -29,7 +29,7 @@ internal static class PauseReserveTankAssetsVerification
     internal static void VerifyPauseReserveTankAssets(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation catalog)
     {
         Directory.CreateDirectory(overrides);
-        string stockPath = Path.Combine(stock, PauseReserveTankDefinitions.FileName), path = Path.Combine(overrides, PauseReserveTankDefinitions.FileName);
+        string stockPath = Path.Combine(stock, PauseReserveTankFormat.FileName), path = Path.Combine(overrides, PauseReserveTankFormat.FileName);
         byte[] bytes = File.ReadAllBytes(stockPath);
         var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, ArtworkJson.Options);
         var guard = NewReserveTankAssetReadGuard(bus);

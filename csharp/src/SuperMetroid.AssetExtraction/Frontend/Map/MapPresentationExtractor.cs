@@ -1,15 +1,14 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using System.Security.Cryptography;
 using System.Text.Json;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Frontend.FileSelect.Artwork;
-using SuperMetroid.Core.Frontend.GameOver.Artwork;
-using SuperMetroid.Core.Frontend.Options.Artwork;
-using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
@@ -158,13 +157,13 @@ public static class MapPresentationExtractor
             file.Write(wireframeBytes);
         hashes.Add(PauseWireframeDefinitions.FileName, Convert.ToHexString(SHA256.HashData(wireframeBytes)));
         byte[] selectorBytes = PauseSelectorExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, PauseSelectorDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, PauseSelectorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(selectorBytes);
-        hashes.Add(PauseSelectorDefinitions.FileName, Convert.ToHexString(SHA256.HashData(selectorBytes)));
+        hashes.Add(PauseSelectorFormat.FileName, Convert.ToHexString(SHA256.HashData(selectorBytes)));
         byte[] reserveTankBytes = PauseReserveTankExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, PauseReserveTankDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, PauseReserveTankFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(reserveTankBytes);
-        hashes.Add(PauseReserveTankDefinitions.FileName, Convert.ToHexString(SHA256.HashData(reserveTankBytes)));
+        hashes.Add(PauseReserveTankFormat.FileName, Convert.ToHexString(SHA256.HashData(reserveTankBytes)));
         byte[] reserveUiBytes = PauseReserveUiExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, PauseReserveUiDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(reserveUiBytes);
@@ -190,17 +189,17 @@ public static class MapPresentationExtractor
             file.Write(gameplayHudBytes);
         hashes.Add(GameplayHudDefinitions.FileName, Convert.ToHexString(SHA256.HashData(gameplayHudBytes)));
         byte[] gameOverBytes = GameOverPresentationExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, GameOverPresentationDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, GameOverPresentationFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(gameOverBytes);
-        hashes.Add(GameOverPresentationDefinitions.FileName, Convert.ToHexString(SHA256.HashData(gameOverBytes)));
+        hashes.Add(GameOverPresentationFormat.FileName, Convert.ToHexString(SHA256.HashData(gameOverBytes)));
         byte[] gameOptionsBytes = GameOptionsPresentationExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, GameOptionsPresentationDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, GameOptionsPresentationFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(gameOptionsBytes);
-        hashes.Add(GameOptionsPresentationDefinitions.FileName, Convert.ToHexString(SHA256.HashData(gameOptionsBytes)));
+        hashes.Add(GameOptionsPresentationFormat.FileName, Convert.ToHexString(SHA256.HashData(gameOptionsBytes)));
         byte[] fileSelectBytes = FileSelectPresentationExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, FileSelectPresentationDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, FileSelectPresentationFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(fileSelectBytes);
-        hashes.Add(FileSelectPresentationDefinitions.FileName, Convert.ToHexString(SHA256.HashData(fileSelectBytes)));
+        hashes.Add(FileSelectPresentationFormat.FileName, Convert.ToHexString(SHA256.HashData(fileSelectBytes)));
         byte[] gameplayMessageTitleBytes = GameplayMessageTitleExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, GameplayMessageTitleDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(gameplayMessageTitleBytes);

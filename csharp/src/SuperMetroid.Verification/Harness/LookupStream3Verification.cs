@@ -567,7 +567,7 @@ internal static class LookupStream3Verification
             AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual game-over draw emits exact native ordered OAM " + draw.Name);
         }
-        foreach (string name in GameOverPresentationDefinitions.SpriteNames)
+        foreach (string name in GameOverPresentationFormat.SpriteNames)
         {
             if (name == GameOverPresentationNames.CursorFrameName(0)) for (int part = 0; part < 2; part++) AssertEqual(stock[name].Part(part), new MenuCursorParts(MenuMissileSpritemaps.SpritemapId(0) - 0x34)[part], "exact first cursor candidate part");
             AssertTrue(Calculated(stock[name]), "stock game-over geometry retains no full part array " + name);
@@ -834,7 +834,7 @@ internal static class LookupStream3Verification
                 presentation.ApplyLanguage(actual, japanese);
                 AssertTrue(actual.SequenceEqual(expected), "options language boxes preserve exact stock/edited cells");
             }
-            foreach (GameOptionsToggle toggle in GameOptionsPresentationDefinitions.Toggles)
+            foreach (GameOptionsToggle toggle in GameOptionsPresentationFormat.Toggles)
             foreach (bool enabled in new[] { false, true })
             {
                 GameOptionsToggleVisualDocument visual = document.SpecialToggles[GameOptionsNames.ToggleName(toggle)];

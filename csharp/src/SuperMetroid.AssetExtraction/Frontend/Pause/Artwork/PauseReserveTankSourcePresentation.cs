@@ -63,7 +63,7 @@ public sealed class PauseReserveTankSourcePresentation : PauseReserveTankPresent
         try { document = JsonAssetDocument.Read<PauseReserveTankDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Reserve tank document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid reserve tank JSON.", error); }
-        if (document.Version != PauseReserveTankDefinitions.Version || (uint)document.Palette > 7 ||
+        if (document.Version != PauseReserveTankFormat.Version || (uint)document.Palette > 7 ||
             document.Anchors is null || document.Anchors.Length != PauseReserveTankDefinitions.AnchorCount ||
             document.Frames is null || document.Frames.Count != PauseReserveTankParts.Frames().Count())
             throw new InvalidDataException("Reserve tanks require version 1, palette 0..7, six anchors and ten named frames.");

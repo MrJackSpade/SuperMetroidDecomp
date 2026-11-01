@@ -58,14 +58,14 @@ internal static class PauseMenuFixtureVerification
             sprites.Frames[name] = [singlePart];
         using var spriteJson = Json(sprites);
         using var spritePng = File.OpenRead(Path.Combine(installation.MapDirectory, MapSpriteFormat.PngFile));
-        var selectors = Document<PauseSelectorDocument>(PauseSelectorDefinitions.FileName);
+        var selectors = Document<PauseSelectorDocument>(PauseSelectorFormat.FileName);
         selectors.Anchors[PauseSelectorAnchors.Anchor(PauseEquipmentCategory.Suits, 2)] = new(0x90, 0x70);
         selectors.Anchors[PauseSelectorAnchors.Anchor(PauseEquipmentCategory.Suits, 3)] = new(0xa0, 0x80);
         foreach (string name in selectors.Frames.Keys.ToArray()) selectors.Frames[name] = [singlePart];
         using var selectorJson = Json(selectors);
         // The original synthetic ROM supplied zero-part reserve-strip maps. Keep
         // that fixture isolation while reserve state and digits still execute.
-        var reserveTanks = Document<PauseReserveTankDocument>(PauseReserveTankDefinitions.FileName);
+        var reserveTanks = Document<PauseReserveTankDocument>(PauseReserveTankFormat.FileName);
         foreach (string name in reserveTanks.Frames.Keys.ToArray()) reserveTanks.Frames[name] = [];
         using var reserveJson = Json(reserveTanks);
         // Every part comes from the stock catalog's same-named property unless the fixture constructs it above.

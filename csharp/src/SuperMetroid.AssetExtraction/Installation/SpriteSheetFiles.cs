@@ -1,12 +1,12 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
-using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
@@ -127,7 +127,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.SamusOverlays => SamusOverlaySheetDefinitions.Frames,
         SpriteSheetId.SamusAtmosphere => SamusAtmosphereSheetDefinitions.Frames,
         SpriteSheetId.SamusDeath => SamusDeathSheetDefinitions.Frames,
-        SpriteSheetId.GameOver => GameOverPresentationDefinitions.SpriteNames.ToArray(),
+        SpriteSheetId.GameOver => GameOverPresentationFormat.SpriteNames.ToArray(),
         SpriteSheetId.FileSelect => FileSelectParts.SheetFrames,
         SpriteSheetId.GameOptions => GameOptionsNames.SheetFrames,
         SpriteSheetId.MapSprites => MapSpriteArtwork.SheetFrames,

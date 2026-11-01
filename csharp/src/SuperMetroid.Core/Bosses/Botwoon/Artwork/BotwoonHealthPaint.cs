@@ -13,11 +13,11 @@ internal sealed class BotwoonHealthPaint
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Retains source colors only where they differ from the eight-band health ramp.</summary>
-    internal BotwoonHealthPaint(RgbColor[][] rows)
+    internal BotwoonHealthPaint(RgbColor[][] healthBands)
     {
         for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
             for (int color = 0; color < BotwoonHealthPaletteDefinitions.ColorsPerPalette; color++)
-                if (rows[band][color] != Calculate(band, color)) edits.Add(new ColourCell(band, color), rows[band][color]);
+                if (healthBands[band][color] != Calculate(band, color)) edits.Add(new ColourCell(band, color), healthBands[band][color]);
     }
 
     /// <summary>Returns an imported exception or interpolates the selected healthy and damaged paints.</summary>

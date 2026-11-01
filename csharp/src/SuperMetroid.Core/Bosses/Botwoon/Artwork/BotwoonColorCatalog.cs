@@ -5,14 +5,14 @@ namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
 /// <summary>Editable health-band RGB5 images for Botwoon's sprite palette.</summary>
 public sealed class BotwoonColorCatalog
 {
-    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    /// <summary>Canonical selected RGB5 colors and ordered health bands, independent of JSON encoding.</summary>
     public string ContentIdentity => BotwoonHealthColors.ContentIdentity(this);
 
-    /// <summary>Compiled palette rows selected by Botwoon's health band.</summary>
+    /// <summary>Compiled health-band colours selected by Botwoon's health.</summary>
     internal readonly BotwoonHealthPaint health;
 
-    /// <summary>Retains the validated color rows as runtime paint definitions.</summary>
-    internal BotwoonColorCatalog(RgbColor[][] rows) => health = new(rows);
+    /// <summary>Retains the validated health-band colours as runtime paint definitions.</summary>
+    internal BotwoonColorCatalog(RgbColor[][] healthBands) => health = new(healthBands);
 
     /// <summary>Gets one compiled colour from an independently editable health-band palette.</summary>
     /// <param name="band">Health-band index from zero through seven.</param>

@@ -10,11 +10,11 @@ internal static class BotwoonHealthColors
         SelectedPresentationHash.Create("BotwoonColorCatalog-v1", content =>
         {
             content.Append("health", BotwoonHealthPaletteDefinitions.PaletteCount);
-            Span<RgbColor> row = stackalloc RgbColor[BotwoonHealthPaletteDefinitions.ColorsPerPalette];
+            Span<RgbColor> bandColors = stackalloc RgbColor[BotwoonHealthPaletteDefinitions.ColorsPerPalette];
             for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
             {
-                for (int color = 0; color < row.Length; color++) row[color] = colors.HealthColor(band, color);
-                content.AppendColors("row", row);
+                for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.HealthColor(band, color);
+                content.AppendColors("row", bandColors);
             }
         });
 

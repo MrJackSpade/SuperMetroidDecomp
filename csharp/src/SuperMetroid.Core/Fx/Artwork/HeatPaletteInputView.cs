@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// no temperature/intensity parameter deriving those targets: it selects painted
 /// palette colors. Inventing an index formula for these three choices would merely
 /// encode the chosen tint, the #1165 nonsense exception. All temporal interpolation,
-/// shared channels and repeated rows are calculated separately. This does not exempt
+/// shared channels and repeated heat steps are calculated separately. This does not exempt
 /// the underlying normal suit artwork from its own review. Nonmatching player channel
 /// edits remain explicit overrides. No complete stock endpoint word is cached.
 /// </remarks>

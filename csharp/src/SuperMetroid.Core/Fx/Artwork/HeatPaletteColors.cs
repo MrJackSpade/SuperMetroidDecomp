@@ -4,17 +4,17 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
-/// Calculates the heat palette effects' colours: the canonical rows, the suit rows and the red ramps shared between
+/// Calculates the heat palette effects' colours: the canonical heat steps, the suits' phases and the red ramps shared between
 /// programs.
 /// </summary>
 /// <remarks>Each suit's program has sixteen fifteen-color phases.
-/// Interior phase p selects row (min(p,15-p)+1)/2. Row zero first occurs at phase0;
-/// row r=1..4 first occurs at phase2*r-1. Phase15 returns to row1 for Power and
-/// row0 for protected suits. Full original rows independently agree with this mirrored
+/// Interior phase p selects heat step (min(p,15-p)+1)/2. Heat step zero first occurs at phase0;
+/// heat step r=1..4 first occurs at phase2*r-1. Phase15 returns to heat step1 for Power and
+/// heat step0 for protected suits. Full original phases independently agree with this mirrored
 /// progression. Varia and Gravity share Power's corresponding color slots except
-/// suit-specific slots1,9,10 and Gravity's row-zero slot11. These are equal inks at
+/// suit-specific slots1,9,10 and Gravity's heat-step-zero slot11. These are equal inks at
 /// the same palette indices, not a permutation or a fitted color transform. This
-/// also selects row zero for the constant slot5 in every suit and slot1 in Varia/Gravity.
+/// also selects heat step zero for the constant slot5 in every suit and slot1 in Varia/Gravity.
 /// These original columns are unchanged across the complete animation. Endpoint component
 /// ownership is documented by HeatPaletteInputView; underlying suit artwork has its own
 /// review. Custom colors differing from the calculated alias remain explicit overrides.</remarks>
@@ -37,7 +37,7 @@ internal static class HeatPaletteColors
         _ => throw new ArgumentOutOfRangeException(nameof(suit), suit, "Unknown heat suit."),
     };
 
-    /// <summary>Maps repeated heat-frame colors in any suit to their first equivalent paint row.</summary>
+    /// <summary>Maps repeated heat-frame colors in any suit to their first equivalent heat step.</summary>
     internal static bool TryCanonical(PaletteFxColorKey key, out PaletteFxColorKey canonical)
         => TrySuit(key, PaletteFxHeatSuit.Power, out canonical) ||
            TrySuit(key, PaletteFxHeatSuit.Varia, out canonical) ||
@@ -46,16 +46,16 @@ internal static class HeatPaletteColors
     /// <summary>Canonicalizes one suit's mirrored phases, shared Power slots, and constant color columns.</summary>
     private static bool TrySuit(PaletteFxColorKey key, PaletteFxHeatSuit suit, out PaletteFxColorKey canonical)
     {
-        PaletteFxColorFrames rows = ColorFrames(suit);
-        if (!rows.TryLocate(key, out int phase, out int color)) { canonical = default; return false; }
-        int row = phase == 15 ? (suit == PaletteFxHeatSuit.Power ? 1 : 0) :
+        PaletteFxColorFrames phases = ColorFrames(suit);
+        if (!phases.TryLocate(key, out int phase, out int color)) { canonical = default; return false; }
+        int heatStep = phase == 15 ? (suit == PaletteFxHeatSuit.Power ? 1 : 0) :
             (Math.Min(phase, 15 - phase) + 1) / 2;
-        int firstPhase = row == 0 ? 0 : 2 * row - 1;
+        int firstPhase = heatStep == 0 ? 0 : 2 * heatStep - 1;
         bool sharedWithPower = suit != PaletteFxHeatSuit.Power && color is not (1 or 9 or 10) &&
-            !(suit == PaletteFxHeatSuit.Gravity && row == 0 && color == 11);
-        if (sharedWithPower) rows = ColorFrames(PaletteFxHeatSuit.Power);
+            !(suit == PaletteFxHeatSuit.Gravity && heatStep == 0 && color == 11);
+        if (sharedWithPower) phases = ColorFrames(PaletteFxHeatSuit.Power);
         if (color == 5 || (suit != PaletteFxHeatSuit.Power && color == 1)) firstPhase = 0;
-        canonical = rows.Color(firstPhase, color);
+        canonical = phases.Color(firstPhase, color);
         return true;
     }
 
@@ -64,8 +64,8 @@ internal static class HeatPaletteColors
         TryBaseColor(key, colors, out value) || TryHighlightEndpoint(key, colors, out value) || TryRedRamp(key, colors, out value) || TrySecondaryRedRamp(key, colors, out value) ||
         TryMixedRamp(key, colors, out value) || TrySharedRed(key, colors, out value);
 
-    /// <summary>Maps heat row-zero colors to the corresponding normal suit-loading colors.</summary>
-    /// <remarks>Each suit's phase-zero colors 0..14 equal colors 1..15 of the initial row of the same suit's
+    /// <summary>Maps heat-step-zero colors to the corresponding normal suit-loading colors.</summary>
+    /// <remarks>Each suit's phase-zero colors 0..14 equal colors 1..15 of the initial frame of the same suit's
     /// loading palette, and independently equal the normal suit palettes. Heat omits the
     /// transparent index zero. The program layout and every original color were independently checked.
     /// This aliases identical suit artwork; it does not classify the source artwork as irreducible. Differing
@@ -84,7 +84,7 @@ internal static class HeatPaletteColors
         return false;
     }
 
-    /// <summary>Resolves heat row zero through the matching initial suit-loading palette color.</summary>
+    /// <summary>Resolves heat step zero through the matching initial suit-loading palette color.</summary>
     private static bool TryBaseColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
         value = RgbColor.Black;
@@ -123,7 +123,7 @@ internal static class HeatPaletteColors
     /// <remarks>Power slot3's original red levels0,1,2,3,5 are the floor-rounded
     /// quarter steps from0 to5. Its green31/blue14 remain fixed. Thirteen other
     /// color tracks share this red difference, independently verified from the original
-    /// rows. Keep the endpoint colors as inputs; interior row r=1..3 is
+    /// phases. Keep the endpoint colors as inputs; interior heat step r=1..3 is
     /// floor((startRed*(4-r)+endRed*r)/4), with the initial green/blue. Integer
     /// weighted sums also give defined, bounded RGB5 results for edited endpoints.
     /// This is the sampled linear heating gradient, not a fit with corrections.</remarks>
@@ -134,7 +134,7 @@ internal static class HeatPaletteColors
     /// <remarks>Original Power slot1 reds29,29,30,30,30 and slot8 reds27,28,28,29,29
     /// are nearest-rounded quarter steps, ties upward. Varia slot9 reds30,30,30,30,31
     /// are floor-rounded quarter steps. All retain initial green/blue. Supported
-    /// NTSC J/U v1.0 phase-zero words of those colors plus the original phase rows
+    /// NTSC J/U v1.0 phase-zero words of those colors plus the original phases
     /// independently establish all five samples. These exact conventional interpolation
     /// rules make no claim about the historical authoring software. Endpoints remain
     /// editable inputs; differing intermediate colors remain explicit overrides.</remarks>
@@ -148,12 +148,12 @@ internal static class HeatPaletteColors
         PaletteFxHeatSuit suit, int colorIndex, int roundingBias, out RgbColor value)
     {
         value = RgbColor.Black;
-        PaletteFxColorFrames rows = ColorFrames(suit);
-        if (!rows.TryLocate(key, out int phase, out int color) || color != colorIndex || phase is not (1 or 3 or 5)) return false;
-        if (!TryInputColor(rows.Color(0, colorIndex), colors, out RgbColor start) ||
-            !TryInputColor(rows.Color(7, colorIndex), colors, out RgbColor end)) return false;
-        int row = (phase + 1) / 2;
-        int red = (start.Red * (4 - row) + end.Red * row + roundingBias) / 4;
+        PaletteFxColorFrames phases = ColorFrames(suit);
+        if (!phases.TryLocate(key, out int phase, out int color) || color != colorIndex || phase is not (1 or 3 or 5)) return false;
+        if (!TryInputColor(phases.Color(0, colorIndex), colors, out RgbColor start) ||
+            !TryInputColor(phases.Color(7, colorIndex), colors, out RgbColor end)) return false;
+        int heatStep = (phase + 1) / 2;
+        int red = (start.Red * (4 - heatStep) + end.Red * heatStep + roundingBias) / 4;
         value = start.WithRed(red);
         return true;
     }
@@ -169,14 +169,14 @@ internal static class HeatPaletteColors
     internal static bool TryMixedRamp(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
         value = RgbColor.Black;
-        PaletteFxColorFrames rows = ColorFrames(PaletteFxHeatSuit.Power);
-        if (!rows.TryLocate(key, out int phase, out int color) || color != 4 || phase is not (1 or 3 or 5)) return false;
-        if (!TryInputColor(rows.Color(0, 4), colors, out RgbColor start) ||
-            !TryInputColor(rows.Color(7, 4), colors, out RgbColor end)) return false;
-        int row = (phase + 1) / 2;
-        int red = (start.Red * (4 - row) + end.Red * row + 3) / 4;
+        PaletteFxColorFrames phases = ColorFrames(PaletteFxHeatSuit.Power);
+        if (!phases.TryLocate(key, out int phase, out int color) || color != 4 || phase is not (1 or 3 or 5)) return false;
+        if (!TryInputColor(phases.Color(0, 4), colors, out RgbColor start) ||
+            !TryInputColor(phases.Color(7, 4), colors, out RgbColor end)) return false;
+        int heatStep = (phase + 1) / 2;
+        int red = (start.Red * (4 - heatStep) + end.Red * heatStep + 3) / 4;
         int initialGreen = start.Green;
-        int greenSum = initialGreen * (4 - row) + end.Green * row;
+        int greenSum = initialGreen * (4 - heatStep) + end.Green * heatStep;
         int green = greenSum / 4;
         int remainder = greenSum % 4;
         if (remainder > 2 || (remainder == 2 && (green & 1) != 0)) green++;
@@ -187,36 +187,36 @@ internal static class HeatPaletteColors
     }
 
     /// <summary>Reconstructs shared red heating while preserving the base green/blue.</summary>
-    /// <remarks>Across all five original rows, Power slots0,2,6,7,9..14,
+    /// <remarks>Across all five original heat steps, Power slots0,2,6,7,9..14,
     /// Varia slot10 and Gravity slots9,10 add the same red delta as Power slot3.
     /// Base colors and slot3 endpoints remain independently owned inputs. Interior
     /// slot3 samples are calculated by TryRedRamp when no edited override exists. Only canonical
-    /// noninitial rows qualify. Nonrepresentable edited deltas return false so the
+    /// noninitial heat steps qualify. Nonrepresentable edited deltas return false so the
     /// loader keeps the supplied independent RGB5 color instead of clamping it.</remarks>
     internal static bool TrySharedRed(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
         value = RgbColor.Black;
         if (!TryCanonical(key, out PaletteFxColorKey canonical) || key != canonical) return false;
         PaletteFxColorFrames power = ColorFrames(PaletteFxHeatSuit.Power);
-        PaletteFxColorFrames rows;
+        PaletteFxColorFrames phases;
         int phase, index;
         if (power.TryLocate(key, out phase, out index))
         {
-            rows = power;
+            phases = power;
             if (index is not (0 or 2 or 6 or 7 or 9 or 10 or 11 or 12 or 13 or 14)) return false;
         }
         else if (ColorFrames(PaletteFxHeatSuit.Varia).TryLocate(key, out phase, out index))
         {
-            rows = ColorFrames(PaletteFxHeatSuit.Varia);
+            phases = ColorFrames(PaletteFxHeatSuit.Varia);
             if (index != 10) return false;
         }
         else
         {
-            rows = ColorFrames(PaletteFxHeatSuit.Gravity);
-            if (!rows.TryLocate(key, out phase, out index) || index is not (9 or 10)) return false;
+            phases = ColorFrames(PaletteFxHeatSuit.Gravity);
+            if (!phases.TryLocate(key, out phase, out index) || index is not (9 or 10)) return false;
         }
         if (phase == 0) return false;
-        if (!TryInputColor(rows.Color(0, index), colors, out RgbColor original) ||
+        if (!TryInputColor(phases.Color(0, index), colors, out RgbColor original) ||
             !TryInputColor(power.Color(0, 3), colors, out RgbColor baseline) ||
             !(colors.TryGetValue(power.Color(phase, 3), out RgbColor heated) ||
               TryRedRamp(power.Color(phase, 3), colors, out heated))) return false;

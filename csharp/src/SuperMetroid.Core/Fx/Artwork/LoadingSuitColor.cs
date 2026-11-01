@@ -6,20 +6,20 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// </summary>
 internal enum LoadingSuitColor
 {
-    /// <summary>Power dim row, slot 1.</summary>
+    /// <summary>Power dim shade, slot 1.</summary>
     PowerDim1 = 1,
-    /// <summary>Power dim row, slot 2.</summary>
+    /// <summary>Power dim shade, slot 2.</summary>
     PowerDim2,
-    /// <summary>Power bright row, slot 9.</summary>
+    /// <summary>Power bright shade, slot 9.</summary>
     PowerBright9,
-    /// <summary>Power dim row, slot 12.</summary>
+    /// <summary>Power dim shade, slot 12.</summary>
     PowerDim12,
-    /// <summary>Varia bright row, slot 10.</summary>
+    /// <summary>Varia bright shade, slot 10.</summary>
     VariaBright10,
-    /// <summary>Varia bright row, slot 11.</summary>
+    /// <summary>Varia bright shade, slot 11.</summary>
     VariaBright11,
-    /// <summary>Varia dim row, slot 12.</summary>
+    /// <summary>Varia dim shade, slot 12.</summary>
     VariaDim12,
-    /// <summary>Gravity dim row, slot 2.</summary>
+    /// <summary>Gravity dim shade, slot 2.</summary>
     GravityDim2,
 }

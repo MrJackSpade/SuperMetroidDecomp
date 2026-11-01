@@ -22,7 +22,7 @@ public static class PowerBombFixedColorExtractor
         Ensure.NotNull(bus);
         return PowerBombFixedColorFile.Write(new PowerBombFixedColorDocument
         {
-            Version = PowerBombFixedColorFormat.Version,
+            Version = PowerBombFixedColorFile.Version,
             PreExplosion = Read(bus, PowerBombFixedColorSequence.PreExplosion),
             Explosion = Read(bus, PowerBombFixedColorSequence.Explosion),
         });

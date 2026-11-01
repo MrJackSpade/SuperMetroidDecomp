@@ -136,10 +136,10 @@ public static class MapPresentationFiles
         // their edits while inheriting only those new rows from current stock.
         RoomPaletteFxPresentation roomPaletteFx = MigratingResource<RoomPaletteFxPresentation>(RoomPaletteFxPresentationFormat.FileName,
             "room palette effects", (s, current) => RoomPaletteFxPresentationFile.Read(s, current), StockFingerprint.StockAndSelected);
-        MotherBrainHealthPalettePresentation motherBrainHealthPalette = Resource(MotherBrainHealthPaletteFormat.FileName, "Mother Brain health palette", s => MotherBrainHealthPaletteFile.Read(s));
+        MotherBrainHealthPalettePresentation motherBrainHealthPalette = Resource(MotherBrainHealthPaletteFile.FileName, "Mother Brain health palette", s => MotherBrainHealthPaletteFile.Read(s));
         // A version-two user override predates the fake-death rows. Preserve its edits
         // and fill only that new color family from verified, current stock content.
-        MotherBrainRainbowPalettePresentation motherBrainRainbowPalette = MigratingResource<MotherBrainRainbowPalettePresentation>(MotherBrainRainbowPaletteFormat.FileName,
+        MotherBrainRainbowPalettePresentation motherBrainRainbowPalette = MigratingResource<MotherBrainRainbowPalettePresentation>(MotherBrainRainbowPaletteFile.FileName,
             "Mother Brain rainbow palette", (s, current) => MotherBrainRainbowPaletteFile.Read(s, current), StockFingerprint.StockAndSelected);
         MotherBrainRoomColorPresentation motherBrainRoomColors = MigratingResource<MotherBrainRoomColorPresentation>(MotherBrainRoomColorFormat.FileName,
             "Mother Brain room colors", (s, current) => MotherBrainRoomColorFile.Read(s, current), StockFingerprint.StockAndSelected);
@@ -147,12 +147,12 @@ public static class MapPresentationFiles
             "room-FX presentation", (s, current) => RoomFxAnimatedTileAtlasPng.Read(s, current), StockFingerprint.SelectedOnly);
         RoomFxLayer3Pages roomFxLayer3Tilemaps = Resource(RoomFxLayer3TilemapFormat.FileName, "room-FX presentation", s => RoomFxLayer3Pages.Load(s));
         RoomFxBlendInks roomFxPaletteBlends = Resource(RoomFxPaletteBlendDefinitions.FileName, "room-FX presentation", s => RoomFxPaletteBlendFile.Read(s));
-        InstalledPowerBombFixedColors powerBombFixedColors = Resource(PowerBombFixedColorFormat.FileName, "Power Bomb fixed colors", s => PowerBombFixedColorFile.Read(s));
-        InstalledSamusVisorColors samusVisorColors = Resource(SamusVisorColorFormat.FileName, "Samus visor colors", s => SamusVisorColorFile.Read(s));
-        InstalledSamusHurtColors samusHurtColors = Resource(SamusHurtColorFormat.FileName, "Samus hurt colors", s => SamusHurtColorFile.Read(s));
-        InstalledSamusSuitColors samusSuitColors = Resource(SamusSuitColorFormat.FileName, "Samus suit colors", s => SamusSuitColorFile.Read(s));
+        InstalledPowerBombFixedColors powerBombFixedColors = Resource(PowerBombFixedColorFile.FileName, "Power Bomb fixed colors", s => PowerBombFixedColorFile.Read(s));
+        InstalledSamusVisorColors samusVisorColors = Resource(SamusVisorColorFile.FileName, "Samus visor colors", s => SamusVisorColorFile.Read(s));
+        InstalledSamusHurtColors samusHurtColors = Resource(SamusHurtColorFile.FileName, "Samus hurt colors", s => SamusHurtColorFile.Read(s));
+        InstalledSamusSuitColors samusSuitColors = Resource(SamusSuitColorFile.FileName, "Samus suit colors", s => SamusSuitColorFile.Read(s));
         SamusFullBodyCycleColours samusFullBodyCycleColors = Resource(SamusFullBodyCycleColorFormat.FileName, "Samus full-body cycle colors", s => SamusFullBodyCycleColorFile.Read(s).ToColours());
-        InstalledCrystalFlashColors crystalFlashColors = Resource(CrystalFlashColorFormat.FileName, "Crystal Flash colors", s => CrystalFlashColorFile.Read(s));
+        InstalledCrystalFlashColors crystalFlashColors = Resource(CrystalFlashColorFile.FileName, "Crystal Flash colors", s => CrystalFlashColorFile.Read(s));
         SamusChargeColours samusChargeColors = Resource(SamusChargeColorFormat.FileName, "Samus charge colors", s => SamusChargeColorFile.Read(s).ToColours());
         CeresRidleyColorCatalog ceresRidleyColors = MigratingResource<CeresRidleyColorCatalog>(CeresRidleyColorFormat.FileName,
             "Ceres Ridley colors", (s, current) => CeresRidleyColorFile.Read(s, current), StockFingerprint.SelectedOnly);

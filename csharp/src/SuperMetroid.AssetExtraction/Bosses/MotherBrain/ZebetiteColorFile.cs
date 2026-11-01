@@ -9,6 +9,15 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// <summary>Reads and writes the installed Zebetite colour document.</summary>
 public static class ZebetiteColorFile
 {
+    /// <summary>Asset filename for the editable Zebetite barrier pulse colors.</summary>
+    public const string FileName = "zebetite-colors.json";
+
+    /// <summary>Supported revision of the eight-row, two-color RGB5 JSON schema.</summary>
+    public const int Version = 1;
+
+    /// <summary>Required frame-by-color dimensions of the editable document.</summary>
+    internal static FixedGridShape Shape => new(ZebetiteColorFormat.FrameCount, ZebetiteColorFormat.ColorsPerFrame);
+
     /// <summary>Strict camel-case JSON options shared by load and write.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -34,15 +43,15 @@ public static class ZebetiteColorFile
         {
             throw new InvalidDataException("Invalid Zebetite color JSON.", error);
         }
-        if (document.Version != ZebetiteColorFormat.Version ||
-            !ZebetiteColorFormat.Shape.HasRows(document.Frames))
+        if (document.Version != Version ||
+            !Shape.HasRows(document.Frames))
             throw new InvalidDataException("Zebetite colors require all eight frames at the supported version.");
 
         var frames = new RgbColor[document.Frames.Length][];
         for (int frame = 0; frame < document.Frames.Length; frame++)
         {
             PaletteRgb5[]? colors = document.Frames[frame];
-            if (!ZebetiteColorFormat.Shape.HasColumns(colors))
+            if (!Shape.HasColumns(colors))
                 throw new InvalidDataException($"Zebetite frame {frame} requires two RGB5 colors.");
             frames[frame] = new RgbColor[colors.Length];
             for (int color = 0; color < colors.Length; color++)

@@ -33,7 +33,7 @@ internal static class InstalledPowerBombIsolationTests
     internal static void Run(string installationRoot)
     {
         string stockDirectory = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
-        string path = Path.Combine(stockDirectory, PowerBombFixedColorFormat.FileName);
+        string path = Path.Combine(stockDirectory, PowerBombFixedColorFile.FileName);
         byte[] original = File.ReadAllBytes(path);
         var options = CamelCaseJson;
         var document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(original, options)
@@ -59,7 +59,7 @@ internal static class InstalledPowerBombIsolationTests
                     "blue" => new PaletteRgb5 { Red = 0, Green = 0, Blue = 31 },
                     _ => new PaletteRgb5 { Red = index % 32, Green = (index * 3) % 32, Blue = (index * 7) % 32 },
                 }).ToArray();
-                File.WriteAllBytes(Path.Combine(overrides, PowerBombFixedColorFormat.FileName),
+                File.WriteAllBytes(Path.Combine(overrides, PowerBombFixedColorFile.FileName),
                     PowerBombFixedColorFile.Write(document with
                     { PreExplosion = Replace(document.PreExplosion), Explosion = Replace(document.Explosion) }));
                 AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrides);
@@ -116,7 +116,7 @@ internal static class InstalledPowerBombIsolationTests
             }
             Require(changedColors > 0, "The edits never reached live fixed colors.");
             Require(File.ReadAllBytes(path).SequenceEqual(original), "Stock colors were modified.");
-            File.Delete(Path.Combine(overrides, PowerBombFixedColorFormat.FileName));
+            File.Delete(Path.Combine(overrides, PowerBombFixedColorFile.FileName));
             Require(MapPresentationFiles.Load(stockDirectory, overrides).ContentIdentity == stock.ContentIdentity,
                 "Removing the override did not restore stock content identity.");
             foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())

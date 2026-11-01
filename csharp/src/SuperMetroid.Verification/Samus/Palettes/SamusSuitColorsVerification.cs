@@ -137,13 +137,13 @@ internal static class SamusSuitColorsVerification
                 $"extracted normal suit {suit} color {color} agrees with cartridge");
 
         SamusSuitColorDocument document = JsonSerializer.Deserialize<SamusSuitColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, SamusSuitColorFormat.FileName)),
+            File.ReadAllBytes(Path.Combine(stockDirectory, SamusSuitColorFile.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Samus suit palette JSON is null.");
         Paint(document.Power, 1);
         Paint(document.Varia, 2);
         Paint(document.Gravity, 3);
-        string replacement = Path.Combine(overrideDirectory, SamusSuitColorFormat.FileName);
+        string replacement = Path.Combine(overrideDirectory, SamusSuitColorFile.FileName);
         File.WriteAllBytes(replacement, SamusSuitColorFile.Write(document));
         AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,

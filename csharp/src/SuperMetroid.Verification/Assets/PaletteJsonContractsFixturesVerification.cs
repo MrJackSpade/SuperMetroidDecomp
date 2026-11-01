@@ -82,7 +82,7 @@ internal static class PaletteJsonContractsFixturesVerification
             SkipCopyrightWhite = PaletteContractColors(1)[0], SkipCopyrightRed = PaletteContractColors(1, 1)[0],
         }), json => _ = TitlePaletteFile.Read(json));
         yield return new("Mother Brain health", PaletteContractDocument(new MotherBrainHealthPaletteDocument
-        { Version = MotherBrainHealthPaletteFormat.Version,
+        { Version = MotherBrainHealthPaletteFile.Version,
             Body = PaletteContractRows(MotherBrainHealthPaletteFormat.StateCount, MotherBrainRainbowPaletteDefinitions.ColorCount),
             BackLegs = PaletteContractRows(MotherBrainHealthPaletteFormat.StateCount, MotherBrainRainbowPaletteDefinitions.ColorCount) }),
             json => _ = MotherBrainHealthPaletteFile.Read(json));

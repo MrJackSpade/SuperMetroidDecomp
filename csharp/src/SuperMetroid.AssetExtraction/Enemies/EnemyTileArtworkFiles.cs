@@ -358,7 +358,7 @@ public static class EnemyTileArtworkFiles
         File.WriteAllBytes(Path.Combine(directory,
             MotherBrainDeathColorFormat.FileName), motherBrainDeathColors);
         byte[] zebetiteColors = ZebetiteColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, ZebetiteColorFormat.FileName),
+        File.WriteAllBytes(Path.Combine(directory, ZebetiteColorFile.FileName),
             zebetiteColors);
         byte[] norfairRidleyColors = NorfairRidleyColorExtractor.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, NorfairRidleyColorFormat.FileName),
@@ -1085,7 +1085,7 @@ public static class EnemyTileArtworkFiles
         ZebetiteColorCatalog zebetiteColors;
         try
         {
-            byte[] selected = ReadStockOrOverride(ZebetiteColorFormat.FileName,
+            byte[] selected = ReadStockOrOverride(ZebetiteColorFile.FileName,
                 manifest.ZebetiteColorsSha256);
             zebetiteColors = ZebetiteColorFile.Read(
                 new MemoryStream(selected, writable: false));

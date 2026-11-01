@@ -62,7 +62,7 @@ internal static class EnemyDropsVerification
         samus.Presentation.SuitColors = SamusSuitColorFile.Read(new MemoryStream(
             SamusSuitColorFile.Write(new SamusSuitColorDocument
             {
-                Version = SamusSuitColorFormat.Version, Power = colors, Varia = colors, Gravity = colors,
+                Version = SamusSuitColorFile.Version, Power = colors, Varia = colors, Gravity = colors,
             })));
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.PseudoScrew;
         var fixture = CreateEnemyDropFixture(samus, [1]);

@@ -318,8 +318,8 @@ internal static class ProjectileCompositionsVerification
         File.Move(beamStock, beamStock + ".invalid");
         AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "PNG override cannot conceal missing stock");
         ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
-        string paletteStock = Path.Combine(installation.ProjectileDirectory, BeamPaletteDefinitions.FileName);
-        string paletteOverride = Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteDefinitions.FileName);
+        string paletteStock = Path.Combine(installation.ProjectileDirectory, BeamPaletteFile.FileName);
+        string paletteOverride = Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteFile.FileName);
         var paletteDocument = RequiredJson.Parse(File.ReadAllText(paletteStock));
         var red = paletteDocument.Required("palettes").Required(BeamPaletteSources.Key(0)).Required(0);
         red["red"] = red.Required("red").GetValue<int>() ^ 1;
@@ -394,8 +394,8 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllText(trailPngOverride, "invalid override");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Malformed trail PNG override never falls back");
         File.WriteAllBytes(trailPngOverride, trailPng.ToArray());
-        string flareStock = Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementDefinitions.FileName);
-        string flareOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementDefinitions.FileName);
+        string flareStock = Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementExtractor.FileName);
+        string flareOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementExtractor.FileName);
         var flareDocument = RequiredJson.Parse(File.ReadAllText(flareStock));
         flareDocument.Required("offsets").Required(ChargeFlarePlacementOffsets.Key(false, 0))["x"] = 17;
         File.WriteAllText(flareOverride, flareDocument.ToJsonString());
@@ -411,8 +411,8 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllText(flareOverride, "broken override");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid flare override never falls back");
         File.WriteAllText(flareOverride, flareDocument.ToJsonString());
-        string compositionStock = Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName);
-        string compositionOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteDefinitions.FileName);
+        string compositionStock = Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteExtractor.FileName);
+        string compositionOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteExtractor.FileName);
         var compositionDocument = RequiredJson.Parse(File.ReadAllText(compositionStock));
         string firstFlare = ChargeFlareSpriteSelection.Selectors[0].Name;
         compositionDocument.Required("frames").Required(firstFlare).Required(0)["offsetX"] = 17;
@@ -487,8 +487,8 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllText(grappleFlareOverride, "broken override");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid Grapple flare never falls back");
         File.WriteAllText(grappleFlareOverride, grappleFlare.ToJsonString());
-        string swingStock = Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameDefinitions.FileName);
-        string swingOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleSwingFrameDefinitions.FileName);
+        string swingStock = Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameExtractor.FileName);
+        string swingOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleSwingFrameExtractor.FileName);
         var swing = RequiredJson.Parse(File.ReadAllText(swingStock));
         swing.Required("frames")[0] = 17;
         File.WriteAllText(swingOverride, swing.ToJsonString());

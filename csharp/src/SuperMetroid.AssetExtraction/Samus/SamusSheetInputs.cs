@@ -38,7 +38,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
             IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null),
             SamusBodyArtworkFiles.LoadCharacters(samusBody, null),
             SamusDeathTileArtworkFiles.Load(samusBody, null),
-            LoadSuitColors(Path.Combine(content, GameInstallationLayout.MapDirectoryName, SamusSuitColorFormat.FileName)));
+            LoadSuitColors(Path.Combine(content, GameInstallationLayout.MapDirectoryName, SamusSuitColorFile.FileName)));
     }
 
     /// <summary>The stock suit colours, which the validated map installation holds.</summary>

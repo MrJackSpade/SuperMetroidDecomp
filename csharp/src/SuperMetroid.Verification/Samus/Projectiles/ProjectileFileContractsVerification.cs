@@ -181,16 +181,16 @@ internal static class ProjectileFileContractsVerification
         {
             ProjectileSpriteDefinitions.FileName => "contentSha256",
             ProjectileFrameBindingFormat.FileName => "frameBindingsSha256",
-            BeamPaletteDefinitions.FileName => "paletteSha256",
+            BeamPaletteFile.FileName => "paletteSha256",
             HyperBeamFxColorFormat.FileName => "hyperBeamFxColorsSha256",
             ProjectileTrailVisualDefinitions.FileName => "trailSha256",
             ProjectileTrailAtlasDefinitions.FileName => "trailTilesSha256",
-            ChargeFlarePlacementDefinitions.FileName => "flarePlacementSha256",
-            ChargeFlareSpriteDefinitions.FileName => "flareCompositionsSha256",
+            ChargeFlarePlacementExtractor.FileName => "flarePlacementSha256",
+            ChargeFlareSpriteExtractor.FileName => "flareCompositionsSha256",
             GrappleTileDefinitions.FileName => "grappleTilesSha256",
             GrappleSpriteDefinitions.FileName => "grappleSpritesSha256",
             GrappleFlarePlacementDefinitions.FileName => "grappleFlareSha256",
-            GrappleSwingFrameDefinitions.FileName => "grappleSwingSha256",
+            GrappleSwingFrameExtractor.FileName => "grappleSwingSha256",
             _ => throw new InvalidDataException("Uninventoried projectile resource: " + name),
         };
         AssertTrue(manifest.ContainsKey(field), "every test resource has a declared provenance field");

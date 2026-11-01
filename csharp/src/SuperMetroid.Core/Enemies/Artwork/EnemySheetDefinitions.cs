@@ -7,14 +7,6 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// </summary>
 public static class EnemySheetDefinitions
 {
-    /// <summary>The installation directory holding the sheets and their manifest.</summary>
-    public const string DirectoryName = "enemy-sheets";
-
-    /// <summary>The manifest naming each graphics set's sheet for each of its enemies.</summary>
-    public const string ManifestFileName = "enemy-sheets.json";
-
-    /// <summary>The manifest revision this build reads.</summary>
-    public const int ManifestVersion = 6;
 
     /// <summary>The spawned-object sheet frame showing a frame an encounter draws itself (#1392).</summary>
     public static string EncounterFrameName(EnemyFrameId frame) => $"Encounter.{EnemyFrameSheetKeys.Of(frame)}";

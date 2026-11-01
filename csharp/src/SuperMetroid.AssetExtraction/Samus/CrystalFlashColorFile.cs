@@ -8,6 +8,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Reads and writes the installed Crystal Flash colour document.</summary>
 public static class CrystalFlashColorFile
 {
+    /// <summary>Supported JSON schema revision one, checked before palette compilation.</summary>
+    public const int Version = 1;
+
+    /// <summary>Installed presentation resource name, <c>crystal-flash-colors.json</c>.</summary>
+    public const string FileName = "crystal-flash-colors.json";
+
     /// <summary>Loads the supported camel-case JSON schema, rejecting duplicate or unknown properties, incorrect frame dimensions, null colors, and RGB5 channels outside 0..31.</summary>
     /// <param name="json">Readable JSON stream; ownership remains with the caller.</param>
     /// <returns>Validated body and bubble colors independent of cartridge reads and gameplay timing.</returns>
@@ -18,7 +24,7 @@ public static class CrystalFlashColorFile
         Ensure.NotNull(json);
         CrystalFlashColorDocument document;
         document = JsonAssetDocument.Read<CrystalFlashColorDocument>(json, ArtworkJson.Options, "Crystal Flash color");
-        if (document.Version != CrystalFlashColorFormat.Version)
+        if (document.Version != Version)
             throw new InvalidDataException("Crystal Flash colors require the supported version.");
         return new(Compile(document.Body, CrystalFlashColorFormat.BodyFrameCount,
                 CrystalFlashColorFormat.BodyColorCount, "body"),

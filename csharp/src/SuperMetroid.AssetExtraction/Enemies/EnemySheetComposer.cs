@@ -10,6 +10,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -111,7 +112,7 @@ internal static class EnemySheetComposer
         }
         return new EnemySheetComposition(sheets, new EnemySheetManifestDocument
         {
-            Version = EnemySheetDefinitions.ManifestVersion, Sets = sets, Spawned = spawned, Pictures = pictures,
+            Version = EnemySheetFiles.ManifestVersion, Sets = sets, Spawned = spawned, Pictures = pictures,
             SpawnedPictures = spawnedPictures, RotPictures = rotPictures, SpawnedRotPictures = spawnedRotPictures,
         });
     }

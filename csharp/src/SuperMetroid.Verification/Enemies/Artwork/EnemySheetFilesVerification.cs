@@ -33,7 +33,7 @@ internal static class EnemySheetFilesVerification
             Directory.CreateDirectory(Path.Combine(scratch.FullName, GameInstallationLayout.EnemyTileDirectoryName));
             foreach (string file in Directory.GetFiles(tiles))
                 File.Copy(file, Path.Combine(scratch.FullName, GameInstallationLayout.EnemyTileDirectoryName, Path.GetFileName(file)));
-            string stock = Path.Combine(scratch.FullName, EnemySheetDefinitions.DirectoryName);
+            string stock = Path.Combine(scratch.FullName, EnemySheetFiles.DirectoryName);
             EnemySheetFiles.Extract(content, stock, SupportedCartridge.Sha256);
             InstalledEnemySheets installed = EnemySheetFiles.Load(stock, null);
 

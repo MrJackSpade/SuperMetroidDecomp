@@ -50,7 +50,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("GameOverPresentation", "ApplyBabyPalette", "palette") => new(0, 4),
         ("PauseReserveUiPresentation", "ApplyDigit", "position") => new(0, PauseReserveUiDefinitions.SupplyDigitPlaces),
         ("PauseReserveUiPresentation", "ApplyDigit", "value") => new(0, PauseReserveUiDefinitions.DigitCount),
-        ("InstalledBeamPalettes", "LoadTo", "selection") => new(0, BeamPaletteDefinitions.SelectionCount),
+        ("InstalledBeamPalettes", "LoadTo", "selection") => new(0, BeamPaletteFile.SelectionCount),
         ("CeresRidleyColorCatalog", "ApplyEyeFade", "shade") => new(0, CeresRidleyPaletteDefinitions.EyeFadeShadeCount),
         ("CeresRidleyColorCatalog", "ApplyBodyFade", "shade") => new(0, CeresRidleyPaletteDefinitions.BodyFadeShadeCount),
         ("CeresRidleyColorCatalog", "ApplyHealth", "band") => new(0, CeresRidleyPaletteDefinitions.HealthBandCount),

@@ -77,7 +77,7 @@ internal static class SamusVisorColorsVerification
             };
         }
         return SamusVisorColorFile.Read(new MemoryStream(SamusVisorColorFile.Write(
-            new SamusVisorColorDocument { Version = SamusVisorColorFormat.Version, Colors = colors })));
+            new SamusVisorColorDocument { Version = SamusVisorColorFile.Version, Colors = colors })));
     }
 
     /// <summary>Compares 32 room updates for timer, source offset, and CGRAM slot 196 without installed table reads.</summary>
@@ -173,9 +173,9 @@ internal static class SamusVisorColorsVerification
         AreaMapPresentation baseline, ISnesAddressSpace rom,
         GameplayBasePalette initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
     {
-        string path = Path.Combine(overrides, SamusVisorColorFormat.FileName);
+        string path = Path.Combine(overrides, SamusVisorColorFile.FileName);
         SamusVisorColorDocument document = JsonSerializer.Deserialize<SamusVisorColorDocument>(
-            File.ReadAllBytes(Path.Combine(stock, SamusVisorColorFormat.FileName)),
+            File.ReadAllBytes(Path.Combine(stock, SamusVisorColorFile.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Samus visor color document is null.");
         PaletteRgb5 original = document.Colors[3];

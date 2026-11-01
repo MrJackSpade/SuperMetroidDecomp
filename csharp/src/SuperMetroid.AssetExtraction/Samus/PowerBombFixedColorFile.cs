@@ -9,6 +9,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Reads and writes the installed Power Bomb fixed colour document.</summary>
 public static class PowerBombFixedColorFile
 {
+    /// <summary>Supported schema revision, one, fixing the sixteen- and thirty-two-entry sequence dimensions.</summary>
+    public const int Version = 1;
+
+    /// <summary>JSON resource filename containing the pre-explosion and explosion RGB5 sequences.</summary>
+    public const string FileName = "power-bomb-fixed-colors.json";
+
     /// <summary>Validates the installed fixed-color JSON and compiles independent edits to the two native RGB5 sequences without changing phase or radius mechanics.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
     /// <returns>Compiled component triplets detached from the document arrays, with stock colors resolved from reviewed definitions where available.</returns>
@@ -19,7 +25,7 @@ public static class PowerBombFixedColorFile
         Ensure.NotNull(json);
         PowerBombFixedColorDocument document;
         document = JsonAssetDocument.Read<PowerBombFixedColorDocument>(json, ArtworkJson.Options, "Power Bomb fixed-color");
-        if (document.Version != PowerBombFixedColorFormat.Version)
+        if (document.Version != Version)
             throw new InvalidDataException("Power Bomb fixed colors require the supported version.");
         return new(Compile(document.PreExplosion,
                 SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount, "pre-explosion"),
@@ -29,7 +35,7 @@ public static class PowerBombFixedColorFile
 
     /// <summary>Serializes the editable sequences to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Read"/>.</summary>
     /// <param name="document">The two complete RGB5 color sequences to serialize; the writer does not retain their collections.</param>
-    /// <returns>Validated JSON bytes for <see cref="PowerBombFixedColorFormat.FileName"/>.</returns>
+    /// <returns>Validated JSON bytes for <see cref="FileName"/>.</returns>
     /// <exception cref="InvalidDataException">The serialized document fails schema, sequence-length, or RGB5-channel validation.</exception>
     public static byte[] Write(PowerBombFixedColorDocument document) =>
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));

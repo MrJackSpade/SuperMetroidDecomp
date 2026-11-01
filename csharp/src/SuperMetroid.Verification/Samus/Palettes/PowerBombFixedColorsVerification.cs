@@ -112,9 +112,9 @@ internal static class PowerBombFixedColorsVerification
     internal static void VerifyPowerBombFixedColorOverride(string stock, string overrides,
         AreaMapPresentation baseline)
     {
-        string path = Path.Combine(overrides, PowerBombFixedColorFormat.FileName);
+        string path = Path.Combine(overrides, PowerBombFixedColorFile.FileName);
         PowerBombFixedColorDocument document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(
-            File.ReadAllBytes(Path.Combine(stock, PowerBombFixedColorFormat.FileName)),
+            File.ReadAllBytes(Path.Combine(stock, PowerBombFixedColorFile.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Power Bomb color document is null.");
         PaletteRgb5 original = document.PreExplosion[0];

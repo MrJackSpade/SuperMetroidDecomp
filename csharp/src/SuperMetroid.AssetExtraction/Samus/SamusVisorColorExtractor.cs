@@ -34,7 +34,7 @@ public static class SamusVisorColorExtractor
         }
         return SamusVisorColorFile.Write(new SamusVisorColorDocument
         {
-            Version = SamusVisorColorFormat.Version,
+            Version = SamusVisorColorFile.Version,
             Colors = colors,
         });
     }

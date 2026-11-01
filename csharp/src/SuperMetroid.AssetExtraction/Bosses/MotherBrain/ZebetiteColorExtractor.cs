@@ -34,7 +34,7 @@ public static class ZebetiteColorExtractor
                 };
             }
         }
-        return ZebetiteColorFile.Write(new() { Version = ZebetiteColorFormat.Version,
+        return ZebetiteColorFile.Write(new() { Version = ZebetiteColorFile.Version,
             Frames = frames });
     }
 }

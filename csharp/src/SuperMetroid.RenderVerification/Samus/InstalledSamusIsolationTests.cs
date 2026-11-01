@@ -56,12 +56,12 @@ internal sealed class InstalledSamusIsolationTests
         this.artwork = artwork;
         var source = new GameInstallation(Path.GetFullPath(root));
         suits = SamusIsolationArtworkEdits.Colors(source, artwork.Installation,
-            SamusSuitColorFormat.FileName, SamusSuitColorFile.Read);
+            SamusSuitColorFile.FileName, SamusSuitColorFile.Read);
         cycles = SamusIsolationArtworkEdits.Colors(source, artwork.Installation,
             SamusFullBodyCycleColorFormat.FileName, stream => SamusFullBodyCycleColorFile.Read(stream).ToColours());
         crystal = SamusIsolationArtworkEdits.Colors(source, artwork.Installation,
-            CrystalFlashColorFormat.FileName, CrystalFlashColorFile.Read);
-        using var stream = File.OpenRead(Path.Combine(source.ProjectileDirectory, BeamPaletteDefinitions.FileName));
+            CrystalFlashColorFile.FileName, CrystalFlashColorFile.Read);
+        using var stream = File.OpenRead(Path.Combine(source.ProjectileDirectory, BeamPaletteFile.FileName));
         beams = BeamPaletteFile.Read(stream);
     }
 

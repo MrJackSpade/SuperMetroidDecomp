@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>Displayed-frame identities, independent of the physical offset table.</summary>
 public static class GrappleSwingFrameDefinitions
 {
-    /// <summary>Asset filename for the editable angle-to-displayed-orientation mapping.</summary>
-    public const string FileName = "grapple-swing-frames.json";
     /// <summary>Supported revision of the 256-entry displayed-frame JSON schema.</summary>
     public const int Version = 1;
     /// <summary>One displayed animation frame for each high angle byte.</summary>

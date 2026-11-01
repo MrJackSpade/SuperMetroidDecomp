@@ -20,7 +20,7 @@ public static class SamusHurtColorExtractor
         Ensure.NotNull(bus);
         return SamusHurtColorFile.Write(new SamusHurtColorDocument
         {
-            Version = SamusHurtColorFormat.Version,
+            Version = SamusHurtColorFile.Version,
             Hurt = ReadColors(bus, SamusSourceDefinitions.HurtFlashColors.Value),
             Intro = ReadColors(bus, SamusSourceDefinitions.IntroHurtFlashColors.Value),
         });

@@ -18,12 +18,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </remarks>
 public static class BeamPaletteDefinitions
 {
-    /// <summary>Asset filename for the ordinary beam-combination RGB5 palettes.</summary>
-    public const string FileName = "beam-palettes.json";
-    /// <summary>Supported revision of the twelve-selection beam-palette JSON schema.</summary>
-    public const int Version = 1;
     /// <summary>Sixteen colors copied by the beam loader, covering all entries of OBJ palette 6, including color zero.</summary>
     public const int ColorCount = 16;
-    /// <summary>Twelve legal beam-combination pointers precede the palette data: one palette per retail combination.</summary>
-    public const int SelectionCount = 12;
 }

@@ -25,11 +25,11 @@ public static class BabyMetroidCutsceneColorFile
         if (document.Fade is null ||
             document.Fade.Length != BabyMetroidCutsceneColorDefinitions.FadeFrameCount)
             throw new InvalidDataException("Cutscene Baby fade requires six displayed frames.");
-        return new(Compile(document.Initial,
+        return new(BabyAndShitroidColorRecognition.Cutscene(Compile(document.Initial,
                 BabyMetroidCutsceneColorDefinitions.InitialColorCount, "initial"),
             document.Fade.Select((frame, index) => Compile(frame,
                 BabyMetroidCutsceneColorDefinitions.FadeColorCount,
-                $"fade frame {index + 1}")).ToArray());
+                $"fade frame {index + 1}")).ToArray()));
     }
 
     /// <summary>Serializes editable artwork as indented, camel-case UTF-8 JSON, then validates the result using the installed-content loader.</summary>

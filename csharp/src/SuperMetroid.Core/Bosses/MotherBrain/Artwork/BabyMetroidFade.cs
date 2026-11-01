@@ -12,17 +12,9 @@ internal sealed class BabyMetroidFade
     /// <summary>Stores the edited frames only when they differ from the final-health fade formula.</summary>
     internal readonly RgbColor[][]? supplied;
 
-    /// <summary>Uses the composition for stock frames and retains any independently authored edits.</summary>
-    internal BabyMetroidFade(RgbColor[][] frames)
-    {
-        for (int frame = 0; frame < frames.Length; frame++)
-        for (int color = 0; color < frames[frame].Length; color++)
-            if (Calculate(frame, color) != frames[frame][color])
-            {
-                supplied = frames.Select(fadeFrame => fadeFrame.ToArray()).ToArray();
-                return;
-            }
-    }
+    /// <summary>Keeps any independently authored frames; stock frames use the composition.</summary>
+    /// <param name="supplied">The supplied frames when one differs from the final-health fade formula, otherwise null.</param>
+    internal BabyMetroidFade(RgbColor[][]? supplied) => this.supplied = supplied;
 
     /// <summary>Hashes the initial image, then the six resolved fade frames.</summary>
     internal static string ContentIdentity(BabyMetroidCutsceneColorCatalog colors) =>
@@ -50,7 +42,7 @@ internal sealed class BabyMetroidFade
     internal static RgbColor Endpoint(int color) => BabyMetroidFinalHealthPaint.Color(color);
 
     /// <summary>Scales each RGB5 channel by the remaining-sevenths intensity.</summary>
-    private static RgbColor Calculate(int frame, int color)
+    internal static RgbColor Calculate(int frame, int color)
     {
         int remaining = BabyMetroidCutsceneColorDefinitions.FadeFrameCount - 1 - frame;
         int intervals = BabyMetroidCutsceneColorDefinitions.FadeFrameCount + 1;

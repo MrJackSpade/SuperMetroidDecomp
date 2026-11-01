@@ -22,12 +22,9 @@ internal sealed class BabyMetroidInitialPalette
     /// <summary>Complete imported palette retained only when it differs from the reviewed paint calculation.</summary>
     internal readonly RgbColor[]? supplied;
 
-    /// <summary>Uses calculated Baby colors when all fifteen supplied entries agree, otherwise keeps this palette's edits.</summary>
-    internal BabyMetroidInitialPalette(RgbColor[] colors)
-    {
-        for (int color = 0; color < colors.Length; color++)
-            if (Calculate(color) != colors[color]) { supplied = colors.ToArray(); return; }
-    }
+    /// <summary>Keeps this palette's edits, or none when all fifteen supplied entries are the calculated Baby colors.</summary>
+    /// <param name="supplied">The supplied palette when one entry differs from the calculation, otherwise null.</param>
+    internal BabyMetroidInitialPalette(RgbColor[]? supplied) => this.supplied = supplied;
 
     /// <summary>Selects an independently supplied color or the reviewed dome, innard, and fang paint.</summary>
     internal RgbColor Resolve(int color)
@@ -38,7 +35,7 @@ internal sealed class BabyMetroidInitialPalette
     }
 
     /// <summary>Composes selected material paints, smooth innard shades, and the fang midpoint by palette slot.</summary>
-    private static RgbColor Calculate(int color)
+    internal static RgbColor Calculate(int color)
     {
         BabyMetroidInitialColorSlot slot = ColorOrder.At(color);
         return slot switch

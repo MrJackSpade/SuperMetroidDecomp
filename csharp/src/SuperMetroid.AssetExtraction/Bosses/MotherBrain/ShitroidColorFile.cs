@@ -23,13 +23,13 @@ public static class ShitroidColorFile
         if (document.Normal is null ||
             document.Normal.Length != ShitroidColorDefinitions.NormalFrameCount)
             throw new InvalidDataException("Shitroid normal cycle requires eight frames.");
-        return new(document.Normal.Select((frame, index) =>
+        return new(BabyAndShitroidColorRecognition.Shitroid(document.Normal.Select((frame, index) =>
                 Compile(frame, ShitroidColorDefinitions.NormalColorsPerFrame,
                     $"normal frame {index}")).ToArray(),
             Compile(document.Sidehopper, ShitroidColorDefinitions.TargetColorCount, "sidehopper"),
             Compile(document.Shitroid, ShitroidColorDefinitions.TargetColorCount, "Shitroid"),
             Compile(document.DeadSidehopper, ShitroidColorDefinitions.TargetColorCount,
-                "dead sidehopper"));
+                "dead sidehopper")));
     }
 
     /// <summary>Serializes the editable color document as indented camel-case UTF-8 JSON and validates the serialized schema, dimensions, and channel bounds before returning it.</summary>

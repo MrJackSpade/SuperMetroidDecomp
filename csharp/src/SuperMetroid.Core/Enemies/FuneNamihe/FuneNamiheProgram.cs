@@ -1,25 +1,25 @@
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
 /// <summary>
-/// The Fune's and Namihe's idle and spitting animations as typed programs (#641), one per bank-$A8 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="FuneNamiheAnimations"/>.
+/// The Fune's and Namihe's idle and spitting animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="FuneNamiheAnimations"/>.
 /// </summary>
 internal enum FuneNamiheProgram
 {
-    /// <summary><c>InstList_Fune_FacingLeft_Idling</c> at $A8:9399.</summary>
+    /// <summary>The Fune idle left animation.</summary>
     FuneIdleLeft,
-    /// <summary><c>InstList_Fune_FacingLeft_Active</c> at $A8:939F.</summary>
+    /// <summary>The Fune active left animation.</summary>
     FuneActiveLeft,
-    /// <summary><c>InstList_Fune_FacingRight_Idling</c> at $A8:93C9.</summary>
+    /// <summary>The Fune idle right animation.</summary>
     FuneIdleRight,
-    /// <summary><c>InstList_Fune_FacingRight_Active</c> at $A8:93CF.</summary>
+    /// <summary>The Fune active right animation.</summary>
     FuneActiveRight,
-    /// <summary><c>InstList_Namihe_FacingLeft_Idling</c> at $A8:95BD.</summary>
+    /// <summary>The Namihe idle left animation.</summary>
     NamiheIdleLeft,
-    /// <summary><c>InstList_Namihe_FacingLeft_Active</c> at $A8:95C3.</summary>
+    /// <summary>The Namihe active left animation.</summary>
     NamiheActiveLeft,
-    /// <summary><c>InstList_Namihe_FacingRight_Idling</c> at $A8:95F1.</summary>
+    /// <summary>The Namihe idle right animation.</summary>
     NamiheIdleRight,
-    /// <summary><c>InstList_Namihe_FacingRight_Active</c> at $A8:95F7.</summary>
+    /// <summary>The Namihe active right animation.</summary>
     NamiheActiveRight,
 }

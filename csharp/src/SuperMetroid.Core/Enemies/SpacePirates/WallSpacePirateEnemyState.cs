@@ -3,16 +3,16 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
 /// The state of a wall Pirate; the jump endpoints and angular step are the Pirate's own state, which nothing else
-/// reads. The values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed
+/// reads. The values the game keeps in the enemy's common record are emptied with it when the enemy is killed
 /// (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class WallSpacePirateEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<WallSpacePirateProgram> Program { get; set; }
 
     /// <summary>
-    /// Bank-$B2 AI entry, initialized for the starting wall and replaced by instruction $B2:EF83 as attack, jump, and
+    /// AI entry, initialized for the starting wall and replaced by an animation cue as attack, jump, and
     /// landing lists advance; none once a kill has emptied the record.
     /// </summary>
     public WallSpacePirateFunction? Function { get; internal set; }
@@ -34,7 +34,7 @@ public sealed class WallSpacePirateEnemyState
     public WallSpacePirateClimbDirection ClimbDirection { get; internal set; }
 
     /// <summary>
-    /// Whole room-pixel jump-ellipse center, set by $B2:EED4/$EEFD: X is the departure X plus or minus half parameter
+    /// Whole room-pixel jump-ellipse center, set when a jump starts: X is the departure X plus or minus half parameter
     /// two and Y the departure Y.
     /// </summary>
     public Position16<RoomPixels> WallJumpArcCenter { get; internal set; }
@@ -55,7 +55,7 @@ public sealed class WallSpacePirateEnemyState
     /// <summary>Host diagnostic count of successfully allocated lasers since this enemy state was initialized; shared projectile-pool exhaustion does not increment it.</summary>
     public int SpawnedLaserCount { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

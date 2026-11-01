@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateProgram;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The walking Space Pirates' walk, look, flinch and laser animations as typed programs (#641), in place of their bank-$B2 lists. Generated from the verified native lists: each
+/// The walking Space Pirates' walk, look, flinch and laser animations as typed programs (#641). Each
 /// frame shows a <see cref="WalkingSpacePirateFrame"/> pose and each callback becomes a <see cref="WalkingSpacePirateCue"/> with its typed operands.
 /// </summary>
 internal static class WalkingSpacePirateAnimations

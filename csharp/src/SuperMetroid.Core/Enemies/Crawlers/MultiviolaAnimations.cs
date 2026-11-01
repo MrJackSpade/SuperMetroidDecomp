@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
-/// Multiviola's spinning flight loop as a typed program (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// Multiviola's spinning flight loop as a typed program (#641). Each
 /// frame shows a <see cref="MultiviolaFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class MultiviolaAnimations

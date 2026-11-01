@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>
-/// The GRipper, Ripper II and Ripper flying loops as typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// The GRipper, Ripper II and Ripper flying loops as typed programs (#641). Each
 /// frame shows a <see cref="RipperFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class RipperAnimations

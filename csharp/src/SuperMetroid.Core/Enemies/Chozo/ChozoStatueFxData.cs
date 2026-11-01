@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Enemies.Chozo;
 
-/// <summary>NTSC bank-$AA acid-motion operands used by the Lower Norfair statue.</summary>
+/// <summary>NTSC acid-motion operands used by the Lower Norfair statue.</summary>
 internal static class ChozoStatueFxData
 {
-    /// <summary>$AA:E429, Instruction_Chozo_StartLoweringAcid: delay before motion.</summary>
+    /// <summary>Delay before motion.</summary>
     public const int LoweringDelay = 32;
 
-    /// <summary>$AA:E42F, Instruction_Chozo_StartLoweringAcid: downward 8.8 velocity.</summary>
+    /// <summary>Downward 8.8 velocity.</summary>
     public const int LoweringVelocity = 64;
 }

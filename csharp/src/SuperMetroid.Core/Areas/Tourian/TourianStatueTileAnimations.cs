@@ -6,10 +6,10 @@ using F = SuperMetroid.Core.Fx.Artwork.TourianStatueTilePicture;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
-/// The typed programs a Tourian boss statue's animated tiles run, in place of the bank-$87 statue instruction lists.
+/// The typed programs a Tourian boss statue's animated tiles run.
 /// All four statues share the layout; only the first idle frame's duration differs, and every other operand is read
-/// from the statue's <see cref="TourianStatueAnimatedTileProgramDefinition"/> when a cue runs. The ROM oracle in
-/// <c>LookupTourianProgramVerification</c> matches each statue's programs step by step with its native list.
+/// from the statue's <see cref="TourianStatueAnimatedTileProgramDefinition"/> when a cue runs. The oracle in
+/// <c>LookupTourianProgramVerification</c> matches each statue's programs step by step with its list.
 /// </summary>
 internal static class TourianStatueTileAnimations
 {

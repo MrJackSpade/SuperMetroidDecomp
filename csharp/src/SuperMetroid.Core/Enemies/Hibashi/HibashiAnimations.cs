@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Hibashi.HibashiProgram;
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>
-/// The Hibashi fire pillar's eruption graphics and its collision part as typed programs (#641), in place of their bank-$A6 lists. Generated from the verified native lists: each
+/// The Hibashi fire pillar's eruption graphics and its collision part as typed programs (#641). Each
 /// frame shows a <see cref="HibashiFrame"/> pose and each callback becomes a <see cref="HibashiCue"/> with its typed operands.
 /// </summary>
 internal static class HibashiAnimations
@@ -78,7 +78,7 @@ internal static class HibashiAnimations
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationProgramStep<HibashiProgram, HibashiFrame, HibashiCue> Cue(HibashiCue cue) => AnimationProgramStep<HibashiProgram, HibashiFrame, HibashiCue>.Publish(cue);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<HibashiProgram, HibashiFrame, HibashiCue> Hold => AnimationProgramStep<HibashiProgram, HibashiFrame, HibashiCue>.Hold;
 
 }

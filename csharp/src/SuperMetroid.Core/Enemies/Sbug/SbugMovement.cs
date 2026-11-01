@@ -9,7 +9,7 @@ internal static class SbugMovement
         (uint)facing < (uint)SbugMovementDefinitions.FacingPrograms.Length
             ? SbugMovementDefinitions.FacingPrograms[facing]
             : throw new InvalidDataException(
-                $"Sbug facing {facing} is outside the eight native selectors.");
+                $"Sbug facing {facing} is not one of the eight facings.");
 
     /// <summary>The function <paramref name="behavior"/> starts.</summary>
     /// <exception cref="InvalidDataException"><paramref name="behavior"/> is outside the seven selectors.</exception>
@@ -17,5 +17,5 @@ internal static class SbugMovement
         SbugMovementDefinitions.ActivationFunctions.TryGetValue(behavior, out SbugEnemyFunction function)
             ? function
             : throw new InvalidDataException(
-                $"Sbug activation behavior {behavior} is outside the seven native selectors.");
+                $"Sbug activation behavior {behavior} is not one of the seven activation behaviours.");
 }

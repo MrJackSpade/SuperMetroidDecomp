@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Escape.Artwork;
 /// <summary>Editable escape-warning text and visual line placement.</summary>
 public sealed class EscapeTypewriterPresentation
 {
-    /// <summary>Loaded Ceres warning lines and VRAM destinations.</summary>
+    /// <summary>Loaded Ceres warning lines and their tile destinations.</summary>
     private readonly EscapeTypewriterProgram ceres;
-    /// <summary>Loaded Zebes time-bomb warning lines and VRAM destinations.</summary>
+    /// <summary>Loaded Zebes time-bomb warning lines and their tile destinations.</summary>
     private readonly EscapeTypewriterProgram zebes;
 
     /// <summary>Retains the two validated programs and the identity of their exact source document bytes.</summary>
@@ -27,7 +27,7 @@ public sealed class EscapeTypewriterPresentation
 
     /// <summary>Returns the installed warning text and placement for one escape scenario.</summary>
     /// <param name="id">Ceres or Zebes program identity; None does not denote an installed program.</param>
-    /// <returns>The retained program with its read-only ordered line sequence and native source identity.</returns>
+    /// <returns>The retained program with its read-only ordered line sequence and source identity.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is None or another undefined program value.</exception>
     public EscapeTypewriterProgram Get(EscapeTypewriterProgramId id) => id switch
     {
@@ -39,11 +39,11 @@ public sealed class EscapeTypewriterPresentation
             "Escape typewriter program is not present in the installed catalog."),
     };
 
-    /// <summary>Loads the two editable escape-warning programs and validates their character alphabet and VRAM placement.</summary>
+    /// <summary>Loads the two editable escape-warning programs and validates their character alphabet and tile placement.</summary>
     /// <param name="json">Non-null caller-owned readable JSON stream, consumed from its current position without being disposed.</param>
     /// <returns>A catalog owning compiled line selections for the exact Ceres and Zebes key set.</returns>
-    /// <remarks>Requires at least one line per program, with one through 32 characters per line drawn from space, uppercase A-Z, and exclamation mark. Line destinations are VRAM word addresses; the full text must remain below word $8000, but placement is not constrained to a single 32-column map row. Typewriter delay, glyph art, audio cadence, and escape behavior remain compiled.</remarks>
-    /// <exception cref="InvalidDataException">The JSON, schema version, program set, line contents, or VRAM range is invalid.</exception>
+    /// <remarks>Requires at least one line per program, with one through 32 characters per line drawn from space, uppercase A-Z, and exclamation mark. Line destinations are tile word addresses; the full text must remain below word 0x8000, but placement is not constrained to a single 32-column map row. Typewriter delay, glyph art, audio cadence, and escape behavior remain compiled.</remarks>
+    /// <exception cref="InvalidDataException">The JSON, schema version, program set, line contents, or tile destination range is invalid.</exception>
     public static EscapeTypewriterPresentation Load(Stream json)
     {
         byte[] source;
@@ -110,11 +110,11 @@ public sealed class EscapeTypewriterPresentation
     internal sealed class LineSequence(EscapeTypewriterProgramId id, int count,
         Dictionary<int, EscapeTypewriterLine> differences) : IReadOnlyList<EscapeTypewriterLine>
     {
-        /// <summary>Edited or added lines that differ from the selected native warning program.</summary>
+        /// <summary>Edited or added lines that differ from the selected warning program.</summary>
         internal readonly Dictionary<int, EscapeTypewriterLine> overrides = differences;
         /// <summary>Number of lines selected by the editable document for this warning.</summary>
         public int Count => count;
-        /// <summary>Reads an authored override when present, otherwise the compiled native line.</summary>
+        /// <summary>Reads an authored override when present, otherwise the compiled line.</summary>
         public EscapeTypewriterLine this[int index] => (uint)index < Count
             ? overrides.TryGetValue(index, out EscapeTypewriterLine? line) ? line : EscapeTypewriterLines.Line(id, index)
             : throw new ArgumentOutOfRangeException(nameof(index));

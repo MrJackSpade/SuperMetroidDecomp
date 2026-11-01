@@ -3,9 +3,9 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>
-/// Shared visually empty extended frame at bank-local $804F. The supported
-/// enemy banks carry the same one-component, point-hitbox record. Its native
-/// callbacks are the common $A0:8023 touch and $A0:802D shot routines.
+/// Shared visually empty extended frame. The supported
+/// enemy families carry the same one-component, point-hitbox record. Its
+/// callbacks are the common touch and shot reactions.
 /// </summary>
 internal static class CommonEnemyEmptyExtendedFrameDefinitions
 {

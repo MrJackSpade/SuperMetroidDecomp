@@ -1,25 +1,25 @@
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>
-/// Sbug's eight directional animation loops as typed programs (#641), one per bank-$A3 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="SbugAnimations"/>.
+/// Sbug's eight directional animation loops as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="SbugAnimations"/>.
 /// </summary>
 internal enum SbugProgram
 {
-    /// <summary>The native list at $A3:A071.</summary>
+    /// <summary>The right animation.</summary>
     Right,
-    /// <summary>The native list at $A3:A085.</summary>
+    /// <summary>The up right animation.</summary>
     UpRight,
-    /// <summary>The native list at $A3:A099.</summary>
+    /// <summary>The up animation.</summary>
     Up,
-    /// <summary>The native list at $A3:A0AD.</summary>
+    /// <summary>The up left animation.</summary>
     UpLeft,
-    /// <summary>The native list at $A3:A0C1.</summary>
+    /// <summary>The left animation.</summary>
     Left,
-    /// <summary>The native list at $A3:A0D5.</summary>
+    /// <summary>The down left animation.</summary>
     DownLeft,
-    /// <summary>The native list at $A3:A0E9.</summary>
+    /// <summary>The down animation.</summary>
     Down,
-    /// <summary>The native list at $A3:A0FD.</summary>
+    /// <summary>The down right animation.</summary>
     DownRight,
 }

@@ -1,35 +1,35 @@
 namespace SuperMetroid.Core.Enemies.Deaths;
 
 /// <summary>
-/// The generic enemy-death explosions, the drops they become and the respawn tail (#641), one per bank-$86 list a spawn, branch or family routine enters, in authored order.
-/// Generated from the verified native lists; see <see cref="EnemyDeathProjectileAnimations"/>.
+/// The generic enemy-death explosions, the drops they become and the respawn tail (#641), one per animation a spawn, branch or family routine enters, in authored order.
+/// Their steps are <see cref="EnemyDeathProjectileAnimations"/>.
 /// </summary>
 internal enum EnemyDeathProjectileProgram
 {
-    /// <summary><c>InstList_EnemyProjectile_Pickup_HandleRespawningEnemy</c> at $86:ECA3.</summary>
+    /// <summary>The respawn tail animation.</summary>
     RespawnTail,
-    /// <summary><c>InstList_EnemyProjectile_EnemyDeathExplosion_BigExplosion_0</c> at $86:ECAB.</summary>
+    /// <summary>The big explosion animation.</summary>
     BigExplosion,
-    /// <summary>The loop at $86:ECAF.</summary>
+    /// <summary>The loop.</summary>
     BigExplosionLoop,
-    /// <summary><c>InstList_EnemyProj_EnemyDeathExplosion_MiniKraidExplosion_0</c> at $86:ECC5.</summary>
+    /// <summary>The mini Kraid explosion animation.</summary>
     MiniKraidExplosion,
-    /// <summary>The loop at $86:ECC9.</summary>
+    /// <summary>The loop.</summary>
     MiniKraidExplosionLoop,
-    /// <summary><c>InstList_EnemyProjectile_EnemyDeathExplosion_NormalExplosion</c> at $86:ED4B.</summary>
+    /// <summary>The normal explosion animation.</summary>
     NormalExplosion,
-    /// <summary><c>InstList_EnemyProjectile_EnemyDeathExplosion_SmallExplosion</c> at $86:ED69.</summary>
+    /// <summary>The small explosion animation.</summary>
     SmallExplosion,
-    /// <summary><c>InstList_EnemyProjectile_Pickup_SmallEnergy</c> at $86:ED8D.</summary>
+    /// <summary>The small energy animation.</summary>
     SmallEnergy,
-    /// <summary><c>InstList_EnemyProjectile_Pickup_BigEnergy</c> at $86:EDA3.</summary>
+    /// <summary>The big energy animation.</summary>
     BigEnergy,
-    /// <summary><c>InstList_EnemyProjectile_Pickup_Missiles</c> at $86:EDB9.</summary>
+    /// <summary>The missiles animation.</summary>
     Missiles,
-    /// <summary><c>InstList_EnemyProjectile_Pickup_SuperMissiles</c> at $86:EDDD.</summary>
+    /// <summary>The super missiles animation.</summary>
     SuperMissiles,
-    /// <summary><c>InstList_EnemyProjectile_Pickup_PowerBombs</c> at $86:EDEB.</summary>
+    /// <summary>The power bombs animation.</summary>
     PowerBombs,
-    /// <summary><c>InstList_EnemyProj_EnemyDeathExplosion_KilledBySamusContact</c> at $86:EDFF.</summary>
+    /// <summary>The killed by Samus contact animation.</summary>
     KilledBySamusContact,
 }

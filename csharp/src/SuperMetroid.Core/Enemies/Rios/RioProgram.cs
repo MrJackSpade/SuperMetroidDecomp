@@ -1,19 +1,19 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// The Rio's idle, swoop and cooldown animations as typed programs (#641), one per bank-$A2 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="RioAnimations"/>.
+/// The Rio's idle, swoop and cooldown animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="RioAnimations"/>.
 /// </summary>
 internal enum RioProgram
 {
-    /// <summary><c>InstList_Rio_Idle</c> at $A2:BB4B.</summary>
+    /// <summary>The idle animation.</summary>
     Idle,
-    /// <summary><c>InstList_Rio_PostSwoopIdle</c> at $A2:BB53.</summary>
+    /// <summary>The post swoop idle animation.</summary>
     PostSwoopIdle,
-    /// <summary><c>InstList_Rio_Swooping_Part1</c> at $A2:BB7F.</summary>
+    /// <summary>The swooping part 1 animation.</summary>
     SwoopingPart1,
-    /// <summary><c>InstList_Rio_Swooping_Part2</c> at $A2:BB97.</summary>
+    /// <summary>The swooping part 2 animation.</summary>
     SwoopingPart2,
-    /// <summary><c>InstList_Rio_SwoopCooldown</c> at $A2:BBA3.</summary>
+    /// <summary>The swoop cooldown animation.</summary>
     SwoopCooldown,
 }

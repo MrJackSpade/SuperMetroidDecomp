@@ -25,7 +25,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Provides active room context for Yard initialization and main AI.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Runs native surface probes and movement while Yard crawls or falls.</summary>
+    /// <summary>Runs surface probes and movement while Yard crawls or falls.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>Lets Yard react to the active room quake during its main AI.</summary>
     private readonly RoomEarthquake _earthquake;
@@ -47,7 +47,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Carries out one cue of the Yard's animations. Repeating the previous pose resumes at the pose shown just before the
-    /// cue, as the native instruction steps its pointer back four bytes; every other cue runs on.
+    /// cue, as the instruction steps its pointer back four bytes; every other cue runs on.
     /// </summary>
     private AnimationProgramCursor<YardProgram>? ApplyYardCue(
         RoomEnemySlot slot, YardEnemyState state, YardCue cue, AnimationProgramCursor<YardProgram> continuation)
@@ -55,7 +55,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case YardCue.SetMovementFunction setMovementFunction:
-                // Yard animation owns movement dispatch: the operand is a same-bank function pointer, not a branch.
+                // Yard animation owns movement dispatch: the operand is a movement behaviour, not a branch.
                 state.MovementFunction = setMovementFunction.MovementFunction;
                 return null;
             case YardCue.SetHidingProgram setHidingProgram:
@@ -81,7 +81,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports Yard initialization at $A3:CDE2-$CE56.</summary>
+    /// <summary>Initializes the Yard.</summary>
     internal static void InitializeYard(RoomEnemySlot slot)
     {
         YardSpawnSettings settings = slot.SpawnSettings<YardSpawnSettings>();
@@ -114,8 +114,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reproduces the sign-pair arithmetic at $A3:CE27. Negative entries are encoded as
-    /// <c>$FFFF xor speed, then +1</c>, rather than by a host signed table.
+    /// Reproduces the sign-pair arithmetic. Negative entries are encoded as
+    /// <c>0xFFFF xor speed, then +1</c>, rather than by a host signed table.
     /// </summary>
     internal static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction)
     {
@@ -124,14 +124,14 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CrawlingVelocity = YardCrawlVelocity.Apply(speed, direction);
     }
 
-    /// <summary>Rejects a crawl speed selector outside Yard's native signed speed table.</summary>
+    /// <summary>Rejects a crawl speed selector outside Yard's signed speed table.</summary>
     private static void ValidateYardSpeedIndex(int index)
     {
         if (index >= CrawlerSpeedDefinitions.Count)
-            throw new InvalidDataException($"Yard speed index ${index:X4} exceeds $A3:CCA2.");
+            throw new InvalidDataException($"Yard speed index {index} exceeds the authored speed table.");
     }
 
-    /// <summary>Ports Yard main AI at $A3:CE64.</summary>
+    /// <summary>Runs the Yard's main AI.</summary>
     private void RunYardMain(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level)
     {
         if (samus is null)
@@ -162,8 +162,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunYardAirborneMovement(slot, state, samus, level);
                 return;
             // Direction-changing animation can publish the new direction word one frame before
-            // it installs the matching movement pointer. Native JMPs through F, so dispatch by
-            // that pointer—not by the temporarily newer direction field.
+            // it installs the matching movement behaviour. The game dispatches through that behaviour,
+            // not by the temporarily newer direction field.
             case YardMovementFunction.CrawlingUpsideUpMovingLeft:
             case YardMovementFunction.CrawlingUpsideLeftMovingDown:
             case YardMovementFunction.CrawlingUpsideDownMovingRight:
@@ -180,7 +180,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the look-at/hide test at $A3:CE9A.</summary>
+    /// <summary>Runs the look-at/hide test.</summary>
     private static void HandleYardHiding(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -212,7 +212,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Behavior = YardBehavior.NormalCrawling;
     }
 
-    /// <summary>Ports Yard's dynamic bit-$8000 solid-hitbox decision at $A3:CF11.</summary>
+    /// <summary>Runs Yard's dynamic solid-hitbox decision.</summary>
     private static void UpdateYardSolidProperty(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -242,7 +242,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             : slot.Properties.Without(EnemyProperties.SolidToSamus);
     }
 
-    /// <summary>Ports the hidden-list movement owner at $A3:CF60.</summary>
+    /// <summary>Runs the hidden-list movement owner.</summary>
     private static void RunYardHidingMovement(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -277,7 +277,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             state.TurnTransitionDisabled);
 
         // The lookahead offset is temporary, but the normal-axis probe movement is not.
-        // Native adds the offset, performs collision/alignment, then subtracts only the
+        // Adds the offset, performs collision/alignment, then subtracts only the
         // original offset from the resulting center.
         slot.Position += turn.Lookahead;
         bool surfaceCollision = movesVertically
@@ -293,7 +293,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!surfaceCollision)
         {
-            // The count stays within one through four, so the cartridge's signed word comparison is an ordinary one.
+            // The count stays within one through four, so the game's signed word comparison is an ordinary one.
             state.ConsecutiveTurnCounter++;
             if (state.ConsecutiveTurnCounter >= 4)
             {
@@ -380,7 +380,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.TurnTransitionDisableCounter = 0;
     }
 
-    /// <summary>Ports the common detach path at $A3:D164.</summary>
+    /// <summary>Runs the common detach path.</summary>
     internal static void DropYard(RoomEnemySlot slot, YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Dropped)
@@ -391,7 +391,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AirborneVelocity = FixedVector<RoomPixels>.Zero;
     }
 
-    /// <summary>Ports the complete bounce/gravity/landing loop at $A3:D1B3.</summary>
+    /// <summary>Runs the complete bounce/gravity/landing loop.</summary>
     private void RunYardAirborneMovement(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -402,7 +402,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, state.AirborneVelocity.X.RawValue))
             {
-                // The cartridge negates each word separately. This is intentionally one
+                // The game negates each word separately. This is intentionally one
                 // whole pixel away from a conventional 32-bit negation when low word is 0.
                 state.AirborneVelocity = state.AirborneVelocity.WithX(NegateWordsSeparately(state.AirborneVelocity.X));
                 state.BouncedHorizontally = true;
@@ -410,7 +410,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             else
             {
-                // Horizontal velocity decays by 0.1000 toward zero. Native stores the low
+                // Horizontal velocity decays by 0.1000 toward zero. Stores the low
                 // word unconditionally but declines to replace the high word when ADC makes
                 // it exactly zero; preserve that observable arithmetic quirk.
                 SignedSixteenSixteen velocity = state.AirborneVelocity.X;
@@ -527,7 +527,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
-    /// <summary>Ports the running/airborne kick setup at $A3:D49F.</summary>
+    /// <summary>Runs the running/airborne kick setup.</summary>
     internal static void KickYardIntoAir(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -546,7 +546,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             kick);
     }
 
-    /// <summary>Ports ordinary-beam launch setup at $A3:D557.</summary>
+    /// <summary>Runs ordinary-beam launch setup.</summary>
     internal static void ShootYardIntoAir(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -571,7 +571,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     private static SignedEightEight NegateEightEight(SignedEightEight velocity) =>
         new(CrawlersBehavior.Negate16(velocity.RawValue));
 
-    /// <summary>Ports Yard's custom touch entry at $A3:D3B0.</summary>
+    /// <summary>Runs Yard's custom touch entry.</summary>
     private void ResolveYardTouch(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -621,7 +621,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Completes the non-missile branch of Yard shot AI at $A3:D469. Collision/beam impact
+    /// Completes the non-missile branch of Yard shot AI. Collision/beam impact
     /// disposal has already happened in the shared projectile pass; this method owns only
     /// the actor's launch and observable sound event.
     /// </summary>
@@ -662,7 +662,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             AdmitsBombFamilies = true,
             // Yard's custom shot AI sends super-missile/power-bomb families through normal vulnerability damage,
             // but every other colliding shot merely kicks the shell into the air. This occurs after projectile
-            // impact, exactly where bank $A0 has already accepted the collision index.
+            // impact, exactly where the collision pass has already accepted the collision index.
             BeforeVulnerability = (in EnemyShotContext c) =>
             {
                 if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)

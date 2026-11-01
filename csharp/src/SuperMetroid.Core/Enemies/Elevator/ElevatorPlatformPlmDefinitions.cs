@@ -4,14 +4,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>
-/// The $B70B elevator-platform PLM's complete $84:AFB6 instruction loop and its
+/// The elevator-platform PLM's complete animation loop and its
 /// three tile-layout lists. Timing, list selection, collision kinds, and offsets
-/// are cartridge-defined; the underlying tiles remain the room tileset artwork.
+/// are authored; the underlying tiles remain the room tileset artwork.
 /// </summary>
 internal static class ElevatorPlatformPlmDefinitions
 {
     /// <summary>
-    /// Three frames at $84:AA97..AADE, each with two upper edge cells and a
+    /// Three frames, each with two upper edge cells and a
     /// four-cell lower row. All cells are solid. Edge art advances one tile per
     /// frame; lower art advances two, mirrored about the platform centre.
     /// Continuations are absolute offsets (3,0), (0,1), then the terminator.

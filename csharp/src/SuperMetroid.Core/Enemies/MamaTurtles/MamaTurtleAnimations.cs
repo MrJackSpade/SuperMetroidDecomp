@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleProgram;
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>
-/// The Mama Turtle's and baby turtles' crawl, spin, shell and sleep animations as typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// The Mama Turtle's and baby turtles' crawl, spin, shell and sleep animations as typed programs (#641). Each
 /// frame shows a <see cref="MamaTurtleFrame"/> pose and each callback becomes a <see cref="MamaTurtleCue"/> with its typed operands.
 /// </summary>
 internal static class MamaTurtleAnimations
@@ -181,7 +181,7 @@ internal static class MamaTurtleAnimations
     /// <summary>Continues at <paramref name="program"/>.</summary>
     private static AnimationProgramStep<MamaTurtleProgram, MamaTurtleFrame, MamaTurtleCue> GoTo(MamaTurtleProgram program) => AnimationProgramStep<MamaTurtleProgram, MamaTurtleFrame, MamaTurtleCue>.GoTo(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<MamaTurtleProgram, MamaTurtleFrame, MamaTurtleCue> Hold => AnimationProgramStep<MamaTurtleProgram, MamaTurtleFrame, MamaTurtleCue>.Hold;
 
 }

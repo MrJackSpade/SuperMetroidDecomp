@@ -17,7 +17,7 @@ public interface IRoomEnemyActorContext
     /// <summary>Samus, if present.</summary>
     SamusState? Samus { get; }
 
-    /// <summary>The raw held SNES controller mask.</summary>
+    /// <summary>The raw held controller mask.</summary>
     ControllerButton ControllerInput { get; }
 
     /// <summary>The camera's room position.</summary>

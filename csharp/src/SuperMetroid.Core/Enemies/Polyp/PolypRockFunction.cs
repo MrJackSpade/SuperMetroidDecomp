@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 /// </summary>
 internal enum PolypRockFunction
 {
-    /// <summary>$86:BC16.</summary>
+    /// <summary>The rock rises.</summary>
     Rising,
 
-    /// <summary>$86:BC8F.</summary>
+    /// <summary>The rock falls.</summary>
     Falling,
 }

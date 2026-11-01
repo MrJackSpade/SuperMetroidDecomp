@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Stoke.StokeProgram;
 namespace SuperMetroid.Core.Enemies.Stoke;
 
 /// <summary>
-/// Stoke's walking and fire-spitting animations as typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// Stoke's walking and fire-spitting animations as typed programs (#641). Each
 /// frame shows a <see cref="StokeFrame"/> pose and each callback becomes a <see cref="StokeCue"/> with its typed operands.
 /// </summary>
 internal static class StokeAnimations

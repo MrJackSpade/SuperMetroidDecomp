@@ -1,23 +1,23 @@
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// The Lower Norfair and Wrecked Ship Chozo statues' idle and activation animations as typed programs (#641), one per bank-$AA list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="ChozoStatueAnimations"/>.
+/// The Lower Norfair and Wrecked Ship Chozo statues' idle and activation animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="ChozoStatueAnimations"/>.
 /// </summary>
 internal enum ChozoStatueProgram
 {
-    /// <summary><c>InstList_Chozo_LowerNorfair_Initial</c> at $AA:E39D.</summary>
+    /// <summary>The lower Norfair initial animation.</summary>
     LowerNorfairInitial,
-    /// <summary><c>InstList_Chozo_LowerNorfair_Activated_0</c> at $AA:E3A7.</summary>
+    /// <summary>The lower Norfair activated animation.</summary>
     LowerNorfairActivated,
-    /// <summary>The loop at $AA:E3E5.</summary>
+    /// <summary>The loop.</summary>
     LowerNorfairActivatedLoop,
-    /// <summary><c>InstList_Chozo_WreckedShip_Initial</c> at $AA:E457.</summary>
+    /// <summary>The wrecked ship initial animation.</summary>
     WreckedShipInitial,
-    /// <summary><c>InstList_Chozo_WreckedShip_Activated_0</c> at $AA:E461.</summary>
+    /// <summary>The wrecked ship activated animation.</summary>
     WreckedShipActivated,
-    /// <summary>The loop at $AA:E49D.</summary>
+    /// <summary>The loop.</summary>
     WreckedShipActivatedLoop,
-    /// <summary>The loop at $AA:E4C1.</summary>
+    /// <summary>The loop.</summary>
     WreckedShipActivatedLoop2,
 }

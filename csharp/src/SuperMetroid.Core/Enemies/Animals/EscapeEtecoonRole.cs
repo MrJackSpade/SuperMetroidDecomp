@@ -2,14 +2,14 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
 /// Mutually exclusive authored roles selected by the escape Etecoon's even parameter-one
-/// byte offset. Odd restored values select the same role after the cartridge clears bit zero.
+/// byte offset. Odd restored values select the same role after the game clears bit zero.
 /// </summary>
 public enum EscapeEtecoonRole
 {
-    /// <summary>Native table byte selector $0000 at $B3:E718: starts at room pixel (128, 200), uses running-left list $B3:E556 and walking/falling function $E680, with signed 8.8 X velocity $FE00 (-2 pixels per update).</summary>
+    /// <summary>Table byte selector 0: starts at room pixel (128, 200), runs left and then walks or falls, with signed 8.8 X velocity -2 pixels per update.</summary>
     LeftWalker = 0,
-    /// <summary>Native table byte selector $0002 at $B3:E71A: starts at room pixel (160, 200), uses running-right list $B3:E582 and walking/falling function $E680, with signed 8.8 X velocity $0280 (+2.5 pixels per update).</summary>
+    /// <summary>Table byte selector 2: starts at room pixel (160, 200), runs right and then walks or falls, with signed 8.8 X velocity +2.5 pixels per update.</summary>
     RightWalker = 2,
-    /// <summary>Native table byte selector $0004 at $B3:E71C: starts stationary at room pixel (232, 200), list $B3:E5C6/function $E670, and waits for persistent event $0F before selecting gratitude-then-escape bytecode.</summary>
+    /// <summary>Table byte selector 4: starts stationary at room pixel (232, 200) and waits for the critters-escaped event before starting its gratitude-then-escape animation.</summary>
     WaitForEscapeEvent = 4,
 }

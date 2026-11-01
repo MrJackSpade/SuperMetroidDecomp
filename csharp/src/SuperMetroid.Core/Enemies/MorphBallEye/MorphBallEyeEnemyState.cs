@@ -2,13 +2,13 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
-/// The state of retail enemy <c>$E6BF</c>. The mount and eye body share a definition, but parameter two's sign selects
-/// their role. The values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed
+/// The state of the Morph Ball eye. The mount and eye body share a definition, but parameter two's sign selects
+/// their role. The values the game keeps in the enemy's common record are emptied with it when the enemy is killed
 /// (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class MorphBallEyeEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<MorphBallEyeProgram> Program { get; set; }
 
     /// <summary>
@@ -25,10 +25,10 @@ public sealed class MorphBallEyeEnemyState
     /// <summary>Activation/deactivation countdown.</summary>
     public WrappingCountdown FunctionTimer { get; internal set; }
 
-    /// <summary>Indirect bank-$A8 function word; none once a kill has emptied the record.</summary>
+    /// <summary>Indirect function word; none once a kill has emptied the record.</summary>
     public MorphBallEyeAiFunction? Function { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         IsActivated = false;

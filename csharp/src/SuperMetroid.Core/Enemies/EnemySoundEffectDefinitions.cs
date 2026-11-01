@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The cartridge sound effect ids ordinary enemies queue, by enemy and event. Each value is the id within the library its queuing call names.
+/// The game sound effect ids ordinary enemies queue, by enemy and event. Each value is the id within the library its queuing call names.
 /// </summary>
 internal static class EnemySoundEffectDefinitions
 {

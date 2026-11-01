@@ -4,9 +4,9 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The state of an ordinary Metroid, with its three parallel extension words. The two bank-$B4 sprite-object references
-/// are the managed equivalent of native indexes <c>metroid_var_00/01</c>; the drain accumulator is
-/// <c>metroid_var_02</c>. The values the cartridge keeps in the enemy's common record are emptied with it when the
+/// The state of an ordinary Metroid, with its three parallel extension words. The two sprite-object references
+/// are the managed equivalent of the original's sprite-object indexes; the drain accumulator is
+/// the third parallel word. The values the game keeps in the enemy's common record are emptied with it when the
 /// enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class MetroidEnemyState
@@ -19,7 +19,7 @@ public sealed class MetroidEnemyState
         OuterBodyB = outerBodyB;
     }
 
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<MetroidProgram> Program { get; set; }
 
     /// <summary>Signed 16.16 velocity in pixels per movement update, positive right and down.</summary>
@@ -28,12 +28,12 @@ public sealed class MetroidEnemyState
     /// <summary>Variable E; four-frame escape timer and frozen-shake countdown.</summary>
     public WrappingCountdown EscapeTimer { get; internal set; }
 
-    /// <summary>Zero-based movement dispatcher index 0..3 into $A3:EC09, not an AI routine pointer.</summary>
+    /// <summary>Zero-based movement dispatcher index 0..3, not an AI routine pointer.</summary>
     public MetroidAiFunction Function { get; internal set; }
 
-    /// <summary>Live shared-pool electricity sprite object, native selector $32 and reference $7E:7800; the Metroid owner repositions, freezes and terminates it alongside the central body.</summary>
+    /// <summary>Live shared-pool electricity sprite object; the Metroid owner repositions, freezes and terminates it alongside the central body.</summary>
     public RoomSpriteObjectSlot OuterBodyA { get; }
-    /// <summary>Live shared-pool shell sprite object, native selector $34 and reference $7E:7802; distinct from both the electricity layer and central enemy spritemap.</summary>
+    /// <summary>Live shared-pool shell sprite object; distinct from both the electricity layer and central enemy spritemap.</summary>
     public RoomSpriteObjectSlot OuterBodyB { get; }
 
     /// <summary>
@@ -47,7 +47,7 @@ public sealed class MetroidEnemyState
 
     /// <summary>
     /// Subtracts one update's drain <paramref name="rate"/> from the accumulator, wrapping below zero back into its
-    /// range as the cartridge's word subtraction does, and reports whether it borrowed: a borrow drains one energy.
+    /// range as the game's word subtraction does, and reports whether it borrowed: a borrow drains one energy.
     /// </summary>
     /// <param name="rate">The suit-selected drain per update, in the accumulator's fractional steps.</param>
     internal bool DrainBorrows(int rate)
@@ -68,7 +68,7 @@ public sealed class MetroidEnemyState
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         IceDamageToFreeze = 0;

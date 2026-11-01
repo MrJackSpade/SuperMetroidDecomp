@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>How a Samus projectile that meets an enemy projectile is handled (native initializer flag at <c>$F380</c>).</summary>
+/// <summary>How a Samus projectile that meets an enemy projectile is handled (an enemy-projectile initializer flag).</summary>
 public enum EnemyProjectileCollisionOption
 {
     /// <summary>The meeting runs the enemy projectile's shot list.</summary>

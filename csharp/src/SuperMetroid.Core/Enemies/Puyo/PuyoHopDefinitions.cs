@@ -3,10 +3,10 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// <summary>Seven immutable NTSC Puyo hop definitions, independent of animation artwork.</summary>
 public static class PuyoHopDefinitions
 {
-    /// <summary>Native table stride for the serialized byte-index selector.</summary>
+    /// <summary>Table stride for the serialized byte-index selector.</summary>
     public const int RecordSize = 8;
 
-    /// <summary>The seven hops, by native byte index.</summary>
+    /// <summary>The seven hops, by byte index.</summary>
     internal static readonly Dictionary<int, PuyoHopDefinition> Hops = new()
     {
         [0] = new(16, 256, 512, PuyoAirborneFunction.NormalShortHop),

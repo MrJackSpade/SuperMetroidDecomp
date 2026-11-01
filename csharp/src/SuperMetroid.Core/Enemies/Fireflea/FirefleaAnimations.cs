@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>
-/// Fireflea's 52-frame glow loop as a typed program (#641), in place of their bank-$A3 lists. Generated from the verified native lists: each
+/// Fireflea's 52-frame glow loop as a typed program (#641). Each
 /// frame shows a <see cref="FirefleaFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class FirefleaAnimations

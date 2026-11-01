@@ -5,7 +5,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Puts populations into slots and runs their banked AI: slot setup from a definition, initialization and main AI
+/// Puts populations into slots and runs their AI: slot setup from a definition, initialization and main AI
 /// through each slot's entity, spawns into the first free slot, and the slots Samus can touch this frame.
 /// </summary>
 [RoomLifetime]
@@ -59,7 +59,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         slot.Spawn = new RoomEnemySpawnSnapshot(population);
     }
 
-    /// <summary>Dispatches the definition's banked initialization pointer for the newly loaded slot.</summary>
+    /// <summary>Dispatches the definition's initialization for the newly loaded slot.</summary>
     internal static void RunInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
         Ensure.NotNull(surroundings);
@@ -96,7 +96,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
             return null;
         InitializeSlotFromDefinition(slot, population, _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionId));
         RunInitializationAi(slot, EnemySpawnSurroundings.None);
-        // SpawnEnemy's post-init $A0:93D9 write precedes the first instruction tick.
+        // Spawning writes the empty frame after initialization, before the first animation tick.
         slot.Frame = slot.Properties.HasAny(EnemyProperties.RunsAnimationScript)
             ? EnemyFrameId.Empty
             : null;
@@ -104,14 +104,14 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         return slot;
     }
 
-    /// <summary>Routes a scheduled enemy update through its banked main AI handler.</summary>
+    /// <summary>Routes a scheduled enemy update through its main AI handler.</summary>
     void IEnemyDispatch.RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunMainAi(slot, frame);
 
     /// <summary>Exposes the enemies selected for Samus collision checks this frame.</summary>
     IReadOnlyList<RoomEnemySlot> IEnemyDispatch.InteractiveEnemies => _processingWindow.InteractiveEnemies;
 
-    /// <summary>Dispatches a loaded slot's banked main AI pointer through the compiled table.</summary>
+    /// <summary>Dispatches a loaded slot's main AI through the compiled table.</summary>
     internal static void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         EnemyMainAiHandler handler = (slot.Entity as IEnemyMainAi)?.FindMain() ?? throw new InvalidDataException(

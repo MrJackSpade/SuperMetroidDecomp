@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Magdollite.MagdolliteProgram;
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// The Magdollite head's idle, submerge and emerge animations, its body's pillar stacks and its overlay's throw and cap animations as typed programs (#641), in place of their bank-$A8 lists. Generated from the verified native lists: each
+/// The Magdollite head's idle, submerge and emerge animations, its body's pillar stacks and its overlay's throw and cap animations as typed programs (#641). Each
 /// frame shows a <see cref="MagdolliteFrame"/> pose and each callback becomes a <see cref="MagdolliteCue"/> with its typed operands.
 /// </summary>
 internal static class MagdolliteAnimations
@@ -223,7 +223,7 @@ internal static class MagdolliteAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<MagdolliteProgram, MagdolliteFrame, MagdolliteCue> FallInto(MagdolliteProgram program) => AnimationProgramStep<MagdolliteProgram, MagdolliteFrame, MagdolliteCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<MagdolliteProgram, MagdolliteFrame, MagdolliteCue> Hold => AnimationProgramStep<MagdolliteProgram, MagdolliteFrame, MagdolliteCue>.Hold;
 
 }

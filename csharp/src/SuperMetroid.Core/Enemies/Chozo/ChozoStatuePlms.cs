@@ -8,7 +8,7 @@ using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
 
-/// <summary>Chozo statue hand PLMs ($84:D6EA family): the Wrecked Ship and Lower Norfair hand checks and the hardcoded statue spawns.</summary>
+/// <summary>Chozo statue hand PLMs: the Wrecked Ship and Lower Norfair hand checks and the hardcoded statue spawns.</summary>
 [RoomLifetime]
 internal sealed class ChozoStatuePlms : IChozoStatueHand
 {
@@ -16,7 +16,7 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
     private readonly SharedGameState? _system;
     /// <summary>The room's area.</summary>
     private readonly AreaId _area;
-    /// <summary>Descending native PLM allocation scanned for temporary reactions and persistent statue actors.</summary>
+    /// <summary>Descending PLM allocation scanned for temporary reactions and persistent statue actors.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Binds Chozo hand behavior to its room services and PLM slot allocation.</summary>
@@ -31,7 +31,7 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
     /// <summary>Bound room FX owner for Lower Norfair acid height writes; reattached after restore.</summary>
     [NonSerialized] private RoomLayer3FxState? _chozoRoomFx;
 
-    /// <summary>Connects the bank-$84 hand setup to the existing bank-$AA actor owner.</summary>
+    /// <summary>Connects the hand setup to the existing actor owner.</summary>
     internal void BindChozoStatueContext(IEnemyPlmRequests hands, EnemyRoomFx enemyRoomFx, RoomLayer3FxState roomFx)
     {
         _chozoHands = hands;
@@ -39,7 +39,7 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
         enemyRoomFx.BindRoomFx(roomFx);
     }
 
-    /// <summary>Runs the native one-shot special-block setup; the caller still clips to solid.</summary>
+    /// <summary>Runs the one-shot special-block setup; the caller still clips to solid.</summary>
     public void NotifyChozoStatueHandCollision(RoomLevelData level,
         RoomCollisionBlock block, SamusState samus, SamusPoseId collisionPose, bool movingDown)
     {
@@ -48,8 +48,8 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
         bool lowerNorfair = _area == AreaId.Norfair &&
             block.Behavior == ChozoStatueRoomDefinitions.LowerNorfairHandBehavior;
         if (!wreckedShip && !lowerNorfair) return;
-        // Both native setups return SEC regardless of admission. The morph-left pose
-        // is deliberately absent: the cartridge explicitly lists these three poses.
+        // Both setups return SEC regardless of admission. The morph-left pose
+        // is deliberately absent: the game explicitly lists these three poses.
         bool eligible = movingDown && collisionPose is
             (SamusPoseId.MorphBallGroundRightPose or
              SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose);
@@ -74,7 +74,7 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
         reaction.Clear();
     }
 
-    /// <summary>Allocates the native descending PLM slot, runs setup, then leaves its ROM list live.</summary>
+    /// <summary>Allocates the descending PLM slot, runs setup, then leaves its authored list live.</summary>
     public bool TrySpawnChozoStatuePlm(RoomLevelData level, ChozoStatuePlmRequest request)
     {
         ChozoStatuePlmDefinition definition =
@@ -92,7 +92,7 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
                 ChozoStatueRoomDefinitions.WreckedShipHandBehavior);
         else if (request.Header == PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug)
         {
-            // Native D108 never chooses the block it writes: the two spawn entry points
+            // The plug spawn never chooses the block it writes: the two spawn entry points
             // leave different blocks behind, so preserve that quirk rather than reading
             // the previous tile.
             level.SetTerrain(index, request.IsHardcoded

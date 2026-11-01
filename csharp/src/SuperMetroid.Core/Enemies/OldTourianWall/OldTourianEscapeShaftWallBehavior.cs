@@ -10,10 +10,10 @@ internal sealed class OldTourianEscapeShaftWallBehavior
 {
     /// <summary>Loaded-room dependency required before the wall controller can spawn its explosion.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Native-equivalent eighteen-slot enemy projectile allocator for the wall explosion.</summary>
+    /// <summary>Eighteen-slot enemy projectile allocator for the wall explosion.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Enemy sound queue used by the wall explosion's bank-$86 instruction.</summary>
+    /// <summary>Enemy sound queue used by the wall explosion's instruction.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds room, projectile, and audio owners needed by the old Tourian fake-wall controller.</summary>
@@ -25,8 +25,8 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     }
 
     /// <summary>
-    /// Spawns enemy projectile $86:B4B1 for PLM pre-instruction $84:B927. Its initializer
-    /// ($86:B49D) ignores the spawn parameter and places the explosion on the middle of the
+    /// Spawns the fake-wall explosion for the wall's frame behaviour. Its initializer
+    /// ignores the spawn parameter and places the explosion on the middle of the
     /// breaking wall.
     /// </summary>
     public void SpawnOldTourianEscapeShaftWallExplosion()
@@ -34,7 +34,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
         _room.EnsureLoaded();
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
-            return; // Native SpawnEproj returns carry set when all eighteen slots are live.
+            return; // Spawning fails when all eighteen projectile slots are live.
 
         // SpawnEnemyProjectileY_ParameterA_RoomGraphics uses graphics index zero.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(

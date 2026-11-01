@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The definition occupying one live room-enemy projectile slot. The values are arbitrary (#1452); verification's
-/// native view names each member's bank-$86 definition word, which a native snapshot's <c>eproj_id</c> holds.
+/// The definition occupying one live room-enemy projectile slot. The values are arbitrary (#1452).
 /// </summary>
 public enum RoomEnemyProjectileKind
 {
@@ -150,7 +149,7 @@ public enum RoomEnemyProjectileKind
     PolypRock = 70,
     /// <summary><c>EnemyProjectile_Cacatac</c>: a Cacatac's directional spike.</summary>
     CacatacSpike = 71,
-    /// <summary><c>UNUSED_EnemyProjectile_Stoke_86DBF2</c>: the native unused mini-Crocomire/Stoke projectile definition.</summary>
+    /// <summary>The unused mini-Crocomire/Stoke projectile definition.</summary>
     StokeProjectile = 72,
     /// <summary><c>EnemyProjectile_NamiheFireball</c>: Namihe's fireball definition.</summary>
     NamiheFireball = 73,

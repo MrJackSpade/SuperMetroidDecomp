@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
-/// <summary>Native Yard vertical launch words indexed by the player's whole horizontal displacement.</summary>
+/// <summary>Yard vertical launch words indexed by the player's whole horizontal displacement.</summary>
 public static class YardKickDefinitions
 {
     /// <summary>The highest whole speed that selects its own launch; faster speeds share the last.</summary>
     internal const int FastestKickSpeed = 15;
 
     /// <summary>
-    /// The upward launch each whole horizontal speed selects, in sixteenths of a pixel per frame. The cartridge authors
+    /// The upward launch each whole horizontal speed selects, in sixteenths of a pixel per frame. The game authors
     /// each launch as a whole pixel count, three at rest and one more every third speed, with a fraction of zero, five
     /// eighths or one quarter of a pixel added toward zero; these are the resulting signed launches.
     /// </summary>

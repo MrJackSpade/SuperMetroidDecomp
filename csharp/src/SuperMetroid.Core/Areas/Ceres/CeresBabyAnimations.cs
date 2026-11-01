@@ -5,7 +5,7 @@ using F = SuperMetroid.Core.Areas.Ceres.CeresBabyPose;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres Baby Metroid's typed cutscene programs (#641), in place of its private bank-$A6 draw lists
+/// The Ceres Baby Metroid's typed cutscene programs (#641), in place of its private draw lists
 /// (<c>InstList_BabyMetroidCutscene_0</c> and <c>_1</c>). The baby squishes through horizontal, round and vertical poses;
 /// while it moves, the expressive loop also pulses its palette and cries.
 /// </summary>

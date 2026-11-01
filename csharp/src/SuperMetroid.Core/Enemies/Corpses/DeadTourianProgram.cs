@@ -1,33 +1,33 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// The dead Sidehopper's hop, idle and corpse animations and the dead Zoomer, Ripper and Skree corpse poses as typed programs (#641), one per bank-$A9 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="DeadTourianAnimations"/>.
+/// The dead Sidehopper's hop, idle and corpse animations and the dead Zoomer, Ripper and Skree corpse poses as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="DeadTourianAnimations"/>.
 /// </summary>
 internal enum DeadTourianProgram
 {
-    /// <summary><c>InstList_CorpseSidehopper_Alive_Hopping</c> at $A9:ECAC.</summary>
+    /// <summary>The sidehopper hopping animation.</summary>
     SidehopperHopping,
-    /// <summary><c>InstList_CorpseSidehopper_Alive_Idle</c> at $A9:ECE3.</summary>
+    /// <summary>The sidehopper idle animation.</summary>
     SidehopperIdle,
-    /// <summary><c>InstList_CorpseSidehopper_Alive_Corpse</c> at $A9:ECE9.</summary>
+    /// <summary>The sidehopper corpse animation.</summary>
     SidehopperCorpse,
-    /// <summary><c>InstList_CorpseSidehopper_Alive_Dead</c> at $A9:ECEF.</summary>
+    /// <summary>The sidehopper initially dead animation.</summary>
     SidehopperInitiallyDead,
-    /// <summary><c>InstList_CorpseZoomer_Param1_0</c> at $A9:ECF5.</summary>
+    /// <summary>The Zoomer corpse 0 animation.</summary>
     ZoomerCorpse0,
-    /// <summary>The native list at $A9:ECFB.</summary>
+    /// <summary>The Zoomer corpse 1 animation.</summary>
     ZoomerCorpse1,
-    /// <summary>The native list at $A9:ED01.</summary>
+    /// <summary>The Zoomer corpse 2 animation.</summary>
     ZoomerCorpse2,
-    /// <summary>The native list at $A9:ED07.</summary>
+    /// <summary>The Ripper corpse 0 animation.</summary>
     RipperCorpse0,
-    /// <summary>The native list at $A9:ED0D.</summary>
+    /// <summary>The Ripper corpse 1 animation.</summary>
     RipperCorpse1,
-    /// <summary>The native list at $A9:ED13.</summary>
+    /// <summary>The Skree corpse 0 animation.</summary>
     SkreeCorpse0,
-    /// <summary>The native list at $A9:ED19.</summary>
+    /// <summary>The Skree corpse 1 animation.</summary>
     SkreeCorpse1,
-    /// <summary>The native list at $A9:ED1F.</summary>
+    /// <summary>The Skree corpse 2 animation.</summary>
     SkreeCorpse2,
 }

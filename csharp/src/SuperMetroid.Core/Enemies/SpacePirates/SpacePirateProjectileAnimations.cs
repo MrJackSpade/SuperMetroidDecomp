@@ -4,7 +4,7 @@ using P = SuperMetroid.Core.Enemies.SpacePirates.SpacePirateProjectileProgram;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>The Pirate/Mother Brain laser and Ninja Pirate claw programs (#641), in place of their bank-$86 lists.</summary>
+/// <summary>The Pirate/Mother Brain laser and Ninja Pirate claw programs (#641).</summary>
 internal static class SpacePirateProjectileAnimations
 {
     /// <summary>Every program.</summary>

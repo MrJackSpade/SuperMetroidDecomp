@@ -9,5 +9,5 @@ internal static class ShaktoolSegments
         (uint)index < (uint)ShaktoolSegmentDefinitions.Segments.Length
             ? ShaktoolSegmentDefinitions.Segments[index]
             : throw new InvalidDataException(
-                $"Shaktool segment {index} is outside the seven native definition records.");
+                $"Shaktool segment {index} is outside the seven segment definitions.");
 }

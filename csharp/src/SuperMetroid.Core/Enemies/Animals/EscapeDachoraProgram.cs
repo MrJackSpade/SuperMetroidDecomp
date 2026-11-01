@@ -1,31 +1,31 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The escaping Dachora's typed programs (#641), one per bank-$B3 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="EscapeDachoraAnimations"/>.
+/// The escaping Dachora's typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="EscapeDachoraAnimations"/>.
 /// </summary>
 internal enum EscapeDachoraProgram
 {
-    /// <summary><c>InstList_DachoraEscape_RunningAroundAimlessly_LowTide_0</c> at $B3:E964.</summary>
+    /// <summary>The running around low tide animation.</summary>
     RunningAroundLowTide,
-    /// <summary><c>InstList_DachoraEscape_RunningAroundAimlessly_LowTide_1</c> at $B3:E968.</summary>
+    /// <summary>The running around low tide left animation.</summary>
     RunningAroundLowTideLeft,
-    /// <summary><c>InstList_DachoraEscape_RunningAroundAimlessly_LowTide_2</c> at $B3:E99C.</summary>
+    /// <summary>The running around low tide right animation.</summary>
     RunningAroundLowTideRight,
-    /// <summary><c>InstList_DachoraEscape_RunningAroundAimlessly_HighTide_0</c> at $B3:E9D0.</summary>
+    /// <summary>The running around high tide animation.</summary>
     RunningAroundHighTide,
-    /// <summary><c>InstList_DachoraEscape_RunningAroundAimlessly_HighTide_1</c> at $B3:E9D4.</summary>
+    /// <summary>The running around high tide left animation.</summary>
     RunningAroundHighTideLeft,
-    /// <summary><c>InstList_DachoraEscape_RunningAroundAimlessly_HighTide_2</c> at $B3:E9FC.</summary>
+    /// <summary>The running around high tide left loop animation.</summary>
     RunningAroundHighTideLeftLoop,
-    /// <summary><c>InstList_DachoraEscape_RunningAroundAimlessly_HighTide_3</c> at $B3:EA04.</summary>
+    /// <summary>The running around high tide right animation.</summary>
     RunningAroundHighTideRight,
-    /// <summary><c>InstList_DachoraEscape_RunningAroundAimlessly_HighTide_4</c> at $B3:EA2C.</summary>
+    /// <summary>The running around high tide right loop animation.</summary>
     RunningAroundHighTideRightLoop,
-    /// <summary><c>InstList_DachoraEscape_RunningForEscape_0</c> at $B3:EA34.</summary>
+    /// <summary>The running for escape animation.</summary>
     RunningForEscape,
-    /// <summary><c>InstList_DachoraEscape_RunningForEscape_1</c> at $B3:EA38.</summary>
+    /// <summary>The running for escape accelerating animation.</summary>
     RunningForEscapeAccelerating,
-    /// <summary><c>InstList_DachoraEscape_RunningForEscape_2</c> at $B3:EA80.</summary>
+    /// <summary>The running for escape maximum speed animation.</summary>
     RunningForEscapeMaximumSpeed,
 }

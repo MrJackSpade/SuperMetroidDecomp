@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class EnemySpeciesRegistry
 {
     /// <summary>
-    /// Room-referenced definitions whose species AI is not ported: Reflec ($A3:DBD3/$A3:DC1B) and the second dead
-    /// Sidehopper header, whose $A9:D7B6 initialization was ported only for the first. Binding one fails loudly.
+    /// Room-referenced definitions whose species AI is not ported: Reflec and the second dead
+    /// Sidehopper header, whose initialization was ported only for the first. Binding one fails loudly.
     /// </summary>
     private static readonly HashSet<EnemyDefinitionId> UnportedDefinitions = [EnemyDefinitionId.Reflec, EnemyDefinitionId.CorpseSidehopper2];
 
@@ -58,8 +58,8 @@ internal sealed class EnemySpeciesRegistry
 
     /// <summary>
     /// Creates the entity for the occupant <paramref name="slot"/> now holds. A header outside the retail placements
-    /// (constructed cartridge data, or a labelled header no room places) has no species: it runs only the shared
-    /// participation, and any AI it names beyond the shared $804C long returns fails at dispatch.
+    /// (constructed test data, or a labelled header no room places) has no species: it runs only the shared
+    /// participation, and any AI it names beyond the shared no-op fails at dispatch.
     /// </summary>
     /// <param name="slot">The slot, already holding its new identity.</param>
     /// <exception cref="InvalidDataException">The slot holds a definition whose species AI is not ported.</exception>

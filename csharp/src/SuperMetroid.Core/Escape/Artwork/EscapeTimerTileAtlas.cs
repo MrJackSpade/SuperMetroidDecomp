@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Escape.Artwork;
 /// </summary>
 public class EscapeTimerTileAtlas
 {
-    /// <summary>The 25 timer characters in native four-bit planar DMA order.</summary>
+    /// <summary>The 25 timer characters in four-bit planar load order.</summary>
     private readonly byte[] characters;
 
     /// <summary>Retains the compiled timer characters.</summary>
@@ -22,7 +22,7 @@ public class EscapeTimerTileAtlas
     /// <summary>The 25 timer characters as owned sprite artwork, in transfer order: character 0 is OBJ character $1E0.</summary>
     public SpriteArtwork Artwork { get; }
 
-    /// <summary>Resolves one native page without combining or retiming its original transfer record.</summary>
+    /// <summary>Resolves one page without combining or retiming its original transfer record.</summary>
     public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset)
     {
         return asset switch
@@ -59,8 +59,8 @@ public class EscapeTimerTileAtlas
                 InstalledArtworkId.BeamChainsawTiles or
                 InstalledArtworkId.BeamSpacetimeTiles or
                 InstalledArtworkId.StandardObjectTiles or
-                InstalledArtworkId.HudTopRowTilemap => throw new InvalidDataException($"Escape timer artwork cannot resolve VRAM asset {asset}."),
-            _ => throw new InvalidDataException($"Escape timer artwork cannot resolve VRAM asset {asset}."),
+                InstalledArtworkId.HudTopRowTilemap => throw new InvalidDataException($"Escape timer artwork cannot resolve tile asset {asset}."),
+            _ => throw new InvalidDataException($"Escape timer artwork cannot resolve tile asset {asset}."),
         };
     }
 

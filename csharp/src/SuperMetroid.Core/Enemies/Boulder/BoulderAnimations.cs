@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>
-/// The Boulder's mirrored rolling loops as typed programs (#641), in place of their bank-$A6 lists. Generated from the verified native lists: each
+/// The Boulder's mirrored rolling loops as typed programs (#641). Each
 /// frame shows a <see cref="BoulderFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class BoulderAnimations

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 public static class TourianStatueAnimatedTiles
 {
-    /// <summary>The four boss-statue programs in cartridge header order.</summary>
+    /// <summary>The four boss-statue programs in authored header order.</summary>
     public static IEnumerable<TourianStatueAnimatedTileProgramDefinition> All
     {
         get

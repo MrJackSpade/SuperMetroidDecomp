@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyDropTables
 {
     /// <summary>
-    /// $86:F25E-F263, Random_Drop_Routine.drops: the drop the roll weighs at position <paramref name="column"/>.
+    /// The drop the roll weighs at position <paramref name="column"/>.
     /// The accumulator order and probability arithmetic remain in the caller.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="column"/> is outside the six positions.</exception>

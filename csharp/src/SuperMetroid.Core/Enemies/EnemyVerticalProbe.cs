@@ -5,7 +5,7 @@ internal readonly record struct EnemyVerticalProbe
 {
     /// <summary>
     /// The enemy's center after the move: its current column and the moved row, wrapping at sixteen bits as the
-    /// cartridge's position arithmetic does.
+    /// game's position arithmetic does.
     /// </summary>
     public required Position16<RoomPixels> TargetCenter { get; init; }
 

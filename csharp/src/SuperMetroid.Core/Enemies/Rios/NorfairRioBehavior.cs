@@ -41,7 +41,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Signed 8.8 vertical speed decrement applied during dive and return.</summary>
     private const int NorfairRioGravity = 32;
 
-    /// <summary>Ports <c>NorfairRio_Init</c> at $A2:C242.</summary>
+    /// <summary>Initializes the Norfair Rio.</summary>
     internal void InitializeNorfairRio(RoomEnemySlot slot)
     {
         var state = new NorfairRioEnemyState
@@ -67,7 +67,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports <c>NorfairRio_Main</c> and functions one through six at $A2:C277-$C40C.
+    /// Runs the Norfair Rio's main AI and functions one through six.
     /// Every parent and follower advances the shared enemy RNG before dispatch.
     /// </summary>
     private void RunNorfairRioMain(
@@ -173,8 +173,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case NorfairRioEnemyFunction.FinishLanding:
-                // Native function six is intentionally a one-frame state: it changes only
-                // the dispatch word. Looping list $C179 remains installed, which also keeps
+                // Function six is intentionally a one-frame state: it changes only
+                // the dispatch word. The looping idle animation remains installed, which also keeps
                 // the follower half visible while the actor waits for another random attack.
                 state.Function = NorfairRioEnemyFunction.WaitForAttackOpportunity;
                 return;
@@ -242,8 +242,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // gEnemySpawnData(child)[31] is another deliberate WRAM alias. For an immediately
-        // following child, +$7C0 reaches the parent's family-extra block: some_flag is the
+        // The follower's spawn-data read is another deliberate alias. For an immediately
+        // following child, it reaches the parent's family-extra block: one word is the
         // installed-list word and field_4 is its signed follower Y offset. The drawing-queue
         // offsets in the same routine alias the parent's live X/Y position words.
         NorfairRioProgram followerList = parentState.FollowerOffset.Y < 0

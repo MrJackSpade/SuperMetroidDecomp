@@ -3,12 +3,12 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
 /// The shared wall-crawler state used by Zoomer, Zeela, Sova, Viola, Sciser, Zero, and their variants. The attached
-/// velocity and behaviour are values the cartridge keeps in the enemy's common record, so a kill empties them with
-/// that record (<see cref="ClearWithRecord"/>); the fields after them model the native parallel WRAM tables.
+/// velocity and behaviour are values the game keeps in the enemy's common record, so a kill empties them with
+/// that record (<see cref="ClearWithRecord"/>); the fields after them model the crawler's parallel tables.
 /// </summary>
 public sealed class CrawlerEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<CrawlerProgram> Program { get; set; }
 
     /// <summary>
@@ -23,7 +23,7 @@ public sealed class CrawlerEnemyState
     /// </summary>
     public CrawlerEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record: no velocity and no behaviour.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record: no velocity and no behaviour.</summary>
     internal void ClearWithRecord()
     {
         Velocity = default;
@@ -67,11 +67,11 @@ public sealed class CrawlerEnemyState
         if (WordWrap.Signed(FallingYVelocity.WholeWord - 4) < 0)
             FallingYVelocity += SignedSixteenSixteen.FromRaw(SixteenSixteen.FromWhole(1) / 2);
     }
-    /// <summary>Attached bank-$A3 AI target saved when an earthquake or repeated outside turns start a fall; restored on terrain landing for either shared crawlers or orange Zoomer. Native $7E:7806,x.</summary>
+    /// <summary>Attached AI target saved when an earthquake or repeated outside turns start a fall; restored on terrain landing for either shared crawlers or orange Zoomer.</summary>
     public CrawlerEnemyFunction? NonFallingFunction { get; internal set; }
     /// <summary>
     /// Count of successive updates whose attachment probe misses the surface, 0 through 4 in play: contact and landing
-    /// reset it, and the fourth miss selects falling rather than another outside-corner turn. Native $7E:7808,x. The
+    /// reset it, and the fourth miss selects falling rather than another outside-corner turn. The
     /// setter accepts the whole word range so the turn routines' wrapped increment is preserved exactly.
     /// </summary>
     public int ConsecutiveTurnCounter

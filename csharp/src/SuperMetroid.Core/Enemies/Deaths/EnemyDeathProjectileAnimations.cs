@@ -6,7 +6,7 @@ using P = SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileProgram;
 namespace SuperMetroid.Core.Enemies.Deaths;
 
 /// <summary>
-/// The generic enemy-death explosions, the drops they become and the respawn tail (#641), in place of their bank-$86 lists. Generated from the verified native lists: each
+/// The generic enemy-death explosions, the drops they become and the respawn tail (#641). Each
 /// frame shows a <see cref="EnemyDeathProjectileFrame"/> pose and each command becomes a <see cref="EnemyDeathProjectileCue"/> with its typed operands.
 /// </summary>
 internal static class EnemyDeathProjectileAnimations
@@ -155,6 +155,6 @@ internal static class EnemyDeathProjectileAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue> FallInto(EnemyDeathProjectileProgram program) => AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue> Hold => AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue>.Hold;
 }

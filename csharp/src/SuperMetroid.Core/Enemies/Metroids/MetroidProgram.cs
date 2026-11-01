@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The Metroid's chasing and draining pulse loops as typed programs (#641), one per bank-$A3 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="MetroidAnimations"/>.
+/// The Metroid's chasing and draining pulse loops as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="MetroidAnimations"/>.
 /// </summary>
 internal enum MetroidProgram
 {
-    /// <summary><c>InstList_Metroid_ChasingSamus</c> at $A3:E9CF.</summary>
+    /// <summary>The chasing Samus animation.</summary>
     ChasingSamus,
-    /// <summary><c>InstList_Metroid_DrainingSamus</c> at $A3:EA25.</summary>
+    /// <summary>The draining Samus animation.</summary>
     DrainingSamus,
 }

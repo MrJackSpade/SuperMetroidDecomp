@@ -14,7 +14,7 @@ internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot s
     public EnemyMainAiHandler? FindMain() => WorkRobotPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         WorkRobotPart.Robot => species.RunWorkRobotMainAi,
-        // The unpowered robot's main is the native RTL at $A8:CC66.
+        // The unpowered robot's main does nothing.
         WorkRobotPart.RobotNoPower => EnemyNoOpAi.Main,
         _ => throw new InvalidOperationException($"WorkRobot entity bound to {Slot.DefinitionId}."),
     };
@@ -22,7 +22,7 @@ internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot s
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceWorkRobotTypedAnimation;
 
-    /// <summary>The powered robot ($E8FF) returns before common shot AI until Phantoon's area-boss bit is set.</summary>
+    /// <summary>The powered robot returns before common shot AI until Phantoon's area-boss bit is set.</summary>
     public bool AdmitsShots() =>
         Slot.DefinitionId != EnemyDefinitionId.Robot || species.IsAreaBossDefeated;
 

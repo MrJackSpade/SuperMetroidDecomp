@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
-/// <summary>What a cue of Oum's programs does: one per bank-$A2 instruction its lists use.</summary>
+/// <summary>What a cue of Oum's programs does: one per instruction its lists use.</summary>
 internal enum MaridiaLargeSnailCueKind
 {
-    /// <summary>Opens the window in which an attack may rotate the shell (<c>AllowAttackRotation</c>, $A2:CCBE).</summary>
+    /// <summary>Opens the window in which an attack may rotate the shell.</summary>
     AllowAttackRotation,
-    /// <summary>Closes the attack-rotation window (<c>DisallowAttackRotation</c>, $A2:CCC9).</summary>
+    /// <summary>Closes the attack-rotation window.</summary>
     DisallowAttackRotation,
-    /// <summary>Marks the attack animation finished for main AI (<c>SetAnimationFinished</c>, $A2:CCB3).</summary>
+    /// <summary>Marks the attack animation finished for main AI.</summary>
     FinishAttack,
-    /// <summary>Plays the splashed-out-of-water sound (<c>PlaySplashedOutOfWaterSound</c>, $A2:CB6B).</summary>
+    /// <summary>Plays the splashed-out-of-water sound.</summary>
     PlaySplash,
 }

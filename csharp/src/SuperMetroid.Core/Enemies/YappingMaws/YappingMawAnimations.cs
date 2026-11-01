@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.YappingMaws.YappingMawProgram;
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>
-/// The Yapping Maw's eight attack bites and six cooldown animations as typed programs (#641), in place of their bank-$A8 lists. Generated from the verified native lists: each
+/// The Yapping Maw's eight attack bites and six cooldown animations as typed programs (#641). Each
 /// frame shows a <see cref="YappingMawFrame"/> pose and each callback becomes a <see cref="YappingMawCue"/> with its typed operands.
 /// </summary>
 internal static class YappingMawAnimations

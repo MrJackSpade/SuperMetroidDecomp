@@ -10,6 +10,6 @@ public interface IRoomEnemyPopulationSource
     /// <summary>The room state's enemy graphics set, loaded only when the population is not empty.</summary>
     RoomEnemyGraphicsSetDefinition GraphicsSet { get; }
 
-    /// <summary>CGRAM the enemy palettes load into.</summary>
+    /// <summary>The palette the enemy palettes load into.</summary>
     GameplayColours Colours { get; }
 }

@@ -2,12 +2,12 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>
-/// Normal Ceres door paint at $A6:F4EE-F50B. Palette slots are one-based here.
+/// Normal Ceres door paint. Palette slots are one-based here.
 /// Shared hue channels and the three-shade gold ramp calculate; the twenty
 /// paint-channel seeds and selected hue/ramp policies specify categorical material paint.
 /// Slots1..8 paint visible bevels/light/shadow. Slots9..15 are separately preserved
-/// copied target paints, not claimed to be visible door pixels. The uniform native
-/// copy at $A6:F704-F726 supplies no rule for choosing different material colors.
+/// copied target paints, not claimed to be visible door pixels. The uniform
+/// copy supplies no rule for choosing different material colors.
 /// Supplied channel changes remain independent, including changes to shared seeds.
 /// </summary>
 internal sealed class CeresDoorNormalPaint

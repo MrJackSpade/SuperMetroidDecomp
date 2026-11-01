@@ -26,7 +26,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case BoyonCueKind.Return:
-                // `$A2:88C5` is an explicit RTL instruction with no effect; keeping it documents the idle-list seam.
+                // The return cue has no effect; keeping it documents the idle-list seam.
                 break;
             case BoyonCueKind.StartBounce:
                 StartBoyonBounce(state);
@@ -47,7 +47,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId BoyonBounceSound =
         EnemySoundEffectDefinitions.BoyonBounceSound;
 
-    /// <summary>Ports <c>InitAI_Boyon</c> at <c>$A2:871C</c>.</summary>
+    /// <summary>Initializes the Boyon.</summary>
     internal static void InitializeBoyon(RoomEnemySlot slot)
     {
         BoyonSpawnSettings settings = slot.SpawnSettings<BoyonSpawnSettings>();
@@ -60,9 +60,9 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
                 "eight multipliers or nine jump heights.");
         }
 
-        // Initialization writes the ordinary common-bank empty map before selecting the
+        // Initialization writes the ordinary empty frame before selecting the
         // idle list. RoomEnemySystem's load tail intentionally restores the same transient
-        // empty map; the first processed instruction frame installs real bank-$A2 art.
+        // empty map; the first processed instruction frame installs real art.
         slot.Frame = EnemyFrameId.Empty;
 
         var state = new BoyonEnemyState
@@ -83,13 +83,13 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetBoyonProgram(slot, state, BoyonProgram.Idle);
     }
 
-    /// <summary>Ports <c>MainAI_Boyon</c> at <c>$A2:879C</c>.</summary>
+    /// <summary>Runs the Boyon's main AI.</summary>
     internal static void RunBoyonMain(RoomEnemySlot slot, BoyonEnemyState state, SamusState? samus)
     {
         if (samus is null)
             throw new InvalidOperationException("Boyon proximity AI requires the active Samus actor.");
 
-        // The cartridge spends Boyon's first active AI frame deriving the curve index and
+        // The game spends Boyon's first active AI frame deriving the curve index and
         // returns without moving or testing proximity. Preserving that frame is important:
         // animation and main AI otherwise become one frame early immediately after a load.
         if (!state.BounceSpeedCalculated)
@@ -125,7 +125,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The native routine restores variable A from its mirror before indirect dispatch.
+        // The routine restores variable A from its mirror before indirect dispatch.
         // This looks redundant for retail data but is observable and prevents an animation
         // command or debugger edit during this frame from changing the current displacement.
         state.SpeedMultiplier = state.SpeedMultiplierMirror;
@@ -143,12 +143,12 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the one-time loop at <c>$A2:8755</c>.</summary>
+    /// <summary>Runs the one-time loop.</summary>
     private static void CalculateInitialBoyonBounceSpeed(BoyonEnemyState state)
     {
-        // Every iteration multiplies two low bytes through hardware registers $4202/$4203,
-        // adds the 16-bit product with wraparound, then compares via the 65C816 negative
-        // flag. The curve saturates at $FF once its 23 stored bytes are exhausted.
+        // Every iteration multiplies two low bytes,
+        // adds the 16-bit product with wraparound, then compares by the result's sign.
+        // The curve saturates at 255 once its 23 stored bytes are exhausted.
         for (int guard = 0; guard < ushort.MaxValue; guard++)
         {
             state.Speed = MultiplyBoyonCurveEntry(state);
@@ -165,16 +165,16 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         throw new InvalidDataException(
-            "Boyon initial bounce-speed calculation did not reach its ROM jump height.");
+            "Boyon initial bounce-speed calculation did not reach its authored jump height.");
     }
 
-    /// <summary>Ports falling movement at <c>$A2:8801</c>.</summary>
+    /// <summary>Runs falling movement.</summary>
     private static void MoveBoyonFalling(RoomEnemySlot slot, BoyonEnemyState state)
     {
         state.AdvanceSpeedTableIndex();
         state.Speed = MultiplyBoyonCurveEntry(state);
 
-        // XBA/AND #$00FF discards the product's fractional byte. Boyon has no Y subposition
+        // Taking the high byte discards the product's fractional byte. Boyon has no Y subposition
         // integration here: each frame moves by exactly the product's high byte.
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + (EightEight.WholeOf(state.Speed)));
         if (EnemyMath.IsNegative16(state.SpeedTableIndex - state.InitialBounceSpeedTableIndex))
@@ -185,7 +185,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Bouncing = false;
     }
 
-    /// <summary>Ports rising movement at <c>$A2:8850</c>.</summary>
+    /// <summary>Runs rising movement.</summary>
     private static void MoveBoyonRising(RoomEnemySlot slot, BoyonEnemyState state)
     {
         state.Speed = MultiplyBoyonCurveEntry(state);
@@ -195,8 +195,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Recreates the native 8×8 unsigned multiply for the current curve index. Values after
-    /// the stored table use the explicit saturated byte rather than reading adjacent ROM.
+    /// Recreates the 8×8 unsigned multiply for the current curve index. Values after
+    /// the stored table use the explicit saturated byte rather than reading past the table.
     /// </summary>
     internal static int MultiplyBoyonCurveEntry(BoyonEnemyState state) =>
         BoyonBounceCurve.Multiply(state.SpeedTableIndex, state.SpeedMultiplier);
@@ -220,7 +220,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Instruction <c>$A2:88C6</c>: permit the arc and request sound $0E.</summary>
+    /// <summary>The bounce cue: permit the arc and request sound 14.</summary>
     private void StartBoyonBounce(BoyonEnemyState state)
     {
         state.BounceDisabled = false;

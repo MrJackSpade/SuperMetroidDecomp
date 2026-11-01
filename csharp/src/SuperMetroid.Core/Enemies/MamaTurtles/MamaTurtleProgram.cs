@@ -1,35 +1,35 @@
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>
-/// The Mama Turtle's and baby turtles' crawl, spin, shell and sleep animations as typed programs (#641), one per bank-$A2 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="MamaTurtleAnimations"/>.
+/// The Mama Turtle's and baby turtles' crawl, spin, shell and sleep animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="MamaTurtleAnimations"/>.
 /// </summary>
 internal enum MamaTurtleProgram
 {
-    /// <summary><c>InstList_BabyTurtle_CrawlingLeft</c> at $A2:8B80.</summary>
+    /// <summary>The Baby crawling left animation.</summary>
     BabyCrawlingLeft,
-    /// <summary><c>InstList_BabyTurtle_Spinning</c> at $A2:8BD2.</summary>
+    /// <summary>The Baby spinning animation.</summary>
     BabySpinning,
-    /// <summary><c>InstList_MamaTurtle_Spinning</c> at $A2:8C02.</summary>
+    /// <summary>The mama spinning animation.</summary>
     MamaSpinning,
-    /// <summary><c>InstList_MamaTurtle_FacingLeft_EnterShell</c> at $A2:8C1C.</summary>
+    /// <summary>The mama enter shell left animation.</summary>
     MamaEnterShellLeft,
-    /// <summary><c>InstList_BabyTurtle_FacingLeft_Hiding</c> at $A2:8C30.</summary>
+    /// <summary>The Baby hiding left animation.</summary>
     BabyHidingLeft,
-    /// <summary><c>InstList_MamaTurtle_Asleep</c> at $A2:8C44.</summary>
+    /// <summary>The mama asleep animation.</summary>
     MamaAsleep,
-    /// <summary><c>InstList_MamaTurtle_FacingLeft_LeaveShell</c> at $A2:8C4A.</summary>
+    /// <summary>The mama leave shell left animation.</summary>
     MamaLeaveShellLeft,
-    /// <summary><c>InstList_BabyTurtle_FacingLeft_LeaveShell</c> at $A2:8C62.</summary>
+    /// <summary>The Baby leave shell left animation.</summary>
     BabyLeaveShellLeft,
-    /// <summary><c>InstList_BabyTurtle_CrawlingRight</c> at $A2:8C72.</summary>
+    /// <summary>The Baby crawling right animation.</summary>
     BabyCrawlingRight,
-    /// <summary><c>InstList_MamaTurtle_FacingRight_EnterShell</c> at $A2:8D00.</summary>
+    /// <summary>The mama enter shell right animation.</summary>
     MamaEnterShellRight,
-    /// <summary><c>InstList_BabyTurtle_FacingRight_Hiding</c> at $A2:8D14.</summary>
+    /// <summary>The Baby hiding right animation.</summary>
     BabyHidingRight,
-    /// <summary><c>InstList_MamaTurtle_FacingRight_LeaveShell</c> at $A2:8D28.</summary>
+    /// <summary>The mama leave shell right animation.</summary>
     MamaLeaveShellRight,
-    /// <summary><c>InstList_BabyTurtle_FacingRight_LeaveShell</c> at $A2:8D40.</summary>
+    /// <summary>The Baby leave shell right animation.</summary>
     BabyLeaveShellRight,
 }

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>
 /// The state of one Ripper, GRipper or Ripper II: its flying animation, its patrol velocity, its linear-speed record, and
-/// GRipper's two patrol bounds. The velocity and speed record are values the cartridge keeps in the enemy's common record,
+/// GRipper's two patrol bounds. The velocity and speed record are values the game keeps in the enemy's common record,
 /// so they are emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>); the animation and the
 /// bounds outlive the kill. All are the enemy's own: setup starts the animation for every variant and writes the bounds
 /// for the GRipper, the only variant that reads them, so nothing a previous occupant of the slot left reaches a new one.

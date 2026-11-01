@@ -1,21 +1,21 @@
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
-/// Shaktool's attack-circle programs (#641), one per bank-$86 list a spawn, branch or family routine enters, in authored order.
-/// Generated from the verified native lists; see <see cref="ShaktoolProjectileAnimations"/>.
+/// Shaktool's attack-circle programs (#641), one per animation a spawn, branch or family routine enters, in authored order.
+/// Their steps are <see cref="ShaktoolProjectileAnimations"/>.
 /// </summary>
 internal enum ShaktoolProjectileProgram
 {
-    /// <summary><c>InstList_EnemyProjectile_ShaktoolsAttack_FrontCircle_0</c> at $86:BD68.</summary>
+    /// <summary>The front animation.</summary>
     Front,
-    /// <summary>The loop at $86:BD70.</summary>
+    /// <summary>The loop.</summary>
     FrontLoop,
-    /// <summary><c>InstList_EnemyProjectile_ShaktoolsAttack_MiddleCircle_0</c> at $86:BD78.</summary>
+    /// <summary>The middle animation.</summary>
     Middle,
-    /// <summary>The loop at $86:BD84.</summary>
+    /// <summary>The loop.</summary>
     MiddleLoop,
-    /// <summary><c>InstList_EnemyProjectile_ShaktoolsAttack_BackCircle_0</c> at $86:BD8C.</summary>
+    /// <summary>The back animation.</summary>
     Back,
-    /// <summary>The loop at $86:BD94.</summary>
+    /// <summary>The loop.</summary>
     BackLoop,
 }

@@ -61,7 +61,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int EtecoonLongRunMaximumX = 832;
 
     /// <summary>Y speed for an ordinary Etecoon hop.</summary>
-    /// <remarks>These are the literal eight ROM words at $A7:E900-$E90F. Keeping them named beside their consumers
+    /// <remarks>These are the eight authored words. Keeping them named beside their consumers
     /// avoids replacing authored fixed-point values with host-side tuning.</remarks>
     private static readonly SignedSixteenSixteen EtecoonJumpYVelocity = SignedSixteenSixteen.FromParts(-3, 0);
     /// <summary>Y speed for the stronger long jump.</summary>
@@ -83,15 +83,15 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId EtecoonWallSound =
         EnemySoundEffectDefinitions.EtecoonWallSound;
 
-    /// <summary>Ports <c>Etecoon_Init</c> at <c>$A7:E912</c>.</summary>
+    /// <summary>Initializes the Etecoon.</summary>
     internal static void InitializeEtecoon(RoomEnemySlot slot)
     {
         var state = new EtecoonEnemyState();
         state.InstallSpawnSettings(slot.SpawnSettings<EtecoonSpawnSettings>());
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // Native ORs property $2000 (`DisableSamusColl`). The host scheduler also uses the
-        // same raw bit to admit the ROM instruction interpreter, so retain the authored
+        // The initializer sets the animation-script property. The host scheduler also uses the
+        // same bit to admit the authored animation script, so retain the authored
         // bit instead of inferring animation activity from the population record.
         slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         slot.Frame = EnemyFrameId.Empty;
@@ -189,14 +189,14 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the dormant/wake loop at <c>$A7:E9AF</c>.</summary>
+    /// <summary>Runs the dormant/wake loop.</summary>
     private void RunEtecoonWaiting(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
         SamusState samus)
     {
-        // Destination OAM construction runs AI while door-transition audio is disabled.
-        // Preserve the initial wake edge and the countdown until the native pause clears.
+        // Destination sprite drawing runs AI while door-transition audio is disabled.
+        // Preserve the initial wake edge and the countdown until the pause clears.
         if (_elevatorBehavior.ElevatorDoorTransitionActive)
             return;
         if (!state.FunctionTimer.IsNegative)
@@ -560,14 +560,14 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
-        // Four teaching hops are counted. Native then clears only the count, keeping the
+        // Four teaching hops are counted. Then clears only the count, keeping the
         // heading used by the airborne states. The count wraps at 256 and is compared by the
-        // sign of its difference from four, as the cartridge compares it.
+        // sign of its difference from four, as the game compares it.
         state.TeachingHops = WordWrap.LowByte(state.TeachingHops + 1);
         bool fewerThanFourTeachingJumps = WordWrap.Signed(state.TeachingHops * 256 - 1024) < 0;
         if (!fewerThanFourTeachingJumps)
         {
-            // `$A7:EDFD` clears the completed counter before testing route two.
+            // The route counter is cleared once complete before testing route two.
             // Route two therefore loops in groups of four rather than overflowing forever.
             state.TeachingHops = 0;
         }
@@ -703,7 +703,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetEtecoonHorizontalVelocity(EtecoonEnemyState state, SignedSixteenSixteen speed) =>
         state.Velocity = state.Velocity.WithX(speed);
 
-    /// <summary>Uses native post-decrement semantics, treating a one-to-zero or signed underflow as expiry.</summary>
+    /// <summary>Uses post-decrement semantics, treating a one-to-zero or signed underflow as expiry.</summary>
     private static bool DecrementEtecoonTimerAndTestExpired(EtecoonEnemyState state)
     {
         CountdownStep step = state.FunctionTimer.Decrement();

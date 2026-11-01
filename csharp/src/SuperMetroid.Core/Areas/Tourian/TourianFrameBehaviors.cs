@@ -5,12 +5,12 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <summary>Tourian's PLM pre-instructions: the Metroids-cleared observers and the old escape-shaft wall's wait.</summary>
 internal static class TourianFrameBehaviors
 {
-    /// <summary>Entries in the Metroids-cleared argument table <c>$84:DB28-$DB40</c>.</summary>
+    /// <summary>Entries in the Metroids-cleared argument table.</summary>
     private const int MetroidsClearedEntryCount = 13;
 
     /// <summary>
-    /// <c>$84:B927</c>: the old escape-shaft fake wall wakes once Samus is below and right of its target. A list installs
-    /// it through <c>$84:86C1</c>.
+    /// The old escape-shaft fake wall wakes once Samus is below and right of its target. A list installs
+    /// it through its wake cue.
     /// </summary>
     internal static PlmFrameBehavior OldTourianEscapeShaftWallWaitForSamus { get; } = new(
         "old Tourian escape-shaft wall wait",
@@ -31,7 +31,7 @@ internal static class TourianFrameBehaviors
         }),
     ];
 
-    /// <summary>The routine setup <c>$84:DB1E</c> selects for table <paramref name="entry"/>.</summary>
+    /// <summary>The frame behaviour the Metroids-cleared setup selects for table <paramref name="entry"/>.</summary>
     /// <exception cref="InvalidDataException">The entry is outside the table.</exception>
     internal static PlmFrameBehavior MetroidsClearedFor(int entry)
     {

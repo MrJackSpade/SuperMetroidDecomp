@@ -19,7 +19,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MochtroidEntity(this, slot, common);
 
-    /// <summary>Resolves axis movement against terrain in the native order for each flight mode.</summary>
+    /// <summary>Resolves axis movement against terrain in the order for each flight mode.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>Queues an individual drain sound for each qualifying attached actor.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -44,10 +44,10 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Signed 16.16 speed of one pixel per attached-flight axis step.</summary>
     private const int MochtroidAttachedVelocity = 1 << 16;
 
-    /// <summary>Ports <c>InitAI_Mochtroid</c> at $A3:A77D.</summary>
+    /// <summary>Initializes the Mochtroid.</summary>
     internal static void InitializeMochtroid(RoomEnemySlot slot)
     {
-        // Native room WRAM clearing initializes both parallel words to zero. Installing the
+        // Room clearing initializes both parallel words to zero. Installing the
         // first nonzero list is important: the original's equality shortcut is also the
         // source of its documented respawning-Mochtroid crash when stale extension RAM is
         // retained. Ordinary room loads start clean and therefore take the safe path.
@@ -90,7 +90,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mochtroid movement {selectedMode} exceeds its three-entry ROM table.");
+                    $"Mochtroid movement {selectedMode} is not one of its three movements.");
         }
     }
 
@@ -101,7 +101,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        // The cartridge treats each coordinate difference as signed, divides it by four,
+        // The game treats each coordinate difference as signed, divides it by four,
         // shifts that result left eight fractional bits, and subtracts it from velocity.
         // This is a proportional attraction toward Samus—not a fixed-speed seek—and the
         // accumulated fraction is observable before either whole component reaches ±3.
@@ -113,7 +113,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             StoreMochtroidYVelocity(state, 0);
 
         // Y is intentionally resolved first. Horizontal collision therefore sees the
-        // vertically adjusted position, matching $A3:A80D followed by $A3:A87C.
+        // vertically adjusted position, matching the game's vertical then horizontal collision.
         int xDifference = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole);
         int xVelocity = unchecked(state.Velocity.X.RawValue - EightEight.FromWhole(xDifference >> 2));
         xVelocity = ClampMochtroidVelocity(xVelocity);
@@ -208,7 +208,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Every overlapping actor invokes the queue routine independently. Using the
             // legacy one-value family field here collapsed a room full of attached actors
-            // into one request and erased the cartridge's sound-backlog processing delay.
+            // into one request and erased the game's sound-backlog processing delay.
             if ((_frameContext.RandomEnemyCounter & 7) == 7 && samus.Health >= 30)
                 _audio.QueueEnemySound(Library3Sound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
@@ -224,10 +224,10 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None)
         {
-            // Common touch would publish 96/5 here, but $A3:A99E clears both words before
+            // Common touch would publish 96/5 here, but the Mochtroid's touch clears both words before
             // Samus's movement phase can consume them. Apply only the suit-divided health
             // change; starting the host knockback state and trying to undo its pose would
-            // introduce side effects the cartridge never reaches.
+            // introduce side effects the game never reaches.
             int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
                 ? WordWrap.Unsigned(slot.Definition.Damage >> 2)
                 : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)

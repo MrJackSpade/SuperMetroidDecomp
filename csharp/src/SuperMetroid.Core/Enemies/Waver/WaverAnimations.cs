@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Waver.WaverProgram;
 namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>
-/// Waver's steady and spinning animations as typed programs (#641), in place of their bank-$A3 lists. Generated from the verified native lists: each
+/// Waver's steady and spinning animations as typed programs (#641). Each
 /// frame shows a <see cref="WaverFrame"/> pose and each callback becomes a <see cref="WaverCue"/> with its typed operands.
 /// </summary>
 internal static class WaverAnimations
@@ -50,7 +50,7 @@ internal static class WaverAnimations
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationProgramStep<WaverProgram, WaverFrame, WaverCue> Cue(WaverCue cue) => AnimationProgramStep<WaverProgram, WaverFrame, WaverCue>.Publish(cue);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<WaverProgram, WaverFrame, WaverCue> Hold => AnimationProgramStep<WaverProgram, WaverFrame, WaverCue>.Hold;
 
 }

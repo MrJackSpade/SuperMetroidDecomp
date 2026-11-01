@@ -1,73 +1,73 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The ninja Space Pirates' stance, kick, claw, spin-jump and divekick animations as typed programs (#641), one per bank-$B2 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="NinjaSpacePirateAnimations"/>.
+/// The ninja Space Pirates' stance, kick, claw, spin-jump and divekick animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="NinjaSpacePirateAnimations"/>.
 /// </summary>
 internal enum NinjaSpacePirateProgram
 {
-    /// <summary><c>InstList_PirateNinja_ProjectileClawAttack_Left</c> at $B2:F15C.</summary>
+    /// <summary>The claw attack left animation.</summary>
     ClawAttackLeft,
-    /// <summary><c>InstList_PirateNinja_SpinJumpLeft_0</c> at $B2:F1C4.</summary>
+    /// <summary>The spin jump left animation.</summary>
     SpinJumpLeft,
-    /// <summary>The loop at $B2:F206.</summary>
+    /// <summary>The loop.</summary>
     SpinJumpLeftLoop,
-    /// <summary><c>InstList_PirateNinja_Active_FacingLeft_0</c> at $B2:F22E.</summary>
+    /// <summary>The active facing left animation.</summary>
     ActiveFacingLeft,
-    /// <summary>The loop at $B2:F232.</summary>
+    /// <summary>The loop.</summary>
     ActiveFacingLeftLoop,
-    /// <summary><c>InstList_PirateNinja_Flinch_FacingLeft</c> at $B2:F270.</summary>
+    /// <summary>The flinch facing left animation.</summary>
     FlinchFacingLeft,
-    /// <summary><c>InstList_PirateNinja_DivekickLeft_Jump_0</c> at $B2:F27C.</summary>
+    /// <summary>The divekick left jump animation.</summary>
     DivekickLeftJump,
-    /// <summary>The loop at $B2:F28A.</summary>
+    /// <summary>The loop.</summary>
     DivekickLeftJumpLoop,
-    /// <summary><c>InstList_PirateNinja_DivekickLeft_Divekick</c> at $B2:F2A0.</summary>
+    /// <summary>The divekick left dive animation.</summary>
     DivekickLeftDive,
-    /// <summary><c>InstList_PirateNinja_DivekickLeft_WalkToLeftPost_0</c> at $B2:F2B2.</summary>
+    /// <summary>The walk to left post animation.</summary>
     WalkToLeftPost,
-    /// <summary>The loop at $B2:F2B6.</summary>
+    /// <summary>The loop.</summary>
     WalkToLeftPostLoop,
-    /// <summary><c>InstList_PirateNinja_Initial_FacingLeft_0</c> at $B2:F2DA.</summary>
+    /// <summary>The initial facing left animation.</summary>
     InitialFacingLeft,
-    /// <summary>The loop at $B2:F2DE.</summary>
+    /// <summary>The loop.</summary>
     InitialFacingLeftLoop,
-    /// <summary><c>InstList_PirateNinja_Land_FacingLeft_0</c> at $B2:F2F8.</summary>
+    /// <summary>The land facing left animation.</summary>
     LandFacingLeft,
-    /// <summary>The loop at $B2:F314.</summary>
+    /// <summary>The loop.</summary>
     LandFacingLeftLoop,
-    /// <summary><c>InstList_PirateNinja_StandingKick_FacingLeft</c> at $B2:F32E.</summary>
+    /// <summary>The kick facing left animation.</summary>
     KickFacingLeft,
-    /// <summary><c>InstList_PirateNinja_ProjectileClawAttack_Right</c> at $B2:F34A.</summary>
+    /// <summary>The claw attack right animation.</summary>
     ClawAttackRight,
-    /// <summary><c>InstList_PirateNinja_SpinJumpRight_0</c> at $B2:F3B2.</summary>
+    /// <summary>The spin jump right animation.</summary>
     SpinJumpRight,
-    /// <summary>The loop at $B2:F3F4.</summary>
+    /// <summary>The loop.</summary>
     SpinJumpRightLoop,
-    /// <summary><c>InstList_PirateNinja_Active_FacingRight_0</c> at $B2:F420.</summary>
+    /// <summary>The active facing right animation.</summary>
     ActiveFacingRight,
-    /// <summary>The loop at $B2:F424.</summary>
+    /// <summary>The loop.</summary>
     ActiveFacingRightLoop,
-    /// <summary><c>InstList_PirateNinja_Flinch_FacingRight</c> at $B2:F462.</summary>
+    /// <summary>The flinch facing right animation.</summary>
     FlinchFacingRight,
-    /// <summary><c>InstList_PirateNinja_DivekickRight_Jump_0</c> at $B2:F46E.</summary>
+    /// <summary>The divekick right jump animation.</summary>
     DivekickRightJump,
-    /// <summary>The loop at $B2:F47C.</summary>
+    /// <summary>The loop.</summary>
     DivekickRightJumpLoop,
-    /// <summary><c>InstList_PirateNinja_DivekickRight_Divekick</c> at $B2:F492.</summary>
+    /// <summary>The divekick right dive animation.</summary>
     DivekickRightDive,
-    /// <summary><c>InstList_PirateNinja_DivekickRight_WalkToRightPost_0</c> at $B2:F4A4.</summary>
+    /// <summary>The walk to right post animation.</summary>
     WalkToRightPost,
-    /// <summary>The loop at $B2:F4A8.</summary>
+    /// <summary>The loop.</summary>
     WalkToRightPostLoop,
-    /// <summary><c>InstList_PirateNinja_Initial_FacingRight_0</c> at $B2:F4CC.</summary>
+    /// <summary>The initial facing right animation.</summary>
     InitialFacingRight,
-    /// <summary>The loop at $B2:F4D0.</summary>
+    /// <summary>The loop.</summary>
     InitialFacingRightLoop,
-    /// <summary><c>InstList_PirateNinja_Land_FacingRight_0</c> at $B2:F4EA.</summary>
+    /// <summary>The land facing right animation.</summary>
     LandFacingRight,
-    /// <summary>The loop at $B2:F506.</summary>
+    /// <summary>The loop.</summary>
     LandFacingRightLoop,
-    /// <summary><c>InstList_PirateNinja_StandingKick_FacingRight</c> at $B2:F51A.</summary>
+    /// <summary>The kick facing right animation.</summary>
     KickFacingRight,
 }

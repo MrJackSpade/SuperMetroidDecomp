@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The colliding projectile's or Samus's edges as <c>$A0:9A5A/$9B7F</c> compare them, whether the walker selects the shot
+/// The colliding projectile's or Samus's edges as the extended-frame walkers compare them, whether the walker selects the shot
 /// (strict) or touch (inclusive) reaction (#633), and whether the room has installed enemy artwork. The corners are room
 /// pixels whose sixteen-bit wrap is part of the comparison: the walker's signed differences are taken between wrapped
 /// edges.
@@ -15,8 +15,8 @@ internal readonly record struct EnemyHitboxProbe(
     Position16<RoomPixels> TopLeft, Position16<RoomPixels> BottomRight, bool SelectsShot, bool ArtworkInstalled)
 {
     /// <summary>
-    /// The shared literal `$A0:9A5A/$9B7F` rectangle test. The shot and touch walkers have different strict/inclusive
-    /// boundaries in the cartridge.
+    /// The shared literal extended-frame rectangle test. The shot and touch walkers have different strict/inclusive
+    /// boundaries in the game.
     /// </summary>
     internal bool Overlaps(int left, int top, int right, int bottom) =>
         SelectsShot

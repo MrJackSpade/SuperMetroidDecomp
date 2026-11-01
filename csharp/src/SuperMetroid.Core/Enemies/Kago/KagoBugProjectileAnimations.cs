@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Kago.KagoBugProjectileProgram;
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>
-/// The Kago bugs' landing, falling, jumping and shot programs (#641), in place of their bank-$86 lists. Generated from the verified native lists: each
+/// The Kago bugs' landing, falling, jumping and shot programs (#641). Each
 /// frame shows a <see cref="KagoBugProjectileFrame"/> pose and each command becomes a <see cref="KagoBugProjectileCue"/> with its typed operands.
 /// </summary>
 internal static class KagoBugProjectileAnimations
@@ -68,6 +68,6 @@ internal static class KagoBugProjectileAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> FallInto(KagoBugProjectileProgram program) => AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> Hold => AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue>.Hold;
 }

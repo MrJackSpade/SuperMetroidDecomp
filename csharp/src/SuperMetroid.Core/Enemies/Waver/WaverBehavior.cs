@@ -39,12 +39,12 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Native horizontal speed of one and a half pixels per update in signed 16.16 form.</summary>
+    /// <summary>Horizontal speed of one and a half pixels per update in signed 16.16 form.</summary>
     private const int WaverHorizontalSpeedFixed = 98304;
     /// <summary>Four-pixel amplitude used by Waver's negative-sine vertical motion.</summary>
     private const int WaverVerticalRadius = 4;
 
-    /// <summary>Ports <c>InitAI_Waver</c> at <c>$A3:86ED</c>.</summary>
+    /// <summary>Initializes the Waver.</summary>
     internal static void InitializeWaver(RoomEnemySlot slot)
     {
         HorizontalDirection facing = slot.SpawnSettings<WaverSpawnSettings>().Facing;
@@ -67,7 +67,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         SetWaverProgram(slot, state);
     }
 
-    /// <summary>Ports <c>MainAI_Waver</c> at <c>$A3:874C</c>.</summary>
+    /// <summary>Runs the Waver's main AI.</summary>
     private void RunWaverMain(
         RoomEnemySlot slot,
         WaverEnemyState state,
@@ -82,9 +82,9 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot,
                 horizontalDisplacement))
         {
-            // `$A3:875F-$8781` negates the overlapping velocity bytes and writes them back
+            // The wall reversal negates the overlapping velocity bytes and writes them back
             // as two words. For every initialized Waver this is exactly a signed 16.16
-            // negation; expressing that value directly preserves the native ±1.5 px/frame.
+            // negation; expressing that value directly preserves the game's ±1.5 px/frame.
             state.XVelocity = SignedSixteenSixteen.FromRaw(unchecked(-horizontalDisplacement));
             // A wall turns Waver around and ends any spin.
             state.RequestedAnimation = WaverPrograms.TurnedAround(state.RequestedAnimation);

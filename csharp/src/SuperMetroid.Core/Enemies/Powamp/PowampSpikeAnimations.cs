@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
-/// The Powamp spike's programs (#641), in place of their bank-$86 lists. Generated from the verified native lists: each
+/// The Powamp spike's programs (#641). Each
 /// frame shows a <see cref="PowampSpikeFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class PowampSpikeAnimations
@@ -38,6 +38,6 @@ internal static class PowampSpikeAnimations
     /// <summary>Continues at <paramref name="program"/>.</summary>
     private static AnimationProgramStep<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue> GoTo(PowampSpikeProgram program) => AnimationProgramStep<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue>.GoTo(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue>.Hold;
 }

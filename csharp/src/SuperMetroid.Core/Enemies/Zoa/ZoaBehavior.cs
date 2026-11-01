@@ -13,7 +13,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ZoaEntity(slot, common);
 
-    /// <summary>Advances Zoa's typed animation (#641) where the interpreter would run its native list.</summary>
+    /// <summary>Advances Zoa's typed animation (#641) where the interpreter would run its list.</summary>
     internal static void AdvanceZoaAnimation(RoomEnemySlot slot)
     {
         if (!EnemyProgramAnimation.Expire(slot))
@@ -45,7 +45,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>NTSC upward travel of half a pixel per gameplay frame.</summary>
     private const int ZoaRisingSubpixelSpeed = 32768;
 
-    /// <summary>Ports <c>InitAI_Zoa</c> at $A3:B44A, saving the population coordinate and hiding the idle actor.</summary>
+    /// <summary>Initializes the Zoa, saving the population coordinate and hiding the idle actor.</summary>
     internal static void InitializeZoa(RoomEnemySlot slot)
     {
         var state = new ZoaEnemyState
@@ -105,7 +105,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // Odd indexes are rising lists: one faces left and three faces right. The sign test
-        // uses the same wrapped Samus-minus-enemy word as the common bank-$A0 helper.
+        // uses the same wrapped Samus-minus-enemy word as the common helper.
         state.AnimationScriptTableIndex = ZoaAnimationSelector.Rising |
             (CoordinateAxis.AsSigned(signedDistance) < 0
                 ? ZoaAnimationSelector.None
@@ -124,7 +124,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole) < 0)
         {
             // NTSC subtracts exactly 0.5 px/frame. The PAL regional constant is 0.625;
-            // this project targets the user's Japan/USA retail ROM and reads NTSC data.
+            // this project targets the Japan/USA retail release and reads NTSC data.
             slot.Position = slot.Position.AdvanceY(SignedSixteenSixteen.FromRaw(-ZoaRisingSubpixelSpeed));
             return;
         }
@@ -156,7 +156,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Once its center leaves the inclusive 256x256 camera square, Zoa teleports to the
         // saved population coordinate and becomes invisible until the next proximity wake.
-        // `$A3:B51E-$B527` stores only the whole words: the subpixel fractions left by the
+        // The return stores only the whole words: the subpixel fractions left by the
         // rise and the shot carry into the next flight.
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         slot.Position = slot.Position.WithWhole(state.SpawnPosition);

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Escape;
 
-/// <summary>Byte-oriented $A6:C2A7 text interpreter; each accepted call writes at most one glyph.</summary>
+/// <summary>Byte-oriented escape-warning text interpreter; each accepted call writes at most one glyph.</summary>
 public sealed class EscapeTypewriterState
 {
     /// <summary>Rebound host text excluded from serialized interpreter state.</summary>
@@ -14,7 +14,7 @@ public sealed class EscapeTypewriterState
     public EscapeTypewriterState(EscapeTypewriterProgramId programId) => ProgramId = programId;
 
     /// <summary>Creates a warning-text state with its host program bound and its saved identity initialized from that program.</summary>
-    /// <param name="program">Installed Ceres or Zebes warning lines and their native source identity.</param>
+    /// <param name="program">Installed Ceres or Zebes warning lines and their source identity.</param>
     /// <exception cref="ArgumentNullException"><paramref name="program"/> is null.</exception>
     public EscapeTypewriterState(EscapeTypewriterProgram program)
     {
@@ -38,7 +38,7 @@ public sealed class EscapeTypewriterState
     public bool Completed { get; private set; }
     /// <summary>One-call sound request raised after every second non-space glyph, cleared at the start of every <see cref="Step"/>; the caller selects the Ceres or Zebes click sound.</summary>
     public bool ClickRequested { get; private set; }
-    /// <summary>Saved Ceres or Zebes program identity used to validate content rebinding; initially None for the native-address-only constructor.</summary>
+    /// <summary>Saved Ceres or Zebes program identity used to validate content rebinding; the program the state was created for.</summary>
     public EscapeTypewriterProgramId ProgramId { get; private set; }
     /// <summary>Zero-based installed line cursor; advances past exhausted lines on an eligible call and reaches the line count when interpretation completes.</summary>
     public int ProgramLineIndex { get; private set; }

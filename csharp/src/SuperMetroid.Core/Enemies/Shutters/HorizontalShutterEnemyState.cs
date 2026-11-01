@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
-/// <summary>The state of the cartridge's complete, though retail-unused, horizontal shutter. The values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).</summary>
+/// <summary>The state of the game's complete, though retail-unused, horizontal shutter. The values the game keeps in the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).</summary>
 public sealed class HorizontalShutterEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
 
     /// <summary>
@@ -63,7 +63,7 @@ public sealed class HorizontalShutterEnemyState
     /// </summary>
     public ShutterHeading ReactionDirection { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

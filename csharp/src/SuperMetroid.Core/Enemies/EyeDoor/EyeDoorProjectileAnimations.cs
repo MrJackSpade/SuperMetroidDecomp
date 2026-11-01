@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>
-/// The eye door projectile's flight, impact and shot programs (#641), in place of their bank-$86 lists. Generated from the verified native lists: each
+/// The eye door projectile's flight, impact and shot programs (#641). Each
 /// frame shows a <see cref="EyeDoorProjectileFrame"/> pose and each command becomes a <see cref="EyeDoorProjectileCue"/> with its typed operands.
 /// </summary>
 internal static class EyeDoorProjectileAnimations
@@ -62,6 +62,6 @@ internal static class EyeDoorProjectileAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue> FallInto(EyeDoorProjectileProgram program) => AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue> Hold => AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue>.Hold;
 }

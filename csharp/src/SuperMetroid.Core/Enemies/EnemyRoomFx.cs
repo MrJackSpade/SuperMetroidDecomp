@@ -18,7 +18,7 @@ internal sealed class EnemyRoomFx
 
     /// <summary>Applies a liquid target, packed velocity, and delay at an AI command boundary so the FX timer is not reset each frame.</summary>
     internal void PublishLiquidMotion(int target, int velocity, int delay) =>
-        // Execute at the native AI command, not from retained state each frame:
+        // Execute at the AI command, not from retained state each frame:
         // repeated application would continually reset the liquid handler's delay.
         Layer3Fx?.SetLiquidMotion(targetYPosition: target, packedYVelocity: velocity, timer: delay);
 }

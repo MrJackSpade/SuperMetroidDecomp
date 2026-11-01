@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
-/// The Ki-Hunter's acid-spit programs (#641), in place of their bank-$86 lists. Generated from the verified native lists: each
+/// The Ki-Hunter's acid-spit programs (#641). Each
 /// frame shows a <see cref="KiHunterAcidSpitFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class KiHunterAcidSpitAnimations
@@ -58,6 +58,6 @@ internal static class KiHunterAcidSpitAnimations
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationProgramStep<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => AnimationProgramStep<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue>.Publish(cue);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue>.Hold;
 }

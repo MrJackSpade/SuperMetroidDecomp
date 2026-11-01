@@ -33,7 +33,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly RoomSpriteObjectPool _spriteObjects;
     /// <summary>Supplies the current frame's Samus and room context to registered AI.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Creates native death animations and randomized item drops.</summary>
+    /// <summary>Creates death animations and randomized item drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
     /// <summary>Binds Metroid AI to the room, body layers, audio, frame context, and death owner.</summary>
@@ -58,7 +58,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             case MetroidCueKind.PlayRandomCry:
                 // GenerateRandomNumber advances exactly once and the low three result bits choose one of the eight
-                // cartridge-defined idle cries.
+                // authored idle cries.
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metroid, MetroidReactions.RandomCrySoundEffect(_room.Random.Generate()), priority: SoundRequestPriority.Normal);
                 break;
             default:
@@ -67,19 +67,19 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Native freeze lifetime once Ice damage exhausts the Metroid's threshold.</summary>
+    /// <summary>Freeze lifetime once Ice damage exhausts the Metroid's threshold.</summary>
     private const int MetroidFrozenDuration = 400;
     /// <summary>Frames for the attached Metroid's Power Bomb escape function.</summary>
     private const int MetroidEscapeDuration = 4;
     /// <summary>Whole-pixel limit applied to each axis of Metroid homing velocity.</summary>
     private const int MetroidMaximumVelocity = 3;
-    /// <summary>Native number of independently randomized drops after a frozen Metroid dies.</summary>
+    /// <summary>Number of independently randomized drops after a frozen Metroid dies.</summary>
     private const int MetroidSpecialDropCount = 5;
 
     /// <summary>Drop publications generated after a frozen Metroid's death animation begins.</summary>
     internal readonly List<MetroidDropRequest> MetroidDropRequests = new();
 
-    /// <summary>Ports <c>Metroid_Init</c> at <c>$A3:EA4F</c>.</summary>
+    /// <summary>Initializes the Metroid.</summary>
     internal void InitializeMetroid(RoomEnemySlot slot)
     {
         SpriteGraphics graphics = slot.Graphics;
@@ -130,10 +130,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Metroid movement {state.Function} exceeds its four-entry ROM table.");
+                    $"Metroid movement {state.Function} is not one of its four movements.");
         }
 
-        // The ordinary body supplies the central map. Both outer bank-$B4 objects are
+        // The ordinary body supplies the central map. Both outer objects are
         // repositioned and re-enabled every non-frozen main call, exactly after movement.
         PositionMetroidOuterBody(state.OuterBodyA, slot, slot.Graphics);
         PositionMetroidOuterBody(state.OuterBodyB, slot, slot.Graphics);
@@ -240,7 +240,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         FreezeMetroidOuterBody(state.OuterBodyB, MetroidOuterBodyDefinitions.OuterBodyBFrozenProgram);
     }
 
-    /// <summary>Ports the palette-bit modulation in custom hurt AI <c>$A3:EB33</c>.</summary>
+    /// <summary>Applies the palette-bit modulation of the Metroid's custom hurt AI.</summary>
     internal static void ApplyMetroidHurt(RoomEnemySlot slot)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
@@ -264,7 +264,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (state.Function != MetroidAiFunction.AttachedToSamus)
             {
-                // Native overlapping byte writes produce delta/4 in signed 16.16 form.
+                // Overlapping byte writes produce delta/4 in signed 16.16 form.
                 StoreMetroidXVelocity(
                     state,
                     CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) << 14);
@@ -315,7 +315,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Health = samus.Health == 0 ? 0 : samus.Health - 1;
     }
 
-    /// <summary>Handles non-frozen recoil/ice accumulation after bank-$A0 accepts a shot.</summary>
+    /// <summary>Handles non-frozen recoil/ice accumulation after accepts a shot.</summary>
     internal void ResolveMetroidNonFrozenShot(
         RoomEnemySlot slot,
         SamusProjectileType collisionProjectileType,
@@ -327,9 +327,9 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusProjectileFamily family = collisionProjectileType.Family;
         if (state.Function == MetroidAiFunction.AttachedToSamus)
         {
-            // The bomb collision pass presents the exploding power bomb as family $0500;
-            // family $0300 is its earlier expansion/controller record and is not the value
-            // tested by Metroid_Shot at $A3:EF38.
+            // The bomb collision pass presents the exploding power bomb as family 0x0500;
+            // family 0x0300 is its earlier expansion/controller record and is not the value
+            // tested by Metroid_Shot.
             if (family == SamusProjectileFamily.Bomb)
                 DetachMetroidWithPowerBomb(slot, state, samus);
             return;
@@ -387,7 +387,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// <c>MetroidDeathItemDropRoutine</c> ($A0:B968) around the origin $A3:EF31/EF38
+    /// Spawns the Metroid's death drops around the origin
     /// recorded before <c>EnemyDeath</c> cleared the slot.
     /// </summary>
     internal void RequestMetroidDrops(Position16<RoomPixels> origin)
@@ -433,7 +433,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         outerBody.Graphics = MetroidOuterBodyDefinitions.FrozenGraphics;
         outerBody.UpdatesDisabled = true;
-        // Native drawing reads the selected record even while animation is disabled.
+        // Drawing reads the selected record even while animation is disabled.
         // Show the frozen program's first frame without resetting the retained timer.
         RoomSpriteObjectPool.ShowFirstFrameKeepingTimer(outerBody, frozenProgram);
     }
@@ -448,7 +448,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Routes bomb-family collisions through Metroid's attachment and recoil rules.</summary>
     internal void AddMetroidBombReactions(EnemySharedReactions table)
     {
-        // Metroid shot AI ignores bombs while frozen, detaches an attached body for family $0500, or applies its
+        // Metroid shot AI ignores bombs while frozen, detaches an attached body for family 0x0500, or applies its
         // peculiar slot-zero recoil otherwise.
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.Metroid &&
                                   EnemyCollision.ShotAi(c.Enemy) == EnemyReaction.MetroidShot,
@@ -500,13 +500,13 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (c.Family is not SamusProjectileFamily.Missile and not SamusProjectileFamily.SuperMissile)
             {
-                // Frozen Metroid rejects every beam and bomb family. Bank-$A0 has already accepted the overlap, so
+                // Frozen Metroid rejects every beam and bomb family. has already accepted the overlap, so
                 // non-plasma shots retain only the collision mark and never enter normal damage AI.
                 c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
                 return true;
             }
 
-            // Like the ordinary path, the bank-$A0 walker only marks the direction word. $A0:A184 does not reject a
+            // Like the ordinary path, the walker only marks the direction word. The damage path does not reject a
             // projectile an earlier enemy marked this pass: a Super Missile that just hit a Rinka still reaches
             // EnemyShot_Metroid.
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
@@ -524,8 +524,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             if (enemy.Health == 0)
             {
-                // $A3:EF31 records the drop origin, EnemyDeath ($A3:EF4B) spawns the explosion, and only then
-                // $A3:EF74 spawns the five drops.
+                // The death records the drop origin, EnemyDeath spawns the explosion, and only then
+                // the five drops spawn.
                 Position16<RoomPixels> dropOrigin = enemy.Position.Whole;
                 FinishMetroidDeath(enemy, c.Samus);
                 _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.Big);
@@ -552,7 +552,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Registers hurt AI ahead of frozen AI when both native handler bits are set; animation bytecode still advances.</summary>
+    /// <summary>Registers hurt AI ahead of frozen AI when both handler bits are set; animation bytecode still advances.</summary>
     internal static void AddMetroidHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.Metroid, (slot, _) => ApplyMetroidHurt(slot));
 

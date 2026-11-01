@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>
-/// Alcoon's fireball program (#641), one per bank-$86 list a spawn, branch or family routine enters, in authored order.
-/// Generated from the verified native lists; see <see cref="AlcoonFireballAnimations"/>.
+/// Alcoon's fireball program (#641), one per animation a spawn, branch or family routine enters, in authored order.
+/// Their steps are <see cref="AlcoonFireballAnimations"/>.
 /// </summary>
 internal enum AlcoonFireballProgram
 {
-    /// <summary><c>InstList_EnemyProjectile_AlcoonFireball</c> at $86:9E9E.</summary>
+    /// <summary>The initial animation.</summary>
     Initial,
 }

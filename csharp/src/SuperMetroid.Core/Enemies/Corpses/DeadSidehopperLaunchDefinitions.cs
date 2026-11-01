@@ -5,7 +5,7 @@ public static class DeadSidehopperLaunchDefinitions
 {
     /// <summary>
     /// Post-landing launch velocities indexed by the modulo-four jump phase: X words from
-    /// $A9:D959 and Y words from $A9:D951.
+    /// the authored X and Y tables.
     /// </summary>
     private static readonly EightEightVector<RoomPixels>[] Launches =
     [

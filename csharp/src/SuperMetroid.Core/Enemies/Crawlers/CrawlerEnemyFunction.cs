@@ -2,22 +2,22 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
 /// The routine a creepy-crawly enemy's main AI runs each frame.
-/// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
+/// Its values are arbitrary.
 /// </summary>
 public enum CrawlerEnemyFunction
 {
-    /// <summary>$A3:E08A: return-only initial orange-Zoomer state, awaiting the animation command that installs a horizontal or vertical crawling function.</summary>
+    /// <summary>Return-only initial orange-Zoomer state, awaiting the animation command that installs a horizontal or vertical crawling function.</summary>
     HZoomerInstructionPending = 1,
-    /// <summary>$A3:E091, <c>Function_HZoomer_CrawlingVertically</c>: maintains wall contact and traverses vertical edges, reversing its tangent toward Samus while attached.</summary>
+    /// <summary>Maintains wall contact and traverses vertical edges, reversing its tangent toward Samus while attached.</summary>
     HZoomerCrawlingVertically,
-    /// <summary>$A3:E168, <c>Function_HZoomer_CrawlingHorizontally</c>: maintains floor or ceiling contact and traverses edges, reversing its horizontal tangent toward Samus while attached.</summary>
+    /// <summary>Maintains floor or ceiling contact and traverses edges, reversing its horizontal tangent toward Samus while attached.</summary>
     HZoomerCrawlingHorizontally,
-    /// <summary>$A3:E6C1: return-only shared-crawler initial state, awaiting the surface animation's command to install the crawling function.</summary>
+    /// <summary>Return-only shared-crawler initial state, awaiting the surface animation's command to install the crawling function.</summary>
     InstructionPending,
-    /// <summary>$A3:E6C8: shared wall-crawling routine that probes horizontal attachment, advances vertically, and rotates the surface animation at inside or outside corners.</summary>
+    /// <summary>Shared wall-crawling routine that probes horizontal attachment, advances vertically, and rotates the surface animation at inside or outside corners.</summary>
     CrawlingVertically,
-    /// <summary>$A3:E785: shared detachment fall with half-pixel downward acceleration until the whole velocity reaches four pixels per update; landing clears fall motion and restores the saved attached function.</summary>
+    /// <summary>Shared detachment fall with half-pixel downward acceleration until the whole velocity reaches four pixels per update; landing clears fall motion and restores the saved attached function.</summary>
     Falling,
-    /// <summary>$A3:E7F2: shared floor/ceiling-crawling routine that probes vertical attachment, advances horizontally with slope adjustment, and rotates the surface animation at corners.</summary>
+    /// <summary>Shared floor/ceiling-crawling routine that probes vertical attachment, advances horizontally with slope adjustment, and rotates the surface animation at corners.</summary>
     CrawlingHorizontally,
 }

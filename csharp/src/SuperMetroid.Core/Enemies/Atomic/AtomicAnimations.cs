@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Atomic;
 
 /// <summary>
-/// Atomic's four spinning animations as typed programs (#641), in place of their bank-$A8 lists. Generated from the verified native lists: each
+/// Atomic's four spinning animations as typed programs (#641). Each
 /// frame shows a <see cref="AtomicFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class AtomicAnimations

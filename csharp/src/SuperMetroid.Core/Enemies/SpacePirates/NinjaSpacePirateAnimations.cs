@@ -6,7 +6,7 @@ using P = SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateProgram;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The ninja Space Pirates' stance, kick, claw, spin-jump and divekick animations as typed programs (#641), in place of their bank-$B2 lists. Generated from the verified native lists: each
+/// The ninja Space Pirates' stance, kick, claw, spin-jump and divekick animations as typed programs (#641). Each
 /// frame shows a <see cref="NinjaSpacePirateFrame"/> pose and each callback becomes a <see cref="NinjaSpacePirateCue"/> with its typed operands.
 /// </summary>
 internal static class NinjaSpacePirateAnimations
@@ -359,7 +359,7 @@ internal static class NinjaSpacePirateAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<NinjaSpacePirateProgram, NinjaSpacePirateFrame, NinjaSpacePirateCue> FallInto(NinjaSpacePirateProgram program) => AnimationProgramStep<NinjaSpacePirateProgram, NinjaSpacePirateFrame, NinjaSpacePirateCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<NinjaSpacePirateProgram, NinjaSpacePirateFrame, NinjaSpacePirateCue> Hold => AnimationProgramStep<NinjaSpacePirateProgram, NinjaSpacePirateFrame, NinjaSpacePirateCue>.Hold;
 
 }

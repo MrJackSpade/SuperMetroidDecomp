@@ -1,21 +1,21 @@
 namespace SuperMetroid.Core.Enemies.Skultera;
 
 /// <summary>
-/// Skultera's swimming and turning animations as typed programs (#641), one per bank-$A3 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="SkulteraAnimations"/>.
+/// Skultera's swimming and turning animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="SkulteraAnimations"/>.
 /// </summary>
 internal enum SkulteraProgram
 {
-    /// <summary>The native list at $A3:902A.</summary>
+    /// <summary>The swimming left animation.</summary>
     SwimmingLeft,
-    /// <summary>The loop at $A3:902C.</summary>
+    /// <summary>The loop.</summary>
     SwimmingLeftLoop,
-    /// <summary>The native list at $A3:903C.</summary>
+    /// <summary>The turning right animation.</summary>
     TurningRight,
-    /// <summary>The native list at $A3:9060.</summary>
+    /// <summary>The swimming right animation.</summary>
     SwimmingRight,
-    /// <summary>The loop at $A3:9062.</summary>
+    /// <summary>The loop.</summary>
     SwimmingRightLoop,
-    /// <summary>The native list at $A3:9072.</summary>
+    /// <summary>The turning left animation.</summary>
     TurningLeft,
 }

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 /// </summary>
 internal static class TourianStatuePaint
 {
-    /// <summary>Calculates one native palette word from the selected statue paint domain and color index.</summary>
+    /// <summary>Calculates one palette word from the selected statue paint domain and color index.</summary>
     internal static RgbColor Color(TourianStatuePaintBand band, int index) => band switch
     {
         TourianStatuePaintBand.Base => Base(index),
@@ -23,9 +23,9 @@ internal static class TourianStatuePaint
         _ => throw new ArgumentOutOfRangeException(nameof(band)),
     };
 
-    /// <summary>Interpolates an eight-bit stone channel and keeps its high five bits for CGRAM.</summary>
+    /// <summary>Interpolates an eight-bit stone channel and keeps its high five bits for the palette.</summary>
     private static int GreyChannel(int first, int last, int step) => (first * (6 - step) + last * step) / (6 * 8);
-    /// <summary>Packs selected five-bit channel levels into a CGRAM color.</summary>
+    /// <summary>Packs selected five-bit channel levels into a palette color.</summary>
     private static RgbColor Pack(int r, int g, int b) => new RgbColor(r, g, b);
     /// <summary>Interpolates a channel with nearest-integer rounding.</summary>
     private static int Nearest(int first, int last, int step, int count) =>

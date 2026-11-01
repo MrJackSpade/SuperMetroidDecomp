@@ -7,8 +7,8 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The enemy instruction interpreter: common bank-$A0 instructions, owner-private instruction dispatch,
-/// visual selectors and mechanics words, instruction VRAM transfers, and the body frames bosses draw on their body layer.
+/// The enemy instruction interpreter: common instructions, owner-private instruction dispatch,
+/// visual selectors and mechanics words, animation tile transfers, and the body frames bosses draw on their body layer.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyInstructionInterpreter
@@ -49,7 +49,7 @@ internal sealed class EnemyInstructionInterpreter
 
     /// <summary>
     /// Advances one enemy's typed animation (#641). Every enemy that processes instructions runs a typed program; one
-    /// without is a missing conversion and fails here rather than reading cartridge instruction lists.
+    /// without is a missing conversion and fails here.
     /// </summary>
     internal static void RunsAnimationScript(
         RoomEnemySlot slot,

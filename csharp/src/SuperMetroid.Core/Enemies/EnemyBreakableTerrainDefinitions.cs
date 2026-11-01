@@ -3,8 +3,8 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Native enemy/spike collision dispatch, <c>EnemyBlockCollisionReaction_Spike.PLMs</c> at <c>$A0:C2DA-$A0:C2F9</c>:
-/// the cartridge masks bit seven, treats entries zero through fourteen as solid, and spawns
+/// Enemy/spike collision dispatch, the spike-block reaction's PLM table:
+/// the game masks bit seven, treats entries zero through fourteen as solid, and spawns
 /// <see cref="PlmHeaderId.EnemyBreakableBlock"/> for entry fifteen.
 /// </summary>
 public static class EnemyBreakableTerrainDefinitions

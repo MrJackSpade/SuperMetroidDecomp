@@ -5,14 +5,14 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Enemy movement against room terrain (bank $A0 movers): horizontal and vertical steps with square and
+/// Enemy movement against room terrain: horizontal and vertical steps with square and
 /// non-square slopes, solid-ahead probes, and the spike/enemy-breakable block reaction that spawns its PLM
 /// through the active room PLM owner supplied for each enemy frame.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyTerrain
 {
-    /// <summary>Ports <c>MoveEnemyRightBy_14_12_IgnoreSlopes</c> at $A0:C6AB.</summary>
+    /// <summary>Moves the enemy horizontally, ignoring non-square slopes.</summary>
     internal bool MoveEnemyHorizontallyIgnoringNonSquareSlopes(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -24,9 +24,9 @@ internal sealed class EnemyTerrain
             slopes: NonSquareSlopes.Ignored);
 
     /// <summary>
-    /// Ports <c>MoveEnemyRightBy_14_12_TreatSlopesAsWalls</c> at $A0:C69D. Square slopes
-    /// retain their native half-tile geometry; only non-square slopes consume direct-page
-    /// flag $4000 and become solid walls.
+    /// Moves the enemy horizontally, treating non-square slopes as walls. Square slopes
+    /// retain their half-tile geometry; only non-square slopes consume direct-page
+    /// flag 0x4000 and become solid walls.
     /// </summary>
     internal bool MoveEnemyHorizontallyTreatingSlopesAsWalls(
         RoomLevelData level,
@@ -39,7 +39,7 @@ internal sealed class EnemyTerrain
             slopes: NonSquareSlopes.Walls);
 
     /// <summary>
-    /// Shared body of the three native horizontal enemy movers. The remaining $8000
+    /// Shared body of the three horizontal enemy movers. The remaining
     /// process-slopes mode will reuse this seam when its first retail caller is translated.
     /// </summary>
     private bool MoveEnemyHorizontally(
@@ -62,7 +62,7 @@ internal sealed class EnemyTerrain
         int topPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
         int bottomPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
         int spanMinusOne = CoordinateAxis.Wrap(bottomPixel - RoomGridConversions.BlockStart(topPixel)) >> 4;
-        // $A0:C6E2-$C716: the 8-bit multiplier forms (top row & $FF) * width, the target
+        // The 8-bit multiplier forms (top row & $FF) * width, the target
         // column is added unbounded, and each scanned row adds the width again.
         int firstIndex = WordWrap.LowByte(topPixel >> 4) * level.Size.X + (targetEdge >> 4);
         bool collided = false;
@@ -89,7 +89,7 @@ internal sealed class EnemyTerrain
             return false;
         }
 
-        // $A0:C755/C76D compare against the pre-move position before accepting the aligned
+        // Both directions compare against the pre-move position before accepting the aligned
         // center. That prevents a large corrupt displacement from snapping through a wall.
         if (movingLeft)
         {
@@ -108,7 +108,7 @@ internal sealed class EnemyTerrain
         return true;
     }
 
-    /// <summary>Ports <c>MoveEnemyDownBy_14_12</c> at $A0:C786.</summary>
+    /// <summary>Moves the enemy vertically.</summary>
     internal bool MoveEnemyVertically(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -128,8 +128,8 @@ internal sealed class EnemyTerrain
         int leftPixel = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X);
         int rightPixel = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);
         int spanMinusOne = CoordinateAxis.Wrap(rightPixel - RoomGridConversions.BlockStart(leftPixel)) >> 4;
-        // $A0:C7D0-$C7F0: (target row & $FF) * width plus the left column, then each
-        // scanned column steps to the next native block index.
+        // (target row & $FF) * width plus the left column, then each
+        // scanned column steps to the next block index.
         int firstIndex = WordWrap.LowByte(targetEdge >> 4) * level.Size.X + (leftPixel >> 4);
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
@@ -149,7 +149,7 @@ internal sealed class EnemyTerrain
         }
 
         // A non-square slope reactor may already have placed the center more precisely.
-        // The native outer helper performs this conditional coarse alignment afterward.
+        // The outer helper performs this conditional coarse alignment afterward.
         if (movingUp)
         {
             int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(targetEdge) + slot.Radius.Y + 1);
@@ -168,7 +168,7 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>
-    /// Ports the downward, geometry-only portion of $A0:BF8A used by Skree/Metaree. Unlike the common
+    /// Implements the downward, geometry-only attachment probe used by Skree/Metaree. Unlike the common
     /// collision dispatcher, this routine deliberately tests only whether each block stops attachment.
     /// </summary>
     internal static bool EnemyMeetsAttachmentBlockBelow(
@@ -195,7 +195,7 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>
-    /// Ports <c>EnemyFunc_BBBF</c> at $A0:BBBF. Unlike the ordinary horizontal collision
+    /// Tests the attachment block horizontally ahead. Unlike the ordinary horizontal collision
     /// mover, this look-ahead probe deliberately considers only whether each block stops attachment
     /// and does not resolve extension links or slope geometry.
     /// </summary>
@@ -229,7 +229,7 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>
-    /// Ports $A0:BC76's read-only vertical attachment probe. It does not move the
+    /// Implements the read-only vertical attachment probe. It does not move the
     /// actor or apply slope or extension behavior; Yard hiding and Stoke support checks
     /// use it to test attachment without consuming their look-ahead distance.
     /// </summary>
@@ -336,15 +336,15 @@ internal sealed class EnemyTerrain
 
     /// <summary>
     /// The movers index <c>LevelData,X</c> with a 16-bit byte offset, so the block index
-    /// wraps at $8000 blocks.
+    /// wraps at 32,768 blocks.
     /// </summary>
     private static int EnemyMoverBlockIndex(int index) => WordWrap.Unsigned(index << 1) >> 1;
 
     /// <summary>
-    /// Reads a block for the bank-$A0 movers, which never bound the index to the authored
+    /// Reads a block for the movers, which never bound the index to the authored
     /// room: past the room plane they read the blocks beyond the room (see
     /// <see cref="RoomLevelData.GetBlockBeyondRoom"/>). Extension links are followed
-    /// as the native reaction dispatcher repeats them.
+    /// as the reaction dispatcher repeats them.
     /// </summary>
     private static RoomCollisionBlock ResolveEnemyMoverBlock(RoomLevelData level, int startBlock)
     {
@@ -399,7 +399,7 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>
-    /// Resolves signed extension links exactly as the native dispatcher repeats them.
+    /// Resolves signed extension links exactly as the dispatcher repeats them.
     /// A guard converts corrupt cyclic room data into a useful exception instead of a host
     /// stack overflow; valid chains always terminate well before the room allocation size.
     /// </summary>
@@ -532,13 +532,13 @@ internal sealed class EnemyTerrain
         return true;
     }
 
-    /// <summary>Ports <c>AlignEnemyYPositionWIthNonSquareSlope</c> at $A0:C8AD.</summary>
+    /// <summary>Aligns the enemy's Y position with a non-square slope.</summary>
     internal static void AlignEnemyYWithNonSquareSlope(RoomLevelData level, RoomEnemySlot slot) =>
         AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, slot);
 
     /// <summary>
     /// Runs the same two probes as <see cref="AlignEnemyYWithNonSquareSlope"/> while retaining
-    /// the carry result returned by native $A0:C8AD. Yard is the first translated caller that
+    /// the carry result the slope alignment returns. Yard is the first translated caller that
     /// consumes that carry to suppress corner-transition animation after a slope adjustment.
     /// </summary>
     internal static bool AlignEnemyYWithNonSquareSlopeAndReportAdjustment(
@@ -611,7 +611,7 @@ internal sealed class EnemyTerrain
         if (!EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior)) return true;
         var plms = _collisionPlms ?? throw new InvalidOperationException("Enemy-breakable terrain requires the active room PLM owner.");
         plms.TrySpawnEnemyBreakableBlock(level, blockIndex);
-        return false; // $A0:C2D6 clears carry even if the PLM pool was full.
+        return false; // The block reaction reports no collision even if the PLM pool was full.
     }
 
     /// <summary>Supplies the active room PLM owner to <see cref="EnemyTerrain"/> for one enemy frame.</summary>

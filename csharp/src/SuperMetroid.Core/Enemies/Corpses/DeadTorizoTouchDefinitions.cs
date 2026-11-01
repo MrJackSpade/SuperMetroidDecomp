@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>The dead Torizo's asymmetric touch rectangles, which a contact against its corpse checks in native order.</summary>
+/// <summary>The dead Torizo's asymmetric touch rectangles, which a contact against its corpse checks in order.</summary>
 internal static class DeadTorizoTouchDefinitions
 {
-    /// <summary>Dead Torizo's seven asymmetric touch rectangles at $A9:D77C..D7B5.</summary>
+    /// <summary>Dead Torizo's seven asymmetric touch rectangles.</summary>
     private static readonly EnemyHitboxRectangle[] TouchHitboxRecords =
     [
         new(Left: -31, Top: 37, Right: -11, Bottom: 43),
@@ -15,6 +15,6 @@ internal static class DeadTorizoTouchDefinitions
         new(Left: 17, Top: -31, Right: 40, Bottom: -7),
     ];
 
-    /// <summary>Dead Torizo's seven asymmetric corpse touch rectangles in native order.</summary>
+    /// <summary>Dead Torizo's seven asymmetric corpse touch rectangles in order.</summary>
     internal static ReadOnlySpan<EnemyHitboxRectangle> TouchHitboxes => TouchHitboxRecords;
 }

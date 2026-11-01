@@ -58,7 +58,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Frames between successive shared body and balloon horizontal wiggle offsets.</summary>
     private const int PowampWiggleFramesPerOffset = 5;
 
-    /// <summary>Ports <c>InitAI_Powamp</c> at $A8:C1C9.</summary>
+    /// <summary>Initializes the Powamp.</summary>
     internal void InitializePowamp(RoomEnemySlot slot)
     {
         var state = new PowampEnemyState
@@ -166,7 +166,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (TickPowampTimer(state))
         {
             state.Function = PowampEnemyFunction.InflatedRiseToTargetHeight;
-            // Exactly half a pixel per frame upward on the NTSC cartridge.
+            // Exactly half a pixel per frame upward on NTSC.
             state.YVelocity = SignedSixteenSixteen.FromRaw(-SixteenSixteen.FromWhole(1) / 2);
             SetPowampProgram(body, state, PowampProgram.BodyFast);
         }
@@ -253,7 +253,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            // Native finish-wiggle ignores collision carry; terrain clips the displacement
+            // Finish-wiggle ignores collision carry; terrain clips the displacement
             // but does not select another function until the horizontal wiggle is centered.
             _terrain.MoveEnemyVertically(level, body, ComposePowampVerticalDisplacement(state));
         }
@@ -317,7 +317,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         (bool sinking, int shownPoses) = PowampBalloonPhase(balloon.State.Program);
         if (sinking && shownPoses != 1)
         {
-            // The native pointer table is indexed by the byte offset left in Y, twice the poses shown less one. Two
+            // The pointer table is indexed by the byte offset left in Y, twice the poses shown less one. Two
             // shown poses select inflate stage one and three restart stage zero; one pose (entry zero) is skipped.
             PowampProgram replacement = shownPoses - 2 is int entry && (uint)entry < (uint)PowampDeathBalloonPrograms.Length
                 ? PowampDeathBalloonPrograms[entry]
@@ -342,7 +342,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // `$A8:C5A6-$C5B5`: the balloon is deleted, the spikes fire, and the body goes
+        // The balloon is deleted, the spikes fire, and the body goes
         // through EnemyDeath with whatever the spike loop left in A as its animation.
         balloon.Slot.Health = 0;
         balloon.Slot.Properties = balloon.Slot.Properties.With(EnemyProperties.Deleted);
@@ -419,7 +419,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.WiggleIndex >= PowampMotionDefinitions.WigglePhaseCount)
         {
             throw new InvalidDataException(
-                $"Powamp wiggle index {state.WiggleIndex} exceeds the 12-word ROM table.");
+                $"Powamp wiggle index {state.WiggleIndex} exceeds the twelve authored wiggle offsets.");
         }
 
         int x = CoordinateAxis.Wrap(
@@ -446,8 +446,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Whether the balloon is in its sink sequence and how many of that sequence's poses it has shown. The native
-    /// instruction pointer the AI reads is the sequence's first list plus four bytes per shown pose; the deflated and
+    /// Whether the balloon is in its sink sequence and how many of that sequence's poses it has shown. The
+    /// animation position the AI reads is the sequence's first animation plus one step per shown pose; the deflated and
     /// second inflate lists continue those sequences.
     /// </summary>
     internal static PowampBalloonState PowampBalloonPhase(AnimationProgramCursor<PowampProgram> cursor) => cursor.Program switch
@@ -469,7 +469,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPowampProgram(balloon.Slot, balloon.State, PowampProgram.BalloonStartSinking);
     }
 
-    /// <summary>Decrements the native timer, treating zero and signed underflow as elapsed.</summary>
+    /// <summary>Decrements the timer, treating zero and signed underflow as elapsed.</summary>
     private static bool TickPowampTimer(PowampEnemyState state)
     {
         state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
@@ -519,7 +519,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Connects radial spikes to their bank-$86 movement pre-instruction.</summary>
+    /// <summary>Connects radial spikes to their movement pre-instruction.</summary>
     internal static void AddPowampProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>
@@ -574,7 +574,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddPowampTouch(EnemySharedReactions table)
     {
         // Only the body before fatal shot damage accepts contact. Balloons are normally absent from the
-        // interactive list because population property $0400 excludes them, but retain the handler's literal guard.
+        // interactive list because their intangibility property excludes them, but retain the handler's literal guard.
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Powamp &&
                                EnemyCollision.TouchAi(slot) == EnemyReaction.PowampTouch,
             context =>
@@ -583,25 +583,25 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                     ResolvePowampTouch(context.Slot, context.Samus);
             });
     }
-    /// <summary>Ports <c>FirePowampSpikesIn8Directions</c> at $A8:C223.</summary>
+    /// <summary>Fires the Powamp's spikes in eight directions.</summary>
     /// <returns>
     /// The death animation <c>FirePowampSpikesIn8Directions</c> leaves selected for EnemyDeath: the last spike's
-    /// native projectile index, or, when the pool was full, <see cref="FullPoolDeathAnimation"/>.
+    /// projectile index, or, when the pool was full, <see cref="FullPoolDeathAnimation"/>.
     /// </returns>
     internal int SpawnPowampSpikeBurst(RoomEnemySlot body)
     {
         int graphics = FullPoolDeathAnimation(body);
         int accumulator = 0;
-        // Native Y counts from seven down to zero. Allocation independently searches the
-        // eighteen-slot bank-$86 pool from native index $22 downward on every iteration.
+        // The spike loop counts from seven down to zero. Allocation independently searches the
+        // eighteen-slot pool from the last slot downward on every iteration.
         for (int direction = 7; direction >= 0; direction--)
         {
             RoomEnemyProjectileSlot? spike = _projectiles.AllocateEnemyProjectile();
             if (spike is null)
                 return graphics;
 
-            // SpawnEnemyProjectileY_ParameterA_XGraphics copies definition $D298 before
-            // initializer $D23A zeros velocities and captures the owner position. Reading
+            // Spawning copies the spike's definition before
+            // its initializer zeros velocities and captures the owner position. Reading
             // the record through the shared helper preserves its list, map sentinel, radii,
             // damage, and all property bits instead of maintaining a second hand copy here.
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
@@ -617,7 +617,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The death animation a Powamp dies with when its spike burst found the projectile pool full. The cartridge leaves
+    /// The death animation a Powamp dies with when its spike burst found the projectile pool full. The game leaves
     /// the body's graphics, read as one number, as the animation, and EnemyDeath treats any number past its animations
     /// as the default animation 0. That number names an animation only for a body whose colours are the common colours,
     /// held where the palette bits read as zero, so it is the body's tile base; any other colours put it past every animation.
@@ -625,7 +625,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private int FullPoolDeathAnimation(RoomEnemySlot body) =>
         _presentation.Placement.SharesColours(body.Colouring, SharedSpriteColouring.Common) ? body.TileIndexBase : 0;
 
-    /// <summary>Ports <c>FrameBehavior_EnemyProjectile_PowampSpike</c> at $86:D263.</summary>
+    /// <summary>Runs the Powamp spike's per-frame behaviour.</summary>
     internal static void RunPowampSpikeFrameBehavior(
         RoomEnemyProjectileSlot spike,
         RoomLevelData level)

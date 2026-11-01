@@ -31,7 +31,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case SkulteraCueKind.DrawAboveScenery:
                 // The right-facing swim promotes the fish above foreground scenery only after its first
-                // instruction tick, exactly like the ROM.
+                // animation tick, exactly like the game.
                 slot.Layer = 6;
                 break;
             case SkulteraCueKind.DrawBelowScenery:
@@ -50,7 +50,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
 
-    /// <summary>Ports <c>InitAI_Skultera</c> at <c>$A3:90B5</c>.</summary>
+    /// <summary>Initializes the Skultera.</summary>
     internal static void InitializeSkultera(RoomEnemySlot slot)
     {
         var state = new SkulteraEnemyState();
@@ -86,7 +86,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             Ensure.BetweenInclusive(0, ushort.MaxValue, state.Radius));
     }
 
-    /// <summary>Ports <c>MainAI_Skultera</c> at <c>$A3:912B</c>.</summary>
+    /// <summary>Runs the Skultera's main AI.</summary>
     private void RunSkulteraMain(
         RoomEnemySlot slot,
         SkulteraEnemyState state,
@@ -115,7 +115,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the mirrored swimming functions at <c>$A3:9132/$91AB</c>.</summary>
+    /// <summary>Runs the mirrored swimming functions.</summary>
     private void SwimSkultera(
         RoomEnemySlot slot,
         SkulteraEnemyState state,
@@ -131,7 +131,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
                 horizontalDisplacement))
         {
             BeginSkulteraTurn(slot, state, currentlyMovingLeft: direction == HorizontalDirection.Left);
-            // Horizontal collision jumps directly to the native merge label. Consequently
+            // Horizontal collision jumps directly to the merge label. Consequently
             // CurrentYOffset remains the preceding frame's word and is copied below again.
             state.PreviousYOffset = state.CurrentYOffset;
             return;
@@ -173,7 +173,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             : SkulteraProgram.TurningLeft);
     }
 
-    /// <summary>Ports the mirrored turn completion functions at <c>$A3:9224/$9256</c>.</summary>
+    /// <summary>Runs the mirrored turn completion functions.</summary>
     private static void FinishSkulteraTurn(
         RoomEnemySlot slot,
         SkulteraEnemyState state,

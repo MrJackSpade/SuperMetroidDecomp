@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// </summary>
 public enum CacatacDirection
 {
-    /// <summary>Population and native direction word zero: leftward patrol, restored by animation instruction $A2:A095 after an attack.</summary>
+    /// <summary>Population and direction word zero: leftward patrol, restored by the restore-patrol animation cue after an attack.</summary>
     Left = 0,
-    /// <summary>Population and native direction word one: rightward patrol; the restore instruction also treats the separate initial-stop selector two as rightward.</summary>
+    /// <summary>Population and direction word one: rightward patrol; the restore instruction also treats the separate initial-stop selector two as rightward.</summary>
     Right = 1,
     /// <summary>Population selector two: an initial stop. The word stays two until an attack; the restore instruction then treats it as rightward.</summary>
     InitialStop = 2,

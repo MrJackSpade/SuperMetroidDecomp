@@ -28,7 +28,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new GunshipEntity(this, slot, common);
 
-    /// <summary>Queues engine and entrance-pad sounds at the native frame boundaries.</summary>
+    /// <summary>Queues engine and entrance-pad sounds at the frame boundaries.</summary>
     private readonly EnemyAudioQueue _audio;
     /// <summary>Creates gunship dust during takeoff.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -64,7 +64,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>
     /// Supplies the choice normally returned by message box $1C after restoration. SRAM
     /// persistence remains an outer-runtime seam; the actor publishes a Yes choice while
-    /// continuing the cartridge's identical exit animation for either answer.
+    /// continuing the game's identical exit animation for either answer.
     /// </summary>
     /// <param name="save">True to request outer-runtime persistence, or false to resume the exit animation without requesting a save.</param>
     /// <exception cref="InvalidOperationException">The system is not loaded or no gunship save prompt is awaiting a response.</exception>
@@ -129,7 +129,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             SamusState samus = _samusAtEnemyInitialization
                 ?? throw new InvalidOperationException(
                     "Post-Ceres gunship initialization requires the loader's Samus actor.");
-            // `$A2:A669-$A678` attaches the top hull seventeen pixels above Samus and
+            // Post-Ceres initialization attaches the top hull seventeen pixels above Samus and
             // enters function three, the high-altitude descent used only after Ceres.
             slot.Position = slot.Position.WithWrappedWholeY(samus.Position.Y.Whole - 17);
             part.Function = GunshipFunction.DescendAfterCeres;
@@ -157,9 +157,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             ? GunshipProgram.BottomEntrancePad
             : GunshipProgram.BottomHull);
 
-        // $A2:A6F1 reads enemy_drawing_queue[(cur_enemy_index >> 1) + 106].
-        // For the two Landing Site bottom slots those WRAM addresses alias the preceding
-        // slot's +$20 vram_tiles_index word. Express the alias semantically, but retain the
+        // The bottom hull reads its draw-order entry from the enemy drawing queue by slot.
+        // For the two Landing Site bottom slots that entry is the preceding
+        // slot's tile-index word. Express the alias semantically, but retain the
         // dependency on physical slot order.
         if (slot.SlotIndex == 0)
             throw new InvalidDataException("Gunship bottom cannot occupy enemy slot zero.");
@@ -203,7 +203,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
         RoomEnemySlot bottom = _slotTable.Slots[top.SlotIndex + 1];
 
-        // $A2:A75C decrements the solid bottom's engine-sound timer and reloads 70 on
+        // The solid bottom decrements its engine-sound timer and reloads 70 on
         // one/underflow. The engine sound is requested before the reload, exactly as it is in
         // GunshipTop_Main; this periodic producer continues while the ship is idling/bobbing.
         CountdownStep bottomTimer = Part(bottom).EngineSoundTimer.Decrement();
@@ -305,16 +305,16 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Carries Samus and all ship parts downward, slowing below Y=$0300 before the landing clamp.</summary>
+    /// <summary>Carries Samus and all ship parts downward, slowing below Y=768 before the landing clamp.</summary>
     private void DescendPostCeresGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
             throw new InvalidOperationException("Post-Ceres gunship descent lost Samus.");
 
-        // Function three carries all four actors as a rigid body. Above Y=$0300 it moves
-        // $4.8000 pixels per call; below that threshold it slows to $2.8000 and clamps the
-        // top hull to $045F before beginning the cartridge's seventeen-entry bounce table.
-        // The clamp ($A2:A8B2) writes only whole positions; subpixels keep this call's sum.
+        // Function three carries all four actors as a rigid body. Above Y=768 it moves
+        // 4.5 pixels per call; below that threshold it slows to 2.5 and clamps the
+        // top hull to 1119 before beginning the game's seventeen-entry bounce table.
+        // The clamp writes only whole positions; subpixels keep this call's sum.
         uint delta = top.Position.Y.Whole < GunshipMotionDefinitions.SlowDescentY ? GunshipMotionDefinitions.FastDescentSpeed : GunshipMotionDefinitions.SlowDescentSpeed;
         AddGunshipYFixed(samus, top, delta);
         if (top.Position.Y.Whole < GunshipMotionDefinitions.LandedTopY)
@@ -397,8 +397,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
     /// <summary>
     /// Whether the landed ship bobs before running <paramref name="function"/>: every function from waiting for the
-    /// landing entrance through loading the liftoff dust. The cartridge tests its function word against the range of
-    /// those routines' addresses ($A942-$AC1A, which also contains Idle); firing up the engines is the first routine past it.
+    /// landing entrance through loading the liftoff dust. The game tests its function word against the range of
+    /// those routines (a range which also contains Idle); firing up the engines is the first routine past it.
     /// </summary>
     private static bool BobsWhileLanded(GunshipFunction function) => function is
         GunshipFunction.WaitForLandingEntranceToOpen or GunshipFunction.EjectSamus or GunshipFunction.FinishLanding or
@@ -407,7 +407,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         GunshipFunction.HandleSaveConfirmation or GunshipFunction.WaitForExitPadToOpen or GunshipFunction.RaiseSamus or
         GunshipFunction.FinishSamusExit or GunshipFunction.LoadLiftoffDustTiles;
 
-    /// <summary>Cycles the four native idle-bob entries while moving the hull and pad together.</summary>
+    /// <summary>Cycles the four idle-bob entries while moving the hull and pad together.</summary>
     internal void StepGunshipBob(RoomEnemySlot top)
     {
         CountdownStep bobTimer = Part(top).BobTimer.Decrement();
@@ -446,7 +446,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         {
             RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
             Part(top).Function = GunshipFunction.WaitForEntranceToOpen;
-            // $A2:AA17-AA1D stores the ship's X in both Samus X words, so the camera sees
+            // The alignment stores the ship's X in both Samus X words, so the camera sees
             // no horizontal motion from this alignment.
             if (samus.Position.X.Whole != GunshipMotionDefinitions.LandedX)
             {
@@ -464,7 +464,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Decrements the native function timer, treating one and signed underflow as expiry.</summary>
+    /// <summary>Decrements the function timer, treating one and signed underflow as expiry.</summary>
     private static bool TickGunshipFunctionTimer(RoomEnemySlot top)
     {
         CountdownStep functionTimer = Part(top).FunctionTimer.Decrement();
@@ -494,7 +494,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Gunship restoration lost its Samus actor.");
 
-        // Event $0E is set by Mother Brain's death sequence. Native bypasses every refill
+        // Event $0E is set by Mother Brain's death sequence. Bypasses every refill
         // and save-prompt branch here, installs the takeoff tile uploader, and keeps the
         // already hidden/input-locked Samus rigidly attached to the ship.
         if (_room.Services.Events.Has(EventNumber.ZebesTimebombSet))
@@ -519,7 +519,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             samus.PowerBombs < samus.MaxPowerBombs)
             return;
 
-        // The prompt itself opens when $AB1F executes on the following frame.
+        // The prompt itself opens when the save-confirmation behaviour runs on the following frame.
         Part(top).Function = GunshipFunction.HandleSaveConfirmation;
     }
 
@@ -541,7 +541,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports gunship function 17 at <c>$A2:ABC7</c> (#1406): shows the next of the five liftoff looks, one a step, from this
+    /// Runs gunship function 17 (#1406): shows the next of the five liftoff looks, one a step, from this
     /// update's frame on; after the fifth, the engines fire up.
     /// </summary>
     /// <exception cref="InvalidDataException">The page index left its five pages.</exception>
@@ -560,7 +560,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the 128-frame engine-rumble function at <c>$A2:AC1B</c>.</summary>
+    /// <summary>Runs the 128-frame engine-rumble function.</summary>
     private void FireUpGunshipEngines(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -579,9 +579,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         Part(bottom).RumbleFrame = WordWrap.Unsigned(Part(bottom).RumbleFrame + 1);
         if (Part(bottom).RumbleFrame == 64)
         {
-            // The six calls at `$A2:AC9B-$ACCA` happen after the frame counter reaches
+            // The six calls happen after the frame counter reaches
             // exactly 64. Descending projectile allocation means parameter A occupies the
-            // highest surviving slot, matching the ordinary bank-$86 scheduler.
+            // highest surviving slot, matching the ordinary scheduler.
             for (int parameter = 0; parameter <= 10; parameter += 2)
                 _projectiles.SpawnGunshipLiftoffDustCloud(parameter, samus);
         }
@@ -592,7 +592,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports constant two-pixel liftoff at <c>$A2:ACD7</c>.</summary>
+    /// <summary>Runs constant two-pixel liftoff.</summary>
     private void LiftGunshipAtConstantSpeed(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -605,7 +605,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the accelerating takeoff function at <c>$A2:AD0E</c>.</summary>
+    /// <summary>Runs the accelerating takeoff function.</summary>
     private void AccelerateEscapingGunship(RoomEnemySlot top, SamusState? samus)
     {
         MoveEscapingGunship(top, samus);
@@ -616,7 +616,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the shared 8.8 velocity integrator at <c>$A2:AD2D</c>.</summary>
+    /// <summary>Runs the shared 8.8 velocity integrator.</summary>
     private void MoveEscapingGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)

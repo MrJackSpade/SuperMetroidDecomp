@@ -19,9 +19,9 @@ internal sealed class EnemyFrameContext
     private readonly EnemySession _session;
 
     /// <summary>
-    /// Enemy-pass random counter read by native AI and projectile routines, 0 through 65535. Its one advance wraps
+    /// Enemy-pass random counter read by AI and projectile routines, 0 through 65535. Its one advance wraps
     /// from 65535 back to zero, and every reader takes its low bits or copies it whole, so a wider store holds exactly
-    /// the counter the cartridge keeps.
+    /// the counter the game keeps.
     /// </summary>
     internal int RandomEnemyCounter
     {
@@ -39,7 +39,7 @@ internal sealed class EnemyFrameContext
     internal SamusProjectileSystem? SamusProjectiles { get; private set; }
     /// <summary>Samus's colours for the pass, which Pseudo Screw's enemy contact changes (#1405).</summary>
     internal SamusColours? SamusColours { get; private set; }
-    /// <summary>Forces every enemy slot through the current pass when native processing requires a full sweep.</summary>
+    /// <summary>Forces every enemy slot through the current pass when processing requires a full sweep.</summary>
     internal bool ProcessAllEnemies { get; private set; }
 
     /// <summary>Freeze flag captured during the enemy pass and retained for the draw hooks that follow it.</summary>

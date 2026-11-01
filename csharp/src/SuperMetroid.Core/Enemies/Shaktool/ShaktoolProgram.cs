@@ -1,51 +1,51 @@
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
-/// The Shaktool's saw-hand, arm and head animations as typed programs (#641), one per bank-$AA list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="ShaktoolAnimations"/>.
+/// The Shaktool's saw-hand, arm and head animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="ShaktoolAnimations"/>.
 /// </summary>
 internal enum ShaktoolProgram
 {
-    /// <summary><c>UNUSED_InstList_Shaktool_SawHand_Attack_PrimaryPiece_AAD9EA</c> at $AA:D9EA.</summary>
+    /// <summary>The saw hand attack primary piece animation. No authored spawn or branch enters it.</summary>
     SawHandAttackPrimaryPiece,
-    /// <summary><c>UNUSED_InstList_Shaktool_SawHand_Attack_FinalPiece_AAD9F2</c> at $AA:D9F2.</summary>
+    /// <summary>The saw hand attack final piece animation. No authored spawn or branch enters it.</summary>
     SawHandAttackFinalPiece,
-    /// <summary><c>InstList_Shaktool_SawHand_HeadBob_PrimaryPiece</c> at $AA:D9FC.</summary>
+    /// <summary>The saw hand head bob primary piece animation.</summary>
     SawHandHeadBobPrimaryPiece,
-    /// <summary><c>InstList_Shaktool_SawHand_HeadBob_FinalPiece</c> at $AA:DA04.</summary>
+    /// <summary>The saw hand head bob final piece animation.</summary>
     SawHandHeadBobFinalPiece,
-    /// <summary><c>InstList_Shaktool_SawHand_PrimaryPiece</c> at $AA:DA0E.</summary>
+    /// <summary>The saw hand primary piece animation.</summary>
     SawHandPrimaryPiece,
-    /// <summary><c>InstList_Shaktool_SawHand_FinalPiece</c> at $AA:DA1E.</summary>
+    /// <summary>The saw hand final piece animation.</summary>
     SawHandFinalPiece,
-    /// <summary><c>UNUSED_InstList_Shaktool_ArmPiece_Attack_Back_AADA2E</c> at $AA:DA2E.</summary>
+    /// <summary>The arm piece attack back animation. No authored spawn or branch enters it.</summary>
     ArmPieceAttackBack,
-    /// <summary><c>UNUSED_InstList_Shaktool_ArmPiece_Attack_Front_AADA42</c> at $AA:DA42.</summary>
+    /// <summary>The arm piece attack front animation. No authored spawn or branch enters it.</summary>
     ArmPieceAttackFront,
-    /// <summary><c>InstList_Shaktool_ArmPiece_HeadBob_Back</c> at $AA:DA56.</summary>
+    /// <summary>The arm piece head bob back animation.</summary>
     ArmPieceHeadBobBack,
-    /// <summary><c>InstList_Shaktool_ArmPiece_HeadBob_Front</c> at $AA:DA62.</summary>
+    /// <summary>The arm piece head bob front animation.</summary>
     ArmPieceHeadBobFront,
-    /// <summary><c>InstList_Shaktool_ArmPiece_Normal</c> at $AA:DA72.</summary>
+    /// <summary>The arm piece normal animation.</summary>
     ArmPieceNormal,
-    /// <summary><c>UNUSED_InstList_Shaktool_Head_Attack_AADA7A</c> at $AA:DA7A.</summary>
+    /// <summary>The head attack animation. No authored spawn or branch enters it.</summary>
     HeadAttack,
-    /// <summary><c>InstList_Shaktool_Head_HeadBob</c> at $AA:DA90.</summary>
+    /// <summary>The head head bob animation.</summary>
     HeadHeadBob,
-    /// <summary><c>InstList_Shaktool_Head_AimingLeft</c> at $AA:DAA4.</summary>
+    /// <summary>The head aiming left animation.</summary>
     HeadAimingLeft,
-    /// <summary><c>InstList_Shaktool_Head_AimingUpLeft</c> at $AA:DAAC.</summary>
+    /// <summary>The head aiming up left animation.</summary>
     HeadAimingUpLeft,
-    /// <summary><c>InstList_Shaktool_Head_AimingUp</c> at $AA:DAB4.</summary>
+    /// <summary>The head aiming up animation.</summary>
     HeadAimingUp,
-    /// <summary><c>InstList_Shaktool_Head_AimingUpRight</c> at $AA:DABC.</summary>
+    /// <summary>The head aiming up right animation.</summary>
     HeadAimingUpRight,
-    /// <summary><c>InstList_Shaktool_Head_AimingRight</c> at $AA:DAC4.</summary>
+    /// <summary>The head aiming right animation.</summary>
     HeadAimingRight,
-    /// <summary><c>InstList_Shaktool_Head_AimingDownRight</c> at $AA:DACC.</summary>
+    /// <summary>The head aiming down right animation.</summary>
     HeadAimingDownRight,
-    /// <summary><c>InstList_Shaktool_Head_AimingDown</c> at $AA:DAD4.</summary>
+    /// <summary>The head aiming down animation.</summary>
     HeadAimingDown,
-    /// <summary><c>InstList_Shaktool_Head_AimingDownLeft</c> at $AA:DADC.</summary>
+    /// <summary>The head aiming down left animation.</summary>
     HeadAimingDownLeft,
 }

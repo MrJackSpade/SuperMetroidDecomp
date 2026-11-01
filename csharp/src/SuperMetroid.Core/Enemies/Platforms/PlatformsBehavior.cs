@@ -33,7 +33,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case PlatformCueKind.MoveLeft:
-                // The ordinary and duplicate native commands are byte-for-byte equivalent: both publish horizontal
+                // The ordinary and duplicate commands are byte-for-byte equivalent: both publish horizontal
                 // dispatcher index zero before the next frame.
                 SetPlatformHorizontalMovementFromInstruction(slot, PlatformHorizontalMovement.Left);
                 break;
@@ -47,11 +47,11 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
 
-    /// <summary>Recognizes the two enemy definitions sharing bank-$A3 platform movement.</summary>
+    /// <summary>Recognizes the two enemy definitions sharing platform movement.</summary>
     internal static bool IsPlatformDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2;
 
-    /// <summary>Ports the two entry points and common initializer at $A3:9C9F-$9D15.</summary>
+    /// <summary>Runs the two entry points and common initializer.</summary>
     internal static void InitializePlatform(RoomEnemySlot slot)
     {
         bool isKamer = slot.DefinitionId == EnemyDefinitionId.Kamer2;
@@ -81,7 +81,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MaximumYSpeedTableIndex = settings.MaximumYSpeedIndex;
     }
 
-    /// <summary>Ports <c>MainAI_Tripper_Kamer2</c> at $A3:9D16.</summary>
+    /// <summary>Runs the Tripper and Kamer's main AI.</summary>
     private void RunPlatformMain(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -94,7 +94,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Platform AI requires active room collision data.");
 
         // Every frame starts in the rising dispatcher and changes to sinking only when the
-        // exact asymmetric "Samus from below" test succeeds. This is also the native solid-
+        // exact asymmetric "Samus from below" test succeeds. This is also the solid-
         // platform riding gate; ordinary radius overlap would trigger from the sides.
         state.YMovement = IsSamusRidingPlatform(slot, samus)
             ? PlatformVerticalMovement.Sinking
@@ -105,7 +105,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         MovePlatformHorizontally(slot, state, level);
         MovePlatformVertically(slot, state, samus, level, preHorizontalX);
 
-        // Native main AI resets acceleration after running the first frame in a newly
+        // Main AI resets acceleration after running the first frame in a newly
         // selected vertical state. Preserve that slightly surprising ordering: a new phase
         // can use quadratic entry one now, then begins from entry zero on its next frame.
         if (state.YMovement != state.PreviousYMovement)
@@ -113,7 +113,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousYMovement = state.YMovement;
     }
 
-    /// <summary>Exact wrapped-word port of <c>$A0:ABE7-$AC28</c>.</summary>
+    /// <summary>Exact wrapped-word test of Samus riding the platform from above.</summary>
     internal static bool IsSamusRidingPlatform(RoomEnemySlot slot, SamusState samus)
     {
         int xDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
@@ -194,7 +194,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Returns a depressed platform toward its spawn height with the native one-pixel stop offset.</summary>
+    /// <summary>Returns a depressed platform toward its spawn height with the one-pixel stop offset.</summary>
     private void RaisePlatform(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -232,7 +232,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         int preHorizontalX)
     {
-        // `$A3:9DE7-$9DED` performs a comparison followed by a JSR to an immediate RTS; it
+        // The sinking step performs a comparison followed by a call that does nothing; it
         // has no branch or side effect. Sinking therefore always continues to acceleration.
         IncrementAndClampPlatformYSpeed(state);
 
@@ -257,7 +257,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Steps the quadratic-speed table index without crossing its variant-specific cap. The index stays within
-    /// 0 through the cap (at most 255) and one step can only reach 256, so the cartridge's signed word comparison
+    /// 0 through the cap (at most 255) and one step can only reach 256, so the game's signed word comparison
     /// is an ordinary one.
     /// </summary>
     internal static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
@@ -267,7 +267,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             state.YSpeedTableIndex = state.MaximumYSpeedTableIndex;
     }
 
-    /// <summary>Installs moving art once per phase and always clears the still-art flag at the native merge label.</summary>
+    /// <summary>Installs moving art once per phase and always clears the still-art flag at the merge label.</summary>
     private static void SetPlatformVerticallyMovingInstruction(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -277,7 +277,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             state.VerticallyMovingArtInstalled = true;
             InstallPlatformVerticallyMovingForCurrentDirection(slot, state);
         }
-        // `$A3:9ED9` is below the already-installed branch target, so it executes even when
+        // The direction cue runs after the already-installed branch target, so it executes even when
         // no new list was needed this frame.
         state.VerticallyStillArtInstalled = false;
     }
@@ -322,7 +322,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Ports the four equivalent list commands at $A3:9C6B/$9C76/$9C81/$9C8C.</summary>
+    /// <summary>Runs the four equivalent movement cues.</summary>
     private static void SetPlatformHorizontalMovementFromInstruction(
         RoomEnemySlot slot,
         PlatformHorizontalMovement movement)
@@ -383,7 +383,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The frozen Tripper's frame. $A3:9F14-9F25 tests the complete X-movement word for zero: every nonzero value shows
+    /// The frozen Tripper's frame. The frozen draw tests the complete X-movement word for zero: every nonzero value shows
     /// the right-moving frame, including values outside the normal dispatcher domain.
     /// </summary>
     private static EnemyFrameId TripperFrozenFrame(PlatformHorizontalMovement direction) =>

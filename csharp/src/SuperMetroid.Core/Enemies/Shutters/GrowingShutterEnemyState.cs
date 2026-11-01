@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
 /// The state of a growing shutter: its behaviour, the four independently positioned 16-pixel growth sections' origins,
-/// its growth level and its extended movement state. The values the cartridge keeps in the enemy's common record are
+/// its growth level and its extended movement state. The values the game keeps in the enemy's common record are
 /// emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class GrowingShutterEnemyState
@@ -23,7 +23,7 @@ public sealed class GrowingShutterEnemyState
     /// <summary>Creates the state for a room-owned shutter slot.</summary>
     internal GrowingShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
 
     /// <summary>
@@ -73,7 +73,7 @@ public sealed class GrowingShutterEnemyState
 
     /// <summary>
     /// Places the four section origins from the shutter's current (spawn) position, each eight pixels further along the
-    /// growth direction, wrapping at the room coordinate's sixteen bits as the cartridge's origins do.
+    /// growth direction, wrapping at the room coordinate's sixteen bits as the game's origins do.
     /// </summary>
     internal void PlaceSectionOrigins(bool growsUp)
     {
@@ -92,7 +92,7 @@ public sealed class GrowingShutterEnemyState
         ? SectionOrigin(GrowthLevel)
         : throw new InvalidOperationException($"Growing shutter level {GrowthLevel} has no section origin.");
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record: no behaviour, no origins, level zero.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record: no behaviour, no origins, level zero.</summary>
     internal void ClearWithRecord()
     {
         ActivationTimer = WrappingCountdown.Start(0);

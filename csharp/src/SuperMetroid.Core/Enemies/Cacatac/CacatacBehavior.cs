@@ -52,7 +52,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Ports <c>InitAI_Cacatac</c> at $A2:9F48.</summary>
+    /// <summary>Initializes the Cacatac.</summary>
     internal static void InitializeCacatac(RoomEnemySlot slot)
     {
         CacatacSpawnSettings settings = slot.SpawnSettings<CacatacSpawnSettings>();
@@ -118,7 +118,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports the split-word additions at $A2:9FBA and $A2:9FEC: the 16.16 velocity is added to X with the
+    /// Moves the Cacatac along its patrol: the 16.16 velocity is added to X with the
     /// fraction's carry into the whole, then the wrapped signed distance to the patrol limit decides the turn.
     /// </summary>
     private static void MoveCacatac(
@@ -143,7 +143,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Direction = CacatacDirection.Left;
     }
 
-    /// <summary>Ports the 3/256 random attack gate at $A2:A01C.</summary>
+    /// <summary>The 3/256 random attack gate.</summary>
     private void MaybeStartCacatacAttack(RoomEnemySlot slot, CacatacEnemyState state)
     {
         int decision = WordWrap.LowByte(_room.Random.Generate() + slot.FrameCounter);
@@ -154,7 +154,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         SetCacatacProgram(slot, state, state.UpsideUp ? CacatacProgram.UpsideUpAttack : CacatacProgram.UpsideDownAttack);
     }
 
-    /// <summary>Animation instruction $A2:A095: restore patrol from the direction word.</summary>
+    /// <summary>Animation cue: restore patrol from the direction word.</summary>
     private static void RestoreCacatacPatrol(CacatacEnemyState state)
     {
         // The assembly uses BEQ, not CMP #1. Its special initial direction two therefore
@@ -164,7 +164,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             : CacatacEnemyFunction.MovingRight;
     }
 
-    /// <summary>Animation instruction $A2:9F2A: publish library-two sound $34.</summary>
+    /// <summary>Animation cue: publish library-two sound 52.</summary>
     private void PlayCacatacSpikeSound() =>
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Cacatac, EnemySoundEffectDefinitions.CacatacSpikeSound, priority: SoundRequestPriority.Normal);
 
@@ -199,12 +199,12 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue, _) => ApplyCacatacCue(slot, state, cue));
 
     /// <summary>
-    /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> and initializer $86:D992.
+    /// Spawns a spike projectile from the Cacatac and initializes it.
     /// The source actor supplies both origin subpixels and its combined palette/tile index.
     /// </summary>
     internal void SpawnCacatacSpike(RoomEnemySlot source, CacatacSpikeDirection direction)
     {
-        // Rejects an odd or out-of-table direction before allocating, as the native selector check does.
+        // Rejects an odd or out-of-table direction before allocating, as the selector check does.
         CacatacProjectileProgram program = CacatacSpikes.Program(direction);
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -221,7 +221,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports pre-instruction $86:D9DB: the spike moves along its velocity, horizontally then vertically, then is culled
+    /// Runs the spike's per-frame behaviour: the spike moves along its velocity, horizontally then vertically, then is culled
     /// once outside the view.
     /// </summary>
     internal static void RunCacatacSpikeFrameBehavior(
@@ -234,7 +234,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Shared clone of bank-$86's signed four-CMP viewport cull. Equality with the right or
+    /// Shared clone of signed four-CMP viewport cull. Equality with the right or
     /// bottom edge remains alive; only strictly outside coordinates delete the projectile.
     /// </summary>
     internal static void DeleteEnemyProjectileIfOutsideInclusiveViewport(

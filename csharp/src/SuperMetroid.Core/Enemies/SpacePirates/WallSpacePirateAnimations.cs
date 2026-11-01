@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.SpacePirates.WallSpacePirateProgram;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The wall Space Pirates' climb, jump and laser animations as typed programs (#641), in place of their bank-$B2 lists. Generated from the verified native lists: each
+/// The wall Space Pirates' climb, jump and laser animations as typed programs (#641). Each
 /// frame shows a <see cref="WallSpacePirateFrame"/> pose and each callback becomes a <see cref="WallSpacePirateCue"/> with its typed operands.
 /// </summary>
 internal static class WallSpacePirateAnimations
@@ -182,7 +182,7 @@ internal static class WallSpacePirateAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue> FallInto(WallSpacePirateProgram program) => AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue> Hold => AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue>.Hold;
 
 }

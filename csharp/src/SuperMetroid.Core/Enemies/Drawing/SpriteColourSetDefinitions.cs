@@ -28,7 +28,7 @@ internal static class SpriteColourSetDefinitions
     /// <summary>
     /// The store a Ninja Space Pirate's divekick flashes back to and lands in. The Metal Pirates room loads the gold
     /// Ninja Space Pirates' own colours there; the escape's Climb loads its silver one into another store, so there the
-    /// divekick leaves it in whatever colours this store holds, as on the cartridge.
+    /// divekick leaves it in whatever colours this store holds, as on the game.
     /// </summary>
     public static readonly SpriteColourStore NinjaSpacePirateStance = SpriteColourStore.EnemiesFirst;
 }

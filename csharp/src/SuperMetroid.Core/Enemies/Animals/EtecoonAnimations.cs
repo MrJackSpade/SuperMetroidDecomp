@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The Etecoon's look, run, wall-jump, hop and flex animations as typed programs (#641), in place of their bank-$A7 lists. Generated from the verified native lists: each
+/// The Etecoon's look, run, wall-jump, hop and flex animations as typed programs (#641). Each
 /// frame shows a <see cref="EtecoonFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class EtecoonAnimations
@@ -183,7 +183,7 @@ internal static class EtecoonAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue> FallInto(EtecoonProgram program) => AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue> Hold => AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue>.Hold;
 
 }

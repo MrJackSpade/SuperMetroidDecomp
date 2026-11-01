@@ -1,9 +1,9 @@
 ﻿namespace SuperMetroid.Core.Enemies;
 
-/// <summary>The bank-$B4 graphics sets of the Maridia room-header region, in native table order.</summary>
+/// <summary>The graphics sets of the Maridia room-header region, in table order.</summary>
 internal static class MaridiaRoomEnemyGraphicsSetDefinitions
 {
-    /// <summary>The region's lists, in native table order.</summary>
+    /// <summary>The region's lists, in table order.</summary>
     internal static RoomEnemyGraphicsSetDefinition[] Build() =>
     [
         new(nameof(RoomEnemyGraphicsSetDefinitions.MtEverest), [

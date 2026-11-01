@@ -78,13 +78,13 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     /// <summary>Health restored by steam's main and touch routines so the vent cannot be destroyed.</summary>
     private const int CeresSteamIndestructibleHealth = 32767;
 
-    /// <summary>Ports <c>CeresSteam_Init</c> at <c>$A6:EFB1</c>.</summary>
+    /// <summary>Initializes the Ceres steam.</summary>
     internal void InitializeCeresSteam(RoomEnemySlot slot)
     {
         CeresSteamInitialization initialization = CeresSteamInitializations.Initialization(
             slot.Spawn.Population.SpawnSettingsOf<CeresSteamSpawnSettings>().Variant);
 
-        // Steam graphics are preloaded with the Ceres tileset and therefore use VRAM tile
+        // Steam graphics are preloaded with the Ceres tileset and therefore use tile
         // base zero. Both property changes are literal ORs performed by the initializer:
         // normal instructions animate visibility, while extended maps supply per-frame art
         // and collision boxes whose geometry cannot be represented by header radii.
@@ -96,8 +96,8 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
         slot.Colouring = SharedSpriteColouring.EnemyProjectiles;
 
-        // `$A6:EFD9-$EFE0` masks the live RNG to 0..31 and adds one. The delay is then
-        // consumed by instruction `$F127`, giving each vent a cartridge-authored stagger.
+        // The initializer masks the live RNG to 0..31 and adds one. The delay is then
+        // consumed by the vent's wait cue, giving each vent an authored stagger.
         var state = new CeresSteamEnemyState
         {
             ActivationDelay = WrappingCountdown.Start(_room.Random.Next(CeresSteamDefinitions.ActivationDelay) + 1),
@@ -108,7 +108,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         state.Function = initialization.Function;
     }
 
-    /// <summary>Ports <c>CeresSteam_Main</c> at <c>$A6:F00D</c>.</summary>
+    /// <summary>Runs the Ceres steam's main AI.</summary>
     private static void RunCeresSteamMain(
         RoomEnemySlot slot,
         TurningFloorTransform? floorTransform)
@@ -120,16 +120,16 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         CeresSteamEnemyState state = slot.RequireSpeciesState<CeresSteamEnemyState>();
         switch (state.Function)
         {
-            // Parameters zero through three point at `$EFF4`, a literal RTS. Their base
+            // Parameters zero through three use a behaviour that does nothing. Their base
             // world position is also their draw position, so no graphical word is changed.
             case CeresSteamFunction.None:
                 return;
 
             // Parameters four and five are the vents inside the rotating elevator shaft.
-            // `$A6:F019` calls the same bank-$8B transform used for Samus, then stores only
-            // transformed-minus-base deltas in the enemy's graphical-offset words. Native
-            // collision continues to use the untransformed world point; drawing consumes
-            // these offsets later in WriteEnemyOAM.
+            // The rotating-shaft behaviour calls the same transform used for Samus, then stores only
+            // transformed-minus-base deltas in the enemy's graphical-offset words.
+            // Collision continues to use the untransformed world point; drawing consumes
+            // these offsets later, when the enemy is drawn.
             case CeresSteamFunction.ApplyRotatingElevatorOffset:
                 if (floorTransform is not TurningFloorTransform transform)
                 {
@@ -160,9 +160,9 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                                EnemyCollision.TouchAi(slot) == EnemyReaction.CeresSteamTouch,
             context =>
             {
-                // Every visible steam frame stores `$A6:F03F` in its authored hitbox.
+                // Every visible steam frame stores the steam's touch reaction in its authored hitbox.
                 // The last two dispersal frames use an empty hitbox list and cannot reach
-                // this branch. Insisting on both facts keeps collision tied to ROM geometry.
+                // this branch. Insisting on both facts keeps collision tied to the authored geometry.
                 if (!context.UsesExtendedHitboxes || context.HitboxTouchAi != EnemyReaction.CeresSteamTouch)
                 {
                     throw new InvalidDataException(
@@ -171,7 +171,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                         $"map=$A6:{context.Slot.Frame}.");
                 }
 
-                // `$A6:F03F` restores health immediately before entering common touch AI.
+                // The steam's touch reaction restores health immediately before entering common touch AI.
                 // Header damage is deliberately zero: contact still installs the common
                 // invincibility/knockback state, while Screw/Speed cannot destroy the vent.
                 context.Slot.Health = CeresSteamIndestructibleHealth;
@@ -193,9 +193,9 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         if (!(CeresSteamCollisionDefinitions.Frames.Contains(enemy.Frame) || probe.ArtworkInstalled))
             return null;
 
-        // The high byte of each steam frame's $1001 header is drawing
+        // The high byte of each steam frame's component header is drawing
         // metadata, not an extra component. Both damaging rectangles and
-        // reactions remain fixed even if its installed OAM is edited.
+        // reactions remain fixed even if its installed sprite pieces are edited.
         foreach (CeresSteamCollisionComponent component in
                  CeresSteamCollisionDefinitions.Frames.Of(enemy.Frame))
         {

@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Evir.EvirProgram;
 namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>
-/// The Evir body's and arms' facing loops and its projectile's spit and regeneration animations as typed programs (#641), in place of their bank-$A8 lists. Generated from the verified native lists: each
+/// The Evir body's and arms' facing loops and its projectile's spit and regeneration animations as typed programs (#641). Each
 /// frame shows a <see cref="EvirFrame"/> pose and each callback becomes a <see cref="EvirCue"/> with its typed operands.
 /// </summary>
 internal static class EvirAnimations
@@ -117,7 +117,7 @@ internal static class EvirAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<EvirProgram, EvirFrame, EvirCue> FallInto(EvirProgram program) => AnimationProgramStep<EvirProgram, EvirFrame, EvirCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<EvirProgram, EvirFrame, EvirCue> Hold => AnimationProgramStep<EvirProgram, EvirFrame, EvirCue>.Hold;
 
 }

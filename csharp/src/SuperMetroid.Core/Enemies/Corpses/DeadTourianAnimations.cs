@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Corpses.DeadTourianProgram;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// The dead Sidehopper's hop, idle and corpse animations and the dead Zoomer, Ripper and Skree corpse poses as typed programs (#641), in place of their bank-$A9 lists. Generated from the verified native lists: each
+/// The dead Sidehopper's hop, idle and corpse animations and the dead Zoomer, Ripper and Skree corpse poses as typed programs (#641). Each
 /// frame shows a <see cref="DeadTourianFrame"/> pose and each callback becomes a <see cref="DeadTourianCue"/> with its typed operands.
 /// </summary>
 internal static class DeadTourianAnimations
@@ -90,7 +90,7 @@ internal static class DeadTourianAnimations
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationProgramStep<DeadTourianProgram, DeadTourianFrame, DeadTourianCue> Cue(DeadTourianCue cue) => AnimationProgramStep<DeadTourianProgram, DeadTourianFrame, DeadTourianCue>.Publish(cue);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<DeadTourianProgram, DeadTourianFrame, DeadTourianCue> Hold => AnimationProgramStep<DeadTourianProgram, DeadTourianFrame, DeadTourianCue>.Hold;
 
 }

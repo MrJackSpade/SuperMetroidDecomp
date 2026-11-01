@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// The Magdollite's thrown-lava programs (#641), one per bank-$86 list a spawn, branch or family routine enters, in authored order.
-/// Generated from the verified native lists; see <see cref="MagdolliteLavaAnimations"/>.
+/// The Magdollite's thrown-lava programs (#641), one per animation a spawn, branch or family routine enters, in authored order.
+/// Their steps are <see cref="MagdolliteLavaAnimations"/>.
 /// </summary>
 internal enum MagdolliteLavaProgram
 {
-    /// <summary><c>InstList_EnemyProjectile_Delete</c> at $86:84FC.</summary>
+    /// <summary>The shared delete animation.</summary>
     SharedDelete,
-    /// <summary><c>InstList_EnemyProjectile_MagdolliteFlame</c> at $86:DFD8.</summary>
+    /// <summary>The left animation.</summary>
     Left,
-    /// <summary><c>InstList_EnemyProjectile_MagdolliteFlame_</c> at $86:DFDE.</summary>
+    /// <summary>The right animation.</summary>
     Right,
-    /// <summary><c>InstList_EnemyProjectile_Shot_MagdolliteFlame</c> at $86:DFE4.</summary>
+    /// <summary>The shot animation.</summary>
     Shot,
 }

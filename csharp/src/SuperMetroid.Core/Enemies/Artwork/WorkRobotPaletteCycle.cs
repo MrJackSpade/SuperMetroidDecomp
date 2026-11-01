@@ -4,8 +4,8 @@ using SuperMetroid.Core.Enemies.WorkRobots;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// Editable Work Robot RGB5 frames. Native record order, 64/16-tick durations,
-/// and OBJ palette ownership remain engine-defined.
+/// Editable Work Robot RGB5 frames. Record order, 64/16-tick durations,
+/// and sprite palette ownership remain engine-defined.
 /// </summary>
 public sealed class WorkRobotPaletteCycle
 {
@@ -25,7 +25,7 @@ public sealed class WorkRobotPaletteCycle
     /// <summary>Edited RGB5 rows, or null when every cell follows the compiled stock color pattern.</summary>
     internal readonly RgbColor[][]? frames;
 
-    /// <summary>Keeps authored rows only when at least one color differs from the native rotation.</summary>
+    /// <summary>Keeps authored rows only when at least one color differs from the rotation.</summary>
     internal WorkRobotPaletteCycle(RgbColor[][] frames)
     {
         for (int frame = 0; frame < frames.Length; frame++)
@@ -40,7 +40,7 @@ public sealed class WorkRobotPaletteCycle
     }
 
     /// <summary>
-    /// $A8:CCC1, six four-color Work Robot records: red-only brightness rotates
+    /// Six four-color Work Robot records: red-only brightness rotates
     /// forward three positions and back. The four brightness levels form two
     /// pairs separated by sixteen, with seven between the members of each pair.
     /// </summary>
@@ -52,9 +52,9 @@ public sealed class WorkRobotPaletteCycle
     }
 
     /// <summary>Resolves one packed RGB555 color from an authored Work Robot cycle frame.</summary>
-    /// <param name="frame">Zero-based native palette record from 0 through 5.</param>
+    /// <param name="frame">Zero-based palette record from 0 through 5.</param>
     /// <param name="color">Zero-based color within the four-color record.</param>
-    /// <returns>The selected packed SNES RGB555 word.</returns>
+    /// <returns>The selected packed RGB555 word.</returns>
     public RgbColor Resolve(int frame, int color)
     {
         if ((uint)frame >= WorkRobotPaletteTimingDefinitions.RecordCount)

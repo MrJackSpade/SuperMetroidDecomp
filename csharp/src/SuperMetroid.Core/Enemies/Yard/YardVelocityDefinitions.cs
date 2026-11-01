@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
-/// <summary>Yard's native eight-direction crawling sign selection.</summary>
+/// <summary>Yard's eight-direction crawling sign selection.</summary>
 public static class YardVelocityDefinitions
 {
     /// <summary>The heading of each direction's crawl.</summary>

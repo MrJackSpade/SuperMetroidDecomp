@@ -40,12 +40,12 @@ internal sealed class EnemyProcessingWindow
 
     /// <summary>
     /// Runs the morph-ball eye's beam effect, then
-    /// <c>Determine_Which_Enemies_to_Process</c> ($A0:8EB6).
+    /// decides which enemies to process.
     /// </summary>
     /// <remarks>
-    /// Game state eight calls $A0:8EB6 first ($82:8B47), before Samus's handlers. The grapple
+    /// Game state eight builds the window first, before Samus's handlers. The grapple
     /// endpoint scan therefore sees this frame's interactive list, including an actor that
-    /// `$86:EF10` respawned at the end of the previous frame. The per-line display effects run
+    /// a death explosion respawned at the end of the previous frame. The per-line display effects run
     /// earlier still, at the start of the update: that order is observable on spawn (one-frame pending
     /// initialization) and shutdown (the full beam sees the body's cleared activation word on
     /// the following frame).
@@ -86,7 +86,7 @@ internal sealed class EnemyProcessingWindow
         }
     }
 
-    /// <summary>Applies native radius-aware horizontal and asymmetric vertical bounds around the camera.</summary>
+    /// <summary>Applies radius-aware horizontal and asymmetric vertical bounds around the camera.</summary>
     private static bool EnemyIsWithinProcessingWindow(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
@@ -96,7 +96,7 @@ internal sealed class EnemyProcessingWindow
         !EnemyMath.IsNegative16(camera.Y + 248 - slot.Position.Y.Whole);
 
     /// <summary>
-    /// <c>CheckIfEnemyCenterIsOnScreen</c> ($A0:AD70): the center lies within $100 pixels
+    /// The center lies within $100 pixels
     /// right of and below the camera on both axes.
     /// </summary>
     internal static bool EnemyCenterIsOnScreen(RoomEnemySlot slot, Position16<RoomPixels> camera) =>
@@ -106,7 +106,7 @@ internal sealed class EnemyProcessingWindow
         !EnemyMath.IsNegative16(camera.Y + 256 - slot.Position.Y.Whole);
 
     /// <summary>
-    /// <c>CheckIfEnemyIsHorizontallyOffScreen</c> ($A0:C18E): a negative X, a right edge
+    /// A negative X, a right edge
     /// left of the camera, or a position at least $100 right of the camera is off-screen.
     /// </summary>
     internal static bool EnemyIsHorizontallyOffScreen(RoomEnemySlot slot, int cameraX)

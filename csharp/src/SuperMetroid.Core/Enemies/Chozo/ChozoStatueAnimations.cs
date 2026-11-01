@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Chozo.ChozoStatueProgram;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// The Lower Norfair and Wrecked Ship Chozo statues' idle and activation animations as typed programs (#641), in place of their bank-$AA lists. Generated from the verified native lists: each
+/// The Lower Norfair and Wrecked Ship Chozo statues' idle and activation animations as typed programs (#641). Each
 /// frame shows a <see cref="ChozoStatueFrame"/> pose and each callback becomes a <see cref="ChozoStatueCue"/> with its typed operands.
 /// </summary>
 internal static class ChozoStatueAnimations
@@ -172,7 +172,7 @@ internal static class ChozoStatueAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue> FallInto(ChozoStatueProgram program) => AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue> Hold => AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue>.Hold;
 
 }

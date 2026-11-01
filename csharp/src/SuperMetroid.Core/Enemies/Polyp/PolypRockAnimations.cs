@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>
-/// The Polyp's lava-rock program (#641), in place of their bank-$86 lists. Generated from the verified native lists: each
+/// The Polyp's lava-rock program (#641). Each
 /// frame shows a <see cref="PolypRockFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class PolypRockAnimations
@@ -24,6 +24,6 @@ internal static class PolypRockAnimations
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<PolypRockProgram, PolypRockFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<PolypRockProgram, PolypRockFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<PolypRockProgram, PolypRockFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<PolypRockProgram, PolypRockFrame, EnemyProjectileCommonCue>.Hold;
 }

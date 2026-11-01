@@ -1,15 +1,15 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>Compiled graphics-set membership and native staging order for all retail room states.</summary>
+/// <summary>Compiled graphics-set membership and staging order for all retail room states.</summary>
 /// <remarks>
-/// The 302 bank-$B4 lists contain 425 records in the pinned NTSC J/U v1.0
-/// cartridge. Palette rows and staging blocks are fixed engine staging metadata;
+/// The 302 lists contain 425 records.
+/// Palette rows and staging blocks are fixed engine staging metadata;
 /// editable pixel/color content is loaded separately through enemy artwork assets.
 /// </remarks>
 [NumberedIdentities("Each numbered member is the enemy graphics set of one numbered room or room state, named for it; no caller indexes the sets by number.")]
 public static class RoomEnemyGraphicsSetDefinitions
 {
-    /// <summary>Retail sets in the cartridge's list order, checked complete when built.</summary>
+    /// <summary>Retail sets in the game's list order, checked complete when built.</summary>
     private static readonly RoomEnemyGraphicsSetDefinition[] Definitions = RoomEnemyGraphicsSets.Complete(
     [
         ..CrateriaRoomEnemyGraphicsSetDefinitions.Build(),
@@ -21,12 +21,12 @@ public static class RoomEnemyGraphicsSetDefinitions
         ..CeresRoomEnemyGraphicsSetDefinitions.Build(),
     ], ListCount, RecordCount, nameof(SessionStart));
 
-    /// <summary>Number of distinct retail bank-$B4 graphics-set identities in the compiled catalog, including empty sets and separately addressed sets with matching content.</summary>
+    /// <summary>Number of distinct retail graphics-set identities in the compiled catalog, including empty sets and separately addressed sets with matching content.</summary>
     public const int ListCount = 302;
     /// <summary>Total four-byte member records across all compiled retail lists, excluding terminators and trailing metadata; not a count of unique enemy definitions or artwork images.</summary>
     public const int RecordCount = 425;
 
-    /// <summary>Every retail graphics set, in the cartridge's list order.</summary>
+    /// <summary>Every retail graphics set, in the game's list order.</summary>
     public static IReadOnlyList<RoomEnemyGraphicsSetDefinition> All => Definitions;
 
     /// <summary>

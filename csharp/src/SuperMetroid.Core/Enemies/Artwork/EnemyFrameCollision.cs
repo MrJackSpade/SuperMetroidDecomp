@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// </summary>
 internal sealed class EnemyFrameCollision<TElement> : IEnumerable<KeyValuePair<EnemyFrameId, TElement[]>>
 {
-    /// <summary>Each frame's collision elements, in native order.</summary>
+    /// <summary>Each frame's collision elements, in order.</summary>
     private readonly Dictionary<EnemyFrameId, TElement[]> _elements = [];
 
     /// <summary>Records <paramref name="frame"/>'s collision elements; a frame is recorded once.</summary>

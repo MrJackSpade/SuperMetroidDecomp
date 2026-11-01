@@ -5,7 +5,7 @@ internal static class CacatacProjectileDefinitions
 {
 
     /// <summary>
-    /// Native immediate operands $86:D9BB/$86:D9C1: a cardinal spike moves two pixels per update
+    /// A cardinal spike moves two pixels per update
     /// (signed 8.8 raw 512) toward its negative or positive side.
     /// </summary>
     private static readonly CacatacSpikeSpeedPair CardinalSpeeds = new(
@@ -13,7 +13,7 @@ internal static class CacatacProjectileDefinitions
         SignedEightEight.FromSignedRaw(512));
 
     /// <summary>
-    /// Native immediate operands $86:D9CF/$86:D9D5: a diagonal spike moves one and a half pixels per
+    /// A diagonal spike moves one and a half pixels per
     /// update on each axis (signed 8.8 raw 384) toward its negative or positive side.
     /// </summary>
     private static readonly CacatacSpikeSpeedPair DiagonalSpeeds = new(
@@ -21,7 +21,7 @@ internal static class CacatacProjectileDefinitions
         SignedEightEight.FromSignedRaw(384));
 
     /// <summary>
-    /// $86:D96A CacatacSpike_InstListPointers: each spike direction and facing's named animation program.
+    /// Each spike direction and facing's named animation program.
     /// </summary>
     internal static readonly Dictionary<CacatacSpikeDirection, CacatacProjectileProgram> Programs = new()
     {
@@ -38,8 +38,8 @@ internal static class CacatacProjectileDefinitions
     };
 
     /// <summary>
-    /// Each spike direction's launch speeds. The native initializer compares its even direction selector to $000C at
-    /// $86:D9CA: directions $00..$0A are cardinal, with magnitude $0200; $0C..$12 are diagonal, with magnitude $0180.
+    /// Each spike direction's launch speeds. The initializer compares its even direction selector to 12:
+    /// directions 0..10 are cardinal, with magnitude 512; 12..18 are diagonal, with magnitude 384.
     /// </summary>
     internal static readonly Dictionary<CacatacSpikeDirection, CacatacSpikeSpeedPair> Speeds = new()
     {

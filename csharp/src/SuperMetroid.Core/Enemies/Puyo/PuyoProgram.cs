@@ -1,25 +1,25 @@
 namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>
-/// Puyo's grounded loops and airborne hop poses as typed programs (#641), one per bank-$A2 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="PuyoAnimations"/>.
+/// Puyo's grounded loops and airborne hop poses as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="PuyoAnimations"/>.
 /// </summary>
 internal enum PuyoProgram
 {
-    /// <summary><c>InstList_Puyo_GroundedDropping_Fast</c> at $A2:99AD.</summary>
+    /// <summary>The grounded fast animation.</summary>
     GroundedFast,
-    /// <summary><c>InstList_Puyo_GroundedDropping_Medium</c> at $A2:99C1.</summary>
+    /// <summary>The grounded medium animation.</summary>
     GroundedMedium,
-    /// <summary><c>InstList_Puyo_GroundedDropping_Slow</c> at $A2:99D5.</summary>
+    /// <summary>The grounded slow animation.</summary>
     GroundedSlow,
-    /// <summary><c>InstList_Puyo_HoppingRight_0_HoppingLeft_4</c> at $A2:99E9.</summary>
+    /// <summary>The right frame 0 left frame 4 animation.</summary>
     RightFrame0LeftFrame4,
-    /// <summary><c>InstList_Puyo_HoppingRight_1_HoppingLeft_3</c> at $A2:99EF.</summary>
+    /// <summary>The right frame 1 left frame 3 animation.</summary>
     RightFrame1LeftFrame3,
-    /// <summary><c>InstList_Puyo_Hopping_2</c> at $A2:99F5.</summary>
+    /// <summary>The frame 2 animation.</summary>
     Frame2,
-    /// <summary><c>InstList_Puyo_HoppingRight_3_HoppingLeft_1</c> at $A2:99FB.</summary>
+    /// <summary>The right frame 3 left frame 1 animation.</summary>
     RightFrame3LeftFrame1,
-    /// <summary><c>InstList_Puyo_HoppingRight_4_HoppingLeft_0</c> at $A2:9A01.</summary>
+    /// <summary>The right frame 4 left frame 0 animation.</summary>
     RightFrame4LeftFrame0,
 }

@@ -32,7 +32,7 @@ internal sealed class DeadMonsterFrame
 
     /// <summary>
     /// Counts one rot step of <paramref name="kind"/>'s staged characters and selects it as the rot every corpse of the
-    /// kind shows (#1406). The cartridge uploads the kind's rows after each step it takes, the last too, so its frames
+    /// kind shows (#1406). The game uploads the kind's rows after each step it takes, the last too, so its frames
     /// show the step from this update on.
     /// </summary>
     /// <exception cref="InvalidOperationException">No corpse of the kind has copied its characters in.</exception>

@@ -1,31 +1,31 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The escaping Etecoons' typed programs (#641), one per bank-$B3 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="EscapeEtecoonAnimations"/>.
+/// The escaping Etecoons' typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="EscapeEtecoonAnimations"/>.
 /// </summary>
 internal enum EscapeEtecoonProgram
 {
-    /// <summary><c>InstList_EtecoonEscape_RunningLeft_LowTide_0</c> at $B3:E556.</summary>
+    /// <summary>The running left low tide animation.</summary>
     RunningLeftLowTide,
-    /// <summary>The loop at $B3:E55A.</summary>
+    /// <summary>The loop.</summary>
     RunningLeftLowTideLoop,
-    /// <summary><c>InstList_EtecoonEscape_RunningLeft_HighTide</c> at $B3:E56E.</summary>
+    /// <summary>The running left high tide animation.</summary>
     RunningLeftHighTide,
-    /// <summary><c>InstList_EtecoonEscape_RunningRight_LowTide_0</c> at $B3:E582.</summary>
+    /// <summary>The running right low tide animation.</summary>
     RunningRightLowTide,
-    /// <summary>The loop at $B3:E586.</summary>
+    /// <summary>The loop.</summary>
     RunningRightLowTideLoop,
-    /// <summary><c>InstList_EtecoonEscape_RunningRight_HighTide</c> at $B3:E59A.</summary>
+    /// <summary>The running right high tide animation.</summary>
     RunningRightHighTide,
-    /// <summary><c>InstList_EtecoonEscape_RunningForEscape_0</c> at $B3:E5AE.</summary>
+    /// <summary>The running for escape animation.</summary>
     RunningForEscape,
-    /// <summary>The loop at $B3:E5B2.</summary>
+    /// <summary>The loop.</summary>
     RunningForEscapeLoop,
-    /// <summary><c>InstList_EtecoonEscape_Stationary</c> at $B3:E5C6.</summary>
+    /// <summary>The stationary animation.</summary>
     Stationary,
-    /// <summary><c>InstList_EtecoonEscape_ExpressGratitudeThenEscape_0</c> at $B3:E5DA.</summary>
+    /// <summary>The express gratitude then escape animation.</summary>
     ExpressGratitudeThenEscape,
-    /// <summary>The loop at $B3:E5E0.</summary>
+    /// <summary>The loop.</summary>
     ExpressGratitudeThenEscapeLoop,
 }

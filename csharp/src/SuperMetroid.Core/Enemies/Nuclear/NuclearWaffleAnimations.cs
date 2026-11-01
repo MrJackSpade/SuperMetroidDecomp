@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
-/// Puromi/Nuclear Waffle's body animation as a typed program (#641), in place of their bank-$A6 lists. Generated from the verified native lists: each
+/// Puromi/Nuclear Waffle's body animation as a typed program (#641). Each
 /// frame shows a <see cref="NuclearWaffleFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class NuclearWaffleAnimations

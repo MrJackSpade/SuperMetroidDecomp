@@ -25,7 +25,7 @@ public sealed class TourianStatuePalettes
     internal readonly PaletteBand statueColors;
     /// <summary>Four boss-specific eye rows overlaid on base-decoration colors nine through twelve.</summary>
     internal readonly PaletteBand eyeColors;
-    /// <summary>Eight grey inks installed at the animation instruction's CGRAM destination.</summary>
+    /// <summary>Eight grey inks installed at the animation cue's palette destination.</summary>
     internal readonly PaletteBand greyColors;
 
     /// <summary>Separates the supplied base, statue, eye, and grey colors into independent paint bands.</summary>
@@ -38,9 +38,9 @@ public sealed class TourianStatuePalettes
         this.greyColors = new(TourianStatuePaintBand.Grey, greyColors);
     }
 
-    /// <summary>Gets packed RGB5 base-decoration ink 0–15 corresponding to $AA:D785, including its retained transparent-slot word.</summary>
+    /// <summary>Gets packed RGB5 base-decoration ink 0–15, including its retained transparent-slot word.</summary>
     public RgbColor ResolveBase(int color) => baseColors.Read(color);
-    /// <summary>Gets packed RGB5 eye ink 0–3 from row 0–3 of $86:B91E, in Phantoon, Ridley, Draygon, Kraid order.</summary>
+    /// <summary>Gets packed RGB5 eye ink 0–3 from eye row 0–3, in Phantoon, Ridley, Draygon, Kraid order.</summary>
     public RgbColor ResolveEye(int row, int color)
     {
         if ((uint)row >= TourianStatueColorDefinitions.EyeRowCount)
@@ -49,19 +49,19 @@ public sealed class TourianStatuePalettes
             throw new ArgumentOutOfRangeException(nameof(color));
         return eyeColors.Read(row * TourianStatueColorDefinitions.EyeColorCount + color);
     }
-    /// <summary>Gets packed RGB5 ink 0–7 from the statue's grey-transition band corresponding to $87:839C; destination and transition ordering remain animation-owned.</summary>
+    /// <summary>Gets packed RGB5 ink 0–7 from the statue's grey-transition band; destination and transition ordering remain animation-owned.</summary>
     public RgbColor ResolveGrey(int color) => greyColors.Read(color);
 
-    /// <summary>Installs all sixteen base-decoration inks at CGRAM 240–255 and all sixteen statue inks at 160–175, matching the entrance initializer's two OBJ palette bands.</summary>
+    /// <summary>Installs all sixteen base-decoration inks at palette colours 240–255 and all sixteen statue inks at 160–175, matching the entrance initializer's two sprite palette bands.</summary>
     public void ApplyEntrance(GameplayColours colours)
     {
         baseColors.Apply(new AreaColours(colours).TourianStatueBase);
         statueColors.Apply(new AreaColours(colours).TourianStatue);
     }
 
-    /// <summary>Installs the selected four-color eye glow at CGRAM 249–252 without altering boss completion or animated-tile state.</summary>
+    /// <summary>Installs the selected four-color eye glow at palette colours 249–252 without altering boss completion or animated-tile state.</summary>
     /// <param name="colours">The colours receiving the selected eye glow.</param>
-    /// <param name="doubledBossParameter">Native doubled selector: Phantoon 0, Ridley 2, Draygon 4, or Kraid 6.</param>
+    /// <param name="doubledBossParameter">Doubled boss selector: Phantoon 0, Ridley 2, Draygon 4, or Kraid 6.</param>
     public void ApplyEye(GameplayColours colours, int doubledBossParameter)
     {
         if (doubledBossParameter > 6 || (doubledBossParameter & 1) != 0)
@@ -80,7 +80,7 @@ public sealed class TourianStatuePalettes
     {
         /// <summary>Calculated stock paint family used when a color has no supplied override.</summary>
         private readonly TourianStatuePaintBand band;
-        /// <summary>Number of indexed colors in this band's native palette geometry.</summary>
+        /// <summary>Number of indexed colors in this band's palette geometry.</summary>
         private readonly int count;
         /// <summary>Only supplied colors that differ from the calculated stock band.</summary>
         internal readonly Dictionary<ColourCell, RgbColor> edits = [];
@@ -105,7 +105,7 @@ public sealed class TourianStatuePalettes
             for (int color = 0; color < count; color++) result[color] = Read(color);
             return result;
         }
-        /// <summary>Writes every selected color into the supplied CGRAM palette slice.</summary>
+        /// <summary>Writes every selected color into the supplied palette slice.</summary>
         internal void Apply(ColourRun destination)
         {
             for (int color = 0; color < count; color++) destination.Write(color, Read(color));

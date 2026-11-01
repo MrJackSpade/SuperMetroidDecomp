@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
 /// <summary>
 /// The state of one Fune or Namihe, the two species that share this actor. The function, wake distance, variant,
-/// cooldown and its time are values the cartridge keeps in the enemy's common record, so they are emptied with that
+/// cooldown and its time are values the game keeps in the enemy's common record, so they are emptied with that
 /// record when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class FuneNamiheEnemyState
@@ -25,7 +25,7 @@ public sealed class FuneNamiheEnemyState
 
     /// <summary>
     /// The complete low nibble of population parameter one, 0 through 15. Zero selects Fune; every nonzero value
-    /// selects Namihe, exactly as the native BEQ test does.
+    /// selects Namihe, exactly as the BEQ test does.
     /// </summary>
     public int VariantIndex { get; internal set; }
 
@@ -43,7 +43,7 @@ public sealed class FuneNamiheEnemyState
     public bool IsNamihe => VariantIndex != 0;
 
     /// <summary>
-    /// Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record. The
+    /// Empties the values the game keeps in the enemy's common record, when a kill empties that record. The
     /// animation selection is left as it is: nothing selects an animation for an emptied record.
     /// </summary>
     internal void ClearWithRecord()

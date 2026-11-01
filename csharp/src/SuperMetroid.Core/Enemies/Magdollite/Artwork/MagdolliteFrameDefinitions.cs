@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Magdollite.Artwork;
 
 /// <summary>
-/// The presentation boundary of the Magdollite's programs (#641): the bank-$A8 spritemap each
+/// The presentation boundary of the Magdollite's programs (#641): the spritemap each
 /// <see cref="MagdolliteFrame"/> pose shows, in ascending spritemap order.
 /// </summary>
 internal static class MagdolliteFrameDefinitions

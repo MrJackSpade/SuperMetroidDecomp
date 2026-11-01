@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Escape.EscapeTimerCadenceDefinitions;
 namespace SuperMetroid.Core.Escape;
 
 /// <summary>
-/// Counts the escape timer down at the native cadence (<see cref="EscapeTimerCadenceDefinitions"/>): the centiseconds each frame
+/// Counts the escape timer down at the cadence (<see cref="EscapeTimerCadenceDefinitions"/>): the centiseconds each frame
 /// of the 128-frame period removes.
 /// </summary>
 internal static class EscapeTimerCadence

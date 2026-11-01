@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Boulder.Artwork;
 
 /// <summary>
-/// The presentation boundary of the Boulder's programs (#641): the bank-$A6 spritemap each
+/// The presentation boundary of the Boulder's programs (#641): the spritemap each
 /// <see cref="BoulderFrame"/> pose shows, in ascending spritemap order.
 /// </summary>
 internal static class BoulderFrameDefinitions

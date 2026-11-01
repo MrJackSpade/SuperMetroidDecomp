@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperProgram;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>
-/// The Norfair lava jumper's hidden, jump and follower animations as typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// The Norfair lava jumper's hidden, jump and follower animations as typed programs (#641). Each
 /// frame shows a <see cref="NorfairLavaJumperFrame"/> pose and each callback becomes a <see cref="NorfairLavaJumperCue"/> with its typed operands.
 /// </summary>
 internal static class NorfairLavaJumperAnimations
@@ -67,7 +67,7 @@ internal static class NorfairLavaJumperAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue> FallInto(NorfairLavaJumperProgram program) => AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue> Hold => AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue>.Hold;
 
 }

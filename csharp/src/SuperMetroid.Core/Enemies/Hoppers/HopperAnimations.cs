@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Hoppers.HopperProgram;
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>
-/// The Sidehoppers' and Dessgeegas' floor and ceiling hop and landing animations as typed programs (#641), in place of their bank-$A3 lists. Generated from the verified native lists: each
+/// The Sidehoppers' and Dessgeegas' floor and ceiling hop and landing animations as typed programs (#641). Each
 /// frame shows a <see cref="HopperFrame"/> pose and each callback becomes a <see cref="HopperCue"/> with its typed operands.
 /// </summary>
 internal static class HopperAnimations
@@ -158,7 +158,7 @@ internal static class HopperAnimations
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationProgramStep<HopperProgram, HopperFrame, HopperCue> Cue(HopperCue cue) => AnimationProgramStep<HopperProgram, HopperFrame, HopperCue>.Publish(cue);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<HopperProgram, HopperFrame, HopperCue> Hold => AnimationProgramStep<HopperProgram, HopperFrame, HopperCue>.Hold;
 
 }

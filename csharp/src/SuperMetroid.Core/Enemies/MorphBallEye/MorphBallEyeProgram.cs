@@ -1,31 +1,31 @@
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
-/// The Morph Ball eye's tracking, eyelid and mount animations as typed programs (#641), one per bank-$A8 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="MorphBallEyeAnimations"/>.
+/// The Morph Ball eye's tracking, eyelid and mount animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="MorphBallEyeAnimations"/>.
 /// </summary>
 internal enum MorphBallEyeProgram
 {
-    /// <summary><c>InstList_Eye_Active</c> at $A8:8FAC.</summary>
+    /// <summary>The active animation.</summary>
     Active,
-    /// <summary><c>InstList_Eye_FacingRight_Deactivating</c> at $A8:8FF0.</summary>
+    /// <summary>The facing right deactivating animation.</summary>
     FacingRightDeactivating,
-    /// <summary><c>InstList_Eye_FacingRight_Closed</c> at $A8:8FFC.</summary>
+    /// <summary>The facing right closed animation.</summary>
     FacingRightClosed,
-    /// <summary><c>InstList_Eye_FacingLeft_Deactivating</c> at $A8:9002.</summary>
+    /// <summary>The facing left deactivating animation.</summary>
     FacingLeftDeactivating,
-    /// <summary><c>InstList_Eye_FacingLeft_Closed</c> at $A8:900E.</summary>
+    /// <summary>The facing left closed animation.</summary>
     FacingLeftClosed,
-    /// <summary><c>InstList_Eye_FacingRight_Activating</c> at $A8:9014.</summary>
+    /// <summary>The facing right activating animation.</summary>
     FacingRightActivating,
-    /// <summary><c>InstList_Eye_FacingLeft_Activating</c> at $A8:9026.</summary>
+    /// <summary>The facing left activating animation.</summary>
     FacingLeftActivating,
-    /// <summary><c>InstList_Eye_Mount_FacingRight</c> at $A8:9038.</summary>
+    /// <summary>The mount facing right animation.</summary>
     MountFacingRight,
-    /// <summary><c>InstList_Eye_Mount_FacingDown</c> at $A8:903E.</summary>
+    /// <summary>The mount facing down animation.</summary>
     MountFacingDown,
-    /// <summary><c>InstList_Eye_Mount_FacingLeft</c> at $A8:9044.</summary>
+    /// <summary>The mount facing left animation.</summary>
     MountFacingLeft,
-    /// <summary><c>InstList_Eye_Mount_FacingUp</c> at $A8:904A.</summary>
+    /// <summary>The mount facing up animation.</summary>
     MountFacingUp,
 }

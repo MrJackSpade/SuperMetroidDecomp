@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Animals.Artwork;
 
 /// <summary>
-/// The presentation boundary of the escaping Etecoons' programs (#641): the bank-$B3 spritemap each
+/// The presentation boundary of the escaping Etecoons' programs (#641): the spritemap each
 /// <see cref="EscapeEtecoonFrame"/> pose shows, in ascending spritemap order.
 /// </summary>
 internal static class EscapeEtecoonFrameDefinitions

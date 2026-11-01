@@ -1,18 +1,18 @@
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
-/// <summary>Fixed cartridge definitions shared by the three Pipe Bug families.</summary>
+/// <summary>Fixed authored definitions shared by the three Pipe Bug families.</summary>
 internal static class PipeBugDefinitions
 {
     /// <summary>
-    /// $B3:8C64-8C86 assigns NTSC formation release counters centered on 104,
+    /// The formation initializer assigns NTSC formation release counters centered on 104,
     /// eight ticks per vertical rank. Physical slot order is center, upper-near,
     /// upper-far, lower-near, lower-far; PAL shifts the same sequence down 32 ticks.
     /// </summary>
     internal static readonly ushort[] NorfairStaggerTargets = [104, 96, 88, 112, 120];
 
     /// <summary>
-    /// $B3:8C87-8CA4 assigns each formation slot its center/upper/lower movement
-    /// function. These are semantic native role branches, not ordinal addresses.
+    /// The formation initializer assigns each formation slot its center/upper/lower movement
+    /// function. These are semantic role branches, not ordinal addresses.
     /// </summary>
     internal static readonly PipeBugEnemyFunction[] NorfairPostRiseFunctions =
     [

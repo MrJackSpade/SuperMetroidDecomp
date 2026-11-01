@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>
 /// The state of one Choot. The function, ascent index, falling cursor, loop counter, pattern and its loop advance
-/// are values the cartridge keeps in the enemy's common record, so they are emptied with that record when the enemy
+/// are values the game keeps in the enemy's common record, so they are emptied with that record when the enemy
 /// is killed (<see cref="ClearWithRecord"/>). The rest are the Choot's own too: setup writes the spawn and falling
 /// positions and the starting ascent index, activation writes the jump delay and the apex writes the falling origin,
 /// each before it is read, so nothing a previous Choot in the slot left reaches a new one.
@@ -52,7 +52,7 @@ public sealed class ChootEnemyState
     /// </summary>
     public WrappingCountdown JumpDelayTimer { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record, when a kill empties that record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

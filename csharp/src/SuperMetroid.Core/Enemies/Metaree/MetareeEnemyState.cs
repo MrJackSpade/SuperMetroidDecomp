@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Skree;
 namespace SuperMetroid.Core.Enemies.Metaree;
 
 /// <summary>
-/// The state of one Metaree. Every value here is one the cartridge keeps in the enemy's common record, so it is
+/// The state of one Metaree. Every value here is one the game keeps in the enemy's common record, so it is
 /// emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class MetareeEnemyState

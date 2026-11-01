@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Values returned by <c>Random_Drop_Routine</c> at $86:F106. These are deliberately the
-/// cartridge values stored as <c>eproj_E / 2</c>; the table order is not the visual order of
+/// Values returned by the random drop selection. These are deliberately the
+/// values the pickup stores, halved; the table order is not the visual order of
 /// the five pickup instruction lists.
 /// </summary>
 public enum EnemyPickupKind
@@ -19,7 +19,7 @@ public enum EnemyPickupKind
     /// <summary>Power Bomb pickup restoring one round, subject to the current capacity.</summary>
     PowerBomb = 3,
 
-    /// <summary>Missile pickup restoring two missiles before the native reserve-missile overflow path.</summary>
+    /// <summary>Missile pickup restoring two missiles before the reserve-missile overflow path.</summary>
     Missile = 4,
 
     /// <summary>Super Missile pickup restoring one round, subject to the current capacity.</summary>

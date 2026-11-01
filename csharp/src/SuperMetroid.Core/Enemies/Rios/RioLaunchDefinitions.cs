@@ -3,20 +3,20 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// <summary>Fixed NTSC launch magnitudes for the three separately dispatched Rio families.</summary>
 public static class RioLaunchDefinitions
 {
-    /// <summary>$A2:BBBB, Rio initial downward velocity, in 8.8 pixels/frame.</summary>
+    /// <summary>Rio initial downward velocity, in 8.8 pixels/frame.</summary>
     public const int RioYVelocity = 1408;
-    /// <summary>$A2:BBBF, Rio initial horizontal magnitude; caller supplies direction.</summary>
+    /// <summary>Rio initial horizontal magnitude; caller supplies direction.</summary>
     public const int RioXVelocity = 384;
-    /// <summary>$A2:C1C5, Norfair Rio horizontal magnitude.</summary>
+    /// <summary>Norfair Rio horizontal magnitude.</summary>
     public const int NorfairXVelocity = 256;
-    /// <summary>$A2:C6CA, lower Norfair Rio initial downward velocity.</summary>
+    /// <summary>Lower Norfair Rio initial downward velocity.</summary>
     public const int LowerNorfairYVelocity = 1792;
-    /// <summary>$A2:C6CE, lower Norfair Rio horizontal magnitude.</summary>
+    /// <summary>Lower Norfair Rio horizontal magnitude.</summary>
     public const int LowerNorfairXVelocity = 256;
 
-    /// <summary>$A2:C1C1: the faster of the two adjacent Norfair Rio downward velocities, chosen when RNG bit two is clear.</summary>
+    /// <summary>The faster of the two adjacent Norfair Rio downward velocities, chosen when RNG bit two is clear.</summary>
     internal const int NorfairFastYVelocity = 1792;
-    /// <summary>$A2:C1C1: the slower Norfair Rio downward velocity, chosen when RNG bit two is set.</summary>
+    /// <summary>The slower Norfair Rio downward velocity, chosen when RNG bit two is set.</summary>
     internal const int NorfairSlowYVelocity = 1472;
 
     /// <summary>

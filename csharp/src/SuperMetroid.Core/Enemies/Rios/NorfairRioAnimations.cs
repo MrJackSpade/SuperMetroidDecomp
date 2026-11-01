@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Rios.NorfairRioProgram;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// The Norfair Rio's idle and swoop animations and its flames' animations as typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// The Norfair Rio's idle and swoop animations and its flames' animations as typed programs (#641). Each
 /// frame shows a <see cref="NorfairRioFrame"/> pose and each callback becomes a <see cref="NorfairRioCue"/> with its typed operands.
 /// </summary>
 internal static class NorfairRioAnimations
@@ -106,7 +106,7 @@ internal static class NorfairRioAnimations
     /// <summary>Continues at <paramref name="program"/>.</summary>
     private static AnimationProgramStep<NorfairRioProgram, NorfairRioFrame, NorfairRioCue> GoTo(NorfairRioProgram program) => AnimationProgramStep<NorfairRioProgram, NorfairRioFrame, NorfairRioCue>.GoTo(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<NorfairRioProgram, NorfairRioFrame, NorfairRioCue> Hold => AnimationProgramStep<NorfairRioProgram, NorfairRioFrame, NorfairRioCue>.Hold;
 
 }

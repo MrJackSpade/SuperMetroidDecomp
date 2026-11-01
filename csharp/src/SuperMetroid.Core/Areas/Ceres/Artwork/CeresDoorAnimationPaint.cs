@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>
-/// Elevator beacon colors at $A6:F871-F8EC, copied to CGRAM41..46 by $A6:F850-F86F.
+/// Elevator beacon colors, copied to palette colours 41..46 while the elevator animates.
 /// White/rust/red surfaces and three gold facets share normal target paint identities.
 /// Mirrored phases use a five-level fade; the brightest gold facets preserve blue
 /// while brightening red/green by three, with a four-level green highlight.
@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 /// </summary>
 internal sealed class CeresDoorAnimationPaint
 {
-    /// <summary>Highest value permitted by each SNES five-bit palette channel.</summary>
+    /// <summary>Highest value permitted by each five-bit palette channel.</summary>
     private const int MaximumChannel = (1 << 5) - 1;
     /// <summary>Channel change between adjacent mirrored beacon fade phases.</summary>
     private const int FadeStep = 5;

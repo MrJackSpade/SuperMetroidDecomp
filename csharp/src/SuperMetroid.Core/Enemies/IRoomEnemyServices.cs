@@ -6,12 +6,12 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The cartridge-state services enemy AI calls during a room: the union of every child operation's
+/// The game-state services enemy AI calls during a room: the union of every child operation's
 /// service contract plus the RNG, events, boss bits and PLM presence the AI uses directly.
 /// </summary>
 public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoomServices
 {
-    /// <summary>The cartridge RNG.</summary>
+    /// <summary>The game RNG.</summary>
     IEnemyRandomNumbers Random { get; }
 
     /// <summary>Global event bits.</summary>

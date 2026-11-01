@@ -4,7 +4,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.A
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
-/// The Tourian elevator access PLM programs (#1296), in place of their bank-$84 instruction lists: the crumble walks
+/// The Tourian elevator access PLM programs (#1296): the crumble walks
 /// down six rows, crumbling each through four images; the clear erases the access at once.
 /// </summary>
 internal static class TourianAccessPlmProgramDefinitions

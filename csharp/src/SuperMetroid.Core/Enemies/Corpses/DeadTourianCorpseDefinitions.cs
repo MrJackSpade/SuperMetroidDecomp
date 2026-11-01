@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal static class DeadTourianCorpseDefinitions
 {
     /// <summary>
-    /// Each species' corpse variants: the pose program, in native configuration order; the rotting kind; and the corpse's
+    /// Each species' corpse variants: the pose program, in configuration order; the rotting kind; and the corpse's
     /// height in pixel rows, sixteen for the Zoomer and Ripper and thirty-two for the Skree.
     /// </summary>
     internal static readonly Dictionary<DeadTourianCorpseSpecies, DeadTourianCorpseDefinition[]> Variants = new()

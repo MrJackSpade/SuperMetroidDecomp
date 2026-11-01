@@ -76,7 +76,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Guards the initializer's simulated ascent and floor search against invalid room geometry.</summary>
     private const int AlcoonJumpSimulationLimit = 4096;
 
-    /// <summary>Ports <c>InitAI_Alcoon</c> at <c>$A8:DCCD</c>, including its floor search.</summary>
+    /// <summary>Initializes the Alcoon, including its floor search.</summary>
     private void InitializeAlcoon(RoomEnemySlot slot, RoomLevelData? level)
     {
         if (level is null)
@@ -315,7 +315,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Velocity = new FixedVector<RoomPixels>(
             SignedSixteenSixteen.Zero, SignedSixteenSixteen.FromParts(-12, 0));
-        // The cartridge also clears a record word here that nothing reads.
+        // The game also clears a record word here that nothing reads.
         state.YAcceleration = SignedSixteenSixteen.FromRaw(SixteenSixteen.FromWhole(1) / 2);
     }
 
@@ -349,7 +349,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
-    /// <summary>Implements Alcoon instruction <c>$A8:DF3F</c> and returns the walk the animation continues at.</summary>
+    /// <summary>Runs the Alcoon's start-walking cue and returns the walk the animation continues at.</summary>
     private AlcoonProgram StartAlcoonWalking(AlcoonEnemyState state)
     {
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
@@ -362,7 +362,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Implements both movement bytecodes at <c>$A8:DF63/$DF71</c>: the animation runs on unless a wall turns the Alcoon
+    /// Implements both movement cues: the animation runs on unless a wall turns the Alcoon
     /// round, when it continues at the other walk's first pose.
     /// </summary>
     private AlcoonProgram? MoveAlcoonHorizontally(
@@ -387,7 +387,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             : AlcoonProgram.WalkingRightLoop;
     }
 
-    /// <summary>Connects Alcoon fireballs to their bank-$86 movement pre-instruction.</summary>
+    /// <summary>Connects Alcoon fireballs to their movement pre-instruction.</summary>
     internal static void AddAlcoonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>
@@ -414,15 +414,15 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             static (AlcoonEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
             (state, cue, _) => ApplyAlcoonCue(slot, state, context.Level, cue));
 
-    /// <summary>Initial horizontal fireball speed in native 8.8 units.</summary>
+    /// <summary>Initial horizontal fireball speed in 8.8 units.</summary>
     private const int AlcoonFireballGraphicsHorizontalSpeed = 1024;
     /// <summary>Horizontal speed at which fireball deceleration stops.</summary>
     private const int AlcoonFireballTerminalHorizontalSpeed = 512;
-    /// <summary>Native 8.8 horizontal speed reduction applied per fireball update.</summary>
+    /// <summary>8.8 horizontal speed reduction applied per fireball update.</summary>
     private const int AlcoonFireballHorizontalDeceleration = 64;
 
     /// <summary>
-    /// Ports <c>InitAI_EnemyProjectile_AlcoonFireball</c> at <c>$86:9EB2</c>. The parameter
+    /// Initializes the Alcoon Fireball projectile. The parameter
     /// is a byte offset (0, 2, or 4), exactly as passed in A by Alcoon's three instructions.
     /// </summary>
     internal void SpawnAlcoonFireball(RoomEnemySlot alcoon, int yVelocityTableByteOffset)
@@ -440,10 +440,10 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AlcoonEnemyState state = alcoon.RequireSpeciesState<AlcoonEnemyState>();
         bool movingLeft = state.Velocity.X.WholePixels < 0;
 
-        // SpawnEnemyProjectileY_ParameterA_XGraphics copies the complete seven-word $9E90
-        // definition before initializer $9EB2 touches position, subposition, and velocity.
+        // Spawning copies the fireball's complete authored
+        // definition before its initializer touches position, subposition, and velocity.
         // Keeping that division exact makes radii, damage, persistence, shot blocking,
-        // animation, and pre-instruction cartridge-owned instead of duplicating them here.
+        // animation, and frame behaviour owned by the definition instead of duplicating them here.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.AlcoonFireball,
@@ -455,13 +455,13 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(EnemyFireballLaunches.AlcoonYVelocity(yVelocityTableByteOffset)));
     }
 
-    /// <summary>Ports Alcoon fireball pre-instruction <c>$86:9EFF-$9F40</c>.</summary>
+    /// <summary>Runs the Alcoon fireball's per-frame behaviour.</summary>
     internal static void RunAlcoonFireballFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
         // Unlike Ridley's fireball, this definition checks vertical collision first. If
-        // either axis collides, the native routine clears the projectile ID immediately and
+        // either axis collides, the routine clears the projectile ID immediately and
         // never applies horizontal deceleration on that frame.
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical) ||
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))

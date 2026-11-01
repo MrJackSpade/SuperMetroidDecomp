@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>
 /// The state of one Beetom. The arc's speed index, the function, both countdowns and the last controller input are
-/// values the cartridge keeps in the enemy's common record, so they are emptied with that record when the enemy is
+/// values the game keeps in the enemy's common record, so they are emptied with that record when the enemy is
 /// killed (<see cref="ClearWithRecord"/>). Its facing is inherited from the previous Beetom in its slot
 /// (<see cref="SlotInheritance{TOccupant}"/>).
 /// </summary>
@@ -73,7 +73,7 @@ public sealed class BeetomEnemyState
         YSpeedTableIndex = Math.Min(MaximumYSpeedTableIndex, YSpeedTableIndex + step);
 
     /// <summary>
-    /// Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record: no
+    /// Empties the values the game keeps in the enemy's common record, when a kill empties that record: no
     /// function, a zero speed index and countdowns, and no previous input.
     /// </summary>
     internal void ClearWithRecord()

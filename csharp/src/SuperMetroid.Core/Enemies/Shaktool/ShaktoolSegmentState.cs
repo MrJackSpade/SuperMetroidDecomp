@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
-/// The state of one of Shaktool's seven linked segments. Every value here is one the cartridge keeps in the
+/// The state of one of Shaktool's seven linked segments. Every value here is one the game keeps in the
 /// segment's common enemy record, so it is emptied with that record when the segment is killed
 /// (<see cref="ClearWithRecord"/>); the rest of the chain still reads the emptied values for the remainder of that
 /// update.
@@ -30,7 +30,7 @@ public sealed class ShaktoolSegmentState
     public bool OrientationReversed { get; internal set; }
     /// <summary>
     /// The final saw's curl progress: the angular increments accumulated since the chain last reached its target,
-    /// from 0 through $F3FB. Reaching $F000 starts the chain straightening, which stops the accumulation.
+    /// from 0 through 62459. Reaching 61440 starts the chain straightening, which stops the accumulation.
     /// </summary>
     public int CurlProgress { get; internal set; }
     /// <summary>The slot of the first segment of the seven-segment chain, whose segments occupy consecutive slots.</summary>
@@ -40,7 +40,7 @@ public sealed class ShaktoolSegmentState
     /// <summary>The chain's reversal, straightening and orbit-direction flags, written to every segment together.</summary>
     internal ShaktoolMotionFlags MotionFlags { get; set; }
 
-    /// <summary>Empties the orientation, curl progress and reversal together, as the cartridge does by zeroing their shared record word.</summary>
+    /// <summary>Empties the orientation, curl progress and reversal together, as the game does by zeroing their shared record word.</summary>
     internal void ResetOrientation()
     {
         OrientationBucket = 0;

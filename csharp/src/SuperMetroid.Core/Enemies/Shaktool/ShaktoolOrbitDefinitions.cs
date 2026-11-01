@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
-/// <summary>Shaktool's orbit and orientation encodings, as its bank-$AA segment routines apply them.</summary>
+/// <summary>Shaktool's orbit and orientation encodings, as its segment routines apply them.</summary>
 internal static class ShaktoolOrbitDefinitions
 {
     /// <summary>One angle-table entry of a 16-bit angle: the straightening step and its extra centre step.</summary>

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The five glass-tube pieces that fall when Mother Brain's tank collapses, in the order of their bank-$A9
-/// population records ($A9:8AE5, sixteen bytes each). Each piece also has its own still-pose program.
+/// The five glass-tube pieces that fall when Mother Brain's tank collapses, in the order of their
+/// population records. Each piece also has its own still-pose program.
 /// </summary>
 public enum MotherBrainTubePiece
 {

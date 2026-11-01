@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// A species' reaction to Samus's beams and missiles. The ordinary shot pass runs every stage at the position the
-/// cartridge's shot callback occupies in the bank-$A0 collision sequence; a reaction sets only the stages it has.
+/// game's shot callback occupies in the collision sequence; a reaction sets only the stages it has.
 /// </summary>
 /// <param name="matches">Whether an enemy uses this reaction (its definition and header shot callback).</param>
 internal sealed class EnemyShotReaction(Func<RoomEnemySlot, bool> matches)

@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
-/// Native two-entry horizontal dispatcher used by Tripper and Kamer (the suspensor
-/// platform). These values are indexes, not bank-$A3 function pointers: the ROM doubles
-/// each word before indexing the pointer table at <c>$A3:9C97</c>.
+/// Two-entry horizontal dispatcher used by Tripper and Kamer (the suspensor
+/// platform). These values are indexes, not function pointers: the authored doubles
+/// each word before indexing the pointer table.
 /// </summary>
 public enum PlatformHorizontalMovement
 {

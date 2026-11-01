@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>
-/// The Blue Brinstar face block's neutral and turning animations as typed programs (#641), in place of their bank-$A8 lists. Generated from the verified native lists: each
+/// The Blue Brinstar face block's neutral and turning animations as typed programs (#641). Each
 /// frame shows a <see cref="BlueBrinstarFaceBlockFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class BlueBrinstarFaceBlockAnimations
@@ -37,7 +37,7 @@ internal static class BlueBrinstarFaceBlockAnimations
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<BlueBrinstarFaceBlockProgram, BlueBrinstarFaceBlockFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<BlueBrinstarFaceBlockProgram, BlueBrinstarFaceBlockFrame, NoAnimationCue>.Show(new(pose), duration);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<BlueBrinstarFaceBlockProgram, BlueBrinstarFaceBlockFrame, NoAnimationCue> Hold => AnimationProgramStep<BlueBrinstarFaceBlockProgram, BlueBrinstarFaceBlockFrame, NoAnimationCue>.Hold;
 
 }

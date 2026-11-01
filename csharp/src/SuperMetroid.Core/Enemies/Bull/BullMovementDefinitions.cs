@@ -18,13 +18,13 @@ public static class BullMovementDefinitions
 
     /// <summary>
     /// The frame intervals each population parameter-one selector chooses.
-    /// #625 / #649: the acceleration field in each four-byte record at
-    /// $A8:D895-$D8C8 is exactly selector+3 for selector 0..12. All 13 first
-    /// words match the pinned NTSC J/U v1.0 ROM and bank-A8 disassembly.
-    /// The native initializer multiplies parameter one by four and copies this
+    /// #625 / #649: the acceleration field in each four-byte record
+    /// is exactly selector+3 for selector 0..12. All 13 first
+    /// words are authored values.
+    /// The initializer multiplies parameter one by four and copies this
     /// word to both the timer reset and live timer. Selector 13 would read the
     /// following code and is rejected.
-    /// Deceleration at $A8:D897+4*selector advances every two selectors, with
+    /// Deceleration+4*selector advances every two selectors, with
     /// the two-frame interval held once more at selector four.
     /// </summary>
     internal static readonly BullSpeedIntervals[] Intervals =
@@ -34,7 +34,7 @@ public static class BullMovementDefinitions
     ];
 
     /// <summary>
-    /// $A8:D871 BullConstants_AngleToMove: the compass angle each of the ten facing-dependent projectile directions
+    /// The compass angle each of the ten facing-dependent projectile directions
     /// moves the Bull at. Down occupies two slots; up appears at both ends; each distinct direction advances a 32-unit
     /// octant.
     /// </summary>

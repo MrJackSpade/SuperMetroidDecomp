@@ -4,23 +4,23 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Debugger-visible projection of one of bank $86's eighteen fixed enemy-projectile slots.
+/// Debugger-visible projection of one of the eighteen fixed enemy-projectile slots.
 /// Positions retain separate 16-bit subpositions because a fireball's signed 8.8 velocity
 /// is added to the high byte of that fraction by the original movement helpers.
 /// </summary>
 public sealed class RoomEnemyProjectileSlot
 {
-    /// <summary>Assigns the fixed pool index used for native projectile slot addressing.</summary>
+    /// <summary>Assigns the fixed pool index used for projectile slot addressing.</summary>
     internal RoomEnemyProjectileSlot(int slotIndex) => SlotIndex = slotIndex;
 
-    /// <summary>Gets the physical pool index from zero through seventeen; twice this value is the native byte index $00..$22.</summary>
+    /// <summary>Gets the physical pool index from zero through seventeen; twice this value is the byte index $00..$22.</summary>
     public int SlotIndex { get; }
-    /// <summary>Gets the native bank-$86 definition identity occupying the slot; zero releases the slot without clearing its other words.</summary>
+    /// <summary>Gets the definition identity occupying the slot; zero releases the slot without clearing its other words.</summary>
     public RoomEnemyProjectileKind Kind { get; internal set; }
-    /// <summary>Gets whether the slot has a nonzero native definition identity and participates in projectile passes.</summary>
+    /// <summary>Gets whether the slot has a nonzero definition identity and participates in projectile passes.</summary>
     public bool IsActive => Kind != RoomEnemyProjectileKind.None;
     /// <summary>
-    /// Gets the native 16.16 position: wrapped sixteen-bit whole words plus fractional words into
+    /// Gets the 16.16 position: wrapped sixteen-bit whole words plus fractional words into
     /// whose high byte signed 8.8 motion adds. Room pixels for every family except the few
     /// pre-instructions that deliberately keep screen-relative words here.
     /// </summary>
@@ -29,7 +29,7 @@ public sealed class RoomEnemyProjectileSlot
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>The typed program the projectile plays (#641), or null for a free slot.</summary>
     internal EnemyProjectileAnimation? Animation { get; private set; }
-    /// <summary>Gets the native draw-instruction countdown; allocation starts it at one so the initial list runs on its first reached pass.</summary>
+    /// <summary>Gets the draw-instruction countdown; allocation starts it at one so the initial list runs on its first reached pass.</summary>
     public WrappingCountdown FrameHold { get; internal set; }
     /// <summary>The frame the projectile shows: the blank frame from allocation until its program shows one, none once freed.</summary>
     public EnemyProjectileFrameId? Frame { get; internal set; }
@@ -37,9 +37,9 @@ public sealed class RoomEnemyProjectileSlot
     internal EnemyProjectileFrameBehavior FrameBehavior { get; set; }
     /// <summary>Gets the sheet characters and colours the projectile draws with, as its spawner supplied them.</summary>
     public SpriteGraphics Graphics { get; internal set; } = SpriteGraphics.Emptied;
-    /// <summary>Gets the collision half-extents in pixels, decoded from the definition's native packed radii.</summary>
+    /// <summary>Gets the collision half-extents in pixels, decoded from the definition's packed radii.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
-    /// <summary>Gets the contact-damage value decoded from the native properties word, before Samus's suit reduction.</summary>
+    /// <summary>Gets the contact-damage value decoded from the properties word, before Samus's suit reduction.</summary>
     public int Damage
     {
         get;
@@ -57,8 +57,8 @@ public sealed class RoomEnemyProjectileSlot
     /// </summary>
     public EnemyProjectileDepth Depth { get; internal set; }
     /// <summary>
-    /// Bank $86's independent <c>eproj_timers</c> word. This is not the frame-list
-    /// instruction timer: projectile bytecode explicitly initializes and decrements this
+    /// The projectile's independent timer word. This is not the frame-list
+    /// frame hold: projectile animations explicitly initialize and decrement this
     /// value for counted loops and randomized impact animations.
     /// </summary>
     public int GeneralTimer
@@ -86,28 +86,28 @@ public sealed class RoomEnemyProjectileSlot
 
     /// <summary>Gets whether this actor participates in damaging Samus-contact checks, independently of persistence and shot-blocking properties.</summary>
     public bool CanDamageSamus { get; internal set; }
-    /// <summary>Native projectile property $4000: contact does not delete this actor.</summary>
+    /// <summary>Contact does not delete this actor.</summary>
     public bool PersistsOnSamusContact { get; internal set; }
-    /// <summary>Native projectile property $8000: Samus's shots test this actor for collision.</summary>
+    /// <summary>Samus's shots test this actor for collision.</summary>
     public bool BlocksSamusProjectiles { get; internal set; }
     /// <summary>
-    /// Native enemy-projectile initializer flag: run the actor's shot list, act as an indestructible dud, or skip the
-    /// collision scan altogether. This is deliberately separate from property $8000: Kago enables that property only
+    /// Enemy-projectile initializer flag: run the actor's shot list, act as an indestructible dud, or skip the
+    /// collision scan altogether. This is deliberately separate from <see cref="BlocksSamusProjectiles"/>: Kago enables that property only
     /// after its bug has moved far enough from the source shell, while still running its shot list.
     /// </summary>
     public EnemyProjectileCollisionOption CollisionOption { get; internal set; }
     /// <summary>The enemy a death explosion or its drop came from, and whether the explosion rebuilds it when it ends.</summary>
     public KilledEnemy KilledEnemy { get; internal set; }
     /// <summary>
-    /// Native bank-$A0 enemy-header pointer retained in the parallel bank-$7E projectile
+    /// Enemy-header pointer retained in the parallel projectile
     /// metadata. Death explosions use offset $3A of this record to find their six-byte
-    /// bank-$B4 drop table.
+    /// drop table.
     /// </summary>
     public EnemyDefinitionId DropDefinitionId { get; internal set; }
     /// <summary>The chance table a boss-selected drop rolls against instead of its enemy header's, or null.</summary>
     internal EnemyDropChances? DropChancesOverride { get; set; }
 
-    /// <summary>Runs <paramref name="animation"/> from its first frame on the next pass, in place of any native list.</summary>
+    /// <summary>Runs <paramref name="animation"/> from its first frame on the next pass, in place of any list.</summary>
     internal void StartAnimation(EnemyProjectileAnimation animation)
     {
         Animation = Ensure.NotNull(animation);
@@ -115,8 +115,8 @@ public sealed class RoomEnemyProjectileSlot
     }
 
     /// <summary>
-    /// Replaces the running program with <paramref name="animation"/> without touching the frame timer, as a native
-    /// list-pointer store does: the new program's first frame shows when the current frame expires.
+    /// Replaces the running program with <paramref name="animation"/> without touching the frame timer, as a
+    /// direct animation change does: the new program's first frame shows when the current frame expires.
     /// </summary>
     internal void InstallAnimation(EnemyProjectileAnimation animation) => Animation = Ensure.NotNull(animation);
 
@@ -126,11 +126,11 @@ public sealed class RoomEnemyProjectileSlot
     /// </summary>
     internal void ReleaseIdentityOnly() => Kind = RoomEnemyProjectileKind.None;
 
-    /// <summary>Prepares a freed slot for reuse while retaining whole coordinates and velocity as native allocation does.</summary>
+    /// <summary>Prepares a freed slot for reuse while retaining whole coordinates and velocity as allocation does.</summary>
     internal void Clear()
     {
         Kind = RoomEnemyProjectileKind.None;
-        // $86:8016/8154 release identity only. SpawnEprojInner clears fractions,
+        // Deletion releases identity only. Spawning clears fractions,
         // but leaves whole coordinates and velocities for the family initializer.
         Position = Position.WithFractionX(0).WithFractionY(0);
         FrameBehavior = EnemyProjectileFrameBehavior.Stationary;

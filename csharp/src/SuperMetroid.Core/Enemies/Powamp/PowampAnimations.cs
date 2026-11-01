@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
-/// Powamp's body pulses and balloon inflate and sink animations as typed programs (#641), in place of their bank-$A8 lists. Generated from the verified native lists: each
+/// Powamp's body pulses and balloon inflate and sink animations as typed programs (#641). Each
 /// frame shows a <see cref="PowampFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class PowampAnimations
@@ -60,7 +60,7 @@ internal static class PowampAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<PowampProgram, PowampFrame, NoAnimationCue> FallInto(PowampProgram program) => AnimationProgramStep<PowampProgram, PowampFrame, NoAnimationCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<PowampProgram, PowampFrame, NoAnimationCue> Hold => AnimationProgramStep<PowampProgram, PowampFrame, NoAnimationCue>.Hold;
 
 }

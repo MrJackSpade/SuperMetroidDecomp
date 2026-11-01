@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
-/// <summary>The installed bank-$B4 spritemap each room sprite-object frame draws.</summary>
+/// <summary>The installed spritemap each room sprite-object frame draws.</summary>
 internal static class RoomSpriteObjectVisualDefinitions
 {
 

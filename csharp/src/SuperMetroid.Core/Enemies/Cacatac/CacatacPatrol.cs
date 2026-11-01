@@ -9,7 +9,7 @@ internal static class CacatacPatrol
     {
         if (index >= CacatacMovementDefinitions.TravelDistances.Length)
             throw new InvalidDataException(
-                $"Cacatac travel-distance index {index} is outside the 6-entry native table.");
+                $"Cacatac travel-distance index {index} is outside the six authored travel distances.");
         return CacatacMovementDefinitions.TravelDistances[index];
     }
 }

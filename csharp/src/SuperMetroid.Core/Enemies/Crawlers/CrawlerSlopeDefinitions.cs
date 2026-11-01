@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
-/// <summary>Native non-square-slope tangent scaling shared by crawlers and Yard.</summary>
+/// <summary>Non-square-slope tangent scaling shared by crawlers and Yard.</summary>
 public static class CrawlerSlopeDefinitions
 {
     /// <summary>
-    /// The tangent multiplier, in 256ths, of each of the 32 native slope shapes: square shapes keep the full speed, and
+    /// The tangent multiplier, in 256ths, of each of the 32 slope shapes: square shapes keep the full speed, and
     /// the gentle and steep shapes scale it down. The unused additive words are not consumed by the enemy movement
     /// routine.
     /// </summary>

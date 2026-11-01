@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 internal static class AtomicMovementDefinitions
 {
     /// <summary>
-    /// $A8:E380, AnimationScriptPointers_Atomic: the four spinning animations, indexed by the enemy population's first
+    /// The four spinning animations, indexed by the enemy population's first
     /// parameter.
     /// </summary>
     internal static readonly AtomicProgram[] InitialPrograms =

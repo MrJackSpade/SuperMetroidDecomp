@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
 /// The engine-owned collision of all three ordinary Pirate families. Editable component offsets in the installed visual
-/// asset cannot move these rectangles or replace their native touch/shot reactions.
+/// asset cannot move these rectangles or replace their touch/shot reactions.
 /// </summary>
 internal static class SpacePirateHitboxes
 {

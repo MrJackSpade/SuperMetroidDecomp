@@ -1,39 +1,39 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The Dachora's run, idle, blink, shinespark charge, echo and fall animations as typed programs (#641), one per bank-$A7 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="DachoraAnimations"/>.
+/// The Dachora's run, idle, blink, shinespark charge, echo and fall animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="DachoraAnimations"/>.
 /// </summary>
 internal enum DachoraProgram
 {
-    /// <summary><c>InstList_Dachora_RunningLeft</c> at $A7:F345.</summary>
+    /// <summary>The running left animation.</summary>
     RunningLeft,
-    /// <summary><c>InstList_Dachora_RunningLeft_FastAnimation</c> at $A7:F361.</summary>
+    /// <summary>The running left fast animation.</summary>
     RunningLeftFast,
-    /// <summary><c>InstList_Dachora_RunningLeft_VeryFastAnimation</c> at $A7:F37D.</summary>
+    /// <summary>The running left very fast animation.</summary>
     RunningLeftVeryFast,
-    /// <summary><c>InstList_Dachora_Idling_FacingLeft</c> at $A7:F399.</summary>
+    /// <summary>The idle left animation.</summary>
     IdleLeft,
-    /// <summary><c>InstList_Dachora_Blinking_FacingLeft</c> at $A7:F3C9.</summary>
+    /// <summary>The blink left animation.</summary>
     BlinkLeft,
-    /// <summary><c>InstList_Dachora_Echo_FacingLeft</c> at $A7:F3F7.</summary>
+    /// <summary>The echo left animation.</summary>
     EchoLeft,
-    /// <summary><c>InstList_Dachora_Falling_FacingLeft</c> at $A7:F3FF.</summary>
+    /// <summary>The falling left animation.</summary>
     FallingLeft,
-    /// <summary><c>InstList_Dachora_RunningRight</c> at $A7:F407.</summary>
+    /// <summary>The running right animation.</summary>
     RunningRight,
-    /// <summary><c>InstList_Dachora_RunningRight_FastAnimation</c> at $A7:F423.</summary>
+    /// <summary>The running right fast animation.</summary>
     RunningRightFast,
-    /// <summary><c>InstList_Dachora_RunningRight_VeryFastAnimation</c> at $A7:F43F.</summary>
+    /// <summary>The running right very fast animation.</summary>
     RunningRightVeryFast,
-    /// <summary><c>InstList_Dachora_Idling_FacingRight</c> at $A7:F45B.</summary>
+    /// <summary>The idle right animation.</summary>
     IdleRight,
-    /// <summary><c>InstList_Dachora_Blinking_FacingRight</c> at $A7:F48B.</summary>
+    /// <summary>The blink right animation.</summary>
     BlinkRight,
-    /// <summary><c>InstList_Dachora_ChargeShinespark_FacingRight</c> at $A7:F4B3.</summary>
+    /// <summary>The charge right animation.</summary>
     ChargeRight,
-    /// <summary><c>InstList_Dachora_Echo_FacingRight</c> at $A7:F4B9.</summary>
+    /// <summary>The echo right animation.</summary>
     EchoRight,
-    /// <summary><c>InstList_Dachora_Falling_FacingRight</c> at $A7:F4C1.</summary>
+    /// <summary>The falling right animation.</summary>
     FallingRight,
 }

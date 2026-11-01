@@ -1,41 +1,41 @@
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>
-/// The Sidehoppers' and Dessgeegas' floor and ceiling hop and landing animations as typed programs (#641), one per bank-$A3 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="HopperAnimations"/>.
+/// The Sidehoppers' and Dessgeegas' floor and ceiling hop and landing animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="HopperAnimations"/>.
 /// </summary>
 internal enum HopperProgram
 {
-    /// <summary><c>InstList_Sidehopper_Hopping_UpsideUp</c> at $A3:AA76.</summary>
+    /// <summary>The sidehopper floor jumping animation.</summary>
     SidehopperFloorJumping,
-    /// <summary>The native list at $A3:AA82.</summary>
+    /// <summary>The sidehopper floor landed animation.</summary>
     SidehopperFloorLanded,
-    /// <summary>The native list at $A3:AA9C.</summary>
+    /// <summary>The sidehopper ceiling jumping animation.</summary>
     SidehopperCeilingJumping,
-    /// <summary>The native list at $A3:AAA8.</summary>
+    /// <summary>The sidehopper ceiling landed animation.</summary>
     SidehopperCeilingLanded,
-    /// <summary><c>InstList_Dessgeega_Hopping_UpsideUp</c> at $A3:AFA5.</summary>
+    /// <summary>The dessgeega floor jumping animation.</summary>
     DessgeegaFloorJumping,
-    /// <summary>The native list at $A3:AFAD.</summary>
+    /// <summary>The dessgeega floor landed animation.</summary>
     DessgeegaFloorLanded,
-    /// <summary>The native list at $A3:AFC3.</summary>
+    /// <summary>The dessgeega ceiling jumping animation.</summary>
     DessgeegaCeilingJumping,
-    /// <summary>The native list at $A3:AFCB.</summary>
+    /// <summary>The dessgeega ceiling landed animation.</summary>
     DessgeegaCeilingLanded,
-    /// <summary><c>InstList_SidehopperLarge_Hopping_UpsideUp</c> at $A3:B0C5.</summary>
+    /// <summary>The large sidehopper floor jumping animation.</summary>
     LargeSidehopperFloorJumping,
-    /// <summary>The native list at $A3:B0D1.</summary>
+    /// <summary>The large sidehopper floor landed animation.</summary>
     LargeSidehopperFloorLanded,
-    /// <summary>The native list at $A3:B0EB.</summary>
+    /// <summary>The large sidehopper ceiling jumping animation.</summary>
     LargeSidehopperCeilingJumping,
-    /// <summary>The native list at $A3:B0F7.</summary>
+    /// <summary>The large sidehopper ceiling landed animation.</summary>
     LargeSidehopperCeilingLanded,
-    /// <summary><c>InstList_DessgeegaLarge_Hopping_UpsideUp</c> at $A3:B237.</summary>
+    /// <summary>The large dessgeega floor jumping animation.</summary>
     LargeDessgeegaFloorJumping,
-    /// <summary>The native list at $A3:B23F.</summary>
+    /// <summary>The large dessgeega floor landed animation.</summary>
     LargeDessgeegaFloorLanded,
-    /// <summary>The native list at $A3:B255.</summary>
+    /// <summary>The large dessgeega ceiling jumping animation.</summary>
     LargeDessgeegaCeilingJumping,
-    /// <summary>The native list at $A3:B25D.</summary>
+    /// <summary>The large dessgeega ceiling landed animation.</summary>
     LargeDessgeegaCeilingLanded,
 }

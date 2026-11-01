@@ -1,16 +1,16 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The frames an enemy projectile shows: the bank-$8D compositions its programs select, then every installed program
+/// The frames an enemy projectile shows: the compositions its programs select, then every installed program
 /// frame, named by its installed composition, in schema order.
 /// </summary>
 public enum EnemyProjectileFrameId
 {
-    /// <summary>The empty bank-$8D projectile spritemap, which draws nothing.</summary>
+    /// <summary>The empty projectile spritemap, which draws nothing.</summary>
     Blank = 1,
-    /// <summary><c>skree_debris</c>, a bank-$8D composition.</summary>
+    /// <summary><c>skree_debris</c>, a composition.</summary>
     SkreeDebris,
-    /// <summary><c>metaree_debris</c>, a bank-$8D composition.</summary>
+    /// <summary><c>metaree_debris</c>, a composition.</summary>
     MetareeDebris,
     /// <summary><c>draygon_frame_00</c>, an installed program frame.</summary>
     DraygonFrame00,
@@ -2246,10 +2246,10 @@ public enum EnemyProjectileFrameId
     FallingSparkFrame12,
     /// <summary><c>falling_spark_frame_13</c>, an installed program frame.</summary>
     FallingSparkFrame13,
-    /// <summary><c>ceres_elevator_pad_0</c>, a bank-$8D composition.</summary>
+    /// <summary><c>ceres_elevator_pad_0</c>, a composition.</summary>
     CeresElevatorPad0,
-    /// <summary><c>ceres_elevator_pad_1</c>, a bank-$8D composition.</summary>
+    /// <summary><c>ceres_elevator_pad_1</c>, a composition.</summary>
     CeresElevatorPad1,
-    /// <summary><c>ceres_elevator_platform</c>, a bank-$8D composition.</summary>
+    /// <summary><c>ceres_elevator_platform</c>, a composition.</summary>
     CeresElevatorPlatform,
 }

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Drawing;
 /// <summary>
 /// Where a room's loaded graphics set places the sprite colourings drawn under it (#1464): each member's colours in the
 /// store its record loads them into, a shared role's in the store the role names, an encounter's colours in the store of
-/// their colour run. Gameplay asks it which colourings hold the same colours wherever the cartridge compares palette
+/// their colour run. Gameplay asks it which colourings hold the same colours wherever the game compares palette
 /// selections, and draws resolve their colours through it.
 /// </summary>
 /// <remarks>
@@ -30,7 +30,7 @@ internal sealed class GraphicsSetColourPlacement : SpriteColourPlacement
 
     /// <summary>
     /// The placement a load of <paramref name="loadedSet"/> makes once it has loaded <paramref name="entries"/>, in load
-    /// order. A member loaded twice keeps the store it was loaded into first, as the cartridge's search of the loaded
+    /// order. A member loaded twice keeps the store it was loaded into first, as the game's search of the loaded
     /// records finds the first.
     /// </summary>
     internal static GraphicsSetColourPlacement Of(RoomEnemyGraphicsSetDefinition loadedSet, IEnumerable<RoomEnemyGraphicsSetEntry> entries)

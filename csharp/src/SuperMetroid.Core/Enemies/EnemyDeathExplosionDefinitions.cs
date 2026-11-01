@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>The typed death programs shared by generic and family-specific enemy deaths.</summary>
 internal static class EnemyDeathExplosionDefinitions
 {
-    /// <summary>The blank-frame wait a drop runs after it is collected or expires ($86:ECA3).</summary>
+    /// <summary>The blank-frame wait a drop runs after it is collected or expires.</summary>
     internal const EnemyDeathProjectileProgram NoDropTail = EnemyDeathProjectileProgram.RespawnTail;
 
     /// <summary>

@@ -1,15 +1,15 @@
 namespace SuperMetroid.Core.Enemies.Stoke;
 
 /// <summary>
-/// The direction word stored at Stoke WRAM <c>$0FB0,x</c>. Stoke's turn routine deliberately
-/// leaves this word unchanged until the newly selected animation executes command
-/// <c>$8990</c> or <c>$899D</c>; the enum therefore describes cartridge storage, not merely
+/// The direction word stored for Stoke. Stoke's turn routine deliberately
+/// leaves this word unchanged until the newly selected animation executes
+/// its resume-moving cue; the enum therefore describes the stored word, not merely
 /// the sign of the current velocity.
 /// </summary>
 public enum StokeDirection
 {
-    /// <summary>Native direction word zero: left-facing latch installed with the moving-left function by instruction $A2:8990.</summary>
+    /// <summary>Direction word zero: left-facing latch installed with the moving-left function by the left resume cue.</summary>
     Left = 0,
-    /// <summary>Native direction word one: right-facing latch installed with the moving-right function by instruction $A2:899D.</summary>
+    /// <summary>Direction word one: right-facing latch installed with the moving-right function by the right resume cue.</summary>
     Right = 1,
 }

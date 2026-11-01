@@ -52,7 +52,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     private const int FirstAnimatedFaceBlockPaletteColor = 9;
 
     /// <summary>Whether an eligible block installed the room-wide graphics hook.</summary>
-    /// <remarks>The cartridge stores this animation in the shared enemy-graphics-drawn hook words, not per enemy.
+    /// <remarks>The game stores this animation in the shared enemy-graphics-drawn hook words, not per enemy.
     /// Multiple blocks repeatedly select the same graphics-set palette during main AI, and whichever eligible block
     /// runs last therefore owns this one shared base.</remarks>
     private bool _blueBrinstarFaceBlockPaletteHookInstalled;
@@ -63,13 +63,13 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>The colours of the last eligible block processed by main AI, whose set the animation writes.</summary>
     private SpriteColouring _blueBrinstarFaceBlockColouring = SharedSpriteColouring.Common;
 
-    /// <summary>Ports <c>BlueBrinstarFaceBlock_Init</c> at <c>$A8:E82E</c>.</summary>
+    /// <summary>Initializes the Blue Brinstar face block.</summary>
     internal void InitializeBlueBrinstarFaceBlock(RoomEnemySlot slot, SamusState? samus)
     {
         var state = new BlueBrinstarFaceBlockEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // `$E828` is a one-frame neutral map followed by the common sleep instruction. All
+        // The neutral animation is a one-frame neutral map followed by the common sleep. All
         // authored directional lists use the same neutral map as their first frame.
         state.Program = AnimationProgramCursor<BlueBrinstarFaceBlockProgram>.Start(BlueBrinstarFaceBlockProgram.Initial);
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -83,7 +83,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             InstallBlueBrinstarFaceBlockPaletteHook(slot);
         _blueBrinstarFaceBlockPaletteTimer = WrappingCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
 
-        // Native keeps only parameter two bit zero, moved to the sign bit. This looks
+        // Keeps only parameter two bit zero, moved to the sign bit. This looks
         // backwards until main AI is read: activation requires the Samus delta sign to be
         // *different* from this marker.
         state.FacesRight = slot.SpawnSettings<FaceBlockSpawnSettings>().Facing == HorizontalDirection.Right;
@@ -91,14 +91,14 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         state.LastHorizontalDelta = 0;
     }
 
-    /// <summary>Ports <c>BlueBrinstarFaceBlock_Main</c> at <c>$A8:E8AE</c>.</summary>
+    /// <summary>Runs the Blue Brinstar face block's main AI.</summary>
     internal void RunBlueBrinstarFaceBlockMain(
         RoomEnemySlot slot,
         BlueBrinstarFaceBlockEnemyState state,
         SamusState? samus)
     {
         // Collected-items, not equipped-items, gates both palette animation and waking. A
-        // null Samus owner means the caller has not supplied that native global, so leaving
+        // null Samus owner means the caller has not supplied that global, so leaving
         // the actor dormant is the only non-invented behavior until a gameplay frame does.
         if (!HasCollectedMorphBall(samus))
             return;
@@ -130,7 +130,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         slot.Timer = WrappingCountdown.Start(0);
         state.Activated = true;
 
-        // Activation restarts the singleton palette hook at the cartridge's sixteen-frame
+        // Activation restarts the singleton palette hook at the game's sixteen-frame
         // cadence but deliberately does not reset its frame index.
         _blueBrinstarFaceBlockPaletteTimer = WrappingCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
     }
@@ -141,8 +141,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall);
 
     /// <summary>
-    /// Reproduces the native signed-magnitude helper over one wrapped 16-bit subtraction.
-    /// In particular, $8000 remains $8000 just as the 65C816 negate sequence does.
+    /// Reproduces the signed-magnitude helper over one wrapped 16-bit subtraction.
+    /// In particular, -32768 remains -32768 just as the game's negation does.
     /// </summary>
     private static int AbsoluteFaceBlockDelta(int delta) =>
         WordWrap.Signed(delta) < 0 ? WordWrap.Unsigned(-delta) : Ensure.BetweenInclusive(0, ushort.MaxValue, delta);
@@ -152,16 +152,16 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     {
         _blueBrinstarFaceBlockPaletteHookInstalled = true;
 
-        // `((palette_index * 16) & $FF00) >> 8`, followed by `(offset >> 1) + 137`,
-        // simplifies to OBJ palette N color nine. Keep that PPU meaning explicit so a
-        // debugger sees an actual palette row rather than a mysterious WRAM byte offset.
+        // `((palette_index * 16) & 0xFF00) >> 8`, followed by `(offset >> 1) + 137`,
+        // simplifies to sprite palette N color nine. Keep that palette meaning explicit so a
+        // debugger sees an actual palette row rather than a mysterious byte offset.
         _blueBrinstarFaceBlockColouring = slot.Colouring;
     }
 
     /// <summary>
-    /// Ports the graphics-drawn palette hook at <c>$A8:E86C</c>. RoomEnemySystem executes
+    /// Runs the graphics-drawn palette hook. RoomEnemySystem executes
     /// graphics hooks once per enemy frame after actor processing, the same ownership model
-    /// already used by Magdollite and Work Robot palette hooks. WRAM $0795 pauses it during
+    /// already used by Magdollite and Work Robot palette hooks. The door-transition gate pauses it during
     /// an enemy door transition; that translated word is exposed as ElevatorDoorTransitionActive.
     /// </summary>
     internal void StepBlueBrinstarFaceBlockPaletteAnimation()
@@ -186,7 +186,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
                 colors.Resolve(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette.FaceBlock, frame, color));
         }
 
-        // The index cycles through the eight colors, as the cartridge's increment and low-bits mask do.
+        // The index cycles through the eight colors, as the game's increment and low-bits mask do.
         _blueBrinstarFaceBlockPaletteFrame = (_blueBrinstarFaceBlockPaletteFrame + 1) % BlueBrinstarFaceBlockPaletteFrameCount;
     }
 

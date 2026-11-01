@@ -9,16 +9,16 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// </summary>
 internal static class ChozoStrideDefinitions
 {
-    /// <summary>$AA:E959: the weight-shift phase plants the foot 31 pixels left of the origin.</summary>
+    /// <summary>The weight-shift phase plants the foot 31 pixels left of the origin.</summary>
     private const int WeightShiftFootX = -31;
 
-    /// <summary>$AA:E9C4: the early support phase plants the foot 28 pixels left of the origin.</summary>
+    /// <summary>The early support phase plants the foot 28 pixels left of the origin.</summary>
     private const int EarlySupportFootX = -28;
 
-    /// <summary>$AA:EA34: the late support phase plants the foot 14 pixels left of the origin.</summary>
+    /// <summary>The late support phase plants the foot 14 pixels left of the origin.</summary>
     private const int LateSupportFootX = -14;
 
-    /// <summary>$AA:EAA4: the push-off phase plants the foot 7 pixels left of the origin.</summary>
+    /// <summary>The push-off phase plants the foot 7 pixels left of the origin.</summary>
     private const int PushOffFootX = -7;
 
     /// <summary>The support foot's left edge, relative to the statue's origin, for each of the four stride phases in order.</summary>

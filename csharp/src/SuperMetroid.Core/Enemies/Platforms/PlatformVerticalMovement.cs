@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
-/// Native two-entry vertical dispatcher selected every enemy frame by the platform/Samus
-/// overlap test at <c>$A0:ABE7</c>.
+/// Two-entry vertical dispatcher selected every enemy frame by the platform/Samus
+/// overlap test.
 /// </summary>
 public enum PlatformVerticalMovement
 {

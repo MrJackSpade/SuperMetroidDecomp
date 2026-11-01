@@ -46,8 +46,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports the species wrappers at $A3:96E3/$993B/$B66F/$E2D4/$E59C/$E669 and their
-    /// shared initializer at $A3:E67A. Each wrapper differs only by its four-list table and
+    /// Initializes a crawler of any species through the
+    /// shared initializer. Each species differs only by its four-animation table and
     /// the species byte offset later consumed by the shared surface-orientation tables.
     /// </summary>
     internal static void InitializeCrawler(
@@ -55,7 +55,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerAnimationFamily animationFamily,
         int? speciesInstructionOffset = null)
     {
-        // The population entry names the starting surface. InitAI_Viola ($A3:B678) alone takes its block side
+        // The population entry names the starting surface. InitAI_Viola alone takes its block side
         // instead, and a Viola's entry names no surface.
         CrawlerSurfaceOrientation orientation;
         CrawlerSurfaceOrientation blockSide;
@@ -94,7 +94,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = ResetCrawlerVelocities(blockSide, state.SpeedParameter, state.Velocity);
     }
 
-    /// <summary>Shared $A3:E67A velocity reset, also called by Yard after landing.</summary>
+    /// <summary>Shared crawler velocity reset, also called by Yard after landing.</summary>
     /// <param name="blockSide">The side of its block the crawler holds, which signs the velocity.</param>
     /// <param name="speedParameter">The crawl speed selector: a speed-table index or the preserve-velocity selector.</param>
     /// <param name="velocity">The velocity kept when the selector preserves it.</param>
@@ -107,7 +107,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             if (speedParameter >= CrawlerSpeedDefinitions.Count)
             {
                 throw new InvalidDataException(
-                    $"Crawler speed parameter ${speedParameter:X4} exceeds $A3:E5F0.");
+                    $"Crawler speed parameter {speedParameter} exceeds the authored speed table.");
             }
             int speed = CrawlerSpeeds.ForParameter(Ensure.BetweenInclusive(0, ushort.MaxValue, speedParameter));
             velocity = new(new SignedEightEight(speed), new SignedEightEight(speed));
@@ -126,7 +126,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidOperationException($"Undefined {nameof(CrawlerSurfaceOrientation)} {blockSide}."),
         };
 
-    /// <summary>Ports the separate orange-Zoomer initializer at $A3:E043.</summary>
+    /// <summary>Runs the separate orange-Zoomer initializer.</summary>
     internal static void InitializeHZoomer(RoomEnemySlot slot)
     {
         CrawlerSpawnSettings settings = slot.SpawnSettings<CrawlerSpawnSettings>();
@@ -134,7 +134,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (speedParameter >= CrawlerSpeedDefinitions.Count)
         {
             throw new InvalidDataException(
-                $"HZoomer speed parameter ${speedParameter:X4} exceeds $A3:E5F0.");
+                $"HZoomer speed parameter {speedParameter} exceeds the authored speed table.");
         }
 
         var state = new CrawlerEnemyState
@@ -155,8 +155,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports $A3:E08B-$E23B. This is not an alias of common crawler main: while attached,
-    /// orange Zoomer reverses its tangent to pursue Samus and reacts to earthquake $14/$1E.
+    /// Runs the orange Zoomer. This is not an alias of common crawler main: while attached,
+    /// orange Zoomer reverses its tangent to pursue Samus and reacts to earthquakes 20 and 30.
     /// </summary>
     private void RunHZoomerMain(
         RoomEnemySlot slot,
@@ -266,7 +266,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         SetHZoomerHorizontalInstruction(slot, state);
     }
 
-    /// <summary>Changes an attached orange Zoomer to falling during the native Super Missile earthquake.</summary>
+    /// <summary>Changes an attached orange Zoomer to falling during the Super Missile earthquake.</summary>
     private void TriggerCrawlerEarthquakeFall(CrawlerEnemyState state)
     {
         if (_earthquake.EarthquakeTimer.IsAt(SuperMissileDefinitions.EarthquakeDuration) &&
@@ -311,7 +311,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Ports shared crawler main AI at $A3:E6C2.</summary>
+    /// <summary>Runs shared crawler main AI.</summary>
     private void RunCrawlerMain(RoomEnemySlot slot, RoomLevelData? level)
     {
         if (level is null)
@@ -339,13 +339,13 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports $A3:E6C8: move while attached to a vertical wall.</summary>
+    /// <summary>Moves while attached to a vertical wall.</summary>
     private void RunCrawlerVertical(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
         RoomLevelData level)
     {
-        // Native sets the next function but still executes this attached movement
+        // Sets the next function but still executes this attached movement
         // call. Falling displacement begins on the following AI frame.
         TriggerCrawlerEarthquakeFall(state);
         int wallProbe = Shift8AddMagnitude(state.Velocity.X.RawValue, 1);
@@ -376,7 +376,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         SetCrawlerVerticalSurfaceInstruction(slot, state);
     }
 
-    /// <summary>Ports $A3:E7F2: move while attached to a floor or ceiling.</summary>
+    /// <summary>Moves while attached to a floor or ceiling.</summary>
     private void RunCrawlerHorizontal(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
@@ -412,7 +412,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         SetCrawlerHorizontalSurfaceInstruction(slot, state);
     }
 
-    /// <summary>Ports the earthquake/outside-corner falling owner at $A3:E785.</summary>
+    /// <summary>Runs the earthquake/outside-corner falling owner.</summary>
     private void RunCrawlerFalling(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
@@ -421,7 +421,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         int displacement = state.FallingYVelocity.RawValue;
         if (_terrain.MoveEnemyVertically(level, slot, displacement))
         {
-            // Parameter $FF is the native "choose default speed after first landing" path.
+            // Parameter 255 is the game's "choose default speed after first landing" path.
             if (state.SpeedParameter == 255)
             {
                 state.Velocity = new EightEightVector<RoomPixels>(128, 128);
@@ -434,8 +434,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.ApplyFallingGravity();
 
-        // The native routine contains this zero-velocity escape even though ordinary falls
-        // immediately gain gravity. Retain it for ROM-modified parameter/state combinations.
+        // The routine contains this zero-velocity escape even though ordinary falls
+        // immediately gain gravity. Retain it for modified parameter/state combinations.
         if (state.FallingYVelocity == SignedSixteenSixteen.Zero)
             state.Function = CrawlerEnemyFunction.CrawlingVertically;
     }
@@ -497,7 +497,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Shared geometry from <c>MoveEnemyRightBy_14_12_ProcessSlopes</c>. Both the common
-    /// crawlers and Yard multiply their tangent by the cartridge's non-square-slope factor.
+    /// crawlers and Yard multiply their tangent by the game's non-square-slope factor.
     /// </summary>
     internal static int GetSurfaceSlopeAdjustedHorizontalDisplacement(
         RoomEnemySlot slot,
@@ -534,7 +534,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         return unchecked((SixteenSixteen.FromEightEight(signedVelocity)) + (signedVelocity < 0 ? -bias : bias));
     }
 
-    /// <summary>Reverses a native 16-bit velocity word with wraparound semantics.</summary>
+    /// <summary>Reverses a 16-bit velocity word with wraparound semantics.</summary>
     internal static int Negate16(int value) => WordWrap.Unsigned(-value);
 
     /// <summary>Ports Sciser's initializer wrapper.</summary>

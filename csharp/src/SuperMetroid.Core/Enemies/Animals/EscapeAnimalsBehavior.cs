@@ -45,13 +45,13 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Signed 16.16 horizontal speed, 3.5 pixels, used when Etecoon exits without a wall collision.</summary>
     private const int EscapeEtecoonUncollidedExitSpeed = (7 << 16) / 2;
 
-    /// <summary>Ports <c>EscapeEtecoon_Init</c> at <c>$B3:E6CB</c>.</summary>
+    /// <summary>Initializes the escape Etecoon.</summary>
     internal void InitializeEscapeEtecoon(RoomEnemySlot slot)
     {
         var state = new EscapeEtecoonEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // Event $0F means the animals already escaped on an earlier visit. Native code
+        // Event $0F means the animals already escaped on an earlier visit. Code
         // deletes the actor before changing any animation, position, palette, or AI fields.
         if (HasCrittersEscaped())
         {
@@ -59,10 +59,10 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // In the original property vocabulary, $2000 disables ordinary Samus collision and
-        // $0400 marks the actor tangible. In this port those bits retain their independently
+        // The animation-script property disables ordinary Samus collision and
+        // the tangibility property marks the actor tangible. Those bits keep their independently
         // observed scheduler/collision meanings as RunsAnimationScript and
-        // IgnoreSamusCollision. Raw $8000 remains unnamed because this family never proves
+        // IgnoreSamusCollision. The remaining high bit stays unnamed because this family never proves
         // its broader engine-wide meaning.
         slot.Properties = slot.Properties.With(
             EnemyProperties.RunsAnimationScript | EnemyProperties.IgnoreSamusCollision);
@@ -79,7 +79,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = initialization.Velocity;
     }
 
-    /// <summary>Ports <c>EscapeDachora_Init</c> at <c>$B3:EAE5</c>.</summary>
+    /// <summary>Initializes the escape Dachora.</summary>
     internal void InitializeEscapeDachora(RoomEnemySlot slot)
     {
         slot.SetSpeciesState(new EscapeDachoraEnemyState());
@@ -89,7 +89,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Dachora's population already supplies $2400, but the initializer ORs $2000 again.
+        // Dachora's population already supplies both properties, but the initializer sets the animation-script property again.
         // Expressing the idempotent write documents the executable routine and keeps a
         // synthetic/debug population faithful to retail initialization.
         slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
@@ -115,9 +115,9 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case EscapeEtecoonFrameBehavior.WaitForEscapeEvent:
-                // $B3:E670 changes only the list pointer. It deliberately leaves the
-                // existing instruction timer intact, so the new list begins on the same
-                // scheduler boundary the SNES would observe.
+                // The wait changes only the animation. It deliberately leaves the
+                // existing frame hold intact, so the new animation begins on the same
+                // update boundary the game observes.
                 if (HasCrittersEscaped())
                     state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(EscapeEtecoonProgram.ExpressGratitudeThenEscape);
                 return;
@@ -133,7 +133,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>$B3:E680</c>, including its collision-only event branch.</summary>
+    /// <summary>Walks and falls, including the collision-only event branch.</summary>
     private void RunEscapeEtecoonWalking(
         RoomEnemySlot slot,
         EscapeEtecoonEnemyState state,
@@ -228,11 +228,11 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Samples event $0F for Dachora's instruction-list branch and room revisit handling.</summary>
     private bool HasCrittersEscaped() => _room.Services.Events.Has(EventNumber.CrittersEscaped);
 
-    /// <summary>Treats absent Samus/liquid context as the native maximum Y for acid-height branches.</summary>
+    /// <summary>Treats absent Samus/liquid context as the maximum Y for acid-height branches.</summary>
     private static int EscapeAnimalLavaY(SamusState? samus) =>
         samus?.LiquidPhysics.LavaAcidYPosition ?? ushort.MaxValue;
 
-    /// <summary>Adds a signed 16.16 displacement with native 32-bit wraparound to the actor's X position.</summary>
+    /// <summary>Adds a signed 16.16 displacement with 32-bit wraparound to the actor's X position.</summary>
     private static void AddEscapeAnimalX(RoomEnemySlot slot, int displacement)
     {
         uint fixedPosition = slot.Position.X.RawValue;

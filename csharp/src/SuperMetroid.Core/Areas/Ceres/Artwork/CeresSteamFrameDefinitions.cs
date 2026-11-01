@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>
-/// The presentation boundary of the Ceres steam vents' programs (#641): the bank-$A6 spritemap each
+/// The presentation boundary of the Ceres steam vents' programs (#641): the spritemap each
 /// <see cref="CeresSteamFrame"/> pose shows, in ascending spritemap order.
 /// </summary>
 internal static class CeresSteamFrameDefinitions

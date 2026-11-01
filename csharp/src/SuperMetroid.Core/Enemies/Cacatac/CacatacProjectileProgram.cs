@@ -1,29 +1,29 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// The Cacatac's spike programs, one per launch direction (#641), one per bank-$86 list a spawn, branch or family routine enters, in authored order.
-/// Generated from the verified native lists; see <see cref="CacatacProjectileAnimations"/>.
+/// The Cacatac's spike programs, one per launch direction (#641), one per animation a spawn, branch or family routine enters, in authored order.
+/// Their steps are <see cref="CacatacProjectileAnimations"/>.
 /// </summary>
 internal enum CacatacProjectileProgram
 {
-    /// <summary><c>InstList_EnemyProjectile_CacatacSpike_Left_FacingUp</c> at $86:D92E.</summary>
+    /// <summary>The left facing up animation.</summary>
     LeftFacingUp,
-    /// <summary><c>InstList_EnemyProjectile_CacatacSpike_UpLeft</c> at $86:D934.</summary>
+    /// <summary>The up left animation.</summary>
     UpLeft,
-    /// <summary><c>InstList_EnemyProjectile_CacatacSpike_Up</c> at $86:D93A.</summary>
+    /// <summary>The up animation.</summary>
     Up,
-    /// <summary><c>InstList_EnemyProjectile_CacatacSpike_UpRight</c> at $86:D940.</summary>
+    /// <summary>The up right animation.</summary>
     UpRight,
-    /// <summary><c>InstList_EnemyProjectile_CacatacSpike_Right_FacingUp</c> at $86:D946.</summary>
+    /// <summary>The right facing up animation.</summary>
     RightFacingUp,
-    /// <summary><c>InstList_EnemyProjectile_CacatacSpike_Left_FacingDown</c> at $86:D94C.</summary>
+    /// <summary>The left facing down animation.</summary>
     LeftFacingDown,
-    /// <summary><c>InstList_EnemyProjectile_CacatacSpike_DownLeft</c> at $86:D952.</summary>
+    /// <summary>The down left animation.</summary>
     DownLeft,
-    /// <summary><c>InstList_EnemyProjectile_CacatacSpike_Down</c> at $86:D958.</summary>
+    /// <summary>The down animation.</summary>
     Down,
-    /// <summary><c>InstList_EnemyProjectile_CacatacSpike_DownRight</c> at $86:D95E.</summary>
+    /// <summary>The down right animation.</summary>
     DownRight,
-    /// <summary><c>InstList_EnemyProjectile_CacatacSpike_Down_FacingRight</c> at $86:D964.</summary>
+    /// <summary>The right facing down animation.</summary>
     RightFacingDown,
 }

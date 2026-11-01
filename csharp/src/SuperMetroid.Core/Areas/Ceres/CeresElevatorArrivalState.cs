@@ -9,13 +9,13 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The two bank-$86 enemy projectiles spawned by <c>$90:F1E9</c> when a new game enters
+/// The two enemy projectiles spawned when a new game enters
 /// Ceres: the moving pad under Samus and the stationary elevator platform behind it.
 /// </summary>
 /// <remarks>
 /// These are not host-authored cutscene sprites. Construction consumes compiled copies of
-/// the retail definitions at <c>$86:A387/$A395</c>; frame stepping executes their translated
-/// bank-$86 instruction programs and pre-instructions <c>$A328/$A364</c>. Keeping this tiny
+/// the authored definitions; frame stepping executes their
+/// animation scripts and frame behaviours. Keeping this tiny
 /// pair separate avoids pretending that the larger general enemy-projectile engine has
 /// already been translated.
 /// </remarks>
@@ -34,7 +34,7 @@ public sealed class CeresElevatorArrivalState
 
         // SpawnEprojWithGfx first copies enemy slot zero's tile/palette word. The shared
         // initializer then clears it, so both actors use room-loaded OBJ tiles and the
-        // palettes authored by their bank-$8D spritemaps. Retaining the transient word is
+        // palettes authored by their spritemaps. Retaining the transient word is
         // what previously made the level-data concealer teal until touchdown.
         pad = LoadProjectile(
             CeresElevatorArrivalDefinitions.MovingPad,
@@ -71,7 +71,7 @@ public sealed class CeresElevatorArrivalState
                 if (pad.WaitTimer.IsAt(1))
                     pad.WaitTimer = WrappingCountdown.Start(0);
 
-                // `$86:A342` samples the old Samus position for the pad, then increments
+                // The descent samples the old Samus position for the pad, then increments
                 // Samus. That one-pixel separation is visible throughout the descent.
                 pad.Position = pad.Position.WithY(MovingPadUnder(samus).Y);
                 samus.Position += new Offset16<RoomPixels>(0, 1);
@@ -98,7 +98,7 @@ public sealed class CeresElevatorArrivalState
     }
 
     /// <summary>
-    /// Emits the low-priority bank-$8D spritemaps selected by the live instruction lists.
+    /// Emits the low-priority spritemaps selected by the live instruction lists.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="presentation">Publishes the platforms from the loaded graphics set's sheets.</param>

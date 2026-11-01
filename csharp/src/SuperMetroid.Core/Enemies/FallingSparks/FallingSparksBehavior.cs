@@ -25,16 +25,16 @@ internal sealed class FallingSparksBehavior
         _spriteObjects = spriteObjects;
     }
 
-    /// <summary>Allocates and initializes enemy projectile <c>$86:F498</c>.</summary>
+    /// <summary>Allocates and initializes a falling spark projectile.</summary>
     internal void SpawnFallingSpark(RoomEnemySlot source)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
-        // The common spawn routine first copies definition $F498, including its blank
-        // startup map, $F3F0 pre-instruction, $F353 list, radii, property flags, damage,
-        // and interaction behavior. Initializer $F391 then owns only the source position,
+        // The common spawn routine first copies the spark's definition, including its blank
+        // startup map, frame behaviour, animation, radii, property flags, damage,
+        // and interaction behavior. The spark's initializer then owns only the source position,
         // aliased motion words, and RNG-selected horizontal delta below.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
@@ -42,7 +42,7 @@ internal sealed class FallingSparksBehavior
             source.Graphics);
         projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + 8), source.Position.Y.Fraction));
 
-        // `$86:F391` zeros both ordinary velocity words, then calls the shared RNG. The
+        // The initializer zeros both ordinary velocity words, then calls the shared RNG. The
         // horizontal table is one record short. The compiled definition retains the
         // final RNG outcome's instruction-byte overread, including its signed delta.
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
@@ -63,7 +63,7 @@ internal sealed class FallingSparksBehavior
     /// <summary>The vertical speed a spark bounces up at when it hits the floor: half a pixel upward.</summary>
     private static readonly SignedSixteenSixteen FallingSparkImpactBounce = SignedSixteenSixteen.FromParts(-1, 32768);
 
-    /// <summary>Ports pre-instruction <c>$86:F3F0</c>.</summary>
+    /// <summary>Runs the falling spark's per-frame behaviour.</summary>
     internal void RunFallingSparkFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
@@ -74,7 +74,7 @@ internal sealed class FallingSparksBehavior
         FallingSparkState spark = projectile.StateOf<FallingSparkState>();
         if (spark.VerticalSpeed.WholePixels >= 0)
         {
-            // Move_EnemyProjectile_Vertically ($86:897B), slope reactions included, reads the spark's whole speed in
+            // Move_EnemyProjectile_Vertically, slope reactions included, reads the spark's whole speed in
             // pixels as an 8.8 speed in 1/256ths of a pixel.
             if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical,
                     new SignedEightEight(spark.VerticalSpeed.WholeWord)))
@@ -113,7 +113,7 @@ internal sealed class FallingSparksBehavior
 
     /// <summary>
     /// Switches a falling spark to its floor-impact program and scales its stored
-    /// horizontal delta by four with native carry propagation.
+    /// horizontal delta by four with carry propagation.
     /// </summary>
     internal static void BeginFallingSparkFloorImpact(RoomEnemyProjectileSlot projectile)
     {

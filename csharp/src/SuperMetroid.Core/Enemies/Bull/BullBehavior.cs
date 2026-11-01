@@ -15,7 +15,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BullEntity(this, slot, common);
 
-    /// <summary>Each Bull acceleration or deceleration tick changes the 8.8 rate by $0018.</summary>
+    /// <summary>Each Bull acceleration or deceleration tick changes the 8.8 rate by 24.</summary>
     private const int BullAccelerationDelta = 24;
     /// <summary>Bulls wait sixteen enemy frames before retargeting Samus.</summary>
     private const int BullMovementDelayFrames = 16;
@@ -27,7 +27,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="inheritance">Hands each new Bull the previous Bull in its slot.</param>
     internal BullBehavior(SlotInheritance<BullEnemyState> inheritance) => _inheritance = inheritance;
 
-    /// <summary>Ports <c>InitAI_Bull</c> at <c>$A8:D8C9</c>.</summary>
+    /// <summary>Initializes the Bull.</summary>
     internal void InitializeBull(RoomEnemySlot slot)
     {
         BullEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous));
@@ -54,8 +54,8 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ShotReactionDisableTimer = state.ShotReactionDisableTimer.Decrement().Remaining;
         if (state.ShotReactionDisableTimer.IsZero)
         {
-            // Once the timer reaches zero the cartridge pins it at one, clearing the guard
-            // every subsequent frame. A zero-initialized timer first wraps to $FFFF instead.
+            // Once the timer reaches zero the game pins it at one, clearing the guard
+            // every subsequent frame. A zero-initialized timer first wraps to -1 instead.
             state.ShotReactionDisableTimer = WrappingCountdown.Start(1);
             state.ShotReactionDisabled = false;
         }
@@ -108,7 +108,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Converts the signed displacement to Samus into Bull's bearing, a quarter turn behind the cartridge's zero-up angle.</summary>
+    /// <summary>Converts the signed displacement to Samus into Bull's bearing, a quarter turn behind the game's zero-up angle.</summary>
     private static RotationAngle CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
         RotationAngle.NormalizeTableIndex(EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ReinterpretAsTableAngle().RawValue - EnemyByteAngleDefinitions.QuarterTurn);
@@ -135,7 +135,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Decelerate();
     }
 
-    /// <summary>Starts braking when the native signed angle difference reaches $30.</summary>
+    /// <summary>Starts braking when the signed angle difference reaches $30.</summary>
     private static void TriggerBullDecelerationIfOffTarget(
         RoomEnemySlot slot,
         BullEnemyState state,
@@ -143,10 +143,10 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.AngleToSamus = CalculateBullAngleToSamus(slot, samus);
 
-        // $A8:D9BC subtracts the two byte angles as 16-bit words. Sign_Extend_A ($A0:AFEA)
-        // only ORs $FF00 when bit seven is set and never clears a borrowed high byte, so a
-        // negative difference with bit seven clear (e.g. $FF10) stays large. NegateA then
-        // takes the absolute value and CMP/BMI tests it against $30.
+        // The off-target test subtracts the two byte angles as 16-bit words. Its sign extension
+        // only sets the high byte when bit seven is set and never clears a borrowed high byte, so a
+        // negative difference with bit seven clear (e.g. 0xFF10) stays large. The test then
+        // takes the absolute value and compares it against 0x30 by sign.
         int difference = WordWrap.Unsigned(state.AngleToSamus.TableIndex - state.Angle);
         difference = EnemyMath.SignExtendLowByte(difference);
         if (EnemyMath.IsNegative16(difference))
@@ -171,11 +171,11 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Speed));
     }
 
-    /// <summary>Reads the cartridge's signed sine sample for one byte-sized Bull heading.</summary>
+    /// <summary>Reads the game's signed sine sample for one byte-sized Bull heading.</summary>
     internal static int ReadBullSignedSine(ByteAngle angle) =>
         Trigonometry.SignedSixteenBitSine(angle);
 
-    /// <summary>Applies Bull's 24-bit sine-times-speed displacement and native negative-fraction rule.</summary>
+    /// <summary>Applies Bull's 24-bit sine-times-speed displacement and negative-fraction rule.</summary>
     private static FixedCoordinate AddBullComponent(
         FixedCoordinate position,
         int sine,
@@ -183,7 +183,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Bull discards the sine table's low byte, multiplies the absolute high byte by its
         // unsigned 8.8 speed, and keeps the 24-bit result as a 16.16 displacement. Negative
-        // components use $A8:DAF6, whose zero-fraction path is deliberately one subpixel more
+        // components use the Bull's own negation, whose zero-fraction path is deliberately one subpixel more
         // negative than a conventional two's-complement negation.
         int magnitude = WordWrap.Unsigned(Math.Abs(sine));
         int sineHighByte = UnsignedEightEight.Whole(magnitude);
@@ -204,7 +204,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         return SignedSixteenSixteen.FromParts(WordWrap.Signed(whole), fraction).AddTo(position.Whole, position.Fraction);
     }
 
-    /// <summary>Ports the no-damage tail of <c>EnemyShot_Bull</c> at $A8:DB2C.</summary>
+    /// <summary>Runs the no-damage tail of the Bull's shot reaction.</summary>
     internal static void ResolveBullImmuneShot(
         RoomEnemySlot bull,
         BullEnemyState state,

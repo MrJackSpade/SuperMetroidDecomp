@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>
-/// Kzan's idle pose as a typed program (#641), in place of their bank-$A6 lists. Generated from the verified native lists: each
+/// Kzan's idle pose as a typed program (#641). Each
 /// frame shows a <see cref="KzanFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class KzanAnimations
@@ -23,7 +23,7 @@ internal static class KzanAnimations
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<KzanProgram, KzanFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<KzanProgram, KzanFrame, NoAnimationCue>.Show(new(pose), duration);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<KzanProgram, KzanFrame, NoAnimationCue> Hold => AnimationProgramStep<KzanProgram, KzanFrame, NoAnimationCue>.Hold;
 
 }

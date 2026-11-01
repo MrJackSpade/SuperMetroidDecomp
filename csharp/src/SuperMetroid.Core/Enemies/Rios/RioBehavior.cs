@@ -38,7 +38,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>8.8 vertical velocity decrement applied during dive and rebound.</summary>
     private const int RioGravityStep = 24;
 
-    /// <summary>Ports <c>Rio_Init</c> at $A2:BBCD.</summary>
+    /// <summary>Initializes the Rio.</summary>
     internal static void InitializeRio(RoomEnemySlot slot)
     {
         var state = new RioEnemyState
@@ -56,7 +56,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Ports <c>Rio_Main</c> and Rio_1..Rio_5 at $A2:BBE3-$BD53.</summary>
+    /// <summary>Runs the Rio's main AI and its five functions.</summary>
     private void RunRioMain(
         RoomEnemySlot slot,
         RioEnemyState state,
@@ -91,8 +91,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     RioProgram.SwoopingPart1);
                 state.Function = RioEnemyFunction.Diving;
 
-                // CheckIfEnemyIsOnScreen returns zero for an on-screen origin. The native
-                // branch consequently queues sound $65 only for the visible attack start.
+                // CheckIfEnemyIsOnScreen returns zero for an on-screen origin. The
+                // branch consequently queues sound 101 only for the visible attack start.
                 if (!EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, camera))
                     _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Rio, EnemySoundEffectDefinitions.RioDiveSound, priority: SoundRequestPriority.Normal);
                 return;
@@ -241,7 +241,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reads one sign-extended entry from kSinCosTable8bit_Sext at $A0:B443. Rio consumes
+    /// Reads one sign-extended entry from kSinCosTable8bit_Sext. Rio consumes
     /// the raw table sample as an 8.8 velocity; unlike Rinka, it performs no speed multiply.
     /// </summary>
     internal static int ReadRioSignedSineCosineSample(ByteAngle angle) =>

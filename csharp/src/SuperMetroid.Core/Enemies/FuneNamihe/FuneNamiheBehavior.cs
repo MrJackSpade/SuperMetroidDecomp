@@ -52,7 +52,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 SpawnFuneNamiheFireball(slot, direction: HorizontalDirection.Right, RoomEnemyProjectileKind.FuneFireball);
                 break;
             case FuneNamiheCueKind.FinishActivity:
-                // Left/right lists use duplicate native opcodes with byte-for-byte state effects.
+                // Left/right lists use duplicate opcodes with byte-for-byte state effects.
                 FinishFuneNamiheActivity(state);
                 break;
             default:
@@ -78,7 +78,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         };
 
         // Species is encoded in the population parameter rather than inferred from the
-        // enemy header. This sounds redundant, but preserving it lets malformed/custom ROM
+        // enemy header. This sounds redundant, but preserving it lets malformed/custom
         // populations exhibit the same cross-species behavior as the retail routine.
         if (state.IsNamihe)
             state.Function = FuneNamiheEnemyFunction.NamiheWaitForSamus;
@@ -98,7 +98,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             case FuneNamiheEnemyFunction.FuneWaitForCooldown:
                 // INC occurs before CMP. BMI tests the signed subtraction result rather
                 // than performing an unsigned branch; ordinary room parameters are small,
-                // but the distinction remains visible at the $8000 wrap boundary.
+                // but the distinction remains visible at the 32768 wrap boundary.
                 state.CooldownTimer = WrappingCounter.IncrementWord(state.CooldownTimer);
                 if (WordWrap.Signed(state.CooldownTimer - state.CooldownTime) < 0)
                     return;
@@ -134,7 +134,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             case FuneNamiheEnemyFunction.FuneActivityNoOp:
             case FuneNamiheEnemyFunction.NamiheActivityNoOp:
                 // The active animation's finish opcode is the only owner allowed to leave
-                // these RTS states. Main AI intentionally does nothing until that command.
+                // these inert states. Main AI intentionally does nothing until that command.
                 return;
 
             default:
@@ -206,7 +206,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileFrameBehavior.FuneNamiheFireballFlight;
 
     /// <summary>
-    /// Ports the shared projectile initializer at $86:DED6. The source population's low
+    /// Runs the shared projectile initializer. The source population's low
     /// parameter-two byte selects one {left,right} speed pair; the fireball flies at the
     /// speed for its direction.
     /// </summary>
@@ -240,14 +240,14 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             new SignedEightEight(0));
     }
 
-    /// <summary>Ports pre-instruction $86:DF39: the fireball flies sideways at its speed until it leaves the view.</summary>
+    /// <summary>Runs the fireball's per-frame behaviour: the fireball flies sideways at its speed until it leaves the view.</summary>
     internal static void RunFuneNamiheFireballFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
 
-        // The shared native cull treats both camera edges as inclusive: an origin exactly
+        // The shared cull treats both camera edges as inclusive: an origin exactly
         // at camera+256 survives this frame and is deleted only after crossing beyond it.
         CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
     }

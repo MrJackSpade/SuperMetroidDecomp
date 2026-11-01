@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 public static class CrawlerSpeeds
 {
     /// <summary>
-    /// Both native copies consist of quarter-pixel ramps separated by two gaps,
+    /// Both copies consist of quarter-pixel ramps separated by two gaps,
     /// followed by a repeated eight-pixel speed and a stationary entry. Each ramp
     /// calculates; the two gap points and the penultimate magnitude are authored tuning
     /// with no rule in the ramp (see residualScalarInputsReview).

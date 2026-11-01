@@ -26,7 +26,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>Ports <c>InitAI_GRipper</c> at $A2:E1D3.</summary>
+    /// <summary>Initializes the GRipper.</summary>
     internal static void InitializeGRipper(RoomEnemySlot slot)
     {
         var state = CreateRipperState(slot);
@@ -45,13 +45,13 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             state.XVelocity.WholePixels < 0 ? RipperProgram.GRipperMovingLeft : RipperProgram.GRipperMovingRight);
 
         // Unlike the wall-collision helper, patrol-bound reversal does not clamp the actor
-        // back to either endpoint. The one-frame fractional overshoot is native and becomes
+        // back to either endpoint. The one-frame fractional overshoot is and becomes
         // visible again when the direction reverses on the next pass.
         state.MinimumXPosition = settings.MinimumX;
         state.MaximumXPosition = settings.MaximumX;
     }
 
-    /// <summary>Ports <c>MainAI_GRipper</c> at $A2:E221.</summary>
+    /// <summary>Runs the GRipper's main AI.</summary>
     private void RunGRipperMain(
         RoomEnemySlot slot,
         RipperEnemyState state,
@@ -80,14 +80,14 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>InitAI_Ripper2</c> at $A2:E318.</summary>
+    /// <summary>Initializes the Ripper II.</summary>
     internal static void InitializeRipper2(RoomEnemySlot slot)
     {
         RipperEnemyState state = CreateRipperState(slot);
         state.Speeds = EnemyLinearSpeeds.Row(slot.SpawnSettings<RipperSpawnSettings>().SpeedIndex);
 
         // Ripper II's list labels appear inverted relative to the displayed shared maps.
-        // Keep the native list names instead of normalizing them: init1 zero uses the
+        // Keep the list names instead of normalizing them: init1 zero uses the
         // negative speed pair with the moving-right list, while nonzero uses positive speed
         // with the moving-left list.
         bool movingPositive = slot.SpawnSettings<RipperSpawnSettings>().Direction == HorizontalDirection.Right;
@@ -95,7 +95,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         SetRipperProgram(slot, movingPositive ? RipperProgram.Ripper2MovingLeft : RipperProgram.Ripper2MovingRight);
     }
 
-    /// <summary>Ports <c>MainAI_Ripper2</c> at $A2:E353.</summary>
+    /// <summary>Runs the Ripper II's main AI.</summary>
     private void RunRipper2Main(RoomEnemySlot slot, RipperEnemyState state, RoomLevelData? level)
     {
         RequireRipperTerrain(level, "Ripper II");
@@ -109,7 +109,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             negativeProgram: RipperProgram.Ripper2MovingRight);
     }
 
-    /// <summary>Ports <c>Ripper_Init</c> at $A2:E49F.</summary>
+    /// <summary>Initializes the Ripper.</summary>
     internal static void InitializeRipper(RoomEnemySlot slot)
     {
         // The spawn's direction chooses the positive speed and the right-facing list, or the negative speed and the
@@ -124,13 +124,13 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         LoadRipperVelocity(state, movingRight);
     }
 
-    /// <summary>Ports <c>Ripper_Main</c> at $A2:E4DA.</summary>
+    /// <summary>Runs the Ripper's main AI.</summary>
     private void RunRipperMain(RoomEnemySlot slot, RoomLevelData? level)
     {
         RequireRipperTerrain(level, "Ripper");
 
-        // $A0:C6AB consumes the signed 16.16 velocity as a displacement. On collision the
-        // native helper aligns the actor flush with the wall before Ripper swaps direction
+        // The horizontal mover consumes the signed 16.16 velocity as a displacement. On collision the
+        // mover aligns the actor flush with the wall before Ripper swaps direction
         // and animation.
         RipperEnemyState state = slot.RequireSpeciesState<RipperEnemyState>();
         int displacement = state.XVelocity.RawValue;
@@ -150,7 +150,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         state.XVelocity = movingRight ? state.Speeds.Positive : state.Speeds.Negative;
 
     /// <summary>
-    /// Ports the common post-shot tail at $A2:E3AD. Normal shot AI owns health, death,
+    /// Runs the common post-shot tail. Normal shot AI owns health, death,
     /// impact, and freeze timers; this family-specific tail only pins the direction-specific
     /// two-piece frozen map when the accepted projectile actually froze the actor.
     /// </summary>

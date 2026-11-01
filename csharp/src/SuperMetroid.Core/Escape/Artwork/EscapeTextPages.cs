@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Escape.Artwork;
 /// </summary>
 public static class EscapeTextPages
 {
-    /// <summary>Where text page <paramref name="page"/> starts within the installed sheet, from the native $A6:C4CB-$C4FC transfer list.</summary>
+    /// <summary>Where text page <paramref name="page"/> starts within the installed sheet, from the escape text's page list.</summary>
     public static int PageOffset(int page) => (uint)page < PageCount
         ? page * PageBytes : throw new ArgumentOutOfRangeException(nameof(page));
 
@@ -16,7 +16,7 @@ public static class EscapeTextPages
     public static int PageByteCount(int page) => (uint)page < PageCount
         ? WordWrap.Unsigned(Math.Min(PageBytes, ByteCount - page * PageBytes)) : throw new ArgumentOutOfRangeException(nameof(page));
 
-    /// <summary>The OBJ character text page <paramref name="page"/> begins at, from the same native transfer list.</summary>
+    /// <summary>The sprite character text page <paramref name="page"/> begins at, from the same page list.</summary>
     public static int PageFirstCharacter(int page) => (uint)page < PageCount
         ? FirstCharacter + page * PageBytes / CharacterBytes : throw new ArgumentOutOfRangeException(nameof(page));
 }

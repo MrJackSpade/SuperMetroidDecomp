@@ -8,14 +8,14 @@ internal enum EnemyCapabilities
     None = 0,
 
     /// <summary>
-    /// Ordinary Samus contact enters <c>$A0:9A5A</c>'s extended-spritemap walker. This differs deliberately from the shot
+    /// Ordinary Samus contact enters the extended-frame touch walker. This differs deliberately from the shot
     /// set: Phantoon uses authored component rectangles for touch, while its weapon collision is owned by the
     /// encounter-specific projectile resolver.
     /// </summary>
     ExtendedSamusHitboxes = 1,
 
     /// <summary>
-    /// Ordinary projectile collision enters <c>$A0:9B7F</c>'s extended-spritemap walker. Extra-property bit $0004 alone is
+    /// Ordinary projectile collision enters the extended-frame shot walker. Extra-property bit 0x0004 alone is
     /// not sufficient: Mother Brain and several custom-drawn actors set it for scheduling or rendering while their shot
     /// paths use a header radius or encounter-specific geometry.
     /// </summary>

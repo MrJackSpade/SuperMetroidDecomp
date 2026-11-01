@@ -4,8 +4,8 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// Bank-$A6 physical collision for all four Ceres steam directions. Each of the
-/// 28 extended frames has one zero-offset component. Its OAM pointer is deliberately
+/// physical collision for all four Ceres steam directions. Each of the
+/// 28 extended frames has one zero-offset component. Its sprite-piece reference is deliberately
 /// absent: installed sprite edits cannot change the damaging plume geometry.
 /// </summary>
 internal static class CeresSteamCollisionDefinitions
@@ -16,7 +16,6 @@ internal static class CeresSteamCollisionDefinitions
     /// <summary>Every plume rectangle's shot reaction: the steam ignores shots.</summary>
     internal const EnemyReaction ShotReaction = EnemyReaction.Ignore;
 
-    /// <summary>Native bank of the extended maps at $A6:F142-$F250.</summary>
     /// <summary>
     /// The 21 hitbox lists: the shared empty list selected by both hidden poses, then five plume rectangles per
     /// direction. Each direction's rectangles are fitted to its drawing and are not exact rotations of another direction.

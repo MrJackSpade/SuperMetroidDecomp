@@ -12,9 +12,9 @@ internal static class ElevatorPlatformDraws
     /// <summary>One of the three platform frames' strips.</summary>
     internal readonly record struct Draw(ElevatorPlatformDraw Frame) : IPlmRunDrawShape
     {
-        /// <summary>The frame's strips in native order.</summary>
+        /// <summary>The frame's strips in order.</summary>
         private PlmBlockStrip[] Strips => ElevatorPlatformPlmDefinitions.Strips[Frame];
-        /// <summary>Gets the three native strips.</summary>
+        /// <summary>Gets the three strips.</summary>
         public int RunCount => Strips.Length;
         /// <summary>Gets one edge cell or four lower-row cells for a selected strip.</summary>
         public int BlockCount(int run) => Strip(run).Cells.Length;
@@ -45,7 +45,7 @@ internal static class ElevatorPlatformDraws
             : default;
         return request is PlmFrameDraw<ElevatorPlatformDraw>;
     }
-    /// <summary>Exports temporary draw DTOs for the three platform frames in native order.</summary>
+    /// <summary>Exports temporary draw DTOs for the three platform frames in order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> DrawLists
     {
         get
@@ -58,7 +58,7 @@ internal static class ElevatorPlatformDraws
         }
     }
 
-    /// <summary>Maps a native platform draw pointer to its stable artwork identifier.</summary>
+    /// <summary>Maps a platform draw pointer to its stable artwork identifier.</summary>
     internal static string VisualId(PlmDraw request) =>
         ElevatorPlatformPlmDefinitions.VisualIds.TryGetValue(
             PlmDraw.FrameOf<ElevatorPlatformDraw>(request, "elevator-platform draw list"), out string? id)

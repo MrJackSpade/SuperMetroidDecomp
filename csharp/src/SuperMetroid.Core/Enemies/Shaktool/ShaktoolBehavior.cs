@@ -41,7 +41,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     private static RotationAngle OppositeOrbitStep(RotationAngle angle) =>
         RotationAngle.FromTableIndex(angle.AddRaw(RotationAngle.HalfTurn.RawValue).TableIndex);
 
-    /// <summary>Ports <c>Shaktool_Init</c> at <c>$AA:DE43</c>, establishing the segment's orbit and owner-slot offset.</summary>
+    /// <summary>Initializes the Shaktool, establishing the segment's orbit and owner-slot offset.</summary>
     internal void InitializeShaktool(RoomEnemySlot slot)
     {
         ShaktoolSpawnSettings settings = slot.SpawnSettings<ShaktoolSpawnSettings>();
@@ -63,25 +63,25 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(definition.PropertyMask);
         state.OwnerSlotIndex = slot.SlotIndex - definition.OwnerSlotDistance;
         state.FrameBehavior = definition.FrameBehavior;
-        // Native initialization subtracts the parallel all-zero table; synchronization
+        // Initialization subtracts the parallel all-zero table; synchronization
         // uses the same authored velocity directly.
         state.AngularVelocity = definition.AngularVelocity;
         state.OrbitAngle = definition.InitialOrbitAngle;
 
-        // The second half of $DEB1 is a parallel list-pointer table. Parameter two is
+        // The second half of the definition table is a parallel animation table. Parameter two is
         // already a byte offset, so +14+p2 selects exactly entries seven through thirteen;
         // the definition names the animation each selects.
         state.Program = AnimationProgramCursor<ShaktoolProgram>.Start(definition.InitialProgram);
         slot.Layer = definition.Layer;
 
         // Slot zero is the fixed head/anchor. Every later segment's curious drawing-queue
-        // read aliases the preceding enemy record's X/sub-X/Y/sub-Y words in WRAM. Express
+        // read aliases the preceding enemy record's X/sub-X/Y/sub-Y words. Express
         // that alias structurally instead of treating queue scratch as an unrelated center.
         if (segmentIndex != 0)
             PositionShaktoolAroundPreviousSegment(slot, state);
     }
 
-    /// <summary>Ports <c>Shaktool_Hurt</c>/<c>Shaktool_Main</c> at <c>$AA:DCA3</c>.</summary>
+    /// <summary>Runs Shaktool's hurt and main behaviours.</summary>
     private void RunShaktoolMain(
         RoomEnemySlot slot,
         ShaktoolSegmentState state,
@@ -116,7 +116,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the linked-segment placement helper at <c>$AA:DC2A</c>.</summary>
+    /// <summary>Runs the linked-segment placement helper.</summary>
     internal void PositionShaktoolAroundPreviousSegment(
         RoomEnemySlot slot,
         ShaktoolSegmentState state)
@@ -125,7 +125,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Shaktool's anchor has no preceding segment.");
 
         RoomEnemySlot previous = _slotTable.Slots[slot.SlotIndex - 1];
-        // $AA:DC42/$DC4A/$DC60/$DC68 read the preceding physical record, without
+        // The segment placement reads the preceding physical record, without
         // testing its header. A lethal shot clears the head and marks the group
         // deleted, but EnemyMain still visits later entries in this frame's
         // prebuilt active list. Their final orbit uses the cleared coordinates.
@@ -134,7 +134,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
 
-    /// <summary>Ports the common orbit step at <c>$AA:DCAC</c>.</summary>
+    /// <summary>Runs the common orbit step.</summary>
     private void AdvanceShaktoolOrbit(RoomEnemySlot slot, ShaktoolSegmentState state)
     {
         PositionShaktoolAroundPreviousSegment(slot, state);
@@ -155,7 +155,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             : state.OrbitAngle.AddRaw(increment);
     }
 
-    /// <summary>Ports middle-segment orientation selection at <c>$AA:DCD7</c>.</summary>
+    /// <summary>Runs middle-segment orientation selection.</summary>
     internal void AdvanceAndOrientShaktoolCenter(
         RoomEnemySlot slot,
         ShaktoolSegmentState state)
@@ -180,7 +180,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
-    /// <summary>Ports the last segment's collision/reversal controller at <c>$AA:DD25</c>.</summary>
+    /// <summary>Runs the last segment's collision/reversal controller.</summary>
     private void DriveShaktoolTail(
         RoomEnemySlot slot,
         ShaktoolSegmentState state,
@@ -191,7 +191,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> candidate = slot.Position.Whole;
         Offset16<RoomPixels> step = candidate - previous;
 
-        // The native helper restores only whole-pixel words before collision. Subpositions
+        // The helper restores only whole-pixel words before collision. Subpositions
         // remain those produced by DC2A, a subtle asymmetry that affects wall alignment.
         slot.Position = slot.Position.WithWhole(previous);
         int xDisplacement = SixteenSixteen.FromWhole(step.X);
@@ -216,7 +216,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         ShaktoolMotionFlags flags = state.MotionFlags;
         if ((flags & ShaktoolMotionFlags.Straightening) != ShaktoolMotionFlags.None)
         {
-            // DD25 deliberately adds a second $0100 after DCAC's first increment.
+            // The straightening step deliberately adds a second step after the first increment.
             state.TargetAngle = state.TargetAngle.AddRaw(ShaktoolOrbitDefinitions.TableStep);
             return;
         }
@@ -224,7 +224,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.TargetAngle.TableIndex == state.OrbitAngle.TableIndex)
         {
             SynchronizeShaktoolOrbitTargets(slot, state.TargetAngle);
-            // The cartridge keeps only the high byte of the restarted progress, which is already whole.
+            // The game keeps only the high byte of the restarted progress, which is already whole.
             state.CurlProgress = ShaktoolOrbitDefinitions.StraighteningStart;
             SetShaktoolGroupMotionFlags(
                 slot,
@@ -261,7 +261,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             ReverseShaktoolChainEndpoints(slot);
 
             // DB0E is called twice. The second call reads the parameter word just written
-            // by the first, leaving $2000 set while clearing the $4000 straightening bit.
+            // by the first, leaving the reversed-once bit set while clearing the straightening bit.
             SetShaktoolGroupMotionFlags(slot, flags | ShaktoolMotionFlags.ReversedOnce);
             SetShaktoolGroupMotionFlags(
                 slot,
@@ -290,7 +290,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the endpoint/angle reversal helper at <c>$AA:DB59</c>.</summary>
+    /// <summary>Runs the endpoint/angle reversal helper.</summary>
     private void ReverseShaktoolChainEndpoints(RoomEnemySlot anySegment)
     {
         RoomEnemySlot[] group = GetShaktoolGroup(anySegment);
@@ -326,7 +326,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         rightState.OrbitAngle = OppositeOrbitStep(saved);
     }
 
-    /// <summary>Ports the per-segment convergence speed calculation at <c>$AA:DC07</c>: four raw angle units per whole table step left to the target in the orbit direction.</summary>
+    /// <summary>Runs the per-segment convergence speed calculation: four raw angle units per whole table step left to the target in the orbit direction.</summary>
     private static void CalculateShaktoolAngularVelocity(ShaktoolSegmentState state)
     {
         int difference = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
@@ -335,7 +335,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AngularVelocity = 4 * RotationAngle.FromRaw(difference).TableIndex;
     }
 
-    /// <summary>Ports group synchronization at <c>$AA:DC6F</c>.</summary>
+    /// <summary>Runs group synchronization.</summary>
     private void SynchronizeShaktoolOrbitTargets(RoomEnemySlot anySegment, RotationAngle target)
     {
         RoomEnemySlot[] group = GetShaktoolGroup(anySegment);
@@ -418,7 +418,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             : throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} has no initialized Shaktool state.");
 
-    /// <summary>Carries out one cue of a Shaktool segment's animation (native callbacks <c>$AA:D931-$D9BA</c>).</summary>
+    /// <summary>Carries out one cue of a Shaktool segment's animation.</summary>
     internal ShaktoolProgram? ApplyShaktoolCue(RoomEnemySlot slot, ShaktoolSegmentState state, ShaktoolCue cue)
     {
         switch (cue.Kind)
@@ -450,7 +450,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             case ShaktoolCueKind.Nothing:
-                // Explicit RTL stub used between the two long attack pauses.
+                // Explicit empty step used between the two long attack pauses.
                 break;
 
             case ShaktoolCueKind.ResetFunctions:
@@ -471,12 +471,12 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Ports the one-frame sine movement helper at <c>$AA:D956</c>.</summary>
+    /// <summary>Runs the one-frame sine movement helper.</summary>
     private static void MoveShaktoolSegmentForAnimation(RoomEnemySlot slot, ByteAngle angle)
     {
-        // The decompilation names a 320-word view whose indices 64..319 are the cartridge's
-        // 256-word table at $A0:B443. Convert those full-view indices explicitly: X reads
-        // full[angle+64], while Y reads full[angle]. A naïve +64 on the ROM table rotates
+        // The decompilation names a 320-word view whose indices 64..319 are the game's
+        // 256-word table. Convert those full-view indices explicitly: X reads
+        // full[angle+64], while Y reads full[angle]. A naïve +64 on the authored table rotates
         // both components by a quarter turn.
         int xVelocity = ReadShaktoolCommonSineSample(angle.RawValue + 64);
         int yVelocity = ReadShaktoolCommonSineSample(angle.RawValue);
@@ -488,16 +488,16 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         WordWrap.Unsigned(Trigonometry.SignedSine(new ByteAngle(WordWrap.LowByte(fullTableIndex - 64))));
 
     /// <summary>
-    /// Implements Shaktool's fatal-shot tail at <c>$AA:DF34</c>, including its read
+    /// Implements Shaktool's fatal-shot tail, including its read
     /// of the owner index after common death has cleared the struck enemy's RAM.
     /// </summary>
     private void ResolveShaktoolShotAfterCommon(RoomEnemySlot struckSegment)
     {
         if (struckSegment.Health != 0)
             return;
-        // $A0:A3AF clears the entire common slot, which empties the segment's owner. $AA:DF40
+        // The generic death clears the entire common slot, which empties the segment's owner. Shaktool's death tail
         // reads that now-zero owner and writes properties without checking headers.
-        // Do not recover the old group from before the kill: native also targets slots
+        // Do not recover the old group from before the kill: the game also targets slots
         // 0..6 when Shaktool was placed later in a constructed population.
         int ownerSlotIndex = RequireShaktoolState(struckSegment).OwnerSlotIndex;
         if (ownerSlotIndex < 0 ||
@@ -507,7 +507,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             _slotTable.Slots[ownerSlotIndex + index].Properties = EnemyProperties.Deleted;
     }
 
-    /// <summary>Runs the native post-common lethal-shot tail for bomb hits.</summary>
+    /// <summary>Runs the post-common lethal-shot tail for bomb hits.</summary>
     internal void AddShaktoolBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Shaktool &&
@@ -549,7 +549,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = cursor;
     }
 
-    /// <summary>`$AA:DF2F`: Shaktool contact is the common normal-enemy touch, death animation included.</summary>
+    /// <summary>Shaktool contact is the common normal-enemy touch, death animation included.</summary>
     internal void AddShaktoolTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Shaktool &&
@@ -557,7 +557,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             context => _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus));
     }
 
-    /// <summary>Runs the native post-common lethal-shot tail for regular projectile hits.</summary>
+    /// <summary>Runs the post-common lethal-shot tail for regular projectile hits.</summary>
     internal void AddShaktoolShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Shaktool &&
@@ -566,7 +566,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
         });
     }
-    /// <summary>Ports front-circle pre-instruction <c>$86:BE03</c>.</summary>
+    /// <summary>Runs the front circle's per-frame behaviour.</summary>
     internal static void RunShaktoolFrontCircleFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -584,7 +584,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private const int LinkedCircleOwnerSlot = 0;
 
-    /// <summary>Ports middle/back linked-circle pre-instruction <c>$86:BE12</c>.</summary>
+    /// <summary>Runs the middle and back linked circles' per-frame behaviour.</summary>
     internal void RunShaktoolLinkedCircleFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)

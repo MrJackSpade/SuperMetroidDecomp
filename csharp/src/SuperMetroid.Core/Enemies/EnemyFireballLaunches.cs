@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>The launch velocities of Alcoon's and Fune/Namihe's fireballs.</summary>
 public static class EnemyFireballLaunches
 {
-    /// <summary>Maps the three even native selectors to upward, level and downward
+    /// <summary>Maps the three even selectors to upward, level and downward
     /// one-pixel/frame launches, preserving the signed8.8 word representation.</summary>
     public static int AlcoonYVelocity(int byteOffset)
     {

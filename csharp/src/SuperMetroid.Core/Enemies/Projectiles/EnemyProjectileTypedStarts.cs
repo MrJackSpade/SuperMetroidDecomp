@@ -25,8 +25,8 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The typed program each converted projectile kind starts in place of its definition's native initial list (#641).
-/// A kind absent here still starts its native list.
+/// The typed program each converted projectile kind starts in place of its definition's initial list (#641).
+/// A kind absent here still starts its list.
 /// </summary>
 internal static class EnemyProjectileTypedStarts
 {

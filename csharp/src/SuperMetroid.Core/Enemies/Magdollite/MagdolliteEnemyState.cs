@@ -2,9 +2,9 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// The state of one Magdollite part, with its bank-$7E:7800 extension. Extension words are named here instead of
-/// reproducing native's deliberately obscure drawing-queue/spawn-snapshot aliases between three neighboring records.
-/// The values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see
+/// The state of one Magdollite part, with its extension words. Extension words are named here instead of
+/// reproducing the original's deliberately obscure drawing-queue/spawn-snapshot aliases between three neighboring records.
+/// The values the game keeps in the enemy's common record are emptied with it when the enemy is killed (<see
 /// cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class MagdolliteEnemyState
@@ -15,16 +15,16 @@ public sealed class MagdolliteEnemyState
         Part = part;
     }
 
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<MagdolliteProgram> Program { get; set; }
 
     /// <summary>The immutable head, arm, or hand role decoded from this physical enemy slot's population parameter one.</summary>
     public MagdollitePart Part { get; }
-    /// <summary>The current bank-$A8 AI function pointer; none once a kill has emptied the record.</summary>
+    /// <summary>The current AI function pointer; none once a kill has emptied the record.</summary>
     public MagdolliteEnemyFunction? Function { get; internal set; }
 
     /// <summary>
-    /// The arm's rise phase, 0 through 8, selecting its pillar stack, threshold and overlay offset. The cartridge keeps
+    /// The arm's rise phase, 0 through 8, selecting its pillar stack, threshold and overlay offset. The game keeps
     /// twice the phase, the byte offset into the nine-entry rise tables, in the record word the hand uses for <see
     /// cref="ThrowsRight"/>.
     /// </summary>
@@ -49,9 +49,9 @@ public sealed class MagdolliteEnemyState
     /// </summary>
     public Offset16<RoomPixels> RiseDisplacement { get; internal set; }
 
-    /// <summary>Native animationActiveFlag at extension offset $02, set and cleared by instruction callbacks to gate head transitions and completion of the hand's throw.</summary>
+    /// <summary>AnimationActiveFlag at extension offset $02, set and cleared by instruction callbacks to gate head transitions and completion of the hand's throw.</summary>
     public bool AnimationBusy { get; internal set; }
-    /// <summary>Native emergeNotReadyFlag at extension offset $04: set by the head after submerging and cleared by the arm on landing so the head may emerge.</summary>
+    /// <summary>EmergeNotReadyFlag at extension offset $04: set by the head after submerging and cleared by the arm on landing so the head may emerge.</summary>
     public bool HeadWaitsForBodyLanding { get; internal set; }
     /// <summary>
     /// The part's whole-pixel spawn position, captured before its initializer moves it; only Y is meaningful. The head
@@ -60,8 +60,8 @@ public sealed class MagdolliteEnemyState
     public Position16<RoomPixels> Origin { get; internal set; }
 
     /// <summary>
-    /// Native extension variable four. Only the overlay's instance is polled by the head; decrementing it in every part
-    /// remains observable and matches main AI exactly. The wrapping word counts enemy updates, is reset to $0100 by the
+    /// Extension variable four. Only the overlay's instance is polled by the head; decrementing it in every part
+    /// remains observable and matches main AI exactly. The wrapping word counts enemy updates, is reset to 256 by the
     /// throw list, and expires when the head observes its sign bit after decrementing through zero.
     /// </summary>
     public WrappingCountdown AttackTimer { get; internal set; }
@@ -76,14 +76,14 @@ public sealed class MagdolliteEnemyState
     /// not a negation; the rising arm consumes the head's copy.
     /// </summary>
     public SignedSixteenSixteen UpwardVelocity { get; internal set; }
-    /// <summary>Native finishedGrowingFlag at extension offset $18, set by the arm at maximum or Samus-relative height and cleared by the hand when shrinking begins.</summary>
+    /// <summary>FinishedGrowingFlag at extension offset $18, set by the arm at maximum or Samus-relative height and cleared by the hand when shrinking begins.</summary>
     public bool BodyReachedApex { get; internal set; }
-    /// <summary>Native notEmergedFlag at extension offset $1A: despite the host name, true holds the arm dormant; the head clears it to start growth and landing sets it again.</summary>
+    /// <summary>NotEmergedFlag at extension offset $1A: despite the host name, true holds the arm dormant; the head clears it to start growth and landing sets it again.</summary>
     public bool BodyWakeRequested { get; internal set; }
-    /// <summary>Native throwXPosition/throwYPosition at extension offsets $24/$26: whole-pixel room position captured at the apex and used as the base for hand-animation shifts and restoration.</summary>
+    /// <summary>Whole-pixel room position captured at the apex and used as the base for hand-animation shifts and restoration.</summary>
     public Position16<RoomPixels> ThrowOrigin { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

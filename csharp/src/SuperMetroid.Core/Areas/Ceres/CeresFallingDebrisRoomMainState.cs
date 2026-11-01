@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres pre-elevator hall's falling-debris room main (<c>$8F:E525</c>): its countdown to the next falling tile.
+/// The Ceres pre-elevator hall's falling-debris room main: its countdown to the next falling tile.
 /// The countdown is not set up when the room loads; it starts from what the previous room's main left
 /// (<see cref="RoomMainCarryover"/>), normally the elevator shaft's last turn step.
 /// </summary>

@@ -16,7 +16,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Samus must be within 80 horizontal pixels for a waiting Choot to arm its jump timer.</summary>
     private const int ChootActivationDistance = 80;
 
-    /// <summary>Ports <c>InitAI_Choot</c> at <c>$A2:DF76</c>, selecting a falling pattern and calculating ascent speed from native parameters.</summary>
+    /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
     internal static void InitializeChoot(RoomEnemySlot slot)
     {
         var state = new ChootEnemyState();
@@ -27,14 +27,14 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpawnPosition = slot.Position.Whole;
 
         // Parameter one's high byte selects one of five genuine pattern streams. The sixth
-        // ROM table word points back into the pointer table and is documented garbage; no
+        // pattern selector points back into the pattern list and is documented garbage; no
         // retail population selects it, so expose corrupt/high parameters as invalid data.
         int patternIndex = slot.SpawnSettings<ChootSpawnSettings>().PatternIndex;
         ChootPatternDefinition pattern = ChootFalls.ForIndex(patternIndex);
         state.FallingPath = pattern.FallingPath;
         state.FallingPatternYDistance = pattern.FallingPatternYDistance;
 
-        // The SNES multiplier consumes only the loop count's low byte; the authored loop advance is
+        // The multiply consumes only the loop count's low byte; the authored loop advance is
         // already below 256. Retail loop counts are nonzero.
         int jumpHeight = CoordinateAxis.Wrap(
             slot.SpawnSettings<ChootSpawnSettings>().PatternLoops * state.FallingPatternYDistance);
@@ -44,7 +44,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.YSpeedTableIndex = state.InitialYSpeedTableIndex;
     }
 
-    /// <summary>Ports <c>MainAI_Choot</c> and its four wait, prepare, jump, and fall targets at <c>$A2:E02E-$E143</c>.</summary>
+    /// <summary>Runs the Choot's main AI and its four wait, prepare, jump, and fall targets.</summary>
     private static void RunChootMain(
         RoomEnemySlot slot,
         ChootEnemyState state,
@@ -80,7 +80,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Choot proximity AI requires the active Samus actor.");
 
         // GetSignedYMinusX treats the wrapped word as signed before taking its magnitude.
-        // In particular, $8000 remains $8000 after negation; ordinary Math.Abs(short) would
+        // In particular, -32768 remains -32768 after negation; ordinary Math.Abs(short) would
         // throw and a wider subtraction would disagree near the world-coordinate seam.
         int distance = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
         if (EnemyMath.IsNegative16(distance))
@@ -92,7 +92,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = ChootEnemyFunction.PreparingJump;
     }
 
-    /// <summary>Decrements the native delay word until it turns negative, then starts the jumping instruction list.</summary>
+    /// <summary>Decrements the delay word until it turns negative, then starts the jumping instruction list.</summary>
     internal static void PrepareChootJump(RoomEnemySlot slot, ChootEnemyState state)
     {
         CountdownStep timer = state.JumpDelayTimer.Decrement();
@@ -104,7 +104,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = ChootEnemyFunction.Jumping;
     }
 
-    /// <summary>Applies native quadratic ascent without room collision and snaps whole coordinates to the calculated falling origin at the apex.</summary>
+    /// <summary>Applies quadratic ascent without room collision and snaps whole coordinates to the calculated falling origin at the apex.</summary>
     internal static void RunChootJump(RoomEnemySlot slot, ChootEnemyState state)
     {
         // Choot applies the table's separately stored negative pair, including its fractional
@@ -119,11 +119,11 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // The apex transition snaps only the whole positions to precalculated origins;
-        // subpositions deliberately survive until the final spawn reset, just as in WRAM.
+        // subpositions deliberately survive until the final spawn reset, just as in the game.
         slot.Position = slot.Position.WithWhole(state.InitialFallingPosition);
         state.FallingOrigin = state.InitialFallingPosition;
         state.FallingPatternFrame = 0;
-        // A population loop count of zero wraps to $FFFF loops, as the cartridge's DEC of the loaded count does.
+        // A population loop count of zero wraps to 65535 loops, as the game's decrement of the loaded count does.
         state.FallingPatternLoopCounter = WrappingCountdown.Start(slot.SpawnSettings<ChootSpawnSettings>().PatternLoops)
             .Decrement().Remaining;
         SetChootProgram(slot, state, ChootProgram.Falling);
@@ -159,7 +159,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports <c>CalculateChootInitialJumpSpeed</c> at <c>$A2:DFE9</c>, integrating every second quadratic step until
+    /// Calculates the Choot's initial jump speed, integrating every second quadratic step until
     /// they cover the requested height. The table ends at record 94, so the result is an even index from 2 to 94.
     /// </summary>
     private static int CalculateInitialChootYSpeedTableIndex(int jumpHeight)

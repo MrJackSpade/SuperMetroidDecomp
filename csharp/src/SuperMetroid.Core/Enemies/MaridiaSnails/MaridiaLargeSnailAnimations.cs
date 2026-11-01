@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailProgram;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>
-/// Oum's idle, attacking and rolling animations as typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// Oum's idle, attacking and rolling animations as typed programs (#641). Each
 /// frame shows a <see cref="MaridiaLargeSnailFrame"/> pose and each callback becomes a <see cref="MaridiaLargeSnailCue"/> with its typed operands.
 /// </summary>
 internal static class MaridiaLargeSnailAnimations
@@ -129,7 +129,7 @@ internal static class MaridiaLargeSnailAnimations
     /// <summary>Continues at <paramref name="program"/>.</summary>
     private static AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue> GoTo(MaridiaLargeSnailProgram program) => AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue>.GoTo(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue> Hold => AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue>.Hold;
 
 }

@@ -42,7 +42,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case SparkCueKind.BecomeIntangible:
-                // Flicker-out: property bit $0400 removes the actor from every ordinary Samus, beam and grapple
+                // Flicker-out: the intangibility property removes the actor from every ordinary Samus, beam and grapple
                 // collision pass.
                 slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
                 break;
@@ -57,7 +57,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Ports <c>InitAI_Spark</c> at <c>$A8:E637</c>.</summary>
+    /// <summary>Initializes the Spark.</summary>
     internal void InitializeSpark(RoomEnemySlot slot)
     {
         var state = new SparkEnemyState();
@@ -75,7 +75,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         // defeat is exempt under the emulation scope limits (owner decision on #1318).
     }
 
-    /// <summary>Ports the indirect main dispatcher at <c>$A8:E68E</c>.</summary>
+    /// <summary>Runs the indirect main dispatcher.</summary>
     private void RunSparkMain(RoomEnemySlot slot, SparkEnemyState state)
     {
         switch (state.Function)
@@ -117,7 +117,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reproduces <c>DEC; BEQ</c>. A zero countdown wraps to <c>$FFFF</c> and therefore does
+    /// Reproduces the decrement-then-test-zero countdown. A zero countdown wraps to -1 and therefore does
     /// not expire for another 65,535 actor frames; it must not be treated as immediately due.
     /// </summary>
     internal static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state)
@@ -130,7 +130,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         return false;
     }
 
-    /// <summary>Ports <c>SetSparkFunctionTimer</c> at <c>$A8:E6F6</c>.</summary>
+    /// <summary>Sets the Spark's function timer.</summary>
     private void SetSparkFunctionTimer(SparkEnemyState state, int additionalTime)
     {
         int baseTime = state.BaseFunctionTime;

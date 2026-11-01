@@ -15,8 +15,8 @@ public static class BoyonBounceCurve
     /// <summary>The 8.8 jump height parameter one's high byte selects.</summary>
     /// <remarks>
     /// #625 / #644 exact NTSC J/U v1.0 algorithm: for high-byte selector i in 0..8,
-    /// the unsigned height is $3000 + i*$1000. All nine words at $A2:86EF-$8700
-    /// match the pinned ROM and bank-A2 disassembly. The native initializer doubles
+    /// the unsigned height is 12288 + i*4096. All nine words
+    /// are the authored heights. The initializer doubles
     /// the selector for its word offset; selector 9 would read the adjacent curve
     /// and is outside this height domain. VerifyCompiledBoyonSpeeds exercises every
     /// authored height through the real initializer and rejects selector 9.
@@ -26,14 +26,14 @@ public static class BoyonBounceCurve
         ? CoordinateAxis.Wrap(LowestInitialHeight + index * InitialHeightStep)
         : throw new ArgumentOutOfRangeException(nameof(index));
 
-    /// <summary>The native curve is k(k+1)/2, with explicit byte saturation beyond its stored samples.</summary>
+    /// <summary>The curve is k(k+1)/2, with explicit byte saturation beyond its stored samples.</summary>
     /// <remarks>
-    /// #625 / #643 exact NTSC J/U v1.0 proof: each of the 23 unsigned bytes at
-    /// $A2:8701-$8717 equals k*(k+1)/2 for authored index k in 0..22, ending at $FD.
-    /// The native caller reads first, then substitutes $FF for every index at or above
-    /// 23 before its eight-bit hardware multiply; the nominal overread at index 23 is
+    /// #625 / #643 exact proof: each of the 23 authored unsigned bytes
+    /// equals k*(k+1)/2 for authored index k in 0..22, ending at 253.
+    /// The caller reads first, then substitutes 255 for every index at or above
+    /// 23 before its eight-bit multiply; the nominal overread at index 23 is
     /// discarded. This method models that effective caller result, not a larger table.
-    /// VerifyCompiledBoyonSpeeds checks all ROM bytes, all 65,536 input indices, and
+    /// VerifyCompiledBoyonSpeeds checks all authored bytes, all 65,536 input indices, and
     /// every low-byte multiplier through the real production calculation.
     /// </remarks>
     public static int Sample(int index) => index < StoredSampleCount

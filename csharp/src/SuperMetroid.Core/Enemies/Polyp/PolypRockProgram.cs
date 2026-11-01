@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>
-/// The Polyp's lava-rock program (#641), one per bank-$86 list a spawn, branch or family routine enters, in authored order.
-/// Generated from the verified native lists; see <see cref="PolypRockAnimations"/>.
+/// The Polyp's lava-rock program (#641), one per animation a spawn, branch or family routine enters, in authored order.
+/// Their steps are <see cref="PolypRockAnimations"/>.
 /// </summary>
 internal enum PolypRockProgram
 {
-    /// <summary><c>InstList_EnemyProjectile_NorfairLavaquakeRocks</c> at $86:BBD5.</summary>
+    /// <summary>The initial animation.</summary>
     Initial,
 }

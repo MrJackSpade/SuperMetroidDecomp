@@ -62,10 +62,10 @@ public static class EscapeTimerPresentationDefinitions
         [EscapeTimerAnchor.Centiseconds] = "Centiseconds",
     };
 
-    /// <summary>$80:9FEA..A05F: decimal glyphs are eight pixels wide.</summary>
+    /// <summary>Decimal glyphs are eight pixels wide.</summary>
     private const int GlyphWidth = 8;
 
-    /// <summary>$80:9F7B/9F84/9F8D: three two-digit groups separated by one cell, centered across eight cells.</summary>
+    /// <summary>Three two-digit groups separated by one cell, centered across eight cells.</summary>
     internal static readonly IReadOnlyDictionary<EscapeTimerAnchor, Offset16<SpritePixels>> DefaultAnchors =
         new Dictionary<EscapeTimerAnchor, Offset16<SpritePixels>>
         {

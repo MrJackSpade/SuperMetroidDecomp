@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// Mutually exclusive population variants accepted by the Ceres steam initializer.
-/// The numeric values are the exact parameter-one indexes used by <c>$A6:EFB1</c>.
+/// The numeric values are the exact parameter-one indexes used by the steam initializer.
 /// </summary>
 public enum CeresSteamVariant
 {

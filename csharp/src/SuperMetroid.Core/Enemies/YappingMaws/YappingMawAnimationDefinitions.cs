@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// <summary>Animation selection for the Yapping Maw.</summary>
 internal static class YappingMawAnimationDefinitions
 {
-    /// <summary>The eight attack bites in the native clockwise octant order, starting facing up.</summary>
+    /// <summary>The eight attack bites in the clockwise octant order, starting facing up.</summary>
     internal static readonly Dictionary<YappingMawAim, YappingMawProgram> Attacks = new()
     {
         [YappingMawAim.Up] = YappingMawProgram.AttackingUp,

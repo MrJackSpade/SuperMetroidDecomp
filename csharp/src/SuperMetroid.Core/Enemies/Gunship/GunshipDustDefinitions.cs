@@ -3,12 +3,12 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// <summary>Six authored spawn records used by gunship liftoff dust.</summary>
 public static class GunshipDustDefinitions
 {
-    /// <summary>$86:A2C4, InitAI_EnemyProjectile_GunshipLiftoffDustClouds: dust is eighty pixels below Samus.</summary>
+    /// <summary>Dust is eighty pixels below Samus.</summary>
     public const int YOffset = 80;
 
     /// <summary>
-    /// $86:A2D6..A2ED, .Xoffsets and .InstListPointers in
-    /// InitAI_EnemyProjectile_GunshipLiftoffDustClouds. Even parameters 0/2/4 select
+    /// The X offsets and animations of
+    /// the gunship's liftoff dust clouds. Even parameters 0/2/4 select
     /// right-side clouds; 6/8/A select left-side clouds, each starting its typed program (#641).
     /// </summary>
     internal static readonly Dictionary<int, GunshipDustPlacement> Placements = new()

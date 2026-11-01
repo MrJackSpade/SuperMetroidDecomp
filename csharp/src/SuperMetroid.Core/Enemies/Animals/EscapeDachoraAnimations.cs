@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Animals.EscapeDachoraProgram;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The escaping Dachora's typed programs (#641), in place of their bank-$B3 lists. Generated from the verified native lists: each
+/// The escaping Dachora's typed programs (#641). Each
 /// frame shows a <see cref="EscapeDachoraFrame"/> pose and each callback becomes a <see cref="EscapeDachoraCue"/> with its typed operands.
 /// </summary>
 internal static class EscapeDachoraAnimations

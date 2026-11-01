@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Chozo.Artwork;
 
 /// <summary>
-/// The presentation boundary of the Chozo statue's programs (#641): the bank-$AA spritemap each
+/// The presentation boundary of the Chozo statue's programs (#641): the spritemap each
 /// <see cref="ChozoStatueFrame"/> pose shows, in ascending spritemap order.
 /// </summary>
 internal static class ChozoStatueFrameDefinitions

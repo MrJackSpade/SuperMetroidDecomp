@@ -11,7 +11,7 @@ internal static class KagoDefinitions
 
     /// <summary>
     /// The random bit that sends a bug near its shell leftward: bit eight, the low bit of <see cref="JumpHeightSteps"/>,
-    /// so the cartridge reads it back from the chosen jump magnitude rather than drawing again.
+    /// so the game reads it back from the chosen jump magnitude rather than drawing again.
     /// </summary>
     internal static readonly RandomSampleField LeftJump = new(8, 1);
 }

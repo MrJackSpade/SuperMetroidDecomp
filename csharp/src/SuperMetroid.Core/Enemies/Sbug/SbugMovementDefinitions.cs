@@ -9,14 +9,14 @@ internal static class SbugMovementDefinitions
         SbugActivationBehavior.RandomUntilCollision, SbugActivationBehavior.RandomAndReverseWhenFar,
         SbugActivationBehavior.MoveForwardThenWait, SbugActivationBehavior.MoveAwayFromSamus);
 
-    /// <summary>$A3:A111: the eight directional loops, by facing counter-clockwise from right.</summary>
+    /// <summary>The eight directional loops, by facing counter-clockwise from right.</summary>
     internal static readonly SbugProgram[] FacingPrograms =
     [
         SbugProgram.Right, SbugProgram.UpRight, SbugProgram.Up, SbugProgram.UpLeft,
         SbugProgram.Left, SbugProgram.DownLeft, SbugProgram.Down, SbugProgram.DownRight,
     ];
 
-    /// <summary>$A3:A121: the function each of the seven population-selected activation behaviors starts.</summary>
+    /// <summary>The function each of the seven population-selected activation behaviors starts.</summary>
     internal static readonly Dictionary<SbugActivationBehavior, SbugEnemyFunction> ActivationFunctions = new()
     {
         [SbugActivationBehavior.MoveForward] = SbugEnemyFunction.ActivateMoveForward,

@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheProgram;
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
 /// <summary>
-/// The Fune's and Namihe's idle and spitting animations as typed programs (#641), in place of their bank-$A8 lists. Generated from the verified native lists: each
+/// The Fune's and Namihe's idle and spitting animations as typed programs (#641). Each
 /// frame shows a <see cref="FuneNamiheFrame"/> pose and each callback becomes a <see cref="FuneNamiheCue"/> with its typed operands.
 /// </summary>
 internal static class FuneNamiheAnimations
@@ -107,7 +107,7 @@ internal static class FuneNamiheAnimations
     /// <summary>Continues at <paramref name="program"/>.</summary>
     private static AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue> GoTo(FuneNamiheProgram program) => AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue>.GoTo(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue> Hold => AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue>.Hold;
 
 }

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Stoke;
 
 /// <summary>
-/// The state of one Stoke: its walking speeds, facing and behaviour. Every value here is one the cartridge keeps in
+/// The state of one Stoke: its walking speeds, facing and behaviour. Every value here is one the game keeps in
 /// the enemy's common record, so it is emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class StokeEnemyState

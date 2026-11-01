@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <summary>Mutually exclusive crawler animation families with distinct initial tables.</summary>
 internal enum CrawlerAnimationFamily
 {
-    /// <summary>Common surface lists used by the first three native species offsets.</summary>
+    /// <summary>Common surface lists used by the first three species offsets.</summary>
     Shared,
     /// <summary>Viola's distinct initial surface table and later species selection.</summary>
     Viola,

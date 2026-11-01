@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
-/// The Work Robot's laser programs (#641), in place of their bank-$86 lists. Generated from the verified native lists: each
+/// The Work Robot's laser programs (#641). Each
 /// frame shows a <see cref="WorkRobotLaserFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class WorkRobotLaserAnimations

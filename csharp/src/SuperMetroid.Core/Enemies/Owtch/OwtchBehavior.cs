@@ -45,7 +45,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Owtch sinks sixteen whole pixels below its walking height.</summary>
     private const int OwtchMaximumBurialDepth = 16;
 
-    /// <summary>Ports <c>InitAI_Owtch</c> at $A2:A3F9.</summary>
+    /// <summary>Initializes the Owtch.</summary>
     internal static void InitializeOwtch(RoomEnemySlot slot)
     {
         OwtchSpawnSettings settings = slot.SpawnSettings<OwtchSpawnSettings>();
@@ -86,7 +86,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
         SetOwtchProgram(slot, state, initialProgram);
 
-        // State two is the cartridge's special initially-buried form. It moves only the
+        // State two is the game's special initially-buried form. It moves only the
         // whole coordinate and records the same sixteen-pixel depth used by normal sinking.
         if (state.Behavior == OwtchBehaviorState.Underground)
         {
@@ -95,7 +95,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>MainAI_Owtch</c> and its indirect state table at $A2:A47E.</summary>
+    /// <summary>Runs the Owtch's main AI and its indirect state table.</summary>
     private void RunOwtchMain(RoomEnemySlot slot, OwtchEnemyState state)
     {
         switch (state.Behavior)
@@ -118,7 +118,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case OwtchBehaviorState.Sinking:
                 slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
-                // Sinking starts from zero, so the depth stays within one through sixteen and the cartridge's signed
+                // Sinking starts from zero, so the depth stays within one through sixteen and the game's signed
                 // word comparison is an ordinary one.
                 state.BurialDepth++;
                 if (state.BurialDepth >= OwtchMaximumBurialDepth)
@@ -133,7 +133,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 1);
                 if (state.RiseOnePixel())
                 {
-                    // $A2:A549 samples RandomNumberSeed+1 without advancing the RNG. The
+                    // The underground wait samples the random seed's high byte without advancing the RNG. The
                     // gameplay runtime supplies that read seam; isolated callers without it
                     // retain the established advancing fallback used by other translated AI.
                     int random = _room.Random.Read();
@@ -155,13 +155,13 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the carry-sensitive additions at $A2:A4B0/$A4D9.</summary>
+    /// <summary>Moves the Owtch with the game's carry-sensitive additions.</summary>
     private static void MoveOwtch(
         RoomEnemySlot slot,
         OwtchEnemyState state,
         HorizontalDirection direction)
     {
-        // The fraction's carry and the whole pixels' wraparound match the cartridge's paired additions.
+        // The fraction's carry and the whole pixels' wraparound match the game's paired additions.
         slot.Position = slot.Position.AdvanceX(direction == HorizontalDirection.Right ? state.RightVelocity : state.LeftVelocity);
 
         if (direction != HorizontalDirection.Right)
@@ -178,7 +178,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Behavior = OwtchBehaviorState.MovingLeft;
     }
 
-    /// <summary>Ports Owtch's six-in-256 per-frame burial gate at $A2:A553.</summary>
+    /// <summary>Runs Owtch's six-in-256 per-frame burial gate.</summary>
     private void MaybeMakeOwtchSink(RoomEnemySlot slot, OwtchEnemyState state)
     {
         int random = _room.Random.Generate();
@@ -187,7 +187,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Behavior = OwtchBehaviorState.Sinking;
     }
 
-    /// <summary>Animation commands $A2:A56D (left) and $A2:A571 (right): select the moving function index.</summary>
+    /// <summary>Animation cues for left and right: select the moving function index.</summary>
     private static void SetOwtchMoving(OwtchEnemyState state, OwtchBehaviorState moving) =>
         state.Behavior = moving;
 
@@ -235,8 +235,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Owtch &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.OwtchShot)
         {
-            // Owtch's private $A2:A579 callback returns before common shot AI unless signed(state - 1) is negative.
-            // The bank-$A0 collision prelude has already marked ordinary non-plasma shots as collided at this point,
+            // Owtch's private shot callback returns before common shot AI unless signed(state - 1) is negative.
+            // The collision prelude has already marked ordinary non-plasma shots as collided at this point,
             // but it has not converted them into an impact animation. Preserve that split so the shell is genuinely
             // immune while moving right, sinking, buried, or rising.
             AfterSuperMissileQuake = (in EnemyShotContext c) =>

@@ -34,7 +34,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         _spriteObjects = spriteObjects;
     }
 
-    /// <summary>Ports <c>NuclearWaffle_Init</c> at <c>$A6:94C4</c>.</summary>
+    /// <summary>Initializes the Nuclear Waffle.</summary>
     internal void InitializeNuclearWaffle(RoomEnemySlot slot)
     {
         var state = new NuclearWaffleEnemyState();
@@ -76,7 +76,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         SpawnNuclearWaffleSpriteSegments(slot, state);
     }
 
-    /// <summary>Ports <c>NuclearWaffle_Main</c> at <c>$A6:960E</c>.</summary>
+    /// <summary>Runs the Nuclear Waffle's main AI.</summary>
     private void RunNuclearWaffleMain(RoomEnemySlot slot, NuclearWaffleEnemyState state)
     {
         switch (state.Function)
@@ -95,7 +95,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>NuclearWaffle_Func_1</c> at <c>$A6:9615</c>.</summary>
+    /// <summary>Waits before a sweep.</summary>
     private static void RunNuclearWaffleWaiting(
         RoomEnemySlot slot,
         NuclearWaffleEnemyState state)
@@ -114,7 +114,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
     }
 
-    /// <summary>Ports <c>NuclearWaffle_Func_2</c> at <c>$A6:9682</c>.</summary>
+    /// <summary>Runs a sweep.</summary>
     private void RunNuclearWaffleSweep(RoomEnemySlot slot, NuclearWaffleEnemyState state)
     {
         NuclearWaffleOrientation headOrientation = GetNuclearWaffleOrientation(
@@ -142,12 +142,12 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
     }
 
-    /// <summary>Allocates the four damaging projectile links in native association order.</summary>
+    /// <summary>Allocates the four damaging projectile links in association order.</summary>
     private void SpawnNuclearWaffleProjectileSegments(
         RoomEnemySlot owner,
         NuclearWaffleEnemyState state)
     {
-        // Native init parameters $08,$06,$04,$02 select four extra-RAM association words.
+        // Init parameters $08,$06,$04,$02 select four extra-RAM association words.
         // Keep array order identical to the later descending update loop.
         for (int segmentIndex = 0; segmentIndex < state.ProjectileSegments.Length; segmentIndex++)
         {
@@ -155,9 +155,9 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             if (segment is null)
                 throw new InvalidOperationException("Nuclear Waffle exhausted the enemy-projectile pool during room load.");
 
-            // SpawnEnemyProjectileY_ParameterA_XGraphics installs definition $BBC7 before
-            // initializer $BB92 runs. That record owns the twelve-map animation, $BBC6
-            // pre-instruction, 8x8 radii, $C040 interaction flags, and 64 damage. The
+            // Spawning installs the link's definition before
+            // its initializer runs. That record owns the twelve-map animation, the link's
+            // frame behaviour, 8x8 radii, interaction flags, and 64 damage. The
             // initializer below only copies the live owner coordinates, associates this
             // physical slot with one articulated link, and selects collision option one.
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
@@ -165,8 +165,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
                 RoomEnemyProjectileKind.NuclearWaffleBody,
                 state.GraphicsAttributes);
             segment.Position = owner.Position.WithWhole(state.InitialHead);
-            // Initializer $BB92 writes collision option one for these four links. Property
-            // $8000 admits the beam overlap; this independent flag selects the persistent
+            // The initializer writes collision option one for these four links. Their
+            // shot-blocking property admits the beam overlap; this independent flag selects the persistent
             // dud response rather than the definition's delete-on-shot instruction list.
             segment.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;
             state.ProjectileSegments[segmentIndex] = segment;
@@ -190,7 +190,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the projectile-link loop at <c>$A6:9721</c>.</summary>
+    /// <summary>Runs the projectile-link loop.</summary>
     private bool PositionNuclearWaffleProjectileSegments(NuclearWaffleEnemyState state)
     {
         int angle = state.CurrentAngle + state.InterleavedSegmentOffset;
@@ -212,7 +212,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
             (int clampedAngle, bool linkFinished) = ClampNuclearWaffleAngle(state, angle);
             segment.Position = segment.Position.WithWhole(NuclearWaffleOrbitPoint(state, clampedAngle));
-            // `$A6:97C8` tests the flag left by the final link's second clamp call. It is
+            // The sweep tests the flag left by the final link's second clamp call. It is
             // deliberately not an OR across the chain: the head and leading links can sit
             // at the endpoint while the final projectile link is still unfurling.
             finished = linkFinished;
@@ -221,7 +221,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         return finished;
     }
 
-    /// <summary>Ports the sprite-object-link loop at <c>$A6:97E9</c>.</summary>
+    /// <summary>Runs the sprite-object-link loop.</summary>
     private void PositionNuclearWaffleSpriteSegments(NuclearWaffleEnemyState state)
     {
         int angle = state.CurrentAngle;
@@ -246,8 +246,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports clamp/finished helper <c>$A6:98AD</c>. Every angle the sweep produces stays far inside a signed word, so
-    /// the native signed differences are ordinary comparisons.
+    /// Clamps a link angle and reports whether the sweep finished. Every angle the sweep produces stays far inside a signed word, so
+    /// the signed differences are ordinary comparisons.
     /// </summary>
     private static NuclearWaffleAngleClamp ClampNuclearWaffleAngle(
         NuclearWaffleEnemyState state,
@@ -271,7 +271,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             : new NuclearWaffleAngleClamp(angle, false);
     }
 
-    /// <summary>Ports orientation helper <c>$A6:98E7</c>.</summary>
+    /// <summary>Chooses a link's orientation.</summary>
     private static NuclearWaffleOrientation GetNuclearWaffleOrientation(
         NuclearWaffleEnemyState state,
         int angle)

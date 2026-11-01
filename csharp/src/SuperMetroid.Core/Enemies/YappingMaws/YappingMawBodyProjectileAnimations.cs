@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>
-/// The Yapping Maw's body-link programs (#641), in place of their bank-$86 lists. Generated from the verified native lists: each
+/// The Yapping Maw's body-link programs (#641). Each
 /// frame shows a <see cref="YappingMawBodyProjectileFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class YappingMawBodyProjectileAnimations
@@ -29,6 +29,6 @@ internal static class YappingMawBodyProjectileAnimations
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<YappingMawBodyProjectileProgram, YappingMawBodyProjectileFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<YappingMawBodyProjectileProgram, YappingMawBodyProjectileFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<YappingMawBodyProjectileProgram, YappingMawBodyProjectileFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<YappingMawBodyProjectileProgram, YappingMawBodyProjectileFrame, EnemyProjectileCommonCue>.Hold;
 }

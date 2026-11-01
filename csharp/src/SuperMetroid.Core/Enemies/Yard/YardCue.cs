@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Enemies.Yard;
 
-/// <summary>One cue of the Yard's programs, with the operands its native instruction carries.</summary>
+/// <summary>One cue of the Yard's programs, with its typed operands.</summary>
 internal abstract record YardCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
@@ -8,19 +8,19 @@ internal abstract record YardCue
     {
     }
 
-    /// <summary>Moves the Yard by a signed pixel offset in X and Y (<c>MoveByPixelsInY</c>, $A3:CC5F).</summary>
+    /// <summary>Moves the Yard by a signed pixel offset in X and Y.</summary>
     /// <param name="Offset">The cue's signed pixel offset, horizontal and vertical.</param>
     internal sealed record MoveBy(Offset16<RoomPixels> Offset) : YardCue;
 
-    /// <summary>Sets the attachment direction and the airborne facing it implies (<c>DirectionInY</c>, $A3:CC48).</summary>
+    /// <summary>Sets the attachment direction and the airborne facing it implies.</summary>
     /// <param name="Direction">The surface direction a <see cref="SetDirection"/> cue attaches the Yard in.</param>
     internal sealed record SetDirection(YardDirection Direction) : YardCue;
 
-    /// <summary>Names the animation the Yard hides with, or none (<c>HidingInstListInY</c>, $A3:CC3F).</summary>
-    /// <param name="OptionalTarget">The program the cue names, or none where the native operand is the $CF5F sentinel.</param>
+    /// <summary>Names the animation the Yard hides with, or none.</summary>
+    /// <param name="OptionalTarget">The program the cue names, or none where the operand is the empty-behaviour sentinel.</param>
     internal sealed record SetHidingProgram(YardProgram? OptionalTarget) : YardCue;
 
-    /// <summary>Selects the movement function main AI runs (<c>MovementFunctionInY</c>, $A3:CC36).</summary>
+    /// <summary>Selects the movement function main AI runs.</summary>
     /// <param name="MovementFunction">The cue's MovementFunction operand.</param>
     internal sealed record SetMovementFunction(YardMovementFunction MovementFunction) : YardCue;
 

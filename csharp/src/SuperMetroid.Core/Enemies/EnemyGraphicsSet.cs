@@ -3,10 +3,10 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>The room's bank-$B4 enemy graphics set: the staged tiles and palettes, their uploads, and each enemy's tile and palette indexes.</summary>
+/// <summary>The room's enemy graphics set: the staged tiles and palettes, their uploads, and each enemy's tile and palette indexes.</summary>
 internal sealed class EnemyGraphicsSet
 {
-    /// <summary>Maximum four enemy graphics-set entries accepted by the native room tileset arrays.</summary>
+    /// <summary>Maximum four enemy graphics-set entries accepted by the room tileset arrays.</summary>
     public const int MaximumGraphicsSetCount = 4;
 
     /// <summary>Supplies the selected enemy artwork and guards room-bound operations.</summary>
@@ -19,7 +19,7 @@ internal sealed class EnemyGraphicsSet
         Placement = GraphicsSetColourPlacement.Of(LoadedSet, Entries);
     }
 
-    /// <summary>Resolved graphics records in room-set order, used for DMA scheduling and per-enemy tile/palette indexes.</summary>
+    /// <summary>Resolved graphics records in room-set order, used for tile-upload scheduling and per-enemy tile/palette indexes.</summary>
     internal readonly List<RoomEnemyGraphicsSetEntry> Entries = new();
 
     /// <summary>
@@ -42,7 +42,7 @@ internal sealed class EnemyGraphicsSet
     /// </summary>
     /// <remarks>
     /// The members' looks are shown after the standard sprites, as LoadEnemyTileData's copies follow the standard room
-    /// graphics; the cartridge queues them before any enemy AI's own transfer, which these showings also precede.
+    /// graphics; the game queues them before any enemy AI's own transfer, which these showings also precede.
     /// </remarks>
     public void ShowGraphics()
     {
@@ -69,7 +69,7 @@ internal sealed class EnemyGraphicsSet
         LoadedSet = graphicsSet;
         foreach (RoomEnemyGraphicsSetEntry entry in LayOut(definitions, graphicsSet))
         {
-            // ProcessEnemyTilesets copies one complete sixteen-colour palette from the enemy's selected code/data bank
+            // Loading the enemy tilesets copies one complete sixteen-colour palette from the enemy's definition
             // into the shared store the record names.
             (_room.Artwork ?? throw new InvalidOperationException(
                 "Enemy population requires installed palette artwork."))
@@ -84,7 +84,7 @@ internal sealed class EnemyGraphicsSet
     /// they upload to and the OBJ character index they start at.
     /// </summary>
     /// <remarks>
-    /// A member shown at a fixed block ends every retail set. The cartridge adds the header's fixed-block flag into the
+    /// A member shown at a fixed block ends every retail set. The game adds the header's fixed-block flag into the
     /// counters the following members would start from; no retail set has a following member, so that sum is never
     /// observed, and a set that would observe it is rejected rather than reproduced (#1412).
     /// </remarks>
@@ -108,7 +108,7 @@ internal sealed class EnemyGraphicsSet
             if (entries.Count == EnemyGraphicsSet.MaximumGraphicsSetCount)
             {
                 throw new InvalidDataException(
-                    $"Enemy graphics set {graphicsSet.Name} exceeds the native four-entry arrays.");
+                    $"Enemy graphics set {graphicsSet.Name} has more than the four entries a room's enemy graphics can hold.");
             }
             if (followsFixedBlock)
             {
@@ -118,7 +118,7 @@ internal sealed class EnemyGraphicsSet
 
             // Retail enemy headers are immutable gameplay definitions. Graphics uploads
             // use the selected extracted artwork, but
-            // the header itself must not be re-read from the cartridge on room entry.
+            // the header itself must not be re-read from the game on room entry.
             RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(enemy);
 
             int byteCount = definition.TileByteCount;

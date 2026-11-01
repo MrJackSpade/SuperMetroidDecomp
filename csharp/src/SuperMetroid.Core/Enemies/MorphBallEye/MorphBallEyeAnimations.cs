@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
-/// The Morph Ball eye's tracking, eyelid and mount animations as typed programs (#641), in place of their bank-$A8 lists. Generated from the verified native lists: each
+/// The Morph Ball eye's tracking, eyelid and mount animations as typed programs (#641). Each
 /// frame shows a <see cref="MorphBallEyeFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class MorphBallEyeAnimations
@@ -104,7 +104,7 @@ internal static class MorphBallEyeAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue> FallInto(MorphBallEyeProgram program) => AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue> Hold => AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue>.Hold;
 
 }

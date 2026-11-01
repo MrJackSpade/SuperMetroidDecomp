@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Enemies.SaveStation;
 
 /// <summary>
-/// The save-station electricity's twenty eight-pose cycles (#1296), in place of their bank-$86 lists ($86:E683..E6AC). Each frame shows a <see cref="SaveStationElectricityFrame"/> pose and each
+/// The save-station electricity's twenty eight-pose cycles (#1296). Each frame shows a <see cref="SaveStationElectricityFrame"/> pose and each
 /// command becomes an <see cref="EnemyProjectileCommonCue"/>.
 /// </summary>
 internal static class SaveStationElectricityAnimations
@@ -43,6 +43,6 @@ internal static class SaveStationElectricityAnimations
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue>.Publish(cue);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue>.Hold;
 }

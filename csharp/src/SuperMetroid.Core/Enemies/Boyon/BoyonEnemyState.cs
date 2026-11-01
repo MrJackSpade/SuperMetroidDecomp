@@ -2,12 +2,12 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>
-/// The state of a Boyon, with its six parallel extended-WRAM words. The values the cartridge keeps in the enemy's
+/// The state of a Boyon, with its six parallel extended words. The values the game keeps in the enemy's
 /// common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class BoyonEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<BoyonProgram> Program { get; set; }
 
     /// <summary>
@@ -33,7 +33,7 @@ public sealed class BoyonEnemyState
     /// <summary>
     /// The arc's target height in 256ths of a pixel, 12288 through 45056 from the spawn table. It is compared with <see
     /// cref="DistanceAccumulator"/> by the sign of their word difference (<see cref="HasReachedJumpHeight"/>), so
-    /// heights of 32769 and above behave as the cartridge's do.
+    /// heights of 32769 and above behave as the game's do.
     /// </summary>
     public int JumpHeight
     {
@@ -43,7 +43,7 @@ public sealed class BoyonEnemyState
 
     /// <summary>
     /// The distance accumulated while deriving the initial curve index, in 256ths of a pixel, as the exact word the
-    /// cartridge keeps (0 through 65535). It advances only through <see cref="AccumulateBounceDistance"/>.
+    /// game keeps (0 through 65535). It advances only through <see cref="AccumulateBounceDistance"/>.
     /// </summary>
     public int DistanceAccumulator
     {
@@ -52,7 +52,7 @@ public sealed class BoyonEnemyState
     }
 
     /// <summary>
-    /// The current entry of the triangular speed curve, as the exact word the cartridge keeps. Rising retreats it with
+    /// The current entry of the triangular speed curve, as the exact word the game keeps. Rising retreats it with
     /// <see cref="RetreatSpeedTableIndex"/>, which takes it from zero to <see cref="LargestSpeedTableIndex"/> at the
     /// top of the arc; falling advances it with <see cref="AdvanceSpeedTableIndex"/>, which takes it from there back to
     /// zero.
@@ -67,12 +67,12 @@ public sealed class BoyonEnemyState
     internal const int LargestSpeedTableIndex = 65535;
 
     /// <summary>
-    /// Whether the accumulated distance has reached the jump height. The cartridge subtracts the height from the
+    /// Whether the accumulated distance has reached the jump height. The game subtracts the height from the
     /// distance and tests the sign of the word result, so any height above 32768 is reached by a zero distance.
     /// </summary>
     internal bool HasReachedJumpHeight => !EnemyMath.IsNegative16(DistanceAccumulator - JumpHeight);
 
-    /// <summary>Adds one update's speed to the accumulated distance, wrapping as the cartridge's word addition does.</summary>
+    /// <summary>Adds one update's speed to the accumulated distance, wrapping as the game's word addition does.</summary>
     internal void AccumulateBounceDistance(int speed) =>
         DistanceAccumulator = WordWrap.Unsigned(DistanceAccumulator + speed);
 
@@ -82,7 +82,7 @@ public sealed class BoyonEnemyState
 
     /// <summary>
     /// Moves one entry up the curve (rising). The index wraps from zero to <see cref="LargestSpeedTableIndex"/>, and
-    /// the result reports whether the decremented word is negative, the cartridge's signal that the top of the arc was
+    /// the result reports whether the decremented word is negative, the game's signal that the top of the arc was
     /// passed.
     /// </summary>
     internal bool RetreatSpeedTableIndex()
@@ -92,7 +92,7 @@ public sealed class BoyonEnemyState
         return step.IsNegative;
     }
 
-    /// <summary>Native one-word latch preventing a second animation restart mid-bounce.</summary>
+    /// <summary>One-word latch preventing a second animation restart mid-bounce.</summary>
     public bool Bouncing { get; internal set; }
 
     /// <summary>Curve index at which falling reaches the spawn-height baseline; the derivation ends within the curve's first 200 entries.</summary>
@@ -102,11 +102,11 @@ public sealed class BoyonEnemyState
     public BoyonBounceMovement BounceMovement { get; internal set; }
 
     /// <summary>
-    /// Native <c>$7E:7804</c>. Set at the baseline and cleared while Samus is close enough to request another bounce.
+    /// Whether the next bounce is held back. Set at the baseline and cleared while Samus is close enough to request another bounce.
     /// </summary>
     public bool BounceDisabled { get; internal set; }
 
-    /// <summary>Per-frame copy of <see cref="SpeedMultiplier"/> restored before movement, matching <c>$7E:7806</c>.</summary>
+    /// <summary>Per-frame copy of <see cref="SpeedMultiplier"/> restored before movement.</summary>
     public int SpeedMultiplierMirror { get; internal set; }
 
     /// <summary>Prevents the idle instruction list from being reinstalled every frame.</summary>
@@ -115,7 +115,7 @@ public sealed class BoyonEnemyState
     /// <summary>One-time gate for the initial curve-index calculation.</summary>
     public bool BounceSpeedCalculated { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         SpeedMultiplier = 0;

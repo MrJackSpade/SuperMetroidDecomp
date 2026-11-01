@@ -3,24 +3,24 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
 /// Ki-Hunter's body or wing state. A body and a detached wing put different meanings in the same common-record word,
-/// and each meaning has its own value; detachment sets each detached value before reading it. The values the cartridge
+/// and each meaning has its own value; detachment sets each detached value before reading it. The values the game
 /// keeps in the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class KiHunterEnemyState
 {
-    /// <summary>Captures the slot's body or wing role before native deletion can clear its definition identity.</summary>
+    /// <summary>Captures the slot's body or wing role before deletion can clear its definition identity.</summary>
     internal KiHunterEnemyState(RoomEnemySlot slot)
     {
-        // The definition word is mutable native storage and is cleared during deletion.
+        // The definition word is mutable storage and is cleared during deletion.
         // Role is established by the initializer and must survive that later write because
         // body/wing callbacks continue using physical +/-$40 slot aliases.
         IsWing = KiHunterBehavior.IsKiHunterWingDefinition(slot.DefinitionId);
     }
 
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<KiHunterProgram> Program { get; set; }
 
-    /// <summary>Role fixed by the initializer, retained even if deletion clears the native definition word; body and wing callbacks still use adjacent physical slots.</summary>
+    /// <summary>Role fixed by the initializer, retained even if deletion clears the definition word; body and wing callbacks still use adjacent physical slots.</summary>
     public bool IsWing { get; }
 
     /// <summary>Main-AI dispatcher; none once a kill has emptied the record.</summary>
@@ -60,7 +60,7 @@ public sealed class KiHunterEnemyState
     /// <summary>
     /// A detached wing's quadratic speed sum, accumulated at detachment until it reaches the detached-speed threshold.
     /// Detachment never resets it: it continues from zero or the earlier sum, and a kill empties it. Its sum wraps as
-    /// the cartridge's word does, through <see cref="AccumulateDetachedSpeed"/>.
+    /// the game's word does, through <see cref="AccumulateDetachedSpeed"/>.
     /// </summary>
     public int DetachedSpeedAccumulator
     {
@@ -96,7 +96,7 @@ public sealed class KiHunterEnemyState
 
     /// <summary>A body's whole-angle velocity cap: minus two for a leftward swoop or two for a rightward one.</summary>
     public int MaximumAngularVelocity { get; internal set; }
-    /// <summary>Wing $7E:7800,x bank-$A8 secondary function pointer, alternating between non-colliding and collision-bearing detached arcs.</summary>
+    /// <summary>The wings' secondary behaviour, alternating between non-colliding and collision-bearing detached arcs.</summary>
     public KiHunterWingFunction WingFunction { get; internal set; }
     /// <summary>
     /// A body's signed 16.16 angular velocity in table units per update: zero when a swoop begins, accelerated each
@@ -118,31 +118,31 @@ public sealed class KiHunterEnemyState
     /// which its initializer never sets. Only the Y axis is stored and meaningful.
     /// </summary>
     public Position16<RoomPixels> LowerPatrol { get; internal set; }
-    /// <summary>Body $7E:7818/$781A,x initial room position retained from body initialization rather than the changing patrol position; collision recovery returns to patrol after rising above its Y.</summary>
+    /// <summary>The body's initial room position retained from body initialization rather than the changing patrol position; collision recovery returns to patrol after rising above its Y.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
-    /// <summary>Body $7E:781E,x gameplay-frame thinking countdown: twelve after landing or twenty-four after acid emission, consumed once the animation selects ground wait.</summary>
+    /// <summary>The body's gameplay-frame thinking countdown: twelve after landing or twenty-four after acid emission, consumed once the animation selects ground wait.</summary>
     public WrappingCountdown WaitTimer { get; internal set; }
-    /// <summary>Body $7E:7820,x swipe-animation latch, cleared on swoop setup and set once the angle passes its facing-specific trigger.</summary>
+    /// <summary>The body's swipe-animation latch, cleared on swoop setup and set once the angle passes its facing-specific trigger.</summary>
     public bool SwoopAnimationChanged { get; internal set; }
-    /// <summary>Body $7E:7822/$7824,x whole-pixel swoop ellipse radii: the absolute horizontal separation from Samus and Samus Y minus body Y when a swoop begins.</summary>
+    /// <summary>The body's whole-pixel swoop ellipse radii: the absolute horizontal separation from Samus and Samus Y minus body Y when a swoop begins.</summary>
     public Extent16<RoomPixels> SwoopRadius { get; internal set; }
-    /// <summary>Body $7E:780C-$7812,x signed 16.16 velocity in pixels per gameplay frame (X fraction/whole at $780C/$780E, Y at $7810/$7812); positive Y is downward and gravity accumulates through the Y fraction.</summary>
+    /// <summary>The body's signed 16.16 velocity in pixels per gameplay frame; positive Y is downward and gravity accumulates through the Y fraction.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
-    /// <summary>Wing $7E:7806/$7808,x signed pixel correction for the non-colliding arc, calculated at angle $E0 and radius $30.</summary>
+    /// <summary>The wings' signed pixel correction for the non-colliding arc, calculated at angle 0xE0 and radius 48.</summary>
     public Offset16<RoomPixels> OrbitOffset { get; internal set; }
-    /// <summary>Wing $7E:7802/$7804,x signed pixel correction for the collision-bearing arc, calculated at angle $A0 and radius $30.</summary>
+    /// <summary>The wings' signed pixel correction for the collision-bearing arc, calculated at angle 0xA0 and radius 48.</summary>
     public Offset16<RoomPixels> FallingArcOffset { get; internal set; }
-    /// <summary>Wing $7E:780A/$780C,x room-pixel anchor used with an arc-specific correction; recaptured whenever the detached arc changes.</summary>
+    /// <summary>The wings' room-pixel anchor used with an arc-specific correction; recaptured whenever the detached arc changes.</summary>
     public Position16<RoomPixels> OrbitCenter { get; internal set; }
-    /// <summary>Wing $7E:7810/$780E,x original room position saved at detachment and restored when the collision-bearing arc deletes the wing.</summary>
+    /// <summary>The wings' original room position saved at detachment and restored when the collision-bearing arc deletes the wing.</summary>
     public Position16<RoomPixels> SavedWingPosition { get; internal set; }
-    /// <summary>Body $7E:7828,x wingless latch, set by spawn parameter-one bit 15 or by health reaching the following wing record's parameter-one threshold.</summary>
+    /// <summary>The body's wingless latch, set by spawn parameter-one bit 15 or by health reaching the following wing record's parameter-one threshold.</summary>
     public bool HasLostWings { get; internal set; }
 
-    /// <summary>Adds one quadratic-table word to <see cref="DetachedSpeedAccumulator"/>, wrapping as the cartridge's word does.</summary>
+    /// <summary>Adds one quadratic-table word to <see cref="DetachedSpeedAccumulator"/>, wrapping as the game's word does.</summary>
     internal void AccumulateDetachedSpeed(int step) => DetachedSpeedAccumulator = WordWrap.Unsigned(DetachedSpeedAccumulator + step);
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

@@ -13,7 +13,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
     /// <summary>Supplies one random word per parent and follower AI frame.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Provides the preceding physical enemy record for follower WRAM aliases.</summary>
+    /// <summary>Provides the preceding physical enemy record for the follower's aliased reads.</summary>
     private readonly EnemySlotTable _slotTable;
 
     /// <summary>Receives the species' end-of-update sound requests.</summary>
@@ -32,7 +32,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>Unsigned rising-velocity threshold that switches to the visible jump list.</summary>
     private static readonly int NorfairLavaJumpingEnemyAnimationSwitchVelocity = SignedEightEight.FromSignedRaw(-1024).RawValue;
 
-    /// <summary>Ports <c>NorfairLavajumpingEnemy_Init</c> at $A2:BE99.</summary>
+    /// <summary>Initializes the Norfair lava jumper.</summary>
     internal void InitializeNorfairLavaJumpingEnemy(RoomEnemySlot slot)
     {
         var state = new NorfairLavaJumpingEnemyState
@@ -46,7 +46,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         if (state.IsFollower)
         {
             // The retail population always places this cosmetic second half immediately
-            // after its moving parent. Its main AI relies on WRAM aliasing across those two
+            // after its moving parent. Its main AI relies on aliasing across those two
             // physical 64-byte records, so reject reordered/custom populations explicitly.
             ValidateNorfairLavaJumpingEnemyParent(slot);
             state.Program = AnimationProgramCursor<NorfairLavaJumperProgram>.Start(NorfairLavaJumperProgram.Follower);
@@ -62,8 +62,8 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     }
 
     /// <summary>
-    /// Ports <c>NorfairLavajumpingEnemy_Main</c> and functions one through five at
-    /// $A2:BED2-$C011. Main advances the shared enemy RNG once for every parent and follower
+    /// Runs the lava jumper's main behaviour and
+    /// its rising, flipping and falling functions. Main advances the shared enemy RNG once for every parent and follower
     /// frame; even the follower discards the word, which still affects later room actors.
     /// </summary>
     internal void RunNorfairLavaJumpingEnemyMain(
@@ -89,8 +89,8 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 MoveNorfairLavaJumpingEnemyVertically(slot, state);
                 state.ApplyGravity(NorfairLavaJumpingEnemyGravity);
 
-                // The 65816 CMP is unsigned. Starting jump velocities are near $F800; the
-                // test becomes true while still negative at $FC00, before the arc apex.
+                // The comparison is unsigned. Starting jump velocities are near -2048; the
+                // test becomes true while still negative at -1024, before the arc apex.
                 if (state.YVelocity.RawValue >= NorfairLavaJumpingEnemyAnimationSwitchVelocity)
                 {
                     InstallNorfairLavaJumpingEnemyProgram(slot, state, NorfairLavaJumperProgram.Jump);
@@ -133,7 +133,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         }
     }
 
-    /// <summary>Carries out the jump animation's finishing cue, the private handshake at $A2:BE8E.</summary>
+    /// <summary>Carries out the jump animation's finishing cue, the private handshake.</summary>
     private static NorfairLavaJumperProgram? ApplyNorfairLavaJumperCue(NorfairLavaJumpingEnemyState state, NorfairLavaJumperCue cue)
     {
         if (cue.Kind != NorfairLavaJumperCueKind.FinishAnimation)
@@ -147,9 +147,9 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     {
         RoomEnemySlot parent = GetPrecedingNorfairLavaJumpingEnemySlot(follower);
 
-        // These four reads look nonsensical in the disassembly because the routine indexes
-        // enemy_drawing_queue with offsets +100/+109/+2/+93. For a follower one slot after
-        // its parent, those WRAM addresses alias the preceding enemy record exactly:
+        // These four reads index the enemy drawing queue
+        // at fixed offsets. For a follower one slot after
+        // its parent, those reads alias the preceding enemy record exactly:
         // health, frozen timer, the parent's Y velocity, and Y position respectively.
         if (parent.Health == 0)
         {
@@ -158,9 +158,9 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         }
 
         // Pair identity is checked at population initialization, not on every AI frame.
-        // The native flame routine reads the preceding physical record even after its
+        // The flame routine reads the preceding physical record even after its
         // header has been cleared: script deletion does not zero health or movement words.
-        // Requiring a live definition here rejects valid retained-WRAM reads (#322).
+        // Requiring a live definition here rejects valid retained-record reads (#322).
 
         follower.FrozenTimer = parent.FrozenTimer;
         NorfairLavaJumpingEnemyState parentState = parent.SpeciesState<NorfairLavaJumpingEnemyState>() ??
@@ -177,7 +177,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         follower.Position = follower.Position.WithWholeY(parent.Position.Y.Whole);
     }
 
-    /// <summary>Returns the immediately preceding physical enemy record used by native follower aliasing.</summary>
+    /// <summary>Returns the immediately preceding physical enemy record used by follower aliasing.</summary>
     private RoomEnemySlot GetPrecedingNorfairLavaJumpingEnemySlot(RoomEnemySlot follower)
     {
         if (follower.SlotIndex == 0)
@@ -212,7 +212,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         slot.Position = slot.Position.AdvanceY(state.YVelocity.ToSixteenSixteenDelta());
     }
 
-    /// <summary>Ports function six at $A2:C012 without restarting an unchanged list.</summary>
+    /// <summary>Runs function six without restarting an unchanged animation.</summary>
     private static void InstallNorfairLavaJumpingEnemyProgram(
         RoomEnemySlot slot,
         NorfairLavaJumpingEnemyState state,

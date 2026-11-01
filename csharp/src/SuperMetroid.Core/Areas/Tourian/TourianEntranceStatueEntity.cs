@@ -13,7 +13,7 @@ internal sealed class TourianEntranceStatueEntity(TourianEntranceStatueBehavior 
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeTourianEntranceStatue;
 
     /// <inheritdoc/>
-    /// <remarks>$AA:D7C7 is the one-byte RTL before the initializer; the statues animate through their ROM lists.</remarks>
+    /// <remarks>The statues have no main behaviour; they animate through their authored lists.</remarks>
     public EnemyMainAiHandler? FindMain() => EnemyNoOpAi.Main;
 
     /// <inheritdoc/>

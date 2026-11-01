@@ -2,9 +2,9 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>
-/// Typed state of the three Pipe Bug families. The function and the Brinstar flight direction are values the cartridge
+/// Typed state of the three Pipe Bug families. The function and the Brinstar flight direction are values the game
 /// keeps in the enemy's common record, emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>); the
-/// rest is per-family state the cartridge kept in its extended $7E:7800 words. Each property belongs to the family its
+/// rest is per-family state the game kept in its extended words. Each property belongs to the family its
 /// summary names; the others never read it.
 /// </summary>
 public sealed class PipeBugEnemyState
@@ -15,12 +15,12 @@ public sealed class PipeBugEnemyState
         DefinitionAtInitialization = slot.DefinitionId;
     }
 
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<PipeBugProgram> Program { get; set; }
 
     /// <summary>
     /// Header which created this physical state projection. Generic death clears the live
-    /// definition word on the following scheduler scan, but native formation code continues
+    /// definition word on the following scheduler scan, but formation code continues
     /// to address the record's variables through fixed <c>+$40</c> aliases. Species-aware
     /// typed views must therefore use this immutable owner, not the disposable live word.
     /// </summary>
@@ -28,12 +28,12 @@ public sealed class PipeBugEnemyState
 
     /// <summary>
     /// Whether a Brinstar Pipe Bug flies left, set from Samus's side of the bug every update it waits with Samus in its
-    /// vertical band. The cartridge keeps it as the sign bit of the record word the other two species use for their
+    /// vertical band. The game keeps it as the sign bit of the record word the other two species use for their
     /// function.
     /// </summary>
     public bool BrinstarFliesLeft { get; internal set; }
 
-    /// <summary>The current bank-$B3 AI function; none once a kill has emptied the record.</summary>
+    /// <summary>The current AI function; none once a kill has emptied the record.</summary>
     public PipeBugEnemyFunction? Function { get; internal set; }
 
     /// <summary>Gets the whole-pixel spawn position restored after leaving the screen.</summary>
@@ -50,7 +50,7 @@ public sealed class PipeBugEnemyState
 
     /// <summary>
     /// A Norfair formation member's stagger counter, counting up from zero to <see cref="LargestCount"/> and wrapping
-    /// to zero past it, as the cartridge's word does. It returns to zero only when the member departs, so a member
+    /// to zero past it, as the game's word does. It returns to zero only when the member departs, so a member
     /// reset off screen keeps its count into the next rise; <see cref="HasReachedStaggerTarget"/> compares it with
     /// the target by the sign of their sixteen-bit difference.
     /// </summary>
@@ -63,7 +63,7 @@ public sealed class PipeBugEnemyState
     internal void CountFormationTick() => FormationCounter = FormationCounter == LargestCount ? 0 : FormationCounter + 1;
 
     /// <summary>
-    /// Whether a Norfair member's count has reached its <see cref="StaggerTarget"/>, judged as the cartridge does by
+    /// Whether a Norfair member's count has reached its <see cref="StaggerTarget"/>, judged as the game does by
     /// the sign of their difference wrapped to sixteen bits.
     /// </summary>
     internal bool HasReachedStaggerTarget => CoordinateAxis.Difference(FormationCounter, StaggerTarget) >= 0;
@@ -97,7 +97,7 @@ public sealed class PipeBugEnemyState
     /// <summary>Gets whether a yellow Pipe Bug has completed its one authored arc.</summary>
     public bool ArcCompleted { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         BrinstarFliesLeft = false;

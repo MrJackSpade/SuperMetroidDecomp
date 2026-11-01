@@ -13,7 +13,7 @@ internal static class MorphBallEyeGeometry
             : throw new InvalidDataException($"Morph-ball eye mount direction {direction} exceeds its four directions.");
 
     /// <summary>
-    /// $88:EA8B interleaves the red and green intensities, a dark blue and padding.
+    /// The beam colour table interleaves the red and green intensities, a dark blue and padding.
     /// Red and green trace intensity 16 down to 8 and back to 15 in sixteen steps; blue stays dark.
     /// </summary>
     internal static RgbColor BeamColor(int phase)

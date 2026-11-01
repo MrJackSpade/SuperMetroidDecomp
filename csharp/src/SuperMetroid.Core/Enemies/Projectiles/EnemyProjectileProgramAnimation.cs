@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// A projectile animation that runs programs of an <see cref="AnimationProgramSet{TProgram, TFrame, TCue}"/>: for
-/// families whose native lists run on into, or jump between, one another. Each cue goes to the handler its family
+/// families whose lists run on into, or jump between, one another. Each cue goes to the handler its family
 /// registered with <see cref="EnemyProjectileHandlerTable.AddCue{TCue}"/>, or with
 /// <see cref="EnemyProjectileHandlerTable.AddBranchingCue{TProgram, TCue}"/> when a cue may redirect the program,
-/// as a native conditional goto does. Counter steps count the projectile's general timer.
+/// as a conditional goto does. Counter steps count the projectile's general timer.
 /// </summary>
 /// <typeparam name="TProgram">The family's program identity.</typeparam>
 /// <typeparam name="TFrame">The family's frame identity.</typeparam>
@@ -35,7 +35,7 @@ internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> 
     {
         RoomEnemyProjectileSlot projectile = context.Projectile;
         AnimationProgramCursor<TProgram> cursor = Cursor;
-        // Counter steps use the projectile's general timer, as the native TimerInY and DecrementTimer_GotoYIfNonZero do.
+        // Counter steps use the projectile's general timer, as the TimerInY and DecrementTimer_GotoYIfNonZero do.
         int timerBefore = Ensure.BetweenInclusive(0, ushort.MaxValue, projectile.GeneralTimer);
         WrappingCountdown counter = WrappingCountdown.FromRaw(timerBefore);
         AnimationProgramAdvance<TFrame> advance = Programs.Advance(ref cursor, ref counter,

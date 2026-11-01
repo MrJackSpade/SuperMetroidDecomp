@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Areas.Ceres.CeresSteamProgram;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres steam vents' typed programs (#641), in place of their bank-$A6 lists. Generated from the verified native lists: each
+/// The Ceres steam vents' typed programs (#641). Each
 /// frame shows a <see cref="CeresSteamFrame"/> pose and each callback becomes a <see cref="CeresSteamCue"/> with its typed operands.
 /// </summary>
 internal static class CeresSteamAnimations

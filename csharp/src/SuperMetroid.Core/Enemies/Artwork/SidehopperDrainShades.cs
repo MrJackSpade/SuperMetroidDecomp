@@ -11,7 +11,7 @@ internal static class SidehopperDrainShades
     /// <summary>Places a lower intermediate red four steps above its dark endpoint.</summary>
     private static int DarkShadeRed(RgbColor dark) => dark.Red + SelectedDarkRedLift;
 
-    /// <summary>Selects the eight body/detail endpoints and intermediate shades in native palette order.</summary>
+    /// <summary>Selects the eight body/detail endpoints and intermediate shades in palette order.</summary>
     internal static RgbColor Resolve(int color, RgbColor bodyLight, RgbColor detailLight, RgbColor detailDark, RgbColor bodyDark) => color switch
     {
         1 => bodyLight,

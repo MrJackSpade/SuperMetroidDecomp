@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal interface IEnemyDispatch
 {
-    /// <summary>Installs a population record and definition into a free slot, as native <c>SpawnEnemy</c> does.</summary>
+    /// <summary>Installs a population record and definition into a free slot, as spawning an enemy does.</summary>
     void InitializeSlotFromDefinition(RoomEnemySlot slot, RoomEnemyPopulationRecord population, RoomEnemyDefinition definition);
 
     /// <summary>
@@ -16,7 +16,7 @@ internal interface IEnemyDispatch
     void RunInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings);
 
     /// <summary>
-    /// Native <c>SpawnEnemy</c> ($A0:92DB): installs <paramref name="population"/> in the first free slot, runs its
+    /// Installs <paramref name="population"/> in the first free slot, runs its
     /// initialization AI, starts its instruction list when it processes instructions and extends the live enemy range.
     /// Returns null without spawning when every slot is occupied.
     /// </summary>

@@ -2,12 +2,12 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The state of an Etecoon. The values the cartridge keeps in the enemy's common record are emptied with it when the
+/// The state of an Etecoon. The values the game keeps in the enemy's common record are emptied with it when the
 /// enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class EtecoonEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<EtecoonProgram> Program { get; set; }
 
     /// <summary>
@@ -42,7 +42,7 @@ public sealed class EtecoonEnemyState
     /// Whether the Etecoon is heading right, from its spawn settings until it first takes a heading of its own.
     /// </summary>
     /// <remarks>
-    /// The cartridge keeps the heading and <see cref="TeachingHops"/> together and tests them together, so a hop count
+    /// The game keeps the heading and <see cref="TeachingHops"/> together and tests them together, so a hop count
     /// would also read as heading right; but every state that tests the heading is reached only after the Etecoon has
     /// taken a heading (<see cref="Head"/>), which empties the count, and the teaching hops that count again always end
     /// in the return run, whose wall takes a heading before the next test. The heading is therefore read alone.
@@ -72,7 +72,7 @@ public sealed class EtecoonEnemyState
         QuakePauseFrames = settings.QuakePauseFrames;
     }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Velocity = FixedVector<RoomPixels>.Zero;

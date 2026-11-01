@@ -29,7 +29,7 @@ internal sealed class EyeDoorBehavior
     /// <summary>
     /// Replays <c>SpawnEprojWithRoomGfx</c> and the definition-specific initializer selected
     /// by the eye-door PLM instruction. The PLM block index and room argument are retained
-    /// because the cartridge initializers read both directly from their spawning PLM slot.
+    /// because the game initializers read both directly from their spawning PLM slot.
     /// </summary>
     public void SpawnEyeDoorProjectile(
         EyeDoorProjectileRequest request,
@@ -54,7 +54,7 @@ internal sealed class EyeDoorBehavior
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
-            return; // Native SpawnEproj returns carry set when all eighteen slots are live.
+            return; // Spawning fails when all eighteen projectile slots are live.
 
         _eyeDoorProjectileSystem = system;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: default);
@@ -254,14 +254,14 @@ internal sealed class EyeDoorBehavior
         MiscDustPlacementDefinition placement = MiscDustProjectiles.SmokePlacement(Ensure.BetweenInclusive(0, ushort.MaxValue, placementIndex));
 
         int random = _room.Random.Read();
-        // Native stores only the list pointer, keeping the definition's one-update timer.
+        // Stores only the list pointer, keeping the definition's one-update timer.
         projectile.InstallAnimation(new MiscDustProjectileAnimation(program));
 
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
             CoordinateAxis.AsSigned(8 + placement.Base.X + (random & placement.RandomMask.X)),
             CoordinateAxis.AsSigned(8 + placement.Base.Y + (SharedRandomState.UpperByte(random) & placement.RandomMask.Y))));
 
-        // $E4FA advances the global seed after sampling it for both coordinates.
+        // The spawn advances the global seed after sampling it for both coordinates.
         _room.Random.Generate();
     }
 
@@ -300,7 +300,7 @@ internal sealed class EyeDoorBehavior
         if (projectile.Velocity.Y.SignedRawValue >= 0 && collidedVertically)
         {
             projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 4);
-            // The floor splash stops the drop's movement, as the native list switch does.
+            // The floor splash stops the drop's movement, as the list switch does.
             projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
             projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatProgram.HitFloor));
             return;
@@ -316,7 +316,7 @@ internal sealed class EyeDoorBehavior
         return WordWrap.Signed(sample >> 4);
     }
 
-    /// <summary>Sends an eye-door shot into its typed impact program, stopping its movement as the native list switch does.</summary>
+    /// <summary>Sends an eye-door shot into its typed impact program, stopping its movement as the list switch does.</summary>
     private static void StartEyeDoorProjectileImpact(RoomEnemyProjectileSlot projectile)
     {
         projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
@@ -346,7 +346,7 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>
-    /// Ports <c>Instruction_EnemyProjectile_CalculateDirectionTowardsSamus</c> ($86:82A5): keeps the angle to
+    /// Aims the projectile at Samus: keeps the angle to
     /// Samus and launches the shot along it at unit speed.
     /// </summary>
     private static void AimEyeDoorProjectileAtSamus(RoomEnemyProjectileSlot projectile, IRoomSamus samus)
@@ -386,7 +386,7 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>
-    /// The collision snap of $86:894F/$86:8A0D: against the blocking block's face, but only
+    /// The collision snap of the projectile block scans: against the blocking block's face, but only
     /// toward the move. Moving forward it never pulls the projectile back, and moving back it
     /// never pushes it forward, so a projectile that starts inside a block keeps its position.
     /// </summary>
@@ -431,10 +431,10 @@ internal sealed class EyeDoorBehavior
 
     /// <summary>Scans every touched room block along one projectile collision edge.</summary>
     /// <remarks>
-    /// $86:88B6/$86:897B count the blocks to test as ((end) - (start &amp; $FFF0)) &gt;&gt; 4 in 16 bits
+    /// The block scans count the blocks to test as ((end) - (start &amp; 0xFFF0)) &gt;&gt; 4 in 16 bits
     /// and test one more than that, stepping the level index by a row (horizontal edge) or a
     /// block (vertical edge). A zero radius on a block boundary makes the count underflow to
-    /// $0FFF, so the scan runs on through the room until it meets a solid block.
+    /// 4095, so the scan runs on through the room until it meets a solid block.
     /// </remarks>
     private static bool EyeDoorEffectEdgeIsSolid(
         RoomLevelData level,
@@ -454,7 +454,7 @@ internal sealed class EyeDoorBehavior
             if (tested > 0 && linear >= width * level.Size.Y)
             {
                 throw new InvalidDataException(
-                    "Enemy projectile block scan ran past the room's level data into other WRAM.");
+                    "Enemy projectile block scan ran past the end of the room's level data.");
             }
             int blockX = tested == 0 ? (edge == Axis.Vertical ? startBlock : fixedBlock) : linear % width;
             int blockY = tested == 0 ? (edge == Axis.Vertical ? fixedBlock : startBlock) : linear / width;

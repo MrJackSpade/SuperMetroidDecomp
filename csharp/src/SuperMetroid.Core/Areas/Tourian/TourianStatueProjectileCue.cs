@@ -10,11 +10,11 @@ internal abstract record TourianStatueProjectileCue
     {
     }
 
-    /// <summary>Moves the projectile down by its cue's offset ($86:B841).</summary>
+    /// <summary>Moves the projectile down by its cue's offset.</summary>
     /// <param name="Pixels">How far a <see cref="MoveDown"/> cue moves the projectile.</param>
     internal sealed record MoveDown(int Pixels) : TourianStatueProjectileCue;
 
-    /// <summary>Installs its cue's movement routine (<c>Instruction_EnemyProjectile_FrameBehaviorInY</c>, $86:8161).</summary>
+    /// <summary>Installs its cue's movement routine.</summary>
     /// <param name="Movement">The routine a <see cref="StartMoving"/> cue installs.</param>
     internal sealed record StartMoving(EnemyProjectileFrameBehavior Movement) : TourianStatueProjectileCue;
 

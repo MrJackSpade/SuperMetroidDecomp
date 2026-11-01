@@ -74,9 +74,9 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.RequestedInstructionIndex = SkreeMetareeAnimationPhase.Diving;
                 InstallRequestedSkreeInstruction(slot, state);
                 state.Function = SkreeEnemyFunction.Diving;
-                // `$A3:C70F` queues library-two sound $5B on the exact frame the wind-up
+                // The dive queues library-two sound 91 on the exact frame the wind-up
                 // instruction releases the dive. Publishing it as a frame event retains
-                // native timing without coupling enemy AI to a particular audio backend.
+                // the game's timing without coupling enemy AI to a particular audio backend.
                 _audio.QueueEnemySound(Library2Sound.SkreeDive, priority: SoundRequestPriority.Normal);
                 return;
 
@@ -111,7 +111,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.FrameHold = WrappingCountdown.Start(1);
             slot.Timer = WrappingCountdown.Start(0);
             state.Function = SkreeEnemyFunction.Burrowing;
-            // The floor collision has its own distinct impact/burrow request at `$A3:C771`.
+            // The floor collision has its own distinct impact/burrow request.
             _audio.QueueEnemySound(Library2Sound.SkreeBurrow, priority: SoundRequestPriority.Normal);
             return;
         }
@@ -167,7 +167,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>
-    /// <remarks>$A3:C7F5 adds Skree's four debris actors after the shared normal shot handler reports death, before the
+    /// <remarks>The Skree's shot reaction adds its four debris actors after the shared normal shot handler reports death, before the
     /// common death animation releases the enemy slot.</remarks>
     internal void AddSkreeShotReactions(EnemySharedReactions table)
     {

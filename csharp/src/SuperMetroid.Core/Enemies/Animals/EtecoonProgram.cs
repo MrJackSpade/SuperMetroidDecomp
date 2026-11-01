@@ -1,49 +1,49 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The Etecoon's look, run, wall-jump, hop and flex animations as typed programs (#641), one per bank-$A7 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="EtecoonAnimations"/>.
+/// The Etecoon's look, run, wall-jump, hop and flex animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="EtecoonAnimations"/>.
 /// </summary>
 internal enum EtecoonProgram
 {
-    /// <summary><c>InstList_Etecoon_LookRightAtSamusAndRunLeft</c> at $A7:E81E.</summary>
+    /// <summary>The look right at Samus and run left animation.</summary>
     LookRightAtSamusAndRunLeft,
-    /// <summary>The native list at $A7:E824.</summary>
+    /// <summary>The begin running left animation.</summary>
     BeginRunningLeft,
-    /// <summary><c>InstList_Etecoon_RunningLeft</c> at $A7:E828.</summary>
+    /// <summary>The running left animation.</summary>
     RunningLeft,
-    /// <summary><c>InstList_Etecoon_WallJump_0</c> at $A7:E83C.</summary>
+    /// <summary>The wall jump left animation.</summary>
     WallJumpLeft,
-    /// <summary><c>InstList_Etecoon_WallJump_1</c> at $A7:E840.</summary>
+    /// <summary>The wall jump left loop animation.</summary>
     WallJumpLeftLoop,
-    /// <summary><c>InstList_Etecoon_Hopping_FacingLeft</c> at $A7:E854.</summary>
+    /// <summary>The hopping facing left animation.</summary>
     HoppingFacingLeft,
-    /// <summary>The native list at $A7:E85A.</summary>
+    /// <summary>The continue hopping facing left animation.</summary>
     ContinueHoppingFacingLeft,
-    /// <summary><c>InstList_Etecoon_HitCeiling</c> at $A7:E862.</summary>
+    /// <summary>The hit ceiling animation.</summary>
     HitCeiling,
-    /// <summary><c>InstList_Etecoon_WallJumpLeftEligible</c> at $A7:E870.</summary>
+    /// <summary>The wall jump left eligible animation.</summary>
     WallJumpLeftEligible,
-    /// <summary><c>InstList_Etecoon_LookLeftAtSamusAndRunRight</c> at $A7:E876.</summary>
+    /// <summary>The look left at Samus and run right animation.</summary>
     LookLeftAtSamusAndRunRight,
-    /// <summary>The native list at $A7:E87C.</summary>
+    /// <summary>The begin running right animation.</summary>
     BeginRunningRight,
-    /// <summary><c>InstList_Etecoon_RunningRight</c> at $A7:E880.</summary>
+    /// <summary>The running right animation.</summary>
     RunningRight,
-    /// <summary><c>InstList_Etecoon_WallJumpRight</c> at $A7:E894.</summary>
+    /// <summary>The wall jump right animation.</summary>
     WallJumpRight,
-    /// <summary><c>InstList_Etecoon_JumpingRight</c> at $A7:E898.</summary>
+    /// <summary>The jumping right animation.</summary>
     JumpingRight,
-    /// <summary><c>InstList_Etecoon_Hopping_FacingRight</c> at $A7:E8AC.</summary>
+    /// <summary>The hopping facing right animation.</summary>
     HoppingFacingRight,
-    /// <summary>The native list at $A7:E8B2.</summary>
+    /// <summary>The continue hopping facing right animation.</summary>
     ContinueHoppingFacingRight,
-    /// <summary><c>InstList_Etecoon_WallJumpRightEligible</c> at $A7:E8C8.</summary>
+    /// <summary>The wall jump right eligible animation.</summary>
     WallJumpRightEligible,
-    /// <summary><c>InstList_Etecoon_Initial</c> at $A7:E8CE.</summary>
+    /// <summary>The initial animation.</summary>
     Initial,
-    /// <summary><c>InstList_Etecoon_Flexing_0</c> at $A7:E8D6.</summary>
+    /// <summary>The flexing animation.</summary>
     Flexing,
-    /// <summary><c>InstList_Etecoon_Flexing_1</c> at $A7:E8DA.</summary>
+    /// <summary>The flexing loop animation.</summary>
     FlexingLoop,
 }

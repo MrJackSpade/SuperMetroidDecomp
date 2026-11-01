@@ -3,12 +3,12 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// $84:8032/8132 Golden Torizo body/belly health palettes interpolate RGB5 endpoints
+/// The Golden Torizo body/belly health palettes interpolate RGB5 endpoints
 /// to nearest over seven intervals. Transparent slot zero holds its initial word until
-/// the last band. $A8:E7CC face-block glow mirrors a three-step rise; its fourth color
+/// the last band. The face-block glow mirrors a three-step rise; its fourth color
 /// has a separate resting color and two-step active rise. Endpoint paint and unmatched
-/// independently supplied rows remain data. $A9:EBCC-EC7C Sidehopper draining interpolates
-/// actual RGB5 endpoints to nearest over five intervals; EC8C is separate corpse paint.
+/// independently supplied rows remain data. Sidehopper draining interpolates
+/// actual RGB5 endpoints to nearest over five intervals; the last row is separate corpse paint.
 /// </summary>
 internal sealed class EnemyAuxiliaryColourFrames
 {
@@ -16,7 +16,7 @@ internal sealed class EnemyAuxiliaryColourFrames
     internal readonly RgbColor[] first;
     /// <summary>Final per-color interpolation endpoints for non-stock derived frames.</summary>
     internal readonly RgbColor[] last;
-    /// <summary>Exact supplied frames when their colors do not match a known native progression.</summary>
+    /// <summary>Exact supplied frames when their colors do not match a known progression.</summary>
     internal readonly RgbColor[][]? supplied;
     /// <summary>Whether non-stock frames mirror a face-block glow rise and fall.</summary>
     private readonly bool faceGlow;
@@ -29,7 +29,7 @@ internal sealed class EnemyAuxiliaryColourFrames
 
     /// <summary>Number of authored stages or health bands in this family.</summary>
     internal int FrameCount { get; }
-    /// <summary>Colors supplied per frame, excluding sidehopper's native transparent slot zero.</summary>
+    /// <summary>Colors supplied per frame, excluding sidehopper's transparent slot zero.</summary>
     internal int ColorCount { get; }
     /// <summary>Accepts a calculated paint progression only when every supplied RGB5 word matches it.</summary>
     internal EnemyAuxiliaryColourFrames(RgbColor[][] rows, AuxiliaryPaint paint)
@@ -63,7 +63,7 @@ internal sealed class EnemyAuxiliaryColourFrames
                 if (Calculate(frame, color) != rows[frame][color]) { supplied = rows; return; }
 
     }
-    /// <summary>Uses exact edited paint where retained; otherwise derives the native color relationship.</summary>
+    /// <summary>Uses exact edited paint where retained; otherwise derives the color relationship.</summary>
     internal RgbColor Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
     /// <summary>Interpolates RGB5 health/drain endpoints or mirrors the face-block glow, with stock palettes using their own paint definitions.</summary>
     private RgbColor Calculate(int frame, int color)

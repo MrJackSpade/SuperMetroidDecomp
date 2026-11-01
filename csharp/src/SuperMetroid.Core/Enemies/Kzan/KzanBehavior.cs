@@ -19,7 +19,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives the species' end-of-update sound requests.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Uses native slot adjacency to couple each Kzan bottom to its top.</summary>
+    /// <summary>Uses slot adjacency to couple each Kzan bottom to its top.</summary>
     internal KzanBehavior(EnemySlotTable slotTable, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -54,8 +54,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InitialFallingSpeed = EnemyLinearSpeeds.Row(state.FallingSpeedRow).Positive;
 
         // init1 packs two unrelated bytes: the high byte is fall distance in pixels and the
-        // low byte is the top wait countdown. A zero countdown deliberately wraps to $FFFF
-        // on its first DEC rather than triggering immediately.
+        // low byte is the top wait countdown. A zero countdown deliberately wraps to -1
+        // on its first decrement rather than triggering immediately.
         var spawn = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
         state.FallingTarget = spawn + new Offset16<RoomPixels>(0, slot.SpawnSettings<KzanSpawnSettings>().FallDistance);
         state.RisingTarget = spawn;
@@ -72,7 +72,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Reproduces the literal <c>Enemy[-1]</c> reads. Retail populations always place the
     /// bottom immediately after its top; only slot zero is rejected because there is no
-    /// managed representation of the unrelated WRAM that malformed data would under-read.
+    /// managed representation of the unrelated memory that malformed data would under-read.
     /// </summary>
     private void FollowKzanTop(RoomEnemySlot bottom)
     {
@@ -135,7 +135,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.AdvanceY(EnemyLinearSpeeds.Row(state.FallingSpeedRow).Positive);
 
         // CMP/BMI tests only the sign of the wrapped subtraction, which the spatial difference
-        // keeps: coordinates near the room's edge retain the same cartridge behavior.
+        // keeps: coordinates near the room's edge retain the same game behavior.
         if ((slot.Position.Whole - state.FallingTarget).Y >= 0)
         {
             state.RiseWaitTimer = WrappingCountdown.Start(KzanNtscRiseWaitFrames);
@@ -146,7 +146,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
 
-        // The cartridge caps the row by the sign of its difference from the cap; both stay far
+        // The game caps the row by the sign of its difference from the cap; both stay far
         // below the sign bit, so that is the ordinary minimum.
         state.FallingSpeedRow = Math.Min(state.FallingSpeedRow + 1, KzanMaximumFallingSpeedRow);
     }
@@ -179,7 +179,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
     }
 
-    /// <summary>Subtracts the native <c>[$14].[$12]</c> split pair from enemy Y.</summary>
+    /// <summary>Subtracts the <c>[$14].[$12]</c> split pair from enemy Y.</summary>
     private static void SubtractKzanY(
         RoomEnemySlot slot,
         int wholeSpeed,
@@ -217,8 +217,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Adds only the accepted whole-pixel Kzan delta to WRAM-equivalent <c>$0B5C</c>.
-    /// Native code deliberately leaves extra Y subdisplacement untouched.
+    /// Adds only the accepted whole-pixel Kzan delta to Samus's extra Y displacement.
+    /// Code deliberately leaves extra Y subdisplacement untouched.
     /// </summary>
     private static void CarrySamusWithKzanIfTouchingFromBelow(
         RoomEnemySlot slot,

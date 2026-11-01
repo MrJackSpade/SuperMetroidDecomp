@@ -60,7 +60,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Strict horizontal distance required before aiming the projectile.</summary>
     private const int EvirActivationDistance = 128;
-    /// <summary>Whole-pixel magnitude passed through the native trig multipliers.</summary>
+    /// <summary>Whole-pixel magnitude passed through the trig multipliers.</summary>
     private const int EvirProjectileSpeed = 4;
     /// <summary>Margin beyond each camera edge that starts projectile regeneration.</summary>
     private const int EvirFarOffscreenDistance = 256;
@@ -72,7 +72,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The horizontal distance, in room pixels, from the mouth at which the regenerating spit starts.</summary>
     private const int RegenerationStartDistance = 8;
 
-    /// <summary>Ports <c>InitAI_Evir</c> at $A8:87E0.</summary>
+    /// <summary>Initializes the Evir.</summary>
     internal void InitializeEvir(RoomEnemySlot slot, SamusState? samus)
     {
         var state = new EvirEnemyState();
@@ -110,7 +110,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// (<see cref="EvirInitDefinitions.FirstHalfCycleSources"/>). The enemy is read as it stands while the population
     /// loads: for the second Evir of either retail room the third enemy is the first Evir's spit, already carrying its
     /// body's palette, so the first half-cycle is not zero. Read that way, a palette field yields the enemy's palette
-    /// row itself: the cartridge keeps the row shifted nine bits up, so half its upper eight bits is the row.
+    /// row itself: the game keeps the row shifted nine bits up, so half its upper eight bits is the row.
     /// </summary>
     private WrappingCountdown ReadFirstHalfCycle(int speedRecord)
     {
@@ -125,7 +125,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
                 EvirHalfCycleSourceField.DirectionChangePeriod => enemy.DefinitionId == EnemyDefinitionId.None
                     ? 0
                     : enemy.SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod / 2,
-                // The cartridge reads the enemy's palette selection as the count.
+                // The game reads the enemy's palette selection as the count.
                 EvirHalfCycleSourceField.Palette => _presentation.Placement.SelectionNumber(enemy.Colouring),
                 _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),
             });
@@ -134,7 +134,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             $"Evir speed record {speedRecord} takes its first half-cycle from a value no retail Evir reads.");
     }
 
-    /// <summary>Ports <c>InitAI_EvirProjectile</c> at $A8:88B0.</summary>
+    /// <summary>Initializes the Evir Projectile.</summary>
     internal void InitializeEvirProjectile(RoomEnemySlot slot)
     {
         var state = new EvirEnemyState
@@ -150,13 +150,13 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallEvirInstruction(slot, state);
 
         RoomEnemySlot body = RequireEvirRelativeSlot(slot, -2, EnemyDefinitionId.Evir, "projectile body", initializing: true);
-        // The projectile definition has no graphics-set entry of its own. Native copies the
+        // The projectile definition has no graphics-set entry of its own. Copies the
         // body's resolved palette/tile indexes so the projectile map addresses the Evir art.
         slot.Colouring = body.Colouring;
         slot.TileIndexBase = body.TileIndexBase;
         ResetEvirProjectilePosition(slot, state);
 
-        // Native clears installed-list after having installed the normal list. That oddity
+        // Clears installed-list after having installed the normal list. That oddity
         // forces the first main-AI request to refresh the bytecode timer exactly once.
         state.InstalledProgram = null;
     }
@@ -190,7 +190,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.Position = slot.Position.AdvanceY(state.MovingDown ? state.DownVelocity : state.UpVelocity);
 
-        // DEC/BPL means zero expires immediately into $FFFF. Every later reset uses the
+        // The countdown expires through zero, so zero expires immediately into -1. Every later reset uses the
         // unshifted high parameter byte, despite initialization's unrelated aliasing bug.
         CountdownStep step = state.MovementTimer.Decrement();
         state.MovementTimer = step.Remaining;
@@ -297,7 +297,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4)), CoordinateAxis.Wrap(body.Position.Y.Whole + 18)));
     }
 
-    /// <summary>Aims at nearby Samus using the native angle transform and signed 16.16 speed tables.</summary>
+    /// <summary>Aims at nearby Samus using the angle transform and signed 16.16 speed tables.</summary>
     private void TryLaunchEvirProjectile(
         RoomEnemySlot projectile,
         EvirEnemyState state,
@@ -318,7 +318,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // CalculateAngleOfSamusFromEnemy returns zero up/clockwise. The two native angle
+        // CalculateAngleOfSamusFromEnemy returns zero up/clockwise. The two angle
         // transforms below feed the buggy table multipliers and produce signed 16.16 speed.
         ByteAngle transformedAngle = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(activeSamus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(activeSamus.Position.Y.Whole, projectile.Position.Y.Whole))).ToTableAngle();
@@ -406,14 +406,14 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position += state.RegenerationOffset;
     }
 
-    /// <summary>Instruction $A8:878F.</summary>
+    /// <summary>Animation cue: queues the spit sound.</summary>
     private void QueueEvirSpitSound() => _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Evir, EvirSpitSound, priority: SoundRequestPriority.Normal);
 
-    /// <summary>Instruction $A8:879B.</summary>
+    /// <summary>Animation cue: sets the initial regeneration offset.</summary>
     private void SetInitialEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
         state.RegenerationOffset = new(EvirBodyFacesRight(slot) ? CoordinateAxis.AsSigned(-RegenerationStartDistance) : RegenerationStartDistance, 0);
 
-    /// <summary>Instruction $A8:87B6.</summary>
+    /// <summary>Animation cue: advances the regeneration offset.</summary>
     private void AdvanceEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
         state.RegenerationOffset += new Offset16<RoomPixels>(EvirBodyFacesRight(slot) ? 1 : -1, 0);
 
@@ -428,7 +428,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         return body.InstalledProgram == EvirProgram.BodyFacingRight;
     }
 
-    /// <summary>Instruction $A8:87CB.</summary>
+    /// <summary>Animation cue: finishes regeneration.</summary>
     private static void FinishEvirRegeneration(EvirEnemyState state)
     {
         state.Regenerating = false;
@@ -466,7 +466,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         bool initializing = false)
     {
         int targetIndex = owner.SlotIndex + relativeSlot;
-        // Native links are physical offsets, not live-header references. Contact can
+        // Links are physical offsets, not live-header references. Contact can
         // clear the body after the active list was built; its deleted arms and spit
         // still execute once and read the cleared common words. Validate authored
         // identities at initialization, then retain the established physical alias.
@@ -482,10 +482,10 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports $A8:8B16 after common touch/shot/power-bomb damage. Native applies its +$40
-    /// and +$80 physical-slot aliases relative to whichever $E63F record received the
+    /// Runs the Evir's tail after common touch/shot/power-bomb damage. Applies its next-slot
+    /// and second-next-slot aliases relative to whichever Evir record received the
     /// callback. Ordinary shots/touch can only reach the body because the arms carry
-    /// property $0400, but the power-bomb walker deliberately ignores that property and can
+    /// their intangibility property, but the power-bomb walker deliberately ignores that property and can
     /// invoke the same code on the arms. Preserve that odd relative aliasing instead of
     /// replacing it with a body-only composite helper.
     /// </summary>
@@ -496,7 +496,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((uint)secondRelativeIndex >= _slotTable.Slots.Count)
         {
             throw new InvalidDataException(
-                $"Evir callback at slot {actor.SlotIndex} exceeds the native +$80 slot alias.");
+                $"Evir callback at slot {actor.SlotIndex} has no slot two places after it to alias.");
         }
         RoomEnemySlot firstRelative = _slotTable.Slots[firstRelativeIndex];
         RoomEnemySlot secondRelative = _slotTable.Slots[secondRelativeIndex];
@@ -511,7 +511,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         firstRelative.FrozenTimer = actor.FrozenTimer;
         firstRelative.AiStates = firstRelative.AiStates | EnemyAiStates.Frozen;
-        // The cartridge compares the following-but-one record's function with the moving spit's. In the retail
+        // The game compares the following-but-one record's function with the moving spit's. In the retail
         // Evir rooms that record is an Evir or an empty slot, never another species.
         if (secondRelative.SpeciesState<EvirEnemyState>()?.Function != EvirAiFunction.ProjectileMoving)
         {
@@ -565,11 +565,11 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = cursor;
     }
 
-    /// <summary>Preserves power-bomb callbacks on both body and arms, including native relative aliases.</summary>
+    /// <summary>Preserves power-bomb callbacks on both body and arms, including relative aliases.</summary>
     internal void AddEvirPowerBombReactions(EnemySharedReactions table)
     {
-        // Touch and shot collision lists exclude the arms through property $0400, but $A0:A306's power-bomb walker
-        // does not. Both body and arms therefore dispatch $A8:8B0C and its intentionally physical +$40/+80 follow-up
+        // Touch and shot collision lists exclude the arms through their intangibility property, but the power-bomb walker
+        // does not. Both body and arms therefore dispatch the shared tail and its intentionally physical next-slot follow-up
         // aliases.
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Evir &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.EvirPowerBomb)
@@ -581,7 +581,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Copies accepted body-shot freeze state to arms and attached spit after common damage.</summary>
     internal void AddEvirShotReactions(EnemySharedReactions table)
     {
-        // Evir's bank-$A8 shot tail runs after every accepted common shot, including the $FF ice result. That is
+        // Evir's shot tail runs after every accepted common shot, including the $FF ice result. That is
         // where the body copies the newly installed frozen timer to its arms and attached (idle) spit.
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Evir &&
                                                      enemy.SpawnSettings<EvirSpawnSettings>().Part != EvirBodyPart.Arms &&

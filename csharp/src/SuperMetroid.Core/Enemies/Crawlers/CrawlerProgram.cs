@@ -1,83 +1,83 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
-/// The Sciser, Zero, Viola, orange Zoomer and shared Zoomer/Zeela/Sova surface animations as typed programs (#641), one per bank-$A3 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="CrawlerAnimations"/>.
+/// The Sciser, Zero, Viola, orange Zoomer and shared Zoomer/Zeela/Sova surface animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="CrawlerAnimations"/>.
 /// </summary>
 internal enum CrawlerProgram
 {
-    /// <summary><c>InstList_Sciser_UpsideRight_0</c> at $A3:967B.</summary>
+    /// <summary>The Sciser upside right animation.</summary>
     SciserUpsideRight,
-    /// <summary>The loop at $A3:967F.</summary>
+    /// <summary>The loop.</summary>
     SciserUpsideRightLoop,
-    /// <summary><c>InstList_Sciser_UpsideLeft_0</c> at $A3:9693.</summary>
+    /// <summary>The Sciser upside left animation.</summary>
     SciserUpsideLeft,
-    /// <summary>The loop at $A3:9697.</summary>
+    /// <summary>The loop.</summary>
     SciserUpsideLeftLoop,
-    /// <summary><c>InstList_Sciser_UpsideDown_0</c> at $A3:96AB.</summary>
+    /// <summary>The Sciser upside down animation.</summary>
     SciserUpsideDown,
-    /// <summary>The loop at $A3:96AF.</summary>
+    /// <summary>The loop.</summary>
     SciserUpsideDownLoop,
-    /// <summary><c>InstList_Sciser_UpsideUp_0</c> at $A3:96C3.</summary>
+    /// <summary>The Sciser upside up animation.</summary>
     SciserUpsideUp,
-    /// <summary>The loop at $A3:96C7.</summary>
+    /// <summary>The loop.</summary>
     SciserUpsideUpLoop,
-    /// <summary><c>InstList_Zero_UpsideRight_FacingDown_0</c> at $A3:984B.</summary>
+    /// <summary>The zero upside right animation.</summary>
     ZeroUpsideRight,
-    /// <summary>The loop at $A3:984F.</summary>
+    /// <summary>The loop.</summary>
     ZeroUpsideRightLoop,
-    /// <summary><c>InstList_Zero_UpsideLeft_FacingUp_0</c> at $A3:988B.</summary>
+    /// <summary>The zero upside left animation.</summary>
     ZeroUpsideLeft,
-    /// <summary>The loop at $A3:988F.</summary>
+    /// <summary>The loop.</summary>
     ZeroUpsideLeftLoop,
-    /// <summary><c>InstList_Zero_UpsideDown_FacingLeft_0</c> at $A3:98AB.</summary>
+    /// <summary>The zero upside down animation.</summary>
     ZeroUpsideDown,
-    /// <summary>The loop at $A3:98AF.</summary>
+    /// <summary>The loop.</summary>
     ZeroUpsideDownLoop,
-    /// <summary>The native list at $A3:990B.</summary>
+    /// <summary>The zero upside up animation.</summary>
     ZeroUpsideUp,
-    /// <summary>The loop at $A3:990F.</summary>
+    /// <summary>The loop.</summary>
     ZeroUpsideUpLoop,
-    /// <summary><c>InstList_Viola_UpsideDown</c> at $A3:B5D3.</summary>
+    /// <summary>The Viola upside down animation.</summary>
     ViolaUpsideDown,
-    /// <summary><c>InstList_Viola_UpsideUp</c> at $A3:B5DB.</summary>
+    /// <summary>The Viola upside up animation.</summary>
     ViolaUpsideUp,
-    /// <summary><c>InstList_Viola_UpsideRight</c> at $A3:B5E3.</summary>
+    /// <summary>The Viola upside right animation.</summary>
     ViolaUpsideRight,
-    /// <summary><c>InstList_Viola_UpsideLeft</c> at $A3:B5EB.</summary>
+    /// <summary>The Viola upside left animation.</summary>
     ViolaUpsideLeft,
-    /// <summary><c>InstList_Viola_Normal</c> at $A3:B5EF.</summary>
+    /// <summary>The Viola normal animation.</summary>
     ViolaNormal,
-    /// <summary><c>InstList_HZoomer_UpsideRight_0</c> at $A3:DFCB.</summary>
+    /// <summary>The h Zoomer upside right animation.</summary>
     HZoomerUpsideRight,
-    /// <summary>The loop at $A3:DFCF.</summary>
+    /// <summary>The loop.</summary>
     HZoomerUpsideRightLoop,
-    /// <summary><c>InstList_HZoomer_UpsideLeft_0</c> at $A3:DFE7.</summary>
+    /// <summary>The h Zoomer upside left animation.</summary>
     HZoomerUpsideLeft,
-    /// <summary>The loop at $A3:DFEB.</summary>
+    /// <summary>The loop.</summary>
     HZoomerUpsideLeftLoop,
-    /// <summary><c>InstList_HZoomer_UpsideDown_0</c> at $A3:E003.</summary>
+    /// <summary>The h Zoomer upside down animation.</summary>
     HZoomerUpsideDown,
-    /// <summary>The loop at $A3:E007.</summary>
+    /// <summary>The loop.</summary>
     HZoomerUpsideDownLoop,
-    /// <summary><c>InstList_HZoomer_UpsideUp_0</c> at $A3:E01F.</summary>
+    /// <summary>The h Zoomer upside up animation.</summary>
     HZoomerUpsideUp,
-    /// <summary>The loop at $A3:E023.</summary>
+    /// <summary>The loop.</summary>
     HZoomerUpsideUpLoop,
-    /// <summary><c>InstList_Zeela_Zoomer_UpsideRight_0</c> at $A3:E25C.</summary>
+    /// <summary>The shared upside right animation.</summary>
     SharedUpsideRight,
-    /// <summary>The loop at $A3:E260.</summary>
+    /// <summary>The loop.</summary>
     SharedUpsideRightLoop,
-    /// <summary><c>InstList_Zeela_Zoomer_UpsideLeft_0</c> at $A3:E278.</summary>
+    /// <summary>The shared upside left animation.</summary>
     SharedUpsideLeft,
-    /// <summary>The loop at $A3:E27C.</summary>
+    /// <summary>The loop.</summary>
     SharedUpsideLeftLoop,
-    /// <summary><c>InstList_Zeela_Zoomer_UpsideDown_0</c> at $A3:E294.</summary>
+    /// <summary>The shared upside down animation.</summary>
     SharedUpsideDown,
-    /// <summary>The loop at $A3:E298.</summary>
+    /// <summary>The loop.</summary>
     SharedUpsideDownLoop,
-    /// <summary><c>InstList_Zeela_Zoomer_UpsideUp_0</c> at $A3:E2B0.</summary>
+    /// <summary>The shared upside up animation.</summary>
     SharedUpsideUp,
-    /// <summary>The loop at $A3:E2B4.</summary>
+    /// <summary>The loop.</summary>
     SharedUpsideUpLoop,
 }

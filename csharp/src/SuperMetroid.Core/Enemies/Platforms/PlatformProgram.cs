@@ -1,41 +1,41 @@
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
-/// The Tripper's and Kamer's vertically moving and still platform loops as typed programs (#641), one per bank-$A3 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="PlatformAnimations"/>.
+/// The Tripper's and Kamer's vertically moving and still platform loops as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="PlatformAnimations"/>.
 /// </summary>
 internal enum PlatformProgram
 {
-    /// <summary><c>InstList_Kamer2_VerticallyMoving_Left_0</c> at $A3:9BBB.</summary>
+    /// <summary>The Kamer moving left animation.</summary>
     KamerMovingLeft,
-    /// <summary>The loop at $A3:9BBD.</summary>
+    /// <summary>The loop.</summary>
     KamerMovingLeftLoop,
-    /// <summary><c>InstList_Kamer2_VerticallyMoving_Right_0</c> at $A3:9BD1.</summary>
+    /// <summary>The Kamer moving right animation.</summary>
     KamerMovingRight,
-    /// <summary>The loop at $A3:9BD3.</summary>
+    /// <summary>The loop.</summary>
     KamerMovingRightLoop,
-    /// <summary><c>InstList_Kamer2_VerticallyStill_Left_0</c> at $A3:9BE7.</summary>
+    /// <summary>The Kamer still left animation.</summary>
     KamerStillLeft,
-    /// <summary>The loop at $A3:9BE9.</summary>
+    /// <summary>The loop.</summary>
     KamerStillLeftLoop,
-    /// <summary><c>InstList_Kamer2_VerticallyStill_Right_0</c> at $A3:9BFD.</summary>
+    /// <summary>The Kamer still right animation.</summary>
     KamerStillRight,
-    /// <summary>The loop at $A3:9BFF.</summary>
+    /// <summary>The loop.</summary>
     KamerStillRightLoop,
-    /// <summary><c>InstList_Tripper_VerticallyMoving_Left_0</c> at $A3:9C13.</summary>
+    /// <summary>The Tripper moving left animation.</summary>
     TripperMovingLeft,
-    /// <summary>The loop at $A3:9C15.</summary>
+    /// <summary>The loop.</summary>
     TripperMovingLeftLoop,
-    /// <summary><c>InstList_Tripper_VerticallyMoving_Right_0</c> at $A3:9C29.</summary>
+    /// <summary>The Tripper moving right animation.</summary>
     TripperMovingRight,
-    /// <summary>The loop at $A3:9C2B.</summary>
+    /// <summary>The loop.</summary>
     TripperMovingRightLoop,
-    /// <summary><c>InstList_Tripper_VerticallyStill_Right_0</c> at $A3:9C3F.</summary>
+    /// <summary>The Tripper still moving left animation.</summary>
     TripperStillMovingLeft,
-    /// <summary>The loop at $A3:9C41.</summary>
+    /// <summary>The loop.</summary>
     TripperStillMovingLeftLoop,
-    /// <summary><c>InstList_Tripper_VerticallyStill_Left_0</c> at $A3:9C55.</summary>
+    /// <summary>The Tripper still moving right animation.</summary>
     TripperStillMovingRight,
-    /// <summary>The loop at $A3:9C57.</summary>
+    /// <summary>The loop.</summary>
     TripperStillMovingRightLoop,
 }

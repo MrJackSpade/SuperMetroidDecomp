@@ -7,23 +7,23 @@ internal static class ChootFallingPathDefinitions
     internal const int PositivePlateauIndex = 28;
     /// <summary>First physical frame after the normal path's negative-X plateau sample.</summary>
     internal const int NegativePlateauIndex = 63;
-    /// <summary>Additional copies of each plateau sample in the slow native path.</summary>
+    /// <summary>Additional copies of each plateau sample in the slow path.</summary>
     private const int SlowPlateauFrames = 10;
-    /// <summary>Additional copies of each plateau sample in the very-slow native path.</summary>
+    /// <summary>Additional copies of each plateau sample in the very-slow path.</summary>
     private const int VerySlowPlateauFrames = 30;
 
-    /// <summary>The <c>$8000,$8000</c> sample that ends a path loop.</summary>
+    /// <summary>The (-32768, -32768) sample that ends a path loop.</summary>
     private static readonly Offset16<RoomPixels> End = new(short.MinValue, short.MinValue);
 
     /// <summary>
-    /// <c>ChootFallingPatternData_0_Normal</c> at <c>$A2:D84C-$A2:D973</c>.
+    /// The normal falling pattern.
     /// Each sample is a signed X/Y offset; the final <see cref="End"/> sample is the terminator.
     /// </summary>
     /// <remarks>
-    /// The pinned NTSC J/U v1.0 ROM matches all 73 motion pairs and the final
-    /// <c>$8000,$8000</c> sentinel. Choot consumes one pair per fall frame and
+    /// The authored path holds all 73 motion pairs and the final
+    /// (-32768, -32768) sentinel. Choot consumes one pair per fall frame and
     /// adds its signed offsets to the 16-bit path origin; the following
-    /// <c>$D974</c> word is the loop Y distance, outside this path.
+    /// loop Y distance is separate from this path.
     /// </remarks>
     private static readonly Offset16<RoomPixels>[] Normal =
     [
@@ -40,11 +40,11 @@ internal static class ChootFallingPathDefinitions
         End,
     ];
 
-    /// <summary><c>ChootFallingPatternData_1_Wide</c> at <c>$A2:D976-$A2:DA9D</c>.</summary>
+    /// <summary>The wide falling pattern.</summary>
     /// <remarks>
-    /// All 73 signed X/Y motion pairs and the <c>$8000,$8000</c> sentinel
-    /// match the pinned NTSC J/U v1.0 ROM. Selector 1 consumes one pair per
-    /// frame; the following <c>$DA9E</c> word is its loop Y distance.
+    /// All 73 signed X/Y motion pairs and the (-32768, -32768) sentinel
+    /// are authored values. Selector 1 consumes one pair per
+    /// frame; its loop Y distance is separate.
     /// </remarks>
     private static readonly Offset16<RoomPixels>[] Wide =
     [
@@ -61,11 +61,11 @@ internal static class ChootFallingPathDefinitions
         End,
     ];
 
-    /// <summary><c>ChootFallingPatternData_2_VeryWide</c> at <c>$A2:DAA0-$A2:DBC7</c>.</summary>
+    /// <summary>The very wide falling pattern.</summary>
     /// <remarks>
-    /// All 73 signed X/Y motion pairs and the <c>$8000,$8000</c> sentinel
-    /// match the pinned NTSC J/U v1.0 ROM. Selector 2 consumes one pair per
-    /// frame; the following <c>$DBC8</c> word is its loop Y distance.
+    /// All 73 signed X/Y motion pairs and the (-32768, -32768) sentinel
+    /// are authored values. Selector 2 consumes one pair per
+    /// frame; its loop Y distance is separate.
     /// </remarks>
     private static readonly Offset16<RoomPixels>[] VeryWide =
     [

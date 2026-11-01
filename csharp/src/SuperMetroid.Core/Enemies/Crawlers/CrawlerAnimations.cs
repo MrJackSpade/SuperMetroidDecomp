@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Crawlers.CrawlerProgram;
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
-/// The Sciser, Zero, Viola, orange Zoomer and shared Zoomer/Zeela/Sova surface animations as typed programs (#641), in place of their bank-$A3 lists. Generated from the verified native lists: each
+/// The Sciser, Zero, Viola, orange Zoomer and shared Zoomer/Zeela/Sova surface animations as typed programs (#641). Each
 /// frame shows a <see cref="CrawlerFrame"/> pose and each callback becomes a <see cref="CrawlerCue"/> with its typed operands.
 /// </summary>
 internal static class CrawlerAnimations

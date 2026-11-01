@@ -2,8 +2,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Zoa;
 
 /// <summary>
-/// The state of a Zoa, with its launch speed stage. The values the cartridge keeps in the enemy's
-/// common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>). “Shooting” is the ROM's
+/// The state of a Zoa, with its launch speed stage. The values the game keeps in the enemy's
+/// common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>). “Shooting” is the original
 /// name for the creature launching itself horizontally; it does not create a separate enemy projectile.
 /// </summary>
 public sealed class ZoaEnemyState
@@ -18,13 +18,13 @@ public sealed class ZoaEnemyState
     public ZoaAnimationSelector AnimationScriptTableIndex { get; internal set; }
 
     /// <summary>
-    /// Last installed animation selector, initially zero; $A3:B537 compares it with the requested selector so unchanged
+    /// Last installed animation selector, initially zero; the animation change compares it with the requested selector so unchanged
     /// lists keep their timer and loop state.
     /// </summary>
     public ZoaAnimationSelector PreviousAnimationScriptTableIndex { get; internal set; }
 
     /// <summary>
-    /// Same-bank AI dispatch word, initialized to wait and transitioned through rise, horizontal launch, and offscreen
+    /// The current AI behaviour, initialized to wait and transitioned through rise, horizontal launch, and offscreen
     /// return to wait; none once a kill has emptied the record.
     /// </summary>
     public ZoaEnemyFunction? Function { get; internal set; }
@@ -32,10 +32,10 @@ public sealed class ZoaEnemyState
     /// <summary>The launch's speed stage, zero (at rest) through three, advanced by the shooting animation's cues (<see cref="ZoaSpeedDefinitions.StageSpeedEighths"/>).</summary>
     public int ShotSpeedStage { get; internal set; }
 
-    /// <summary>Where Zoa's typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where Zoa's typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<ZoaProgram> Program { get; set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         SpawnPosition = Position16<RoomPixels>.Zero;

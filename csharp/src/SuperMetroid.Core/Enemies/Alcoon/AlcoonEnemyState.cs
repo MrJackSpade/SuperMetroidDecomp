@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>
-/// The state of one Alcoon. The function, the velocity and the spawn Y are values the cartridge keeps in the enemy's
+/// The state of one Alcoon. The function, the velocity and the spawn Y are values the game keeps in the enemy's
 /// common record, so they are emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>); the
 /// rest outlive the kill.
 /// </summary>
@@ -51,7 +51,7 @@ public sealed class AlcoonEnemyState
     public WrappingCountdown StepCounter { get; internal set; }
 
     /// <summary>
-    /// Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record: no
+    /// Empties the values the game keeps in the enemy's common record, when a kill empties that record: no
     /// function, no velocity, and a zero spawn Y with the spawn X kept.
     /// </summary>
     internal void ClearWithRecord()

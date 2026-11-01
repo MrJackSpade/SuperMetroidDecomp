@@ -3,13 +3,13 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.E
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
-/// <summary>Kraid's typed rock programs (#641), in place of their bank-$86 instruction lists.</summary>
+/// <summary>Kraid's typed rock programs (#641).</summary>
 internal static class KraidRockAnimations
 {
     /// <summary>Frames in the spat rock's burst.</summary>
     internal const int ShotPhaseCount = 5;
 
-    /// <summary>The still poses last the native maximum, so the rock holds them for good in play.</summary>
+    /// <summary>The still poses last the maximum, so the rock holds them for good in play.</summary>
     private const int StillFrameDuration = 32767;
 
     /// <summary>

@@ -31,10 +31,10 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Samus must be within 64 pixels on each axis to trigger a launch.</summary>
     private const int PolypProximity = 64;
-    /// <summary>Each Polyp initializer resets the shared enemy random seed to $0011.</summary>
+    /// <summary>Each Polyp initializer resets the shared enemy random seed to 17.</summary>
     private const int PolypRandomSeed = 17;
 
-    /// <summary>Ports <c>InitAI_Polyp</c> at $A2:B570.</summary>
+    /// <summary>Initializes the Polyp.</summary>
     internal void InitializePolyp(RoomEnemySlot slot)
     {
         Action<int> setRandomNumber = _room.Random.Seed;
@@ -49,13 +49,13 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // Every Polyp initializer writes $0011 to the shared seed. In Volcano the fourth
+        // Every Polyp initializer writes 17 to the shared seed. In Volcano the fourth
         // actor therefore leaves this exact value for the first gameplay frame; treating it
         // as actor-local randomness would produce a different launch sequence.
         setRandomNumber(PolypRandomSeed);
     }
 
-    /// <summary>Ports <c>MainAI_Polyp</c> and its three indirect functions at $A2:B58F.</summary>
+    /// <summary>Runs the Polyp's main AI and its three indirect functions.</summary>
     private void RunPolypMain(
         RoomEnemySlot slot,
         PolypEnemyState state,
@@ -73,7 +73,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (IsWithinPolypAxis(samus.Position.X.Whole, slot.Position.X.Whole) &&
                     IsWithinPolypAxis(samus.Position.Y.Whole, slot.Position.Y.Whole))
                 {
-                    // Native AI only installs the shoot function here. The rock is emitted
+                    // The game only installs the shoot function here. The rock is emitted
                     // on the next enemy frame, a one-frame tell preserved deliberately.
                     state.Function = PolypEnemyFunction.ShootingRock;
                 }
@@ -96,7 +96,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the three independent random-table selections at $A2:B5B2.</summary>
+    /// <summary>Runs the three independent random-table selections.</summary>
     private void ShootPolypRock(RoomEnemySlot slot, PolypEnemyState state)
     {
         int xVelocity = PolypLaunches.XVelocity(_room.Random.Generate());
@@ -110,7 +110,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Recreates <c>GetSignedYMinusX</c> followed by the signed threshold comparison used by
-    /// both bank-$A0 proximity helpers. Equality at 64 pixels is outside; the modular $8000
+    /// both proximity helpers. Equality at 64 pixels is outside; the modular -32768
     /// difference also remains outside without passing through host <c>Math.Abs</c> overflow.
     /// </summary>
     private static bool IsWithinPolypAxis(int samusCoordinate, int enemyCoordinate)
@@ -143,16 +143,16 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         RunPolypMain(slot, slot.RequireSpeciesState<PolypEnemyState>(), frame.Samus);
     }
 
-    /// <summary>Native projectile pre-instruction installed on each launched rock.</summary>
+    /// <summary>Projectile pre-instruction installed on each launched rock.</summary>
     private const EnemyProjectileFrameBehavior PolypRockFrameBehavior =
         EnemyProjectileFrameBehavior.PolypRockFlight;
     /// <summary>Each rock frame advances the quadratic speed-table index by two records.</summary>
     private const int PolypRockGravityStep = 2;
-    /// <summary>Falling rocks stop accelerating at the native $0040 speed index.</summary>
+    /// <summary>Falling rocks stop accelerating at speed index 64.</summary>
     private const int PolypRockTerminalSpeedIndex = 64;
 
     /// <summary>
-    /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> plus initializer $86:BBDB.
+    /// Spawns a lava rock from the Polyp and initializes it.
     /// The actor's palette/tile word and all four position halves are copied at allocation.
     /// </summary>
     internal void SpawnPolypRock(
@@ -175,7 +175,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = source.Position;
     }
 
-    /// <summary>Ports pre-instruction $86:BC0F and its rising/falling dispatcher.</summary>
+    /// <summary>Runs the rock's per-frame behaviour and its rising/falling dispatcher.</summary>
     internal static void RunPolypRockFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
@@ -211,7 +211,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The native routine integrates two adjacent quadratic samples per frame, first
+        // The routine integrates two adjacent quadratic samples per frame, first
         // index velocity+1 and then velocity. This is why the table index changes by two
         // while the visual arc still advances at gameplay-frame rate.
         AddPolypRockQuadraticStep(projectile, rock.SpeedIndex + 1, sign: EnemySpeedSign.Negative);
@@ -253,7 +253,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + whole);
     }
 
-    /// <summary>Ports $86:BCF4's split signed-8.8 horizontal addition.</summary>
+    /// <summary>Moves the rock with the game's split signed-8.8 horizontal addition.</summary>
     private static void MovePolypRockHorizontally(RoomEnemyProjectileSlot projectile)
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());

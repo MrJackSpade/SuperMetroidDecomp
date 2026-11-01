@@ -13,6 +13,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Checks installed Mother Brain escape-text art and its five OBJ VRAM transfers.</summary>

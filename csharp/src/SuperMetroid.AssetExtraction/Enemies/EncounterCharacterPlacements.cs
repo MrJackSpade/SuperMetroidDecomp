@@ -46,7 +46,7 @@ internal static class EncounterCharacterPlacements
             Characters(CrocomireSkeletonCharacterDefinitions.ChunkByteCount)),
         EnemyTileCharacters { Enemy: EnemyDefinitionId.Evir } => new(source, EncounterCharacterPlacementDefinitions.EvirFirstCharacter,
             Characters(EncounterCharacterPlacementDefinitions.EvirByteCount)),
-        CeresDoorCharacters => new(source, EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter, Characters(SuperMetroid.Core.Areas.Ceres.Artwork.CeresDoorVisualDefinitions.CharacterBytes)),
+        CeresDoorCharacters => new(source, EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter, Characters(SuperMetroid.AssetExtraction.Areas.Ceres.Artwork.CeresDoorVisualFormat.CharacterBytes)),
         CeresWarningTextPage warning => new(source,
             SuperMetroid.AssetExtraction.Areas.Ceres.CeresWarningGlyphDefinitions.WarningFirstCharacter + Characters(CeresWarningTextPages.ByteOffset(warning)),
             Characters(CeresWarningTextPages.ByteCount(warning))),

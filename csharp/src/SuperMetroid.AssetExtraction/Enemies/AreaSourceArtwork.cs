@@ -1,8 +1,8 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -13,6 +13,17 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 public sealed record AreaSourceArtwork : AreaArtworkBundle
 {
+    /// <summary>The Ceres door's characters and colours; setting it also sets the colours gameplay reads.</summary>
+    public CeresDoorSourceArtwork? CeresDoor
+    {
+        get;
+        init
+        {
+            field = value;
+            CeresDoorVisual = value?.Visuals;
+        }
+    }
+
     /// <summary>Editable warning-text and door character pages for the Ceres escape.</summary>
     public CeresEscapeTileArtwork? CeresEscapeTiles { get; init; }
 
@@ -25,7 +36,7 @@ public sealed record AreaSourceArtwork : AreaArtworkBundle
     /// <inheritdoc/>
     public override string ContentIdentity => SelectedPresentationHash.Create("area-bundle-v1", content =>
     {
-        content.AppendIdentity("CeresDoorVisual", CeresDoorVisual?.ContentIdentity);
+        content.AppendIdentity("CeresDoorVisual", CeresDoor?.ContentIdentity);
         content.AppendIdentity("CeresEscapeTiles", CeresEscapeTiles?.ContentIdentity);
         content.AppendIdentity("CeresEscapeOverlayTilemaps", CeresEscapeOverlayTilemaps?.ContentIdentity);
         content.AppendIdentity("TourianStatueColors", TourianStatueColors?.ContentIdentity);

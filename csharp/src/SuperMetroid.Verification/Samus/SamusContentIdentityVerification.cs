@@ -6,13 +6,13 @@ using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 /// <summary>Checks that each selected Samus artwork family contributes to the installed content identity.</summary>
 internal static class SamusContentIdentityVerification

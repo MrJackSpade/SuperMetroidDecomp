@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 /// <summary>Host-file geometry for the CRE and graphics-set 4-bpp character streams.</summary>
 public static class RoomCharacterAtlasFormat

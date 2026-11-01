@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Areas.Tourian.Artwork;
+namespace SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 
 /// <summary>Versioned, editable Tourian statue visual palette resource.</summary>
 public static class TourianStatueColorFormat

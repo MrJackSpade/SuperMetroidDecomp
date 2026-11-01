@@ -8,7 +8,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.RenderVerification.Harness;
 using SuperMetroid.Rendering.Direct3D11.Device;
@@ -16,6 +15,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 /// <summary>
 /// Finite acceptance checks for source-identified Samus drawing and upload owners.

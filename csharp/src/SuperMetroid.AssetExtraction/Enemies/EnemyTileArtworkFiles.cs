@@ -14,7 +14,6 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -35,6 +34,9 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Escape.Artwork;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Exports every retail room-enemy graphics sheet; user PNG overrides live outside stock content.</summary>
@@ -890,10 +892,10 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException(
                 $"Invalid Kraid color file {KraidColorFormat.FileName}: {error.Message}", error);
         }
-        CeresDoorVisuals ceresDoorVisual;
+        CeresDoorSourceArtwork ceresDoor;
         try
         {
-            ceresDoorVisual = CeresDoorVisualFiles.Load(
+            ceresDoor = CeresDoorVisualFiles.Load(
                 ReadStockOrOverride(CeresDoorVisualFormat.TilesFileName,
                     manifest.CeresDoorTilesSha256),
                 ReadStockOrOverride(CeresDoorVisualFormat.ColorsFileName,
@@ -1141,7 +1143,7 @@ public static class EnemyTileArtworkFiles
             }),
             AreaSourceArtwork.FromInstalledArtwork(new AreaSourceArtwork
             {
-                CeresDoorVisual = ceresDoorVisual, CeresEscapeTiles = ceresEscapeTiles,
+                CeresDoor = ceresDoor, CeresEscapeTiles = ceresEscapeTiles,
                 CeresEscapeOverlayTilemaps = ceresEscapeOverlay, TourianStatueColors = tourianStatueColors,
             }));
 

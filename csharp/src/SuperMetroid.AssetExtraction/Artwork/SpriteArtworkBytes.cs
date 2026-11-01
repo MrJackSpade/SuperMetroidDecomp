@@ -31,7 +31,7 @@ internal static class SpriteArtworkBytes
         return source switch
         {
             InstalledArtworkCharacters named => installed.Resolve(named.Artwork),
-            CeresDoorCharacters => (Areas(installed).CeresDoorVisual ?? throw new InvalidDataException(
+            CeresDoorCharacters => (Areas(installed).CeresDoor ?? throw new InvalidDataException(
                 "Installed area artwork has no Ceres door visuals.")).Characters,
             CeresWarningTextPage warning => (Areas(installed).CeresEscapeTiles ?? throw new InvalidDataException(
                     "Installed Ceres escape has no editable character pages."))

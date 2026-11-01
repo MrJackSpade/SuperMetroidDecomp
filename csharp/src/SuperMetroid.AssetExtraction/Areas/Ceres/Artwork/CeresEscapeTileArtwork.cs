@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Areas.Ceres;
 
-namespace SuperMetroid.Core.Areas.Ceres.Artwork;
+namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 
 /// <summary>
 /// Editable Ceres escape warning and door characters. The transfer order,

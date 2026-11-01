@@ -15,13 +15,13 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.TestSupport.FrameRendering;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>Checks palette JSON edits change visible color while preserving FX clocks and live state.</summary>

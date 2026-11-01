@@ -1,7 +1,9 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms.Artwork;
-namespace SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.Core.Areas.Ceres;
+
+namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 
 /// <summary>The Ceres escape's two installed character pages, in the order its transfer lists show them.</summary>
 internal static class CeresEscapeTileArtworkDefinitions

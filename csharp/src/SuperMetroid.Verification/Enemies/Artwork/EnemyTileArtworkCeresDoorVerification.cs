@@ -8,13 +8,14 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -25,11 +26,12 @@ internal static class EnemyTileArtworkCeresDoorVerification
     internal static void VerifyInstalledCeresDoorVisuals(ISnesAddressSpace bus,
         string directory, InstalledEnemyArtwork stock)
     {
-        CeresDoorVisuals visual = stock.Areas.CeresDoorVisual
+        CeresDoorSourceArtwork door = stock.Areas.CeresDoor
             ?? throw new InvalidDataException("Installed Ceres-door visuals are missing.");
         byte[] nativeTiles = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            CeresSourceDefinitions.Door.Characters, CeresDoorVisualDefinitions.CharacterBytes);
-        AssertTrue(visual.Characters.Span.SequenceEqual(nativeTiles),
+            CeresSourceDefinitions.Door.Characters, CeresDoorVisualFormat.CharacterBytes);
+        CeresDoorVisuals visual = door.Visuals;
+        AssertTrue(door.Characters.Span.SequenceEqual(nativeTiles),
             "installed Ceres-door PNG preserves the complete direct tile DMA");
         // $A6:F739 copies the characters to VRAM byte $E000, word $7000: OBJ character $100.
         AssertEqual(SpriteArtworkPlacements.TableByte(VramDmaDestination.FromNative(0x7000)), PlacedUploads.Of(CeresDoorCharacters.Shown).FirstByte,
@@ -115,9 +117,10 @@ internal static class EnemyTileArtworkCeresDoorVerification
         File.WriteAllBytes(Path.Combine(overrides,
             CeresDoorVisualFormat.ColorsFileName),
             CeresDoorVisualFiles.Write(document));
-        CeresDoorVisuals edited = (EnemyTileArtworkFiles.Load(directory,
-            overrides).Areas.CeresDoorVisual ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrides).CeresDoorVisual."));
-        AssertEqual((byte)(nativeTiles[0] ^ 0x80), edited.Characters.Span[0],
+        CeresDoorSourceArtwork editedDoor = (EnemyTileArtworkFiles.Load(directory,
+            overrides).Areas.CeresDoor ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrides).CeresDoor."));
+        CeresDoorVisuals edited = editedDoor.Visuals;
+        AssertEqual((byte)(nativeTiles[0] ^ 0x80), editedDoor.Characters.Span[0],
             "Ceres-door PNG override changes the live first tile pixel");
         var editedCgram = new GameplayColours(new SpriteColourSets());
         edited.LoadNormalColors(CeresDoorColourDefinitions.Inactive.In(editedCgram));

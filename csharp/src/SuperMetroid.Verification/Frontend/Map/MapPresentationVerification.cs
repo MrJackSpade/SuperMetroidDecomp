@@ -77,7 +77,6 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Rooms;

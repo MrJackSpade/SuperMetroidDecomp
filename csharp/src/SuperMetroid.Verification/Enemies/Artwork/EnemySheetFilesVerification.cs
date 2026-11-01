@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -21,20 +20,15 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// </summary>
 internal static class EnemySheetFilesVerification
 {
-    /// <summary>Extracts the enemy sheets into a scratch directory, loads them and compares each frame with its composition.</summary>
+    /// <summary>Loads the shared installation's enemy sheets and compares each frame with its composition.</summary>
     internal static void VerifyEnemySheetFiles()
     {
+        // The scratch directory holds only the legacy-keyed override sheets; the stock sheets are read in place.
         DirectoryInfo scratch = Directory.CreateTempSubdirectory("sm-enemy-sheets-");
         try
         {
             string content = RepositoryInstallation.Installation.ContentDirectory;
-            // The sheets' frames are named from the enemy compositions installed beside them.
-            string tiles = Path.Combine(content, GameInstallationLayout.EnemyTileDirectoryName);
-            Directory.CreateDirectory(Path.Combine(scratch.FullName, GameInstallationLayout.EnemyTileDirectoryName));
-            foreach (string file in Directory.GetFiles(tiles))
-                File.Copy(file, Path.Combine(scratch.FullName, GameInstallationLayout.EnemyTileDirectoryName, Path.GetFileName(file)));
-            string stock = Path.Combine(scratch.FullName, EnemySheetFiles.DirectoryName);
-            EnemySheetFiles.Extract(content, stock, SupportedCartridge.Sha256);
+            string stock = RepositoryInstallation.Installation.EnemySheetDirectory;
             InstalledEnemySheets installed = EnemySheetFiles.Load(stock, null);
 
             EnemySheetInputs inputs = EnemySheetInputs.Load(content);

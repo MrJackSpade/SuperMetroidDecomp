@@ -15,7 +15,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.Verification.Enemies.Gunship;
 using SuperMetroid.Verification.Harness;
@@ -26,15 +25,14 @@ using SuperMetroid.AssetExtraction.Artwork;
 internal static class GunshipInstalledCompositionsVerification
 {
     /// <summary>
-    /// Extract the new bundle through production import code, then confirm only
+    /// Read the installation's enemy bundle, which production import code extracted, then confirm only
     /// the reported gunship frames, legacy-override inheritance and landing draw.
-    /// Native bytes are an extraction/reference oracle, never the gameplay bus.
+    /// Native bytes are a reference oracle, never the gameplay bus.
     /// </summary>
-    internal static void VerifyExtractedGunshipCompositions(string installationRoot, string romPath, string outputRoot)
+    internal static void VerifyExtractedGunshipCompositions(string installationRoot, string romPath)
     {
         var imported = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(romPath));
-        string directory = Path.Combine(Path.GetFullPath(outputRoot), "enemy-tiles-" + Guid.NewGuid().ToString("N"));
-        EnemyTileArtworkFiles.Extract(imported, directory, SupportedCartridge.Sha256);
+        string directory = new GameInstallation(Path.GetFullPath(installationRoot)).EnemyTileDirectory;
         EnemyTileArtworkFiles.ValidateStock(directory);
         InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory, overrideDirectory: null);
         EnemySpritemapCatalog compositions = (stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps."));
@@ -128,8 +126,7 @@ internal static class GunshipInstalledCompositionsVerification
     internal static int GunshipLandingCompositionsCommand()
     {
         string gunshipInstallation = RepositoryInstallation.Installation.Root;
-        using var gunshipOutput = new TestScratchDirectory("map-catalog");
-        Suite(nameof(VerifyExtractedGunshipCompositions), () => VerifyExtractedGunshipCompositions(gunshipInstallation, RepositoryRomPath, gunshipOutput.Root));
+        Suite(nameof(VerifyExtractedGunshipCompositions), () => VerifyExtractedGunshipCompositions(gunshipInstallation, RepositoryRomPath));
         Suite(nameof(VerifyGunshipLandingCompositions), () => VerifyGunshipLandingCompositions(gunshipInstallation));
         return 0;
     }

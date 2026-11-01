@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.World;
@@ -23,16 +24,10 @@ internal static class ChozoStatueVisualsVerification
     internal static void VerifyChozoStatueVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
-        using var testRootScratch = new TestScratchDirectory("chozo-statue-visual");
-        string testRoot = testRootScratch.Root;
-        try
+        // A private installation copy, whose override is written and whose stock file is tampered below.
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
         {
-            var installation = new GameInstallation(testRoot);
-            // Extraction checks every physical word, run direction and offset
-            // against the pinned cartridge before writing editable art.
-            RoomPlmChozoStatueVisualFiles.Extract(rom,
-                installation.RoomPlmChozoStatueVisualDirectory,
-                SupportedCartridge.Sha256);
+            GameInstallation installation = copy.Installation;
             RoomPlmChozoStatueVisualFiles.ValidateStock(
                 installation.RoomPlmChozoStatueVisualDirectory);
             VerifyChozoStatueStockMapping(rom, installation.LoadRoomPlmChozoStatueVisuals());
@@ -119,9 +114,8 @@ internal static class ChozoStatueVisualsVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "shared delete list did not reread its bank-$84 bytes");
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmChozoStatueVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
+            // The shared installation's stock directory stands for a stock directory the installer replaced.
+            string refreshed = RepositoryInstallation.Installation.RoomPlmChozoStatueVisualDirectory;
             AssertEqual(RoomBlockAppearance.Of(0x53),
                 RoomPlmChozoStatueVisualFiles.Load(refreshed,
                     installation.RoomPlmChozoStatueVisualOverrideDirectory)
@@ -133,11 +127,6 @@ internal static class ChozoStatueVisualsVerification
                 () => RoomPlmChozoStatueVisualFiles.ValidateStock(
                     installation.RoomPlmChozoStatueVisualDirectory),
                 "tampered Chozo stock fails manifest validation");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
         }
     }
 

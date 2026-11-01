@@ -45,7 +45,7 @@ internal static class EnemyGameplayAcceptanceVerification
         Suite(nameof(VerifyEnemyDropChanceDefinitions), () => VerifyEnemyDropChanceDefinitions(source));
         Suite(nameof(VerifyEnemyDefinitionReferenceClosure), () => VerifyEnemyDefinitionReferenceClosure());
         Suite(nameof(VerifyEnemyVulnerabilityDispatch), () => VerifyEnemyVulnerabilityDispatch(source));
-        Suite(nameof(VerifyEnemyPopulationPresentationIsolation), () => VerifyEnemyPopulationPresentationIsolation(source));
+        Suite(nameof(VerifyEnemyPopulationPresentationIsolation), () => VerifyEnemyPopulationPresentationIsolation());
         Suite(nameof(VerifyEnemyDrops), () => VerifyEnemyDrops());
         Console.WriteLine("Enemy gameplay acceptance: complete stock definitions, reference closure, " +
             "vulnerability selection, linked population initialization and editable-art isolation pass.");
@@ -69,7 +69,7 @@ internal static class EnemyGameplayAcceptanceVerification
     }
 
     /// <summary>Loads a retail KiHunter body-wing population without cartridge memory and checks a PNG edit affects the OBJ characters but no enemy slot or quota.</summary>
-    private static void VerifyEnemyPopulationPresentationIsolation(CartridgeImportAddressSpace source)
+    private static void VerifyEnemyPopulationPresentationIsolation()
     {
         using var temporary = new TestScratchDirectory("map-catalog");
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();

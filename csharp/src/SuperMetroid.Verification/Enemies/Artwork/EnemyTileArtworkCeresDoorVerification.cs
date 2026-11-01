@@ -50,7 +50,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
         visual.LoadEscapeColors(CeresDoorColourDefinitions.Active.In(compiledColors));
         AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors.AsPaletteColors())),
             "installed Ceres-door escape RGB5 palette matches the cartridge");
-        for (int row = 0; row < CeresDoorVisualDefinitions.AnimationRowCount; row++)
+        for (int row = 0; row < CeresDoorVisualDefinitions.AnimationStepCount; row++)
         {
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeColors, bus,
                 CeresSourceDefinitions.Door.AnimationColors +

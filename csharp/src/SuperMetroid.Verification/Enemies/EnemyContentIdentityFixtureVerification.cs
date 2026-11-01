@@ -248,7 +248,7 @@ internal static class EnemyContentIdentityFixtureVerification
             {
                 Version = 1, Normal = Colors("ceres-door-normal", CeresDoorVisualDefinitions.SetupColorCount),
                 Escape = Colors("ceres-door-escape", CeresDoorVisualDefinitions.SetupColorCount),
-                Animation = ColorRows("ceres-door-animation", CeresDoorVisualDefinitions.AnimationRowCount, CeresDoorVisualDefinitions.AnimationColorCount),
+                Animation = ColorRows("ceres-door-animation", CeresDoorVisualDefinitions.AnimationStepCount, CeresDoorVisualDefinitions.AnimationColorCount),
             }));
             var special = new MotherBrainSpecialSpriteArtworkCatalog(Ordered(MotherBrainSpecialSpriteArtworkDefinitions.All.Select(definition =>
                 KeyValuePair.Create(definition.Sheet, Characters(definition.FileName, definition.ByteCount)))));
@@ -311,7 +311,7 @@ internal static class EnemyContentIdentityFixtureVerification
                     Bg2("mother-brain-body-bg2", MotherBrainBodyBg2FrameDefinitions.Frames, MotherBrainBodyBg2FrameDefinitions.Version)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(Png("crocomire-skeleton", CrocomireSkeletonCharacterDefinitions.TotalByteCount), CrocomireSkeletonCharacterDefinitions.TotalByteCount)), TorizoSwaps = torizo },
                 new AreaSourceArtwork { CeresDoor = door, TourianStatueColors = ColorCatalog(TourianStatueColorFile.Read,
                     new EnemyContentIdentityFixtureField("base", 0, TourianStatueColorDefinitions.BaseColorCount), new EnemyContentIdentityFixtureField("statue", 0, TourianStatueColorDefinitions.StatueColorCount),
-                    new EnemyContentIdentityFixtureField("eye", TourianStatueColorDefinitions.EyeRowCount, TourianStatueColorDefinitions.EyeColorCount), new EnemyContentIdentityFixtureField("grey", 0, TourianStatueColorDefinitions.GreyColorCount)), CeresEscapeTiles = ceresTiles, CeresEscapeOverlayTilemaps = overlay });
+                    new EnemyContentIdentityFixtureField("eye", TourianStatueColorDefinitions.EyeGlowCount, TourianStatueColorDefinitions.EyeColorCount), new EnemyContentIdentityFixtureField("grey", 0, TourianStatueColorDefinitions.GreyColorCount)), CeresEscapeTiles = ceresTiles, CeresEscapeOverlayTilemaps = overlay });
         }
 
         /// <summary>Changes the final Crocomire melt tile only for the selected map edit.</summary>

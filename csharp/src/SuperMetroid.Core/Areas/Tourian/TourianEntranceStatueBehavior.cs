@@ -19,7 +19,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
 
     /// <summary>Allocates the three fixed statue decoration actors in reverse-slot order.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Supplies the visible palette for the entrance statue's initial palette rows.</summary>
+    /// <summary>Supplies the visible colours the entrance statue's initialization installs.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>The session's installed area artwork.</summary>
     private readonly AreaArtworkBinding _areaArtwork;
@@ -76,9 +76,9 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
                 position: new(132, 136));
         }
 
-        // Statue initialization writes target palette rows 15 and 10.
-        // This runtime exposes the currently visible palette, so install those rows
-        // directly while retaining every authored color word.
+        // Statue initialization installs the statue's own colours and its decoration colours.
+        // This runtime's colours are the visible ones, so they are installed directly, keeping
+        // every authored colour.
         (_areaArtwork.Artwork?.TourianStatueColors ?? throw new InvalidDataException(
             "Tourian entrance statues require installed palette artwork.")).ApplyEntrance(_presentation.Colours);
     }

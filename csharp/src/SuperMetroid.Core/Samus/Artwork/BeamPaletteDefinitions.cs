@@ -2,19 +2,10 @@ namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Presentation geometry for the sixteen colors the beam palette load writes.</summary>
 /// <remarks>
-/// The stock color source is five contiguous
-/// sixteen-word little-endian BGR555 rows: Power, Ice, Wave, Plasma, and
-/// Spazer. Row <c>r = 0..4</c>, color <c>c = 0..15</c> is at
-/// offset <c>32*r + 2*c</c> from the first row; the twelve beam combinations select rows
-/// through the beam palette pointer table.
-/// All 80 words match the original data.
-/// Every row begins 14336, 32767; Power, Wave, Plasma, and Spazer
-/// have six zero words at color indices 9..14, while Ice has none. The
-/// selected material paint is owned by BeamPaintDefinitions; its exact channel
-/// composition calculates all stock words and preserves independent replacements.
-/// The palette load copies exactly sixteen colors from the selected
-/// pointer; out-of-range beam selections are physical pointer-table reads,
-/// not extra color rows. Investigation: #625 / #901.
+/// Each of the twelve beam combinations selects one of five beam materials (Power, Ice, Wave, Plasma, Spazer), and the
+/// load writes that material's sixteen colours. The selected material paint is owned by BeamPaintDefinitions; its exact
+/// channel composition calculates every stock colour and preserves independent replacements. How the stock colours are
+/// read from the cartridge is the import pipeline's (BeamPaletteFile). Investigation: #625 / #901.
 /// </remarks>
 public static class BeamPaletteDefinitions
 {

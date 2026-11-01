@@ -9,7 +9,7 @@ public sealed class CeresDoorVisuals
     internal readonly CeresDoorNormalPaint normal;
     /// <summary>Escape setup colors resolved against the normal palette.</summary>
     internal readonly CeresDoorEscapePaint escape;
-    /// <summary>Eight animation rows resolved against the normal palette.</summary>
+    /// <summary>Eight animation steps resolved against the normal palette.</summary>
     internal readonly CeresDoorAnimationPaint animation;
     /// <summary>Retains validated visual data.</summary>
     private CeresDoorVisuals(RgbColor[] normal, RgbColor[] escape, RgbColor[][] animation)
@@ -22,7 +22,7 @@ public sealed class CeresDoorVisuals
     /// <summary>Retains the door colours the installed visual document supplied.</summary>
     /// <param name="normal">Fifteen normal setup colours.</param>
     /// <param name="escape">Fifteen escape setup colours.</param>
-    /// <param name="animation">Eight rows of six animation colours.</param>
+    /// <param name="animation">Eight steps of six animation colours.</param>
     /// <returns>The compiled visual snapshot.</returns>
     internal static CeresDoorVisuals Load(RgbColor[] normal, RgbColor[] escape, RgbColor[][] animation) =>
         new(normal, escape, animation);
@@ -46,15 +46,15 @@ public sealed class CeresDoorVisuals
     /// <summary>Resolves one escape-state ink from the selected palette.</summary>
     private RgbColor EscapeColor(int color) => escape.ColorAt(color);
 
-    /// <summary>Installs the door animation's six colours from glow row 0–7; the actor derives the row from its frame bits 3–5.</summary>
-    public void LoadAnimationColors(BackgroundColourSets colours, int row)
+    /// <summary>Installs the door animation's six colours from glow step 0–7; the actor derives the step from its frame bits 3–5.</summary>
+    public void LoadAnimationColors(BackgroundColourSets colours, int step)
     {
         ColourRun animated = CeresDoorColourDefinitions.Animation.In(colours);
-        if ((uint)row >= CeresDoorVisualDefinitions.AnimationRowCount) throw new ArgumentOutOfRangeException(nameof(row));
+        if ((uint)step >= CeresDoorVisualDefinitions.AnimationStepCount) throw new ArgumentOutOfRangeException(nameof(step));
         for (int color = 0; color < CeresDoorVisualDefinitions.AnimationColorCount; color++)
-            animated.Write(color, AnimationColor(row, color));
+            animated.Write(color, AnimationColor(step, color));
     }
 
-    /// <summary>Resolves one ink from the actor-selected door animation row.</summary>
-    private RgbColor AnimationColor(int row, int color) => animation.ColorAt(row, color);
+    /// <summary>Resolves one colour of the actor-selected door animation step.</summary>
+    private RgbColor AnimationColor(int step, int color) => animation.ColorAt(step, color);
 }

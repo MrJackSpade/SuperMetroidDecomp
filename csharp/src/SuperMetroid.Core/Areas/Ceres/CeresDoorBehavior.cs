@@ -314,7 +314,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         // frozen on whichever frame happened to be present at deletion. The import pictures both strips (#1467).
         _room.Services.DrawFloor(CeresFloorAnimation.PictureOf(CeresFloorAnimation.PlatformFrame((frame & 2) >> 1)));
 
-        // Bits 3..5 of the frame counter: a new row of six colors every eight frames.
+        // Bits 3..5 of the frame counter: a new step of six colors every eight frames.
         int colorRow = (frame >> 3) % 8;
         SelectedCeresDoorVisual.LoadAnimationColors(_presentation.BackgroundSets, colorRow);
     }

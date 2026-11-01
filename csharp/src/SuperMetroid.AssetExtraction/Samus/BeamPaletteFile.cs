@@ -7,6 +7,14 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed ordinary beam palette document.</summary>
+/// <remarks>
+/// The cartridge's stock beam colours are five contiguous sixteen-word little-endian BGR555 runs: Power, Ice, Wave,
+/// Plasma and Spazer. Run <c>r = 0..4</c>, colour <c>c = 0..15</c> is at offset <c>32*r + 2*c</c> from the first; the
+/// twelve beam combinations select runs through the beam palette pointer table. All 80 words match the original data.
+/// Every run begins 14336, 32767; Power, Wave, Plasma and Spazer have six zero words at colour indices 9..14, while Ice
+/// has none. The palette load copies exactly sixteen colours from the selected pointer; out-of-range beam selections are
+/// physical pointer-table reads, not extra colour runs.
+/// </remarks>
 public static class BeamPaletteFile
 {
     /// <summary>Twelve legal beam-combination pointers precede the palette data: one palette per retail combination.</summary>

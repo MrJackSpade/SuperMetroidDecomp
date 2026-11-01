@@ -6,24 +6,24 @@ namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 /// <summary>Editable entrance, eye-glow, and grey-transition RGB5 colors for the Tourian statue.</summary>
 public sealed class TourianStatuePalettes
 {
-    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    /// <summary>Canonical selected RGB5 colors and ordered eye glows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("TourianStatueColorCatalog-v1", content =>
         {
-            Span<RgbColor> row = stackalloc RgbColor[TourianStatueColorDefinitions.BaseColorCount];
-            for (int color = 0; color < row.Length; color++) row[color] = ResolveBase(color);
-            content.AppendColors("baseColors", row);
+            Span<RgbColor> colours = stackalloc RgbColor[TourianStatueColorDefinitions.BaseColorCount];
+            for (int color = 0; color < colours.Length; color++) colours[color] = ResolveBase(color);
+            content.AppendColors("baseColors", colours);
             content.AppendColors("statueColors", statueColors.Words());
-            for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++) row[color] = ResolveGrey(color);
-            content.AppendColors("greyColors", row[..TourianStatueColorDefinitions.GreyColorCount]);
-            content.AppendColorFrames("eyeColors", Enumerable.Range(0, TourianStatueColorDefinitions.EyeRowCount).Select(row =>
-                Enumerable.Range(0, TourianStatueColorDefinitions.EyeColorCount).Select(color => ResolveEye(row, color)).ToArray()).ToArray());
+            for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++) colours[color] = ResolveGrey(color);
+            content.AppendColors("greyColors", colours[..TourianStatueColorDefinitions.GreyColorCount]);
+            content.AppendColorFrames("eyeColors", Enumerable.Range(0, TourianStatueColorDefinitions.EyeGlowCount).Select(glow =>
+                Enumerable.Range(0, TourianStatueColorDefinitions.EyeColorCount).Select(color => ResolveEye(glow, color)).ToArray()).ToArray());
         });
 
     /// <summary>Sixteen base-decoration inks installed at OBJ palette seven.</summary>
     internal readonly PaletteBand baseColors;
     /// <summary>Sixteen statue-body inks installed at OBJ palette two.</summary>
     internal readonly PaletteBand statueColors;
-    /// <summary>Four boss-specific eye rows overlaid on base-decoration colors nine through twelve.</summary>
+    /// <summary>Four boss-specific eye glows overlaid on base-decoration colors nine through twelve.</summary>
     internal readonly PaletteBand eyeColors;
     /// <summary>Eight grey inks installed at the animation cue's palette destination.</summary>
     internal readonly PaletteBand greyColors;
@@ -34,20 +34,20 @@ public sealed class TourianStatuePalettes
     {
         this.baseColors = new(TourianStatuePaintBand.Base, baseColors);
         this.statueColors = new(TourianStatuePaintBand.Statue, statueColors);
-        this.eyeColors = new(TourianStatuePaintBand.Eye, eyeColors.SelectMany(row => row).ToArray());
+        this.eyeColors = new(TourianStatuePaintBand.Eye, eyeColors.SelectMany(glow => glow).ToArray());
         this.greyColors = new(TourianStatuePaintBand.Grey, greyColors);
     }
 
     /// <summary>Gets packed RGB5 base-decoration ink 0–15, including its retained transparent-slot word.</summary>
     public RgbColor ResolveBase(int color) => baseColors.Read(color);
-    /// <summary>Gets packed RGB5 eye ink 0–3 from eye row 0–3, in Phantoon, Ridley, Draygon, Kraid order.</summary>
-    public RgbColor ResolveEye(int row, int color)
+    /// <summary>Gets eye colour 0–3 of eye glow 0–3, in Phantoon, Ridley, Draygon, Kraid order.</summary>
+    public RgbColor ResolveEye(int glow, int color)
     {
-        if ((uint)row >= TourianStatueColorDefinitions.EyeRowCount)
-            throw new ArgumentOutOfRangeException(nameof(row));
+        if ((uint)glow >= TourianStatueColorDefinitions.EyeGlowCount)
+            throw new ArgumentOutOfRangeException(nameof(glow));
         if ((uint)color >= TourianStatueColorDefinitions.EyeColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return eyeColors.Read(row * TourianStatueColorDefinitions.EyeColorCount + color);
+        return eyeColors.Read(glow * TourianStatueColorDefinitions.EyeColorCount + color);
     }
     /// <summary>Gets packed RGB5 ink 0–7 from the statue's grey-transition band; destination and transition ordering remain animation-owned.</summary>
     public RgbColor ResolveGrey(int color) => greyColors.Read(color);

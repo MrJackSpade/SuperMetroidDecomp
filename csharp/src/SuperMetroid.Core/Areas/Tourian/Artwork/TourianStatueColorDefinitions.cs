@@ -9,8 +9,8 @@ public static class TourianStatueColorDefinitions
     /// <summary>The entrance statue's sixteen colours, installed as its whole sprite palette, colour zero included.</summary>
     public const int StatueColorCount = 16;
 
-    /// <summary>The four boss-specific eye glows, ordered Phantoon, Ridley, Draygon, Kraid.</summary>
-    public const int EyeRowCount = 4;
+    /// <summary>The four boss-specific eye glows the statues step through, ordered Phantoon, Ridley, Draygon, Kraid.</summary>
+    public const int EyeGlowCount = 4;
 
     /// <summary>The colours of one eye glow.</summary>
     public const int EyeColorCount = 4;

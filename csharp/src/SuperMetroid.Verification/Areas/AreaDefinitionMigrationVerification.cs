@@ -40,7 +40,7 @@ internal static class AreaDefinitionMigrationVerification
         // CeresDoorVisualRomData: its counts are Core's, its sources extraction's.
         AssertEqual(0x0400, CeresDoorVisualFormat.CharacterBytes, "door character bytes");
         AssertEqual(15, CeresDoorVisualDefinitions.SetupColorCount, "door setup colours");
-        AssertEqual(8, CeresDoorVisualDefinitions.AnimationRowCount, "door glow rows");
+        AssertEqual(8, CeresDoorVisualDefinitions.AnimationStepCount, "door glow rows");
         AssertEqual(6, CeresDoorVisualDefinitions.AnimationColorCount, "door glow colours");
         AssertTrue(CeresFloorDrawings.Cells(CeresFloorAnimationFrame.ElevatorLight).Keys.Order().SequenceEqual(Enumerable.Range(12 * 128 + 14, 4)),
             "the platform's four floor cells");
@@ -81,7 +81,7 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(0x20, TourianStatueSequenceDefinitions.ReleaseEarthquakeTimer, "release earthquake timer bit");
         AssertEqual(16, TourianStatueColorDefinitions.BaseColorCount, "statue base colours");
         AssertEqual(16, TourianStatueColorDefinitions.StatueColorCount, "statue colours");
-        AssertEqual(4, TourianStatueColorDefinitions.EyeRowCount, "eye rows");
+        AssertEqual(4, TourianStatueColorDefinitions.EyeGlowCount, "eye rows");
         AssertEqual(4, TourianStatueColorDefinitions.EyeColorCount, "eye colours");
         AssertEqual(8, TourianStatueColorDefinitions.GreyColorCount, "grey colours");
         AssertEqual(0x86b91e, EnemySourceDefinitions.TourianStatueEyeColors, "eye colour source");

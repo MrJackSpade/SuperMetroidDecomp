@@ -44,9 +44,9 @@ public sealed class CeresDoorSourceArtwork
         Span<RgbColor> escapeColors = stackalloc RgbColor[CeresDoorVisualDefinitions.SetupColorCount];
         for (int color = 0; color < escapeColors.Length; color++) escapeColors[color] = Visuals.escape.ColorAt(color);
         content.AppendColors("escape", escapeColors);
-        content.Append("animation", CeresDoorVisualDefinitions.AnimationRowCount);
+        content.Append("animation", CeresDoorVisualDefinitions.AnimationStepCount);
         Span<RgbColor> rowColors = stackalloc RgbColor[CeresDoorVisualDefinitions.AnimationColorCount];
-        for (int row = 0; row < CeresDoorVisualDefinitions.AnimationRowCount; row++)
+        for (int row = 0; row < CeresDoorVisualDefinitions.AnimationStepCount; row++)
         {
             for (int color = 0; color < rowColors.Length; color++) rowColors[color] = Visuals.animation.ColorAt(row, color);
             content.AppendColors("row", rowColors);

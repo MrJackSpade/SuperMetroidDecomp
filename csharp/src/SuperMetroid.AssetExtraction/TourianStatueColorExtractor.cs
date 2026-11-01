@@ -21,7 +21,7 @@ public static class TourianStatueColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var eye = new PaletteRgb5[TourianStatueColorDefinitions.EyeRowCount][];
+        var eye = new PaletteRgb5[TourianStatueColorDefinitions.EyeGlowCount][];
         for (int row = 0; row < eye.Length; row++)
             eye[row] = Read(bus,
                 EnemySourceDefinitions.TourianStatueEyeColors + row *

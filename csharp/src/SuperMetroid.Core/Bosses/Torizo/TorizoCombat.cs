@@ -105,17 +105,12 @@ internal sealed class TorizoCombat
         int band = Math.Min(healthBand, TorizoCombatDefinitions.LastHealthBand);
         var colors = _room.Artwork?.AuxiliaryColors ?? throw new InvalidDataException(
             "Golden Torizo health palettes require installed artwork.");
-        for (int color = 0; color < 16; color++)
-        {
-            _presentation.BossColours().TorizoBody.Write(
-                color,
-                colors.Resolve(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette.GoldenTorizoBody,
-                    band, color));
-            _presentation.BossColours().TorizoBelly.Write(
-                color,
-                colors.Resolve(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette.GoldenTorizoBelly,
-                    band, color));
-        }
+        ColourRun body = _presentation.BossColours().TorizoBody;
+        for (int color = 0; color < body.Count; color++)
+            body.Write(color, colors.Resolve(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette.GoldenTorizoBody, band, color));
+        ColourRun belly = _presentation.BossColours().TorizoBelly;
+        for (int color = 0; color < belly.Count; color++)
+            belly.Write(color, colors.Resolve(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette.GoldenTorizoBelly, band, color));
     }
 
     /// <summary>Runs Bomb Torizo's custom hurt callback.</summary>

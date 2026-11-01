@@ -45,7 +45,7 @@ public static class CeresDoorVisualFiles
                 CeresDoorVisualDefinitions.SetupColorCount),
             Escape = ReadColors(bus, CeresSourceDefinitions.Door.EscapeColors,
                 CeresDoorVisualDefinitions.SetupColorCount),
-            Animation = Enumerable.Range(0, CeresDoorVisualDefinitions.AnimationRowCount)
+            Animation = Enumerable.Range(0, CeresDoorVisualDefinitions.AnimationStepCount)
                 .Select(row => ReadColors(bus,
                     CeresSourceDefinitions.Door.AnimationColors +
                         row * CeresSourceDefinitions.Door.AnimationRowBytes,
@@ -85,7 +85,7 @@ public static class CeresDoorVisualFiles
             throw new InvalidDataException("Invalid Ceres-door visual palette JSON.", error);
         }
         if (document.Version != 1 || document.Animation is null ||
-            document.Animation.Length != CeresDoorVisualDefinitions.AnimationRowCount)
+            document.Animation.Length != CeresDoorVisualDefinitions.AnimationStepCount)
             throw new InvalidDataException("Ceres-door visuals require version 1 and eight animation rows.");
         RgbColor[] normal = Compile(document.Normal, CeresDoorVisualDefinitions.SetupColorCount,
             "normal");
@@ -104,7 +104,7 @@ public static class CeresDoorVisualFiles
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, Options);
         // The PNG is validated independently; validate color structure here.
         if (document.Version != 1 || document.Animation is null ||
-            document.Animation.Length != CeresDoorVisualDefinitions.AnimationRowCount)
+            document.Animation.Length != CeresDoorVisualDefinitions.AnimationStepCount)
             throw new InvalidDataException("Ceres-door visuals require version 1 and eight animation rows.");
         _ = Compile(document.Normal, CeresDoorVisualDefinitions.SetupColorCount, "normal");
         _ = Compile(document.Escape, CeresDoorVisualDefinitions.SetupColorCount, "escape");

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// A run of some owner's colours (#1404, #1405): a row, part of one, or several rows of a screen's colours or of an
+/// A run of some owner's colours (#1404, #1405): one colour set, part of one, or several of a screen's colours or of an
 /// actor's, read and written in place.
 /// </summary>
 public readonly struct ColourRun

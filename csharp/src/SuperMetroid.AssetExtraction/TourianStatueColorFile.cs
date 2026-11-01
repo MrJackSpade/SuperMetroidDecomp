@@ -26,7 +26,7 @@ public static class TourianStatueColorFile
         TourianStatueColorDocument document;
         document = JsonAssetDocument.Read<TourianStatueColorDocument>(json, Options, "Tourian statue color");
         if (document.Version != TourianStatueColorFormat.Version ||
-            document.Eye is null || document.Eye.Length != TourianStatueColorDefinitions.EyeRowCount)
+            document.Eye is null || document.Eye.Length != TourianStatueColorDefinitions.EyeGlowCount)
             throw new InvalidDataException("Tourian statue colors require four eye rows at the supported version.");
         var eye = new RgbColor[document.Eye.Length][];
         for (int row = 0; row < eye.Length; row++)

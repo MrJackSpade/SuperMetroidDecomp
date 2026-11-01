@@ -31,20 +31,20 @@ internal sealed class CeresDoorAnimationPaint
     /// <summary>Individual source cells that differ from the calculated mirrored fade.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
-    /// <summary>Captures independent paint channels and per-cell edits from eight six-color source rows.</summary>
-    internal CeresDoorAnimationPaint(RgbColor[][] rows, CeresDoorNormalPaint normal)
+    /// <summary>Captures independent paint channels and per-cell edits from the eight six-color steps of the glow cycle.</summary>
+    internal CeresDoorAnimationPaint(RgbColor[][] steps, CeresDoorNormalPaint normal)
     {
-        Ensure.NotNull(rows); Ensure.NotNull(normal);
-        if (rows.Length != 8 || rows.Any(row => row is null || row.Length != 6))
-            throw new ArgumentException("Beacon paint requires eight six-color rows.", nameof(rows));
+        Ensure.NotNull(steps); Ensure.NotNull(normal);
+        if (steps.Length != 8 || steps.Any(step => step is null || step.Length != 6))
+            throw new ArgumentException("Beacon paint requires eight six-color steps.", nameof(steps));
         this.normal = normal;
-        firstSeedBlue = rows[1][0].Blue;
-        dimMiddleAmberRed = rows[3][4].Red;
+        firstSeedBlue = steps[1][0].Blue;
+        dimMiddleAmberRed = steps[3][4].Red;
         for (int color = 0; color < 6; color++)
-            if (rows[1][color] != SharedSeed(color)) seedEdits.Add(new ColourCell(0, color), rows[1][color]);
-        for (int row = 0; row < 8; row++)
+            if (steps[1][color] != SharedSeed(color)) seedEdits.Add(new ColourCell(0, color), steps[1][color]);
+        for (int step = 0; step < 8; step++)
             for (int color = 0; color < 6; color++)
-                if (rows[row][color] != Calculate(row, color)) edits.Add(new ColourCell(row, color), rows[row][color]);
+                if (steps[step][color] != Calculate(step, color)) edits.Add(new ColourCell(step, color), steps[step][color]);
     }
 
     /// <summary>Uses normal target paint for each seed, with the first seed's independent blue channel.</summary>
@@ -56,19 +56,19 @@ internal sealed class CeresDoorAnimationPaint
     }
 
     /// <summary>Resolves an edited beacon cell or reconstructs its mirrored fade color.</summary>
-    internal RgbColor ColorAt(int row, int color)
+    internal RgbColor ColorAt(int step, int color)
     {
-        if ((uint)row >= 8)
-            throw new ArgumentOutOfRangeException(nameof(row));
+        if ((uint)step >= 8)
+            throw new ArgumentOutOfRangeException(nameof(step));
         if ((uint)color >= 6)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(row, color), out RgbColor edited) ? edited : Calculate(row, color);
+        return edits.TryGetValue(new ColourCell(step, color), out RgbColor edited) ? edited : Calculate(step, color);
     }
 
     /// <summary>Applies the five-step mirrored fade, peak gold brightening, and dim amber exception.</summary>
-    private RgbColor Calculate(int row, int color)
+    private RgbColor Calculate(int step, int color)
     {
-        int phase = Math.Min(row, 7 - row);
+        int phase = Math.Min(step, 7 - step);
         RgbColor seed = seedEdits.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : SharedSeed(color);
         int red = seed.Red, green = seed.Green, blue = seed.Blue;
         if (phase == 0 && color >= 3)

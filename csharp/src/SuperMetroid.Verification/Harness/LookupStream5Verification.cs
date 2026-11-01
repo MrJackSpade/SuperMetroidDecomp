@@ -74,6 +74,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for Ceres, boss, projectile and map visual definitions in lookup stream five.</summary>

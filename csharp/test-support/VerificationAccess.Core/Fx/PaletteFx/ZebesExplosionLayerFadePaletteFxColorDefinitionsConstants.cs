@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Fx.PaletteFx;
+﻿using SuperMetroid.AssetExtraction.Fx.PaletteFx;
+
+namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>Cartridge values and helpers of <see cref="ZebesExplosionLayerFadePaletteFxColorDefinitions"/> that only verification reads.</summary>
 internal static class ZebesExplosionLayerFadePaletteFxColorDefinitionsConstants

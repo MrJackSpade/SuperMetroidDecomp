@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Fx.PaletteFx;
+﻿using SuperMetroid.AssetExtraction.Fx.PaletteFx;
+
+namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>Verification access to <see cref="ZebesExplosionAmbientPaletteFxColorDefinition"/> members production does not use.</summary>
 internal static class ZebesExplosionAmbientPaletteFxColorDefinitionAccess

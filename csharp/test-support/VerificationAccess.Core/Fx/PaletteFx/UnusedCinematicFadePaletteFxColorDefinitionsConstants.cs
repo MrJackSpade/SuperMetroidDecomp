@@ -1,4 +1,6 @@
 
+using SuperMetroid.AssetExtraction.Fx.PaletteFx;
+
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>Cartridge values of <see cref="UnusedCinematicFadePaletteFxColorDefinitions"/> that only verification reads.</summary>

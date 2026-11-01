@@ -21,6 +21,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 /// <summary>Checks ending palette identity, native fade colors, installed artwork, and visible overrides.</summary>
 internal static class EndingPaletteArtworkVerification

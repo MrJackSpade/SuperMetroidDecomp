@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Fx.Artwork;
+﻿using SuperMetroid.AssetExtraction.Fx.Artwork;
+
+namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Cartridge values and helpers of <see cref="RoomPaletteFxPresentationFormat"/> that only verification reads.</summary>
 internal static class RoomPaletteFxPresentationFormatConstants

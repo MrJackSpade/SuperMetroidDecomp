@@ -18,6 +18,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 /// <summary>Checks that Ceres gunship engine colors remain bound after a debugger state restore and artwork replacement.</summary>
 internal static class CeresEnginePaletteBindingVerification

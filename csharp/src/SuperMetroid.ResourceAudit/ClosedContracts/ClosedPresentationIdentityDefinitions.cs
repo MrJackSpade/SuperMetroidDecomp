@@ -67,7 +67,7 @@ internal static class ClosedPresentationIdentityDefinitions
             .Select(frame => frame.Pose.Index).Distinct().ToArray(),
         ("InstalledProjectileTrails", "Resolve", "frame") => [.. ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame)],
         ("RoomFxLayer3Pages", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
-        ("RoomFxBlendInks", "Apply", "selection") => RoomFxPaletteBlendRules.Ids.Select(id => (int)id).Append(0).ToArray(),
+        ("RoomFxBlendInks", "Apply", "selection") => RoomFxPaletteBlendDocumentRules.Ids.Select(id => (int)id).Append(0).ToArray(),
         ("AreaMapPresentation" or "IGameplayPresentationContent", "Resolve", "asset") =>
             [(int)InstalledArtworkId.EscapeTimerFirstTiles,
              (int)InstalledArtworkId.EscapeTimerSecondTiles],

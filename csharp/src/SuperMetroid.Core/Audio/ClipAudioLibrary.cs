@@ -1,41 +1,18 @@
-using System.Security.Cryptography;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// The installed pre-rendered audio clips (#1305). Loading validates the manifest's format, rate,
-/// identities and contained paths and every file's size; <see cref="ReadClip"/> also checks a
-/// file's SHA-256 as it reads it, so a host reads only the clips it plays.
+/// The pre-rendered audio clips (#1305): a validated manifest's songs, sound effects and acceptance policies, with
+/// each clip's samples supplied by an <see cref="IAudioClipSource"/>. Construction checks the manifest's rate,
+/// identities, loop bounds and tempo timelines; <see cref="ReadClip"/> checks each clip's length as it is read, so a
+/// host reads only the clips it plays.
 /// </summary>
 public sealed class ClipAudioLibrary
 {
-    /// <summary>The clip manifest's file name in the audio root.</summary>
-    public const string ManifestFileName = "audio-clips.json";
-
-    /// <summary>Bytes of the minimal RIFF/WAVE header the exporter writes before the samples.</summary>
-    internal const int WaveHeaderBytes = 44;
-
     /// <summary>Game updates per second; the clips' rate is one update's samples this many times.</summary>
     private const int UpdatesPerSecond = 60;
 
-    /// <summary>Bytes per 16-bit stereo frame.</summary>
-    internal const int BytesPerFrame = PcmSampleFormat.StereoChannelCount * sizeof(short);
-
-    /// <summary>
-    /// Serializer settings of the installed audio files: names in camel case and enums by name. The clip manifest's
-    /// reader adds the import pipeline's decoding of its sound identities to these.
-    /// </summary>
-    public static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true,
-        Converters = { new JsonStringEnumConverter() },
-    };
-
-    /// <summary>The audio root the manifest's paths are relative to.</summary>
-    private readonly string root;
+    /// <summary>Supplies each clip's samples.</summary>
+    private readonly IAudioClipSource source;
     /// <summary>Songs by clip set and track.</summary>
     private readonly Dictionary<MusicTrackKey, MusicClipEntry> music;
     /// <summary>Sound-effect entries by clip set and sound.</summary>
@@ -44,14 +21,22 @@ public sealed class ClipAudioLibrary
     private readonly Dictionary<SoundEffectId, SoundEffectClipPolicy> policies = [];
     /// <summary>Effects with no clip in a clip set, by clip set and sound.</summary>
     private readonly Dictionary<SoundEffectClipKey, UnrenderableSoundEffect> unrenderable;
-    /// <summary>Each override replacement clip's absolute path; every other clip lives beneath <see cref="root"/>.</summary>
-    private readonly IReadOnlyDictionary<AudioClipFile, string> overrideFiles;
 
-    /// <summary>Creates a catalog over a validated manifest.</summary>
-    private ClipAudioLibrary(string root, AudioClipManifest manifest, string contentIdentity, IReadOnlyDictionary<AudioClipFile, string> overrideFiles)
+    /// <summary>
+    /// Creates a catalog over <paramref name="manifest"/>, whose clips <paramref name="source"/> supplies;
+    /// <paramref name="contentIdentity"/> identifies the selected audio.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">An argument is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="contentIdentity"/> is blank.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The rate, an identity, a clip's length, loop bounds or a tempo timeline is invalid, or the manifest repeats an identity.
+    /// </exception>
+    public ClipAudioLibrary(AudioClipManifest manifest, string contentIdentity, IAudioClipSource source)
     {
-        this.root = root;
-        this.overrideFiles = overrideFiles;
+        Ensure.NotNull(manifest);
+        ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);
+        this.source = Ensure.NotNull(source);
+        Validate(manifest);
         Manifest = manifest;
         ContentIdentity = contentIdentity;
         music = [];
@@ -84,98 +69,9 @@ public sealed class ClipAudioLibrary
     public AudioClipManifest Manifest { get; }
 
     /// <summary>
-    /// SHA-256 of the stock manifest file, which names every clip's hash, and of the selected
-    /// override's manifest and replacement files; any audible change alters it.
+    /// The selected audio's identity, supplied by the content reader: any audible change alters it.
     /// </summary>
     public string ContentIdentity { get; }
-
-    /// <summary>The validated stock clips: their audio root, their manifest and the manifest file's identity.</summary>
-    /// <param name="Root">The audio root the manifest's paths are relative to.</param>
-    /// <param name="Manifest">The validated stock manifest.</param>
-    /// <param name="Identity">SHA-256 of the stock manifest file, which names every clip's hash.</param>
-    internal sealed record StockClips(string Root, AudioClipManifest Manifest, string Identity);
-
-
-    /// <summary>
-    /// A catalog over the stock clips with a persistent override applied (#1305 Q3): <paramref name="manifest"/> is the
-    /// stock manifest with the replacements in place, <paramref name="contentIdentity"/> the selected audio's identity and
-    /// <paramref name="overrideFiles"/> each replacement clip's absolute path. The installed-file reader that applies the
-    /// override lives in the import pipeline, which knows the identities the override names clips by.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The selected manifest repeats an identity.</exception>
-    internal static ClipAudioLibrary Select(
-        StockClips stock,
-        AudioClipManifest manifest,
-        string contentIdentity,
-        IReadOnlyDictionary<AudioClipFile, string> overrideFiles)
-    {
-        Ensure.NotNull(stock);
-        ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);
-        return new ClipAudioLibrary(stock.Root, Ensure.NotNull(manifest), contentIdentity, Ensure.NotNull(overrideFiles));
-    }
-
-    /// <summary>
-    /// Reads and validates the stock clip manifest beneath <paramref name="audioDirectory"/> and every clip file's size.
-    /// The manifest names each sound by its library and request number; <paramref name="manifestOptions"/>, the import
-    /// pipeline's reader settings, decode them into sounds.
-    /// </summary>
-    /// <exception cref="FileNotFoundException">The manifest or a clip file is missing.</exception>
-    /// <exception cref="InvalidDataException">The format, rate, an identity, a path, loop bounds or a file size is invalid.</exception>
-    internal static StockClips ReadStock(string audioDirectory, JsonSerializerOptions manifestOptions)
-    {
-        Ensure.NotNull(manifestOptions);
-        ArgumentException.ThrowIfNullOrWhiteSpace(audioDirectory);
-        string root = Path.GetFullPath(audioDirectory);
-        string manifestPath = Path.Combine(root, ManifestFileName);
-        if (!File.Exists(manifestPath))
-            throw new FileNotFoundException($"Audio clip manifest was not found at '{manifestPath}'.", manifestPath);
-        byte[] manifestBytes = File.ReadAllBytes(manifestPath);
-        AudioClipManifest manifest = JsonSerializer.Deserialize<AudioClipManifest>(manifestBytes, manifestOptions)
-            ?? throw new InvalidDataException($"Audio clip manifest '{manifestPath}' deserialized to null.");
-        if (manifest.FormatVersion != AudioClipManifest.CurrentFormatVersion)
-        {
-            throw new InvalidDataException(
-                $"Audio clip manifest '{manifestPath}' uses format {manifest.FormatVersion}; expected {AudioClipManifest.CurrentFormatVersion}.");
-        }
-        if (manifest.SampleRate != SoundClockTiming.SamplesPerUpdate * UpdatesPerSecond)
-            throw new InvalidDataException($"Audio clip manifest '{manifestPath}' has rate {manifest.SampleRate}.");
-        if (string.IsNullOrWhiteSpace(manifest.SourceContentIdentity))
-            throw new InvalidDataException($"Audio clip manifest '{manifestPath}' names no source content identity.");
-        foreach (MusicClipEntry entry in manifest.Music)
-        {
-            ValidateFile(root, entry.Clip);
-            if (entry.LoopStart is long loop && (loop < 0 || loop >= entry.Clip.Frames))
-                throw new InvalidDataException($"{entry.AudioSet} track {entry.Track} loops at {loop} of {entry.Clip.Frames} frames.");
-            if (entry.TempoSegments.Count == 0 || entry.TempoSegments[0].Frame != 0)
-                throw new InvalidDataException($"{entry.AudioSet} track {entry.Track} has no tempo at frame zero.");
-        }
-        foreach (SoundEffectClipEntry entry in manifest.SoundEffects)
-        {
-            if (entry.Layers.Count == 0 && entry.ActiveFrames is null)
-                throw new InvalidDataException($"Never-ending {entry.Sound} in {ContextName(entry.Context)} has no layers.");
-            foreach (SoundEffectClipLayer layer in entry.Layers)
-            {
-                ValidateFile(root, layer.Clip);
-                if ((layer.LoopStart is null) != (entry.ActiveFrames is not null) ||
-                    layer.LoopStart is long loop && (loop < 0 || loop >= layer.Clip.Frames))
-                {
-                    throw new InvalidDataException(
-                        $"{entry.Sound} in {ContextName(entry.Context)} has inconsistent loop bounds.");
-                }
-            }
-        }
-        return new StockClips(root, manifest, Convert.ToHexString(SHA256.HashData(manifestBytes)));
-    }
-
-    /// <summary>Reads every clip, checking every file's SHA-256: the installer's stock validation.</summary>
-    /// <exception cref="InvalidDataException">Any clip is invalid.</exception>
-    internal void ReadEveryClip()
-    {
-        foreach (MusicClipEntry entry in Manifest.Music)
-            _ = ReadClip(entry.Clip);
-        foreach (SoundEffectClipLayer layer in Manifest.SoundEffects.SelectMany(entry => entry.Layers))
-            _ = ReadClip(layer.Clip);
-    }
 
     /// <summary>The song <paramref name="track"/> in <paramref name="clipSet"/>'s clip set.</summary>
     /// <exception cref="KeyNotFoundException">The clip set has no such song.</exception>
@@ -207,46 +103,57 @@ public sealed class ClipAudioLibrary
             ? policy
             : throw new KeyNotFoundException($"No sound effect {sound} in any data set.");
 
-    /// <summary>Reads a clip's interleaved stereo samples, verifying its SHA-256, rate and length.</summary>
-    /// <exception cref="InvalidDataException">The file's hash, encoding, rate or length does not match the manifest.</exception>
+    /// <summary>A clip's interleaved stereo samples from the source, checked against the manifest's frame count.</summary>
+    /// <exception cref="InvalidDataException">The source's samples do not match the manifest.</exception>
     public short[] ReadClip(AudioClipFile clip)
     {
         Ensure.NotNull(clip);
-        string path = overrideFiles.TryGetValue(clip, out string? replacement) ? replacement : ResolveContainedPath(root, clip.Path);
-        byte[] bytes = File.ReadAllBytes(path);
-        string hash = Convert.ToHexString(SHA256.HashData(bytes));
-        if (!hash.Equals(clip.Sha256, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException($"Audio clip '{path}' has SHA-256 {hash}, expected {clip.Sha256}.");
-        (int rate, short[] samples) = PcmWaveFile.ReadStereoPcm16(bytes, path);
-        if (rate != Manifest.SampleRate || samples.Length != clip.Frames * PcmSampleFormat.StereoChannelCount)
-            throw new InvalidDataException($"Audio clip '{path}' holds {samples.Length / 2} frames at {rate} Hz, expected {clip.Frames} at {Manifest.SampleRate}.");
+        short[] samples = source.ReadSamples(clip);
+        if (samples.Length != clip.Frames * PcmSampleFormat.StereoChannelCount)
+        {
+            throw new InvalidDataException(
+                $"Audio clip '{clip.Path}' holds {samples.Length / PcmSampleFormat.StereoChannelCount} frames, expected {clip.Frames}.");
+        }
         return samples;
     }
 
-    /// <summary>Checks a clip file exists beneath the root with the size its frame count implies.</summary>
-    private static void ValidateFile(string root, AudioClipFile clip)
+    /// <summary>Checks the manifest's rate, source identity, clip lengths, loop bounds and tempo timelines.</summary>
+    private static void Validate(AudioClipManifest manifest)
+    {
+        if (manifest.SampleRate != SoundClockTiming.SamplesPerUpdate * UpdatesPerSecond)
+            throw new InvalidDataException($"Audio clip manifest has rate {manifest.SampleRate}.");
+        if (string.IsNullOrWhiteSpace(manifest.SourceContentIdentity))
+            throw new InvalidDataException("Audio clip manifest names no source content identity.");
+        foreach (MusicClipEntry entry in manifest.Music)
+        {
+            ValidateClip(entry.Clip);
+            if (entry.LoopStart is long loop && (loop < 0 || loop >= entry.Clip.Frames))
+                throw new InvalidDataException($"{entry.AudioSet} track {entry.Track} loops at {loop} of {entry.Clip.Frames} frames.");
+            if (entry.TempoSegments.Count == 0 || entry.TempoSegments[0].Frame != 0)
+                throw new InvalidDataException($"{entry.AudioSet} track {entry.Track} has no tempo at frame zero.");
+        }
+        foreach (SoundEffectClipEntry entry in manifest.SoundEffects)
+        {
+            if (entry.Layers.Count == 0 && entry.ActiveFrames is null)
+                throw new InvalidDataException($"Never-ending {entry.Sound} in {ContextName(entry.Context)} has no layers.");
+            foreach (SoundEffectClipLayer layer in entry.Layers)
+            {
+                ValidateClip(layer.Clip);
+                if ((layer.LoopStart is null) != (entry.ActiveFrames is not null) ||
+                    layer.LoopStart is long loop && (loop < 0 || loop >= layer.Clip.Frames))
+                {
+                    throw new InvalidDataException(
+                        $"{entry.Sound} in {ContextName(entry.Context)} has inconsistent loop bounds.");
+                }
+            }
+        }
+    }
+
+    /// <summary>Checks a clip has frames and a content hash.</summary>
+    private static void ValidateClip(AudioClipFile clip)
     {
         if (clip.Frames <= 0 || string.IsNullOrWhiteSpace(clip.Sha256))
             throw new InvalidDataException($"Audio clip '{clip.Path}' has {clip.Frames} frames or no hash.");
-        string path = ResolveContainedPath(root, clip.Path);
-        long expected = WaveHeaderBytes + clip.Frames * BytesPerFrame;
-        long actual = new FileInfo(path).Length;
-        if (actual != expected)
-            throw new InvalidDataException($"Audio clip '{path}' is {actual} bytes, expected {expected}.");
-    }
-
-    /// <summary>Resolves a manifest path beneath the root, rejecting escapes and missing files.</summary>
-    private static string ResolveContainedPath(string root, string relativePath)
-    {
-        if (string.IsNullOrWhiteSpace(relativePath) || Path.IsPathRooted(relativePath))
-            throw new InvalidDataException($"Audio clip path '{relativePath}' must be relative.");
-        string path = Path.GetFullPath(Path.Combine(root, relativePath));
-        string prefix = root.EndsWith(Path.DirectorySeparatorChar) ? root : root + Path.DirectorySeparatorChar;
-        if (!path.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException($"Audio clip path '{relativePath}' escapes '{root}'.");
-        if (!File.Exists(path))
-            throw new FileNotFoundException($"Audio clip '{path}' is missing.", path);
-        return path;
     }
 
     /// <summary>A data set's name in diagnostics.</summary>

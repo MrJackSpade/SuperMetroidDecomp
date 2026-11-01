@@ -40,15 +40,24 @@ internal static class ClipAudioOverrides
     /// <exception cref="InvalidDataException">The stock or the override is invalid.</exception>
     internal static ClipAudioLibrary Load(string audioDirectory, string? overrideDirectory)
     {
-        ClipAudioLibrary.StockClips stock = ClipAudioLibrary.ReadStock(audioDirectory, InstalledAudioClips.ManifestOptions);
+        InstalledAudioClips.StockClips stock = InstalledAudioClips.ReadStock(audioDirectory);
+        // The stock catalog checks the stock manifest before any override applies, so corrupt stock fails even with a
+        // valid override.
+        ClipAudioLibrary stockLibrary = new(
+            stock.Manifest,
+            stock.Identity,
+            new InstalledClipFiles(stock.Root, stock.Manifest.SampleRate, new Dictionary<AudioClipFile, string>()));
         if (overrideDirectory is null || !Directory.Exists(overrideDirectory))
-            return ClipAudioLibrary.Select(stock, stock.Manifest, stock.Identity, new Dictionary<AudioClipFile, string>());
+            return stockLibrary;
         Selection selection = Apply(stock.Manifest, overrideDirectory);
         // An override without replacements is audibly stock and keeps the stock identity.
         string identity = selection.Files.Count == 0
             ? stock.Identity
             : Convert.ToHexString(SHA256.HashData(Convert.FromHexString(stock.Identity + selection.Identity)));
-        return ClipAudioLibrary.Select(stock, selection.Manifest, identity, selection.Files);
+        return new ClipAudioLibrary(
+            selection.Manifest,
+            identity,
+            new InstalledClipFiles(stock.Root, selection.Manifest.SampleRate, selection.Files));
     }
 
     /// <summary>Reads the override in <paramref name="overrideDirectory"/> and applies it to <paramref name="stock"/>.</summary>
@@ -61,7 +70,7 @@ internal static class ClipAudioOverrides
         if (!File.Exists(manifestPath))
             throw new FileNotFoundException($"Audio override '{root}' has no {AudioClipOverrideManifest.FileName}.", manifestPath);
         byte[] manifestBytes = File.ReadAllBytes(manifestPath);
-        AudioClipOverrideManifest overrides = JsonSerializer.Deserialize<AudioClipOverrideManifest>(manifestBytes, ClipAudioLibrary.JsonOptions)
+        AudioClipOverrideManifest overrides = JsonSerializer.Deserialize<AudioClipOverrideManifest>(manifestBytes, InstalledAudioClips.JsonOptions)
             ?? throw new InvalidDataException($"Audio override manifest '{manifestPath}' deserialized to null.");
         if (overrides.FormatVersion != AudioClipOverrideManifest.CurrentFormatVersion)
         {

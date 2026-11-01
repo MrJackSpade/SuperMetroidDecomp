@@ -98,7 +98,7 @@ internal static class AudioClipExporter
             [.. outcomes.OfType<SoundEffectClipEntry>()],
             [.. outcomes.OfType<UnrenderableSoundEffect>()]);
         File.WriteAllText(
-            Path.Combine(root, ClipAudioLibrary.ManifestFileName),
+            Path.Combine(root, InstalledAudioClips.ManifestFileName),
             JsonSerializer.Serialize(manifest, InstalledAudioClips.ManifestOptions));
         return manifest;
     }

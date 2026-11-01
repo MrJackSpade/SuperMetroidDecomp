@@ -107,7 +107,7 @@ internal static class AudioOverridesVerification
             "a mono replacement is rejected");
         AssertEqual(selected.ContentIdentity, installation.LoadAudioClips().ContentIdentity, "rejected edits leave the override in place");
 
-        string stockManifestPath = Path.Combine(installation.AudioDirectory, ClipAudioLibrary.ManifestFileName);
+        string stockManifestPath = Path.Combine(installation.AudioDirectory, InstalledAudioClips.ManifestFileName);
         File.AppendAllText(stockManifestPath, "corrupt");
         AssertThrows<System.Text.Json.JsonException>(
             () => installation.LoadAudioClips(),

@@ -117,7 +117,7 @@ internal static class AudioClipExportVerification
     /// <summary>A tampered clip, an escaping path and a wrong format version are each rejected.</summary>
     private static void VerifyLoaderRejections(string directory, ClipAudioLibrary clips)
     {
-        string manifestPath = Path.Combine(directory, ClipAudioLibrary.ManifestFileName);
+        string manifestPath = Path.Combine(directory, InstalledAudioClips.ManifestFileName);
         string manifestText = File.ReadAllText(manifestPath);
 
         AudioClipFile first = clips.Manifest.Music[0].Clip;

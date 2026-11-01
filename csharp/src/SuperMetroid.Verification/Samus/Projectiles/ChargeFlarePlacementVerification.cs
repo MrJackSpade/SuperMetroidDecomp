@@ -53,7 +53,7 @@ internal static class ChargeFlarePlacementVerification
             SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
             SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose
         })
-        for (byte direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
+        for (byte direction = 0; direction < ChargeFlarePlacementDefinitions.StandingDirectionCount; direction++)
         foreach (ushort coordinate in new ushort[] { 0, 100, 255, ushort.MaxValue })
         foreach (TurningFloorTransform? transform in new TurningFloorTransform?[] { null, new(240, 16, -16, new Position16<RoomPixels>(128, 112)) })
         for (int component = 0; component < 3; component++)
@@ -63,6 +63,9 @@ internal static class ChargeFlarePlacementVerification
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
             int record = SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbering.Number(pose) * 8;
             bool running = bus.ReadCartridgeByte(record + 1) == SamusMovementTypeNativeWords.Byte(SamusMovementType.Running);
+            // The turning placements follow the standing rows only; no running pose selects past the named directions.
+            if (running && direction >= ChargeFlarePlacementDefinitions.DirectionCount)
+                continue;
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;
             byte yOffset = bus.ReadCartridgeByte(record + 4);
             var native = new OamBuffer();
@@ -82,17 +85,20 @@ internal static class ChargeFlarePlacementVerification
             AssertEqual(native.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Flare placement preserves OAM admission");
             cases++;
         }
-        // Every pose's shot direction the flare draws for is one of the ten named directions, so a selection past them is
-        // rejected rather than read from the rows that follow the tables (#1500).
+        // The flare draw places by the low four bits of the pose's shot direction, except for no-firing poses. Every pose
+        // selects a named direction or, turning, a turning placement, so a selection past the turning placements standing,
+        // or past the named directions running, is rejected rather than read from the rows that follow the tables (#1500).
         for (int direction = ChargeFlarePlacementDefinitions.DirectionCount; direction < 16; direction++)
         {
-            foreach (bool running in (bool[])[false, true])
-                AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(running, direction), $"flare selection {direction} past the named directions is rejected");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, direction), $"running flare selection {direction} past the named directions is rejected");
+            if (direction >= ChargeFlarePlacementDefinitions.StandingDirectionCount)
+                AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(false, direction), $"standing flare selection {direction} past the turning placements is rejected");
         }
         AssertTrue(Enumerable.Range(0, byte.MaxValue + 1)
             .Select(number => SamusPoseMetadata.ReadShotDirection(SamusPoseNumbering.FromNumber(number)))
-            .All(direction => direction is < ChargeFlarePlacementDefinitions.DirectionCount or >= 16),
-            "no pose's shot direction below sixteen lies past the named directions");
+            .Where(shot => shot != byte.MaxValue)
+            .All(shot => (shot & 15) < ChargeFlarePlacementDefinitions.StandingDirectionCount),
+            "no pose's shot direction selects past the turning placements");
         var subject = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
         PrepareRetailSamusFixture(subject);
         byte[] beforeSamus = GraphDigest(subject), beforeSystem = GraphDigest(system);

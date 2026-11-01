@@ -9,19 +9,21 @@ public static class ChargeFlarePlacementOffsets
 {
     /// <summary>Formats the exact JSON identity for one movement-mode/direction placement; direction range validation belongs to catalog loading or lookup, not this formatter.</summary>
     /// <param name="running">True for the running visual-origin table; false for standing.</param>
-    /// <param name="direction">One of the ten named aiming directions; formatted as two decimal digits rather than hexadecimal.</param>
-    /// <returns>A key such as <c>standing-00</c> or <c>running-09</c>.</returns>
+    /// <param name="direction">A named aiming direction or, standing, a turning placement; formatted as two decimal digits rather than hexadecimal.</param>
+    /// <returns>A key such as <c>standing-00</c>, <c>standing-12</c> or <c>running-09</c>.</returns>
     public static string Key(bool running, int direction) => $"{(running ? "running" : "standing")}-{direction:D2}";
 
     /// <summary>
-    /// The visual muzzle origins of the ten named aiming directions. Physical origins remain separate. The game's tables
-    /// carry rows past them, which only a shot direction no flare draw admits would select, so they are not modelled
-    /// (#1500).
+    /// The visual muzzle origins of the ten named aiming directions and, standing, of the three turning placements.
+    /// Physical origins remain separate. The game's tables carry rows past them, which no pose selects, so they are not
+    /// modelled (#1500).
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The direction is not one of the ten named aiming directions.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">No pose of the movement mode selects the direction.</exception>
     internal static Offset16<RoomPixels> BeamOffset(bool running, int direction)
     {
-        if ((uint)direction >= DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
+        if ((uint)direction >= (running ? DirectionCount : StandingDirectionCount)) throw new ArgumentOutOfRangeException(nameof(direction));
+        if (direction >= DirectionCount)
+            return TurningOffset(TurningPlacements[direction - DirectionCount]);
         return new SamusFiringStance(running, SamusProjectileDirectionCodec.FromAimIndex(direction)) switch
         {
             (false, SamusProjectileDirection.UpFacingRight) => new Offset16<RoomPixels>(2, -28),
@@ -47,6 +49,19 @@ public static class ChargeFlarePlacementOffsets
             _ => throw new InvalidOperationException("Beam visual origin requires a named aiming direction."),
         };
     }
+
+    /// <summary>The beam flare's placement while Samus turns holding <paramref name="aim"/>.</summary>
+    private static Offset16<RoomPixels> TurningOffset(TurningAim aim) => new()
+    {
+        X = -4,
+        Y = aim switch
+        {
+            TurningAim.Up => -20,
+            TurningAim.Neutral => -2,
+            TurningAim.Down => 8,
+            _ => throw new InvalidOperationException($"Undefined {nameof(TurningAim)} {aim}."),
+        },
+    };
 
     /// <summary>The visual origins of Grapple's ten firing directions, which equal the beam origins.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The direction is not one of Grapple's firing directions.</exception>

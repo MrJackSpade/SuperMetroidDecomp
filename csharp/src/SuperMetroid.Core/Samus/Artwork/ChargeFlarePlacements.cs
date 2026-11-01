@@ -9,15 +9,15 @@ public sealed class ChargeFlarePlacements
 {
     /// <summary>Import-selected source kind; placement values themselves cannot distinguish Grapple from beam art.</summary>
     private readonly bool grapple;
-    /// <summary>Only authored offsets differing from the selected stock source definitions.</summary>
+    /// <summary>Only authored offsets differing from the selected stock source definitions, by <see cref="Slot"/>.</summary>
     internal readonly Dictionary<int, Offset16<RoomPixels>> offsets = new();
     /// <summary>Copies changed visual offsets while retaining the beam or Grapple fallback contract.</summary>
-    private ChargeFlarePlacements(Offset16<RoomPixels>[] supplied, bool grapple)
+    private ChargeFlarePlacements(IReadOnlyDictionary<int, Offset16<RoomPixels>> supplied, bool grapple)
     {
         this.grapple = grapple;
-        for (int index = 0; index < supplied.Length; index++)
-            if (supplied[index] != CalculatedOffset(index >= ChargeFlarePlacementDefinitions.DirectionCount,
-                index % ChargeFlarePlacementDefinitions.DirectionCount)) offsets.Add(index, supplied[index]);
+        foreach ((int slot, Offset16<RoomPixels> offset) in supplied)
+            if (offset != CalculatedOffset(slot >= ChargeFlarePlacementDefinitions.StandingDirectionCount,
+                slot % ChargeFlarePlacementDefinitions.StandingDirectionCount)) offsets.Add(slot, offset);
     }
     /// <summary>Rejects unknown JSON properties while writing a stable camel-case authoring document.</summary>
     private static readonly JsonSerializerOptions Options = new()
@@ -26,14 +26,17 @@ public sealed class ChargeFlarePlacements
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
     };
-    /// <summary>Resolves an independently editable visual muzzle offset for the requested movement mode and named aiming direction, using the beam or Grapple source contract selected at import.</summary>
+    /// <summary>Resolves an independently editable visual muzzle offset for the requested movement mode and direction, using the beam or Grapple source contract selected at import.</summary>
     /// <param name="running">True for running placement; false for the standing/default row.</param>
-    /// <param name="direction">One of the ten named aiming directions, 0..9; no flare draw selects a row past them (#1500).</param>
+    /// <param name="direction">
+    /// A named aiming direction, 0..9, or for the standing beam flare a turning placement, 10..12. No pose selects a row
+    /// past them, so other selections are rejected (#1500).
+    /// </param>
     /// <returns>The signed whole-pixel placement offset, without camera or pose-graphics Y adjustments.</returns>
     public Offset16<RoomPixels> Resolve(bool running, int direction)
     {
-        if ((uint)direction >= ChargeFlarePlacementDefinitions.DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
-        return offsets.TryGetValue((running ? ChargeFlarePlacementDefinitions.DirectionCount : 0) + direction, out var supplied)
+        if ((uint)direction >= DirectionsFor(grapple, running)) throw new ArgumentOutOfRangeException(nameof(direction));
+        return offsets.TryGetValue(Slot(running, direction), out var supplied)
             ? supplied : CalculatedOffset(running, direction);
     }
     /// <summary>Gets the fallback from the beam or Grapple definitions chosen at import.</summary>
@@ -41,15 +44,27 @@ public sealed class ChargeFlarePlacements
         ? ChargeFlarePlacementOffsets.GrappleOffset(running, direction)
         : ChargeFlarePlacementOffsets.BeamOffset(running, direction);
 
-    /// <summary>Loads beam-charge flare placements, requiring the supported version and all twenty standing/running keys while rejecting duplicate or unknown JSON properties.</summary>
+    /// <summary>
+    /// How many directions a movement mode places the flare for: the ten named aiming directions, and for the standing
+    /// beam flare its turning placements too; Grapple never fires while turning.
+    /// </summary>
+    private static int DirectionsFor(bool grapple, bool running) => grapple || running
+        ? ChargeFlarePlacementDefinitions.DirectionCount
+        : ChargeFlarePlacementDefinitions.StandingDirectionCount;
+
+    /// <summary>Where a movement mode's direction is kept: the standing directions first, then the running ones.</summary>
+    private static int Slot(bool running, int direction) =>
+        (running ? ChargeFlarePlacementDefinitions.StandingDirectionCount : 0) + direction;
+
+    /// <summary>Loads beam-charge flare placements, requiring the supported version and every standing, turning and running key while rejecting duplicate or unknown JSON properties.</summary>
     /// <param name="json">UTF-8 JSON stream containing signed 16-bit X/Y offsets for every direction in both modes.</param>
     /// <returns>The immutable beam-flare placement catalog; use <see cref="LoadGrapple"/> for Grapple's source contract.</returns>
     public static ChargeFlarePlacements Load(Stream json) => Load(json, ChargeFlareSource.Beam);
-    /// <summary>Imports the Grapple placement resource with its distinct adjacent-row owners.</summary>
-    /// <param name="json">UTF-8 JSON stream containing the same twenty-key placement schema for Grapple flare origins.</param>
-    /// <returns>The immutable placement catalog interpreted with Grapple's origin and adjacent-row definitions.</returns>
+    /// <summary>Imports the Grapple placement resource: the ten named directions of each movement mode.</summary>
+    /// <param name="json">UTF-8 JSON stream containing the twenty-key placement schema for Grapple flare origins.</param>
+    /// <returns>The immutable placement catalog interpreted with Grapple's origin definitions.</returns>
     public static ChargeFlarePlacements LoadGrapple(Stream json) => Load(json, ChargeFlareSource.Grapple);
-    /// <summary>Validates all standing/running direction keys and binds their offsets to the import-selected source kind.</summary>
+    /// <summary>Validates every standing and running direction key of the source and binds their offsets to the import-selected source kind.</summary>
     private static ChargeFlarePlacements Load(Stream json, ChargeFlareSource source)
     {
         ChargeFlarePlacementDocument document;
@@ -67,30 +82,36 @@ public sealed class ChargeFlarePlacements
         {
             throw new InvalidDataException("A charge-flare placement offset is outside the signed 16-bit range.", error);
         }
-        int count = ChargeFlarePlacementDefinitions.DirectionCount;
-        if (document.Version != ChargeFlarePlacementDefinitions.Version || document.Offsets is null || document.Offsets.Count != count * 2)
+        bool grapple = source == ChargeFlareSource.Grapple;
+        int keys = DirectionsFor(grapple, running: false) + DirectionsFor(grapple, running: true);
+        if (document.Version != ChargeFlarePlacementDefinitions.Version || document.Offsets is null || document.Offsets.Count != keys)
             throw new InvalidDataException($"Charge-flare placement requires version {ChargeFlarePlacementDefinitions.Version} and all standing/running directions.");
-        var offsets = new Offset16<RoomPixels>[count * 2];
-        for (int mode = 0; mode < 2; mode++)
-        for (int direction = 0; direction < count; direction++)
+        var offsets = new Dictionary<int, Offset16<RoomPixels>>();
+        foreach (bool running in (bool[])[false, true])
+        for (int direction = 0; direction < DirectionsFor(grapple, running); direction++)
         {
-            string key = ChargeFlarePlacementOffsets.Key(mode != 0, direction);
+            string key = ChargeFlarePlacementOffsets.Key(running, direction);
             if (!document.Offsets.TryGetValue(key, out var value) || value is null)
                 throw new InvalidDataException($"Missing charge-flare placement {key}.");
-            offsets[mode * count + direction] = value.Offset;
+            offsets.Add(Slot(running, direction), value.Offset);
         }
-        return new(offsets, source == ChargeFlareSource.Grapple);
+        return new(offsets, grapple);
     }
-    /// <summary>Serializes the shared placement document as indented camel-case UTF-8 JSON and validates its version, complete key set, and signed offsets through the beam loader before returning it; the document does not encode its beam/Grapple import kind.</summary>
+    /// <summary>Serializes a beam placement document as indented camel-case UTF-8 JSON and validates its version, complete key set, and signed offsets through the beam loader before returning it.</summary>
+    /// <param name="document">Document containing every standing, turning and running direction placement.</param>
+    /// <returns>Validated placement JSON bytes.</returns>
+    public static byte[] Write(ChargeFlarePlacementDocument document) => Write(document, ChargeFlareSource.Beam);
+    /// <summary>Serializes a Grapple placement document and validates it through the Grapple loader before returning it.</summary>
     /// <param name="document">Document containing every standing and running direction placement.</param>
     /// <returns>Validated placement JSON bytes.</returns>
-    public static byte[] Write(ChargeFlarePlacementDocument document)
+    public static byte[] WriteGrapple(ChargeFlarePlacementDocument document) => Write(document, ChargeFlareSource.Grapple);
+    /// <summary>Serializes a placement document and validates it through the loader of <paramref name="source"/>.</summary>
+    private static byte[] Write(ChargeFlarePlacementDocument document, ChargeFlareSource source)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, Options);
-        _ = Load(new MemoryStream(bytes));
+        _ = Load(new MemoryStream(bytes), source);
         return bytes;
-    }
-    /// <summary>Rejects duplicate top-level or nested object keys before deserialization can overwrite them.</summary>
+    }    /// <summary>Rejects duplicate top-level or nested object keys before deserialization can overwrite them.</summary>
     private static void ValidateUnique(JsonElement element) =>
         JsonAssetDocument.RejectDuplicateProperties(element, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate charge-flare placement property."), DuplicatePropertyScope.OutsideArrays);

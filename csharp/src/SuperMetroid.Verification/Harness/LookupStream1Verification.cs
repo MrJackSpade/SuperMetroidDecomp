@@ -1359,11 +1359,11 @@ internal static class LookupStream1Verification
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         AssertEqual(0, stock.offsets.Count, "Beam flare stock has zero stored fallback origins");
         for (int mode = 0; mode < 2; mode++)
-        for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
+        for (int direction = 0; direction < (mode == 0 ? ChargeFlarePlacementDefinitions.StandingDirectionCount : ChargeFlarePlacementDefinitions.DirectionCount); direction++)
         {
             var expected = new ChargeFlareOffset { X = Word((mode == 0 ? 0x90c1a8 : 0x90c1dc) + 2 * direction),
                 Y = Word((mode == 0 ? 0x90c1c2 : 0x90c1f0) + 2 * direction) };
-            AssertEqual(expected.Offset, ChargeFlarePlacementOffsets.BeamOffset(mode != 0, direction), "Named flare default matches direct native coordinates and aliases");
+            AssertEqual(expected.Offset, ChargeFlarePlacementOffsets.BeamOffset(mode != 0, direction), "Named flare default and turning placement match direct native coordinates");
             AssertEqual(expected.Offset, stock.Resolve(mode != 0, direction), "Installed flare default matches native");
             for (int axis = 0; axis < 2; axis++)
             {
@@ -1374,20 +1374,20 @@ internal static class LookupStream1Verification
                 var edited = ChargeFlarePlacements.Load(new MemoryStream(ChargeFlarePlacements.Write(document)));
                 AssertEqual(1, edited.offsets.Count, "One independent origin edit stores exactly one override");
                 for (int selectedMode = 0; selectedMode < 2; selectedMode++)
-                for (int selectedDirection = 0; selectedDirection < ChargeFlarePlacementDefinitions.DirectionCount; selectedDirection++)
+                for (int selectedDirection = 0; selectedDirection < (selectedMode == 0 ? ChargeFlarePlacementDefinitions.StandingDirectionCount : ChargeFlarePlacementDefinitions.DirectionCount); selectedDirection++)
                     AssertEqual(document.Offsets[ChargeFlarePlacementOffsets.Key(selectedMode != 0, selectedDirection)].Offset,
-                        edited.Resolve(selectedMode != 0, selectedDirection), "Editing a source origin does not edit an independently supplied adjacent alias");
+                        edited.Resolve(selectedMode != 0, selectedDirection), "Editing one origin leaves every other independent origin");
             }
         }
         var grappleDocument = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options);
-        var grapple = ChargeFlarePlacements.LoadGrapple(new MemoryStream(ChargeFlarePlacements.Write(grappleDocument)));
+        var grapple = ChargeFlarePlacements.LoadGrapple(new MemoryStream(ChargeFlarePlacements.WriteGrapple(grappleDocument)));
         AssertEqual(0, grapple.offsets.Count, "Grapple stock has zero stored fallback origins");
         for (int mode = 0; mode < 2; mode++)
         for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
         {
             var expected = new ChargeFlareOffset { X = Word((mode == 0 ? 0x9bc14a : 0x9bc19a) + direction * 2),
                 Y = Word((mode == 0 ? 0x9bc15e : 0x9bc1ae) + direction * 2) };
-            AssertEqual(expected.Offset, ChargeFlarePlacementOffsets.GrappleOffset(mode != 0, direction), "Grapple direct defaults preserve all native words including packed adjacent bytes");
+            AssertEqual(expected.Offset, ChargeFlarePlacementOffsets.GrappleOffset(mode != 0, direction), "Grapple direct defaults preserve the native words");
             AssertEqual(expected.Offset, grapple.Resolve(mode != 0, direction), "Installed Grapple defaults match native");
             for (int axis = 0; axis < 2; axis++)
             {
@@ -1395,20 +1395,26 @@ internal static class LookupStream1Verification
                 string key = ChargeFlarePlacementOffsets.Key(mode != 0, direction);
                 var before = document.Offsets[key];
                 document.Offsets[key] = axis == 0 ? before with { X = (short)(before.X + 7) } : before with { Y = (short)(before.Y + 7) };
-                var edited = ChargeFlarePlacements.LoadGrapple(new MemoryStream(ChargeFlarePlacements.Write(document)));
+                var edited = ChargeFlarePlacements.LoadGrapple(new MemoryStream(ChargeFlarePlacements.WriteGrapple(document)));
                 AssertEqual(1, edited.offsets.Count, "Grapple independent edit stores exactly one override");
                 for (int selectedMode = 0; selectedMode < 2; selectedMode++)
                 for (int selectedDirection = 0; selectedDirection < ChargeFlarePlacementDefinitions.DirectionCount; selectedDirection++)
                     AssertEqual(document.Offsets[ChargeFlarePlacementOffsets.Key(selectedMode != 0, selectedDirection)].Offset, edited.Resolve(selectedMode != 0, selectedDirection),
-                        "Grapple edits preserve every other independent origin and alias");
+                        "Grapple edits preserve every other independent origin");
             }
         }
-        foreach (int invalid in new[] { int.MinValue, -1, ChargeFlarePlacementDefinitions.DirectionCount, 15, int.MaxValue })
+        foreach (int invalid in new[] { int.MinValue, -1, ChargeFlarePlacementDefinitions.StandingDirectionCount, 15, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(false, invalid), "Flare placement catalog bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(true, invalid), "Grapple catalog bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementOffsets.GrappleOffset(false, invalid), "Grapple calculated bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementOffsets.BeamOffset(true, invalid), "Flare calculated bounds");
+        }
+        // No pose selects past the turning placements standing or past the named directions running (#1500).
+        foreach (int invalid in new[] { ChargeFlarePlacementDefinitions.DirectionCount, ChargeFlarePlacementDefinitions.StandingDirectionCount - 1 })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, invalid), "Running flare placement rejects selections past the named directions");
+            AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(false, invalid), "Grapple flare placement has no turning placements");
         }
         var compositions = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         var body = CreateSamusIdentityFixture();

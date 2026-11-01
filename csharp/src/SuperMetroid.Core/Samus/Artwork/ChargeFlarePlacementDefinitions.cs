@@ -2,19 +2,43 @@ using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Visual flare placement resource contract: one placement per named aiming direction and movement mode.</summary>
+/// <summary>
+/// Visual flare placement resource contract: one placement per named aiming direction and movement mode, and the beam
+/// flare's placements while Samus turns.
+/// </summary>
 public static class ChargeFlarePlacementDefinitions
 {
     /// <summary>
-    /// Required revision of the shared beam/Grapple placement schema. Revision two holds the ten named directions of each
-    /// movement mode; revision one also held the selections past them, which no flare draw reaches (#1500).
+    /// Required revision of the beam and Grapple placement schemas. Revision two holds the ten named directions of each
+    /// movement mode and the beam flare's three turning placements; revision one also held the selections past them,
+    /// which no pose produces (#1500).
     /// </summary>
     public const int Version = 2;
 
-    /// <summary>
-    /// The directions each movement mode places the flare for: the ten named aiming directions. The beam flare draws only
-    /// for a pose whose shot direction is one of them, and the Grapple flare takes its typed firing direction, so no
-    /// placement past them is read (#1500).
-    /// </summary>
+    /// <summary>The ten named aiming directions each movement mode places the flare for.</summary>
     public const int DirectionCount = SamusFiringTableDefinitions.DirectionCount;
+
+    /// <summary>The beam flare's placements while Samus turns, one for each aim a turning pose holds.</summary>
+    public const int TurningPlacementCount = 3;
+
+    /// <summary>
+    /// The selections the standing beam flare is placed by: the ten named aiming directions, then the turning placements.
+    /// A turning pose's shot direction selects a turning placement by its low four bits. No pose selects past them, and
+    /// no running pose selects past the named directions, so those selections are rejected (#1500).
+    /// </summary>
+    public const int StandingDirectionCount = DirectionCount + TurningPlacementCount;
+
+    /// <summary>The aim a turning pose holds, which selects the beam flare's turning placement.</summary>
+    internal enum TurningAim
+    {
+        /// <summary>Turning while aiming up or diagonally up.</summary>
+        Up,
+        /// <summary>Turning with neutral aim.</summary>
+        Neutral,
+        /// <summary>Turning while aiming down or diagonally down.</summary>
+        Down,
+    }
+
+    /// <summary>The turning placements in selection order after the named aiming directions.</summary>
+    internal static readonly TurningAim[] TurningPlacements = [TurningAim.Up, TurningAim.Neutral, TurningAim.Down];
 }

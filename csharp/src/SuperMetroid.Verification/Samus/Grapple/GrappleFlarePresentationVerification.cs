@@ -32,7 +32,7 @@ internal static class GrappleFlarePresentationVerification
         AreaMapPresentation maps, GrappleTileAtlas grappleArtwork)
     {
         var guard = NewGrappleFlarePresentationGuard(NewChargeFlareCompositionGuard(bus));
-        var flarePlacement = ChargeFlarePlacements.Load(new MemoryStream(
+        var flarePlacement = ChargeFlarePlacements.LoadGrapple(new MemoryStream(
             GrappleFlarePlacementExtractor.Extract(bus)));
         foreach (int address in new[] { GrappleBeamDefinitions.Firing.RightFlareSpritemapOffsets, GrappleBeamDefinitions.Firing.LeftFlareSpritemapOffsets })
             AssertEqual(ReadNativeGrappleFlareSpritemapOffset(bus, address), ChargeFlareSpriteDefinitions.MainFlareSelectorOffset, "Both native Grapple-facing rows select the same main flare");

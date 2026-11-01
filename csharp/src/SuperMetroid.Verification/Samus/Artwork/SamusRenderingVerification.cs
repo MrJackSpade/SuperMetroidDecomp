@@ -400,16 +400,14 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(0x0085, samus.Presentation.SpritemapPosition.Y,
         "front-facing frame two uses fixed one-pixel graphics offset");
 
-    // Landing's `$90:8D28` table is byte-packed but read by a 16-bit unaligned LDA. The
-    // next frame's byte becomes the high half of the subtraction. Its low byte produces the
-    // expected on-screen nudge; retaining the wrapped high byte proves this is the actual
-    // 65816 operation rather than a visually plausible host-only byte lookup.
+    // Landing's `$90:8D28` table is byte-packed and read by a 16-bit unaligned LDA whose high
+    // byte, the next frame's byte, the drawn position never shows, so each frame is placed by
+    // its own byte (#1500).
     WriteLandingVerticalOffsets(bus, [
         3, 6, 0, 0,
         3, 6, 0, 0,
         3, 3, 6, 0,
         3, 3, 6, 0,
-        0,
     ]);
     WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.NormalLandingRightPose), [8, 0, 0xff, 0xff, 9, 0, 21, 0]);
     WriteSamusTileAnimationPointer(bus, SamusPoseId.NormalLandingRightPose, 0xe100);
@@ -420,8 +418,8 @@ internal static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
-    AssertEqual(0xfa83, samus.Presentation.SpritemapPosition.Y,
-        "normal-jump landing frame zero preserves unaligned word subtraction");
+    AssertEqual(0x0083, samus.Presentation.SpritemapPosition.Y,
+        "normal-jump landing frame zero is placed by its own byte");
     AssertEqual(0x83, oam.GetEntry(0).Position.Y,
         "landing OAM exposes low-byte three-pixel visual nudge");
 
@@ -431,7 +429,7 @@ internal static void VerifySamusRenderingSlice()
     samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x0080, samus.Presentation.SpritemapPosition.Y,
-        "normal-jump landing frame one reads overlapping 0006 word");
+        "normal-jump landing frame one is placed by its own byte");
 
     // Ceres status bit `$8000` makes `$90:8C1F` borrow bank `$8B`'s Mode 7 point
     // transform before applying the ordinary pose offset. A 90-degree matrix around

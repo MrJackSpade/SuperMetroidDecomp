@@ -974,7 +974,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks landing and facing offsets, edited placement, and strict selector bounds.</summary>
     internal static void VerifyLookupStream1BodyFacingOffsets(ISnesAddressSpace rom)
     {
-        int[] landing = Enumerable.Range(0, 17).Select(index => (int)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d28 + index)).ToArray();
+        int[] landing = Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount).Select(index => (int)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d28 + index)).ToArray();
         sbyte[] posture = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d80 + index))).ToArray();
         InstalledSamusBodyArtwork template = CreateSamusIdentityFixture();
         InstalledSamusBodyArtwork Create(int[] selectedLanding, sbyte[] selectedPosture) => new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToArray(), GraphicsYOffsets = template.GraphicsYOffsets.ToArray(), Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = selectedLanding, PostureYOffsets = selectedPosture, DrainedYOffsets = template.DrainedYOffsets.ToArray() }, template.BodyCharactersContentIdentity);
@@ -988,7 +988,7 @@ internal static class LookupStream1Verification
             int source = index is >= 4 and < 8 or >= 12 and < 16 ? index - 4 : index;
             AssertEqual(source, SamusBodyPlacements.LandingSourceIndex(index), "Native normal/spin facing row alias");
             AssertEqual(landing[index], landing[source], "Direct native landing facing equality");
-            AssertEqual(landing[index], (ushort)SamusBodyPlacements.DefaultLandingByte(index), "Direct native semantic landing default including adjacent PLB");
+            AssertEqual(landing[index], (ushort)SamusBodyPlacements.DefaultLandingByte(index), "Direct native semantic landing default");
         }
         for (int index = 0; index < posture.Length; index++)
         {
@@ -1000,10 +1000,10 @@ internal static class LookupStream1Verification
         {
             AssertTrue(catalog.LandingYOffsets.SequenceEqual(expectedLanding), "Landing snapshot preserves supplied bytes");
             AssertTrue(catalog.PostureYOffsets.SequenceEqual(expectedPosture), "Posture snapshot preserves supplied bytes");
-            for (int index = 0; index < 16; index++)
+            for (int index = 0; index < expectedLanding.Length; index++)
             {
-                AssertTrue(catalog.TryLandingYOffset(index, out int actual), "Landing word admission");
-                AssertEqual(LittleEndianBytes.Word(unchecked((byte)expectedLanding[index]), unchecked((byte)expectedLanding[index + 1])), actual, "Native unaligned landing word including adjacent byte");
+                AssertTrue(catalog.TryLandingYOffset(index, out int actual), "Landing byte admission");
+                AssertEqual(expectedLanding[index], actual, "Landing offset is the frame's own byte");
             }
             for (int index = 0; index < 24; index++)
             {
@@ -1021,27 +1021,26 @@ internal static class LookupStream1Verification
             };
             samus.Presentation.BodyFrames.BindBodyFixture(stock);
             samus.Presentation.Draw(samus, new SpriteFrameBuffer(), layer1: new(0, 0));
-            ushort nativeWord = LittleEndianBytes.Word(unchecked((byte)landing[index]), unchecked((byte)landing[index + 1]));
-            AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.Presentation.SpritemapPosition.Y, "Actual rendering preserves every bounded native landing word");
+            // The game subtracts a word whose high byte the drawn position never shows; the body sits by the low byte (#1500).
+            AssertEqual(unchecked((ushort)(128 - landing[index])), samus.Presentation.SpritemapPosition.Y, "Actual rendering places every landing frame by its own byte");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Visual landing correction does not change physical position");
         }
         string identity = stock.ContentIdentity;
-        for (int edit = 0; edit < 41; edit++)
+        for (int edit = 0; edit < landing.Length + posture.Length; edit++)
         {
             int[] changedLanding = (int[])landing.Clone(); sbyte[] changedPosture = (sbyte[])posture.Clone();
-            if (edit < 17) changedLanding[edit] ^= 1; else changedPosture[edit - 17] ^= 1;
+            if (edit < landing.Length) changedLanding[edit] ^= 1; else changedPosture[edit - landing.Length] ^= 1;
             InstalledSamusBodyArtwork changed = Create(changedLanding, changedPosture);
             Check(changed, changedLanding, changedPosture);
             AssertTrue(changed.ContentIdentity != identity, "Every independent placement edit changes identity");
             Check(stock, landing, posture);
             AssertEqual(identity, stock.ContentIdentity, "Placement edits leave stock identity immutable");
         }
-        foreach (int index in new[] { -1, 16, 17, int.MaxValue })
-            AssertTrue(!stock.TryLandingYOffset(index, out _), "Landing reader original word bounds");
+        foreach (int index in new[] { -1, 16, int.MaxValue })
+            AssertTrue(!stock.TryLandingYOffset(index, out _), "Landing reader bounds");
         foreach (int index in new[] { -1, 24, int.MaxValue })
             AssertTrue(!stock.TryPostureYOffset(index, out _), "Posture reader original bounds");
-        AssertEqual(0xab, landing[16], "Adjacent native PLB byte is the exact retained instruction observation");
-        Console.WriteLine("Body facing offsets:17 direct landing defaults with zero overrides,24 posture bytes,41 independent edits,16 unaligned windows and content identities pass.");
+        Console.WriteLine("Body facing offsets:16 direct landing defaults with zero overrides,24 posture bytes,40 independent edits,16 landing placements and content identities pass.");
     }
 
     /// <summary>Reads native landing and posture offset words for Samus placement.</summary>

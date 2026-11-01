@@ -22,8 +22,11 @@ public static class SamusBodyArtworkFiles
 {
     /// <summary>Body-art JSON filename containing split-DMA definitions, pose/frame selectors, spritemaps, vertical offsets, and stock PNG provenance hashes.</summary>
     public const string ManifestFileName = "samus-body.json";
-    /// <summary>Manifest revision containing source hashes, selectors, spritemaps stored as sprite parts, and vertical offsets.</summary>
-    private const int FormatVersion = 7;
+    /// <summary>
+    /// Manifest revision containing source hashes, selectors, spritemaps stored as sprite parts, and vertical offsets.
+    /// Revision eight holds the sixteen landing bytes without the byte after the table (#1500).
+    /// </summary>
+    private const int FormatVersion = 8;
     /// <summary>Each split-DMA definition occupies eight 8x8 tiles across its PNG row.</summary>
     private const int TileWidth = 64;
     /// <summary>Two tile rows reserve sixteen graphics tiles for one DMA definition.</summary>

@@ -426,8 +426,6 @@ internal sealed class SamusPresentation
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
         int spritemapX = CoordinateAxis.Wrap(renderX - layer1.X);
         int spritemapY;
-        // The part of the stored spritemap Y that the screen never shows: a landing frame's leaked neighbouring byte.
-        int landingOffsetHighPart = 0;
         if (movementType == SamusMovementType.Standing &&
             samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose &&
             samus.AnimationFrame >= 2)
@@ -440,11 +438,8 @@ internal sealed class SamusPresentation
         else if (movementType == SamusMovementType.Standing &&
             SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose))
         {
-            // The landing offset indexes sixteen packed bytes, but performs a 16-bit
-            // unaligned LDA. The following landing frame's byte therefore becomes the high
-            // byte of the subtraction. The complete wrapped spritemap-position word
-            // is observable state and is preserved, but the screen displays only low Y, so the
-            // drawn origin takes back the leaked high byte (#1397).
+            // The landing offset indexes sixteen packed bytes. The game reads a word there, whose high byte, the next
+            // frame's byte, the drawn position never shows (#1397), so the body is placed by the frame's own byte (#1500).
             int landingOffsetIndex = SamusPoseNumbering.Offset(samus.Pose, SamusPoseId.NormalLandingRightPose) * 4 +
                 samus.AnimationFrame;
             if (BodyFrames.Artwork is not { } landingArt ||
@@ -452,7 +447,6 @@ internal sealed class SamusPresentation
                 throw new InvalidDataException($"Samus landing offset {landingOffsetIndex} lacks installed art.");
             spritemapY = CoordinateAxis.Wrap(
                 renderY - landingOffset - layer1.Y);
-            landingOffsetHighPart = CoordinateAxis.Wrap(landingOffset - WordWrap.LowByte(landingOffset));
         }
         else if (movementType == SamusMovementType.PostureTransition &&
             !SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.CrouchingTransitionRightPose) &&
@@ -492,7 +486,7 @@ internal sealed class SamusPresentation
             spritemapY = CoordinateAxis.Wrap(renderY - graphicsYOffset - layer1.Y);
         }
         SpritemapPosition = Position16<ScreenPixels>.Of(spritemapX, spritemapY);
-        Position16<ScreenPixels> drawOrigin = Position16<ScreenPixels>.Of(spritemapX, CoordinateAxis.Wrap(spritemapY + landingOffsetHighPart));
+        Position16<ScreenPixels> drawOrigin = SpritemapPosition;
 
         var spritemaps = BodyFrames.Artwork?.Spritemaps ?? throw new InvalidOperationException(
             "Samus rendering requires installed spritemap artwork.");

@@ -42,12 +42,12 @@ internal sealed class FallingSparksBehavior
             source.Graphics);
         projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + 8), source.Position.Y.Fraction));
 
-        // The initializer zeros both ordinary velocity words, then calls the shared RNG. The
-        // horizontal table is one record short. The compiled definition retains the
-        // final RNG outcome's instruction-byte overread, including its signed delta.
+        // The initializer zeros both ordinary velocity words, then takes a random number. The
+        // authored launches are one short of the eight selections; the last selection drifts by
+        // FallingSparkUnauthoredLaunch.
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         Func<int> nextRandom = _room.Random.Generate;
-        SignedSixteenSixteen launch = FallingSparkLaunches.FromRandom(nextRandom());
+        SignedSixteenSixteen launch = FallingSparkLaunches.FromRandom(nextRandom(), () => _room.Overreads.FallingSparkUnauthoredLaunch);
         projectile.State = new FallingSparkState(launch);
     }
 

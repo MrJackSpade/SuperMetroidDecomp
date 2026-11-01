@@ -247,6 +247,8 @@ public static class GameAssetInstaller
             Step("Extracting gameplay base palettes...", (bus, d) => GameplayBasePaletteFiles.Extract(bus, d, SupportedCartridge.Sha256), GameplayBasePaletteFiles.ValidateStock)),
         new(GameInstallationLayout.SamusOverreadDirectoryName,
             Step("Extracting Samus overread bytes...", (bus, d) => SamusOverreadFiles.Extract(bus, d, SupportedCartridge.Sha256), SamusOverreadFiles.ValidateStock)),
+        new(GameInstallationLayout.EnemyOverreadDirectoryName,
+            Step("Extracting enemy overreads...", (bus, d) => EnemyOverreadFiles.Extract(bus, d, SupportedCartridge.Sha256), EnemyOverreadFiles.ValidateStock)),
         new(GameInstallationLayout.StandardObjectDirectoryName,
             Step("Extracting standard sprite artwork...", (bus, d) => StandardObjectArtworkFiles.Extract(bus, d, SupportedCartridge.Sha256), StandardObjectArtworkFiles.ValidateStock)),
         new(GameInstallationLayout.ProjectileDirectoryName,

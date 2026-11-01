@@ -3,8 +3,23 @@ using static SuperMetroid.Core.Enemies.FallingSparks.FallingSparkLaunchDefinitio
 namespace SuperMetroid.Core.Enemies.FallingSparks;
 
 /// <summary>Chooses a falling spark's horizontal launch from the random number.</summary>
-public static class FallingSparkLaunches
+internal static class FallingSparkLaunches
 {
-    /// <summary>The launch random bits two through four select.</summary>
-    public static SignedSixteenSixteen FromRandom(int random) => Launches[LaunchSelector.Of(random)];
+    /// <summary>
+    /// The launch random bits two through four select: one of the authored launches, or, for the selection past them,
+    /// the drift <paramref name="unauthoredLaunch"/> supplies, which is consulted only then.
+    /// </summary>
+    /// <param name="random">The random number the spark takes.</param>
+    /// <param name="unauthoredLaunch">Supplies the drift of the selection past the authored launches.</param>
+    /// <exception cref="InvalidDataException">The selection lies further past the authored launches than one record.</exception>
+    internal static SignedSixteenSixteen FromRandom(int random, Func<FallingSparkUnauthoredLaunch> unauthoredLaunch)
+    {
+        int selection = LaunchSelector.Of(random);
+        if (selection < Launches.Length)
+            return Launches[selection];
+        return selection == Launches.Length
+            ? Ensure.NotNull(unauthoredLaunch)().Drift
+            : throw new InvalidDataException(
+                $"Falling spark launch selection {selection} lies more than one record past the {Launches.Length} authored launches.");
+    }
 }

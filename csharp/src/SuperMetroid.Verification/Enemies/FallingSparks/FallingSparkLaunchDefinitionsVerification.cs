@@ -4,15 +4,20 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.FallingSparks;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
-/// <summary>Checks compiled falling-spark launch speeds and spawned projectile motion.</summary>
+/// <summary>Checks compiled falling-spark launch speeds, the installed unauthored launch, and spawned projectile motion.</summary>
 internal static class FallingSparkLaunchDefinitionsVerification
 {
-    /// <summary>Compares every RNG selection, including table overread, while guarding migrated reads.</summary>
+    /// <summary>
+    /// Compares every RNG selection with the cartridge's launch words: the seven authored launches with the compiled
+    /// table, and the selection past them with the installed <see cref="FallingSparkUnauthoredLaunch"/> service (#1500).
+    /// </summary>
     internal static void VerifyFallingSparkLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(FallingSparkLaunchDefinitionsRomByte(rom, address), FallingSparkLaunchDefinitionsRomByte(rom, address + 1));
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        FallingSparkUnauthoredLaunch unauthored = InstalledFixtures.EnemyOverreads.FallingSparkUnauthoredLaunch;
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Overreads = InstalledFixtures.EnemyOverreads }, definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         ushort random = 0;
         int advances = 0;
         enemies.VerificationServices().NextRandom = () => { advances++; return random; };
@@ -26,7 +31,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             int offset = raw & 0x1c;
             ushort whole = Word(EnemyRomTablePointersFallingSpark.HorizontalWholeWords + offset);
             ushort fraction = Word(EnemyRomTablePointersFallingSpark.HorizontalFractionWords + offset);
-            var compiled = FallingSparkLaunches.FromRandom(random);
+            var compiled = FallingSparkLaunches.FromRandom(random, () => unauthored);
             AssertEqual(whole, compiled.WholeWord, "Every RNG word preserves native spark whole velocity");
             AssertEqual(fraction, compiled.Fraction, "Every RNG word preserves native spark fractional velocity");
             projectile.Clear();
@@ -56,7 +61,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
         spawn(source);
         AssertEqual(0, advances, "Full projectile pool does not consume spark RNG");
         AssertEqual(previousX, projectile.Position.X.Whole, "Failed allocation preserves occupied projectile");
-        Console.WriteLine("Falling sparks: 16 native words including overread, all 65536 RNG selections, real spawns and horizontal motion pass with launch-table reads forbidden.");
+        Console.WriteLine("Falling sparks: 16 native words including the installed unauthored launch, all 65536 RNG selections, real spawns and horizontal motion pass with launch-table reads forbidden.");
     }
 
     /// <summary>Reads the native launch table as the independent speed oracle.</summary>

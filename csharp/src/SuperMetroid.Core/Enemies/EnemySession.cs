@@ -78,6 +78,14 @@ public sealed class EnemySession : ISpriteObjectPage
     [field: NonSerialized]
     internal IEnemySheetSource? Sheets { get; set; }
 
+    /// <summary>
+    /// The installed services reproducing what enemies read past their authored data (#1500); installed content, never
+    /// saved. The host reinstalls them after a restore. An enemy that reaches one of those reads requires them; null
+    /// does not enable a fallback.
+    /// </summary>
+    [field: NonSerialized]
+    internal EnemyOverreadServices? Overreads { get; set; }
+
     /// <summary>Shows an encounter's <paramref name="look"/> over what showed before it (#1406, #1463).</summary>
     /// <exception cref="InvalidOperationException">No enemy sheets are installed.</exception>
     /// <exception cref="InvalidDataException">No catalogued encounter shows the look, so no sheet pictures it.</exception>

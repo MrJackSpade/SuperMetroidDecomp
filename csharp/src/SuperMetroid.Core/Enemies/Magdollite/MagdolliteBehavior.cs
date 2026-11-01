@@ -305,10 +305,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             upwardDistance - MagdollitePhaseDefinitions.MaximumRise);
         bool rosePastSamus = samus is not null && EnemyMath.IsNegative16(CoordinateAxis.Wrap(
             body.Position.Y.Whole - phase.OverlayYOffset - samus.Position.Y.Whole));
-        // The maximum-rise branch skips the growth-index load, so its comparison depends on the
-        // main loop's enemy index; the Samus test compares with the phase's own threshold.
+        // At full height whether the arm grows its last segment depends on the slot it occupies
+        // (MagdolliteApexGrowth); the Samus test compares with the phase's own threshold.
         bool growsAPhase = roseMaximum
-            ? MagdolliteRise.ApexGrowsFinalPhase(body.SlotIndex)
+            ? _room.Overreads.MagdolliteApexGrowth.GrowsFinalSegment(body.SlotIndex)
             : !EnemyMath.IsNegative16(upwardDistance - phase.DistanceThreshold);
 
         if (roseMaximum || rosePastSamus)

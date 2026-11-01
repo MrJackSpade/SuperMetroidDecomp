@@ -23,6 +23,8 @@ public static class GameInstallationLayout
     public const string RoomCharacterDirectoryName = "room-characters";
     /// <summary>Content child directory for the cartridge bytes Samus's glitch paths read.</summary>
     public const string SamusOverreadDirectoryName = "samus-overreads";
+    /// <summary>Content child directory for what enemies read past their authored data, decoded from the cartridge (#1500).</summary>
+    public const string EnemyOverreadDirectoryName = "enemy-overreads";
     /// <summary>Pre-coloured sprite sheets and their frame manifests.</summary>
     public const string SpriteSheetDirectoryName = "sprite-sheets";
     /// <summary>Pre-coloured enemy sheets and the manifest naming each graphics set's sheet for each enemy.</summary>

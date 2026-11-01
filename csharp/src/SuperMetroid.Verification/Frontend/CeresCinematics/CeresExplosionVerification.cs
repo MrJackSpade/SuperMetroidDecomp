@@ -3,8 +3,6 @@ using static SuperMetroid.Verification.Samus.Palettes.PowerBombFixedColorsVerifi
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -19,62 +17,52 @@ internal static class CeresExplosionVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guarded = NewForbiddenPowerBombColorBus(bus);
-        using var artDirectoryScratch = new TestScratchDirectory("ceres-explosion");
-        string artDirectory = artDirectoryScratch.Root;
-        try
+        IntroCinematicArtwork artwork = InstalledFixtures.IntroArtwork;
+        InstalledPowerBombFixedColors stockColors = colors ?? PowerBombFixedColorFile.Read(
+            new MemoryStream(PowerBombFixedColorExtractor.Extract(bus)));
+        var scene = new CeresDestructionCinematicState(fixedColors: stockColors, artwork: artwork,
+            spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
+        var reference = new SamusPowerBombExplosionState { PresentationColors = stockColors };
+        var phases = new HashSet<PowerBombExplosionPhase>();
+        bool spawned = false, finished = false;
+        int compared = 0;
+        for (int frame = 0; frame < 1200 && !finished; frame++)
         {
-            IntroCinematicArtworkFiles.Extract(bus, artDirectory, SupportedCartridge.Sha256);
-            IntroCinematicArtwork artwork = IntroCinematicArtworkFiles.Load(artDirectory, null);
-            InstalledPowerBombFixedColors stockColors = colors ?? PowerBombFixedColorFile.Read(
-                new MemoryStream(PowerBombFixedColorExtractor.Extract(bus)));
-            var scene = new CeresDestructionCinematicState(fixedColors: stockColors, artwork: artwork,
-                spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
-            var reference = new SamusPowerBombExplosionState { PresentationColors = stockColors };
-            var phases = new HashSet<PowerBombExplosionPhase>();
-            bool spawned = false, finished = false;
-            int compared = 0;
-            for (int frame = 0; frame < 1200 && !finished; frame++)
+            // Bank $82 runs HDMA before bank $8B dispatch. The reference is seeded
+            // only when C345 transfers the station map and switches flight handler.
+            reference.StepFrame();
+            var previous = scene.Phase;
+            scene.Step();
+            if (previous == CeresDestructionPhase.ApproachExplosion &&
+                scene.Phase == CeresDestructionPhase.FlyingAwayFromExplosion)
             {
-                // Bank $82 runs HDMA before bank $8B dispatch. The reference is seeded
-                // only when C345 transfers the station map and switches flight handler.
-                reference.StepFrame();
-                var previous = scene.Phase;
-                scene.Step();
-                if (previous == CeresDestructionPhase.ApproachExplosion &&
-                    scene.Phase == CeresDestructionPhase.FlyingAwayFromExplosion)
-                {
-                    AssertTrue(!spawned, "station explosion spawns only once");
-                    reference.Spawn(
-                        new(unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - scene.Background.X.Whole)), unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - scene.Background.Y.Whole))));
-                    spawned = true;
-                }
-
-                var actual = scene.CaptureRenderSnapshot()
-                    .LayersOf<ColourAddWindowLayer>().SingleOrDefault();
-                var expected = GameplayEffectCapture.CapturePowerBombGlow(
-                    PowerBombRenderSnapshot.Capture(reference), new Position16<RoomPixels>(0, 0), firstVisibleScanline: 0);
-                AssertEqual(expected is null, actual is null, "Ceres blast window lifetime");
-                if (expected is not null && actual is not null)
-                {
-                    AssertEqual(expected, actual, $"Ceres blast frame {frame}: oval, colour and lines from the screen's top");
-                    compared++;
-                    phases.Add(reference.RenderedPhase);
-                }
-                finished = spawned && !reference.IsActive;
+                AssertTrue(!spawned, "station explosion spawns only once");
+                reference.Spawn(
+                    new(unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - scene.Background.X.Whole)), unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - scene.Background.Y.Whole))));
+                spawned = true;
             }
-            AssertTrue(finished, "station blast completes native cleanup");
-            if (colors is not null)
-                AssertEqual(0, guarded.ForbiddenReadAttempts,
-                    "installed Ceres explosion does not read native Power Bomb colors");
-            foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite,
-            PowerBombExplosionPhase.PreExplosionYellow, PowerBombExplosionPhase.ExplosionYellow,
-            PowerBombExplosionPhase.ExplosionWhite, PowerBombExplosionPhase.Afterglow })
-                AssertTrue(phases.Contains(phase), $"station blast includes {phase}");
-            Console.WriteLine($"  Ceres explosion: {compared} frames match shared cartridge curves/colors, fixed screen origin, phase timing and cleanup.");
+
+            var actual = scene.CaptureRenderSnapshot()
+                .LayersOf<ColourAddWindowLayer>().SingleOrDefault();
+            var expected = GameplayEffectCapture.CapturePowerBombGlow(
+                PowerBombRenderSnapshot.Capture(reference), new Position16<RoomPixels>(0, 0), firstVisibleScanline: 0);
+            AssertEqual(expected is null, actual is null, "Ceres blast window lifetime");
+            if (expected is not null && actual is not null)
+            {
+                AssertEqual(expected, actual, $"Ceres blast frame {frame}: oval, colour and lines from the screen's top");
+                compared++;
+                phases.Add(reference.RenderedPhase);
+            }
+            finished = spawned && !reference.IsActive;
         }
-        finally
-        {
-            if (Directory.Exists(artDirectory)) Directory.Delete(artDirectory, recursive: true);
-        }
+        AssertTrue(finished, "station blast completes native cleanup");
+        if (colors is not null)
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                "installed Ceres explosion does not read native Power Bomb colors");
+        foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite,
+        PowerBombExplosionPhase.PreExplosionYellow, PowerBombExplosionPhase.ExplosionYellow,
+        PowerBombExplosionPhase.ExplosionWhite, PowerBombExplosionPhase.Afterglow })
+            AssertTrue(phases.Contains(phase), $"station blast includes {phase}");
+        Console.WriteLine($"  Ceres explosion: {compared} frames match shared cartridge curves/colors, fixed screen origin, phase timing and cleanup.");
     }
 }

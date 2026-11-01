@@ -86,6 +86,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
@@ -370,8 +371,7 @@ internal static class MapPresentationVerification
             fixtureAssets));
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "map override changes content identity");
         AssertTrue(edited.Get(AreaId.Crateria).Cell(new(0, 0)) != original.Get(AreaId.Crateria).Cell(new(0, 0)), "catalog prefers valid override");
-        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, repaired, "test-provenance");
-        var afterRepair = MapPresentationFiles.Load(repaired, overrides);
+        var afterRepair = MapStockReExtraction.ReExtractStock(bus, repaired, overrides);
         AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity, "re-extracted stock preserves selected override");
         AssertTrue(editedBytes.SequenceEqual(File.ReadAllBytes(replacement)), "stock extraction and reload never rewrite override bytes");
         Suite(nameof(VerifyBundledMapMaskValidation), () => VerifyBundledMapMaskValidation(repaired));
@@ -385,7 +385,7 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyMapLandmarks), () => VerifyMapLandmarks(bus, stock, Path.Combine(root, "landmark-overrides"), original));
         Suite(nameof(VerifyMapSaveMarkers), () => VerifyMapSaveMarkers(bus, stock, Path.Combine(root, "save-marker-overrides"), original));
         Suite(nameof(VerifyMapArrows), () => VerifyMapArrows(bus, stock, Path.Combine(root, "arrow-overrides"), original));
-        AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
+        VerifyStockMapImporterRefusesOverwrite(bus, stock);
         File.WriteAllText(replacement, "{ broken JSON");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "corrupt override fails instead of selecting stock");
         AssertEqual("{ broken JSON", File.ReadAllText(replacement), "invalid override retained for user repair");
@@ -394,6 +394,11 @@ internal static class MapPresentationVerification
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "stock integrity failure remains visible with override present");
         Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
     }
+
+    /// <summary>Checks that the stock map importer refuses to extract into a directory that already holds a stock catalog.</summary>
+    [PrivateInstallation("Runs MapPresentationExtractor into the copy's already-populated stock map directory to check that the importer refuses to overwrite existing stock files; reading the installed maps never runs the extractor.")]
+    private static void VerifyStockMapImporterRefusesOverwrite(ISnesAddressSpace bus, string stock) =>
+        AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
 
     /// <summary>Checks title, room FX, Samus, Ceres Ridley and Mother Brain color overrides against native output; they share one override directory in order.</summary>
     private static void VerifyMapPresentationColorOverrides()

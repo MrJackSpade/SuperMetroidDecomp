@@ -204,14 +204,14 @@ internal sealed class RuntimeArtwork
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
     [field: NonSerialized]
     public InstalledRoomArtwork? RoomBlockSheets { get; set; }
-    /// <summary>Host-selected base room palettes, rebound after debugger-state restore.</summary>
+    /// <summary>Installed base room palettes, rebound when a saved game state is restored.</summary>
     [field: NonSerialized]
     public RoomStaticPalettes? RoomPaletteArt { get; set; }
 
-    /// <summary>Host-selected visual room layouts, rebound after debugger-state restore.</summary>
+    /// <summary>Installed visual room layouts, rebound when a saved game state is restored.</summary>
     [field: NonSerialized]
     public RoomLevelArtworks? RoomVisualLayouts { get; set; }
-    /// <summary>Host-bound installed terrain of every room level, rebound after debugger-state restore.</summary>
+    /// <summary>Installed terrain of every room level, rebound when a saved game state is restored.</summary>
     [field: NonSerialized]
     public InstalledRoomLevelStreams? RoomLevelStreams { get; set; }
     /// <summary>Host-owned Samus visual tiles; restored and future Samus states use the same edit.</summary>

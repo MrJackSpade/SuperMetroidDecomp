@@ -14,12 +14,9 @@ public sealed class PhantoonColorCatalog
     /// <summary>The selected health, fade-out and ship-power deviations.</summary>
     internal readonly PhantoonColorSelection selection;
 
-    /// <summary>Retains only authored deviations from the calculated health, fade, and ship-power colors.</summary>
-    /// <param name="healthBands">The health palettes' colours.</param>
-    /// <param name="fadeOut">The materialization fade-out target.</param>
-    /// <param name="powerOn">Each background set the power-on fades, with its sixteen target colours.</param>
-    internal PhantoonColorCatalog(RgbColor[][] healthBands, RgbColor[] fadeOut, IReadOnlyDictionary<BackgroundColourSet, RgbColor[]> powerOn) =>
-        selection = new(PhantoonColors.HealthEdits(healthBands), PhantoonColors.FadeOutEdits(fadeOut), PhantoonColors.PowerEdits(powerOn));
+    /// <summary>Retains the authored deviations from the calculated health, fade, and ship-power colors.</summary>
+    /// <param name="selection">The deviations the import selected.</param>
+    internal PhantoonColorCatalog(PhantoonColorSelection selection) => this.selection = selection;
 
     /// <summary>
     /// Phantoon's health targets, selected by the health-palette update. All healthy material

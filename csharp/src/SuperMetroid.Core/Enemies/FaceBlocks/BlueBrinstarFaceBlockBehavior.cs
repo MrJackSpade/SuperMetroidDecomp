@@ -112,8 +112,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             return;
 
         // Variable B is written after the Y test but before the X test, including on frames
-        // that fail horizontal range or side. That write order is visible to debuggers and
-        // is preserved rather than collapsing the two comparisons into host geometry.
+        // that fail horizontal range or side, so a frame that fails the X test still
+        // records the vertical distance.
         int horizontalDelta = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
         state.LastHorizontalDelta = horizontalDelta;
         if (AbsoluteFaceBlockDelta(horizontalDelta) >= slot.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
@@ -152,9 +152,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     {
         _blueBrinstarFaceBlockPaletteHookInstalled = true;
 
-        // `((palette_index * 16) & 0xFF00) >> 8`, followed by `(offset >> 1) + 137`,
-        // simplifies to sprite palette N color nine. Keep that palette meaning explicit so a
-        // debugger sees an actual colour set rather than a mysterious byte offset.
+        // The glow recolours colour nine of the face block's own colour set.
         _blueBrinstarFaceBlockColouring = slot.Colouring;
     }
 

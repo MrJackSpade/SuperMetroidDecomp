@@ -75,7 +75,7 @@ public sealed class EnemySession : ISpriteObjectPage
 
     /// <summary>
     /// Installed enemy presentation. Drawing or a named artwork transfer requires its corresponding catalog; null
-    /// does not enable a fallback. The host reinstalls it after a debugger restore.
+    /// does not enable a fallback. It is installed content, reinstalled when a saved game state is restored.
     /// </summary>
     [field: NonSerialized]
     internal EnemyTileArtworkCatalog? TileArtwork { get; set; }

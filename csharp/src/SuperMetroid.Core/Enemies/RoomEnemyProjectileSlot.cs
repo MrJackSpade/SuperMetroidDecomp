@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Debugger-visible projection of one of the eighteen fixed enemy-projectile slots.
+/// One of the eighteen fixed enemy-projectile slots.
 /// Positions retain separate 16-bit subpositions because a fireball's signed 8.8 velocity
 /// is added to the high byte of that fraction by the original movement helpers.
 /// </summary>

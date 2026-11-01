@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Map;
 
-/// <summary>Temporary host-side visibility applied while presenting area maps.</summary>
+/// <summary>How much of each area map an assist shows; drawn only, never saved as exploration or as a collected map.</summary>
 public enum MapRevealMode
 {
     /// <summary>Use only persistent exploration and legitimately acquired area-map data.</summary>

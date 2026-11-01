@@ -34,8 +34,8 @@ internal sealed class SamusFramePhases
     private readonly GameTimeState _gameTime;
     /// <summary>Provides frame-counter cadence for movement and animation behavior.</summary>
     private readonly FrameClock _clock;
-    /// <summary>Supplies player options such as configured movement controls.</summary>
-    private readonly GameplayOptions _options;
+    /// <summary>The runtime's assists; a shinespark reads whether Samus cannot die.</summary>
+    private readonly ActiveAssists _assists;
     /// <summary>Owns the live Samus state and phase-specific handler selection.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Provides active level data, camera, and room state for movement scans.</summary>
@@ -58,7 +58,7 @@ internal sealed class SamusFramePhases
         _freeze = dependencies.Freeze;
         _gameTime = dependencies.GameTime;
         _clock = dependencies.Clock;
-        _options = dependencies.Options;
+        _assists = dependencies.Assists;
         _player = dependencies.Player;
         _room = dependencies.Room;
         _system = dependencies.System;
@@ -693,7 +693,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // Determine_Samus_YAcceleration supplies the environment-selected pair
             // used as spark acceleration. Projectile_Func7 does not replace it.
             SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-            _player.LastShinesparkMovement = samus.Shinespark.Step(new SamusTerrain { Level = _room.LevelData, Plms = room.Plms }, samus, new ShinesparkFrame { FrameCounter = _clock.Counter, ProjectileCounter = room.Projectiles.SlotTable.ProjectileCounter, PlayerInvincibilityEnabled = _options.PlayerInvincibilityEnabled, Projectiles = room.Projectiles, GameTimeFrames = _gameTime.Frames, DeferTimeoutPoseChange = true, PreviousCheckpoint = frame.PreviousCameraPoint });
+            _player.LastShinesparkMovement = samus.Shinespark.Step(new SamusTerrain { Level = _room.LevelData, Plms = room.Plms }, samus, new ShinesparkFrame { FrameCounter = _clock.Counter, ProjectileCounter = room.Projectiles.SlotTable.ProjectileCounter, SamusCannotDie = _assists.Current.SamusCannotDie, Projectiles = room.Projectiles, GameTimeFrames = _gameTime.Frames, DeferTimeoutPoseChange = true, PreviousCheckpoint = frame.PreviousCameraPoint });
             if (_player.LastShinesparkMovement.Value.WindupTimedOut)
             {
                 // The movement handler publishes an interrupted vertical pose. That

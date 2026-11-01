@@ -3,24 +3,23 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
-/// Frame-local host guard which prevents unlocked ammunition from reaching observable zero.
+/// The <see cref="GameplayAssists.AmmoNeverRunsOut"/> assist for one update: it keeps each unlocked ammunition count
+/// from ever being seen at zero.
 /// </summary>
 /// <remarks>
-/// Firing routines decrement their counters and immediately use zero to cancel the
-/// selected HUD item. Merely repairing zero at the end of the frame would therefore require
-/// the player to reselect the weapon after every final shot. This guard lends a one-unit
-/// buffer to an unlocked counter that begins at one, lets the complete game frame run,
-/// then removes that loan. Locked counters are identified solely by their zero maximum and
-/// are never changed.
+/// Firing decrements a count and immediately uses zero to cancel the selected HUD item, so merely refilling zero at the
+/// end of the update would make the player reselect the weapon after every last round. The guard instead lends one
+/// round to an unlocked count that begins the update at one, lets the whole update run, then takes the loan back. A
+/// count whose maximum is zero is still locked and is never changed.
 /// </remarks>
-internal sealed class HostInfiniteAmmoFrameGuard
+internal sealed class AmmoLoanGuard
 {
     /// <summary>Prevents a borrowed ammo unit from being removed twice on normal and error exits.</summary>
     private bool _completed;
 
     /// <summary>Remembers which actor and counters received a temporary one-unit loan.</summary>
-    [IndependentFlag("Each ammo type is buffered independently from the cheat settings.")]
-    private HostInfiniteAmmoFrameGuard(
+    [IndependentFlag("Each ammunition type is lent a round independently of the others.")]
+    private AmmoLoanGuard(
         SamusState? actor,
         bool missilesBuffered,
         bool superMissilesBuffered,
@@ -32,7 +31,7 @@ internal sealed class HostInfiniteAmmoFrameGuard
         PowerBombsBuffered = powerBombsBuffered;
     }
 
-    /// <summary>Exact Samus instance whose ammo was prepared, if the option was active.</summary>
+    /// <summary>The exact Samus whose ammunition was prepared, if the assist was active.</summary>
     private SamusState? Actor { get; }
     /// <summary>Whether missiles began at one and were raised to two for this frame.</summary>
     private bool MissilesBuffered { get; }
@@ -42,10 +41,10 @@ internal sealed class HostInfiniteAmmoFrameGuard
     private bool PowerBombsBuffered { get; }
 
     /// <summary>Prepares the three counters before any frame logic can observe them.</summary>
-    public static HostInfiniteAmmoFrameGuard Begin(bool enabled, SamusState? samus)
+    public static AmmoLoanGuard Begin(bool enabled, SamusState? samus)
     {
         if (!enabled || samus is null)
-            return new HostInfiniteAmmoFrameGuard(null, false, false, false);
+            return new AmmoLoanGuard(null, false, false, false);
 
         bool missilesBuffered = PrepareCounter(
             samus.Missiles,
@@ -62,7 +61,7 @@ internal sealed class HostInfiniteAmmoFrameGuard
             samus.MaxPowerBombs,
             out int preparedPowerBombs);
         samus.PowerBombs = preparedPowerBombs;
-        return new HostInfiniteAmmoFrameGuard(
+        return new AmmoLoanGuard(
             samus,
             missilesBuffered,
             superMissilesBuffered,
@@ -72,8 +71,8 @@ internal sealed class HostInfiniteAmmoFrameGuard
     /// <summary>Removes any borrowed units and applies the unlocked one-unit floor.</summary>
     public void Complete(SamusState? currentActor)
     {
-        // Gameplay publishes the HUD before its ordinary return, while the host error
-        // boundary may instead unwind through an exception. Both paths call Complete;
+        // Gameplay publishes the HUD before its ordinary return, while a failing update
+        // may instead unwind through an exception. Both paths call Complete;
         // making reconciliation idempotent prevents the borrowed unit from being removed
         // twice while guaranteeing that a caught exception cannot strand the visible count
         // at the temporary value two.

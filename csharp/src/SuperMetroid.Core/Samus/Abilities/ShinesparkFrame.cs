@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>What one shinespark step reads from the frame: clocks, projectiles, invincibility, timeout policy and the previous checkpoint (#633).</summary>
+/// <summary>What one shinespark step reads from the frame: clocks, projectiles, whether Samus cannot die, timeout policy and the previous checkpoint (#633).</summary>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 public sealed record ShinesparkFrame
 {
@@ -19,8 +19,11 @@ public sealed record ShinesparkFrame
     /// </summary>
     public int ProjectileCounter { get; init; } = 0;
 
-    /// <summary>Host cheat that bypasses the low-energy crash condition, but retains collision termination and drains energy no lower than one.</summary>
-    public bool PlayerInvincibilityEnabled { get; init; } = false;
+    /// <summary>
+    /// Whether Samus cannot die, as the cannot-die assist sets it: the spark ignores its low-energy
+    /// cutoff and drains energy no lower than one, while a collision still ends it.
+    /// </summary>
+    public bool SamusCannotDie { get; init; } = false;
 
     /// <summary>Optional live ordinary-projectile owner supplying its count and accepting released echoes in fixed slots three/four.</summary>
     public SamusProjectileSystem? Projectiles { get; init; } = null;

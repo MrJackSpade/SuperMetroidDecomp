@@ -53,8 +53,8 @@ public sealed class EscapeTimer
 
     /// <summary>Runs one timer update and reports whether the countdown has reached zero.</summary>
     /// <param name="frameCounter">The game's frame counter, which selects this update's step of the countdown cadence.</param>
-    /// <param name="preventEscapeTimeout">Host-only override: countdown continues normally until one second remains.</param>
-    public bool Process(int frameCounter, bool preventEscapeTimeout = false)
+    /// <param name="holdAtOneSecond">Whether the countdown holds at one second instead of expiring, as an assist can ask; it runs normally until then.</param>
+    public bool Process(int frameCounter, bool holdAtOneSecond = false)
     {
         if (CountdownExpired)
             return false;
@@ -69,9 +69,9 @@ public sealed class EscapeTimer
             _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerPhase)} {Phase}."),
         };
 
-        // Apply the testing floor before publishing expiration to the gameplay dispatcher.
+        // Apply the assist's floor before publishing expiration to the gameplay dispatcher.
         // Startup delays and timer movement still run; inactive timers remain cleared.
-        if (preventEscapeTimeout && IsActive && RemainingCentiseconds < TimeoutFloor)
+        if (holdAtOneSecond && IsActive && RemainingCentiseconds < TimeoutFloor)
         {
             RemainingCentiseconds = TimeoutFloor;
             return false;

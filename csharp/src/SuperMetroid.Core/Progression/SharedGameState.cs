@@ -212,7 +212,7 @@ public sealed class SharedGameState
 
     /// <summary>
     /// Forgets <paramref name="bits"/> as defeated in <paramref name="area"/>, as an otherwise unused original
-    /// routine does; the tester's encounter reset uses it.
+    /// routine does; the encounter reset on loading a save uses it.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The flags are not all named.</exception>
     public void ClearBossBits(AreaId area, BossBits bits)

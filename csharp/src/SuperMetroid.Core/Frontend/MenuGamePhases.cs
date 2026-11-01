@@ -123,7 +123,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
                     // live. Retain that inventory for Ceres setup, but do not restore
                     // the corrupted progression planes into the fresh run.
                     session.RetainSpacetimeRestart(selectedSlot);
-                    if (session.ConfiguredOptions.SkipOpeningCinematic)
+                    if (session.Assists.SkipOpeningCinematic)
                     {
                         session.Close<GameOptionsMenuState>();
                         session.GameState = SuperMetroidGameState.SetUpNewGame;
@@ -153,7 +153,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
                     session.display.PublishBlack();
                 }
             }
-            else if (session.ConfiguredOptions.SkipOpeningCinematic)
+            else if (session.Assists.SkipOpeningCinematic)
             {
                 // This is the same dispatcher boundary reached by the intro's end after
                 // the SPACE COLONY fade. Do not fake Start presses or build a host-
@@ -275,7 +275,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     private void StartSavedCeresDestruction(SuperMetroidSaveSlot slot)
     {
         session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
-        session.GameplayRuntime.RoomLoader.RestoreSavedPlayerState(slot, session.ConfiguredOptions.ResetBossesOnLoad);
+        session.GameplayRuntime.RoomLoader.RestoreSavedPlayerState(slot);
         // Unlike an ongoing escape, a file-select resume has a fresh gameplay
         // owner. Construct its ordinary HUD now so the cinematic's later room
         // handoff retains initialized HUD state and standard graphics transfers.

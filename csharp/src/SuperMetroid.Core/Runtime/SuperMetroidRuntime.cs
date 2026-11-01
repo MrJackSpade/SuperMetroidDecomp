@@ -100,8 +100,8 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The <see cref="GameplayOptions"/> owner of this SuperMetroidRuntime.</summary>
     internal GameplayOptions Options { get; }
 
-    /// <summary>The <see cref="TesterTools"/> owner of this SuperMetroidRuntime.</summary>
-    internal TesterTools Tester { get; }
+    /// <summary>The assists this runtime plays under, and the owner of its granted loadout and saved-encounter reset.</summary>
+    internal ActiveAssists Assists { get; }
 
     /// <summary>The <see cref="PlmShotBlockVisuals"/> owner of this SuperMetroidRuntime.</summary>
     internal PlmShotBlockVisuals ShotBlockVisuals { get; }
@@ -143,8 +143,8 @@ internal sealed class SuperMetroidRuntime
     internal RuntimeArtwork Artwork { get; }
 
 
-    /// <summary>Creates the frame-steppable runtime, installs host gameplay options, and loads the required initial palette.</summary>
-    /// <param name="overrides">The host's tester conveniences around the authentic game runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</param>
+    /// <summary>Creates the frame-steppable runtime under its assists, and loads the required initial palette.</summary>
+    /// <param name="assists">The assists the runtime plays under; <see cref="GameplayAssists.None"/> for the unassisted game.</param>
     /// <param name="artwork">
     /// The installed catalogs; their initial palette is loaded into the colour table during construction, their Samus overread services
     /// are handed to the owners that consult them, and <see cref="BindArtwork"/> binds the rest.
@@ -154,7 +154,7 @@ internal sealed class SuperMetroidRuntime
     /// <param name="random">The session's random-number word, which outlives each runtime and is never copied.</param>
     /// <param name="earthquakeSoundDelay">The frame the save file found at power-on adds to every earthquake rumble's delay.</param>
     /// <param name="saveChoiceInput">The session's cadence of an open save confirmation's controller reads.</param>
-    internal SuperMetroidRuntime(HostGameplayOverrides overrides, IGameplayArtwork artwork,
+    internal SuperMetroidRuntime(GameplayAssists assists, IGameplayArtwork artwork,
         FrameClock clock, UnauthoredBoostCadence unauthoredBoostCadence, SharedRandom random,
         PowerOnEarthquakeSoundDelay earthquakeSoundDelay, SaveChoiceInputCadence saveChoiceInput)
     {
@@ -176,8 +176,8 @@ internal sealed class SuperMetroidRuntime
 
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);
-        Tester = new TesterTools(Player, System);
-        TourianStatueDependencies = new TourianStatueSequenceDependencies { Colours = Colours, Player = Player, Room = Room, System = System, Tester = Tester, Freeze = Freeze };
+        Assists = new ActiveAssists(Player, System, assists);
+        TourianStatueDependencies = new TourianStatueSequenceDependencies { Colours = Colours, Player = Player, Room = Room, System = System, Assists = Assists, Freeze = Freeze };
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { BossArtwork = BossArtwork, Room = Room, RoomFx = RoomFx, Hud = Hud, Player = Player });
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room });
         ScreenLayers = new GameplayScreenLayers(Room);
@@ -191,23 +191,15 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, PerLineEffects = PerLineEffects, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new PlmShotBlockVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Colours = Colours, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, SamusOverreads = SamusOverreads });
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Colours = Colours, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, AnimationContinuation = SamusOverreads.AnimationContinuation });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Colours = Colours, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
         PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
-        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Xray = Xray, Colours = Colours, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System });
+        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Xray = Xray, Colours = Colours, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System });
 
         Artwork.InitialPaletteArt = artwork.GameplayBasePalettes;
-        Tester.GrantAllEquipmentEnabled = overrides.GrantAllEquipment;
-        Tester.UnlockTourianEnabled = overrides.UnlockTourian;
-        Options.PlayerInvincibilityEnabled = overrides.PlayerInvincibilityEnabled;
-        Options.InfiniteAmmoEnabled = overrides.InfiniteAmmoEnabled;
-        Options.PreventEscapeTimeout = overrides.PreventEscapeTimeout;
-        Options.MapRevealMode = Enum.IsDefined(overrides.MapRevealMode)
-            ? overrides.MapRevealMode
-            : throw new ArgumentOutOfRangeException(nameof(overrides.MapRevealMode));
 
 
         // Gameplay starts from the installed initial palette.
@@ -444,9 +436,9 @@ internal sealed class SuperMetroidRuntime
     public RuntimeFrameResult StepFrame(ControllerButton controller1Input, RuntimeFrameRequest request)
     {
         Ensure.NotNull(request);
-        Tester.ApplyTesterInventory();
-        HostInfiniteAmmoFrameGuard infiniteAmmoGuard =
-            HostInfiniteAmmoFrameGuard.Begin(Options.InfiniteAmmoEnabled, Player.Samus);
+        Assists.GrantLoadoutToNewSamus();
+        AmmoLoanGuard infiniteAmmoGuard =
+            AmmoLoanGuard.Begin(Assists.Current.AmmoNeverRunsOut, Player.Samus);
         try
         {
             return StepFrameGuarded(controller1Input, request, infiniteAmmoGuard);
@@ -469,7 +461,7 @@ internal sealed class SuperMetroidRuntime
     private RuntimeFrameResult StepFrameGuarded(
         ControllerButton controller1Input,
         RuntimeFrameRequest frameRequest,
-        HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
+        AmmoLoanGuard infiniteAmmoGuard)
     {
         RebindRoutingReferences();
         // An open message box runs its own updates inside the suspended gameplay update:
@@ -734,7 +726,7 @@ internal sealed class SuperMetroidRuntime
     internal RuntimeFrameResult FinishGameplayFrame(
         SuspendedGameplayFrameTail? frameTail,
         RuntimeFramePolicy policy,
-        HostInfiniteAmmoFrameGuard infiniteAmmoGuard,
+        AmmoLoanGuard infiniteAmmoGuard,
         GameplayFrameEntry entry)
     {
         if (frameTail is { } tail && Player.Samus is not null && Room.Camera is not null)
@@ -883,7 +875,7 @@ internal sealed class SuperMetroidRuntime
             // UpdateMinimap belongs to Samus's normal frame-handler beta; it uses world
             // position, not camera position. Fresh debug sessions begin without an area
             // map, so only tiles actually visited by this runtime are revealed.
-            Hud.UpdateMinimap(System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.ShortCounter, MapRevealMode = Options.MapRevealMode, PresentationMap = Artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
+            Hud.UpdateMinimap(System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.ShortCounter, MapRevealMode = Assists.Current.MapReveal, PresentationMap = Artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
         }
     }
 
@@ -908,7 +900,7 @@ internal sealed class SuperMetroidRuntime
         // survives boarding, even though timer status stays active. Decide after the
         // actor transition, before liftoff can repurpose the timer's OBJ tiles as dust.
         bool runEscapeTimerHandler = frameTail?.Mode.Beta != SamusBetaHandler.Gunship;
-        if (runEscapeTimerHandler && EscapeTimer.Process(Clock.Counter, Options.PreventEscapeTimeout))
+        if (runEscapeTimerHandler && EscapeTimer.Process(Clock.Counter, Assists.Current.EscapeTimerHoldsAtOneSecond))
         {
             // The expired countdown publishes the time-up game state for the
             // dispatcher, whites the target palettes and disables palette FX.
@@ -925,7 +917,7 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>Rebuilds the HUD counters; the next accepted frame shows the rows as it latches them.</summary>
-    private void UpdateHud(HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
+    private void UpdateHud(AmmoLoanGuard infiniteAmmoGuard)
     {
         // The HUD's three rows are rewritten during the update; they become visible at the next frame boundary,
         // which latches the HUD's images (AcceptedFrameBoundary, HudState.Shown).
@@ -1014,14 +1006,14 @@ internal sealed class SuperMetroidRuntime
         System.UpdateHeldInput(timerReset, PhysicalController1.Current, PhysicalController1.NewlyPressed);
     }
 
-    /// <summary>Applies host-only frame-exit guards before publishing the runtime result.</summary>
+    /// <summary>Applies the assists' end-of-update floors before publishing the runtime result.</summary>
     internal RuntimeFrameResult Snapshot(
-        HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
+        AmmoLoanGuard infiniteAmmoGuard)
     {
-        // Every translated producer gets to apply its normal amount of damage first. The
-        // host intervenes only at the single frame-exit seam where zero would otherwise be
+        // Every damage source applies its normal amount first. The assist intervenes
+        // only at the single end-of-update seam where zero would otherwise be
         // observed by SuperMetroidGame and routed into the death states.
-        if (Options.PlayerInvincibilityEnabled && Player.Samus is { Health: 0 } samus)
+        if (Assists.Current.SamusCannotDie && Player.Samus is { Health: 0 } samus)
             samus.Health = 1;
 
         infiniteAmmoGuard.Complete(Player.Samus);
@@ -1073,21 +1065,17 @@ internal sealed class SuperMetroidRuntime
     /// <summary>State-eight tail parked when a PLM opens a message box during a gameplay frame.</summary>
     private SuspendedGameplayFrameTail? _suspendedFrameTail;
 
-    /// <summary>Updates live host guards without reconstructing any game-owned state.</summary>
-    internal void ApplyHostOptions(HostGameplayOverrides options)
+    /// <summary>
+    /// Changes the assists in the middle of play without rebuilding any game state: a newly granted loadout reaches the
+    /// current Samus, and a statue room on screen when its statues newly stand open restarts with them open.
+    /// </summary>
+    /// <param name="assists">The assists to play under from now on.</param>
+    internal void ApplyAssists(GameplayAssists assists)
     {
-        if (!Enum.IsDefined(options.MapRevealMode))
-            throw new ArgumentOutOfRangeException(nameof(options), "Unknown map reveal mode.");
-        Options.PlayerInvincibilityEnabled = options.PlayerInvincibilityEnabled;
-        Options.InfiniteAmmoEnabled = options.InfiniteAmmoEnabled;
-        if (!Tester.GrantAllEquipmentEnabled && options.GrantAllEquipment) Tester.ForgetInventoryGrant();
-        Tester.GrantAllEquipmentEnabled = options.GrantAllEquipment;
-        bool openingTourian = !Tester.UnlockTourianEnabled && options.UnlockTourian;
-        Tester.UnlockTourianEnabled = options.UnlockTourian;
-        Tester.ApplyTesterInventory();
-        if (openingTourian && Room.LoadedScope.TourianStatues.Enabled) Room.LoadedScope.TourianStatues.RestartForTesterUnlock(Room.LoadedScope.Plms);
-        Options.PreventEscapeTimeout = options.PreventEscapeTimeout;
-        Options.MapRevealMode = options.MapRevealMode;
+        Ensure.NotNull(assists);
+        bool statuesOpening = !Assists.Current.TourianStatuesOpen && assists.TourianStatuesOpen;
+        Assists.Rebind(assists);
+        if (statuesOpening && Room.LoadedScope.TourianStatues.Enabled) Room.LoadedScope.TourianStatues.RestartWithStatuesOpen(Room.LoadedScope.Plms);
     }
 
     /// <summary>The session owners each room's Tourian statue sequence is built over.</summary>
@@ -1100,7 +1088,7 @@ internal sealed class SuperMetroidRuntime
     internal RuntimeFrameResult StepMessageBoxFrame(
         ControllerButton controller1Input,
         RuntimeFramePolicy policy,
-        HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
+        AmmoLoanGuard infiniteAmmoGuard)
     {
         MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = false;
         // The box reads the controller directly; the frame boundary latches none.

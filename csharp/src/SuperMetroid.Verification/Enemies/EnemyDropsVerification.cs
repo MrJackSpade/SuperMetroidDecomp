@@ -352,7 +352,7 @@ internal static class EnemyDropsVerification
         RoomEnemySlot enemy = fixture.System.SlotTable.Slots[0];
         enemy.Bind((EnemyDefinitionId)enemyHeader, enemy.Definition);
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
-        enemy.TileIndexBase = 0x0200;
+        enemy.TileIndexBase = 256;
         enemy.Colouring = SpriteColouring.InFixtureSet(6);
         enemy.Properties = (EnemyProperties.RespawnIfKilled);
 

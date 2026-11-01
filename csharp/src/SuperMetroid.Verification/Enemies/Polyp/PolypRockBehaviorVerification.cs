@@ -29,7 +29,7 @@ internal static class PolypRockBehaviorVerification
         var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
-            TileIndexBase = 512,
+            TileIndexBase = 256,
             Colouring = SharedSpriteColouring.Frozen,
         };
         enemies.PolypBehavior.SpawnPolypRock(source, 16, unchecked((ushort)-256));

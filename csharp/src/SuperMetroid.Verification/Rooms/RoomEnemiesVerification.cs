@@ -895,8 +895,8 @@ internal static void VerifyCeresRidleyRoomEntry()
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus))),
             CeresRidleyFloorColors = CeresRidleyMode7ColorFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(bus))),
-            CeresRidleyGetawayBoostDelays = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(
-                SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyGetawayBoostDelayFiles.Extract(bus))),
+            // The synthetic cartridge seeds no floor update lists; the getaway's boost delays are the installed ones (#1492).
+            CeresRidleyGetawayBoostDelays = InstalledFixtures.Maps.CeresRidleyGetawayBoostDelays,
         },
     };
     using (var escapeText = new MemoryStream(

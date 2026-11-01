@@ -1,6 +1,6 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Frontend;
-using static SuperMetroid.Verification.Harness.FullMovieReplayVerification;
-using static SuperMetroid.Verification.Harness.NativeSnapshotImportVerification;
+using static SuperMetroid.TestSupport.MovieReplay.NativeSnapshotImport;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Audio;
 
@@ -17,9 +17,11 @@ internal static class SnapshotImportAuditVerification
     /// <param name="update">The converted update after which the import is audited.</param>
     internal static void AuditSnapshotImport(string traceDirectory, int update)
     {
-        var movie = ReplayMovie.Load("100%", FullPlaythroughMoviePath, FullPlaythroughMovieSha256);
-        using var checkpoints = NativeMovieCheckpoints.OpenFullCapture(traceDirectory, movie.Bytes);
-        var (replayed, memory, _) = ReplayConvertedMovie(movie, checkpoints, traceFromUpdate: null, update);
+        var (session, timeline) = ConvertedMovieSession.OpenFullCapture(ReplayMovieId.Full100, traceDirectory, update);
+        using (session)
+            HeadlessMovieReplay.RunToEnd(session);
+        SuperMetroidGame replayed = session.Game;
+        NativeCheckpointMemory memory = timeline.Memory;
         byte[] saveRam = SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(replayed.Saves, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps);
         SuperMetroidGame imported = ImportNativeSnapshot(memory.ToWorkRam(), saveRam).Game;
         IReadOnlyList<string> differences = PortStateDiff.Compare(replayed, imported, "game",

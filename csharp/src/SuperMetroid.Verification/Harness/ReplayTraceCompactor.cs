@@ -1,8 +1,8 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Text.Json;
 namespace SuperMetroid.Verification.Harness;
-using SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>
 /// Converts a private full native capture (<c>updates.json</c> plus <c>update-boundaries.wram.gz</c>,
@@ -40,15 +40,15 @@ internal static class ReplayTraceCompactor
     /// <param name="movieSha256">The movie identity from <c>updates.json</c>.</param>
     internal static ReplayTraceLayout LayoutForMovie(string movieSha256)
     {
-        if (movieSha256 == RidleyFullMovieVerification.RidleyMovieSha256)
+        if (movieSha256 == ReplayMovieFixture.Ridley.MovieSha256)
             return ReplayTraceMemoryCatalog.RidleyShowcase;
         string[] playthroughs =
         [
-            FullMovieReplayVerification.FullPlaythroughMovieSha256,
-            FullMovieReplayVerification.LowPercentPlaythroughMovieSha256,
-            FullMovieReplayVerification.DrunkPlaythroughMovieSha256,
-            FullMovieReplayVerification.MotherBrainGlitchMovieSha256,
-            FullMovieReplayVerification.LowcPlaythroughMovieSha256,
+            ReplayMovieFixture.Full100.MovieSha256,
+            ReplayMovieFixture.LowPercent13.MovieSha256,
+            ReplayMovieFixture.Drunk.MovieSha256,
+            ReplayMovieFixture.MotherBrainGlitch.MovieSha256,
+            ReplayMovieFixture.Lowc.MovieSha256,
         ];
         return playthroughs.Contains(movieSha256) ? ReplayTraceMemoryCatalog.MovieDesync
             : throw new InvalidDataException($"No replay verifier replays movie {movieSha256}; its compact layout is unknown.");

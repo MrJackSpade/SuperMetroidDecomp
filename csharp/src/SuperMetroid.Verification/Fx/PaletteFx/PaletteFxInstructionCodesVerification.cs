@@ -37,7 +37,7 @@ internal static class PaletteFxInstructionCodesVerification
         // The setups' and pre-instructions' values are arbitrary (#1415): their routine words are the native view's.
         AssertPaletteFxCatalog(nameof(PaletteFxSetup), NativeWords(FxNativeWords.PaletteFxSetups), expectedCount: 4);
         AssertPaletteFxCatalog(nameof(PaletteFxFrameBehavior), NativeWords(FxNativeWords.PaletteFxFrameBehaviors), expectedCount: 9);
-        AssertPaletteFxCatalog(nameof(PaletteFxHeatData), CatalogWords(typeof(PaletteFxHeatData)), expectedCount: 2, requireMappedPointers: false);
+        AssertPaletteFxHeatDefinitions();
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -1594,21 +1594,31 @@ internal static class PaletteFxInstructionCodesVerification
     /// <summary>Preserves the catalog's name in failures without colliding with the verification command name.</summary>
     private static Type PaletteFxInstructionCodesType() => typeof(PaletteFxInstruction);
 
-    /// <summary>Checks catalog size, unique callback values, and mapped bank-$8D pointers where required.</summary>
+    /// <summary>Checks catalog size, unique callback values, and mapped bank-$8D pointers.</summary>
     private static void AssertPaletteFxCatalog(
         string catalog,
         ushort[] pointers,
-        int expectedCount,
-        bool requireMappedPointers = true)
+        int expectedCount)
     {
         AssertEqual(expectedCount, pointers.Length, $"{catalog} exhaustive entry count");
         AssertEqual(pointers.Length, pointers.Distinct().Count(),
             $"{catalog} contains no duplicate callbacks");
-        if (requireMappedPointers)
-        {
-            foreach (ushort pointer in pointers)
-                AssertTrue(pointer >= 0x8000, $"{catalog} pointer ${pointer:X4} is mapped");
-        }
+        foreach (ushort pointer in pointers)
+            AssertTrue(pointer >= 0x8000, $"{catalog} pointer ${pointer:X4} is mapped");
+    }
+
+    /// <summary>
+    /// Checks that the heat definitions declare exactly their per-frame subdamage and sound-energy threshold as
+    /// integer constants. Since #1480 these are domain values rather than cartridge words, so the callback
+    /// catalogs' word scan, uniqueness and mapped-pointer properties do not describe them.
+    /// </summary>
+    private static void AssertPaletteFxHeatDefinitions()
+    {
+        int[] definitions = typeof(PaletteFxHeatData).GetFields()
+            .Where(field => field.IsLiteral)
+            .Select(field => field.RequiredConstant<int>())
+            .ToArray();
+        AssertEqual(2, definitions.Length, $"{nameof(PaletteFxHeatData)} exhaustive entry count");
     }
 
     /// <summary>Runs the palette-FX instruction-catalog verification command.</summary>

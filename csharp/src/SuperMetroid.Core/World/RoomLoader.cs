@@ -877,8 +877,8 @@ internal sealed class RoomLoader
         // Clearing the sprite palettes is part of every retail room-load/door-transition pipeline. It
         // replaces sprite palette zero with the common sprite palette before enemy setup;
         //  actors created with SpawnEprojWithRoomGfx (graphics index zero) depend
-        // on this row for lasers, death debris, and pickups. The old host loader restored
-        // enemy, beam, and Samus palettes but left this row at a stale fade/menu value,
+        // on this colour set for lasers, death debris, and pickups. The old host loader restored
+        // enemy, beam, and Samus palettes but left this set at a stale fade/menu value,
         // turning otherwise valid common projectiles solid black after a door.
         LoadGameplaySpritePalettes();
 
@@ -1061,17 +1061,17 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Applies the two fixed sprite palette rows written by
+    /// Applies the two fixed sprite colour sets written by
     /// <c>LoadColorsForSpritesBeamsAndEnemies</c>.
     /// </summary>
     /// <remarks>
     /// Sprite palette five is not an enemy-specific palette. The original game restores it from
     /// <c>kInitialPalette</c> on every room load and uses it for the common sheet:
     /// enemy death explosions and drops, Pirate lasers, Ceres steam/timer sprites, and the
-    /// Ceres elevator projectiles. A door fade blackens the live palette row, so omitting this
+    /// Ceres elevator projectiles. A door fade blackens the live colour set, so omitting this
     /// copy makes every one of those otherwise-correct objects render solid black after a
     /// transition. Sprite palette six is deliberately not copied here: the sprite palette clear
-    /// preserves that row from the current palette buffer before Samus installs her suit
+    /// preserves that set from the current palette buffer before Samus installs her suit
     /// target palette later in the load sequence.
     /// </remarks>
     internal void LoadGameplaySpritePalettes()

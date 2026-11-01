@@ -153,7 +153,7 @@ public static class PcmWaveFile
         BinaryPrimitives.WriteInt32LittleEndian(header[24..], sampleRate);
         BinaryPrimitives.WriteInt32LittleEndian(header[28..], sampleRate * channelCount * sizeof(short));
         BinaryPrimitives.WriteUInt16LittleEndian(header[32..], unchecked((ushort)(channelCount * sizeof(short))));
-        BinaryPrimitives.WriteUInt16LittleEndian(header[34..], checked((ushort)InstrumentSampleFormat.BitsPerSample));
+        BinaryPrimitives.WriteUInt16LittleEndian(header[34..], InstrumentSampleFormat.BitsPerSample);
         "data"u8.CopyTo(header[36..]);
         BinaryPrimitives.WriteInt32LittleEndian(header[40..], dataBytes);
         stream.Write(header);

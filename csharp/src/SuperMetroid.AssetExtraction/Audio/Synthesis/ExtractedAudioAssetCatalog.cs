@@ -22,6 +22,8 @@ public sealed class ExtractedAudioAssetCatalog
         instrumentBanks;
     /// <summary>Compiled track, phrase, and channel definitions for each music upload.</summary>
     private readonly IReadOnlyDictionary<AudioBank, AudioBankMetadata> musicBanks;
+    /// <summary>Each music upload's compiled definition bytes by APU RAM address, compiled once at load.</summary>
+    private readonly IReadOnlyDictionary<AudioBank, IReadOnlyDictionary<int, byte>> compiledMusicBanks;
     /// <summary>Number of distinct PCM assets after equivalent sample sources are aliased.</summary>
     internal readonly int canonicalSampleCount;
 
@@ -32,8 +34,10 @@ public sealed class ExtractedAudioAssetCatalog
         this.sampleBanks = parts.SampleBanks;
         this.instrumentBanks = parts.InstrumentBanks;
         this.musicBanks = parts.MusicBanks;
+        this.compiledMusicBanks = parts.CompiledMusicBanks;
         SoundPrograms = parts.SoundPrograms;
         SoundLibraries = parts.SoundLibraries;
+        SoundEffectImage = parts.SoundEffectImage;
         this.canonicalSampleCount = parts.CanonicalSampleCount;
         ContentIdentity = parts.ContentIdentity;
     }
@@ -99,6 +103,7 @@ public sealed class ExtractedAudioAssetCatalog
         Dictionary<AudioBank, ManagedPcmSampleBank> banks = [];
         Dictionary<AudioBank, IReadOnlyList<AudioInstrumentMetadata>> instruments = [];
         Dictionary<AudioBank, AudioBankMetadata> musicBanks = [];
+        Dictionary<AudioBank, IReadOnlyDictionary<int, byte>> compiledMusicBanks = [];
         foreach (AudioBankMetadata bank in manifest.Banks)
         {
             AudioUploadAssetDefinition definition = AudioAssetCatalogDefinitions.All.SingleOrDefault(
@@ -142,9 +147,10 @@ public sealed class ExtractedAudioAssetCatalog
                 throw new InvalidDataException($"Audio manifest repeats sample bank address ${bank.SnesAddress:X6}.");
             if (!instruments.TryAdd(definition.AudioSet, ValidateInstruments(bank)))
                 throw new InvalidDataException($"Audio manifest repeats instrument bank address ${bank.SnesAddress:X6}.");
-            ValidateMusicBank(bank);
+            IReadOnlyDictionary<int, byte> compiled = ValidateMusicBank(bank);
             if (!musicBanks.TryAdd(definition.AudioSet, bank))
                 throw new InvalidDataException($"Audio manifest repeats music bank address ${bank.SnesAddress:X6}.");
+            compiledMusicBanks.Add(definition.AudioSet, compiled);
         }
         int[] missingBanks = AudioAssetCatalogDefinitions.All
             .Where(definition => !banks.ContainsKey(definition.AudioSet))
@@ -170,7 +176,8 @@ public sealed class ExtractedAudioAssetCatalog
         (IReadOnlyList<AudioSoundProgramMetadata> soundPrograms,
             IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries) =
             ValidateSoundDefinitions(manifest);
-        return new ExtractedAudioAssetCatalog(new ExtractedAudioAssetParts { Streams = loaded, SampleBanks = banks, InstrumentBanks = instruments, MusicBanks = musicBanks, SoundPrograms = soundPrograms, SoundLibraries = soundLibraries, CanonicalSampleCount = canonicalSamples.Count, ContentIdentity = ComputeContentIdentity(manifest) });
+        var soundEffectImage = new SpcSoundEffectImage(soundPrograms, soundLibraries);
+        return new ExtractedAudioAssetCatalog(new ExtractedAudioAssetParts { Streams = loaded, SampleBanks = banks, InstrumentBanks = instruments, MusicBanks = musicBanks, CompiledMusicBanks = compiledMusicBanks, SoundPrograms = soundPrograms, SoundLibraries = soundLibraries, SoundEffectImage = soundEffectImage, CanonicalSampleCount = canonicalSamples.Count, ContentIdentity = ComputeContentIdentity(manifest) });
     }
 
     /// <summary>SHA-256 of the canonical serialized manifest, hashed as it streams out.</summary>
@@ -240,11 +247,24 @@ public sealed class ExtractedAudioAssetCatalog
             ? music
             : throw new InvalidDataException($"Audio references unmapped music bank {bank}.");
 
+    /// <summary>
+    /// Returns the bytes one upload's music definitions compile to, by APU RAM address. They were
+    /// compiled once when the catalog loaded; every load of the bank writes the same bytes.
+    /// </summary>
+    /// <exception cref="InvalidDataException"><paramref name="bank"/> is not a loaded bank.</exception>
+    internal IReadOnlyDictionary<int, byte> GetCompiledMusicBank(AudioBank bank) =>
+        compiledMusicBanks.TryGetValue(bank, out IReadOnlyDictionary<int, byte>? compiled)
+            ? compiled
+            : throw new InvalidDataException($"Audio references unmapped music bank {bank}.");
+
     /// <summary>Decoded, address-stable authored SFX channel programs.</summary>
     public IReadOnlyList<AudioSoundProgramMetadata> SoundPrograms { get; }
 
     /// <summary>Stable SFX command IDs and their compiled routing/allocation metadata.</summary>
     public IReadOnlyList<AudioSoundLibraryMetadata> SoundLibraries { get; }
+
+    /// <summary>The SFX programs' encoded bytes and routes, compiled once at load and installed by every bank load.</summary>
+    internal SpcSoundEffectImage SoundEffectImage { get; }
 
     /// <summary>Orders every required instrument by native index and rejects duplicates or inconsistent noise markers.</summary>
     private static System.Collections.ObjectModel.ReadOnlyCollection<AudioInstrumentMetadata>
@@ -333,8 +353,9 @@ public sealed class ExtractedAudioAssetCatalog
         return samples;
     }
 
-    /// <summary>Checks stable track, phrase, and program addresses before compiling an authored SPC music bank.</summary>
-    private static void ValidateMusicBank(AudioBankMetadata bank)
+    /// <summary>Checks stable track, phrase, and program addresses, then compiles an authored SPC music bank.</summary>
+    /// <returns>The bank's compiled definition bytes by APU RAM address.</returns>
+    private static IReadOnlyDictionary<int, byte> ValidateMusicBank(AudioBankMetadata bank)
     {
         if (bank.TrackPointers is null || bank.MusicTracks is null ||
             bank.MusicPhrases is null || bank.MusicPrograms is null)
@@ -393,10 +414,13 @@ public sealed class ExtractedAudioAssetCatalog
                 }
             }
         }
-        _ = SpcMusicDefinitionCodec.CompileBank(bank);
+        return SpcMusicDefinitionCodec.CompileBank(bank);
     }
 
-    /// <summary>Validates bounded SFX programs and each library's fixed command routing and voice allocation.</summary>
+    /// <summary>
+    /// Validates bounded SFX program slots and each library's fixed command routing and voice
+    /// allocation; <see cref="SpcSoundEffectImage"/> then encodes the programs into their slots.
+    /// </summary>
     private static SoundDefinitionMetadata ValidateSoundDefinitions(
         AudioAssetManifest manifest)
     {
@@ -420,7 +444,6 @@ public sealed class ExtractedAudioAssetCatalog
                     $"Audio sound program '{program.Id}' has invalid fixed slot " +
                     $"${program.Address:X4}+{program.ByteCapacity}.");
             }
-            _ = SpcSoundEffectProgramCodec.Encode(program);
         }
 
         if (manifest.SoundLibraries.Count != SpcDriverDefinitions.SoundEffects.LibraryCount)

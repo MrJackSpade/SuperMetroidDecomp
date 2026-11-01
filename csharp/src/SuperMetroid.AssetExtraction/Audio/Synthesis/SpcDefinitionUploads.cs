@@ -83,56 +83,39 @@ internal sealed class SpcDefinitionUploads
     }
 
     /// <summary>
-    /// Recompiles decoded authored SFX programs into their fixed resident slots. Program
+    /// Writes the catalog's encoded SFX programs into their fixed resident slots. Program
     /// routing and voice allocation remain compiled mechanics and must still match the
     /// uploaded driver's pointer tables exactly.
     /// </summary>
-    public void ApplySoundEffectDefinitions(
-        IReadOnlyList<AudioSoundProgramMetadata> programs,
-        IReadOnlyList<AudioSoundLibraryMetadata> libraries)
+    /// <param name="image">The programs' bytes and routes, encoded once when the catalog loaded.</param>
+    public void ApplySoundEffectDefinitions(SpcSoundEffectImage image)
     {
-        Ensure.NotNull(programs);
-        Ensure.NotNull(libraries);
-        Dictionary<string, AudioSoundProgramMetadata> byId = new(StringComparer.Ordinal);
-        foreach (AudioSoundProgramMetadata program in programs)
-        {
-            if (!byId.TryAdd(program.Id, program))
-                throw new InvalidDataException($"Decoded SFX programs repeat stable ID '{program.Id}'.");
-            byte[] encoded = SpcSoundEffectProgramCodec.Encode(program);
-            WriteBytes(program.Address, encoded);
-        }
+        Ensure.NotNull(image);
+        foreach (SpcSoundEffectImage.EncodedProgram program in image.Programs)
+            WriteBytes(program.Program.Address, program.Bytes.Span);
 
-        foreach (AudioSoundLibraryMetadata library in libraries)
+        foreach (SpcSoundEffectImage.Route route in image.Routes)
         {
-            foreach (AudioSoundEffectMetadata effect in library.Effects)
+            int uploadedPointer = _voices.ReadPointerEntry(route.Effect.StreamPointer, route.Channel);
+            if (uploadedPointer != route.Program.Address)
             {
-                for (int channel = 0; channel < effect.ChannelPrograms.Count; channel++)
-                {
-                    if (!byId.TryGetValue(effect.ChannelPrograms[channel], out AudioSoundProgramMetadata? program))
-                    {
-                        throw new InvalidDataException(
-                            $"SFX effect '{effect.Id}' references unknown program " +
-                            $"'{effect.ChannelPrograms[channel]}'.");
-                    }
-                    int uploadedPointer = _voices.ReadPointerEntry(effect.StreamPointer, channel);
-                    if (uploadedPointer != program.Address)
-                    {
-                        throw new InvalidDataException(
-                            $"SFX effect '{effect.Id}' channel {channel} routes to uploaded " +
-                            $"${uploadedPointer:X4}, not decoded program '{program.Id}' at ${program.Address:X4}.");
-                    }
-                }
+                throw new InvalidDataException(
+                    $"SFX effect '{route.Effect.Id}' channel {route.Channel} routes to uploaded " +
+                    $"${uploadedPointer:X4}, not decoded program '{route.Program.Id}' at ${route.Program.Address:X4}.");
             }
         }
     }
 
     /// <summary>
-    /// Recompiles decoded track flow, phrase routing, and channel programs into their fixed
+    /// Writes a bank's compiled track flow, phrase routing, and channel programs into their fixed
     /// authored slots. The driver interpreter and lookup tables remain ordinary managed code.
     /// </summary>
-    public void ApplyMusicDefinitions(AudioBankMetadata bank)
+    /// <param name="bank">The bank's decoded definitions, whose track routing must match the upload.</param>
+    /// <param name="compiled">The bank's compiled bytes by APU RAM address, compiled once when the catalog loaded.</param>
+    public void ApplyMusicDefinitions(AudioBankMetadata bank, IReadOnlyDictionary<int, byte> compiled)
     {
         Ensure.NotNull(bank);
+        Ensure.NotNull(compiled);
         for (int track = 0; track < bank.MusicTracks.Count; track++)
         {
             int pointerAddress = SpcDriverDefinitions.Ram.DefaultMusicPointer + track * 2;
@@ -145,8 +128,8 @@ internal sealed class SpcDefinitionUploads
                     $"not decoded address ${definition.Address:X4}.");
             }
         }
-        foreach (KeyValuePair<int, byte> compiled in SpcMusicDefinitionCodec.CompileBank(bank))
-            WriteByte(compiled.Key, compiled.Value);
+        foreach (KeyValuePair<int, byte> write in compiled)
+            WriteByte(write.Key, write.Value);
     }
 
     /// <summary>

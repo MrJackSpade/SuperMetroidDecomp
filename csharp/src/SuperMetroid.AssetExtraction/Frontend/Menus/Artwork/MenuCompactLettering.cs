@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus.Artwork;
 
 /// <summary>Finds a compact-lettering label (<see cref="MenuCompactLetteringDefinitions"/>) by the text it spells.</summary>
 internal static class MenuCompactLettering

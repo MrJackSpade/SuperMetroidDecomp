@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus.Artwork;
 
 /// <summary>The menu atlas cells of the 32x16 L/R highlight; the import pipeline knows which atlas tile holds each.</summary>
 internal enum MenuShoulderHighlightCell

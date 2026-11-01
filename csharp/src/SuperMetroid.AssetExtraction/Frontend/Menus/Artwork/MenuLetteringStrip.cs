@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Menus.Artwork;
 
 /// <summary>One compact-lettering label laid across menu atlas cells.</summary>
 /// <param name="Text">The label's letters, placed left to right with one-pixel gaps.</param>

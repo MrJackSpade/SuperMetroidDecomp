@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus.Artwork;
 
 /// <summary>The menu atlas cells of the sixteen-row panel edge; the import pipeline knows which atlas tile holds each.</summary>
 internal enum MenuPanelCell

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus.Artwork;
 
 /// <summary>A large menu font letter's two menu atlas cells.</summary>
 /// <param name="Upper">The cell holding the letter's top half.</param>

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus.Artwork;
 
 /// <summary>The face, highlight and shadow colours of a beveled menu square.</summary>
 /// <param name="Face">The face.</param>

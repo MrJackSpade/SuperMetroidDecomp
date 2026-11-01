@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus.Artwork;
 
 /// <summary>An inclusive run of eight-pixel cells in the menu character atlas, numbered as the game's tilemaps number them.</summary>
 /// <param name="First">The run's first atlas cell.</param>

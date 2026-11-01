@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Menus.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Menus.Artwork;
 
 /// <summary>Menu atlas cells that start the calculated menu artworks' cell runs.</summary>
 internal static class MenuAtlasCellDefinitions

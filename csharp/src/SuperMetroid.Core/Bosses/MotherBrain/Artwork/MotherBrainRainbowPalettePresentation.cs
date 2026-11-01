@@ -4,7 +4,10 @@ using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
-/// <summary>Editable rainbow, drain, revival, and normal-restoration colors for Mother Brain.</summary>
+/// <summary>
+/// Editable rainbow, drain, revival, and normal-restoration colors for Mother Brain, as the import recognized them: each
+/// phase keeps the calculated paint relationship that reproduces it exactly, or its supplied colours.
+/// </summary>
 public sealed class MotherBrainRainbowPalettePresentation
 {
     /// <summary>Ten color phases read by the rainbow list.</summary>
@@ -20,66 +23,25 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// <summary>Backdrop hue cycle without its signed loop terminator.</summary>
     internal readonly BeamColors beamCycle;
 
-    /// <summary>Builds the selected rainbow, drain, revival, fake-death, restoration and beam-backdrop colours.</summary>
-    /// <param name="colours">The selected colours; a null fake-death fade is inherited from <paramref name="currentStock"/>.</param>
-    /// <param name="currentStock">The current stock presentation a missing fake-death fade is inherited from.</param>
-    internal static MotherBrainRainbowPalettePresentation Create(MotherBrainRainbowPaletteColours colours,
-        MotherBrainRainbowPalettePresentation? currentStock)
+    /// <summary>Keeps the recognized rainbow, drain, revival, fake-death, restoration and beam-backdrop colours.</summary>
+    /// <param name="rainbow">The ten rainbow phases.</param>
+    /// <param name="toGrey">The drain fade.</param>
+    /// <param name="fromGrey">The revival fade.</param>
+    /// <param name="fakeDeathToGrey">The fake-death brain fade.</param>
+    /// <param name="normal">The restored normal phase.</param>
+    /// <param name="beamInitial">The beam backdrop's first colour.</param>
+    /// <param name="beamCycle">The beam backdrop's hue cycle.</param>
+    internal MotherBrainRainbowPalettePresentation(PaletteFrame[] rainbow, PaletteFade toGrey,
+        RevivalPaletteFade fromGrey, PaletteFade fakeDeathToGrey, PaletteFrame normal,
+        RgbColor beamInitial, BeamColors beamCycle)
     {
-        Ensure.NotNull(colours);
-        return new(Frames(colours.Rainbow), Frames(colours.ToGrey), Frames(colours.FromGrey),
-            colours.FakeDeathToGrey is null
-                ? Ensure.NotNull(currentStock).fakeDeathToGrey
-                : new PaletteFade(colours.FakeDeathToGrey.Select(brain => new PaletteFrame(brain, [], null)).ToArray()),
-            Frame(colours.Normal), colours.BeamInitial, colours.BeamCycle);
-    }
-
-    /// <summary>One selected phase as a palette frame.</summary>
-    private static PaletteFrame Frame(MotherBrainPaletteFrameColours colours) =>
-        new(colours.Body, colours.BackLegs, colours.TrailingColor);
-
-    /// <summary>Selected phases as palette frames, in order.</summary>
-    private static PaletteFrame[] Frames(MotherBrainPaletteFrameColours[] colours) =>
-        colours.Select(Frame).ToArray();
-
-    /// <summary>Recognizes shared phase and endpoint relationships without changing independently supplied colors.</summary>
-    private MotherBrainRainbowPalettePresentation(PaletteFrame[] rainbow, PaletteFrame[] toGrey,
-        PaletteFrame[] fromGrey, PaletteFade fakeDeathToGrey, PaletteFrame normal,
-        RgbColor beamInitial, RgbColor[] beamCycle)
-    {
-        rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase].ReduceRedOrigin();
-        rainbow[MotherBrainRainbowPaletteFormat.FirstGreenRisePhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.FirstGreenRise,
-            new RainbowChannelSelection { Red = true, Green = false, Blue = true, RedAddition = 0, GreenAddition = 0 });
-        rainbow[MotherBrainRainbowPaletteFormat.RedReductionSourcePhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.SecondGreenRise,
-            new RainbowChannelSelection { Red = true, Green = false, Blue = true, RedAddition = 0, GreenAddition = 0 });
-        rainbow[MotherBrainRainbowPaletteFormat.RedReducedPhase].ShareTint(
-            rainbow[MotherBrainRainbowPaletteFormat.RedReductionSourcePhase],
-            -MotherBrainRainbowPaletteFormat.RedReduction, 0, 0);
-        rainbow[MotherBrainRainbowPaletteFormat.BlueGreenShiftPhase].ShareTint(
-            rainbow[MotherBrainRainbowPaletteFormat.RedReducedPhase], 0,
-            -MotherBrainRainbowPaletteFormat.BlueGreenShift, MotherBrainRainbowPaletteFormat.BlueGreenShift);
-        rainbow[MotherBrainRainbowPaletteFormat.MixedShiftPhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.MixedBlue,
-            new RainbowChannelSelection { Red = true, Green = true, Blue = false, RedAddition = -MotherBrainRainbowPaletteFormat.RedReduction, GreenAddition = MotherBrainRainbowPaletteFormat.GreenAddition });
-        rainbow[MotherBrainRainbowPaletteFormat.BlueMaximumPhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.MaximumBlue,
-            new RainbowChannelSelection { Red = true, Green = true, Blue = false, RedAddition = -MotherBrainRainbowPaletteFormat.RedReduction, GreenAddition = 0 });
-        rainbow[MotherBrainRainbowPaletteFormat.RedRecoveryPhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.BlueMaximumPhase], MotherBrainRainbowShadeProfile.RecoveringGreen,
-            new RainbowChannelSelection { Red = true, Green = false, Blue = true, RedAddition = MotherBrainRainbowPaletteFormat.RedRecoveryAddition, GreenAddition = 0 });
-        rainbow[MotherBrainRainbowPaletteFormat.RedRestoredPhase].ShareTint(rainbow[MotherBrainRainbowPaletteFormat.BlueMaximumPhase],
-            MotherBrainRainbowPaletteFormat.RedReduction, 0, 0);
-        rainbow[MotherBrainRainbowPaletteFormat.BlueRaisedPhase].ShareTint(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], 0, 0,
-            MotherBrainRainbowPaletteFormat.BlueAddition);
         this.rainbow = rainbow;
-        toGrey[0] = PaletteFrame.ShareDrainStart(toGrey[0],
-            rainbow[MotherBrainRainbowPaletteDefinitions.DrainedRainbowFrame]);
-        toGrey[^1] = PaletteFrame.ShareDrainEnd(toGrey[^1]);
-        this.toGrey = new PaletteFade(toGrey);
-        fromGrey[0] = PaletteFrame.ShareDrainEnd(fromGrey[0]);
-        fromGrey[^1] = PaletteFrame.ShareNormalRearEndpoint(fromGrey[^1]);
-        this.fromGrey = new RevivalPaletteFade(fromGrey);
+        this.toGrey = toGrey;
+        this.fromGrey = fromGrey;
         this.fakeDeathToGrey = fakeDeathToGrey;
         this.normal = normal;
         BeamInitialColor = beamInitial;
-        this.beamCycle = new BeamColors(beamCycle);
+        this.beamCycle = beamCycle;
     }
 
     /// <summary>
@@ -95,19 +57,19 @@ public sealed class MotherBrainRainbowPalettePresentation
         internal readonly RgbColor[]? supplied;
         /// <summary>Number of actual color samples, excluding the control terminator.</summary>
         public int Length { get; }
-        /// <summary>Uses the calculated wheel only when every supplied RGB5 sample agrees.</summary>
-        public BeamColors(RgbColor[] colors)
+        /// <summary>Keeps the cycle's length and, when one sample differs from the wheel, every supplied sample.</summary>
+        /// <param name="length">The number of samples.</param>
+        /// <param name="supplied">Every supplied sample when one differs from the calculated wheel, otherwise null.</param>
+        internal BeamColors(int length, RgbColor[]? supplied)
         {
-            Length = colors.Length;
-            for (int index = 0; index < Length; index++)
-                if (colors[index] != Calculate(index))
-                { supplied = colors; return; }
+            Length = length;
+            this.supplied = supplied;
         }
         /// <summary>Reads an authored override or reconstructs the matching wheel sample.</summary>
         public RgbColor this[int index] => supplied is null ? Calculate(index) : supplied[index];
 
         /// <summary>Reconstructs the five hue legs using the game's asymmetric blue-to-magenta shift.</summary>
-        private static RgbColor Calculate(int index)
+        internal static RgbColor Calculate(int index)
         {
             int step = index * MotherBrainBeamDefinitions.HueStepsPerColor;
             int red, green, blue;
@@ -243,7 +205,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Retained rear inks when they do not match stock or half-intensity body paint.</summary>
         internal readonly RgbColor[]? backLegs;
         /// <summary>Whether every rear ink equals the full stock rear-leg palette.</summary>
-        private readonly bool stockRear;
+        internal readonly bool stockRear;
         /// <summary>Whether the drained rear subset equals half-intensity stock paint.</summary>
         internal readonly bool drainedRear;
         /// <summary>Whether the revival endpoint uses the stock rear-leg subset.</summary>
@@ -251,48 +213,25 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Rainbow phase supplying a drain-start rear subset and trailing color.</summary>
         internal readonly PaletteFrame? rearSource;
 
-        /// <summary>Preserves supplied legs unless all of them follow a recognized stock or body relation.</summary>
-        public PaletteFrame(RgbColor[] body, RgbColor[] legs, RgbColor? trailingColor)
+        /// <summary>Keeps a phase's body paint and the rear-leg relationship the import recognized.</summary>
+        /// <param name="body">The body inks.</param>
+        /// <param name="legCount">The rear-leg colours the phase publishes.</param>
+        /// <param name="trailingColor">The supplied spill colour past the rear legs, read only when no shared rear supplies it.</param>
+        /// <param name="rear">How the rear legs resolve.</param>
+        internal PaletteFrame(BodyColors body, int legCount, RgbColor? trailingColor, RearPaint rear)
         {
-            Body = new BodyColors(body);
-            LegCount = legs.Length;
+            Body = body;
+            LegCount = legCount;
             TrailingColor = trailingColor;
-            bool matchesRear = legs.Length == MotherBrainRainbowPaletteDefinitions.ColorCount;
-            for (int color = 0; matchesRear && color < legs.Length; color++)
-                matchesRear = legs[color] == MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, color);
-            if (matchesRear) { stockRear = true; return; }
-            // Rainbow legs use half-intensity body colors, rounding RGB5 upward.
-            // Select this relationship only when every supplied color agrees.
-            if (body.Length != legs.Length)
-            { backLegs = legs; return; }
-            for (int color = 0; color < legs.Length; color++)
-                if (HalfIntensity(body[color]) != legs[color])
-                { backLegs = legs; return; }
+            backLegs = rear.BackLegs;
+            stockRear = rear.Stock;
+            drainedRear = rear.Drained;
+            normalRearSubset = rear.NormalSubset;
+            rearSource = rear.Source;
         }
 
         /// <summary>Body inks, which may be backed by a matching calculated color relationship.</summary>
-        public BodyColors Body { get; private set; }
-        /// <summary>Uses the red-origin shading model only when it recreates every supplied ink.</summary>
-        internal void ReduceRedOrigin()
-        {
-            RedOriginColors? selected = RedOriginColors.TryCreate(Body);
-            if (selected is not null) Body = new BodyColors(selected);
-        }
-        /// <summary>Shares selected source channels while retaining the phase's independent shade channel.</summary>
-        internal void ShareChannels(PaletteFrame source, MotherBrainRainbowShadeProfile profile, RainbowChannelSelection channels)
-        {
-            if (Body.Length != source.Body.Length) return;
-            var sharing = SharedBodyChannels.TryCreate(source.Body, Body, profile, channels);
-            if (sharing is not null) Body = new BodyColors(sharing);
-        }
-        /// <summary>Shares a constant RGB5 offset only if it reproduces every supplied body colour.</summary>
-        internal void ShareTint(PaletteFrame source, int red, int green, int blue)
-        {
-            if (Body.Length != source.Body.Length) return;
-            for (int color = 0; color < Body.Length; color++)
-                if (Body[color] != BodyColors.Tinted(source.Body[color], red, green, blue)) return;
-            Body = new BodyColors(source.Body, red, green, blue);
-        }
+        public BodyColors Body { get; }
         /// <summary>Number of rear-leg colors this phase publishes.</summary>
         public int LegCount { get; }
         /// <summary>Spill color past the rear legs, drawn from the shared rear source when an endpoint matches.</summary>
@@ -309,52 +248,20 @@ public sealed class MotherBrainRainbowPalettePresentation
             : stockRear ? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, color)
             : backLegs is null ? HalfIntensity(Body[color]) : backLegs[color];
 
-        /// <summary>Shares the drain's first body, rear subset, and trailing ink only after every supplied color matches the rainbow phase.</summary>
-        internal static PaletteFrame ShareDrainStart(PaletteFrame drain, PaletteFrame rainbow)
-        {
-            for (int color = 0; color < drain.Body.Length; color++)
-                if (drain.Body[color] != rainbow.Body[color]) return drain;
-            for (int color = 0; color < drain.LegCount; color++)
-                if (drain.Leg(color) != rainbow.Leg(color + MotherBrainDrainedPaletteDefinitions.RearSourceColor)) return drain;
-            return drain.TrailingColor == rainbow.Leg(MotherBrainDrainedPaletteDefinitions.TrailingRearSourceColor)
-                ? new PaletteFrame(rainbow, MotherBrainRearPaint.Rainbow) : drain;
-        }
-        /// <summary>Recognizes a drained stock rear subset, including its trailing ink, at the fade endpoint.</summary>
-        internal static PaletteFrame ShareDrainEnd(PaletteFrame drain)
-        {
-            for (int color = 0; color < drain.LegCount; color++)
-                if (drain.Leg(color) != HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg,
-                    color + MotherBrainDrainedPaletteDefinitions.RearSourceColor))) return drain;
-            return drain.TrailingColor == drain.Leg(1) ? new PaletteFrame(drain, MotherBrainRearPaint.Drained) : drain;
-        }
-        /// <summary>Constructs a validated drain endpoint view over either rainbow or stock rear paint.</summary>
-        private PaletteFrame(PaletteFrame source, MotherBrainRearPaint rear)
-        {
-            Body = source.Body;
-            LegCount = MotherBrainDrainedPaletteDefinitions.BackLegCount;
-            drainedRear = rear == MotherBrainRearPaint.Drained;
-            rearSource = drainedRear ? null : source;
-        }
-
-        /// <summary>Recognizes the stock rear-leg subset at the normal revival endpoint.</summary>
-        internal static PaletteFrame ShareNormalRearEndpoint(PaletteFrame frame)
-        {
-            for (int color = 0; color < frame.LegCount; color++)
-                if (frame.Leg(color) != MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg,
-                    color + MotherBrainDrainedPaletteDefinitions.RearSourceColor)) return frame;
-            return frame.TrailingColor == frame.Leg(1) ? new PaletteFrame(frame) : frame;
-        }
-        /// <summary>Creates the validated normal rear subset while retaining its body colors.</summary>
-        private PaletteFrame(PaletteFrame source)
-        {
-            Body = source.Body;
-            LegCount = MotherBrainDrainedPaletteDefinitions.BackLegCount;
-            normalRearSubset = true;
-        }
-
         /// <summary>Rounds each RGB5 body channel upward when deriving rainbow rear-leg paint.</summary>
-        private static RgbColor HalfIntensity(RgbColor color) => color.Map((_, channel) => (channel + 1) / 2);
+        internal static RgbColor HalfIntensity(RgbColor color) => color.Map((_, channel) => (channel + 1) / 2);
     }
+
+    /// <summary>
+    /// How a phase's rear legs resolve: from retained colours, the full stock rear palette, the drained or normal stock
+    /// subset, a rainbow phase's rear subset, or half-intensity body paint when every option is empty.
+    /// </summary>
+    /// <param name="BackLegs">Retained rear inks, or null.</param>
+    /// <param name="Stock">Whether every rear ink is the full stock rear-leg palette.</param>
+    /// <param name="Drained">Whether the rear subset is half-intensity stock paint.</param>
+    /// <param name="NormalSubset">Whether the rear subset is the stock rear-leg subset.</param>
+    /// <param name="Source">The rainbow phase whose rear subset and trailing colour the phase shares, or null.</param>
+    internal sealed record RearPaint(RgbColor[]? BackLegs, bool Stock, bool Drained, bool NormalSubset, PaletteFrame? Source);
 
     /// <summary>Exact red-origin shading from the narrowly reviewed temporal material paints; calculated shades are not retained as colours.</summary>
     internal sealed class RedOriginColors
@@ -367,28 +274,21 @@ public sealed class MotherBrainRainbowPalettePresentation
         private readonly int[] tissueGreens;
         /// <summary>Final two inks lack a supported interpolation relationship.</summary>
         private readonly RgbColor[] tail;
-        /// <summary>Extracts anchors and independently varying channels from one phase's supplied body colours.</summary>
-        private RedOriginColors(BodyColors colors)
+        /// <summary>Keeps the anchors and independently varying channels of one phase's body colours.</summary>
+        /// <param name="anchors">The head, plate and tissue anchors.</param>
+        /// <param name="darkHead">The dark head's own green and blue.</param>
+        /// <param name="tissueGreens">The three interior tissue greens.</param>
+        /// <param name="tail">The final two inks.</param>
+        internal RedOriginColors(RedOriginAnchors anchors, MotherBrainDarkHeadShade darkHead, int[] tissueGreens, RgbColor[] tail)
         {
-            head = colors[0];
-            darkHead = new(colors[RedOriginLayout.DarkHead].Green, colors[RedOriginLayout.DarkHead].Blue);
-            plateStart = colors[RedOriginLayout.PlateStart];
-            plateEnd = colors[RedOriginLayout.PlateEnd];
-            tissueStart = colors[RedOriginLayout.TissueStart];
-            tissueEnd = colors[RedOriginLayout.TissueEnd];
-            tissueGreens = [colors[RedOriginLayout.TissueStart + 1].Green, colors[RedOriginLayout.TissueStart + 2].Green,
-                colors[RedOriginLayout.TissueStart + 3].Green];
-            tail = [colors[RedOriginLayout.TailStart], colors[RedOriginLayout.TailStart + 1]];
-        }
-        /// <summary>Accepts the red-origin model only when its red ramp and both gradients reproduce all fifteen inks.</summary>
-        internal static RedOriginColors? TryCreate(BodyColors colors)
-        {
-            if (colors.Length != MotherBrainRainbowPaletteDefinitions.ColorCount ||
-                colors[0].Red < (RedOriginLayout.PlateStart - 1) * MotherBrainRainbowPaletteFormat.HeadRedStep) return null;
-            var selected = new RedOriginColors(colors);
-            for (int color = 0; color < colors.Length; color++)
-                if (selected[color] != colors[color]) return null;
-            return selected;
+            head = anchors.Head;
+            plateStart = anchors.PlateStart;
+            plateEnd = anchors.PlateEnd;
+            tissueStart = anchors.TissueStart;
+            tissueEnd = anchors.TissueEnd;
+            this.darkHead = darkHead;
+            this.tissueGreens = tissueGreens;
+            this.tail = tail;
         }
         /// <summary>Calculates head, plate, or tissue shading, leaving the final two inks independent.</summary>
         internal RgbColor this[int color]
@@ -420,6 +320,15 @@ public sealed class MotherBrainRainbowPalettePresentation
             }
         }
     }
+
+    /// <summary>The head, plate and tissue anchors a red-origin phase reconstructs its gradients from.</summary>
+    /// <param name="Head">The brightest head ink.</param>
+    /// <param name="PlateStart">The first plate ink.</param>
+    /// <param name="PlateEnd">The last plate ink.</param>
+    /// <param name="TissueStart">The first tissue ink.</param>
+    /// <param name="TissueEnd">The last tissue ink.</param>
+    internal readonly record struct RedOriginAnchors(RgbColor Head, RgbColor PlateStart, RgbColor PlateEnd, RgbColor TissueStart, RgbColor TissueEnd);
+
     /// <summary>Exact shared channels with all unexplained RGB5 samples retained independently.</summary>
     internal sealed class SharedBodyChannels
     {
@@ -433,34 +342,15 @@ public sealed class MotherBrainRainbowPalettePresentation
         internal readonly MotherBrainRainbowShadeChannel independent;
         /// <summary>Matches the source phase's body color count.</summary>
         internal int Length => source.Length;
-        /// <summary>Separates one independent channel from two source-derived channels.</summary>
-        private SharedBodyChannels(BodyColors source, BodyColors selected, MotherBrainRainbowShadeProfile profile, RainbowChannelSelection channels)
+        /// <summary>Keeps the source phase, the shared channels and their offsets, and the independent shade channel.</summary>
+        /// <param name="source">The earlier rainbow phase supplying the shared channels.</param>
+        /// <param name="channels">Which channels follow the source, and their additions.</param>
+        /// <param name="independent">The independently supplied channel's shades.</param>
+        internal SharedBodyChannels(BodyColors source, RainbowChannelSelection channels, MotherBrainRainbowShadeChannel independent)
         {
-            this.source = source; this.red = channels.Red; this.green = channels.Green; this.blue = channels.Blue; this.redAddition = channels.RedAddition; this.greenAddition = channels.GreenAddition;
+            this.source = source; red = channels.Red; green = channels.Green; blue = channels.Blue; redAddition = channels.RedAddition; greenAddition = channels.GreenAddition;
             independentCount = (channels.Red ? 0 : 1) + (channels.Green ? 0 : 1) + (channels.Blue ? 0 : 1);
-            if (independentCount != 1) throw new InvalidOperationException("A rainbow shade profile requires one independently supplied channel.");
-            var samples = new int[Length];
-            int index = 0;
-            for (int color = 0; color < Length; color++)
-            {
-                RgbColor word = selected[color];
-                if (!channels.Red) samples[index++] = word.Red;
-                if (!channels.Green) samples[index++] = word.Green;
-                if (!channels.Blue) samples[index++] = word.Blue;
-            }
-            independent = new MotherBrainRainbowShadeChannel(samples, profile, color => source[color].Green);
-        }
-        /// <summary>Shares source channels only when every selected RGB5 ink satisfies the requested offsets.</summary>
-        internal static SharedBodyChannels? TryCreate(BodyColors source, BodyColors selected, MotherBrainRainbowShadeProfile profile, RainbowChannelSelection channels)
-        {
-            for (int color = 0; color < source.Length; color++)
-            {
-                RgbColor from = source[color], to = selected[color];
-                if (channels.Red && (from.Red) + channels.RedAddition != (to.Red) ||
-                    channels.Green && (from.Green) + channels.GreenAddition != (to.Green) ||
-                    channels.Blue && (from.Blue) != (to.Blue)) return null;
-            }
-            return new(source, selected, profile, new RainbowChannelSelection { Red = channels.Red, Green = channels.Green, Blue = channels.Blue, RedAddition = channels.RedAddition, GreenAddition = channels.GreenAddition });
+            this.independent = independent;
         }
         /// <summary>Combines source components with the retained independent shade at one body index.</summary>
         internal RgbColor this[int color]
@@ -518,16 +408,18 @@ public sealed class MotherBrainRainbowPalettePresentation
         internal readonly DrainedBodyColors? drained;
         /// <summary>Number of body/brain inks represented by this phase.</summary>
         public int Length { get; }
-        /// <summary>Recognizes stock or drained paint, otherwise retains every supplied RGB5 ink.</summary>
-        public BodyColors(RgbColor[] colors)
+        /// <summary>
+        /// Keeps stock body paint (both <paramref name="supplied"/> and <paramref name="drained"/> null), drained paint, or
+        /// every supplied ink.
+        /// </summary>
+        /// <param name="length">The number of body inks.</param>
+        /// <param name="supplied">Every supplied ink when no paint model reproduces them, otherwise null.</param>
+        /// <param name="drained">The drained paint that reproduces them, otherwise null.</param>
+        internal BodyColors(int length, RgbColor[]? supplied, DrainedBodyColors? drained)
         {
-            Length = colors.Length;
-            bool normal = Length is MotherBrainFakeDeathPaletteDefinitions.ColorCount or MotherBrainDrainedPaletteDefinitions.RevivalColors or MotherBrainRainbowPaletteDefinitions.ColorCount;
-            for (int color = 0; normal && color < Length; color++)
-                normal = colors[color] == MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, color);
-            if (normal) return;
-            drained = new DrainedBodyColors(colors);
-            if (!drained.Calculated) { drained = null; supplied = colors; }
+            Length = length;
+            this.supplied = supplied;
+            this.drained = drained;
         }
         /// <summary>Reads the selected calculated paint model or the independently authored ink.</summary>
         public RgbColor this[int color] => redOrigin is not null ? redOrigin[color]
@@ -559,45 +451,17 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Whether the colours can be reconstructed from tissue and outline anchors.</summary>
         internal bool Calculated => supplied is null;
 
-        /// <summary>Tests stock anchors, then seeks eight-bit endpoints that reproduce each edited tissue shade.</summary>
-        internal DrainedBodyColors(RgbColor[] colors)
+        /// <summary>Keeps the tissue and outline anchors, or every supplied colour when no anchors reproduce them.</summary>
+        /// <param name="tissueLight">The eight-bit highlight anchor.</param>
+        /// <param name="tissueDark">The eight-bit darkest tissue anchor.</param>
+        /// <param name="outline">The cortex outline anchor.</param>
+        /// <param name="supplied">Every supplied colour when the anchors do not reproduce them, otherwise null.</param>
+        internal DrainedBodyColors(Rgb8 tissueLight, Rgb8 tissueDark, RgbColor outline, RgbColor[]? supplied)
         {
-            if (colors.Length is not (3 or 13 or 15)) { supplied = colors; return; }
-            var light = MotherBrainDrainedPaintDefinitions.HighlightRgb8;
-            var dark = MotherBrainDrainedPaintDefinitions.DarkestTissueRgb8;
-            tissueLight = light;
-            tissueDark = dark;
-            outline = MotherBrainDrainedPaintDefinitions.Outline;
-            bool stock = true;
-            for (int color = 0; stock && color < colors.Length; color++) stock = colors[color] == Calculate(color);
-            if (stock) return;
-            if (colors.Length == MotherBrainFakeDeathPaletteDefinitions.ColorCount) { supplied = colors; return; }
-            outline = colors[3];
-            if (!TryChannel(ColorChannel.Red, out int lr, out int dr) ||
-                !TryChannel(ColorChannel.Green, out int lg, out int dg) ||
-                !TryChannel(ColorChannel.Blue, out int lb, out int db))
-            { supplied = colors; return; }
-            tissueLight = new(lr, lg, lb);
-            tissueDark = new(dr, dg, db);
-            for (int color = 0; color < colors.Length; color++)
-                if (Calculate(color) != colors[color]) { supplied = colors; return; }
-
-            bool TryChannel(ColorChannel channel, out int first, out int last)
-            {
-                int low = colors[8][channel] * 8;
-                int high = colors[12][channel] * 8;
-                for (int start = low; start < low + 8; start++)
-                    for (int end = high; end < high + 8; end++)
-                    {
-                        bool matches = true;
-                        for (int step = 0; step <= 4; step++)
-                            if ((start * (4 - step) + end * step) / 32 != colors[8 + step][channel])
-                            { matches = false; break; }
-                        if (matches) { first = start; last = end; return true; }
-                    }
-                first = last = 0;
-                return false;
-            }
+            this.tissueLight = tissueLight;
+            this.tissueDark = tissueDark;
+            this.outline = outline;
+            this.supplied = supplied;
         }
         /// <summary>Reads a calculated drained shade or its exact authored replacement.</summary>
         internal RgbColor this[int color] => supplied is null ? Calculate(color) : supplied[color];
@@ -642,21 +506,20 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Normal ending colors for interpolation.</summary>
         internal readonly PaletteFrame last;
         /// <summary>Authored inks that differ from the revival interpolation.</summary>
-        internal readonly Dictionary<RainbowPaletteColorKey, RgbColor> suppliedOverrides = new();
+        internal readonly Dictionary<RainbowPaletteColorKey, RgbColor> suppliedOverrides;
 
-        /// <summary>Captures only phase/color differences from the endpoint interpolation.</summary>
-        public RevivalPaletteFade(PaletteFrame[] frames)
+        /// <summary>Keeps the fade's endpoints, length and the authored inks that differ from its interpolation.</summary>
+        /// <param name="first">The drained starting phase.</param>
+        /// <param name="last">The normal ending phase.</param>
+        /// <param name="length">The number of phases.</param>
+        /// <param name="suppliedOverrides">The supplied inks that differ from the interpolation, by phase and flattened colour.</param>
+        internal RevivalPaletteFade(PaletteFrame first, PaletteFrame last, int length,
+            Dictionary<RainbowPaletteColorKey, RgbColor> suppliedOverrides)
         {
-            first = frames[0];
-            last = frames[^1];
-            Length = frames.Length;
-            for (int frame = 0; frame < Length; frame++)
-                for (int color = 0; color < BodyCount + LegCount + 1; color++)
-                {
-                    RgbColor supplied = ReadColor(frames[frame], color);
-                    if (Interpolate(frame, color) != supplied)
-                        suppliedOverrides.Add(new RainbowPaletteColorKey(frame, color), supplied);
-                }
+            this.first = first;
+            this.last = last;
+            Length = length;
+            this.suppliedOverrides = suppliedOverrides;
         }
 
         /// <summary>Number of drain-revival phases.</summary>
@@ -674,8 +537,8 @@ public sealed class MotherBrainRainbowPalettePresentation
         private RgbColor Color(int frame, int color) => suppliedOverrides.TryGetValue(new RainbowPaletteColorKey(frame, color), out RgbColor supplied)
             ? supplied : Interpolate(frame, color);
 
-        /// <summary>Maps a flattened body, rear, or trailing index into one supplied frame.</summary>
-        private RgbColor ReadColor(PaletteFrame palette, int color) => color < BodyCount ? palette.Body[color]
+        /// <summary>Maps a flattened body, rear, or trailing index into one phase.</summary>
+        internal RgbColor ReadColor(PaletteFrame palette, int color) => color < BodyCount ? palette.Body[color]
             : color < BodyCount + LegCount ? palette.Leg(color - BodyCount)
             : palette.TrailingColor ?? throw new InvalidDataException("A supplied revival frame has no spill color.");
 
@@ -687,7 +550,7 @@ public sealed class MotherBrainRainbowPalettePresentation
                 : frame;
 
         /// <summary>Applies the per-ink revival frame choice before nearest RGB5 interpolation.</summary>
-        private RgbColor Interpolate(int frame, int color)
+        internal RgbColor Interpolate(int frame, int color)
         {
             frame = RevivalInterpolationFrame(frame, color);
             RgbColor start = ReadColor(first, color);
@@ -707,23 +570,17 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>All supplied frames when even one shade differs from straight interpolation.</summary>
         internal readonly PaletteFrame[]? supplied;
 
-        /// <summary>Tests every drain or fake-death shade against nearest-channel RGB5 interpolation.</summary>
-        public PaletteFade(PaletteFrame[] frames)
+        /// <summary>Keeps the fade's endpoints and length, and every supplied phase when one differs from the interpolation.</summary>
+        /// <param name="first">The first phase.</param>
+        /// <param name="last">The last phase.</param>
+        /// <param name="length">The number of phases.</param>
+        /// <param name="supplied">Every supplied phase when one differs from the interpolation, otherwise null.</param>
+        internal PaletteFade(PaletteFrame first, PaletteFrame last, int length, PaletteFrame[]? supplied)
         {
-            first = frames[0];
-            last = frames[^1];
-            Length = frames.Length;
-            for (int frame = 0; frame < Length; frame++)
-            {
-                for (int color = 0; color < BodyCount; color++)
-                    if (Body(frame, color) != frames[frame].Body[color])
-                    { supplied = frames; return; }
-                for (int color = 0; color < LegCount; color++)
-                    if (Leg(frame, color) != frames[frame].Leg(color))
-                    { supplied = frames; return; }
-                if (Trailing(frame) != frames[frame].TrailingColor)
-                { supplied = frames; return; }
-            }
+            this.first = first;
+            this.last = last;
+            Length = length;
+            this.supplied = supplied;
         }
 
         /// <summary>Number of phases between the two endpoints, inclusive.</summary>
@@ -738,13 +595,9 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Reads an authored rear-leg colour or its straight-fade approximation.</summary>
         public RgbColor Leg(int frame, int color) => supplied is null
             ? Interpolate(first.Leg(color), last.Leg(color), frame) : supplied[frame].Leg(color);
-        /// <summary>Interpolates the spill colour only when both endpoints provide it.</summary>
-        public RgbColor? Trailing(int frame) => supplied is not null ? supplied[frame].TrailingColor
-            : first.TrailingColor is RgbColor start && last.TrailingColor is RgbColor end
-                ? Interpolate(start, end, frame) : null;
 
         /// <summary>Rounds each channel to the nearest five-bit shade along the endpoint line.</summary>
-        private RgbColor Interpolate(RgbColor start, RgbColor end, int frame)
+        internal RgbColor Interpolate(RgbColor start, RgbColor end, int frame)
         {
             int intervals = Length - 1;
             return start.Zip(end, (_, a, b) => ((a * (intervals - frame)

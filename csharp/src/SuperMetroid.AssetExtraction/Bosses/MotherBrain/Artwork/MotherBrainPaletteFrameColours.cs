@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>One selected Mother Brain palette phase: its body and brain colours, its rear-leg colours, and the trailing colour a grey-transition phase carries.</summary>
 /// <param name="Body">The body and brain colours.</param>

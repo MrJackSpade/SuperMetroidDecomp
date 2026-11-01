@@ -21,30 +21,25 @@ internal sealed class MotherBrainRainbowShadeChannel
     /// <summary>Whether every supplied shade matches the reviewed interpolation profile.</summary>
     private readonly bool calculated;
 
-    /// <summary>Retains independent samples only when the phase's supplied samples follow the shade profile.</summary>
-    internal MotherBrainRainbowShadeChannel(int[] samples, MotherBrainRainbowShadeProfile profile, Func<int, int> sourceGreen)
+    /// <summary>Keeps the phase's profile and either its independent samples or every supplied sample.</summary>
+    /// <param name="profile">The phase's shade rule.</param>
+    /// <param name="sourceGreen">The shared green channel the recovering phase reads.</param>
+    /// <param name="inputs">The independent samples when <paramref name="calculated"/>, otherwise every supplied sample.</param>
+    /// <param name="calculated">Whether every supplied shade follows the profile.</param>
+    internal MotherBrainRainbowShadeChannel(MotherBrainRainbowShadeProfile profile, Func<int, int> sourceGreen, int[] inputs,
+        bool calculated)
     {
         this.profile = profile;
         this.sourceGreen = sourceGreen;
-        inputs = profile == MotherBrainRainbowShadeProfile.RecoveringGreen
-            ? [samples[0], samples[Layout.TissueStart + 2], samples[Layout.TissueStart + 3]]
-            : [samples[0], samples[Layout.PlateStart], samples[Layout.PlateEnd],
-                samples[Layout.TissueStart], samples[Layout.TissueEnd], samples[Layout.TailStart], samples[Layout.TailStart + 1]];
-        if (SharesDarkHeadTail(profile)) inputs = inputs[..^1];
-        for (int color = 0; color < samples.Length; color++)
-        {
-            if (Calculate(color) == samples[color]) continue;
-            inputs = samples;
-            return;
-        }
-        calculated = true;
+        this.inputs = inputs;
+        this.calculated = calculated;
     }
 
     /// <summary>Uses the calculated shade for a matching phase, or the exact supplied edit otherwise.</summary>
     internal int this[int color] => calculated ? WordWrap.LowByte(Calculate(color)) : inputs[color];
 
     /// <summary>Applies the phase's head ramp, plate and tissue rounding, and shared tail rule.</summary>
-    private int Calculate(int color)
+    internal int Calculate(int color)
     {
         if (color < Layout.PlateStart)
             return profile switch
@@ -82,7 +77,7 @@ internal sealed class MotherBrainRainbowShadeChannel
     }
 
     /// <summary>Identifies phases where the exposed-head outline shares the darkest cortex channel.</summary>
-    private static bool SharesDarkHeadTail(MotherBrainRainbowShadeProfile profile) =>
+    internal static bool SharesDarkHeadTail(MotherBrainRainbowShadeProfile profile) =>
         profile is MotherBrainRainbowShadeProfile.FirstGreenRise or MotherBrainRainbowShadeProfile.MixedBlue or MotherBrainRainbowShadeProfile.MaximumBlue;
 
     /// <summary>Selected integer tie rule for a phase's material-shade interpolation.</summary>

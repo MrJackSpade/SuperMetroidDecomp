@@ -14,7 +14,7 @@ internal static class MotherBrainDeathColorEdits
         RgbColor[][] corpseFade, RgbColor[] explodedDoor) =>
         new(Fade(bodyFade, last: null, MotherBrainPalettePart.Body),
             Fade(legFade, last: null, MotherBrainPalettePart.BackLeg),
-            Fade(corpseFade, new MotherBrainRainbowPalettePresentation.DrainedBodyColors(corpseFade[^1]), MotherBrainPalettePart.Body),
+            Fade(corpseFade, MotherBrainRainbowPaletteRecognition.Drained(corpseFade[^1]), MotherBrainPalettePart.Body),
             MatchesDoorPaint(explodedDoor) ? null : explodedDoor);
 
     /// <summary>

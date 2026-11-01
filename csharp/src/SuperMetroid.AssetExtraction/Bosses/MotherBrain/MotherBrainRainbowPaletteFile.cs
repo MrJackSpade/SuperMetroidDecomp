@@ -26,7 +26,7 @@ public static class MotherBrainRainbowPaletteFile
         if (version != MotherBrainRainbowPaletteVersion.Current &&
             !(version == MotherBrainRainbowPaletteVersion.PreFakeDeath && currentStock is not null))
             throw new InvalidDataException("Unsupported Mother Brain rainbow palette version.");
-        return MotherBrainRainbowPalettePresentation.Create(new MotherBrainRainbowPaletteColours
+        return MotherBrainRainbowPaletteRecognition.Create(new MotherBrainRainbowPaletteColours
         {
             Rainbow = CompileFrames(document.Rainbow, MotherBrainRainbowPaletteFormat.RainbowFrameCount,
                 MotherBrainRainbowPaletteDefinitions.ColorCount,

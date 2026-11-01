@@ -16,29 +16,43 @@ internal static class MusicTrackRendering
     /// loop that repeats its tempo phase repeats [E1, E2) sample-exactly.
     /// </summary>
     /// <returns>Interleaved native stereo PCM whose frame zero is the start tick.</returns>
-    internal static short[] RenderClip(ExtractedAudioAssetCatalog catalog, MusicTrackAnalysis track)
-    {
-        long end = track.ClipEndSample;
-        short[] pcm = Render(catalog, track, end);
-        return pcm[(int)(track.StartSample * 2)..(int)(end * 2)];
-    }
+    internal static short[] RenderClip(ExtractedAudioAssetCatalog catalog, MusicTrackAnalysis track) =>
+        Render(catalog, track, track.StartSample, track.ClipEndSample);
 
-    /// <summary>Renders whole frames from frame 0 until at least <paramref name="length"/> stereo frames exist.</summary>
-    /// <returns>Interleaved native stereo PCM from sample 0.</returns>
-    internal static short[] Render(ExtractedAudioAssetCatalog catalog, MusicTrackAnalysis track, long length)
+    /// <summary>
+    /// Renders whole frames from frame 0 until stereo frame <paramref name="end"/> exists, keeping
+    /// stereo frames [<paramref name="start"/>, <paramref name="end"/>) in a buffer sized once.
+    /// </summary>
+    /// <returns>Interleaved native stereo PCM whose frame zero is native stereo frame <paramref name="start"/>.</returns>
+    internal static short[] Render(ExtractedAudioAssetCatalog catalog, MusicTrackAnalysis track, long start, long end)
     {
         var renderer = new SpcAudioClipRenderer(catalog);
         MusicTrackAnalysis.QueueBanks(renderer, track.Bank);
-        var pcm = new List<short>(checked((int)(length * 2)) + SpcAudioClipRenderer.NativeSamplesPerFrame);
+        short[] clip = new short[checked((int)((end - start) * 2))];
         short[] frame = new short[SpcAudioClipRenderer.NativeSamplesPerFrame];
         renderer.RenderFrame(frame);
-        pcm.AddRange(frame);
+        long rendered = Keep(frame, 0, clip, start * 2);
         renderer.PlayTrack(new MusicTrack(track.Track));
-        while (pcm.Count < length * 2)
+        while (rendered < end * 2)
         {
             renderer.RenderFrame(frame);
-            pcm.AddRange(frame);
+            rendered = Keep(frame, rendered, clip, start * 2);
         }
-        return [.. pcm];
+        return clip;
+    }
+
+    /// <summary>
+    /// Copies the part of a rendered frame, whose first interleaved sample is
+    /// <paramref name="frameFirst"/>, that falls in the clip, whose first is
+    /// <paramref name="clipFirst"/>, into the clip.
+    /// </summary>
+    /// <returns>The interleaved sample position after the frame.</returns>
+    private static long Keep(ReadOnlySpan<short> frame, long frameFirst, Span<short> clip, long clipFirst)
+    {
+        long from = Math.Max(frameFirst, clipFirst);
+        long to = Math.Min(frameFirst + frame.Length, clipFirst + clip.Length);
+        if (from < to)
+            frame[(int)(from - frameFirst)..(int)(to - frameFirst)].CopyTo(clip[(int)(from - clipFirst)..]);
+        return frameFirst + frame.Length;
     }
 }

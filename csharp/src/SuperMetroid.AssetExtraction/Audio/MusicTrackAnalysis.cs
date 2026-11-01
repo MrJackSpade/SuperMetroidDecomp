@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
@@ -125,7 +126,7 @@ internal sealed record MusicTrackAnalysis(
             ManagedSpcPlayer player = Required(renderer).Player;
             state.Clear();
             player.WriteSequencerState(state, includeTempoPhase: false);
-            string key = Convert.ToBase64String([.. state]);
+            string key = Convert.ToBase64String(CollectionsMarshal.AsSpan(state));
             if (arrivals.TryGetValue(key, out long first))
             {
                 AnchorArrivals = [first, tickSample];

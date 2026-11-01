@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -118,7 +119,7 @@ internal sealed class SoundEffectObserver(int libraryIndex, int command) : ISpcD
             all = false;
             state.Clear();
             channels[index].WriteState(state);
-            string key = Convert.ToBase64String([.. state]);
+            string key = Convert.ToBase64String(CollectionsMarshal.AsSpan(state));
             if (channelStates[index].TryGetValue(key, out long first))
                 channelLoops[index] = new ChannelLoop(first, relative, channels[index].VoiceBitset);
             else

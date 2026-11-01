@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
@@ -62,10 +63,12 @@ internal static class SoundEffectRendering
         return renderer;
     }
 
-    /// <summary>Renders frames, appending the samples from the observed start on, until <paramref name="done"/> holds.</summary>
-    internal static List<short> RenderFromStart(SpcAudioClipRenderer renderer, SoundEffectObserver observer, Func<List<short>, short[], bool> done)
+    /// <summary>
+    /// Renders frames, appending the samples from the observed start on to <paramref name="pcm"/>,
+    /// until <paramref name="done"/> holds for the frame just rendered.
+    /// </summary>
+    internal static void RenderFromStart(SpcAudioClipRenderer renderer, SoundEffectObserver observer, List<short> pcm, Func<short[], bool> done)
     {
-        var pcm = new List<short>();
         short[] frame = new short[SpcAudioClipRenderer.NativeSamplesPerFrame];
         do
         {
@@ -74,11 +77,10 @@ internal static class SoundEffectRendering
             {
                 long frameStart = (renderer.Frame - 1) * ManagedSnesDsp.NativeStereoFramesPerVideoFrame;
                 int skip = (int)Math.Max(0, start - frameStart) * 2;
-                pcm.AddRange(frame.AsSpan(skip).ToArray());
+                pcm.AddRange(frame.AsSpan(skip));
             }
         }
-        while (!done(pcm, frame));
-        return pcm;
+        while (!done(frame));
     }
 
     /// <summary>Renders a one-shot effect through its logical end and the silent frame after its release.</summary>
@@ -88,7 +90,8 @@ internal static class SoundEffectRendering
         var observer = new SoundEffectObserver(SoundEffectLibraries.ToQueueIndex(library), command);
         SpcAudioClipRenderer renderer = Start(catalog, context, library, command, observer, synthesize: true);
         bool silentAfterEnd = false;
-        List<short> pcm = RenderFromStart(renderer, observer, (_, frame) =>
+        var pcm = new List<short>();
+        RenderFromStart(renderer, observer, pcm, frame =>
         {
             if (observer.EndSample is null)
                 return false;
@@ -105,7 +108,7 @@ internal static class SoundEffectRendering
         int voices = 0;
         foreach ((long _, int keyed) in observer.KeyOns)
             voices |= keyed;
-        return new OneShot([.. pcm.GetRange(0, frames * 2)], end - start, voices, [.. observer.KeyOns.Select(keyOn => keyOn.Sample)]);
+        return new OneShot(CollectionsMarshal.AsSpan(pcm)[..(frames * 2)].ToArray(), end - start, voices, [.. observer.KeyOns.Select(keyOn => keyOn.Sample)]);
     }
 
     /// <summary>
@@ -142,9 +145,12 @@ internal static class SoundEffectRendering
             var observer = new SoundEffectObserver(libraryIndex, command);
             SpcAudioClipRenderer renderer = Start(catalog, context, library, command, observer, synthesize: true);
             renderer.Player.dsp.OutputVoices = voice;
-            List<short> pcm = RenderFromStart(renderer, observer, (collected, _) => collected.Count >= second * 2);
+            // The last frame overshoots E2 by less than a frame, so the buffer never regrows.
+            int length = checked((int)(second * 2));
+            var pcm = new List<short>(length + SpcAudioClipRenderer.NativeSamplesPerFrame);
+            RenderFromStart(renderer, observer, pcm, _ => pcm.Count >= length);
             long[] keyOns = [.. observer.KeyOns.Where(keyOn => (keyOn.Voices & voice) != 0 && keyOn.Sample < second).Select(keyOn => keyOn.Sample)];
-            layers.Add(new LoopingLayer([.. pcm.GetRange(0, (int)(second * 2))], first, voice, keyOns));
+            layers.Add(new LoopingLayer(CollectionsMarshal.AsSpan(pcm)[..length].ToArray(), first, voice, keyOns));
         }
         return layers;
     }

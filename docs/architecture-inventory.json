@@ -46115,19 +46115,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyColorRows",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyColorRows.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyColorSelection",
       "kind": "record",
       "scope": "product",
@@ -46314,6 +46301,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleySuppliedColors",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleySuppliedColors.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.NorfairRidleyColorCatalog",
@@ -48222,14 +48222,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.SporeSpawn.Artwork.SporeSpawnHealthRows",
+      "type": "SuperMetroid.Core.Bosses.SporeSpawn.Artwork.SporeSpawnHealthBands",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/SporeSpawnHealthRows.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/SporeSpawnHealthBands.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -91034,6 +91034,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorFrames",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxColorFrames.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorKey",
       "kind": "record struct",
       "scope": "product",
@@ -91285,19 +91298,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorRows",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxColorRows.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColourPlacement",
@@ -136269,7 +136269,7 @@
         "csharp/test-support/RepositoryInstallation/PrivateInstallationAttribute.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation",

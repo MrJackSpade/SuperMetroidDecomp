@@ -75,6 +75,9 @@ public sealed class SamusProjectileSystem
     /// </summary>
     internal PostureAdmissionBeyondTransitions<SamusPoseId> PostureAdmission { get; }
 
+    /// <summary>The angles a Shinespark crash finishing in a drained pose releases its echoes into these slots at.</summary>
+    internal DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> DrainedCrashDepartures { get; }
+
     /// <summary>Creates one room's five projectile slots, eighteen trail slots and the owners that run them.</summary>
     /// <param name="charge">The held beam charge, flare and charge palette, which outlive each room's projectiles.</param>
     /// <param name="overreads">The installed services reproducing the glitch reads the shots, trails and flare make.</param>
@@ -83,6 +86,7 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(overreads);
         Charge = Ensure.NotNull(charge);
         PostureAdmission = overreads.PostureAdmission;
+        DrainedCrashDepartures = overreads.DrainedCrashDepartures;
         SlotTable = new ProjectileSlotTable();
         Earthquakes = new ProjectileEarthquakes();
         ImpactAudio = new ProjectileImpactAudio();

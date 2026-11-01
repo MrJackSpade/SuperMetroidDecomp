@@ -27,6 +27,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="PostureAdmissions">Whether the posture-transition admission admits weapons, by the name of each pose outside its table.</param>
 /// <param name="SpeedBoosterOverrunColours">The colours Gravity copies on each Speed Booster step past its cycle, by step name.</param>
 /// <param name="UnauthoredBeamLaunchSpeeds">The speeds each Spazer and Plasma beam combination launches at, by combination name.</param>
+/// <param name="DrainedCrashDepartures">The angles a Shinespark crash finishing in each drained pose releases its echoes at, by pose name.</param>
 internal sealed record SamusOverreadDocument(
     int Version,
     IReadOnlyDictionary<string, SamusOverreadDocument.Continuation?> AnimationContinuations,
@@ -37,7 +38,8 @@ internal sealed record SamusOverreadDocument(
     IReadOnlyList<int> ChargeFlareDelaysBelowPrograms,
     IReadOnlyDictionary<string, bool> PostureAdmissions,
     IReadOnlyDictionary<string, IReadOnlyList<PaletteRgb5>> SpeedBoosterOverrunColours,
-    IReadOnlyDictionary<string, SamusOverreadDocument.LaunchSpeeds> UnauthoredBeamLaunchSpeeds)
+    IReadOnlyDictionary<string, SamusOverreadDocument.LaunchSpeeds> UnauthoredBeamLaunchSpeeds,
+    IReadOnlyDictionary<string, SamusOverreadDocument.CrashDepartures> DrainedCrashDepartures)
 {
     /// <summary>The program laid out after another, named by a pose that animates by it.</summary>
     /// <param name="Pose">The name of a pose that animates by the later program.</param>
@@ -77,4 +79,9 @@ internal sealed record SamusOverreadDocument(
     /// <param name="Cardinal">The horizontal and vertical speed.</param>
     /// <param name="Diagonal">The diagonal speed.</param>
     internal sealed record LaunchSpeeds(int Cardinal, int Diagonal);
+
+    /// <summary>The two angles a crash's echoes leave at, each 0 through 255 steps of the 256-step turn.</summary>
+    /// <param name="First">The first echo's angle.</param>
+    /// <param name="Second">The second echo's angle.</param>
+    internal sealed record CrashDepartures(int First, int Second);
 }

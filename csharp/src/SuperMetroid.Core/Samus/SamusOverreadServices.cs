@@ -24,6 +24,7 @@ public sealed class SamusOverreadServices
     /// <param name="postureAdmission">Whether the posture-transition admission admits weapons for a pose outside its table.</param>
     /// <param name="speedBoosterColours">The suit colours Gravity Speed Booster copies from past its cycle.</param>
     /// <param name="unauthoredBeamSpeeds">The speeds a Spazer and Plasma beam launches at.</param>
+    /// <param name="drainedCrashDepartures">The angles a Shinespark crash finishing in a drained pose releases its echoes at.</param>
     internal SamusOverreadServices(
         LaidOutProgramContinuation<SamusPoseId> animationContinuation,
         TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> trailStarts,
@@ -32,7 +33,8 @@ public sealed class SamusOverreadServices
         ChargeFlareDelaysBelowPrograms chargeFlareDelays,
         PostureAdmissionBeyondTransitions<SamusPoseId> postureAdmission,
         SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> speedBoosterColours,
-        UnauthoredBeamLaunchSpeeds<SamusBeamCombination> unauthoredBeamSpeeds)
+        UnauthoredBeamLaunchSpeeds<SamusBeamCombination> unauthoredBeamSpeeds,
+        DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> drainedCrashDepartures)
     {
         AnimationContinuation = Ensure.NotNull(animationContinuation);
         TrailStarts = Ensure.NotNull(trailStarts);
@@ -42,6 +44,7 @@ public sealed class SamusOverreadServices
         PostureAdmission = Ensure.NotNull(postureAdmission);
         SpeedBoosterColours = Ensure.NotNull(speedBoosterColours);
         UnauthoredBeamSpeeds = Ensure.NotNull(unauthoredBeamSpeeds);
+        DrainedCrashDepartures = Ensure.NotNull(drainedCrashDepartures);
     }
 
     /// <summary>What a Samus animation frame past its pose's program reads, by a pose that animates by each program.</summary>
@@ -67,4 +70,7 @@ public sealed class SamusOverreadServices
 
     /// <summary>The speeds a Spazer and Plasma beam launches at, read past the beam speed table.</summary>
     internal UnauthoredBeamLaunchSpeeds<SamusBeamCombination> UnauthoredBeamSpeeds { get; }
+
+    /// <summary>The angles a Shinespark crash finishing in a drained pose releases its echoes at, read past its table.</summary>
+    internal DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> DrainedCrashDepartures { get; }
 }

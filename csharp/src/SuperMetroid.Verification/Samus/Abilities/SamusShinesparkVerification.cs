@@ -520,6 +520,50 @@ internal static void VerifySamusStoredShineAndShinespark()
         Console.WriteLine("Shinespark crash wraps: angular travel and departing echo radius wrap past 65535 to zero.");
     }
 
+    /// <summary>
+    /// Checks the angles a Shinespark crash releases its echoes at for every pose number (#1500): the six crash poses take
+    /// their authored pairs, the drained poses Mother Brain's drain installs mid-crash take the installed service's pairs,
+    /// and both are the cartridge's bytes at the pose's distance from the first crash pose; every other pose is rejected.
+    /// </summary>
+    internal static void VerifyCrashEchoDepartures()
+    {
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> drained = InstalledFixtures.SamusOverreads.DrainedCrashDepartures;
+        int checkedPoses = 0;
+        for (int number = 0; number <= byte.MaxValue; number++)
+        {
+            SamusPoseId pose = SamusPoseNumbering.FromNumber(number);
+            bool crashPose = number is >= 0xc9 and <= 0xce;
+            bool drainedPose = pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose;
+            if (!crashPose && !drainedPose)
+            {
+                AssertThrows<ArgumentOutOfRangeException>(() => ShinesparkEchoDepartures.DepartureAngles(pose, drained), $"pose {number} finishes no crash");
+                continue;
+            }
+            ShinesparkDepartureAngles angles = ShinesparkEchoDepartures.DepartureAngles(pose, drained);
+            int pair = 0x90d4c6 + (number - 0xc9) * 2;
+            AssertEqual((int)rom.ReadCartridgeByte(pair), (int)angles.First.TableIndex, $"pose {number} first echo angle");
+            AssertEqual((int)rom.ReadCartridgeByte(pair + 1), (int)angles.Second.TableIndex, $"pose {number} second echo angle");
+            if (drainedPose)
+                AssertEqual(angles, drained.Departures(pose), $"drained pose {number} reads its angles from the installed service");
+            else
+                AssertThrows<ArgumentOutOfRangeException>(() => drained.Departures(pose), $"crash pose {number} reads no angles past the table");
+            checkedPoses++;
+        }
+        AssertEqual(8, checkedPoses, "six crash poses and two drained poses finish a crash");
+        AssertThrows<InvalidOperationException>(() => ShinesparkEchoDepartures.DepartureAngles(SamusPoseId.DrainedCrouchingRightPose, null),
+            "a drained crash without the installed departures is rejected");
+        Console.WriteLine("Shinespark crash departures: six authored pairs, two drained pairs read past the table and every other pose's rejection pass.");
+    }
+
+    /// <summary>Runs the crash echo departure check against the cartridge and the installed drained-crash service.</summary>
+    [VerificationCommand("--shinespark-crash-departures")]
+    internal static int ShinesparkCrashDeparturesCommand()
+    {
+        Suite(nameof(VerifyCrashEchoDepartures), () => VerifyCrashEchoDepartures());
+        return 0;
+    }
+
     /// <summary>Runs the crash angular-travel and echo-radius wrap check, which needs no cartridge.</summary>
     [VerificationCommand("--shinespark-crash-wraps")]
     internal static int ShinesparkCrashWrapsCommand()

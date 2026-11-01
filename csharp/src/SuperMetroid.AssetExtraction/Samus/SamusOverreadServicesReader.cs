@@ -33,7 +33,8 @@ internal static class SamusOverreadServicesReader
             ChargeFlareDelays(Require(document.ChargeFlareDelaysBelowPrograms, nameof(document.ChargeFlareDelaysBelowPrograms))),
             PostureAdmission(Require(document.PostureAdmissions, nameof(document.PostureAdmissions))),
             SpeedBoosterColours(Require(document.SpeedBoosterOverrunColours, nameof(document.SpeedBoosterOverrunColours))),
-            UnauthoredBeamSpeeds(Require(document.UnauthoredBeamLaunchSpeeds, nameof(document.UnauthoredBeamLaunchSpeeds))));
+            UnauthoredBeamSpeeds(Require(document.UnauthoredBeamLaunchSpeeds, nameof(document.UnauthoredBeamLaunchSpeeds))),
+            DrainedCrashDepartures(Require(document.DrainedCrashDepartures, nameof(document.DrainedCrashDepartures))));
     }
 
     /// <summary>Every pose with an animation program and its program's successor.</summary>
@@ -202,6 +203,23 @@ internal static class SamusOverreadServicesReader
         if (speeds.Count != cardinal.Count)
             throw new InvalidDataException($"Samus overread file holds launch speeds for {speeds.Count} combinations, not {cardinal.Count}.");
         return new(cardinal, diagonal);
+    }
+
+    /// <summary>The echo angles of a crash finishing in each drained pose a crash can finish in.</summary>
+    private static DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> DrainedCrashDepartures(
+        IReadOnlyDictionary<string, SamusOverreadDocument.CrashDepartures> departures)
+    {
+        var result = new Dictionary<SamusPoseId, ShinesparkDepartureAngles>();
+        foreach (SamusPoseId pose in SamusOverreadDecoding.DrainedCrashPoses)
+        {
+            if (!departures.TryGetValue(pose.ToString(), out SamusOverreadDocument.CrashDepartures? pair) || pair is null ||
+                pair.First is < 0 or > byte.MaxValue || pair.Second is < 0 or > byte.MaxValue)
+                throw new InvalidDataException($"Samus overread file holds no valid crash departures for {pose}.");
+            result.Add(pose, ShinesparkEchoDefinitions.Departure(pair.First, pair.Second));
+        }
+        if (departures.Count != result.Count)
+            throw new InvalidDataException($"Samus overread file holds crash departures for {departures.Count} poses, not {result.Count}.");
+        return new(result);
     }
 
     /// <summary>A sparkle's signed offset from its projectile, -128 through 127 pixels.</summary>

@@ -37,6 +37,9 @@ internal static class SamusOverreadSourceDefinitions
     /// <summary>$90:DD75, the byte the HUD's posture-transition admission reads for pose zero; the real flags start at $90:DDAA.</summary>
     internal const int HudPostureFlagsForPoseZero = 0x90dd75;
 
+    /// <summary>$90:D4C6: the Shinespark crash's echo departure table, two angle bytes per pose from the first crash pose.</summary>
+    internal const int CrashDepartureTable = 0x90d4c6;
+
     /// <summary>$90:C2D1: the beam speed table, a cardinal then a diagonal speed word per beam combination.</summary>
     internal const int BeamSpeedTable = 0x90c2d1;
 

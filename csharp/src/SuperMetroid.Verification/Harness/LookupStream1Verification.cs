@@ -1862,18 +1862,8 @@ internal static class LookupStream1Verification
     /// <summary>Checks Samus pose policy tables across the complete byte-valued pose domain.</summary>
     private static void VerifyLookupStream1SamusPolicyDomains(ISnesAddressSpace rom)
     {
-        for (int pose = 0; pose <= byte.MaxValue; pose++)
-        {
-            // The six crash poses, and the drained-crouch poses a drained controller installs mid-crash, which read on past the table.
-            if (pose is >= 0xc9 and <= 0xce ||
-                SamusPoseNumbering.FromNumber(pose) is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
-            {
-                var angles = ShinesparkEchoDepartures.DepartureAngles(SamusPoseNumbering.FromNumber(pose));
-                AssertEqual(LookupStream1SamusPolicyDomainsRomByte(rom, 0x90d4c6 + (pose - 0xc9) * 2), angles.First.TableIndex, "native crash first departure angle");
-                AssertEqual(LookupStream1SamusPolicyDomainsRomByte(rom, 0x90d4c7 + (pose - 0xc9) * 2), angles.Second.TableIndex, "native crash opposite departure angle");
-            }
-            else AssertThrows<InvalidOperationException>(() => ShinesparkEchoDepartures.DepartureAngles(SamusPoseNumbering.FromNumber(pose)), "crash departure exact pose domain");
-        }
+        // The crash echo departures, including the drained poses that read past their table, are checked by the
+        // Shinespark family's own crash departure check (#1500).
         foreach (byte invalid in new byte[] { 28, byte.MaxValue })
             AssertEqual(false, SamusMovementTypeNativeWords.Types.TryDecode(invalid, out _), "movement byte exact domain");
         var undefinedMovement = (SamusMovementType)(-1);

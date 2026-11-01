@@ -7,15 +7,17 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public static class ShinesparkEchoDepartures
 {
     /// <summary>
-    /// The crash's two echo angle indices, indexed by (pose - $C9) * 2. The six
-    /// crash poses select an axis and its opposite.
+    /// The crash's two echo angles for the pose Samus holds when it finishes: one of the six crash poses, or a drained pose
+    /// Mother Brain's drain installed while the crash kept running, whose angles <paramref name="drained"/> holds.
     /// </summary>
-    /// <remarks>
-    /// The routine indexes with whatever pose is installed when the crash finishes. A drained
-    /// controller can replace the crash pose with $E8/$E9 while the crash keeps its
-    /// movement handler, and those indices read on past the table into the following code:
-    /// the next two byte pairs.
-    /// </remarks>
-    internal static ShinesparkDepartureAngles DepartureAngles(SamusPoseId pose) =>
-        DepartureAngleTable.TryGetValue(pose, out ShinesparkDepartureAngles value) ? value : throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {pose}.");
+    /// <exception cref="InvalidOperationException">The pose is not a crash pose and no drained departures are installed.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The pose is neither a crash pose nor a drained pose a crash can finish in.</exception>
+    internal static ShinesparkDepartureAngles DepartureAngles(SamusPoseId pose,
+        DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles>? drained)
+    {
+        if (DepartureAngleTable.TryGetValue(pose, out ShinesparkDepartureAngles authored))
+            return authored;
+        return (drained ?? throw new InvalidOperationException(
+            $"A crash finishing in {pose} reads its angles past the departure table, which needs the installed drained-crash departures.")).Departures(pose);
+    }
 }

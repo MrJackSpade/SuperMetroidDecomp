@@ -35,8 +35,15 @@ internal static class SamusOverreadDecoding
             ChargeFlareDelaysBelowPrograms(cartridge),
             PostureAdmissions(cartridge),
             SpeedBoosterOverrunColours(cartridge),
-            UnauthoredBeamLaunchSpeeds(cartridge));
+            UnauthoredBeamLaunchSpeeds(cartridge),
+            DrainedCrashDepartures(cartridge));
     }
+
+    /// <summary>
+    /// The drained poses a Shinespark crash can finish in: Mother Brain's drain replaces the crash pose with a drained
+    /// crouch while the crash keeps running.
+    /// </summary>
+    internal static readonly SamusPoseId[] DrainedCrashPoses = [SamusPoseId.DrainedCrouchingRightPose, SamusPoseId.DrainedCrouchingLeftPose];
 
     /// <summary>
     /// Each pose's program's successor in the cartridge's layout of the animation programs: the program whose first
@@ -317,4 +324,16 @@ internal static class SamusOverreadDecoding
                     unchecked((short)cartridge.ReadCartridgeWord(row)),
                     unchecked((short)cartridge.ReadCartridgeWord(row + sizeof(ushort))));
             });
+
+    /// <summary>
+    /// The angles a crash finishing in each drained pose releases its echoes at: the crash's end reads two angle bytes at
+    /// the pose's distance from the first crash pose, so a drained pose reads past the table's six pairs.
+    /// </summary>
+    private static Dictionary<string, SamusOverreadDocument.CrashDepartures> DrainedCrashDepartures(IImportCartridgeSource cartridge) =>
+        DrainedCrashPoses.ToDictionary(pose => pose.ToString(), pose =>
+        {
+            int pair = SamusOverreadSourceDefinitions.CrashDepartureTable +
+                SamusPoseNumbering.Offset(pose, SamusPoseId.ShinesparkHorizontalRightPose) * 2;
+            return new SamusOverreadDocument.CrashDepartures(cartridge.ReadCartridgeByte(pair), cartridge.ReadCartridgeByte(pair + 1));
+        });
 }

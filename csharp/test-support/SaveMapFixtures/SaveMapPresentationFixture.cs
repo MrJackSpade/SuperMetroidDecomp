@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 
 namespace SuperMetroid.TestSupport.SaveMapFixtures;
 
@@ -7,5 +6,5 @@ namespace SuperMetroid.TestSupport.SaveMapFixtures;
 internal static class SaveMapPresentationFixture
 {
     /// <summary>Loads a fresh typed map catalog from the shared repository installation, which SRAM decoding reads.</summary>
-    public static AreaMapPresentation Create() => RepositoryInstallation.Installation.LoadMaps();
+    public static AreaMapPresentation Create() => RepositoryInstallation.RepositoryInstallation.Installation.LoadMaps();
 }

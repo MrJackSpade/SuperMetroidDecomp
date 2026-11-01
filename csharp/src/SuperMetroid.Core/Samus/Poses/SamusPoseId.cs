@@ -13,20 +13,20 @@ public enum SamusPoseId
 
     /// <summary>
     /// Pose `$9B`: the Varia/Gravity-suit counterpart of pose `$00`. Both use movement type
-    /// zero, but only the power-suit record needs bank `$90`'s extra chest-cover OBJ.
+    /// zero, but only the power-suit record needs the draw's extra chest-cover sprite.
     /// </summary>
     ForwardFacingSuitedPose,
 
-    /// <summary>Pose $01 is “facing right - normal” in the cartridge table.</summary>
+    /// <summary>Pose $01 is “facing right - normal” in the game table.</summary>
     FacingRightNormalPose,
 
-    /// <summary>Pose $02 is “facing left - normal” in the cartridge table.</summary>
+    /// <summary>Pose $02 is “facing left - normal” in the game table.</summary>
     FacingLeftNormalPose,
 
-    /// <summary>Pose $09 is “moving right - not aiming” in the cartridge table.</summary>
+    /// <summary>Pose $09 is “moving right - not aiming” in the game table.</summary>
     MovingRightNormalPose,
 
-    /// <summary>Pose $0A is “moving left - not aiming” in the cartridge table.</summary>
+    /// <summary>Pose $0A is “moving left - not aiming” in the game table.</summary>
     MovingLeftNormalPose,
 
     /// <summary>
@@ -47,7 +47,7 @@ public enum SamusPoseId
 
     /// <summary>
     /// Pose $49 visually faces left while moonwalking right. Its pose-X byte is deliberately
-    /// eight: native horizontal movement follows travel direction, not the artwork's facing.
+    /// eight: horizontal movement follows travel direction, not the artwork's facing.
     /// </summary>
     MoonwalkFacingLeftPose,
 
@@ -195,7 +195,7 @@ public enum SamusPoseId
 
     /// <summary>
     /// Pose `$1B` is the right-facing Space Jump body. The equipment-aware movement-type
-    /// initializer at `$91:F624` substitutes this for the transition table's ordinary
+    /// initializer substitutes this for the transition table's ordinary
     /// `$19` target when Space Jump is equipped and Screw Attack is not.
     /// </summary>
     SpaceJumpRightPose,
@@ -204,8 +204,8 @@ public enum SamusPoseId
     SpaceJumpLeftPose,
 
     /// <summary>
-    /// Pose `$81` is the right-facing Screw Attack body. Screw Attack bit `$0008` has
-    /// priority over Space Jump bit `$0200` in the native spin-pose selector.
+    /// Pose `$81` is the right-facing Screw Attack body. The Screw Attack bit has
+    /// priority over the Space Jump bit in the spin-pose selector.
     /// </summary>
     ScrewAttackRightPose,
 
@@ -356,8 +356,8 @@ public enum SamusPoseId
 
     /// <summary>
     /// Pose `$33` is the unused right-facing body selected only by movement type `$07`'s
-    /// otherwise-unused knockback transition at `$90:DF1D`. Naming it keeps the exhaustive
-    /// native pointer table executable without pretending the retail game reaches it.
+    /// otherwise-unused knockback transition. Naming it keeps the exhaustive
+    /// pose table executable without pretending the retail game reaches it.
     /// </summary>
     UnusedKnockbackRightPose,
 
@@ -411,7 +411,7 @@ public enum SamusPoseId
 
     /// <summary>
     /// Pose `$67` is the right-facing falling body with the cannon held horizontally after
-    /// firing. Its `$91:B353` delay stream has the same terminal-velocity split as `$29`.
+    /// firing. Its delay stream has the same terminal-velocity split as `$29`.
     /// </summary>
     FallingGunExtendedRightPose,
 
@@ -615,7 +615,7 @@ public enum SamusPoseId
     LandingAimDiagonalDownLeftPose,
 
     /// <summary>
-    /// Pose `$E6` is the right-facing horizontal-fire landing selected by `$91:E95D` only
+    /// Pose `$E6` is the right-facing horizontal-fire landing selected by the landing transition only
     /// when the current shot direction is two and the Shot binding is still held at impact.
     /// Its terminal `$F8,$01` command returns to ordinary standing after the landing frames.
     /// </summary>
@@ -701,108 +701,108 @@ public enum SamusPoseId
 
     /// <summary>Pose $A7 lands facing left after a spin or wall jump.</summary>
     SpinLandingLeftPose,
-    /// <summary>Native unused pose $20, symbol UNUSED_PoseDefinitions_20_91B729 at $91:B729; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $20; preserves its distinct dispatch record.</summary>
     UnusedPose20,
 
-    /// <summary>Native unused pose $21, symbol UNUSED_PoseDefinitions_21_91B731 at $91:B731; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $21; preserves its distinct dispatch record.</summary>
     UnusedPose21,
 
-    /// <summary>Native unused pose $22, symbol UNUSED_PoseDefinitions_22_91B739 at $91:B739; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $22; preserves its distinct dispatch record.</summary>
     UnusedPose22,
 
-    /// <summary>Native unused pose $23, symbol UNUSED_PoseDefinitions_23_91B741 at $91:B741; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $23; preserves its distinct dispatch record.</summary>
     UnusedPose23,
 
-    /// <summary>Native unused pose $24, symbol UNUSED_PoseDefinitions_24_91B749 at $91:B749; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $24; preserves its distinct dispatch record.</summary>
     UnusedPose24,
 
-    /// <summary>Native unused pose $39, symbol UNUSED_PoseDefinitions_39_91B7F1 at $91:B7F1; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $39; preserves its distinct dispatch record.</summary>
     UnusedPose39,
 
-    /// <summary>Native unused pose $3A, symbol UNUSED_PoseDefinitions_3A_91B7F9 at $91:B7F9; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $3A; preserves its distinct dispatch record.</summary>
     UnusedPose3A,
 
-    /// <summary>Native unused pose $3F, symbol UNUSED_PoseDefinitions_3F_91B821 at $91:B821; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $3F; preserves its distinct dispatch record.</summary>
     UnusedPose3F,
 
-    /// <summary>Native unused pose $40, symbol UNUSED_PoseDefinitions_40_91B829 at $91:B829; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $40; preserves its distinct dispatch record.</summary>
     UnusedPose40,
 
-    /// <summary>Native unused pose $42, symbol UNUSED_PoseDefinitions_42_91B839 at $91:B839; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $42; preserves its distinct dispatch record.</summary>
     UnusedPose42,
 
-    /// <summary>Native unused pose $45, symbol UNUSED_PoseDefinitions_45_91B851 at $91:B851; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $45; preserves its distinct dispatch record.</summary>
     UnusedPose45,
 
-    /// <summary>Native unused pose $46, symbol UNUSED_PoseDefinitions_46_91B859 at $91:B859; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $46; preserves its distinct dispatch record.</summary>
     UnusedPose46,
 
-    /// <summary>Native unused pose $47, symbol UNUSED_PoseDefinitions_47_91B861 at $91:B861; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $47; preserves its distinct dispatch record.</summary>
     UnusedPose47,
 
-    /// <summary>Native unused pose $48, symbol UNUSED_PoseDefinitions_48_91B869 at $91:B869; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $48; preserves its distinct dispatch record.</summary>
     UnusedPose48,
 
-    /// <summary>Native unused pose $5B, symbol UNUSED_PoseDefinitions_5B_91B901 at $91:B901; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $5B; preserves its distinct dispatch record.</summary>
     UnusedPose5B,
 
-    /// <summary>Native unused pose $5C, symbol UNUSED_PoseDefinitions_5C_91B909 at $91:B909; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $5C; preserves its distinct dispatch record.</summary>
     UnusedPose5C,
 
-    /// <summary>Native unused pose $5D, symbol UNUSED_PoseDefinitions_5D_91B911 at $91:B911; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $5D; preserves its distinct dispatch record.</summary>
     UnusedPose5D,
 
-    /// <summary>Native unused pose $5E, symbol UNUSED_PoseDefinitions_5E_91B919 at $91:B919; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $5E; preserves its distinct dispatch record.</summary>
     UnusedPose5E,
 
-    /// <summary>Native unused pose $5F, symbol UNUSED_PoseDefinitions_5F_91B921 at $91:B921; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $5F; preserves its distinct dispatch record.</summary>
     UnusedPose5F,
 
-    /// <summary>Native unused pose $60, symbol UNUSED_PoseDefinitions_60_91B929 at $91:B929; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $60; preserves its distinct dispatch record.</summary>
     UnusedPose60,
 
-    /// <summary>Native unused pose $61, symbol UNUSED_PoseDefinitions_61_91B931 at $91:B931; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $61; preserves its distinct dispatch record.</summary>
     UnusedPose61,
 
-    /// <summary>Native unused pose $62, symbol UNUSED_PoseDefinitions_62_91B939 at $91:B939; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $62; preserves its distinct dispatch record.</summary>
     UnusedPose62,
 
-    /// <summary>Native unused pose $63, symbol UNUSED_PoseDefinitions_63_91B941 at $91:B941; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $63; preserves its distinct dispatch record.</summary>
     UnusedPose63,
 
-    /// <summary>Native unused pose $64, symbol UNUSED_PoseDefinitions_64_91B949 at $91:B949; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $64; preserves its distinct dispatch record.</summary>
     UnusedPose64,
 
-    /// <summary>Native unused pose $AC, symbol UNUSED_PoseDefinitions_AC_91BB89 at $91:BB89; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $AC; preserves its distinct dispatch record.</summary>
     UnusedPoseAC,
 
-    /// <summary>Native unused pose $AD, symbol UNUSED_PoseDefinitions_AD_91BB91 at $91:BB91; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $AD; preserves its distinct dispatch record.</summary>
     UnusedPoseAD,
 
-    /// <summary>Native unused pose $AE, symbol UNUSED_PoseDefinitions_AE_91BB99 at $91:BB99; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $AE; preserves its distinct dispatch record.</summary>
     UnusedPoseAE,
 
-    /// <summary>Native unused pose $AF, symbol UNUSED_PoseDefinitions_AF_91BBA1 at $91:BBA1; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $AF; preserves its distinct dispatch record.</summary>
     UnusedPoseAF,
 
-    /// <summary>Native unused pose $B0, symbol UNUSED_PoseDefinitions_B0_91BBA9 at $91:BBA9; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $B0; preserves its distinct dispatch record.</summary>
     UnusedPoseB0,
 
-    /// <summary>Native unused pose $B1, symbol UNUSED_PoseDefinitions_B1_91BBB1 at $91:BBB1; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $B1; preserves its distinct dispatch record.</summary>
     UnusedPoseB1,
 
-    /// <summary>Native unused pose $C5, symbol UNUSED_PoseDefinitions_C5_91BC51 at $91:BC51; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $C5; preserves its distinct dispatch record.</summary>
     UnusedPoseC5,
 
-    /// <summary>Native unused pose $C6, symbol UNUSED_PoseDefinitions_C6_91BC59 at $91:BC59; preserves its distinct dispatch record.</summary>
+    /// <summary>Unused pose $C6; preserves its distinct dispatch record.</summary>
     UnusedPoseC6,
 
-    /// <summary>Pose byte $FD, past the native definition table: its records read the adjacent code bytes.</summary>
+    /// <summary>Pose byte $FD, past the definition table: its records read the adjacent code bytes.</summary>
     AdjacentCodePoseFD,
 
-    /// <summary>Pose byte $FE, past the native definition table: its records read the adjacent code bytes.</summary>
+    /// <summary>Pose byte $FE, past the definition table: its records read the adjacent code bytes.</summary>
     AdjacentCodePoseFE,
 
-    /// <summary>Pose byte $FF, past the native definition table: its records read the adjacent code bytes.</summary>
+    /// <summary>Pose byte $FF, past the definition table: its records read the adjacent code bytes.</summary>
     AdjacentCodePoseFF,
 }

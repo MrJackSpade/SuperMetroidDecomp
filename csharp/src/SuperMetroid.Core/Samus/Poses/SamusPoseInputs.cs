@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>Which pose each pose's input list selects for the held and newly pressed buttons.</summary>
 internal static class SamusPoseInputs
 {
-    /// <summary>Maps a supported pose to its bank-91 transition list, preserving shared and empty-list identities.</summary>
-    /// <returns>False only when the pose lies beyond the native 253-pose dispatch table.</returns>
+    /// <summary>Maps a supported pose to its transition list, preserving shared and empty-list identities.</summary>
+    /// <returns>False only when the pose lies beyond the 253-pose dispatch table.</returns>
     internal static bool TryGetInputList(SamusPoseId pose, out SamusPoseInputList inputList)
     {
-        // The poses past the 253 native records read adjacent bank-$91 code, not a graph.
+        // The poses past the 253 pose records read adjacent code, not a graph.
         if (pose is SamusPoseId.AdjacentCodePoseFD or SamusPoseId.AdjacentCodePoseFE or SamusPoseId.AdjacentCodePoseFF)
         {
             inputList = default;
@@ -113,7 +113,7 @@ internal static class SamusPoseInputs
         return true;
     }
 
-    /// <summary>Evaluates the selected transition list in its early or late native graph section using held and edge inputs.</summary>
+    /// <summary>Evaluates the selected transition list in its early or late graph section using held and edge inputs.</summary>
     internal static SamusPoseInputMatch Match(SamusPoseInputList inputList, ControllerButton held, ControllerButton newlyPressed) =>
         LaterLists.Contains(inputList)
             ? SamusPoseInputRulesLate.Match(inputList, held, newlyPressed)

@@ -10,7 +10,7 @@ internal static class SamusPoseTransitions
 {
 
     /// <summary>
-    /// Installs the ordinary or aimed falling pose selected by <c>$91:E8F2</c> when a
+    /// Installs the ordinary or aimed falling pose selected by the walk-off transition when a
     /// grounded movement probe finds no floor. The collision command clears vertical
     /// speed and starts downward gravity before the pose is drawn.
     /// </summary>
@@ -32,14 +32,14 @@ RoomLevelData level, SamusPoseId targetPose,
         SamusPoseId expectedTarget = SelectFallingPoseForCurrentAim(samus);
         if (!supportedSource || targetPose != expectedTarget)
         {
-            // The caller computes the target from this pose's ROM metadata immediately
+            // The caller computes the target from this pose's metadata immediately
             // before invoking us. A mismatch is an inconsistent request, not missing logic.
             throw new InvalidOperationException(
-                $"Walk-off transition {samus.Pose} -> {targetPose} does not match the pose's ROM-selected falling target {expectedTarget}.");
+                $"Walk-off transition {samus.Pose} -> {targetPose} does not match the pose's falling target {expectedTarget}.");
         }
 
-        // A crouched or compact source can grow when falling is selected. Native
-        // F404 runs the same pose-expansion collision as an input-driven transition,
+        // A crouched or compact source can grow when falling is selected. The game's
+        // pose initializer runs the same pose-expansion collision as an input-driven transition,
         // including its fractional clamp. Skipping it embeds the new body in the
         // floor after a near-ground unmorph. Rejection also skips command five.
         SamusPoseId sourcePose = samus.Pose;
@@ -52,7 +52,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
             return;
         }
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
-        // Command five's no-floor branch ($91:EFEF) preserves an ascending
+        // Command five's no-floor branch preserves an ascending
         // velocity, even if a special handler left it on a standing pose. Crystal
         // Flash can do exactly that; unconditional reset shortens its return arc.
         if (samus.Kinematics.YDirection != SamusVerticalDirection.Up)
@@ -65,7 +65,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
         samus.Pose = targetPose;
         // Alpha publishes the falling radius next frame; pose commit retains the
         // radius used by this frame's grounded movement and collision probes.
-        // SamusFunc_F433 dispatches the new falling movement type through $91:F60D
+        // SamusFunc_F433 dispatches the new falling movement type through the falling initializer
         // before command five initializes the downward state. That initializer derives
         // the mode from extra dash speed; it must not retain the grounded release mode.
         // Base speed itself survives until the next aerial movement routine consumes it.
@@ -74,7 +74,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
     }
 
     /// <summary>
-    /// Ports the facing lookup used by `$91:E8F2` for a grounded walk-off.
+    /// Ports the facing lookup used by the walk-off transition for a grounded walk-off.
     /// </summary>
     public static SamusPoseId SelectFallingPoseForCurrentAim(SamusState samus)
     {
@@ -85,12 +85,11 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
     }
 
     /// <summary>
-    /// Applies <c>$91:E95D</c>'s normal/spin/aimed landing choice in a scripted context that
-    /// is known to have room for the destination pose, followed by grounded collision cleanup
-    /// at <c>$91:F010</c>.
+    /// Applies the landing transition's normal/spin/aimed landing choice in a scripted context that
+    /// is known to have room for the destination pose, followed by grounded collision cleanup.
     /// </summary>
     /// <remarks>
-    /// Playable room code must call <see cref="SamusPoseTransitions.TryApplyAerialLanding"/> instead. The cartridge
+    /// Playable room code must call <see cref="SamusPoseTransitions.TryApplyAerialLanding"/> instead. The game
     /// sends every prospective landing pose through <c>HandleCollDueToChangedPose</c>; omitting
     /// that probe lets the much taller landing body overlap a low ceiling. This roomless entry
     /// point remains for cinematic movement and focused collision-free fixtures only.
@@ -117,12 +116,12 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
     }
 
     /// <summary>
-    /// Applies a normal or spinning landing through the cartridge's shared prospective-pose
+    /// Applies a normal or spinning landing through the game's shared prospective-pose
     /// collision handler before committing the taller landing body.
     /// </summary>
     /// <returns>
-    /// True when the selected landing pose fit. False means native collision retained the
-    /// source pose or selected its stable-crouch fallback; native skips the landing command.
+    /// True when the selected landing pose fit. False means the game's collision retained the
+    /// source pose or selected its stable-crouch fallback; the game then skips the landing command.
     /// </returns>
     public static bool TryApplyAerialLanding(SamusState samus, 
 
@@ -155,7 +154,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
-            // `$91:FFA7` deliberately chooses stable crouch for a non-Morph source when
+            // Deliberately chooses stable crouch for a non-Morph source when
             // both the floor and ceiling reject the full landing body. This is what lets
             // a spin jump land in a 32-pixel passage without embedding Samus in its ceiling.
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
@@ -178,14 +177,14 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
     /// </summary>
     internal static int StandingPoseInitialFrame(SamusPoseId sourcePose, SamusPoseId targetPose)
     {
-        // $91:F4DC keeps the gun raised when both the old and new standing
+        // Keeps the gun raised when both the old and new standing
         // initializer's poses aim straight up, including landing and its completion.
         return SamusPoseMetadata.ReadMovementType(targetPose) == SamusMovementType.Standing &&
             SamusPoseMetadata.ReadShotDirection(sourcePose) is 0 or 9 &&
             SamusPoseMetadata.ReadShotDirection(targetPose) is 0 or 9 ? 1 : 0;
     }
 
-    /// <summary>Chooses <c>$91:E95D</c>'s prospective landing pose.</summary>
+    /// <summary>Chooses the landing transition's prospective landing pose.</summary>
     private static SamusPoseId SelectAerialLandingPose(SamusState samus, 
         bool wasSpinning,
         ControllerButton controllerInput)
@@ -198,9 +197,9 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
                 : SamusPoseId.SpinLandingRightPose;
         }
 
-        // `$91:E95D` checks `$FF` before indexing `$91:E9F3`; hurt/damage-boost art
+        // Checks `$FF` before indexing the landing table; hurt/damage-boost art
         // deliberately stores that sentinel and lands through the ordinary facing pair.
-        // Horizontal directions two/seven take `$91:E96E-$E98F`'s extra Shot-binding
+        // Horizontal directions two/seven take the landing's extra Shot-binding
         // test. Held Shot selects firing landing `$E6/$E7`; released Shot selects the
         // ordinary `$A4/$A5` pair. The six admitted aim directions select `$E0-$E5`.
         bool shotHeld = (controllerInput & ControllerButton.X) != ControllerButton.None;
@@ -222,26 +221,26 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
         };
     }
 
-    /// <summary>Applies collision command five at <c>$91:F010</c>.</summary>
+    /// <summary>Applies collision command five.</summary>
     private static void ApplyAerialLandingCollisionCommand(SamusState samus, bool leavingScrewAttack)
     {
-        // $91:F1EC installs the same one-shot input handler used by F8.
+        // Installs the same one-shot input handler used by F8.
         // Its short held-Jump window is evaluated next alpha, not during landing.
         if (!samus.Control.AlphaLocked) samus.InputSnapshot.AutoJumpInputPending = true;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.Kinematics.YSpeed = default;
 
-        // `$91:F433` reloads the normal suit palette whenever a pose change leaves spin or
+        // Reloads the normal suit palette whenever a pose change leaves spin or
         // wall-jump movement while Screw Attack is equipped. The host palette copy occurs
-        // at the later `$91:D6F7` phase, so publish that same deferred work here.
+        // at the later palette phase, so publish that same deferred work here.
         if (leavingScrewAttack)
             samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
         samus.Kinematics.YDirection = SamusVerticalDirection.None;
     }
 
     /// <summary>
-    /// Applies `$91:E9F3` directions four/five when radius-ten straight-down Samus lands.
+    /// Applies the landing table's directions four/five when radius-ten straight-down Samus lands.
     /// Both entries select ordinary `$A4/$A5`; the 10 -> 21 expansion still runs the full
     /// block pose-change collision resolver; command five clears motion only if accepted.
     /// </summary>
@@ -274,7 +273,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.Allowed)
         {
             samus.Pose = targetPose;
-            // $91:FDAE leaves $0B00 at the compact body's radius: this frame's enemy and
+            // Leaves the collision radius at the compact body's radius: this frame's enemy and
             // projectile collision still use it, and alpha's SetSamusRadius takes the
             // landing body only next frame, as for an ordinary landing.
             samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
@@ -301,7 +300,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
         if (samus.PendingTransitionalPose is not SamusPoseId targetPose)
             return false;
 
-        // Native pose initialization computes its own local delay without replacing
+        // The game's pose initialization computes its own local delay without replacing
         // the buffer published by this frame's FX pass. Command three adds that live
         // buffer once more after installing the new animation.
         int commandAnimationBuffer = samus.AnimationFrameBuffer;
@@ -367,12 +366,12 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
             (SamusPoseId.LandingAimDiagonalUpLeftPose, SamusPoseId.StandingAimDiagonalUpLeftPose) or
             (SamusPoseId.LandingAimDiagonalDownRightPose, SamusPoseId.StandingAimDiagonalDownRightPose) or
             (SamusPoseId.LandingAimDiagonalDownLeftPose, SamusPoseId.StandingAimDiagonalDownLeftPose) or
-            // `$91:B22D/$B231` is shared by ordinary and firing landings. `$E6/$E7`
+            // Is shared by ordinary and firing landings. `$E6/$E7`
             // therefore executes the literal same `$F8,$01/$02` terminal operands.
             (SamusPoseId.FiringLandingRightPose, SamusPoseId.FacingRightNormalPose) or
             (SamusPoseId.FiringLandingLeftPose, SamusPoseId.FacingLeftNormalPose) or
             // Every aerial-turn delay list ends in command `$F8 pp`. These pairs are the
-            // literal operands from `$91:B3ED-$91:B490`, not inferred mirror poses.
+            // literal operands from the aerial-turn delay lists, not inferred mirror poses.
             (SamusPoseId.TurningRightToLeftJumpPose, SamusPoseId.NormalJumpForwardLeftPose) or
             (SamusPoseId.TurningLeftToRightJumpPose, SamusPoseId.NormalJumpForwardRightPose) or
             (SamusPoseId.TurningRightToLeftFallingPose, SamusPoseId.FallingLeftPose) or
@@ -389,19 +388,19 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
             (SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose, SamusPoseId.NormalJumpAimDiagonalUpRightPose) or
             (SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose, SamusPoseId.FallingAimDiagonalUpLeftPose) or
             (SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose, SamusPoseId.FallingAimDiagonalUpRightPose) or
-            // `$91:B45B-$B478` ends every moonwalk turn/jump delay list with command
+            // Ends every moonwalk turn/jump delay list with command
             // `$F8,$1A/$19`. Super-special selection runs F433, but skips F404's
             // later jump initialization. Its unchanged vertical direction permits Moonfall.
             (SamusPoseId.MoonwalkTurnJumpLeftPose or SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
                 SamusPoseId.MoonwalkTurnJumpAimDownLeftPose, SamusPoseId.SpinJumpLeftPose) or
             (SamusPoseId.MoonwalkTurnJumpRightPose or SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
                 SamusPoseId.MoonwalkTurnJumpAimDownRightPose, SamusPoseId.SpinJumpRightPose) or
-            // `$91:B545/$B556` terminate Crystal Flash finish art in `$FD,$01/$02`.
+            // Terminate Crystal Flash finish art in `$FD,$01/$02`.
             // Its installed movement handler observes type zero on the following frame.
             (SamusPoseId.CrystalFlashRightPose, SamusPoseId.FacingRightNormalPose) or
             (SamusPoseId.CrystalFlashLeftPose, SamusPoseId.FacingLeftNormalPose) or
             // All four drained release streams eventually publish ordinary standing art.
-            // These are literal `$FD` operands from `$91:B257-$B298`.
+            // These are literal `$FD` operands from the drained release delay lists.
             (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedStandingRightPose, SamusPoseId.FacingRightNormalPose) or
             (SamusPoseId.DrainedCrouchingLeftPose or SamusPoseId.DrainedStandingLeftPose, SamusPoseId.FacingLeftNormalPose);
         if (!verified)
@@ -418,7 +417,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
         SamusPoseId sourcePose = samus.Pose;
         SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(sourcePose);
 
-        // `$91:F404` runs movement-type initialization after the animation command has
+        // Runs movement-type initialization after the animation command has
         // selected the new normal-jump pose but before it initializes that pose's frame.
         // A live stored shine replaces the target with `$C7/$C8`, so never briefly seed
         // `$4D/$4E/$15/$16/$69/$6A` animation state in this branch.
@@ -445,9 +444,9 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
         if (sourcePose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose or
             SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
         {
-            // The actor-owned release command has now reached its ROM-authored normal pose.
+            // The actor-owned release command has now reached its authored normal pose.
             // Clear only the host handler marker; pose initialization above already owns the
-            // same radius and animation writes as native `$91:F404/$91:FB08`.
+            // same radius and animation writes as the game's pose initializer.
             samus.Drained.CompleteRelease();
         }
         // Super-special command three does not run FBBB/FC99. An input-table

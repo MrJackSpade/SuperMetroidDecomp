@@ -38,6 +38,6 @@ public static class SamusPoseChangeCommands
             SamusMovementType.DraygonHeld => SamusProspectivePoseChangeCommand.Stop,
             SamusMovementType.Special => SamusProspectivePoseChangeCommand.Stop,
             _ => throw new ArgumentOutOfRangeException(nameof(movementType), movementType,
-                "Movement type has no $91:8332 lookup-failure command."),
+                "Movement type has no lookup-failure command."),
         };
 }

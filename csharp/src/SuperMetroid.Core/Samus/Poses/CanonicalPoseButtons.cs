@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
-/// The canonical action and direction buttons the bank-$91 transition tables name; combinations are required chords.
+/// The canonical action and direction buttons the transition tables name; combinations are required chords.
 /// The values are arbitrary bits: <c>SamusPoseInputDefinitions</c> maps each to the controller button standing for it.
 /// </summary>
 [Flags]

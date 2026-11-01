@@ -184,7 +184,7 @@ internal static class SamusGroundedPoseTransitions
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         if (samus.Kinematics.InteractiveEnemies.Count != 0)
         {
-            // Samus_vs_SolidEnemy_CollisionDetection with $12.$14 = 1.0000
+            // Samus_vs_SolidEnemy_CollisionDetection with a requested distance of one whole pixel
             // and the facing direction stored as the collision movement direction.
             SamusCollisionDirection direction = facingLeft
                 ? SamusCollisionDirection.Left

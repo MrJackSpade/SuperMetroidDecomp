@@ -132,7 +132,7 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Ports movement type `$1A`. Its entire normal beta handler is one <c>STZ</c>; enemy
+    /// Ports <see cref="SamusMovementType.DraygonHeld"/> movement. Its entire normal beta handler clears one result; enemy
     /// AI has already supplied position through <see cref="ApplyOwnerPosition"/>.
     /// </summary>
     public static DraygonGrabbedMovementResult StepMovement(SamusState samus)

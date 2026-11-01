@@ -511,7 +511,7 @@ public sealed class SamusProjectileSystem
             {
                 // Charged combination thirteen does not point at game code. Its table
                 // overrun reads a word of Samus's state, so the game jumps there and begins
-                // decoding the cached previous-Super-Missile word as opcodes. This semantic
+                // decoding the cached previous-Super-Missile value as code. This semantic
                 // port cannot execute arbitrary mutable data as code; fail at the
                 // same callback-dispatch seam instead of silently substituting Wave motion.
                 throw new NotSupportedException(

@@ -32,7 +32,7 @@ public static class SamusAerialMovement
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
         // The two words remain independent. Speed Booster's fractional
-        // bonus likewise uses an independent 16-bit ADC and intentionally drops its carry.
+        // bonus likewise uses an independent 16-bit add and intentionally drops its overflow.
         samus.Kinematics.YSpeed =
             SamusVerticalMotion.Launch(medium, hiJumpEquipped, kind: SamusLaunchKind.Jump);
         ApplyEquippedSpeedBoosterJumpBonus(samus);

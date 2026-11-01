@@ -178,7 +178,7 @@ internal sealed class SamusPresentation
             step.BossPresent);
 
         // The animation keeps neutral-jump frame one alive in four-tick chunks while Samus is
-        // still rising. This is intentionally tested before DEC and applies only when the
+        // still rising. This is intentionally tested before the decrement and applies only when the
         // timer is exactly one; release/apex changes YDirection to two and lets it expire.
         if (samus.Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
             samus.Kinematics.YDirection != SamusVerticalDirection.Down &&
@@ -189,7 +189,7 @@ internal sealed class SamusPresentation
         }
 
         // The decrement is 16-bit. A timer accidentally initialized to zero becomes 65535; the negative test then
-        // advances just like BEQ does for an ordinary 1 -> 0 expiration.
+        // advances just like an ordinary 1 -> 0 expiration.
         samus.AnimationFrameTimer = samus.AnimationFrameTimer.Decrement().Remaining;
         if (!samus.AnimationFrameTimer.IsZero && !samus.AnimationFrameTimer.IsNegative)
             return;

@@ -52,7 +52,7 @@ public static class SamusBlockCollision
             state.Position = state.Position.WithFractionX(probe.Position.X.Fraction);
 
         // The routine preceding the block scan has a separate
-        // real side effect: its touching path executes STZ SamusYSubPosition. Copy that single
+        // real side effect: its touching path clears Samus's Y subposition. Copy that single
         // write back without committing the probe's X movement or slope alignment.
         if (result.EnemyCollision is { WasTouching: true })
             state.Position = state.Position.WithFractionY(0);
@@ -92,7 +92,7 @@ public static class SamusBlockCollision
             uint magnitude = acceptedDisplacement < 0
                 ? unchecked((uint)(-acceptedDisplacement))
                 : unchecked((uint)acceptedDisplacement);
-            // `LDA $12 : BMI` selects the entry: zero is not negative and enters right.
+            // The sign of the requested distance selects the entry: zero is not negative and enters right.
             // The probe itself reads the calculator's stored direction, so a zero move
             // still detects tangency (and clears fractional Y) in the facing direction.
             bool entersLeft = acceptedDisplacement < 0;
@@ -109,7 +109,7 @@ public static class SamusBlockCollision
             if (probe.Collided)
             {
                 // On enemy collision the wrapper skips block detection and
-                // invokes the corresponding no-collision position adder with `$12.0000`.
+                // invokes the corresponding no-collision position adder with the clipped whole distance.
                 int clippedMagnitude = SixteenSixteen.FromWhole(probe.Distance);
                 acceptedDisplacement = entersLeft
                     ? -clippedMagnitude
@@ -407,7 +407,7 @@ public static class SamusBlockCollision
         // only the later terrain dispatcher skips a zero displacement.
         if (move.IncludeSolidEnemies && state.InteractiveEnemies.Count != 0)
         {
-            // Uses the same unsigned `$12.$14` magnitude contract as X.
+            // Uses the same unsigned whole-and-fraction distance magnitude contract as X.
             uint magnitude = acceptedDisplacement < 0
                 ? unchecked((uint)(-acceptedDisplacement))
                 : unchecked((uint)acceptedDisplacement);
@@ -507,7 +507,7 @@ public static class SamusBlockCollision
                             block,
                             acceptedDisplacement,
                             leadingBoundary,
-                            // Initializes $1A to the span and decrements it
+                            // Initializes the blocks-left count to the span and decrements it
                             // while scanning left-to-right. The mirrored scan initializes it to
                             // zero and increments while scanning right-to-left. Passing
                             // the traversal offset directly made the physical left/right
@@ -945,8 +945,8 @@ public static class SamusBlockCollision
         bool selectedSolid = SquareSlopes.ReadSamusQuadrant(quadrant) != 0;
         bool collide;
 
-        // $1A=0 always denotes the physical rightmost block, independent of which of the
-        // two alternating scan routines reached it. $1A=$1C denotes the physical leftmost
+        // A blocks-left count of zero always denotes the physical rightmost block, independent of
+        // which of the two alternating scan routines reached it. A count equal to the span denotes the physical leftmost
         // block. Interior blocks necessarily test both eight-pixel halves.
         if (blocksLeftToCheck == 0)
         {

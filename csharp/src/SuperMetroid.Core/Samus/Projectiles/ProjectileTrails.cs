@@ -136,7 +136,7 @@ internal sealed class ProjectileTrails
                     ProjectileTrailInstruction movement = ((ProjectileTrailStep.Move)step).Movement;
                     switch (movement)
                     {
-                        // The opcode names its destination array. Both streams dispatch
+                        // The instruction names its destination array. Both streams dispatch
                         // the same handlers, including writes to their sibling's position.
                         case ProjectileTrailInstruction.MoveLeftDown:
                             pair.Left.Position = pair.Left.Position.WithY(CoordinateAxis.Wrap(pair.Left.Position.Y + 1));

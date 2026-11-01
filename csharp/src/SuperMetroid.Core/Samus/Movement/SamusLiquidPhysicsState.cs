@@ -532,7 +532,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         // The game duplicates this room policy for running footsteps and landing
-        // effects. Preserve its BIT priority even though retail rows contain one bit each.
+        // effects. Preserve its flag priority even though retail rows contain one flag each.
         CrateriaAtmosphericEffectFlags roomFlags =
             SamusAtmosphericEffects.ForCrateriaRoom(RoomIdentity);
         if ((roomFlags & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
@@ -763,7 +763,7 @@ public sealed class SamusLiquidPhysicsState
             {
                 CrateriaAtmosphericEffectFlags specialType =
                     SamusAtmosphericEffects.ForCrateriaRoom(RoomIdentity);
-                // The three BIT branches have strict priority. Retail records contain one
+                // The three flag tests have strict priority. Retail records contain one
                 // flag apiece, but retaining priority also reproduces corrupted/debug data.
                 if ((specialType & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
                     useWetFootsteps = FxType == RoomFxType.Rain;

@@ -44,8 +44,8 @@ internal static class SpriteSheetFilesVerification
         int opaque = Array.FindIndex(edited, pixel => pixel.A != 0);
         edited[opaque] = new RgbaPixel(1, 2, 3, 255);
         Directory.CreateDirectory(overrides);
-        using (FileStream output = File.Create(Path.Combine(overrides, image)))
-            RgbaPng.Write(output, composed.Size, edited);
+        using (var pngBuffers = new RgbaPngBuffers())
+            File.WriteAllBytes(Path.Combine(overrides, image), RgbaPng.Encode(composed.Size, edited, pngBuffers));
         InstalledSpriteSheets overridden = SpriteSheetFiles.Load(stock, overrides);
         AssertEqual(new RgbaPixel(1, 2, 3, 255), overridden.Get(SpriteSheetId.EscapeTimer).Image.Pixels[opaque],
             "a player's sheet image replaces the stock pixels");

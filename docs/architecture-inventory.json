@@ -763,6 +763,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Artwork.EncodedSpriteSheet",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/EncodedSpriteSheet.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Artwork.FloorSheetComposer",
       "kind": "static class",
       "scope": "product",
@@ -995,6 +1008,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.RgbaPngBuffers",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/RgbaPngBuffers.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.RoomLoadPalettes",
@@ -1411,6 +1437,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Artwork.SpriteSheetCanvas",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/SpriteSheetCanvas.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Artwork.SpriteSheetComposer",
       "kind": "static class",
       "scope": "product",
@@ -1424,40 +1463,53 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Artwork.SpriteSheetComposer.Canvas",
+      "type": "SuperMetroid.AssetExtraction.Artwork.SpriteSheetEncoder",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Artwork/SpriteSheetComposer.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/SpriteSheetEncoder.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Artwork.SpriteSheetComposer.FrameBounds",
+      "type": "SuperMetroid.AssetExtraction.Artwork.SpriteSheetLayout",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/SpriteSheetLayout.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.SpriteSheetLayout.FrameBounds",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Artwork/SpriteSheetComposer.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/SpriteSheetLayout.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Artwork.SpriteSheetComposer.PartKey",
+      "type": "SuperMetroid.AssetExtraction.Artwork.SpriteSheetLayout.PartKey",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Artwork/SpriteSheetComposer.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/SpriteSheetLayout.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -1474,6 +1526,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.SpriteSheetPlanes",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/SpriteSheetPlanes.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.SpriteSheetSourceCatalog",
@@ -1529,19 +1594,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Artwork.SpriteSheetStore.EncodedSheet",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Artwork/SpriteSheetStore.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.SpriteSheetStore.Provenance",
@@ -3391,6 +3443,45 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Audio.Synthesis.SpcSoundEffectImage",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Audio/Synthesis/SpcSoundEffectImage.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Audio.Synthesis.SpcSoundEffectImage.EncodedProgram",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Audio/Synthesis/SpcSoundEffectImage.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Audio.Synthesis.SpcSoundEffectImage.Route",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Audio/Synthesis/SpcSoundEffectImage.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Audio.Synthesis.SpcSoundEffectOpcode",
@@ -9001,6 +9092,45 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemySheetComposer.LaidEnemySheet",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemySheetComposer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemySheetComposer.LaidGraphicsSet",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemySheetComposer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemySheetComposer.LaidSpawnedSheet",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemySheetComposer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemySheetComposer.LoadedGraphicsSet",
       "kind": "record",
       "scope": "product",
@@ -9012,6 +9142,19 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemySheetComposer.SheetNames",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemySheetComposer.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemySheetComposition",

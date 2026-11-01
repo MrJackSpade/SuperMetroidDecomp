@@ -39,11 +39,9 @@ internal static class PixelComparison
         string directory = Path.Combine(AppContext.BaseDirectory, "pixel-failures", name);
         Directory.CreateDirectory(directory);
         var size = new Extent16<ImagePixels>(packet.Size.X, packet.Size.Y);
+        using var pngBuffers = new SuperMetroid.AssetExtraction.Artwork.RgbaPngBuffers();
         foreach ((string file, RgbaPixel[] pixels) in new[] { ("expected.png", expected), ("actual.png", actual), ("difference.png", difference) })
-        {
-            using FileStream output = File.Create(Path.Combine(directory, file));
-            SuperMetroid.AssetExtraction.Artwork.RgbaPng.Write(output, size, pixels);
-        }
+            File.WriteAllBytes(Path.Combine(directory, file), SuperMetroid.AssetExtraction.Artwork.RgbaPng.Encode(size, pixels, pngBuffers));
         return directory;
     }
 }

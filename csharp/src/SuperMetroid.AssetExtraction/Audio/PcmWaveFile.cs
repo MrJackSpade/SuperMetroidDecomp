@@ -112,13 +112,8 @@ public static class PcmWaveFile
     public static void WriteMonoPcm16(string path, int sampleRate, IReadOnlyList<short> samples) =>
         _ = WritePcm16(path, sampleRate, InstrumentSampleFormat.ChannelCount, Contiguous(samples));
 
-    /// <summary>Writes interleaved left/right samples as a minimal uncompressed stereo PCM16 WAV file.</summary>
-    /// <exception cref="ArgumentException"><paramref name="samples"/> holds an odd count.</exception>
-    public static void WriteStereoPcm16(string path, int sampleRate, IReadOnlyList<short> samples) =>
-        _ = WritePcm16(path, sampleRate, PcmSampleFormat.StereoChannelCount, Contiguous(samples));
-
     /// <summary>
-    /// Writes interleaved left/right samples as <see cref="WriteStereoPcm16"/> does and returns the
+    /// Writes interleaved left/right samples as a minimal uncompressed stereo PCM16 WAV file and returns the
     /// SHA-256 of the file's bytes, hashed as they are written rather than read back.
     /// </summary>
     /// <exception cref="ArgumentException"><paramref name="samples"/> holds an odd count.</exception>

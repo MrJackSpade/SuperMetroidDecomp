@@ -29,17 +29,6 @@ public static class RgbaPng
     /// <summary>The largest dimension accepted, which bounds a malformed header's allocation; artwork is composed within it.</summary>
     internal const int MaximumDimension = 8192;
 
-    /// <summary>Writes an RGBA image as a PNG.</summary>
-    /// <param name="output">The stream written to; the caller keeps ownership.</param>
-    /// <param name="size">The image's width and height; both are positive.</param>
-    /// <param name="pixels">Width times height pixels, row by row from the top.</param>
-    /// <exception cref="ArgumentException">A dimension is zero or the pixel count does not match.</exception>
-    public static void Write(Stream output, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels)
-    {
-        Ensure.NotNull(output);
-        using var buffers = new RgbaPngBuffers();
-        output.Write(Encode(size, pixels, buffers));
-    }
 
     /// <summary>
     /// Encodes an RGBA image as a PNG file's bytes: the header chunk, every row unfiltered and compressed as one zlib

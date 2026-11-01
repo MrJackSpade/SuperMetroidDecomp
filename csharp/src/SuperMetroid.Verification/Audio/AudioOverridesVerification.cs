@@ -65,7 +65,7 @@ internal static class AudioOverridesVerification
         for (int sample = 0; sample < tone.Length; sample++)
             tone[sample] = unchecked((short)(sample * 37 % 20000 - 10000));
         string tonePath = Path.Combine(rootScratch.Root, "tone.wav");
-        PcmWaveFile.WriteStereoPcm16(tonePath, ClipSampleRate(stock), tone);
+        _ = PcmWaveFile.WriteHashedStereoPcm16(tonePath, ClipSampleRate(stock), tone);
         string songId = ClipAudioOverrides.MusicId(MusicDataSet.GreenBrinstar, ReplacedTrack);
         // #1410: an override names a song by its data set and track, never by the cartridge's data index.
         AssertEqual("music-GreenBrinstar-track-03", songId, "a song's override identity names its data set");

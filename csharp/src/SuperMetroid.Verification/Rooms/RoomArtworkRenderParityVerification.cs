@@ -103,8 +103,8 @@ internal static class RoomArtworkRenderParityVerification
                         if (pixels[index].A != 0)
                             pixels[index] = edit(pixels[index]);
                     }
-                    using var edited = File.Create(Path.Combine(installation.RoomBlockSheetOverrideDirectory, file));
-                    RgbaPng.Write(edited, size, pixels);
+                    using var pngBuffers = new RgbaPngBuffers();
+                    File.WriteAllBytes(Path.Combine(installation.RoomBlockSheetOverrideDirectory, file), RgbaPng.Encode(size, pixels, pngBuffers));
                 }
                 Console.WriteLine("  Landing Site: a block sheet edit loads, shows its repainted block pictures and alters rendered " +
                     "pixels without changing BG1 placement or BTS.");

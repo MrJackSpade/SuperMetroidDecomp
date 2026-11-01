@@ -67,8 +67,8 @@ internal static class CollectibleBlockFrameOverrideVerification
                     pixels[index] = Inverted(pixels[index]);
             }
         }
-        using (FileStream edited = File.Create(Path.Combine(scratch.Root, imageFile)))
-            RgbaPng.Write(edited, size, pixels);
+        using (var pngBuffers = new RgbaPngBuffers())
+            File.WriteAllBytes(Path.Combine(scratch.Root, imageFile), RgbaPng.Encode(size, pixels, pngBuffers));
 
         SuperMetroidRuntime changed = LoadMorphBall(RoomBlockSheetFiles.Load(installation.RoomBlockSheetDirectory, scratch.Root));
         int compared = 0;

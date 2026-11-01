@@ -20,6 +20,5 @@ public enum PowerBombExplosionPhase
     /// <summary>FrameBehavior_CrystalFlash_2_AfterGlow: retains the small final window while colors fade, then clears the shared explosion state.</summary>
     CrystalFlashAfterglow,
     /// <summary>Started explosion awaiting its first effect update and its pre-explosion setup.</summary>
-    /// <remarks>Appended to preserve existing debugger-state enum identities.</remarks>
     PendingPreExplosionSetup,
 }

@@ -30,7 +30,7 @@ public static class SamusGrappleSwing
         grapple.RopeStart = ropeStart.Pixel;
 
         // The swing copies Start to Flare during swinging. BeamStart retains
-        // the older public name because the renderer and debugger already consume it, but
+        // the older public name because the renderer consumes it, but
         // it semantically represents the Flare/draw origin throughout this translation.
         grapple.BeamStart = ropeStart.Pixel;
 
@@ -297,7 +297,7 @@ public static class SamusGrappleSwing
         // The swing only admits this extra angular impulse during the 16-frame terrain-
         // reflection timer. It is separate from ordinary Samus jump velocity and decays
         // inside the angular movement only after a successful angular movement pass.
-        // Inputs here are normalized: A is Jump, B is Run. The BIT JumpBinding
+        // Inputs here are normalized: A is Jump, B is Run. The Jump-binding test
         // must agree with the release-window check, or tight anchors become inescapable
         // using Jump even though the unrelated Run button accidentally supplies the kick.
         if (!grapple.CollisionBounceTimer.IsZero &&

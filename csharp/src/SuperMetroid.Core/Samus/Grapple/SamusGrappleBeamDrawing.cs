@@ -61,7 +61,7 @@ public static class SamusGrappleBeamDrawing
 
         // Counter one is a sentinel, not merely the first ordinary animation tick. The game
         // code force-selects main-flare frame 16 and timer three on every such call, then
-        // performs the usual 16-bit DEC/BMI. The first visible frame therefore stores two.
+        // performs the usual decrement and negative test. The first visible frame therefore stores two.
         if (grapple.FlareCounter == 1)
         {
             grapple.FlareAnimationFrame = ChargeFlareAnimationDefinitions.GrappleInitialFrame;
@@ -114,8 +114,8 @@ public static class SamusGrappleBeamDrawing
     internal static void InitializeBeamAnimation(SamusGrappleState grapple)
     {
         // Firing installs counter one after initializing the rope animation slots.
-        // The debugger's already-connected seam has no preceding firing history, so it
-        // begins at the same authentic first flare state rather than inventing a static OBJ.
+        // A beam that starts already connected has no preceding firing history, so it
+        // begins at the same first flare state rather than inventing a static flare.
         grapple.FlareCounter = 1;
         grapple.FlareAnimationFrame = 0;
         grapple.FlareAnimationTimer = WrappingCountdown.Start(0);
@@ -155,7 +155,7 @@ public static class SamusGrappleBeamDrawing
 
 
     /// <summary>
-    /// Moves the main-flare stream position by <paramref name="delta"/> as the game's sixteen-bit ADC/SBC does:
+    /// Moves the main-flare stream position by <paramref name="delta"/> as the game's sixteen-bit add or subtract does:
     /// the position wraps through 65535 and zero, so malformed rewind data stays visible instead of clamped.
     /// </summary>
     private static int StepFlareFrame(int frame, int delta) => WordWrap.Unsigned(frame + delta);
@@ -272,7 +272,7 @@ public static class SamusGrappleBeamDrawing
         if (!swinging && ScreenConversions.IsOutsideSpriteRange(relativeY))
             return;
 
-        // Only the swinging routine omits SEC between its two SBC operations.
+        // Only the swinging routine lets the first of its two subtractions borrow from the second.
         // Consequently unsigned camera subtraction can carry a borrow into the
         // half-character offset, even when wrapped coordinates look adjacent.
         int borrowX = swinging && grapple.Anchor.X < layer1.X ? 1 : 0;

@@ -1,4 +1,4 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Debugger-visible result of one Hyper Beam palette-object handler call.</summary>
+/// <summary>The outcome of one Hyper Beam palette-effect update.</summary>
 public readonly record struct HyperBeamPaletteFxStepResult();

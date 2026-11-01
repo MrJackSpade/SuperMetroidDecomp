@@ -25,7 +25,7 @@ public static class SamusGroundedMovement
     /// one-pixel downward block scan.
     /// </summary>
     /// <remarks>
-    /// Poses `$00/$9B` share movement type zero with ordinary standing, but the game
+    /// <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/> and <see cref="SamusPoseId.ForwardFacingSuitedPose"/> share movement type zero with ordinary standing, but the game
     /// returns before horizontal movement, speed cleanup, and the one-pixel grounding probe.
     /// It only clears <c>SamusSolidVerticalCollisionResult</c> while elevator status is zero.
     /// A nonzero status calls the downward block collision with exactly one pixel of downward displacement before
@@ -373,7 +373,7 @@ public static class SamusGroundedMovement
 
         // Cancels speed boost and clears both run/base components plus
         // acceleration mode on every frame. The speed-booster counters themselves remain
-        // outside this slice; the five movement words are exact and debugger-visible.
+        // outside this slice; the five movement values are exact.
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         return new GroundedMovementResult(horizontal, vertical);
     }
@@ -383,7 +383,7 @@ public static class SamusGroundedMovement
     /// and spin families, plus `$E0-$E7` for aimed and horizontally firing landings.
     /// Landing animation is cosmetic with respect to movement: every member uses standing's
     /// zero-base-speed horizontal pass, grounding probe, and momentum cleanup until animation
-    /// command `$F8` returns to pose `$01/$02`.
+    /// command `$F8` returns to <see cref="SamusPoseId.FacingRightNormalPose"/> and <see cref="SamusPoseId.FacingLeftNormalPose"/>.
     /// </summary>
     internal static GroundedMovementResult StepLanding(
 

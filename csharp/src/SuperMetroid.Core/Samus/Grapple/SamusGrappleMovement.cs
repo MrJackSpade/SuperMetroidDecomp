@@ -9,7 +9,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>
-/// Debugger-visible translation of grapple firing, persistent-block acquisition, connected
+/// Grapple firing, persistent-block acquisition, connected
 /// pendulum terrain interaction, collision kicks, and release.
 /// </summary>
 /// <remarks>
@@ -437,8 +437,8 @@ public static class SamusGrappleMovement
     /// <summary>
     /// Replays the connected-beam enemy test. Any nonzero common
     /// reaction keeps the connection alive for this frame; attach reactions additionally
-    /// follow a moving actor's center. A missing callback is accepted only for debugger
-    /// states that did not opt into live-enemy validation.
+    /// follow a moving actor's center. Without an enemy test the anchor is never an enemy
+    /// and is not retained by this test.
     /// </summary>
     private static bool TryRetainEnemyAnchor(
         SamusGrappleState grapple,

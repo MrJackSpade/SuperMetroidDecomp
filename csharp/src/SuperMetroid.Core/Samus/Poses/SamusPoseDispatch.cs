@@ -533,7 +533,7 @@ internal static class SamusPoseDispatch
         SamusPoseId.DrainedCrouchingLeftPose or
         SamusPoseId.DrainedStandingRightPose or
         SamusPoseId.DrainedStandingLeftPose => SamusMovementType.Special,
-        // Bounded indices beyond FC observe the opcodes of the X-ray cone's off-screen table builder.
+        // The three poses past the tables read the X-ray cone's off-screen table builder as data.
         SamusPoseId.AdjacentCodePoseFD or
         SamusPoseId.AdjacentCodePoseFF => throw new InvalidDataException(
             $"Pose {pose} reads adjacent code as its movement type, beyond the retail dispatcher's {nameof(SamusMovementType.Special)}."),
@@ -796,7 +796,7 @@ internal static class SamusPoseDispatch
         SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or
         SamusPoseId.StandingTransitionAimDiagonalDownRightPose or
         SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => SamusMovementDefinitions.Poses.RetainCurrentPoseFallback,
-        // Bounded indices beyond FC observe the opcodes of the X-ray cone's off-screen table builder.
+        // The three poses past the tables read the X-ray cone's off-screen table builder as data.
         SamusPoseId.AdjacentCodePoseFD => SamusPoseId.NeutralJumpTransitionRightPose,
         SamusPoseId.AdjacentCodePoseFE => SamusMovementDefinitions.Poses.RetainCurrentPoseFallback,
         SamusPoseId.AdjacentCodePoseFF => SamusPoseId.LandingAimDiagonalDownLeftPose,

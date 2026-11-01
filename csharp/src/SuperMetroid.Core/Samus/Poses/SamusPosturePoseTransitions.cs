@@ -348,7 +348,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
 
             // Prospective command seven also cancels an active bounce before starting the
             // transition. Ordinary crouch entry normally sees zero, but retaining the
-            // literal writes makes externally stimulated debugger states deterministic.
+            // literal writes keeps a bounce that is somehow active deterministic.
             CancelBounceForPostureTransition(samus);
             SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
             return true;
@@ -659,7 +659,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
 
     /// <summary>
     /// Applies the walk-off transition's type-four endpoint, retaining the rolling animation
-    /// while changing to ordinary airborne pose `$31/$32` and starting dry-air gravity.
+    /// while changing to ordinary airborne <see cref="SamusPoseId.MorphBallFallingRightPose"/> and <see cref="SamusPoseId.MorphBallFallingLeftPose"/> and starting dry-air gravity.
     /// </summary>
     public static void ApplyMorphBallWalkOff(SamusState samus)
     {

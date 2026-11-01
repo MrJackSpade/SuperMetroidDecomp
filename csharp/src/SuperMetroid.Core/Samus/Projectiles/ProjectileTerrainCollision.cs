@@ -196,8 +196,8 @@ internal sealed class ProjectileTerrainCollision
     }
 
     /// <summary>
-    /// A block span's scan state: $1A (blocks spanned minus one), $26 (blocks still to check
-    /// minus one; the first, top or left, block has $26 = $1A) and $1C (target boundary).
+    /// A block span's scan state: the blocks spanned minus one, the blocks still to check
+    /// minus one (the first, top or left, block has both equal) and the target boundary.
     /// </summary>
     private readonly record struct ShotSpan(int Span, int Remaining, int TargetBoundary);
 
@@ -510,7 +510,7 @@ internal sealed class ProjectileTerrainCollision
     /// <summary>
     /// Block collision overlaps two scratch bytes so an 8.8 velocity word becomes a signed 16.16 delta by
     /// shifting it left eight. Advancing by it as one wrapped 32-bit quantity is exactly
-    /// equivalent to its low-word ADC followed by sign-word ADC.
+    /// equivalent to its low-word add followed by the sign-word add.
     /// </summary>
     internal static SignedSixteenSixteen EightEightDelta(int velocity) =>
         SignedEightEight.FromSignedRaw(velocity).ToSixteenSixteenDelta();
@@ -599,8 +599,7 @@ internal sealed class ProjectileTerrainCollision
         int span = remaining;
         int targetX = CoordinateAxis.Wrap(slot.Velocity.X.SignedRawValue < 0
             ? slot.Position.X.Whole - slot.Radius.X : slot.Position.X.Whole + slot.Radius.X - 1);
-        // XBA sets N/Z from its resulting LOW BYTE even with a 16-bit accumulator.
-        // BMI therefore tests the original coordinate's high-byte sign, not bit 7
+        // The game's sign test reads the original coordinate's high-byte sign, not bit 7
         // of its pixel offset. Testing the latter disables Wave reactions throughout
         // the lower half of every screen, including ordinary blue-door caps.
         if (remaining >= 16 || CoordinateAxis.AsSigned(slot.Position.Y.Whole) < 0 ||
@@ -630,7 +629,7 @@ internal sealed class ProjectileTerrainCollision
                 if (endSpan) return;
             }
 
-            // There is only one CLC before the two ADCs. Do not simplify this
+            // The second of the two adds includes the first one's overflow. Do not simplify this
             // to offset += width * 2: the first carry causes ceiling odd reads.
             int first = byteOffset + level.Size.X;
             byteOffset = CoordinateAxis.Wrap(WordWrap.Unsigned(first) + level.Size.X + (first > ushort.MaxValue ? 1 : 0));

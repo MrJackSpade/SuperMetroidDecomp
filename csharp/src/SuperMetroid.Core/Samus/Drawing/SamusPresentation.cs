@@ -35,11 +35,11 @@ internal sealed class SamusPresentation
     /// <summary>Which body definitions the body shows, and the installed artwork they are drawn from.</summary>
     public SamusBodyFrameState BodyFrames { get; } = new();
 
-    /// <summary>Host-bound normal suit colors; excluded from debugger-state graphs.</summary>
+    /// <summary>Installed normal suit colors: installed content, not game state, bound again when a game is restored.</summary>
     [field: NonSerialized]
     public InstalledSamusSuitColors? SuitColors { get; set; }
 
-    /// <summary>Host-bound animation colors; excluded from debugger-state graphs.</summary>
+    /// <summary>Installed full-body cycle colors: installed content, not game state, bound again when a game is restored.</summary>
     [field: NonSerialized]
     public SamusFullBodyCycleColours? FullBodyCycleColors { get; set; }
 
@@ -161,7 +161,7 @@ internal sealed class SamusPresentation
     /// <remarks>
     /// The FX dispatcher publishes water/lava delay buffering, remembered medium,
     /// atmospheric slots, sound requests, and periodic-damage words before the timer
-    /// decrement. The historical name remains as a source-compatible debugger API.
+    /// decrement.
     /// </remarks>
     public static void AnimateNoFx(SamusState samus, SamusAnimationStep step)
     {
@@ -178,7 +178,7 @@ internal sealed class SamusPresentation
             step.BossPresent);
 
         // The animation keeps neutral-jump frame one alive in four-tick chunks while Samus is
-        // still rising. This is intentionally tested before DEC and applies only when the
+        // still rising. This is intentionally tested before the decrement and applies only when the
         // timer is exactly one; release/apex changes YDirection to two and lets it expire.
         if (samus.Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
             samus.Kinematics.YDirection != SamusVerticalDirection.Down &&
@@ -189,7 +189,7 @@ internal sealed class SamusPresentation
         }
 
         // The decrement is 16-bit. A timer accidentally initialized to zero becomes 65535; the negative test then
-        // advances just like BEQ does for an ordinary 1 -> 0 expiration.
+        // advances just like an ordinary 1 -> 0 expiration.
         samus.AnimationFrameTimer = samus.AnimationFrameTimer.Decrement().Remaining;
         if (!samus.AnimationFrameTimer.IsZero && !samus.AnimationFrameTimer.IsNegative)
             return;
@@ -421,7 +421,7 @@ internal sealed class SamusPresentation
         int renderX = renderPoint.X;
         int renderY = renderPoint.Y;
 
-        // The draw sign-extends the byte at pose-definition offset four. Pose $01 stores
+        // The draw sign-extends the byte at pose-definition offset four. FacingRightNormalPose stores
         // +6, moving the art origin six pixels above Samus's world-space center.
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
         int spritemapX = CoordinateAxis.Wrap(renderX - layer1.X);
@@ -543,7 +543,7 @@ internal sealed class SamusPresentation
                 SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.CrouchingTransitionAimUpRightPose) && samus.AnimationFrame == 2);
 
         // The otherwise-unused movement type `$0D` still has executable game logic
-        // in the draw: poses `$65/$66` draw a lower half only on frame zero, while every
+        // in the draw: UnusedPose65 and UnusedPose66 draw a lower half only on frame zero, while every
         // other type-`$0D` pose follows the ordinary always-split return.
         bool unusedTypeDBottom = movementType != SamusMovementType.Unused0D ||
             samus.Pose is not (SamusPoseId.UnusedPose65 or SamusPoseId.UnusedPose66) ||

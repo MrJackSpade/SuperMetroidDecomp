@@ -21,7 +21,7 @@ public sealed class SamusVisorPaletteState
     /// <summary>Calls left after the reset before the first visor colour is written.</summary>
     private const int ResetTimer = 1;
 
-    /// <summary>Host-owned visor artwork, excluded from debugger-state serialization.</summary>
+    /// <summary>Installed visor artwork: installed content, not game state, bound again when a game is restored.</summary>
     [field: NonSerialized]
     public InstalledSamusVisorColors? PresentationColors { get; set; }
 

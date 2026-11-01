@@ -184,7 +184,7 @@ internal static class SamusGroundedPoseTransitions
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         if (samus.Kinematics.InteractiveEnemies.Count != 0)
         {
-            // Samus_vs_SolidEnemy_CollisionDetection with $12.$14 = 1.0000
+            // Samus_vs_SolidEnemy_CollisionDetection with a requested distance of one whole pixel
             // and the facing direction stored as the collision movement direction.
             SamusCollisionDirection direction = facingLeft
                 ? SamusCollisionDirection.Left
@@ -361,12 +361,12 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Applies the verified ordinary transition from standing-right pose $01 to running-
-    /// right pose $09 at the end-of-frame transition seam.
+    /// Applies the verified ordinary transition from standing-right <see cref="SamusPoseId.FacingRightNormalPose"/> to running-
+    /// right <see cref="SamusPoseId.MovingRightNormalPose"/> at the end-of-frame transition seam.
     /// </summary>
     /// <remarks>
     /// This is intentionally not a general pose setter. For this transition, momentum
-    /// routine index zero is a no-op, both poses have radius 21, and pose $09 uses the
+    /// routine index zero is a no-op, both poses have radius 21, and <see cref="SamusPoseId.MovingRightNormalPose"/> uses the
     /// already-supported default render/tile paths. Other transitions can change momentum,
     /// align radii, invoke collision, or run specialized handlers and remain rejected.
     /// </remarks>
@@ -381,15 +381,15 @@ internal static class SamusGroundedPoseTransitions
         samus.Pose = SamusPoseId.MovingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-        // The pose initializer resets animation frame zero and loads pose $09's first
+        // The pose initializer resets animation frame zero and loads MovingRightNormalPose's first
         // delay byte after SamusFunc_F433 refreshes pose direction/movement metadata.
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
 
     /// <summary>
-    /// Applies the verified no-button fallback from running-right pose $09 to standing-right
-    /// pose $01 after ordinary running momentum has decelerated to zero.
+    /// Applies the verified no-button fallback from running-right <see cref="SamusPoseId.MovingRightNormalPose"/> to standing-right
+    /// <see cref="SamusPoseId.FacingRightNormalPose"/> after ordinary running momentum has decelerated to zero.
     /// </summary>
     public static void ApplyRunningRightToStandingRight(SamusState samus)
     {
@@ -402,7 +402,7 @@ internal static class SamusGroundedPoseTransitions
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-        // Pose $09's new-pose-unless-buttons byte is $01. Once Samus_Pose_Func2 selects
+        // MovingRightNormalPose's new-pose-unless-buttons byte is $01. Once Samus_Pose_Func2 selects
         // momentum index two, the momentum cancellation cancels the boost words but deliberately leaves the
         // numeric extra pair intact. The following standing movement pass consumes that
         // final no-base-speed displacement before clearing every X-motion word.

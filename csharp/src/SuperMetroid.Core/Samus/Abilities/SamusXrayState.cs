@@ -8,21 +8,21 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Debugger-visible translation of X-ray's Samus-side setup, dedicated pose-input handler,
+/// X-ray's Samus-side setup, dedicated pose-input handler,
 /// movement handler, beam-angle state, visor palette, and teardown.
 /// </summary>
 /// <remarks>
 /// The retail feature crosses three parts of the game: X-ray setup admits and installs the four X-ray
 /// poses, the X-ray pose-input and movement handlers own turning and angle-selected body art, and
 /// the cone effect widens/aims/deactivates the window beam. Keeping those words in one
-/// explicit state prevents `$D5/$D6/$D9/$DA` from silently inheriting ordinary standing or
+/// explicit state prevents the standing and crouching X-ray poses from silently inheriting ordinary standing or
 /// crouching input. The desktop compositor now consumes these exact angle/width words to
 /// reproduce the moving tangent-table window; building the revealed-block BG2 tilemap remains
 /// separate presentation work and no fake hidden tiles are generated here.
 /// </remarks>
 public sealed class SamusXrayState
 {
-    /// <summary>Host-owned visor colors, excluded from debugger-state serialization.</summary>
+    /// <summary>Installed visor colors: installed content, not game state, bound again when a game is restored.</summary>
     [field: NonSerialized]
     public InstalledSamusVisorColors? PresentationColors { get; set; }
 
@@ -86,7 +86,7 @@ public sealed class SamusXrayState
     /// <summary>
     /// The beam's half-width as a 16.16 value in 256-per-turn angle units: zero at admission, grown by
     /// <see cref="AngularWideningSpeed"/> on each widening call, and clamped to exactly ten when its whole part
-    /// would reach eleven. The widening adds carry the fraction into the whole part exactly as the game does.
+    /// would reach eleven. The widening adds move the fraction's overflow into the whole part exactly as the game does.
     /// </summary>
     public SignedSixteenSixteen AngularHalfWidth { get; private set; }
 
@@ -161,8 +161,9 @@ public sealed class SamusXrayState
         if (conditions.ProjectileCooldownTimer.IsAt(7) && conditions.BombCounter == 5 && samus.XSpeedDivisor == 2)
             return false;
 
-        // Landing art `$A4-$A7/$E0-$E7` is explicitly excluded even though its movement
-        // type is otherwise standing. The range comparisons are unsigned 16-bit compares.
+        // Landing art (the normal and spin landings and the aimed and firing landings) is explicitly
+        // excluded even though its movement type is otherwise standing. The pose families are
+        // tested as unsigned ranges of pose numbers.
         if (SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose) ||
             SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.LandingAimUpRightPose, SamusPoseId.FiringLandingLeftPose))
             return false;
@@ -252,7 +253,7 @@ public sealed class SamusXrayState
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
 
         // Special prospective-pose command five immediately overrides the freshly selected
-        // delay with frame two/timer `$3F`, installs the dedicated handler pair, starts the
+        // delay with frame two and a 63-tick timer, installs the dedicated handler pair, starts the
         // visor palette, clears beam-flare state, and queues activation sound nine.
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 2, timer: 63);
         SpecialPaletteKind = SamusSpecialPaletteType.Xray;
@@ -273,7 +274,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Models Samus command <c>$1B</c> replacing the X-Ray handler pair when automatic
+    /// Models the Samus command that replaces the X-Ray handler pair when automatic
     /// Reserve recovery begins. The independent cone effect and shared freeze word remain.
     /// </summary>
     internal void RelinquishSamusControlForReserveRecovery()
@@ -368,7 +369,7 @@ public sealed class SamusXrayState
         }
 
         // The game waits until the final visible turning frame has exactly one tick left.
-        // Its beta movement handler does nothing for type `$0E`, so generic animation owns this
+        // Its beta movement handler does nothing for a grounded turn, so generic animation owns this
         // countdown without X-ray's usual per-frame timer reset.
         if (samus.AnimationFrame != 2 || !samus.AnimationFrameTimer.IsAt(1))
             return default;
@@ -448,9 +449,9 @@ public sealed class SamusXrayState
                     break;
                 }
 
-                // The 16.16 adds reproduce the game's carry propagation exactly: the widening
+                // The 16.16 adds reproduce the game's fraction overflow exactly: the widening
                 // speed gains the fixed fractional step per call, and both speed and width can
-                // carry into their whole parts before the ten-unit clamp.
+                // overflow into their whole parts before the ten-unit clamp.
                 AngularWideningSpeed += SignedSixteenSixteen.FromRaw(
                     checked((int)XrayScopeDefinitions.Window.WideningStep));
                 AngularHalfWidth += AngularWideningSpeed;
@@ -512,7 +513,7 @@ public sealed class SamusXrayState
 
         if (VisorPaletteMode == XrayVisorPaletteMode.RestoreSuitPalette)
         {
-            // Carry clear from the handler asks the outer dispatcher to load the
+            // A handler that reports the palette unhandled asks the outer dispatcher to load the
             // complete normal suit palette, then clears every X-ray palette word.
             SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
             SpecialPaletteKind = SamusSpecialPaletteType.None;
@@ -597,12 +598,12 @@ public sealed class SamusXrayState
             Angle = RotationAngle.NormalizeTableIndex(RotationAngle.TableUnitsPerTurn - AngularWidth);
     }
 
-    /// <summary>Rotates the beam downward one angle unit while keeping its edge on the correct side of $80.</summary>
+    /// <summary>Rotates the beam downward one angle unit while keeping its edge on the correct side of straight down.</summary>
     private void MoveAngleDown()
     {
         if (Angle.RawValue < RotationAngle.HalfTurn.RawValue)
         {
-            // Right-facing down rotates toward `$80`; keep the lower edge at or below it.
+            // Right-facing down rotates toward straight down; keep the lower edge at or below it.
             int lowerEdge = Angle.TableIndex + AngularWidth;
             if (lowerEdge == RotationAngle.HalfTurn.TableIndex)
                 return;
@@ -620,7 +621,7 @@ public sealed class SamusXrayState
             return;
         }
 
-        // Left-facing down rotates toward `$80` from above and clamps its upper edge.
+        // Left-facing down rotates toward straight down from above and clamps its upper edge.
         int upperEdge = Angle.TableIndex - AngularWidth;
         if (upperEdge == RotationAngle.HalfTurn.TableIndex)
             return;
@@ -640,7 +641,7 @@ public sealed class SamusXrayState
     /// <summary>Restores Samus' normal pose and handlers, subsystem enables, palette request, and beam state.</summary>
     private void Finish(SamusState samus)
     {
-        // The X-ray teardown intentionally classifies turning type `$0E` as standing. Releasing
+        // The X-ray teardown intentionally classifies a grounded turn as standing. Releasing
         // X-ray during a crouched turn therefore stands Samus up—the documented retail
         // X-ray stand-up glitch—and the radius difference moves her center upward.
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);

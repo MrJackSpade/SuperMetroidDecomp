@@ -137,7 +137,7 @@ public sealed class SamusSuitPickupState
             : SamusPoseId.ForwardFacingPowerSuitPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        // Entry's Samus command $15 publishes history before locking gameplay.
+        // Entry's Samus lock command publishes history before locking gameplay.
         samus.CommitPoseHistory();
         samus.Control.LockForSuitPickup();
 
@@ -283,7 +283,7 @@ public sealed class SamusSuitPickupState
         int oldLeft = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamLeft.X);
         int left = WordWrap.LowByte(oldLeft - amount);
         int right = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamRight.X);
-        // The BEQ shares the negative-result clamp. Exact zero must also
+        // The zero test shares the negative-result clamp. Exact zero must also
         // force the right endpoint to 255 or the reveal is delayed by a frame.
         if (left == 0 || WordWrap.SignedLowByte(oldLeft - amount) < 0)
         {

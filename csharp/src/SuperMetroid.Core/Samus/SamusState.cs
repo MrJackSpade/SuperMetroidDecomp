@@ -120,8 +120,8 @@ public sealed class SamusState
     public int AnimationFrameBuffer { get; internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>
-    /// Exact fixed-point horizontal-speed registers used by ordinary grounded
-    /// right-running movement and exposed independently for debugger inspection.
+    /// Exact fixed-point horizontal speeds used by ordinary grounded
+    /// right-running movement.
     /// </summary>
     public SamusHorizontalSpeedState HorizontalSpeed { get; } = new();
 
@@ -135,7 +135,7 @@ public sealed class SamusState
     /// <summary>
     /// Stored-shine palette countdown and the special shinespark movement-handler state.
     /// Its fields map to the reused words documented on
-    /// <see cref="SamusShinesparkState"/> and remain individually debugger-visible.
+    /// <see cref="SamusShinesparkState"/> and keep their individual values.
     /// </summary>
     public SamusShinesparkState Shinespark { get; } = new();
 
@@ -262,8 +262,7 @@ public sealed class SamusState
     /// <summary>
     /// The missile reserve. Super Metroid never exposes a missile-reserve tank in normal
     /// play, but its shared restore routine still sends overflow here and caps it at either
-    /// max missiles or 99. Retaining the otherwise-unused word makes enemy drops exact and
-    /// lets a debugger observe the original quirk.
+    /// max missiles or 99. Retaining the otherwise-unused value makes enemy drops exact.
     /// </summary>
     public int ReserveMissiles { get; set; }
 
@@ -390,8 +389,8 @@ public sealed class SamusState
     /// <remarks>
     /// This word belongs to Samus rather than the shinespark child state. Keeping it here
     /// preserves the game's intentional sharing between unrelated damage, palette,
-    /// and special-movement producers and makes the complete effect debugger-watchable. Its value is 0 through 65535:
-    /// gameplay keeps it below sixty, and a debugger-written value at or above 32768 advances with the game's
+    /// and special-movement producers. Its value is 0 through 65535:
+    /// gameplay keeps it below sixty, and a value at or above 32768 advances with the game's
     /// 16-bit wrap (<see cref="Palettes.SamusHurtFlashPalette"/>) until the signed sixty test ends it.
     /// </remarks>
     public int HurtFlashCounter { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
@@ -487,7 +486,7 @@ public sealed class SamusState
     /// <remarks>
     /// This is host storage for the super-special prospective pose's command-three route. The grounded slice
     /// consumes it after animation, at the same pose-transition point used by the game.
-    /// Keeping it explicit makes the turn's final facing change visible to a debugger.
+    /// Keeping it explicit makes the turn's final facing change its own step.
     /// </remarks>
     public SamusPoseId? PendingTransitionalPose { get; internal set; }
 
@@ -908,10 +907,9 @@ level, probe, this, amount, scanLeftToRight, plms);
     }
 
     /// <summary>
-    /// Transition-owned history words. Lazy construction also covers legacy
-    /// debugger graphs whose constructors are bypassed and which lack these words.
-    /// A legacy graph has no recoverable historical value; zero is not a claim
-    /// that its actual history was zero.
+    /// Transition-owned pose history. Lazy construction also covers a restored game
+    /// whose state predates this history. Such a game has no recoverable historical value;
+    /// zero is not a claim that its actual history was zero.
     /// </summary>
     public SamusPoseHistoryState PoseHistory => field ??= new();
 

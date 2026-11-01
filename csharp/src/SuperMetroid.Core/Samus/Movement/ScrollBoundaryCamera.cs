@@ -293,8 +293,7 @@ public sealed class ScrollBoundaryCamera
     /// </remarks>
     private void HandleHorizontalAutoscrolling(bool timeIsFrozen)
     {
-        // The original reads both bytes of the freeze word while the accumulator is eight-bit and
-        // returns if either is nonzero. Keep this gate local to the two autoscrollers;
+        // The game returns if either half of the time-freeze flag is set. Keep this gate local to the two autoscrollers;
         // the directional moved-Samus handlers themselves have no freeze check.
         if (timeIsFrozen)
             return;
@@ -339,7 +338,7 @@ public sealed class ScrollBoundaryCamera
 
         // A legal current cell with a red cell to its right is the mirror case: drift left
         // toward the current cell's left edge. If the candidate itself lands in red, round
-        // up to the next screen boundary. Signed comparison reproduces BMI.
+        // up to the next screen boundary. The comparison is signed.
         int leftBoundary = ScreenStart(Position.X.Whole);
         int leftCandidate = WordWrap.Unsigned(proposed - Speed.X.WholeWord - 2);
         if (SignedDifference(leftCandidate, leftBoundary) < 0)
@@ -408,7 +407,7 @@ public sealed class ScrollBoundaryCamera
 
         int topBoundary = CoordinateAxis.Wrap(ScreenStart(Position.Y.Whole) + verticalAlignment);
 
-        // CMP/BCC only pulls the camera upward when it is strictly below the
+        // The comparison only pulls the camera upward when it is strictly below the
         // aligned boundary. Equality intentionally does nothing.
         if (topBoundary >= Position.Y.Whole)
             return;
@@ -495,8 +494,7 @@ public sealed class ScrollBoundaryCamera
         int proposed = Position.Y.Whole;
         int currentCell = VerticalCellIndex();
 
-        // Blue scrolls align the 224-line playfield at +0; red/green scrolls use +$1F.
-        // This is the LDY #0 / CMP #1 / LDY #$1F sequence.
+        // Blue scrolls align the 224-line playfield at +0; red/green scrolls use +31.
         int verticalAlignment = Scrolls.ReadCameraState(currentCell) == RoomScrollState.Blue
             ? 0
             : 31;

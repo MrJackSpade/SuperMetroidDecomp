@@ -32,7 +32,7 @@ public static class SamusAerialMovement
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
         // The two words remain independent. Speed Booster's fractional
-        // bonus likewise uses an independent 16-bit ADC and intentionally drops its carry.
+        // bonus likewise uses an independent 16-bit add and intentionally drops its overflow.
         samus.Kinematics.YSpeed =
             SamusVerticalMotion.Launch(medium, hiJumpEquipped, kind: SamusLaunchKind.Jump);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
@@ -107,7 +107,7 @@ public static class SamusAerialMovement
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
                 SamusLiquidMedium.Air);
 
-        // Poses `$4B/$4C/$55-$5A` are genuine movement-type-2 poses, but the game treats them as
+        // NeutralJumpTransitionRightPose, NeutralJumpTransitionLeftPose and NormalJumpTransitionAimUpRightPose through NormalJumpTransitionAimDiagonalDownLeftPose are genuine movement-type-2 poses, but the game treats them as
         // a transition: base X speed is forced to zero, only external X/Y displacement is
         // applied, and normal vertical speed does not move Samus on this frame.
         if (samus.Pose is SamusPoseId.NeutralJumpTransitionRightPose or

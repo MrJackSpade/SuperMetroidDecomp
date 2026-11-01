@@ -23,8 +23,8 @@ public static class SamusSolidEnemyCollision
     /// the list because the loop encounters and rejects them individually.
     /// </param>
     /// <param name="direction">Low two bits of collision movement direction.</param>
-    /// <param name="distance">Whole-pixel half of scratch pair <c>$12.$14</c>.</param>
-    /// <param name="distanceSubposition">Fractional half of scratch pair <c>$12.$14</c>.</param>
+    /// <param name="distance">Whole pixels of the requested collision distance.</param>
+    /// <param name="distanceSubposition">Fraction of the requested collision distance.</param>
     /// <returns>The first qualifying body's current leading-edge gap, or the requested whole distance with no enemy when no collision is found.</returns>
     /// <remarks>No whole position or enemy body is changed. Exact current-edge contact clears <paramref name="state"/>'s Y subposition even for horizontal probes. The distance pair is an unsigned 16.16 magnitude; direction supplies its sign.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="state"/> or <paramref name="interactiveEnemies"/> is null.</exception>
@@ -46,9 +46,8 @@ public static class SamusSolidEnemyCollision
         // Constructs only a whole-pixel target for the broad overlap
         // test. Fractional motion is rounded one extra pixel outward whenever its resulting
         // subposition is nonzero, and two pixels whenever the subposition carries or
-        // borrows. Although this can look like an off-by-one in C#, it is the exact SEC/SBC
-        // or add-with-carry plus decrement/increment sequence in the game, whose zero test reads the flags of the last
-        // instruction that ran.
+        // borrows. Although this can look like an off-by-one in C#, it is the game's exact subtract or add
+        // followed by a decrement or increment, whose zero test reads the result of the last step.
         Position16<RoomPixels> target = BuildRoundedTarget(
             state, direction, FixedCoordinate.Of(distance, distanceSubposition));
 
@@ -58,7 +57,7 @@ public static class SamusSolidEnemyCollision
                 continue;
 
             // The rounded future center must overlap on both axes.
-            // Tangency is not overlap here; the CMP/BCC sequence requires the
+            // Tangency is not overlap here; the unsigned comparison requires the
             // center distance to be strictly less than the sum of both radii.
             if (!StrictlyOverlaps(target.X, state.Radius.X, enemy.Position.X, enemy.Radius.X) ||
                 !StrictlyOverlaps(target.Y, state.Radius.Y, enemy.Position.Y, enemy.Radius.Y))
@@ -142,12 +141,12 @@ public static class SamusSolidEnemyCollision
     {
         int whole = CoordinateAxis.Wrap(target.Whole - reach.Whole);
 
-        // SEC/SBC sets carry when no unsigned borrow occurred. Model that borrow explicitly,
+        // The subtraction may borrow from the whole part. Model that borrow explicitly,
         // because the subtraction below keeps only the fraction word.
         bool borrowed = target.Fraction < reach.Fraction;
         int fraction = CoordinateAxis.Wrap(target.Fraction - reach.Fraction);
-        // After a borrow the DEC sets Z from the whole target, so the BEQ
-        // tests that word rather than the fraction and a second DEC follows unless it is 0.
+        // After a borrow the decrement's zero test reads the whole target, so it
+        // tests that word rather than the fraction and a second decrement follows unless it is 0.
         if (borrowed)
         {
             whole = WrappingCounter.DecrementWord(whole);
@@ -172,11 +171,11 @@ public static class SamusSolidEnemyCollision
         int whole = CoordinateAxis.Wrap(target.Whole + reach.Whole);
 
         // The add carries the fractional overflow into the whole word before the
-        // nonzero-fraction INC performs its outward pixel rounding.
+        // nonzero-fraction increment performs its outward pixel rounding.
         int fractionSum = target.Fraction + reach.Fraction;
         int fraction = WordWrap.Unsigned(fractionSum);
-        // After a carry the INC sets Z from the whole target, so the BEQ
-        // tests that word rather than the fraction and a second INC follows unless it is 0.
+        // After an overflow the increment's zero test reads the whole target, so it
+        // tests that word rather than the fraction and a second increment follows unless it is 0.
         if (fractionSum > ushort.MaxValue)
         {
             whole = WrappingCounter.IncrementWord(whole);
@@ -206,7 +205,7 @@ public static class SamusSolidEnemyCollision
             : WordWrap.Unsigned(~signedDelta + 1);
 
         // The assembly subtracts the enemy radius first. Borrow means overlap immediately;
-        // otherwise BCC after CMP accepts only a remainder smaller than Samus's radius.
+        // otherwise an unsigned comparison accepts only a remainder smaller than Samus's radius.
         if (absoluteDelta < secondRadius)
             return true;
 

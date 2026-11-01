@@ -309,7 +309,7 @@ public sealed class SamusLiquidPhysicsState
     {
         Ensure.NotNull(samus);
 
-        // Direct verifier/debugger calls begin a publication window here. The full runtime
+        // A call made outside the frame loop begins a publication window here. The full runtime
         // begins it before movement and passes false, preserving collision sounds queued by
         // landing before this animation phase. Visual slots and damage words are
         // persistent state and therefore are never cleared merely because a frame began.
@@ -532,7 +532,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         // The game duplicates this room policy for running footsteps and landing
-        // effects. Preserve its BIT priority even though retail rows contain one bit each.
+        // effects. Preserve its flag priority even though retail rows contain one flag each.
         CrateriaAtmosphericEffectFlags roomFlags =
             SamusAtmosphericEffects.ForCrateriaRoom(RoomIdentity);
         if ((roomFlags & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
@@ -763,7 +763,7 @@ public sealed class SamusLiquidPhysicsState
             {
                 CrateriaAtmosphericEffectFlags specialType =
                     SamusAtmosphericEffects.ForCrateriaRoom(RoomIdentity);
-                // The three BIT branches have strict priority. Retail records contain one
+                // The three flag tests have strict priority. Retail records contain one
                 // flag apiece, but retaining priority also reproduces corrupted/debug data.
                 if ((specialType & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
                     useWetFootsteps = FxType == RoomFxType.Rain;
@@ -815,7 +815,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>
     /// Movement routines distinguish water from lava by the sign of the general FX surface, then
     /// perform signed 16-bit subtraction against the selected surface. Retain that exact
-    /// ordering so sentinel and wraparound behavior stay debugger-visible.
+    /// ordering so sentinel and wraparound behavior stay exact.
     /// </summary>
     private SamusLiquidMedium DetermineRawMediumAtBoundary(int boundary)
     {

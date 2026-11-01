@@ -100,7 +100,7 @@ internal static class SamusPoseInputRulesEarly
         _ => throw new InvalidOperationException($"Pose-input list {inputList} belongs to the other rule section."),
     };
 
-    /// <summary>TransitionTable list for pose $2F: priority order.</summary>
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.TurningRightToLeftJumpPose"/>: priority order.</summary>
     private static SamusPoseInputMatch MatchEmptyTransitionList()
     {
         return new(null, HasConditions: false);
@@ -474,19 +474,19 @@ internal static class SamusPoseInputRulesEarly
 
 
 
-    /// <summary>TransitionTable list for pose $20: priority order.</summary>
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose20"/>: priority order.</summary>
     private static SamusPoseInputMatch MatchUnusedPose20List()
     {
         return new(null, HasConditions: false);
     }
 
-    /// <summary>TransitionTable list for pose $23: priority order.</summary>
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose23"/>: priority order.</summary>
     private static SamusPoseInputMatch MatchUnusedPose23List()
     {
         return new(null, HasConditions: false);
     }
 
-    /// <summary>TransitionTable list for pose $42: priority order.</summary>
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose42"/>: priority order.</summary>
     private static SamusPoseInputMatch MatchUnusedPose42List()
     {
         return new(null, HasConditions: false);
@@ -601,7 +601,7 @@ internal static class SamusPoseInputRulesEarly
     }
 
 
-    /// <summary>TransitionTable list for pose $33: priority order; TransitionTable list for pose $34 is the same list mirrored.</summary>
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedKnockbackRightPose"/>: priority order; TransitionTable list for <see cref="SamusPoseId.UnusedKnockbackLeftPose"/> is the same list mirrored.</summary>
     private static SamusPoseInputMatch MatchUnusedKnockbackRightPoseList()
     {
         return new(null, HasConditions: false);
@@ -632,13 +632,13 @@ internal static class SamusPoseInputRulesEarly
         return new(null, HasConditions: true);
     }
 
-    /// <summary>TransitionTable list for pose $47: priority order.</summary>
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose47"/>: priority order.</summary>
     private static SamusPoseInputMatch MatchUnusedPose47List()
     {
         return new(null, HasConditions: false);
     }
 
-    /// <summary>TransitionTable list for pose $48: priority order.</summary>
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose48"/>: priority order.</summary>
     private static SamusPoseInputMatch MatchUnusedPose48List()
     {
         return new(null, HasConditions: false);

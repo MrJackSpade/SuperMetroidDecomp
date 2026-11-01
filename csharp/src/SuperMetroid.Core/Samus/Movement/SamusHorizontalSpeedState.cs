@@ -8,7 +8,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// The fixed-point horizontal-speed registers used by Samus's movement code.
+/// The fixed-point horizontal speeds used by Samus's movement code.
 /// </summary>
 /// <remarks>
 /// This class is intentionally narrower than a general-purpose desktop physics body. Every
@@ -246,7 +246,7 @@ public sealed class SamusHorizontalSpeedState
             SpeedBoostCounter = default;
         }
 
-        // The game compares the two words separately with signed BMI branches. This
+        // The game compares the two words separately with signed tests. This
         // intentionally is not a conventional unsigned 32-bit >= comparison. The retail
         // no-booster fractional cap is zero, so a normal progression reaches 2.0000 and
         // clamps there on the following call before another 0.1000 can be added.
@@ -419,7 +419,7 @@ public sealed class SamusHorizontalSpeedState
         if (!IsActivelySpeedBoosting)
             return paletteCopied;
 
-        // DEC is a full 16-bit operation. BEQ/BPL mean zero and signed underflow both reload
+        // The decrement is a full 16-bit operation. Zero and signed underflow both reload
         // four, though ordinary execution arrives with timer one and never underflows.
         CountdownStep timer = SpecialPaletteTimer.Decrement();
         SpecialPaletteTimer = timer.Remaining;
@@ -476,7 +476,7 @@ public sealed class SamusHorizontalSpeedState
             "Screw Attack palette requires installed Samus full-body cycle colors."))
             .Apply(colours, palette);
 
-        // Steps 0 through 5 form the six-frame cycle. The CMP uses the current
+        // Steps 0 through 5 form the six-frame cycle. The comparison uses the current
         // step, so the last wraps to zero only after its palette has been copied.
         CyclePaletteStep = CyclePaletteStep >= SamusPaletteDefinitions.FullBodyCycles.ScrewAttackSteps - 1
             ? 0
@@ -802,7 +802,7 @@ public sealed class SamusHorizontalSpeedState
         {
             SetBaseFixed(unchecked(BaseFixed - (uint)ScaledDeceleration(entry).RawValue));
 
-            // The BMI tests only the signed high word. Once deceleration crosses
+            // The sign test reads only the high word. Once deceleration crosses
             // below zero it clears both halves and returns to acceleration mode zero.
             if (WordWrap.Signed(BaseSpeed.Whole) < 0)
             {
@@ -860,8 +860,8 @@ public sealed class SamusHorizontalSpeedState
 
         SetBaseFixed(unchecked(BaseFixed + (uint)entry.Acceleration.RawValue));
 
-        // CMP/BMI performs signed 16-bit comparisons. Exact equality in both halves is
-        // deliberately *not* considered a cap: the routine returns carry clear in that case.
+        // The comparisons are signed 16-bit. Exact equality in both halves is
+        // deliberately *not* considered a cap: the routine reports no cap in that case.
         int maximumWhole = entry.MaximumSpeed.WholeWord;
         int maximumFraction = entry.MaximumSpeed.Fraction;
         bool exceedsMaximum = WordWrap.Signed(BaseSpeed.Whole - maximumWhole) > 0 ||

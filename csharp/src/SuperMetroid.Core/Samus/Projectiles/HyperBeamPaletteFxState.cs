@@ -43,7 +43,7 @@ public sealed class HyperBeamPaletteFxState
     public int CurrentFrameIndex { get; private set; } = -1;
 
     /// <summary>
-    /// Number of completed ten-frame loops, a port-side debugger count. No game word holds it and nothing in
+    /// Number of completed ten-frame loops, a count the port keeps. No game value holds it and nothing in
     /// gameplay reads it, so it is an ordinary count that starts at zero on spawn and grows by one per loop.
     /// </summary>
     public int CompletedCycles { get; private set; }

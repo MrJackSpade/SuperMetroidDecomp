@@ -1,4 +1,4 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>One dedicated-input-handler call, suitable for debugger watches and assertions.</summary>
+/// <summary>The outcome of one call of X-ray's dedicated pose-input handler.</summary>
 public readonly record struct XrayPoseInputResult();

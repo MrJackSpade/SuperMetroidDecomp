@@ -11,7 +11,7 @@ public static class SamusPowerBombFuse
     /// </summary>
     public static PowerBombFuseStep Step(WrappingCountdown timer, bool explosionArmed)
     {
-        // LDA, BEQ: a stopped fuse is left alone. Otherwise DEC, BNE: reaching zero
+        // A stopped fuse is left alone. Otherwise the fuse counts down: reaching zero
         // expires the fuse, and the fast-list switch tests the decremented count.
         if (timer.IsZero)
             return new(timer, FastAnimation: false, SpawnExplosion: false, DeleteProjectile: !explosionArmed);

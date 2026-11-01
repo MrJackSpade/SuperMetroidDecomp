@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>The pose input-transition lists selected by each Samus pose.</summary>
 internal enum SamusPoseInputList
 {
-    /// <summary>TransitionTable list for pose $2F: diagnostic list identity.</summary>
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.TurningRightToLeftJumpPose"/>: diagnostic list identity.</summary>
     EmptyTransitionList,
     /// <summary>TransitionTable_00_9B_FacingForward: diagnostic list identity.</summary>
     ForwardFacingPowerSuitPoseList,
@@ -47,11 +47,11 @@ internal enum SamusPoseInputList
     MorphBallMovingLeftPoseList,
     /// <summary>TransitionTable_1D_FaceLeft_MorphBall_NoSpringBall_OnGround: diagnostic list identity.</summary>
     MorphBallGroundLeftPoseList,
-    /// <summary>TransitionTable list for pose $20: diagnostic list identity.</summary>
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose20"/>: diagnostic list identity.</summary>
     UnusedPose20List,
-    /// <summary>TransitionTable list for pose $23: diagnostic list identity.</summary>
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose23"/>: diagnostic list identity.</summary>
     UnusedPose23List,
-    /// <summary>TransitionTable list for pose $42: diagnostic list identity.</summary>
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose42"/>: diagnostic list identity.</summary>
     UnusedPose42List,
     /// <summary>TransitionTable_27_71_73_85_FacingRight_Crouching: diagnostic list identity.</summary>
     CrouchingRightPoseList,
@@ -65,17 +65,17 @@ internal enum SamusPoseInputList
     MorphBallFallingRightPoseList,
     /// <summary>TransitionTable_32_FacingLeft_MorphBall_NoSpringBall_InAir: diagnostic list identity.</summary>
     MorphBallFallingLeftPoseList,
-    /// <summary>TransitionTable list for pose $33: diagnostic list identity.</summary>
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedKnockbackRightPose"/>: diagnostic list identity.</summary>
     UnusedKnockbackRightPoseList,
-    /// <summary>TransitionTable list for pose $34: diagnostic list identity.</summary>
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedKnockbackLeftPose"/>: diagnostic list identity.</summary>
     UnusedKnockbackLeftPoseList,
     /// <summary>UNUSED_TransitionTable_45_91A7CC: diagnostic list identity.</summary>
     UnusedPose45List,
     /// <summary>UNUSED_TransitionTable_46_91A7E0: diagnostic list identity.</summary>
     UnusedPose46List,
-    /// <summary>TransitionTable list for pose $47: diagnostic list identity.</summary>
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose47"/>: diagnostic list identity.</summary>
     UnusedPose47List,
-    /// <summary>TransitionTable list for pose $48: diagnostic list identity.</summary>
+    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedPose48"/>: diagnostic list identity.</summary>
     UnusedPose48List,
     /// <summary>TransitionTable_49_75_77_FacingLeft_Moonwalk: diagnostic list identity.</summary>
     MoonwalkFacingLeftPoseList,

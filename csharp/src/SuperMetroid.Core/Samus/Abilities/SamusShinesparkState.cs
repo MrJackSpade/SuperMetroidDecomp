@@ -77,7 +77,7 @@ public sealed class SamusShinesparkState
     internal void ApplySuitPickupScratch(int substate, int lightBeamPosition) =>
         VerticalAcceleration = SignedSixteenSixteen.FromParts(WordWrap.Signed(substate), lightBeamPosition);
 
-    /// <summary>Debugger-readable replacement for the installed handler pointer.</summary>
+    /// <summary>The shinespark movement handler currently installed.</summary>
     public ShinesparkPhase Phase { get; internal set; }
 
     /// <summary>
@@ -109,10 +109,10 @@ public sealed class SamusShinesparkState
         PaletteStep = 0;
     }
 
-    /// <summary>Set at stored timer 170, matching SFX queue three `$0C`.</summary>
+    /// <summary>Set at stored timer 170, requesting the stored-shine warning sound.</summary>
     public bool StoredShineWarningSoundRequested { get; set; }
 
-    /// <summary>Set when direction selection requests SFX queue three `$0F`.</summary>
+    /// <summary>Set when direction selection requests the shinespark launch sound.</summary>
     public bool LaunchSoundRequested { get; set; }
 
     /// <summary>Set when energy or collision installs the crash handler.</summary>
@@ -146,7 +146,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Consumes <c>Projectile_Func7_Shinespark</c>'s library-one <c>$02</c> request,
+    /// Consumes <c>Projectile_Func7_Shinespark</c>'s charge-cancellation sound request,
     /// emitted only when windup cancels a charge whose counter reached sixteen.
     /// </summary>
     public bool ConsumeChargeCancellationSoundRequest()
@@ -269,7 +269,7 @@ public sealed class SamusShinesparkState
 
     /// <summary>
     /// Ports <c>Projectile_Func7_Shinespark</c> after Samus's pose handling has
-    /// selected windup pose `$C7/$C8`.
+    /// selected windup <see cref="SamusPoseId.ShinesparkWindupRightPose"/> and <see cref="SamusPoseId.ShinesparkWindupLeftPose"/>.
     /// </summary>
     public void BeginWindup(SamusState samus)
     {
@@ -291,7 +291,7 @@ public sealed class SamusShinesparkState
     private void InitializeWindup(SamusState samus)
     {
         // Projectile_Func7_Shinespark checks the charge counter before clearing it. A charge that has
-        // reached the draw-time sound threshold first queues library-one $02; shorter
+        // reached the draw-time sound threshold first queues the charge-cancellation sound; shorter
         // charges are still torn down without a sound call. The live projectile owner
         // contains the flare layers and previous-counter word, while Samus mirrors the charge counter
         // for movement decisions. Keep both views synchronized at this seam.
@@ -339,14 +339,14 @@ public sealed class SamusShinesparkState
 
     /// <summary>
     /// Installs the handler selected by <c>SamusFunc_F468_Shinespark</c>
-    /// for poses `$C9-$CE`.
+    /// for <see cref="SamusPoseId.ShinesparkHorizontalRightPose"/> through <see cref="SamusPoseId.ShinesparkDiagonalLeftPose"/>.
     /// </summary>
     public void BeginDirectionalLaunch(SamusState samus, SamusPoseId targetPose,
         bool deferPoseChange = false)
     {
         Ensure.NotNull(samus);
         // The launch installs its handler over whatever handler is current. A windup
-        // whose handler normal movement replaced (a knockback ending in `$C7/$C8`) keeps its
+        // whose handler normal movement replaced (a knockback ending in a windup pose) keeps its
         // pose and the windup's speeds, and a direction still launches from it.
         Phase = targetPose switch
         {
@@ -356,8 +356,8 @@ public sealed class SamusShinesparkState
             SamusPoseId.ShinesparkVerticalLeftPose => ShinesparkPhase.Vertical,
             SamusPoseId.ShinesparkDiagonalRightPose or
             SamusPoseId.ShinesparkDiagonalLeftPose => ShinesparkPhase.Diagonal,
-            // The launch is reached only from the six table-selected `$C9-$CE` records.
-            // Any other byte is a caller contract violation, not another untranslated arm.
+            // The launch is reached only from the six table-selected shinespark poses.
+            // Any other pose is a caller contract violation, not another untranslated arm.
             SamusPoseId.ForwardFacingPowerSuitPose or
                 SamusPoseId.ForwardFacingSuitedPose or
                 SamusPoseId.FacingRightNormalPose or
@@ -1013,8 +1013,7 @@ false,             CrashSequenceFinished: true);
         slot.Position = slot.Position.WithX(point.X);
 
         // The game performs the X viewport rejection before calculating/publishing Y. The
-        // cleared result is identical either way, but retaining the branch order makes a
-        // debugger trace line up with the game's steps.
+        // cleared result is identical either way; the branch order follows the game's steps.
         int screenX = CoordinateAxis.Difference(slot.Position.X, layer1.X);
         if (screenX is < 0 or >= 256)
         {
@@ -1193,7 +1192,7 @@ false,             CrashSequenceFinished: true);
         /// <summary>Last rendered room position, including the slot-three crash aliases.</summary>
         public Position16<RoomPixels> Position { get; set; }
 
-        /// <summary>Copies only the drawing enable and position for debugger consumers.</summary>
+        /// <summary>The echo's drawing enable and position, as one immutable value.</summary>
         public ShinesparkReleasedEcho Snapshot => new(Active, Position);
 
         /// <summary>Clears drawing enable while retaining coordinates, projectile ownership and aliased crash travel.</summary>

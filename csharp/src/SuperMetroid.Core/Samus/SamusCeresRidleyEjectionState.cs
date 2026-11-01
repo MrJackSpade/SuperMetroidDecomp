@@ -89,7 +89,7 @@ public sealed class SamusCeresRidleyEjectionState
                 samus.Position.Y.Whole - (21 - samus.Kinematics.Radius.Y));
 
             // The side is selected from screen X, not world X. Exact center belongs to the
-            // rightward branch because the BMI tests a signed `(screenX - 128)`.
+            // rightward branch because the game tests the sign of `(screenX - 128)`.
             int screenX = CoordinateAxis.Wrap(samus.Position.X.Whole - layer1X);
             PushDirection = CoordinateAxis.Difference(screenX, 128) < 0
                 ? CeresRidleyShoveDirection.Left

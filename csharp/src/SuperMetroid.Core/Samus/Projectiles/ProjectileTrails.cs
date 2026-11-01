@@ -59,9 +59,8 @@ internal sealed class ProjectileTrails
         ProjectileTrailPlacementList? list = ProjectileTrailPlacements.List(
             group, projectile.Type.BeamCombination, projectile.Direction.ToAimIndex());
 
-        // A shot whose direction names no placement list draws no trail, and so does a read that reaches direct-page
-        // scratch: its exact appearance would need direct-page emulation the port does not model, so it is exempt (owner
-        // decision on #1318).
+        // A shot whose direction names no placement list draws no trail, and so does a row whose list would be
+        // left-over values: that appearance is not part of the game's design, so it is exempt (owner decision on #1318).
         if (list is not { } placements ||
             ProjectileTrailPlacements.Start(placements, animationFrame, _starts) is not { } placement)
             return;
@@ -137,7 +136,7 @@ internal sealed class ProjectileTrails
                     ProjectileTrailInstruction movement = ((ProjectileTrailStep.Move)step).Movement;
                     switch (movement)
                     {
-                        // The opcode names its destination array. Both streams dispatch
+                        // The instruction names its destination array. Both streams dispatch
                         // the same handlers, including writes to their sibling's position.
                         case ProjectileTrailInstruction.MoveLeftDown:
                             pair.Left.Position = pair.Left.Position.WithY(CoordinateAxis.Wrap(pair.Left.Position.Y + 1));

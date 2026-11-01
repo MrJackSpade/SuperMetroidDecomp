@@ -11,23 +11,23 @@ internal static class XrayRevealDefinitions
     /// <summary>Blank metatile selected by negative-coordinate extension exits.</summary>
     internal const int BlankMetatile = 255;
 
-    /// <summary>Behaviour $46 is the only special-air value admitted by the table.</summary>
+    /// <summary>The only special-air behaviour the table admits.</summary>
     /// <remarks>
-    /// Issue #1028: the special-air table holds one entry for behaviour $46
+    /// Issue #1028: the special-air table holds one entry for this behaviour
     /// and a terminator, then a copy-one command and
     /// tile 255. The lookup compares the zero-extended behaviour byte,
-    /// so equality with $46 is the complete bounded algorithm over 0..255;
+    /// so equality with it is the complete bounded algorithm over 0..255;
     /// every other behaviour returns no reveal. The original data and all 256
     /// special-air cases in the independent X-ray reveal oracle agree.
     /// </remarks>
     internal const int SpecialAirRevealBehavior = 70;
 
-    /// <summary>Behaviour $0E is the only spike-block value admitted by the table.</summary>
+    /// <summary>The only spike-block behaviour the table admits.</summary>
     /// <remarks>
-    /// Issue #1030: the spike-block table holds one entry for behaviour $0E
+    /// Issue #1030: the spike-block table holds one entry for this behaviour
     /// and a terminator, then a copy-one command and
     /// tile 95. The lookup compares zero-extended behaviour, making
-    /// equality with $0E the exact bounded rule over 0..255; other behaviour
+    /// equality with it the exact bounded rule over 0..255; other behaviour
     /// values return no reveal. The original data and all 256 spike-block
     /// cases in the independent X-ray reveal oracle agree.
     /// </remarks>

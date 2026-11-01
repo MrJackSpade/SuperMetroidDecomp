@@ -355,8 +355,8 @@ public sealed class SamusBombProjectileSystem
             return;
 
         // The cooldown also clamps already-negative/crossed-negative values to zero. Normal
-        // bomb cooldowns are small positive words, but retaining the signed edge keeps a
-        // debugger mutation from producing a permanently locked firing state.
+        // bomb cooldowns are small positive values, but retaining the signed edge keeps an
+        // out-of-range cooldown from producing a permanently locked firing state.
         if (CooldownTimer.IsNegative)
         {
             CooldownTimer = WrappingCountdown.Start(0);
@@ -404,7 +404,7 @@ public sealed class SamusBombProjectileSystem
 
         // Retail HUD selection cannot normally point at an empty ammo class. Preserve the
         // game's ordering nonetheless: helper two has already incremented the aggregate
-        // counter if a debugger forces selected item three with zero power bombs.
+        // counter if Power Bombs are selected with none left.
         if (placingPowerBomb && samus.PowerBombs == 0)
             return null;
 
@@ -618,7 +618,7 @@ public sealed class SamusBombProjectileSystem
             if (slot.BombTimer.IsAt(15))
             {
                 // The slow and fast lists have identical four-frame layouts and differ by
-                // $1C bytes. Adding to the live next-instruction pointer preserves phase.
+                // a fixed distance. Moving the live instruction cursor by it preserves phase.
                 slot.Cursor = SamusPowerBombFuse.FastAnimation(slot.Cursor);
             }
             else if (slot.BombTimer.IsZero)
@@ -1034,7 +1034,7 @@ public sealed class SamusBombProjectileSystem
             $"behaviour ${block.Behavior.Value:X2} at ({x},{y}).");
     }
 
-    /// <summary>Ticks the bomb instruction list, including timed maps, delete and goto opcodes.</summary>
+    /// <summary>Ticks the bomb instruction list, including timed maps, delete and goto instructions.</summary>
     internal bool RunProjectileInstructionHandler(
         SamusBombProjectileSlot slot)
     {
@@ -1093,7 +1093,7 @@ public sealed class SamusBombProjectileSystem
                 !slot.BombTimer.IsAt(8))
                 continue;
 
-            // CMP SamusX,bombX: equal is straight; Samus left of the bomb launches left;
+            // Samus's X against the bomb's: equal is straight; Samus left of the bomb launches left;
             // Samus right of the bomb launches right. Later overlapping slots overwrite
             // earlier ones exactly as the ascending assembly loop does.
             publishedDirection = samus.Position.X.Whole == slot.Position.X.Whole

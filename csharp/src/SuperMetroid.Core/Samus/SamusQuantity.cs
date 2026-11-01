@@ -25,7 +25,7 @@ public static class SamusQuantity
         : throw new InvalidOperationException($"Samus count {value} is outside [{MinimumValue}, {MaximumValue}].");
 
     /// <summary>
-    /// Removes one from a count as the cartridge's unchecked word <c>DEC</c> does: zero becomes -1 and the smallest
+    /// Removes one from a count as the game's unchecked decrement does: zero becomes -1 and the smallest
     /// count wraps to the largest.
     /// </summary>
     internal static int DecrementWord(int count) =>

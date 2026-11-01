@@ -24,7 +24,7 @@ public sealed class SamusGrappleState
 
     /// <summary>
     /// <c>GrappleBeam_FlareX/YPosition</c>, retained under the original host-facing
-    /// BeamStart name for debugger/API compatibility. <c>DrawConnectedBeam</c> starts drawing
+    /// BeamStart name. <c>DrawConnectedBeam</c> starts drawing
     /// here; do not use this position to reconstruct command-10 body positioning.
     /// </summary>
     public Position16<RoomPixels> BeamStart { get; set; }
@@ -96,16 +96,16 @@ public sealed class SamusGrappleState
     /// </summary>
     public bool ReleasedMovementActive { get; set; }
     /// <summary>
-    /// True only when the anchor came from the room block dispatcher. Debugger-published
-    /// already-connected anchors deliberately leave this false because they may have no
-    /// corresponding type-$E block in the selected diagnostic room.
+    /// True only when the anchor came from the room block dispatcher. A beam started
+    /// already connected leaves this false, because its anchor need not be a grapple block
+    /// of the room.
     /// </summary>
     public bool ValidateAnchorBlock { get; set; }
 
     /// <summary>
     /// True when the accepted endpoint came from the interactive-enemy list. Such an
-    /// anchor must be reacquired every connected frame; it cannot be treated as the permanent
-    /// debugger seam merely because <see cref="ValidateAnchorBlock"/> is false.
+    /// anchor must be reacquired every connected frame; it cannot be treated as a permanent
+    /// already-connected anchor merely because <see cref="ValidateAnchorBlock"/> is false.
     /// </summary>
     public bool ValidateAnchorEnemy { get; set; }
 

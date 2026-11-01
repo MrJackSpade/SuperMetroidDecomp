@@ -421,7 +421,7 @@ internal sealed class SamusPresentation
         int renderX = renderPoint.X;
         int renderY = renderPoint.Y;
 
-        // The draw sign-extends the byte at pose-definition offset four. Pose $01 stores
+        // The draw sign-extends the byte at pose-definition offset four. FacingRightNormalPose stores
         // +6, moving the art origin six pixels above Samus's world-space center.
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
         int spritemapX = CoordinateAxis.Wrap(renderX - layer1.X);
@@ -543,7 +543,7 @@ internal sealed class SamusPresentation
                 SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.CrouchingTransitionAimUpRightPose) && samus.AnimationFrame == 2);
 
         // The otherwise-unused movement type `$0D` still has executable game logic
-        // in the draw: poses `$65/$66` draw a lower half only on frame zero, while every
+        // in the draw: UnusedPose65 and UnusedPose66 draw a lower half only on frame zero, while every
         // other type-`$0D` pose follows the ordinary always-split return.
         bool unusedTypeDBottom = movementType != SamusMovementType.Unused0D ||
             samus.Pose is not (SamusPoseId.UnusedPose65 or SamusPoseId.UnusedPose66) ||

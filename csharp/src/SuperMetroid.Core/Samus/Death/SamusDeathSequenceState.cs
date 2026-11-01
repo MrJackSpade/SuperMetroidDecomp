@@ -22,7 +22,7 @@ public sealed class SamusDeathSequenceState
     /// <summary>
     /// True from the death sequence's setup through the terminal white frame. A completed sequence
     /// remains an owner until the outer game-state fade replaces the room, preventing normal
-    /// type-`$0A` knockback code from accidentally resuming on pose `$D7/$D8`.
+    /// type-`$0A` knockback code from accidentally resuming on <see cref="SamusPoseId.DeathSequenceRightPose"/> and <see cref="SamusPoseId.DeathSequenceLeftPose"/>.
     /// </summary>
     public bool IsActive => Phase != SamusDeathSequencePhase.Inactive;
 
@@ -84,7 +84,7 @@ public sealed class SamusDeathSequenceState
             : SamusPoseId.DeathSequenceRightPose;
         int initialFrame = SamusDeathSequenceFrames.InitialFrame(sourceMovementType);
 
-        // The game initializes pose `$D7/$D8` normally, then overwrites only the visible frame
+        // The game initializes DeathSequenceRightPose and DeathSequenceLeftPose normally, then overwrites only the visible frame
         // with the movement-type table result. All six delays are two, so the timer produced
         // by frame-zero initialization remains the correct literal value for every start.
         samus.Pose = deathPose;

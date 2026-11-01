@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </summary>
 /// <remarks>
 /// The typed definitions give every pose a facing. Four records hold facing bytes that are neither left nor right (the
-/// unused glitch-ball poses $21/$22 and the adjacent-code poses $FE/$FF); this codec carries those bytes so the records
+/// unused glitch-ball <see cref="SamusPoseId.UnusedPose21"/> and <see cref="SamusPoseId.UnusedPose22"/> and the adjacent-code <see cref="SamusPoseId.AdjacentCodePoseFE"/> and <see cref="SamusPoseId.AdjacentCodePoseFF"/>); this codec carries those bytes so the records
 /// stay exact.
 /// </remarks>
 [EncodingOwner("Samus pose record facing bytes")]

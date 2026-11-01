@@ -66,7 +66,7 @@ public sealed class SamusKinematicsState
     /// mover preserve the test without guessing which higher-level movement caller
     /// happened to reach it.
     /// </summary>
-    /// <remarks>Unsampled state reads as pose $FF, outside every pose the elevator pseudo-doors admit.</remarks>
+    /// <remarks>Unsampled state reads as <see cref="SamusPoseId.AdjacentCodePoseFF"/>, outside every pose the elevator pseudo-doors admit.</remarks>
     public SamusPoseId CollisionPose { get; internal set; } = SamusPoseId.AdjacentCodePoseFF;
 
     /// <summary>

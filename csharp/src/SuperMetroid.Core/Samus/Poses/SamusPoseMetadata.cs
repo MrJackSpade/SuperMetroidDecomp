@@ -336,7 +336,7 @@ internal static class SamusPoseMetadata
     public static bool IsRanIntoWallPose(SamusPoseId pose) =>
         IsRightFacingRanIntoWallPose(pose) || IsLeftFacingRanIntoWallPose(pose);
 
-    /// <summary>True for the four aimed wall-contact records $CF..$D2; neutral wall-contact poses $89/$8A are excluded.</summary>
+    /// <summary>True for the four aimed wall-contact records $CF..$D2; neutral wall-contact <see cref="SamusPoseId.RanIntoWallRightPose"/> and <see cref="SamusPoseId.RanIntoWallLeftPose"/> are excluded.</summary>
     /// <param name="pose">Current or prospective pose byte.</param>
     /// <returns>Whether the movement-type-$15 body uses an aimed wall-contact variant.</returns>
     public static bool IsAimedRanIntoWallPose(SamusPoseId pose) => pose is
@@ -360,7 +360,7 @@ internal static class SamusPoseMetadata
         SamusPoseId.RanIntoWallAimUpRightPose or SamusPoseId.RanIntoWallAimUpLeftPose or
         SamusPoseId.RanIntoWallAimDownRightPose or SamusPoseId.RanIntoWallAimDownLeftPose;
 
-    /// <summary>True for right-facing aimed normal-jump landing poses `$E0/$E2/$E4`.</summary>
+    /// <summary>True for right-facing aimed normal-jump landing <see cref="SamusPoseId.LandingAimUpRightPose"/>, <see cref="SamusPoseId.LandingAimDiagonalUpRightPose"/> and <see cref="SamusPoseId.LandingAimDiagonalDownRightPose"/>.</summary>
     public static bool IsRightFacingAimedLandingPose(SamusPoseId pose) => pose is
         SamusPoseId.LandingAimUpRightPose or SamusPoseId.LandingAimDiagonalUpRightPose or
         SamusPoseId.LandingAimDiagonalDownRightPose;

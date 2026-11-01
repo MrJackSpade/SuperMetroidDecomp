@@ -304,7 +304,7 @@ public static class SamusBlockCollision
                     case RoomCollisionType.BombableBlock:
                         // Indexes the collision-bomb-block PLM table with behaviour
                         // 0..7. Its setup returns carry (solid) unless Samus
-                        // is speed boosting, screw attacking, or in pose `$C9-$CE`. On an
+                        // is speed boosting, screw attacking, or in ShinesparkHorizontalRightPose through ShinesparkDiagonalLeftPose. On an
                         // accepted break it installs the air-type bomb-parent visual and
                         // returns carry clear, so this scan continues through the new air.
                         if (terrain.Plms?.Quicksand.IsAllocationFull == true)

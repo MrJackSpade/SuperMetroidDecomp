@@ -31,8 +31,8 @@ public static class SamusMovementDefinitions
 
         /// <summary>
         /// The no-input fallback that retains the current pose after input lookup failure. The game
-        /// spells it as pose $FF, so it is the same identity as <see cref="SamusPoseId.AdjacentCodePoseFF"/>: a record
-        /// whose fallback names pose $FF retains its pose.
+        /// spells it as <see cref="SamusPoseId.AdjacentCodePoseFF"/>, so it is the same identity as <see cref="SamusPoseId.AdjacentCodePoseFF"/>: a record
+        /// whose fallback names <see cref="SamusPoseId.AdjacentCodePoseFF"/> retains its pose.
         /// </summary>
         public const SamusPoseId RetainCurrentPoseFallback = SamusPoseId.AdjacentCodePoseFF;
 

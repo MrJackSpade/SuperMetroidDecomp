@@ -506,7 +506,7 @@ internal sealed class BeamFiring
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
 
         // The muzzle origin uses the running/moonwalk origin table for movement type one and for
-        // the two diagonally-up moonwalk poses $75/$76. Every other pose uses the default.
+        // the two diagonally-up moonwalk MoonwalkAimUpLeftPose and MoonwalkAimUpRightPose. Every other pose uses the default.
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
         var origin = SamusMuzzleOrigins.Read(runningOrigin, slot.Direction.ToAimIndex());

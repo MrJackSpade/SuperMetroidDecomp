@@ -659,7 +659,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
 
     /// <summary>
     /// Applies the walk-off transition's type-four endpoint, retaining the rolling animation
-    /// while changing to ordinary airborne pose `$31/$32` and starting dry-air gravity.
+    /// while changing to ordinary airborne <see cref="SamusPoseId.MorphBallFallingRightPose"/> and <see cref="SamusPoseId.MorphBallFallingLeftPose"/> and starting dry-air gravity.
     /// </summary>
     public static void ApplyMorphBallWalkOff(SamusState samus)
     {

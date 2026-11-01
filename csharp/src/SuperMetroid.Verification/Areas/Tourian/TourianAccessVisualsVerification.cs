@@ -32,7 +32,7 @@ internal static class TourianAccessVisualsVerification
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tourian stock native oracle revision");
         // A private installation copy, whose override is written and whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmTourianAccessVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
             RoomPlmTourianAccessVisualFiles.ValidateStock(
@@ -69,10 +69,9 @@ internal static class TourianAccessVisualsVerification
             VerifyTourianAccessVisualSeparation(rom, edited, clear: false);
             VerifyTourianAccessVisualSeparation(rom, edited, clear: true);
 
-            // The shared installation's stock directory stands for a stock directory the installer replaced.
-            string refreshed = RepositoryInstallation.Installation.RoomPlmTourianAccessVisualDirectory;
+            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
             AssertEqual(RoomBlockAppearance.Of(0x058),
-                RoomPlmTourianAccessVisualFiles.Load(refreshed,
+                ReExtractTourianAccessStock(rom, refreshed,
                     installation.RoomPlmTourianAccessVisualOverrideDirectory)
                     .GetAppearance(PlmDraw.Of(TourianAccessDraw.Clear), 5, 0),
                 "Tourian override survives stock replacement");
@@ -186,5 +185,13 @@ internal static class TourianAccessVisualsVerification
     {
         Suite(nameof(VerifyTourianAccessVisuals), () => VerifyTourianAccessVisuals());
         return 0;
+    }
+
+    /// <summary>Extracts stock Tourian access visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmTourianAccessVisualFiles.Extract into a fresh stock directory beside the copy's Tourian access override, to check that a stock replacement keeps the edited last clear row block (appearance 058) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static RoomPlmTourianAccessVisuals ReExtractTourianAccessStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmTourianAccessVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmTourianAccessVisualFiles.Load(refreshed, overrides);
     }
 }

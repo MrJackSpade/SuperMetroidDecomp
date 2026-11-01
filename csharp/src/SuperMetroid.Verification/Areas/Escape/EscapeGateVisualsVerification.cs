@@ -139,7 +139,7 @@ internal static class EscapeGateVisualsVerification
     private static void VerifyEscapeGateVisualInstallation(SuperMetroidAddressSpace rom)
     {
         // A private installation copy, whose override is written and whose stock file is tampered below.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmEscapeGateVisualDirectory);
         GameInstallation installation = copy.Installation;
         RoomPlmEscapeGateVisualFiles.ValidateStock(
             installation.RoomPlmEscapeGateVisualDirectory);
@@ -163,10 +163,9 @@ internal static class EscapeGateVisualsVerification
                 PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
             "installed escape-gate override changes selected frame");
 
-        // The shared installation's stock directory stands for a stock directory the installer replaced.
-        string refreshed = RepositoryInstallation.Installation.RoomPlmEscapeGateVisualDirectory;
+        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
         AssertEqual(RoomBlockAppearance.Of(0x53),
-            RoomPlmEscapeGateVisualFiles.Load(refreshed,
+            ReExtractEscapeGateStock(rom, refreshed,
                 installation.RoomPlmEscapeGateVisualOverrideDirectory).GetAppearance(
                 PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
             "escape-gate override survives stock replacement");
@@ -175,5 +174,13 @@ internal static class EscapeGateVisualsVerification
             () => RoomPlmEscapeGateVisualFiles.ValidateStock(
                 installation.RoomPlmEscapeGateVisualDirectory),
             "tampered escape-gate stock fails manifest validation");
+    }
+
+    /// <summary>Extracts stock escape-gate visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmEscapeGateVisualFiles.Extract into a fresh stock directory beside the copy's escape-gate override, to check that a stock replacement keeps the edited closed-frame block (appearance 53) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static RoomPlmEscapeGateVisualCatalog ReExtractEscapeGateStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmEscapeGateVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmEscapeGateVisualFiles.Load(refreshed, overrides);
     }
 }

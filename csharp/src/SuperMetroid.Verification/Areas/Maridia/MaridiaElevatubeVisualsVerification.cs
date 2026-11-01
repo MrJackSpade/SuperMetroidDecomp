@@ -28,7 +28,7 @@ internal static class MaridiaElevatubeVisualsVerification
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Elevatube stock oracle revision");
         // A private installation copy, whose override is written and whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmMaridiaElevatubeVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
             RoomPlmMaridiaElevatubeVisualFiles.ValidateStock(
@@ -84,10 +84,9 @@ internal static class MaridiaElevatubeVisualsVerification
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 "edited elevatube reads no compiled source bytes");
 
-            // The shared installation's stock directory stands for a stock directory the installer replaced.
-            string refreshed = RepositoryInstallation.Installation.RoomPlmMaridiaElevatubeVisualDirectory;
+            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
             AssertEqual(RoomBlockAppearance.Of(0x058),
-                RoomPlmMaridiaElevatubeVisualFiles.Load(refreshed,
+                ReExtractMaridiaElevatubeStock(rom, refreshed,
                     installation.RoomPlmMaridiaElevatubeVisualOverrideDirectory)
                     .GetAppearance(MaridiaElevatubePlmDefinitions.BlockDraw, 0, 0),
                 "elevatube override survives stock replacement");
@@ -112,5 +111,13 @@ internal static class MaridiaElevatubeVisualsVerification
     {
         Suite(nameof(VerifyMaridiaElevatubeVisuals), () => VerifyMaridiaElevatubeVisuals());
         return 0;
+    }
+
+    /// <summary>Extracts stock elevatube visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmMaridiaElevatubeVisualFiles.Extract into a fresh stock directory beside the copy's elevatube override, to check that a stock replacement keeps the edited elevatube block (appearance 058) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static InstalledRoomPlmMaridiaElevatubeVisuals ReExtractMaridiaElevatubeStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmMaridiaElevatubeVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmMaridiaElevatubeVisualFiles.Load(refreshed, overrides);
     }
 }

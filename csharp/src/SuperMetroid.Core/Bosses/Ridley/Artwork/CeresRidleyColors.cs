@@ -4,54 +4,11 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
-/// Ceres Ridley's installed colours at work: building them from their supplied families, composing and resolving the retreat
-/// colours, and installing each family in its place among the colours.
+/// Ceres Ridley's installed colours at work: composing and resolving the retreat colours, and installing each family in
+/// its place among the colours.
 /// </summary>
 internal static class CeresRidleyColors
 {
-    /// <summary>Builds the selected Ceres Ridley colours from their supplied families; a missing alarm or Baby family, which older overrides predate, is taken from <paramref name="stock"/>.</summary>
-    /// <param name="supplied">The supplied colour families.</param>
-    /// <param name="stock">The current stock colours a missing family is inherited from.</param>
-    internal static CeresRidleyColorCatalog Create(CeresRidleySuppliedColors supplied, CeresRidleyColorCatalog? stock)
-    {
-        Ensure.NotNull(supplied);
-        var compiledBody = new CeresRidleyFade(CeresRidleyFadeKind.Body, supplied.BodyFade);
-        return new(new CeresRidleyColorParts
-        {
-            Start = supplied.Start,
-            EyeFade = new CeresRidleyFade(CeresRidleyFadeKind.Eyes, supplied.EyeFade),
-            BodyFade = compiledBody,
-            Health = supplied.Health,
-            Alarm = supplied.Alarm is null ? Ensure.NotNull(stock).selection.Alarm : new CeresRidleyAlarmColors(supplied.Alarm),
-            RetreatBg = supplied.RetreatBg,
-            RetreatShared = supplied.RetreatShared,
-            Baby = supplied.Baby is null ? Ensure.NotNull(stock).selection.Baby : new CeresBabyPaint(supplied.Baby, compiledBody),
-        });
-    }
-
-    /// <summary>Keeps the supplied retreat BG colours that differ from their body, eye and neutral composition.</summary>
-    internal static Dictionary<ColourCell, RgbColor> RetreatBgEdits(CeresRidleyColorParts parts)
-    {
-        var edits = new Dictionary<ColourCell, RgbColor>();
-        for (int color = 0; color < parts.RetreatBg.Length; color++)
-            if (parts.RetreatBg[color] != CalculateRetreatBg(parts.BodyFade, parts.EyeFade, color))
-                edits.Add(new ColourCell(0, color), parts.RetreatBg[color]);
-        return edits;
-    }
-
-    /// <summary>
-    /// The retreat copies the normal door/container paints into both drawing domains; keeps only independent supplied
-    /// differences from the existing startup owner.
-    /// </summary>
-    internal static Dictionary<ColourCell, RgbColor> RetreatSharedEdits(RgbColor[] retreatShared, CeresRidleyStartColors start)
-    {
-        var edits = new Dictionary<ColourCell, RgbColor>();
-        for (int color = 0; color < retreatShared.Length; color++)
-            if (retreatShared[color] != start.Resolve(color + 1))
-                edits.Add(new ColourCell(0, color), retreatShared[color]);
-        return edits;
-    }
-
     /// <summary>Returns one BGR555 retreat BG color, index 0..14, preserving supplied edits over the composition.</summary>
     internal static RgbColor RetreatBg(CeresRidleyColorCatalog colors, int color)
     {
@@ -63,7 +20,7 @@ internal static class CeresRidleyColors
     }
 
     /// <summary>Composes the retreat background from body-fade shade one, eye-fade shade fourteen, and its neutral final color.</summary>
-    private static RgbColor CalculateRetreatBg(CeresRidleyFade bodyFade, CeresRidleyFade eyeFade, int color) =>
+    internal static RgbColor CalculateRetreatBg(CeresRidleyFade bodyFade, CeresRidleyFade eyeFade, int color) =>
         color < 11 ? bodyFade.Resolve(1, color)
             : color < 14 ? eyeFade.Resolve(14, color - 11) : CeresRidleyFloorPaint.RetreatNeutral;
 

@@ -9,25 +9,9 @@ public sealed class CeresRidleyColorCatalog
     /// <summary>The selected colour families.</summary>
     internal readonly CeresRidleyColorSelection selection;
 
-    /// <summary>Retains independent palette edits and collapses unchanged retreat colors onto their startup and fade owners.</summary>
-    internal CeresRidleyColorCatalog(CeresRidleyColorParts parts)
-        : this(parts, new CeresRidleyStartColors(parts.Start, parts.Baby))
-    {
-    }
-
-    /// <summary>Retains the compiled families, keeping only the retreat colours that differ from their owners.</summary>
-    private CeresRidleyColorCatalog(CeresRidleyColorParts parts, CeresRidleyStartColors start) =>
-        selection = new CeresRidleyColorSelection
-        {
-            Start = start,
-            EyeFade = parts.EyeFade,
-            BodyFade = parts.BodyFade,
-            Health = new CeresRidleyHealthPaint(parts.Health, parts.BodyFade, parts.EyeFade),
-            Alarm = parts.Alarm,
-            RetreatBg = CeresRidleyColors.RetreatBgEdits(parts),
-            RetreatShared = CeresRidleyColors.RetreatSharedEdits(parts.RetreatShared, start),
-            Baby = parts.Baby,
-        };
+    /// <summary>Retains the compiled families, with the retreat colours kept only where they differ from their owners.</summary>
+    /// <param name="selection">The families the import compiled.</param>
+    internal CeresRidleyColorCatalog(CeresRidleyColorSelection selection) => this.selection = selection;
 
     /// <summary>Returns one BGR555 retreat BG color, index 0..14, preserving supplied edits over the composition of body-fade shade one, eye-fade shade fourteen, and the neutral tail colors.</summary>
     public RgbColor ResolveRetreatBg(int color) => CeresRidleyColors.RetreatBg(this, color);

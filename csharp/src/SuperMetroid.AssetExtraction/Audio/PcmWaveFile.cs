@@ -1,5 +1,5 @@
 using System.Buffers.Binary;
-using System.Text;
+using System.Security.Cryptography;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
 
@@ -17,6 +17,10 @@ public static class PcmWaveFile
     private const ushort PcmFormat = 1;
     /// <summary>PCM's mandatory format fields through bits-per-sample.</summary>
     private const int MinimumFormatChunkBytes = 16;
+    /// <summary>The minimal header written ahead of the samples: the RIFF, format and data chunk headers and the format fields.</summary>
+    private const int HeaderBytes = 44;
+    /// <summary>Sample bytes encoded per write, so a clip of any length is written without a whole-file buffer.</summary>
+    private const int WriteBlockBytes = 4096;
 
     /// <summary>Decodes little-endian, uncompressed mono PCM16 after validating the RIFF length and the single format/data chunks; unrelated chunks are skipped.</summary>
     /// <param name="bytes">Complete RIFF/WAVE file bytes, with an even-length data chunk and a positive sample rate.</param>
@@ -106,38 +110,67 @@ public static class PcmWaveFile
     /// <exception cref="ArgumentOutOfRangeException">The sample rate is zero or negative.</exception>
     /// <exception cref="OverflowException">The sample count cannot be represented as a signed integer byte length.</exception>
     public static void WriteMonoPcm16(string path, int sampleRate, IReadOnlyList<short> samples) =>
-        WritePcm16(path, sampleRate, InstrumentSampleFormat.ChannelCount, samples);
+        _ = WritePcm16(path, sampleRate, InstrumentSampleFormat.ChannelCount, Contiguous(samples));
 
     /// <summary>Writes interleaved left/right samples as a minimal uncompressed stereo PCM16 WAV file.</summary>
     /// <exception cref="ArgumentException"><paramref name="samples"/> holds an odd count.</exception>
     public static void WriteStereoPcm16(string path, int sampleRate, IReadOnlyList<short> samples) =>
+        _ = WritePcm16(path, sampleRate, PcmSampleFormat.StereoChannelCount, Contiguous(samples));
+
+    /// <summary>
+    /// Writes interleaved left/right samples as <see cref="WriteStereoPcm16"/> does and returns the
+    /// SHA-256 of the file's bytes, hashed as they are written rather than read back.
+    /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="samples"/> holds an odd count.</exception>
+    internal static byte[] WriteHashedStereoPcm16(string path, int sampleRate, ReadOnlySpan<short> samples) =>
         WritePcm16(path, sampleRate, PcmSampleFormat.StereoChannelCount, samples);
 
-    /// <summary>Writes a minimal PCM16 RIFF header for <paramref name="channelCount"/> interleaved channels, then the samples.</summary>
-    private static void WritePcm16(string path, int sampleRate, ushort channelCount, IReadOnlyList<short> samples)
+    /// <summary>The samples as one contiguous array, copied only when they are not already one.</summary>
+    private static short[] Contiguous(IReadOnlyList<short> samples) => Ensure.NotNull(samples) as short[] ?? samples.ToArray();
+
+    /// <summary>
+    /// Writes a minimal PCM16 RIFF header for <paramref name="channelCount"/> interleaved channels, then the
+    /// little-endian samples, in blocks that are also appended to a SHA-256 of the file.
+    /// </summary>
+    /// <returns>The SHA-256 of every byte written.</returns>
+    private static byte[] WritePcm16(string path, int sampleRate, ushort channelCount, ReadOnlySpan<short> samples)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
-        Ensure.NotNull(samples);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sampleRate);
-        if (samples.Count % channelCount != 0)
-            throw new ArgumentException($"{samples.Count} samples do not fill whole {channelCount}-channel frames.", nameof(samples));
-        int dataBytes = checked(samples.Count * sizeof(short));
+        if (samples.Length % channelCount != 0)
+            throw new ArgumentException($"{samples.Length} samples do not fill whole {channelCount}-channel frames.", nameof(samples));
+        int dataBytes = checked(samples.Length * sizeof(short));
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         using FileStream stream = File.Create(path);
-        using BinaryWriter writer = new(stream, Encoding.ASCII, leaveOpen: false);
-        writer.Write(Encoding.ASCII.GetBytes("RIFF"));
-        writer.Write(36 + dataBytes);
-        writer.Write(Encoding.ASCII.GetBytes("WAVEfmt "));
-        writer.Write(MinimumFormatChunkBytes);
-        writer.Write(PcmFormat);
-        writer.Write(channelCount);
-        writer.Write(sampleRate);
-        writer.Write(sampleRate * channelCount * sizeof(short));
-        writer.Write(unchecked((ushort)(channelCount * sizeof(short))));
-        writer.Write(checked((ushort)InstrumentSampleFormat.BitsPerSample));
-        writer.Write(Encoding.ASCII.GetBytes("data"));
-        writer.Write(dataBytes);
-        foreach (short sample in samples)
-            writer.Write(sample);
+
+        Span<byte> header = stackalloc byte[HeaderBytes];
+        "RIFF"u8.CopyTo(header);
+        BinaryPrimitives.WriteInt32LittleEndian(header[4..], 36 + dataBytes);
+        "WAVEfmt "u8.CopyTo(header[8..]);
+        BinaryPrimitives.WriteInt32LittleEndian(header[16..], MinimumFormatChunkBytes);
+        BinaryPrimitives.WriteUInt16LittleEndian(header[20..], PcmFormat);
+        BinaryPrimitives.WriteUInt16LittleEndian(header[22..], channelCount);
+        BinaryPrimitives.WriteInt32LittleEndian(header[24..], sampleRate);
+        BinaryPrimitives.WriteInt32LittleEndian(header[28..], sampleRate * channelCount * sizeof(short));
+        BinaryPrimitives.WriteUInt16LittleEndian(header[32..], unchecked((ushort)(channelCount * sizeof(short))));
+        BinaryPrimitives.WriteUInt16LittleEndian(header[34..], checked((ushort)InstrumentSampleFormat.BitsPerSample));
+        "data"u8.CopyTo(header[36..]);
+        BinaryPrimitives.WriteInt32LittleEndian(header[40..], dataBytes);
+        stream.Write(header);
+        hash.AppendData(header);
+
+        Span<byte> block = stackalloc byte[WriteBlockBytes];
+        while (!samples.IsEmpty)
+        {
+            ReadOnlySpan<short> part = samples[..Math.Min(samples.Length, block.Length / sizeof(short))];
+            Span<byte> bytes = block[..(part.Length * sizeof(short))];
+            for (int index = 0; index < part.Length; index++)
+                BinaryPrimitives.WriteInt16LittleEndian(bytes[(index * sizeof(short))..], part[index]);
+            stream.Write(bytes);
+            hash.AppendData(bytes);
+            samples = samples[part.Length..];
+        }
+        return hash.GetHashAndReset();
     }
 
     /// <summary>Decodes a two-byte little-endian RIFF field from a validated chunk span.</summary>

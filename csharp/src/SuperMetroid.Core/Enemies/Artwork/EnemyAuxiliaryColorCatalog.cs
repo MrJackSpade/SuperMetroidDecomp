@@ -14,15 +14,10 @@ public sealed class EnemyAuxiliaryColorCatalog
     /// </summary>
     internal readonly IReadOnlyDictionary<EnemyAuxiliaryPalette, EnemyAuxiliaryColourFrames> families;
 
-    /// <summary>Recognizes each supplied family's stock paint relationship while retaining unmatched edits.</summary>
-    internal EnemyAuxiliaryColorCatalog(Dictionary<EnemyAuxiliaryPalette, RgbColor[][]> frames) =>
-        families = new Dictionary<EnemyAuxiliaryPalette, EnemyAuxiliaryColourFrames>
-        {
-            [EnemyAuxiliaryPalette.FaceBlock] = new(frames[EnemyAuxiliaryPalette.FaceBlock], AuxiliaryPaint.FaceGlow),
-            [EnemyAuxiliaryPalette.DeadSidehopper] = new(frames[EnemyAuxiliaryPalette.DeadSidehopper], AuxiliaryPaint.SidehopperDrain),
-            [EnemyAuxiliaryPalette.GoldenTorizoBody] = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBody], AuxiliaryPaint.TorizoFront),
-            [EnemyAuxiliaryPalette.GoldenTorizoBelly] = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBelly], AuxiliaryPaint.TorizoRear),
-        };
+    /// <summary>Keeps each family's frames as the import recognized them.</summary>
+    /// <param name="families">Each family's frames, as stock paint, an endpoint interpolation or retained edits.</param>
+    internal EnemyAuxiliaryColorCatalog(IReadOnlyDictionary<EnemyAuxiliaryPalette, EnemyAuxiliaryColourFrames> families) =>
+        this.families = families;
 
     /// <summary>Resolves one selected RGB5 word from the face-block glow, sidehopper drain/corpse, or Golden Torizo health bands without advancing timers, choosing health bands, or writing the palette.</summary>
     /// <param name="palette">One of the four installed auxiliary-palette identities.</param>

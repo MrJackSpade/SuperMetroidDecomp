@@ -18,10 +18,10 @@ internal sealed class EnemyAuxiliaryColourFrames
     internal readonly RgbColor[] last;
     /// <summary>Exact supplied frames when their colors do not match a known progression.</summary>
     internal readonly RgbColor[][]? supplied;
-    /// <summary>Whether non-stock frames mirror a face-block glow rise and fall.</summary>
-    private readonly bool faceGlow;
-    /// <summary>Stock paint recognition and Torizo rear-palette selection flags.</summary>
-    private readonly bool stockTorizo, rearTorizo, stockSidehopperDrain, stockFaceGlow;
+    /// <summary>The calculated paint progression the family follows.</summary>
+    private readonly AuxiliaryPaint paint;
+    /// <summary>Whether the frames are the progression's own stock paint rather than an interpolation of supplied endpoints.</summary>
+    private readonly bool stock;
     /// <summary>The face-block accent color used for the active portion of its mirrored glow.</summary>
     private readonly RgbColor glowAccentStart;
     /// <summary>The independently authored terminal sidehopper corpse frame.</summary>
@@ -31,46 +31,44 @@ internal sealed class EnemyAuxiliaryColourFrames
     internal int FrameCount { get; }
     /// <summary>Colors supplied per frame, excluding sidehopper's transparent slot zero.</summary>
     internal int ColorCount { get; }
-    /// <summary>Accepts a calculated paint progression only when every supplied RGB5 word matches it.</summary>
-    internal EnemyAuxiliaryColourFrames(RgbColor[][] frames, AuxiliaryPaint paint)
+    /// <summary>Keeps a family's frames as the import recognized them.</summary>
+    /// <param name="paint">The calculated paint progression the family follows.</param>
+    /// <param name="stock">Whether the frames are the progression's own stock paint.</param>
+    /// <param name="frameCount">Number of authored stages or health bands.</param>
+    /// <param name="colorCount">Colors supplied per frame.</param>
+    /// <param name="first">Initial interpolation endpoints; empty for stock paint.</param>
+    /// <param name="last">Final interpolation endpoints; empty for stock paint.</param>
+    /// <param name="corpse">The sidehopper's terminal corpse frame, or null for the other families and for stock paint.</param>
+    /// <param name="glowAccentStart">The face-block accent colour the active glow starts from; black for other families.</param>
+    /// <param name="supplied">Every supplied frame when they follow no calculated progression, otherwise null.</param>
+    internal EnemyAuxiliaryColourFrames(AuxiliaryPaint paint, bool stock, int frameCount, int colorCount, RgbColor[] first,
+        RgbColor[] last, RgbColor[]? corpse, RgbColor glowAccentStart, RgbColor[][]? supplied)
     {
-        bool healthGradient = paint is AuxiliaryPaint.TorizoFront or AuxiliaryPaint.TorizoRear;
-        bool faceGlow = paint == AuxiliaryPaint.FaceGlow;
-        bool sidehopperDrain = paint == AuxiliaryPaint.SidehopperDrain;
-        bool rearTorizo = paint == AuxiliaryPaint.TorizoRear;
-        FrameCount = frames.Length;
-        ColorCount = frames[0].Length;
-        if (healthGradient && GoldenTorizoHealthPaint.Matches(frames, rearTorizo))
-        {
-            stockTorizo = true; this.rearTorizo = rearTorizo; first = []; last = []; return;
-        }
-        if (faceGlow && FaceBlockGlowPaint.Matches(frames))
-        {
-            stockFaceGlow = true; first = []; last = []; return;
-        }
-        if (sidehopperDrain && SidehopperDrainPaint.Matches(frames))
-        {
-            stockSidehopperDrain = true; first = []; last = []; return;
-        }
-        first = frames[0];
-        last = frames[faceGlow ? 3 : sidehopperDrain ? frames.Length - 2 : frames.Length - 1];
-        corpse = sidehopperDrain ? frames[^1] : null;
-        this.faceGlow = faceGlow;
-        glowAccentStart = faceGlow ? frames[1][3] : RgbColor.Black;
-        if (!healthGradient && !faceGlow && !sidehopperDrain) { supplied = frames; return; }
-        for (int frame = 0; frame < FrameCount; frame++)
-            for (int color = 0; color < ColorCount; color++)
-                if (Calculate(frame, color) != frames[frame][color]) { supplied = frames; return; }
-
+        this.paint = paint;
+        this.stock = stock;
+        FrameCount = frameCount;
+        ColorCount = colorCount;
+        this.first = first;
+        this.last = last;
+        this.corpse = corpse;
+        this.glowAccentStart = glowAccentStart;
+        this.supplied = supplied;
     }
     /// <summary>Uses exact edited paint where retained; otherwise derives the color relationship.</summary>
     internal RgbColor Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
     /// <summary>Interpolates RGB5 health/drain endpoints or mirrors the face-block glow, with stock palettes using their own paint definitions.</summary>
     private RgbColor Calculate(int frame, int color)
     {
-        if (stockTorizo) return GoldenTorizoHealthPaint.Color(frame, color, rearTorizo);
-        if (stockFaceGlow) return FaceBlockGlowPaint.Color(frame, color);
-        if (stockSidehopperDrain) return SidehopperDrainPaint.Color(frame, color);
+        if (stock)
+            return paint switch
+            {
+                AuxiliaryPaint.TorizoFront => GoldenTorizoHealthPaint.Color(frame, color, rear: false),
+                AuxiliaryPaint.TorizoRear => GoldenTorizoHealthPaint.Color(frame, color, rear: true),
+                AuxiliaryPaint.FaceGlow => FaceBlockGlowPaint.Color(frame, color),
+                AuxiliaryPaint.SidehopperDrain => SidehopperDrainPaint.Color(frame, color),
+                _ => throw new InvalidOperationException($"Auxiliary paint {paint} has no stock progression."),
+            };
+        bool faceGlow = paint == AuxiliaryPaint.FaceGlow;
         if (corpse is not null && frame == FrameCount - 1) return corpse[color];
         int steps = faceGlow ? 3 : FrameCount - (corpse is null ? 1 : 2);
         if (faceGlow) frame = Math.Min(frame, FrameCount - 1 - frame);

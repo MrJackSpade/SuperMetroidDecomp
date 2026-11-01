@@ -6,15 +6,6 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <summary>Paints the seven shifted Sidehopper drain images: the alive images fading toward their endpoints, then the corpse.</summary>
 internal static class SidehopperDrainPaint
 {
-    /// <summary>Checks all seven 15-color drain images against the reviewed interpolation and corpse prefix.</summary>
-    internal static bool Matches(RgbColor[][] frames)
-    {
-        for (int frame = 0; frame <= CorpseFrame; frame++)
-        for (int color = 0; color < 15; color++)
-            if (frames[frame][color] != Color(frame, color)) return false;
-        return true;
-    }
-
     /// <summary>Interpolates one of six alive images toward its selected endpoint, then uses corpse paint for frame six.</summary>
     internal static RgbColor Color(int frame, int color)
     {

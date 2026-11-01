@@ -6,15 +6,6 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <summary>Paints the face block's eye and mouth glow as it rises and falls through its light depths.</summary>
 internal static class FaceBlockGlowPaint
 {
-    /// <summary>Accepts the supplied eight-frame, four-ink glow only when it matches the reviewed rise-and-fall calculation.</summary>
-    internal static bool Matches(RgbColor[][] frames)
-    {
-        for (int frame = 0; frame < 2 * (PeakDepth + 1); frame++)
-        for (int color = 0; color < 4; color++)
-            if (frames[frame][color] != Color(frame, color)) return false;
-        return true;
-    }
-
     /// <summary>Calculates one eye/mouth glow ink at its mirrored light depth, including the distinct resting and active accents.</summary>
     internal static RgbColor Color(int frame, int color)
     {

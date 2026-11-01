@@ -41,7 +41,7 @@ internal static class GameplayBasePalettesVerification
 
             var guarded = NewFrontendCartridgeReadGuard(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
-            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, initialPaletteArt: baseline);
+            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: baseline);
             AssertTrue(runtime.Colours.Colors.SequenceEqual(baseline.Initial.ToArray()),
                 "runtime construction consumes installed starting colors without cartridge reads");
             runtime.Colours.AsPaletteColors().SetColor(128, new RgbColor(0, 0, 0));
@@ -68,7 +68,7 @@ internal static class GameplayBasePalettesVerification
             string overridePath = Path.Combine(overrides, GameplayBasePaletteFormat.ArtworkFileName);
             File.WriteAllBytes(overridePath, GameplayBasePaletteFiles.Write(document));
             GameplayBasePalette edited = GameplayBasePaletteFiles.Load(stock, overrides);
-            var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, initialPaletteArt: edited);
+            var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: edited);
             AssertEqual(edited.Initial[1], editedRuntime.Colours.Colors[1],
                 "edited starting color reaches live CGRAM");
             AssertTrue(editedRuntime.Colours.Colors[1] != runtime.Colours.Colors[1],

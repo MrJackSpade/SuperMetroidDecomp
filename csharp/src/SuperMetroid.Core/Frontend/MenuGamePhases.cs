@@ -295,6 +295,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         var cinematic = new IntroCinematicState(
             session.Artwork.SamusOverreads ?? throw new InvalidOperationException(
                 "The opening cinematic's flashbacks require the installed Samus overread services."),
+            session.Artwork.BossAndIntroOverreads?.ShellFragmentFallPastCurve ?? throw new InvalidOperationException(
+                "The opening cinematic's egg shell requires the installed boss and intro overread services."),
             session.audio, session.Artwork.MapPresentation?.IntroFont, session.Artwork.IntroCinematicArt,
             session.Artwork.BeamPalettes, session.Artwork.SamusBodyArt, japaneseText)
         {

@@ -1,15 +1,52 @@
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
+using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
 /// <summary>Checks compiled intro egg fragment and slime motion against native tables and actual actor updates.</summary>
 internal static class IntroEggMotionDefinitionsVerification
 {
+    /// <summary>The cartridge's egg-shell gravity steps, a whole word then a fraction word per frame fallen.</summary>
+    private const int ShellGravitySteps = 0x8baa02;
+
+    /// <summary>
+    /// Decodes the gravity steps the shell fragments read past their 38-step curve from the cartridge and compares them
+    /// with the installed <see cref="ShellFragmentFallPastCurve"/> (#1500): every step the fragments read past the curve,
+    /// and the rejection of the first step no fragment reads.
+    /// </summary>
+    internal static void VerifyShellFragmentFallPastCurve(SuperMetroidAddressSpace rom)
+    {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ShellFragmentFallPastCurve installed = InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve;
+        const int stepsPastCurve = 3;
+        for (int past = 0; past < stepsPastCurve; past++)
+        {
+            int address = ShellGravitySteps + (IntroEggMotionDefinitions.FragmentCurveFrames + past) * 4;
+            SignedSixteenSixteen step = installed.Step(past);
+            AssertEqual(cartridge.ReadCartridgeWord(address), step.WholeWord, $"shell step {past} past the curve: whole word");
+            AssertEqual(cartridge.ReadCartridgeWord(address + 2), step.Fraction, $"shell step {past} past the curve: fraction word");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => installed.Step(stepsPastCurve), "no fragment falls a fourth step past the curve");
+        Console.WriteLine("Shell fragment fall past curve: the three steps past the gravity curve match the cartridge.");
+    }
+
+    /// <summary>Runs the installed shell-fragment steps past the curve against the cartridge.</summary>
+    [VerificationCommand("--intro-shell-fall-past-curve")]
+    internal static int ShellFragmentFallPastCurveCommand()
+    {
+        Suite(nameof(VerifyShellFragmentFallPastCurve), () => VerifyShellFragmentFallPastCurve(LoadRepositoryRom()));
+        return 0;
+    }
+
     /// <summary>Compares position and velocity words, then checks fixed-point motion through each actor's landing and deletion.</summary>
     internal static void VerifyCompiledIntroEggMotion(SuperMetroidAddressSpace rom)
     {
+        ShellFragmentFallPastCurve pastCurve = InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve;
         ushort Word(int address) => LittleEndianBytes.Word(CompiledIntroEggMotionRomByte(rom, address), CompiledIntroEggMotionRomByte(rom, address + 1));
         void Compare(int address, int count, Func<int, SignedSixteenSixteen> sample)
         {
@@ -30,7 +67,7 @@ internal static class IntroEggMotionDefinitionsVerification
                 $"Egg fragment {index} initial Y");
         }
         Compare(0x8ba9ea, 6, IntroEggMotion.FragmentX);
-        Compare(0x8baa02, 41, IntroEggMotion.FragmentY);
+        Compare(0x8baa02, 41, frame => IntroEggMotion.FragmentY(frame, pastCurve));
         Compare(0x8bab35, 5, IntroEggMotion.SlimeX);
         Compare(0x8bab49, 62, frame => IntroEggMotion.SlimeY(frame, true));
         Compare(0x8bac41, 69, frame => IntroEggMotion.SlimeY(frame, false));
@@ -43,7 +80,7 @@ internal static class IntroEggMotionDefinitionsVerification
             {
                 bool fragment = index < 6;
                 byte actorIndex = fragment ? index : (byte)(index - 6);
-                object actor = fragment ? new IntroEggParticle(actorIndex) : new IntroEggSlimeDrop(new(128, 96), actorIndex);
+                object actor = fragment ? new IntroEggParticle(actorIndex, pastCurve) : new IntroEggSlimeDrop(new(128, 96), actorIndex);
                 IntroDiscoverySprite sprite = actor is IntroEggParticle eggParticle ? eggParticle.sprite : ((IntroEggSlimeDrop)actor).sprite;
                 sprite.Position = new(sprite.Position.X.WithFraction(fraction), sprite.Position.Y.WithFraction(fraction));
                 uint x = new FixedCoordinate(sprite.WholePosition.X, fraction).RawValue;
@@ -73,7 +110,7 @@ internal static class IntroEggMotionDefinitionsVerification
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.FragmentInitialPosition(6), "Fragment initial-position boundary");
-        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.FragmentY(41), "Fragment curve boundary after native overread");
+        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.FragmentY(41, pastCurve), "Fragment curve boundary after native overread");
         AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.SlimeY(62, true), "Odd slime curve boundary");
         AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.SlimeY(69, false), "Even slime curve boundary");
         Console.WriteLine($"Egg motion definitions: twelve position words, 366 velocity words, and {checkedFrames} real actor frames match with all physical-table reads forbidden.");

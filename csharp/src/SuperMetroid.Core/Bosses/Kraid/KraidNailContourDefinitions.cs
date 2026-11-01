@@ -1,27 +1,24 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Calculated geometry and bounded overreads for Kraid's fingernail contour.</summary>
+/// <summary>The four ledges of Kraid's fingernail contour: where his body pushes back a nail level with each.</summary>
 /// <remarks>
-/// The contour has four ledges; a nail below all of them reads two more records from the data that follows the
-/// table. Those records are gameplay: they decide where a low nail is pushed. Their values are stated here
-/// as the offsets and bounds the contour reads (#1413); the import oracle confirms they are the game's values.
+/// A nail above all four ledges is pushed back at the record the original game reads after them, which the installed
+/// <see cref="KraidNailPastLedges"/> holds (#1500).
 /// </remarks>
 internal static class KraidNailContourDefinitions
 {
-    /// <summary>The contour's records: four ledges followed by the two the contour reads past them.</summary>
-    internal const int RecordCount = 6;
+    /// <summary>The contour's ledges.</summary>
+    internal const int LedgeCount = 4;
 
     /// <summary>
-    /// Each record's left offset. Independently reviewed for #1165 against pinned bank_A7.asm and original NTSC words:
-    /// the four geometry ledges advance 24 pixels from -64 to 8; the next two are the overreads past the ledges, whose
-    /// unsigned words are preserved.
+    /// Each ledge's left offset. Independently reviewed for #1165 against pinned bank_A7.asm and original NTSC words:
+    /// the four ledges advance 24 pixels from -64 to 8.
     /// </summary>
-    internal static readonly short[] Lefts = [-64, -40, -16, 8, 1312, 4050];
+    internal static readonly short[] Lefts = [-64, -40, -16, 8];
 
     /// <summary>
     /// The comparison boundary paired with each left offset. The first three ledges are 56 pixels apart, starting at 16;
-    /// the final authored head boundary is -128. The two overread bounds follow; they are bounded overreads, not
-    /// extrapolated contour geometry.
+    /// the final authored head boundary is -128.
     /// </summary>
-    internal static readonly short[] Tops = [16, -40, -96, -128, -21056, 14281];
+    internal static readonly short[] Tops = [16, -40, -96, -128];
 }

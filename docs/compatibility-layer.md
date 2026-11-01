@@ -85,3 +85,13 @@ statues is the game's own work, and the compatibility behaviour it carries, its 
 The Samus over-read services are decoded by the import pipeline (`SamusOverreadFiles`) and reach the session with the
 installed content as `SamusOverreadServices`; the gameplay runtime hands each to the owner that consults it as it builds
 that owner (the projectile system, every Samus, the actor drawing, the opening cinematic's flashbacks).
+
+The boss and intro over-read services (#1500) are decoded the same way (`BossAndIntroOverreadFiles`) and reach the
+session as `BossAndIntroOverreadServices`; the gameplay runtime binds them to its enemy session, and the opening
+cinematic hands the shell's to its egg fragments:
+
+| Service | Gameplay behaviour reproduced | Consulted |
+| --- | --- | --- |
+| `KraidNailPastLedges` | a fingernail 128 or more pixels above Kraid's body passes his four contour ledges and is pushed back at the record that follows them, which lies far beyond his right side; a nail past that record's bound is rejected, since terrain keeps every nail within Kraid's two-screen room (a bounded over-read) | a flying nail's update, when no wall reflected it and the nail lies above every ledge |
+| `CrocomireTenthShotGradient` | the volley's last shot (spawn parameter 18) is aimed by the word after the nine authored gradients; parameters past 18 are rejected, since the spit attack stops counting at 18 (a bounded over-read) | the update after the last shot spawns, when it turns its aim into a velocity |
+| `ShellFragmentFallPastCurve` | the two highest egg-shell fragments fall by the three steps after the 38-step gravity curve before they land; later steps are rejected, since every fragment has landed by then (a bounded over-read) | a falling fragment's update once it has fallen for the whole curve, before the floor test |

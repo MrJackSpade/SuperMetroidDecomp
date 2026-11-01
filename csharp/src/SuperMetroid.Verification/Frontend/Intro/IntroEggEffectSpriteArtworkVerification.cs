@@ -74,7 +74,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
         IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroEggEffects);
-        var fragment = new IntroEggParticle(index: 0);
+        var fragment = new IntroEggParticle(index: 0, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve);
         fragment.Step();
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();

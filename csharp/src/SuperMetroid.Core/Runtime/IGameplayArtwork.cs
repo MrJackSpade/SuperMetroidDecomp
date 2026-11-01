@@ -137,6 +137,12 @@ internal interface IGameplayArtwork
     /// <summary>The compatibility services reproducing what Samus's glitch paths read, decoded from the player's game data.</summary>
     SamusOverreadServices? SamusOverreads { get; }
 
+    /// <summary>
+    /// The compatibility services reproducing what Kraid's fingernails, Crocomire's volley and the opening cinematic's
+    /// egg shell read past their data, decoded from the player's game data.
+    /// </summary>
+    BossAndIntroOverreadServices? BossAndIntroOverreads { get; }
+
     /// <summary>The pre-coloured sprite sheets drawn families select their frames from.</summary>
     InstalledSpriteSheets? SpriteSheets { get; }
 

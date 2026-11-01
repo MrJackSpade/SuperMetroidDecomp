@@ -147,7 +147,8 @@ internal sealed class SuperMetroidRuntime
     /// <param name="assists">The assists the runtime plays under; <see cref="GameplayAssists.None"/> for the unassisted game.</param>
     /// <param name="artwork">
     /// The installed catalogs; their initial palette is loaded into the colour table during construction, their Samus overread services
-    /// are handed to the owners that consult them, and <see cref="BindArtwork"/> binds the rest.
+    /// are handed to the owners that consult them, their boss overread services are bound to the enemy session, and
+    /// <see cref="BindArtwork"/> binds the rest.
     /// </param>
     /// <param name="clock">The session's frame clock, shared with the frontend that counts while no runtime exists.</param>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives each runtime; its enemies and every Samus it creates share it.</param>
@@ -173,6 +174,8 @@ internal sealed class SuperMetroidRuntime
         Options = new GameplayOptions();
         EnemySession = new EnemySession(unauthoredBoostCadence);
         EnemySession.RainbowBeamCameraCheckpoint = RainbowBeamCameraCheckpoint;
+        EnemySession.BossOverreads = artwork.BossAndIntroOverreads ?? throw new InvalidOperationException(
+            "Gameplay requires the installed boss and intro overread services.");
 
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);

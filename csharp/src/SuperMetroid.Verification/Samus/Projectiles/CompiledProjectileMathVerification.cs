@@ -17,20 +17,9 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Checks compiled projectile trigonometry across production consumers against cartridge samples.</summary>
 internal static class CompiledProjectileMathVerification
 {
-    /// <summary>Checks Crocomire gradient overread, signed sine products, and native vector and arc arithmetic.</summary>
+    /// <summary>Checks signed sine products, and native vector and arc arithmetic.</summary>
     internal static void VerifyCompiledProjectileMath(SuperMetroidAddressSpace rom)
     {
-        for (ushort parameter = 0; parameter < 20; parameter++)
-        {
-            int address = 0x869059 + (parameter >> 1) * 2;
-            short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-            AssertEqual(expected, CrocomireVolley.GradientForSpawnParameter(parameter),
-                "Crocomire authored gradient and final instruction-byte overread");
-        }
-        AssertEqual(unchecked((short)0xb620), CrocomireVolley.GradientForSpawnParameter(18),
-            "Crocomire ninth volley shot must preserve native overread");
-        AssertThrows<InvalidDataException>(() => CrocomireVolley.GradientForSpawnParameter(20),
-            "Crocomire unsupported gradient selector remains explicit");
         var native = new short[320];
         for (int i = 0; i < native.Length; i++)
         {

@@ -30,7 +30,7 @@ internal static class AttractRuntimeBindingsVerification
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         // Exact cause of #1171: the previous attract path constructed this owner
         // without passing its already-installed palette catalog.
-        AssertThrows<InvalidOperationException>(() => _ = SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, initialPaletteArt: null),
+        AssertThrows<InvalidOperationException>(() => _ = SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: null),
             "omitting installed palettes reproduces the attract runtime construction failure");
         var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new GameplayAssists
             { SamusCannotDie = true, AmmoNeverRunsOut = true, EscapeTimerHoldsAtOneSecond = true });
@@ -38,6 +38,7 @@ internal static class AttractRuntimeBindingsVerification
         {
             GameplayBasePalettes = palettes,
             SamusOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusOverreads,
+            BossAndIntroOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossAndIntroOverreads,
             EnemyTileArtwork = enemyArtwork.Enemies,
             EnemySheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemySheets, BossArtwork = enemyArtwork.Bosses, AreaArtwork = enemyArtwork.Areas,
         });

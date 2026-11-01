@@ -3061,7 +3061,7 @@ internal static class LookupStream3Verification
         AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
         AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
         var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-        var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, introFont: font, characterArtwork: stock,
+        var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve, introFont: font, characterArtwork: stock,
             beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes)
         {
             Random = new SharedRandom(),
@@ -3264,7 +3264,7 @@ internal static class LookupStream3Verification
         AssertTrue(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span).AsSpan().SequenceEqual(native), "background edits do not cross-couple pages");
         AssertEqual(hash, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
         var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-        var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, introFont: font, characterArtwork: stock,
+        var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve, introFont: font, characterArtwork: stock,
             beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes)
         {
             Random = new SharedRandom(),
@@ -3396,7 +3396,7 @@ BranchesToSharedBody:true),
         AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "portrait edits do not cross-mutate stock");
         AssertEqual(hash, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
         var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-        var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, introFont: font, characterArtwork: stock,
+        var intro = new IntroCinematicState(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve, introFont: font, characterArtwork: stock,
             beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes)
         {
             Random = new SharedRandom(),

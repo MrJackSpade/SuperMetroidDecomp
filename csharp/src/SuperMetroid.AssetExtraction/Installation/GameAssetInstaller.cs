@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
@@ -247,6 +248,8 @@ public static class GameAssetInstaller
             Step("Extracting gameplay base palettes...", (bus, d) => GameplayBasePaletteFiles.Extract(bus, d, SupportedCartridge.Sha256), GameplayBasePaletteFiles.ValidateStock)),
         new(GameInstallationLayout.SamusOverreadDirectoryName,
             Step("Extracting Samus overread bytes...", (bus, d) => SamusOverreadFiles.Extract(bus, d, SupportedCartridge.Sha256), SamusOverreadFiles.ValidateStock)),
+        new(GameInstallationLayout.BossAndIntroOverreadDirectoryName,
+            Step("Extracting boss and intro overread reads...", (bus, d) => BossAndIntroOverreadFiles.Extract(bus, d, SupportedCartridge.Sha256), BossAndIntroOverreadFiles.ValidateStock)),
         new(GameInstallationLayout.StandardObjectDirectoryName,
             Step("Extracting standard sprite artwork...", (bus, d) => StandardObjectArtworkFiles.Extract(bus, d, SupportedCartridge.Sha256), StandardObjectArtworkFiles.ValidateStock)),
         new(GameInstallationLayout.ProjectileDirectoryName,

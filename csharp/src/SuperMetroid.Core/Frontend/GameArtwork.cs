@@ -178,6 +178,12 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>The compatibility services reproducing what Samus's glitch paths read, decoded from the player's game data.</summary>
     public SamusOverreadServices? SamusOverreads { get; init; }
 
+    /// <summary>
+    /// The compatibility services reproducing what Kraid's fingernails, Crocomire's volley and the opening cinematic's
+    /// egg shell read past their data, decoded from the player's game data.
+    /// </summary>
+    public BossAndIntroOverreadServices? BossAndIntroOverreads { get; init; }
+
     /// <summary>The pre-coloured sprite sheets drawn families select their frames from.</summary>
     public InstalledSpriteSheets? SpriteSheets { get; init; }
 

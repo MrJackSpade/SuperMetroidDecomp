@@ -52,6 +52,11 @@ internal sealed class EnemyRoomBinding
     /// <summary>The session's record of what Mother Brain's rainbow-beam push hides from the camera.</summary>
     internal RainbowBeamCameraCheckpoint? RainbowBeamCameraCheckpoint => Session.RainbowBeamCameraCheckpoint;
 
+    /// <summary>The session's installed services reproducing what Kraid's nails and Crocomire's volley read past their data.</summary>
+    /// <exception cref="InvalidOperationException">The session has none bound.</exception>
+    internal BossAndIntroOverreadServices BossOverreads => Session.BossOverreads ?? throw new InvalidOperationException(
+        "Kraid's fingernails and Crocomire's volley require the installed boss and intro overread services.");
+
     /// <summary>The bound enemy definition source; enemy work requires a loaded room population.</summary>
     internal IRoomEnemyDefinitionSource LoadedDefinitions =>
         Definitions ?? throw new InvalidOperationException("A room enemy population must be loaded first.");

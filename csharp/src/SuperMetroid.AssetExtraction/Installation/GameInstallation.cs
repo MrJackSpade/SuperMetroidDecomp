@@ -17,6 +17,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
@@ -80,6 +81,10 @@ public sealed record GameInstallation(string Root)
     public string SamusOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing Samus's glitch reads.</summary>
     public SamusOverreadServices LoadSamusOverreads() => SamusOverreadFiles.Load(SamusOverreadDirectory);
+    /// <summary>Stock decoded results of Kraid's, Crocomire's and the intro egg shell's reads past their data; not editable, so there is no override directory.</summary>
+    public string BossAndIntroOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.BossAndIntroOverreadDirectoryName);
+    /// <summary>Loads the validated compatibility services reproducing Kraid's, Crocomire's and the intro egg shell's reads past their data.</summary>
+    public SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices LoadBossAndIntroOverreads() => BossAndIntroOverreadFiles.Load(BossAndIntroOverreadDirectory);
     /// <summary>Stock pre-coloured sprite sheets and their frame manifests.</summary>
     public string SpriteSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SpriteSheetDirectoryName);
     /// <summary>Player-edited sprite sheet images or frame manifests, which replace the stock files of the same name.</summary>
@@ -457,6 +462,7 @@ public sealed record GameInstallation(string Root)
             GrappleFlarePlacement = projectiles.GrappleTiles.FlarePlacement,
             GrappleSwingFrames = projectiles.GrappleTiles.SwingFrames,
             SamusOverreads = LoadSamusOverreads(),
+            BossAndIntroOverreads = LoadBossAndIntroOverreads(),
             SpriteSheets = LoadSpriteSheets(),
             EnemySheets = LoadEnemySheets(),
             BossBodySheets = LoadBossBodySheets(),

@@ -305,12 +305,14 @@ internal sealed class CrocomireCombat
         projectile.GeneralTimer = WordWrap.Unsigned(
             projectile.GeneralTimer + projectile.Velocity.X.RawValue);
 
-        // Spawn parameters are 2,4,...,18. The last index reads one word beyond the declared
-        // nine-word gradient table. The compiled definition includes those exact setup
-        // instruction bytes; do not clamp the final shot to the last authored gradient.
-        // The angle starts at up, not right: Y uses negative cosine.
-        projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(
-            new(-64, CrocomireVolley.GradientForSpawnParameter(projectile.StateOf<CrocomireProjectileState>().VolleyParameter))));
+        // Spawn parameters are 2,4,...,18. The last selects the tenth gradient, one past the
+        // nine-word table, which the installed service holds; do not clamp the final shot to
+        // the last authored gradient. The angle starts at up, not right: Y uses negative cosine.
+        int parameter = projectile.StateOf<CrocomireProjectileState>().VolleyParameter;
+        int gradient = CrocomireVolley.IsTenthShot(parameter)
+            ? _access.TenthShotGradient.Gradient
+            : CrocomireVolley.AuthoredGradient(parameter);
+        projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(new(-64, gradient)));
         projectile.FrameBehavior =
             EnemyProjectileFrameBehavior.CrocomireShotFlight;
     }

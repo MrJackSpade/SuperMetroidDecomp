@@ -501,7 +501,7 @@ public sealed class SuperMetroidGame
     };
 
     /// <summary>
-    /// Changes the assists the session plays under, as after an interactive debugger-state load. Game state, resource
+    /// Changes the assists the session plays under, as when a stored game is restored under other assists. Game state, resource
     /// totals and the retained frame stay intact unless a granted loadout is newly enabled. An exact replay keeps the
     /// assists it was recorded with.
     /// </summary>

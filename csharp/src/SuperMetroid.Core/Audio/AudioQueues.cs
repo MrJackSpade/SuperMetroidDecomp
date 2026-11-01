@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 /// <remarks>
 /// The queues end in <see cref="AudioRequest"/>s: play or stop a track, change the music data
-/// set, and set or withdraw each sound library's request. Keeping the queues here makes their
-/// delays and acknowledgement states visible to a C# debugger without inventing
-/// gameplay-specific host sounds.
+/// set, and set or withdraw each sound library's request. The queues' delays and acknowledgement
+/// states are game state, so the host plays only what the queues release and invents no
+/// gameplay-specific sounds.
 /// </remarks>
 public sealed class AudioQueues
 {

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </remarks>
 public sealed class FramePaint
 {
-    /// <summary>The draws as a plain array; debugger state (a captured frontend display) cannot hold immutable collections.</summary>
+    /// <summary>The draws as a plain array, which a stored copy of the frontend's display can hold; an immutable collection cannot be stored.</summary>
     private readonly SpriteDraw[] spriteDraws;
 
     /// <summary>Keeps the colours the frame's images show and the frame's whole-frame sprite draws.</summary>

@@ -41,7 +41,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     internal readonly MenuScreen screen;
     /// <summary>Tracks button edges used by menu navigation and confirmation.</summary>
     private readonly ControllerInputState controller = new();
-    /// <summary>Host-owned file-select artwork rebound after debugger-state restoration.</summary>
+    /// <summary>Installed file-select artwork, rebound when a stored game is restored.</summary>
     [NonSerialized] private AreaMapPresentation? mapPresentation;
     /// <summary>Decoded slots whose null entries failed or lacked save checksums.</summary>
     private readonly SuperMetroidSaveSlot?[] saveSlots = new SuperMetroidSaveSlot?[3];
@@ -55,7 +55,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private ScreenBrightness brightness;
     /// <summary>Advances the brightness timing for entry and submenu transitions.</summary>
     private readonly ScreenFade screenFade = new();
-    /// <summary>Installed page identifier rebuilt after save data or debugger bindings change.</summary>
+    /// <summary>Installed page identifier rebuilt after save data or the installed artwork change.</summary>
     private FileSelectPage currentPresentationPage = FileSelectPage.MainEmpty;
     /// <summary>The page shown, with its slots' fields and the slots its prompt names (#1467).</summary>
     internal ShownFileSelectPage ShownPage { get; private set; } = new(FileSelectPage.MainEmpty, [], 0, 0);
@@ -700,7 +700,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private void QueueCursorSound() =>
         audio?.QueueSound(Library1Sound.MenuCursor, priority: SoundRequestPriority.Normal);
 
-    /// <summary>Rebinds host-owned file-select visuals after debugger-state restoration.</summary>
+    /// <summary>Rebinds the installed file-select artwork when a stored game is restored.</summary>
     public void BindMapPresentation([NotNull] AreaMapPresentation? catalog)
     {
         if (catalog is null)

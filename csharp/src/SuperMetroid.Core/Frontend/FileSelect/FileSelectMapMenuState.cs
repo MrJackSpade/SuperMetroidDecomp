@@ -61,7 +61,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <param name="audio">Owner receiving menu confirmation, scroll, palette-loop, and transition sound requests.</param>
     /// <param name="slot">Selected save slot; its area must be one of the six Zebes identities and its station supplies the compiled load/scroll anchor.</param>
     /// <param name="initialHeldInput">Controller-button word already held on entry, latched to prevent a held confirmation button becoming a fresh navigation press.</param>
-    /// <param name="mapPresentation">Required installed map artwork/layout catalog, rebound separately after debugger restoration.</param>
+    /// <param name="mapPresentation">Required installed map artwork/layout catalog, rebound separately when a stored game is restored.</param>
     /// <param name="spriteSheets">Required installed sprite sheets the map's sprites draw from, rebound with the other artwork.</param>
     /// <exception cref="ArgumentOutOfRangeException">The save area is outside Zebes; Ceres bypasses this menu.</exception>
     /// <exception cref="InvalidOperationException">Map presentation assets or the sprite sheets are absent.</exception>

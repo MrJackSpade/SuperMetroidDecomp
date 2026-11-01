@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Debugger-facing file-select phases, including combined data-management steps and explicit frame-wait continuations.</summary>
+/// <summary>File-select phases, including combined data-management steps and explicit frame-wait continuations.</summary>
 public enum FileSelectPhase
 {
     /// <summary>Brighten the initialized main screen until its brightness reaches 15.</summary>

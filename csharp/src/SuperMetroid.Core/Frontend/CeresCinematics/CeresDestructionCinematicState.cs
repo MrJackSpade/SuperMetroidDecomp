@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// <remarks>
 /// The cinematic owns this sequence. The state deliberately retains the
 /// game's phase boundaries, counters, 16.16 camera motion, Mode-7 matrix values, and
-/// compiled sprite animation scripts. That makes a debugger watch useful:
+/// compiled sprite animation scripts, so the scene's progress is game state:
 /// there is no host-authored video or timer that merely happens to end at the
 /// same gameplay room.
 /// </remarks>
@@ -75,7 +75,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal readonly List<IntroDiscoverySprite> actors = [];
     /// <summary>
     /// Sprite slot ownership for Ceres actors when explosions reuse freed slots. Entries name their actor by
-    /// reference, which a debugger restore preserves; a hash table of actors would not survive it.
+    /// reference, which survives restoring a stored game; a hash table keyed by actor would not.
     /// </summary>
     private readonly List<CeresActorSlot> ceresActorSlots = [];
     /// <summary>Runs the final station blast through the ordinary power-bomb color curve.</summary>
@@ -164,7 +164,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal bool ResumesAfterFrameWait =>
         initialFrameWaits is > 0 and <= CeresDestructionSceneDefinitions.InitialFrameWaits;
 
-    /// <summary>Rebinds current host artwork after restoring a cinematic debugger state.</summary>
+    /// <summary>Rebinds the installed station-blast colors when a stored game is restored.</summary>
     internal void BindFixedColors(InstalledPowerBombFixedColors? colors) =>
         stationExplosion.PresentationColors = colors;
 
@@ -179,7 +179,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// Rebinds host-owned artwork after restoring a debugger state. Only the
+    /// Rebinds installed artwork when a stored game is restored. Only the
     /// graphics transfers already reached by the current phase are refreshed; counters,
     /// actors, audio and gameplay timeline remain untouched. The shared Ceres palette
     /// is refreshed only before the later engine-flicker palette program takes ownership.

@@ -55,7 +55,7 @@ public sealed record ImageSpriteDraw : SpriteDraw
         }
     }
 
-    /// <summary>Names the draw for debugger watches: source, image and signed origin.</summary>
+    /// <summary>Names the draw by its source, image and signed origin.</summary>
     public override string ToString() =>
         $"{Source.Kind}#{Source.Instance} {Image.Sheet.Name} at ({CoordinateAxis.AsSigned(Origin.X)}, {CoordinateAxis.AsSigned(Origin.Y)})";
 }

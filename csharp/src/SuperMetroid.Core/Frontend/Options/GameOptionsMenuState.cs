@@ -30,7 +30,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Holds the heading and animated selection missile for rendering.</summary>
     /// <summary>Derives newly pressed buttons from the raw held controller word.</summary>
     private readonly ControllerInputState controller = new();
-    /// <summary>Provides editable menu art after construction or debugger restoration.</summary>
+    /// <summary>Provides editable menu art after construction or when a stored game is restored.</summary>
     [NonSerialized] private AreaMapPresentation? mapPresentation;
     /// <summary>The page last loaded and the state its labels, language rows and toggle choices were drawn from (#1467).</summary>
     internal ShownOptionsPage ShownPage { get; private set; }
@@ -79,7 +79,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         Phase = GameOptionsPhase.FinishFadingOut;
     }
 
-    /// <summary>Rebinds host-owned visual assets after a debugger-state restore.</summary>
+    /// <summary>Rebinds the installed menu art when a stored game is restored.</summary>
     public void BindMapPresentation(AreaMapPresentation? catalog)
     {
         mapPresentation = catalog ?? throw new InvalidOperationException(

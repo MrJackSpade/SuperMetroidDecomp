@@ -97,7 +97,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentFlashbackSamus?.Presentation.BodyFrames.BindArtwork(value);
         CurrentBabyDiscovery?.Samus.Presentation.BodyFrames.BindArtwork(value);
     }
-    /// <summary>Current host-owned narration content; debugger states retain only playback state.</summary>
+    /// <summary>Current installed narration content; a stored game keeps only the narration's playback state.</summary>
     [field: NonSerialized]     public IntroNarrationPresentation? NarrationPresentation
     {
         get;

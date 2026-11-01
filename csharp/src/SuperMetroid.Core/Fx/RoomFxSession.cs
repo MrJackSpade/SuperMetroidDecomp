@@ -15,11 +15,11 @@ public sealed class RoomFxSession
     /// <summary>The room's fixed colour. It is session-lived, so it keeps the last writer's colour across rooms.</summary>
     public RoomFixedColor FixedColors { get; } = new();
 
-    /// <summary>Current host-owned liquid/rain frame art; never stored in debugger state.</summary>
+    /// <summary>Current installed liquid/rain frame art; installed content, never kept with a stored game.</summary>
     [field: NonSerialized]
     public RoomFxAnimatedTileAtlas? AnimatedTileArtwork { get; set; }
 
-    /// <summary>Current host-owned room-FX blend colors; never stored in debugger state.</summary>
+    /// <summary>Current installed room-FX blend colors; installed content, never kept with a stored game.</summary>
     [field: NonSerialized]
     public RoomFxBlendInks? PaletteBlendColors { get; set; }
 }

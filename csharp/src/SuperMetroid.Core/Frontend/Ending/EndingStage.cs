@@ -313,7 +313,7 @@ internal sealed class EndingStage
     }
 
     /// <summary>
-    /// Selects current host artwork after a debugger-state restore. The active
+    /// Selects the installed floor artwork when a stored game is restored. The active
     /// backdrop is refreshed without resetting actors, palette, transform or music.
     /// During the flyaway's artwork loading, already-loaded chunks are reapplied last.
     /// </summary>

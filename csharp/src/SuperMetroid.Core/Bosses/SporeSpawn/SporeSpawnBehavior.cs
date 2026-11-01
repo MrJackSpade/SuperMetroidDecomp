@@ -133,7 +133,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         SporeSpawn = state;
 
-        // Writes these sixteen colors to target-palette row F. Room loading currently
+        // Writes these sixteen colors to the target copy of sprite colour set 7. Room loading currently
         // presents completed fades directly, so install the identical final colours now
         // while retaining the independent target copy above.
         for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)

@@ -41,7 +41,7 @@ internal static class SporeSpawnDeathFade
     /// <summary>
     /// Palette_SporeSpawn_DeathSequence_Background_0..6:
     /// seven equally spaced, rounded RGB5 steps from the original room color to the
-    /// final death color. The first stored row is step1, not the initial endpoint.
+    /// final death color. The first stored fade step is step 1, not the initial endpoint.
     /// </summary>
     internal static RgbColor BackgroundColor(RgbColor finalColor, int frame, int color)
     {

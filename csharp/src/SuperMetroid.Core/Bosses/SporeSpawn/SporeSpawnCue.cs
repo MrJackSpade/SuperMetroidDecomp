@@ -8,12 +8,12 @@ internal abstract record SporeSpawnCue
     {
     }
 
-    /// <summary>Loads a death-sequence palette row.</summary>
-    /// <param name="DeathPaletteStep">The death-sequence palette row a death-palette cue loads, zero through six.</param>
+    /// <summary>Loads a death-sequence fade step.</summary>
+    /// <param name="DeathPaletteStep">The death-sequence fade step a death-palette cue loads, zero through six.</param>
     internal sealed record LoadDeathPalette(int DeathPaletteStep) : SporeSpawnCue;
 
-    /// <summary>Loads a death-sequence palette row as the fade target.</summary>
-    /// <param name="DeathPaletteStep">The death-sequence palette row a death-palette cue loads, zero through six.</param>
+    /// <summary>Loads a death-sequence fade step as the fade target.</summary>
+    /// <param name="DeathPaletteStep">The death-sequence fade step a death-palette cue loads, zero through six.</param>
     internal sealed record LoadDeathTargetPalette(int DeathPaletteStep) : SporeSpawnCue;
 
     /// <summary>Requests a sound.</summary>

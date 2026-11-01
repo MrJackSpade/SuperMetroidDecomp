@@ -3,29 +3,29 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
 /// <summary>
-/// The four health rows. The healthy and critical rows are authored paint.
-/// In the two intermediate rows the shell and glow colors nine to fifteen interpolate those
-/// rows to nearest integer over three intervals and the transparent slot repeats the
-/// critical row's; colors one to eight are painted per row. Only supplied deviations from
-/// the calculation are stored, so edited endpoint rows drive every intermediate step.
+/// The four health bands. The healthy and critical bands are authored paint.
+/// In the two intermediate bands the shell and glow colors nine to fifteen interpolate those
+/// bands to nearest integer over three intervals and the transparent slot repeats the
+/// critical band's; colors one to eight are painted per band. Only supplied deviations from
+/// the calculation are stored, so edited endpoint bands drive every intermediate band.
 /// </summary>
-internal sealed class SporeSpawnHealthRows
+internal sealed class SporeSpawnHealthBands
 {
     /// <summary>Shell and glow colors from ink 9 onward interpolate between healthy and critical.</summary>
     private const int FirstInterpolatedColor = 9;
-    /// <summary>Inks 1 through 8 remain painted separately in each intermediate health row.</summary>
+    /// <summary>Inks 1 through 8 remain painted separately in each intermediate health band.</summary>
     private const int LastPaintedColor = 8;
-    /// <summary>Healthy endpoint supplies the first boss row and interpolation source.</summary>
+    /// <summary>Healthy endpoint supplies the first health band and interpolation source.</summary>
     private readonly RgbColor[] healthy;
-    /// <summary>Critical endpoint supplies the last boss row and transparent ink zero.</summary>
+    /// <summary>Critical endpoint supplies the last health band and transparent ink zero.</summary>
     private readonly RgbColor[] critical;
-    /// <summary>Authored inks 1 through 8 from the two middle health rows.</summary>
+    /// <summary>Authored inks 1 through 8 from the two middle health bands.</summary>
     private readonly RgbColor[][] intermediatePaint;
-    /// <summary>Middle-row calculated inks retained only when the supplied RGB5 value differs.</summary>
+    /// <summary>Middle-band calculated inks retained only when the supplied RGB5 value differs.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> intermediateEdits = new();
 
-    /// <summary>Splits four supplied health rows into endpoints, painted middle inks and independent interpolation edits.</summary>
-    internal SporeSpawnHealthRows(RgbColor[][] supplied)
+    /// <summary>Splits four supplied health bands into endpoints, painted middle inks and independent interpolation edits.</summary>
+    internal SporeSpawnHealthBands(RgbColor[][] supplied)
     {
         int last = SporeSpawnColorDefinitions.HealthFrameCount - 1;
         healthy = supplied[0];
@@ -40,7 +40,7 @@ internal sealed class SporeSpawnHealthRows
         }
     }
 
-    /// <summary>Chooses authored paint or reconstructs the requested middle-row ink from editable endpoints.</summary>
+    /// <summary>Chooses authored paint or reconstructs the requested middle-band ink from editable endpoints.</summary>
     internal RgbColor Resolve(int frame, int color)
     {
         int last = SporeSpawnColorDefinitions.HealthFrameCount - 1;
@@ -51,7 +51,7 @@ internal sealed class SporeSpawnHealthRows
             ? edit : Calculate(frame, color);
     }
 
-    /// <summary>Identifies transparent ink zero and shell/glow inks that derive from endpoint rows.</summary>
+    /// <summary>Identifies transparent ink zero and shell/glow inks that derive from the endpoint bands.</summary>
     private static bool IsCalculated(int color) => color is 0 or >= FirstInterpolatedColor;
 
     /// <summary>Interpolates an RGB5 shell/glow ink to nearest integer over the three health intervals; ink zero repeats critical.</summary>

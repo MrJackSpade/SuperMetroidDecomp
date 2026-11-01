@@ -50,7 +50,7 @@ internal static class BossColorClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/SporeSpawnColorCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/SporeSpawnColorSelection.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/SporeSpawnColors.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/SporeSpawnHealthRows.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/SporeSpawnHealthBands.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/SporeSpawnDeathColorDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/SporeSpawnDeathFade.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnColorDefinitions.cs")]),

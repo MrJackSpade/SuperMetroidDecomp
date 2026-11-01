@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// Each one-shot lasts 24 frames. All 38 control words match
 /// the original programs. For frame <c>i</c> and color <c>c</c>, the fade-out color
 /// equals fade-in color <c>(7 - i, c)</c> at all 24 positions. The eight
-/// color rows and their reverse form 48 presentation identities. The
+/// colour frames and their reverse form 48 presentation identities. The
 /// presentation view calculates rounded RGB5 interpolation from three required
 /// endpoints and preserves independent supplied edits. This catalog supplies
 /// control words; the text endpoints, cadence and palette selection are authored inputs.

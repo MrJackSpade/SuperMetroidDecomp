@@ -28,12 +28,12 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         gunshipInputs = new EndingGunshipPaletteInputView(colors);
     }
 
-    /// <summary>Keeps every selected palette-effect colour except those a shared row alias or calculation already reproduces.</summary>
+    /// <summary>Keeps every selected palette-effect colour except those a shared frame alias or calculation already reproduces.</summary>
     /// <param name="colors">Every selected colour, by the record colour it is.</param>
     internal static RoomPaletteFxPresentation Create(Dictionary<PaletteFxColorKey, RgbColor> colors)
     {
-        // Collapse only values equal to the calculated row alias. Differing player
-        // edits keep their original per-frame identity, including edits to base rows.
+        // Collapse only values equal to the calculated frame alias. Differing player
+        // edits keep their original per-frame identity, including edits to base frames.
         foreach (var program in PaletteFxHeatProgramMechanicsDefinitions.All)
         foreach (PaletteFxColorKey key in Keys(program.ColorFrames))
         {

@@ -93,10 +93,10 @@ internal static class RoomPaletteFxSelection
             throw new ArgumentOutOfRangeException(nameof(areaIndex));
         if ((uint)bitIndex >= DefinitionsPerArea)
             throw new ArgumentOutOfRangeException(nameof(bitIndex));
-        // The eighth row (beyond the retail areas) selects no object for any bit.
+        // The eighth area (beyond the retail areas) selects no object for any bit.
         if (areaIndex >= AreaIds.RetailCount)
             return PaletteFxObject.Nothing;
-        return new AreaFxBit(AreaIds.FromIndex(WordWrap.LowByte(areaIndex), "Palette-FX area row"), bitIndex) switch
+        return new AreaFxBit(AreaIds.FromIndex(WordWrap.LowByte(areaIndex), "Palette-FX area"), bitIndex) switch
         {
             (AreaId.Crateria, 0) => PaletteFxObject.CrateriaLightning,
             (AreaId.Crateria, 1) => PaletteFxObject.UpperCrateriaRedFlashing,

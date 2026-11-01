@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
-/// <summary>Maridia sand/waterfall color rotations. Sixteen first-row colors remain required source inputs.</summary>
+/// <summary>Maridia sand/waterfall color rotations. Sixteen first-frame colors remain required source inputs.</summary>
 internal static class MaridiaEnvironmentalColors
 {
     /// <summary>Maps a sand or waterfall color to its first-frame source after cyclic rotation.</summary>

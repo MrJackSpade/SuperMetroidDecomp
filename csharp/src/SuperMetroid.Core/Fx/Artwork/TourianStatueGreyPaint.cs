@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
 /// Tourian statue grey-out colors: six intermediate RGB5 samples
-/// between the first and last supplied rows, rounded to the nearest seventh.
+/// between the first and last supplied frames, rounded to the nearest seventh.
 /// Color zero changes immediately to its final value. Endpoints remain supplied
 /// inputs; their independent artwork choices are outside this interpolation conversion.
 /// </summary>

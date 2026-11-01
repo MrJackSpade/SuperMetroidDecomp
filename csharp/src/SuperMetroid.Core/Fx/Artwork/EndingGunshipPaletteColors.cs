@@ -21,7 +21,7 @@ internal static class EndingGunshipPaletteColors
 
     /// <summary>Defaults are calculated only after explicit supplied edits have been
     /// checked. Endpoint resolution has one bounded level: white/dim depend at most on
-    /// the supplied bright row. No generated palette row is stored.</summary>
+    /// the supplied bright frame. No generated colour set is stored.</summary>
     internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
         value = RgbColor.Black;

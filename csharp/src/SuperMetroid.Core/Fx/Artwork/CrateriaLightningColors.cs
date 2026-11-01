@@ -13,7 +13,7 @@ internal static class CrateriaLightningColors
     /// <summary>
     /// Four equally spaced RGB5 brightness phases and a white crest.
     /// Record phases ascend zero through four, descend to zero, then descend four to one.
-    /// Each nonwhite row darkens by one RGB5 unit per color position.
+    /// Each nonwhite frame darkens by one RGB5 unit per color position.
     /// </summary>
     internal static bool TryCalculatedColor(PaletteFxColorKey key, out RgbColor color)
     {
@@ -30,7 +30,7 @@ internal static class CrateriaLightningColors
 
     /// <summary>
     /// Each dark-lightning channel decreases five RGB5 units per phase,
-    /// clamping at zero. Seven first-row colors remain supplied inputs; other independent
+    /// clamping at zero. Seven first-frame colors remain supplied inputs; other independent
     /// samples are retained whenever they differ from the supplied-base calculation.
     /// </summary>
     internal static bool TryCalculatedDarkColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> inputs, out RgbColor color)

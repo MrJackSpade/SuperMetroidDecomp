@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// runs <c>SetColorIndex(84)</c>, eight 12-byte
 /// records of <c>10, colors[4], Wait</c>, then a goto back to its first record
 /// (80 frames per loop). All 20 control words match. The
-/// first row reuses the initial title palette. Tube channels interpolate to their
+/// first frame reuses the initial title palette. Tube channels interpolate to their
 /// clamped endpoint using the minimum phase count at the selected three-unit
 /// scale and nearest/even integer quantization; no green exception is needed.
 /// Issue #854 / #625: the displays' definition

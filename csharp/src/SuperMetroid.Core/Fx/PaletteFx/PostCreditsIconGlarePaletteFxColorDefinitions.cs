@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <c>floor(((7 - t)*q + 31*t)/7)</c>. Frame 6 is white, frames 7..12
 /// mirror frames 5..0, and frame 13 restores the base. This rule matches
 /// all 224 original colors exactly. LogoGlarePaletteColors evaluates matching
-/// presentation colors from the final supplied row; independent edits remain explicit.
+/// presentation colors from the final supplied frame; independent edits remain explicit.
 /// The presentation compiler owns the base colors and overrides.
 /// </remarks>
 public static class PostCreditsIconGlarePaletteFxColorDefinitions

@@ -124,7 +124,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         CopyShitroidTargetColours(state, ShitroidColorTarget.DeadSidehopper);
     }
 
-    /// <summary>Copies an installed target row's colours into mutable encounter state and the visible boss colours.</summary>
+    /// <summary>Copies an installed target colour set into mutable encounter state and the visible boss colours.</summary>
     private void CopyShitroidTargetColours(
         ShitroidEnemyState state,
         ShitroidColorTarget target)

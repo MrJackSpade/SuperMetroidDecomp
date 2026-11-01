@@ -285,7 +285,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             var sharing = SharedBodyChannels.TryCreate(source.Body, Body, profile, channels);
             if (sharing is not null) Body = new BodyColors(sharing);
         }
-        /// <summary>Shares a constant RGB5 offset only if it reproduces the entire supplied row.</summary>
+        /// <summary>Shares a constant RGB5 offset only if it reproduces every supplied body colour.</summary>
         internal void ShareTint(PaletteFrame source, int red, int green, int blue)
         {
             if (Body.Length != source.Body.Length) return;
@@ -356,7 +356,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         private static RgbColor HalfIntensity(RgbColor color) => color.Map((_, channel) => (channel + 1) / 2);
     }
 
-    /// <summary>Exact red-origin shading from the narrowly reviewed temporal material paints; calculated shades are not retained rows.</summary>
+    /// <summary>Exact red-origin shading from the narrowly reviewed temporal material paints; calculated shades are not retained as colours.</summary>
     internal sealed class RedOriginColors
     {
         /// <summary>Independent head, plate, and tissue anchors used to reconstruct red-origin gradients.</summary>
@@ -367,7 +367,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         private readonly int[] tissueGreens;
         /// <summary>Final two inks lack a supported interpolation relationship.</summary>
         private readonly RgbColor[] tail;
-        /// <summary>Extracts anchors and independently varying channels from one supplied body row.</summary>
+        /// <summary>Extracts anchors and independently varying channels from one phase's supplied body colours.</summary>
         private RedOriginColors(BodyColors colors)
         {
             head = colors[0];
@@ -425,7 +425,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     {
         /// <summary>Earlier rainbow phase supplying the channels shared with this phase.</summary>
         private readonly BodyColors source;
-        /// <summary>Which RGB5 components follow the source row.</summary>
+        /// <summary>Which RGB5 components follow the source phase.</summary>
         private readonly bool red, green, blue;
         /// <summary>Shared channel offsets and count of independently supplied components.</summary>
         private readonly int redAddition, greenAddition, independentCount;
@@ -476,12 +476,12 @@ public sealed class MotherBrainRainbowPalettePresentation
             }
         }
     }
-    /// <summary>Recognizes normal and drained body paint without repeated palette rows.</summary>
+    /// <summary>Recognizes normal and drained body paint without repeating every phase's colours.</summary>
     internal sealed class BodyColors
     {
-        /// <summary>Raw authored inks retained when no recognized model reproduces the row.</summary>
+        /// <summary>Raw authored inks retained when no recognized model reproduces the phase's colours.</summary>
         internal readonly RgbColor[]? supplied;
-        /// <summary>Red-origin gradient model selected after exact row comparison.</summary>
+        /// <summary>Red-origin gradient model selected after exact comparison of every colour.</summary>
         internal readonly RedOriginColors? redOrigin;
         /// <summary>Uses a verified red-origin gradient as the body source.</summary>
         internal BodyColors(RedOriginColors colors)
@@ -497,7 +497,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             sharedChannels = channels;
             Length = channels.Length;
         }
-        /// <summary>Source phase for a constant RGB5 tint across the body row.</summary>
+        /// <summary>Source phase for a constant RGB5 tint across the phase's body colours.</summary>
         internal readonly BodyColors? tintSource;
         /// <summary>Per-channel offsets applied to the source phase.</summary>
         private readonly int redTint, greenTint, blueTint;
@@ -514,9 +514,9 @@ public sealed class MotherBrainRainbowPalettePresentation
             int r = color.Red + red, g = color.Green + green, b = color.Blue + blue;
             return (uint)r > 31 || (uint)g > 31 || (uint)b > 31 ? null : new RgbColor(r, g, b);
         }
-        /// <summary>Drained-paint interpolation selected when the entire row agrees.</summary>
+        /// <summary>Drained-paint interpolation selected when every colour agrees.</summary>
         internal readonly DrainedBodyColors? drained;
-        /// <summary>Number of body/brain inks represented by this row.</summary>
+        /// <summary>Number of body/brain inks represented by this phase.</summary>
         public int Length { get; }
         /// <summary>Recognizes stock or drained paint, otherwise retains every supplied RGB5 ink.</summary>
         public BodyColors(RgbColor[] colors)
@@ -554,9 +554,9 @@ public sealed class MotherBrainRainbowPalettePresentation
         private readonly Rgb8 tissueDark;
         /// <summary>Fourth cortex anchor between highlight and normal plates.</summary>
         private readonly RgbColor outline;
-        /// <summary>Exact edited row when no common drained-paint anchors reproduce it.</summary>
+        /// <summary>Exact edited colours when no common drained-paint anchors reproduce them.</summary>
         private readonly RgbColor[]? supplied;
-        /// <summary>Whether the row can be reconstructed from tissue and outline anchors.</summary>
+        /// <summary>Whether the colours can be reconstructed from tissue and outline anchors.</summary>
         internal bool Calculated => supplied is null;
 
         /// <summary>Tests stock anchors, then seeks eight-bit endpoints that reproduce each edited tissue shade.</summary>
@@ -697,7 +697,7 @@ public sealed class MotherBrainRainbowPalettePresentation
                     + b * frame + intervals / 2) / intervals));
         }
     }
-    /// <summary>Straight RGB5 endpoint fade with a full authored-row fallback for independent edits.</summary>
+    /// <summary>Straight RGB5 endpoint fade that keeps every authored frame for independent edits.</summary>
     internal sealed class PaletteFade : IPaletteFade
     {
         /// <summary>First phase supplying one endpoint for every color.</summary>
@@ -732,10 +732,10 @@ public sealed class MotherBrainRainbowPalettePresentation
         public int BodyCount => first.Body.Length;
         /// <summary>Rear-leg ink count inherited from the first endpoint.</summary>
         public int LegCount => first.LegCount;
-        /// <summary>Reads an authored body row or its straight-fade approximation.</summary>
+        /// <summary>Reads an authored body colour or its straight-fade approximation.</summary>
         public RgbColor Body(int frame, int color) => supplied is null
             ? Interpolate(first.Body[color], last.Body[color], frame) : supplied[frame].Body[color];
-        /// <summary>Reads an authored rear-leg row or its straight-fade approximation.</summary>
+        /// <summary>Reads an authored rear-leg colour or its straight-fade approximation.</summary>
         public RgbColor Leg(int frame, int color) => supplied is null
             ? Interpolate(first.Leg(color), last.Leg(color), frame) : supplied[frame].Leg(color);
         /// <summary>Interpolates the spill colour only when both endpoints provide it.</summary>

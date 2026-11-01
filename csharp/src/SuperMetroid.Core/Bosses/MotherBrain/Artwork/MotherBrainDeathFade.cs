@@ -77,12 +77,12 @@ internal sealed class MotherBrainDeathFade
     internal void AppendIdentity(SelectedPresentationHash content, string label)
     {
         content.Append(label, FrameCount);
-        Span<RgbColor> row = stackalloc RgbColor[ColorCount];
+        Span<RgbColor> frameColors = stackalloc RgbColor[ColorCount];
         for (int frame = 0; frame < FrameCount; frame++)
         {
             for (int color = 0; color < ColorCount; color++)
-                row[color] = Resolve(frame, color);
-            content.AppendColors("row", row);
+                frameColors[color] = Resolve(frame, color);
+            content.AppendColors("row", frameColors);
         }
     }
 }

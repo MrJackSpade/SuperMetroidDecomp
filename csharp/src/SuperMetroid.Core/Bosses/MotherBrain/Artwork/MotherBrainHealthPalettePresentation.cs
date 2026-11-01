@@ -10,7 +10,7 @@ public sealed class MotherBrainHealthPalettePresentation
     /// <summary>Rear-leg colors whose stock outline and gray basis depend on the selected body palette.</summary>
     internal readonly TintPalette backLegs;
 
-    /// <summary>Compiles body and rear-leg tint rows, retaining independently supplied colors when they differ from shading.</summary>
+    /// <summary>Compiles body and rear-leg health-band tints, retaining independently supplied colors when they differ from shading.</summary>
     internal MotherBrainHealthPalettePresentation(RgbColor[][] body, RgbColor[][] backLegs)
     {
         this.body = new TintPalette(body, MotherBrainPalettePart.Body);
@@ -67,18 +67,18 @@ public sealed class MotherBrainHealthPalettePresentation
         internal readonly BasePalette basis;
         /// <summary>Selects the extra rear-leg tint strength after the undamaged state.</summary>
         private readonly MotherBrainPalettePart part;
-        /// <summary>Complete edited rows retained if any sample differs from the basis-derived tint.</summary>
+        /// <summary>Complete edited health bands retained if any sample differs from the basis-derived tint.</summary>
         internal readonly RgbColor[][]? supplied;
 
-        /// <summary>Compares all four supplied rows with the calculated tint before deciding whether to retain them.</summary>
-        public TintPalette(RgbColor[][] rows, MotherBrainPalettePart part, TintPalette? front = null)
+        /// <summary>Compares all four supplied health bands with the calculated tint before deciding whether to retain them.</summary>
+        public TintPalette(RgbColor[][] healthBands, MotherBrainPalettePart part, TintPalette? front = null)
         {
             this.part = part;
-            basis = BasePalette.Create(rows[0], part, front?.basis);
-            for (int state = 0; state < rows.Length; state++)
-                for (int color = 0; color < rows[state].Length; color++)
-                    if (Calculate(state, color) != rows[state][color])
-                    { supplied = rows; return; }
+            basis = BasePalette.Create(healthBands[0], part, front?.basis);
+            for (int state = 0; state < healthBands.Length; state++)
+                for (int color = 0; color < healthBands[state].Length; color++)
+                    if (Calculate(state, color) != healthBands[state][color])
+                    { supplied = healthBands; return; }
         }
 
         /// <summary>Selects an edited sample or the tint of its state-zero basis color.</summary>
@@ -110,7 +110,7 @@ public sealed class MotherBrainHealthPalettePresentation
         /// <summary>Rear-leg basis derived from the stock body basis.</summary>
         internal static BasePalette StockRear { get; } = new(MotherBrainPalettePart.BackLeg);
 
-        /// <summary>Initializes the reviewed stock body or rear-leg basis without storing a color row.</summary>
+        /// <summary>Initializes the reviewed stock body or rear-leg basis without storing its colors.</summary>
         private BasePalette(MotherBrainPalettePart part)
         {
             this.part = part;
@@ -134,7 +134,7 @@ public sealed class MotherBrainHealthPalettePresentation
             return matches ? stock : new BasePalette(colors, part, front);
         }
 
-        /// <summary>Selects independent endpoint inks and retains the full row if shade relationships do not reproduce it.</summary>
+        /// <summary>Selects independent endpoint inks and retains every supplied color if shade relationships do not reproduce them.</summary>
         public BasePalette(RgbColor[] colors, MotherBrainPalettePart part, BasePalette? front)
         {
             this.part = part;

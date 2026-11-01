@@ -54,7 +54,7 @@ public static class CeresRidleyColorFile
                     ?? throw new InvalidDataException("Ceres Ridley Baby requires its shades.")),
             _ => throw new InvalidDataException("Ceres Ridley colors require the supported version."),
         };
-        return CeresRidleyColors.Create(new CeresRidleyColorRows
+        return CeresRidleyColors.Create(new CeresRidleySuppliedColors
         {
             Start = start, EyeFade = eyeFade, BodyFade = bodyFade, Health = health, Alarm = alarm,
             RetreatBg = retreatBg, RetreatShared = retreatShared, Baby = baby,

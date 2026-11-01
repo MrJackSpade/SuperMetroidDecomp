@@ -21,7 +21,7 @@ internal sealed class TorizoMovement
     private readonly EnemyTerrain _terrain;
     /// <summary>Receives the impact quake when a falling or jumping statue lands.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Exposes the two live palette rows occupied by Torizo's body.</summary>
+    /// <summary>Exposes the two live colour sets occupied by Torizo's body.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, program start and the low-health drool it triggers.</summary>
     private readonly TorizoBody _body;

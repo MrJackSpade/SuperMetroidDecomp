@@ -5,16 +5,16 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>The Zebetites' installed two-colour pulse: its edits, its selected colours and their identity.</summary>
 internal static class ZebetitePulse
 {
-    /// <summary>Hashes the eight resolved pulse rows.</summary>
+    /// <summary>Hashes the eight resolved pulse frames.</summary>
     internal static string ContentIdentity(Dictionary<ColourCell, RgbColor> edits) =>
         SelectedPresentationHash.Create("ZebetiteColorCatalog-v1", content =>
         {
             content.Append("frames", ZebetiteColorFormat.FrameCount);
-            Span<RgbColor> row = stackalloc RgbColor[ZebetiteColorFormat.ColorsPerFrame];
+            Span<RgbColor> frameColors = stackalloc RgbColor[ZebetiteColorFormat.ColorsPerFrame];
             for (int frame = 0; frame < ZebetiteColorFormat.FrameCount; frame++)
             {
-                for (int color = 0; color < row.Length; color++) row[color] = Resolve(edits, frame, color);
-                content.AppendColors("row", row);
+                for (int color = 0; color < frameColors.Length; color++) frameColors[color] = Resolve(edits, frame, color);
+                content.AppendColors("row", frameColors);
             }
         });
 
@@ -34,7 +34,7 @@ internal static class ZebetitePulse
         edits.TryGetValue(new ColourCell(frame, color), out RgbColor edited)
             ? edited : ZebetitePulsePaint.Color(frame, color);
 
-    /// <summary>Writes the selected pulse row's two colors.</summary>
+    /// <summary>Writes the selected pulse frame's two colors.</summary>
     internal static void Apply(Dictionary<ColourCell, RgbColor> edits, ColourRun destination, int frame)
     {
         if ((uint)frame >= ZebetiteColorFormat.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));

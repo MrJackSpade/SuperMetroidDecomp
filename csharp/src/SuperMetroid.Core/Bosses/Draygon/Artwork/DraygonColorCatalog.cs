@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 /// </summary>
 public sealed class DraygonColorCatalog
 {
-    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    /// <summary>Canonical selected RGB5 colors and ordered health bands, independent of JSON encoding.</summary>
     public string ContentIdentity => DraygonPalette.ContentIdentity(this);
 
     /// <summary><c>Palette_Draygon_WhiteFlash</c>: every visible flash ink is white.</summary>
@@ -32,7 +32,7 @@ public sealed class DraygonColorCatalog
     /// <summary>Gets one of the 16 selected white-flash colors, preserving transparent entry zero.</summary>
     public RgbColor ResolveWhiteFlash(int color) => DraygonPalette.WhiteFlash(selection.WhiteFlash, color);
 
-    /// <summary>Gets one of the four selected colors in an eight-row health palette table.</summary>
+    /// <summary>Gets one of the four selected colors of one of Draygon's eight health bands.</summary>
     public RgbColor ResolveHealthBand(int band, int color) => DraygonPalette.HealthBand(selection.HealthBands, band, color);
 
     /// <summary>Installs the selected opening colors in their place among the colours.</summary>

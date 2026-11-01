@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 /// </summary>
 internal static class SporeSpawnColors
 {
-    /// <summary>Hashes the spores, then the health, death-sprite, death-level and death-background rows.</summary>
+    /// <summary>Hashes the spores, then the health bands and the death-sprite, death-level and death-background fade steps.</summary>
     internal static string ContentIdentity(SporeSpawnColorCatalog colors) =>
         SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
         {
@@ -27,7 +27,7 @@ internal static class SporeSpawnColors
                     .Select(color => colors.ResolveDeathBackground(frame, color)).ToArray()).ToArray());
         });
 
-    /// <summary>Keeps the spore colours that differ from the supplied healthy boss row.</summary>
+    /// <summary>Keeps the spore colours that differ from the supplied healthy band.</summary>
     internal static Dictionary<ColourCell, RgbColor> SporeEdits(RgbColor[] spores, RgbColor[][] health)
     {
         var edits = new Dictionary<ColourCell, RgbColor>();
@@ -36,7 +36,7 @@ internal static class SporeSpawnColors
         return edits;
     }
 
-    /// <summary>Keeps the death sprite's final row, its first row where it differs from critical health, and edited middle samples.</summary>
+    /// <summary>Keeps the death sprite's final fade step, its first step where it differs from critical health, and edited middle samples.</summary>
     internal static Dictionary<ColourCell, RgbColor> DeathSpriteEdits(RgbColor[][] deathSprite, RgbColor[][] health)
     {
         var edits = new Dictionary<ColourCell, RgbColor>();
@@ -53,7 +53,7 @@ internal static class SporeSpawnColors
         return edits;
     }
 
-    /// <summary>Keeps the level fade's final row and every earlier colour that is not the calculated fade.</summary>
+    /// <summary>Keeps the level fade's final step and every earlier colour that is not the calculated fade.</summary>
     internal static Dictionary<ColourCell, RgbColor> DeathLevelEdits(RgbColor[][] deathLevel)
     {
         var edits = new Dictionary<ColourCell, RgbColor>();
@@ -69,7 +69,7 @@ internal static class SporeSpawnColors
         return edits;
     }
 
-    /// <summary>Keeps the background fade's final row and every earlier colour that is not the calculated fade.</summary>
+    /// <summary>Keeps the background fade's final step and every earlier colour that is not the calculated fade.</summary>
     internal static Dictionary<ColourCell, RgbColor> DeathBackgroundEdits(RgbColor[][] deathBackground)
     {
         var edits = new Dictionary<ColourCell, RgbColor>();
@@ -84,7 +84,7 @@ internal static class SporeSpawnColors
         return edits;
     }
 
-    /// <summary>A spore colour: its edit, or the healthy boss row's.</summary>
+    /// <summary>A spore colour: its edit, or the healthy band's.</summary>
     internal static RgbColor Spore(SporeSpawnColorCatalog colors, int color)
     {
         if ((uint)color >= SporeSpawnColorDefinitions.ColorsPerFrame)
@@ -92,8 +92,8 @@ internal static class SporeSpawnColors
         return colors.selection.Spores.TryGetValue(new ColourCell(0, color), out RgbColor selected) ? selected : colors.selection.Health.Resolve(0, color);
     }
 
-    /// <summary>A health row's colour.</summary>
-    internal static RgbColor Health(SporeSpawnHealthRows health, int frame, int color)
+    /// <summary>A health band's colour.</summary>
+    internal static RgbColor Health(SporeSpawnHealthBands health, int frame, int color)
     {
         _ = CheckFrame(frame, SporeSpawnColorDefinitions.HealthFrameCount);
         if ((uint)color >= SporeSpawnColorDefinitions.ColorsPerFrame)
@@ -101,7 +101,7 @@ internal static class SporeSpawnColors
         return health.Resolve(frame, color);
     }
 
-    /// <summary>A death-sprite phase's colour: its edit, or the calculated fade from critical health to the final row.</summary>
+    /// <summary>A death-sprite phase's colour: its edit, or the calculated fade from critical health to the final fade step.</summary>
     internal static RgbColor DeathSprite(SporeSpawnColorCatalog colors, int frame, int color)
     {
         _ = CheckFrame(frame, SporeSpawnColorDefinitions.DeathSpriteFrameCount);
@@ -116,8 +116,8 @@ internal static class SporeSpawnColors
 
     /// <summary>
     /// Palette_SporeSpawn_DeathSequence_0..7: interpolate each RGB5
-    /// channel between the first and last rows, rounding to the nearest integer over
-    /// seven intervals. The first endpoint repeats critical-health row3 (..E3F8);
+    /// channel between the first and last fade steps, rounding to the nearest integer over
+    /// seven intervals. The first endpoint repeats critical health band 3 (..E3F8);
     /// its sixteen colors remain required under health. Sixteen final colors also remain required.
     /// </summary>
     internal static RgbColor CalculateDeathSpriteColor(RgbColor first, RgbColor last, int frame)

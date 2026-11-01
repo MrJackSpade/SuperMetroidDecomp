@@ -25,7 +25,7 @@ internal sealed class RidleyInteractions
     internal static bool IsRidleyDefinition(EnemyDefinitionId definitionId) =>
         definitionId is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley;
 
-    /// <summary>Selects three damage-color rows at 9000, 5400, and 1800 health.</summary>
+    /// <summary>Selects three damage-color health bands at 9000, 5400, and 1800 health.</summary>
     internal void UpdateNorfairRidleyHealthPalette(RoomEnemySlot slot, RidleyEnemyState state)
     {
         state.HealthStage = slot.Health switch

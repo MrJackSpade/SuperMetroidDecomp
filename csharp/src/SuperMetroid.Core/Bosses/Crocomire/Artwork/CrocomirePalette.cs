@@ -45,7 +45,7 @@ internal static class CrocomirePalette
             : CrocomireColorCatalog.StockPaint[band](index);
     }
 
-    /// <summary>Installs the initialization transfers in order: the wall row, then the projectile row.</summary>
+    /// <summary>Installs the initialization transfers in order: the wall colours, then the projectile colours.</summary>
     internal static void ApplyInitial(CrocomireColorCatalog colors, BossColours destination)
     {
         Apply(colors, destination.CrocomireInitialWall, Band.InitialWall);

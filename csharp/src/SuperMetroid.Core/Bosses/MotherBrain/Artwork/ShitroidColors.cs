@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Reads the live Shitroid scene's installed colours: the normal pulse, the initialization targets and their identity.</summary>
 internal static class ShitroidColors
 {
-    /// <summary>Hashes the Sidehopper, Shitroid and dead-Sidehopper targets, then the eight normal pulse rows.</summary>
+    /// <summary>Hashes the Sidehopper, Shitroid and dead-Sidehopper targets, then the eight normal pulse phases.</summary>
     internal static string ContentIdentity(ShitroidColorCatalog colors) =>
         SelectedPresentationHash.Create("ShitroidColorCatalog-v1", content =>
         {
@@ -21,9 +21,9 @@ internal static class ShitroidColors
             content.Append("normal", ShitroidColorDefinitions.NormalFrameCount);
             for (int frame = 0; frame < ShitroidColorDefinitions.NormalFrameCount; frame++)
             {
-                var row = new RgbColor[ShitroidColorDefinitions.NormalColorsPerFrame];
-                for (int color = 0; color < row.Length; color++) row[color] = colors.NormalColor(frame, color);
-                content.AppendColors("row", row);
+                var phaseColors = new RgbColor[ShitroidColorDefinitions.NormalColorsPerFrame];
+                for (int color = 0; color < phaseColors.Length; color++) phaseColors[color] = colors.NormalColor(frame, color);
+                content.AppendColors("row", phaseColors);
             }
         });
 

@@ -29,7 +29,7 @@ internal sealed class RidleyProjectiles
         _projectiles = projectiles;
         _ridleyEncounter = ridleyEncounter;
     }
-    /// <summary>OBJ palette row used for fireballs and every afterburn stage.</summary>
+    /// <summary>OBJ colour set used for fireballs and every afterburn stage.</summary>
     private static readonly SpriteGraphics FireballGraphicsIndex = SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles);
     /// <summary>The fireball's 8.8 speed: five pixels per update.</summary>
     private const int FireballSpeed = 1280;

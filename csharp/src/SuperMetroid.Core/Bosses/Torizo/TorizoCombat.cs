@@ -14,7 +14,7 @@ internal sealed class TorizoCombat
 {
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Exposes the two live palette rows occupied by Torizo's body.</summary>
+    /// <summary>Exposes the two live colour sets occupied by Torizo's body.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Applies shot, bomb, and touch damage through the shared collision rules.</summary>
     private readonly EnemyCollision _collision;

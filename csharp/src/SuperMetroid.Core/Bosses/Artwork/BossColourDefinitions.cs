@@ -79,19 +79,19 @@ public static class BossColourDefinitions
     /// <summary>The cutscene Baby Metroid palette.</summary>
     public static readonly SpriteColourRun BabyMetroidCutscene = new(SpriteColourStore.EnemiesFourth, 1, 15);
 
-    /// <summary>Kraid's room backdrop row.</summary>
+    /// <summary>Kraid's room backdrop colour set.</summary>
     public static readonly BackgroundColourRun KraidRoomBackdrop = new(BackgroundColourSet.TilesFifth, 0, 16);
 
-    /// <summary>Kraid's BG2 body row.</summary>
+    /// <summary>Kraid's BG2 body colour set.</summary>
     public static readonly BackgroundColourRun KraidBody = new(BackgroundColourSet.TilesSixth, 0, 16);
 
     /// <summary>Kraid's eye colours.</summary>
     public static readonly BackgroundColourRun KraidEye = new(BackgroundColourSet.TilesSixth, 1, 3);
 
-    /// <summary>Kraid's initial sprite row.</summary>
+    /// <summary>Kraid's initial sprite colour set.</summary>
     public static readonly SpriteColourRun KraidSprites = new(SpriteColourStore.EnemiesThird, 0, 16);
 
-    /// <summary>Kraid's secondary row.</summary>
+    /// <summary>Kraid's secondary colour set.</summary>
     public static readonly SpriteColourRun KraidSecondary = new(SpriteColourStore.EnemiesFourth, 0, 16);
 
     /// <summary>Mother Brain's body colours.</summary>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>The selected Mother Brain room colours; a family an older override predates is null.</summary>
 internal sealed record MotherBrainRoomColours
 {
-    /// <summary>The fourteen flash rows.</summary>
+    /// <summary>The fourteen flash frames.</summary>
     public required RgbColor[][] Flash { get; init; }
 
     /// <summary>The final room colours.</summary>

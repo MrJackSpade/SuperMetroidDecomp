@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
-/// <summary>The selected alarm channels of Ceres Ridley's escape alarm; <see cref="CeresRidleyAlarmColors"/> calculates the alarm rows from them.</summary>
+/// <summary>The selected alarm channels of Ceres Ridley's escape alarm; <see cref="CeresRidleyAlarmColors"/> calculates the alarm steps from them.</summary>
 internal static class CeresRidleyAlarmColorDefinitions
 {
     /// <summary>Initial green component of the bright gold warning text.</summary>

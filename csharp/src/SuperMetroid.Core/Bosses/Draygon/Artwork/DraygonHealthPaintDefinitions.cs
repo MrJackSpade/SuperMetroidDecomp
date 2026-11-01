@@ -5,7 +5,7 @@ internal static class DraygonHealthPaintDefinitions
 {
     /// <summary>Four belly shades are copied in each health band.</summary>
     internal const int Shades = 4;
-    /// <summary>Eight health-band rows span healthy gold through critical red.</summary>
+    /// <summary>Eight health bands span healthy gold through critical red.</summary>
     internal const int Bands = 8;
     /// <summary>Five-bit red channel ceiling used by the critical endpoint.</summary>
     internal const int Maximum = (1 << 5) - 1;

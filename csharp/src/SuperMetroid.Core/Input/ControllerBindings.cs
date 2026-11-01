@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
-/// The seven configurable action bindings, mirrored in
-/// every SRAM slot. Directional input and Start are hardware controls rather than actions,
+/// The seven configurable action bindings, kept in
+/// every save slot. Directional input and Start are fixed controls rather than actions,
 /// so they deliberately do not appear in this type.
 /// </summary>
 /// <remarks>
@@ -40,24 +40,23 @@ public readonly record struct ControllerBindings(
         AimDown: ControllerButton.L);
 
     /// <summary>
-    /// Number of physical buttons admitted by <c>GameOptions_ControllerSettings_SetBinding</c>.
+    /// Number of physical buttons the options menu admits when it sets a binding.
     /// </summary>
     public const int AssignableButtonCount = 7;
 
     /// <summary>
-    /// Physical button admitted by <c>GameOptions_ControllerSettings_SetBinding</c>, in the same order
+    /// Physical button the options menu admits when it sets a binding, in the same order
     /// as the options menu's button list. Its final Left/Right entries are not examined by that
-    /// routine; only these first seven can be assigned in an ordinary retail options menu.
+    /// step; only these first seven can be assigned in an ordinary retail options menu.
     /// </summary>
     /// <remarks>
-    /// Independently reviewed for #1165: the options menu's button list holds
-    /// bank_82.asm agree on all nine little-endian words: X, A, B, Select, Y, L, R,
-    /// Left, Right. The managed seven-word prefix matches exactly; the final two words
-    /// follow the list, not assignable actions. Setting a binding starts at
-    /// byte offset 12 and scans backward to zero; Save_GameOptionsMenu_ControllerBindings
-    /// indexes the same seven choices. The managed menu scans these cases backward and
+    /// Independently reviewed for #1165: the options menu's button list holds nine
+    /// buttons: X, A, B, Select, Y, L, R, Left, Right. The managed seven-button prefix
+    /// matches exactly; the final two follow the list, not assignable actions. Setting a
+    /// binding starts at the seventh choice and scans backward to the first; saving the
+    /// controller settings uses the same seven choices. The managed menu scans these cases backward and
     /// AssignAndSwap validates membership through the inverse mapping. Each case selects
-    /// a named hardware button, so no numerical curve or stored span is needed.
+    /// a named controller button, so no numerical curve or stored span is needed.
     /// Only indices 0..6 are supported; throw ArgumentOutOfRangeException.
     /// </remarks>
     public static ControllerButton AssignableButton(int index) => index switch
@@ -180,8 +179,8 @@ public readonly record struct ControllerBindings(
     /// Returns this binding set only when it is a complete retail permutation.
     /// </summary>
     /// <remarks>
-    /// A valid SRAM checksum proves only that the payload was written consistently; it does
-    /// not make malformed button words safe. Replacing a corrupt permutation with defaults
+    /// A valid save checksum proves only that the slot was written consistently; it does
+    /// not make malformed button bindings safe. Replacing a corrupt permutation with defaults
     /// used to hide both bad save data and translation bugs. The caller now gets the exact
     /// seven words in the exception and can decide whether to delete or repair the save.
     /// </remarks>

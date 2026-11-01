@@ -60,8 +60,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
     internal void DispatchFileSelectMenus(ControllerButton controllerInput)
     {
         session.ActiveFileSelect.Step(controllerInput);
-        if (session.ActiveFileSelect.SaveRamChangedThisFrame)
-            session.RaiseSaveRamChanged();
+        if (session.ActiveFileSelect.SavesChangedThisFrame)
+            session.RaiseSavesChanged();
         session.display.PublishMenu(session.ActiveFileSelect);
         if (session.ActiveFileSelect.TitleRequested)
         {
@@ -72,7 +72,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         else if (session.ActiveFileSelect.NewGameRequested)
         {
             session.SelectSaveSlot(session.ActiveFileSelect.SelectedSaveSlot, session.ActiveFileSelect.SelectedSlotContainsSave);
-            session.RaiseSaveRamChanged();
+            session.RaiseSavesChanged();
             // Existing slots restore the same seven controller words and two
             // special-settings words that saving copied from live state. A new
             // slot begins with NewSaveFile's literal defaults.

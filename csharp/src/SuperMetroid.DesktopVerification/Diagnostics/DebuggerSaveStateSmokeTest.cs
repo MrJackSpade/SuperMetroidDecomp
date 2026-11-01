@@ -86,7 +86,7 @@ public static class DebuggerSaveStateSmokeTest
                 throw new InvalidDataException("Compatible cross-build state did not emit both build warnings.");
             // The real hosts rebind nonserialized installed catalogs after restoration.
             // The audit must use that contract too, not an implicit cartridge fallback.
-            GameSessionComposer.Restore(loaded.Game, content, new GameSaveFile(Path.Combine(temporaryDirectory, "SuperMetroid.save.json")));
+            loaded.BindGame(content, new GameSaveFile(Path.Combine(temporaryDirectory, "SuperMetroid.save.json")));
 
             GameContentIdentity changedAudioIdentity = GameContentIdentity.Create(
                 new string('D', 64),

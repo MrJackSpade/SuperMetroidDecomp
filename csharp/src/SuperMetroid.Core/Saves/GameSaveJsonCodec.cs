@@ -294,7 +294,7 @@ public static class GameSaveJsonCodec
     }
 
     /// <summary>
-    /// Rejects a numeric slot field outside <c>[0, <paramref name="maximum"/>]</c>, the range its domain or its SRAM
+    /// Rejects a numeric slot field outside <c>[0, <paramref name="maximum"/>]</c>, the range its domain or its saved
     /// field holds, so a JSON number never wraps on its way into the store.
     /// </summary>
     private static void RequireRange(int value, int maximum, int expectedSlot, string property) =>

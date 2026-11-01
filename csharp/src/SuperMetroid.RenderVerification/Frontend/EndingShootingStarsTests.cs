@@ -92,7 +92,7 @@ internal static class EndingShootingStarsTests
             var noStars = DisplayRendering.Render(withoutStars);
             bool hidden = scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingSamus;
             Require(pixels.SequenceEqual(noStars) == hidden, "Stars are visible except behind the native text-only TM");
-            var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), snapshot);
+            var packet = new DisplayPacket((ushort)tick, snapshot);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Post-credits stars on this device match the WARP reference device");
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Star rendering is repeatable");
             Require(EndingCreditsPresentation.CaptureRenderSnapshot(scene).Paint.SpriteParts().SequenceEqual(snapshot.Paint.SpriteParts()), "Capture does not advance star animation");

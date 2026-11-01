@@ -45,7 +45,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         AssertTrue(captured.Layers.Length == 5 && captured.Layers[0] is GameplaySceneLayer && captured.Layers[1] is HudLayer
             && captured.Layers[2] is ColourAddWindowLayer && captured.Layers[3] is MessageBoxLayer
             && captured.Layers[4] is ColourAddWindowLayer, "base/HUD/Power Bomb/message/suit order");
-        var retained = new DisplayPacket(new(1, 1, 0), captured);
+        var retained = new DisplayPacket(0, captured);
         AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay overlay parity");
         runtime.MessageBox.Step(ControllerButton.A);
         runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Player.Colours);
@@ -64,13 +64,12 @@ internal static class GameplayCaptureIntegrationTestsVerification
         {
             MapPresentation = presentation,
         });
-        long sequence = 0;
         bool sawMode7Packet = false;
         for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)
         {
             ControllerButton input = tick % 47 == 0 ? ControllerButton.Start : 0;
             FrontendFrame reference = legacy.Step(input);
-            CapturedFrontendFrame actual = packets.StepCaptured(input, ++sequence, 1);
+            CapturedFrontendFrame actual = packets.StepCaptured(input);
             Compare(reference, actual);
             if (packets.RuntimeForVerification?.Room.ActiveDoor?.EntersCeresElevatorShaft == true)
             {
@@ -101,7 +100,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
             if (fadeFrames.ContainsKey(legacy.GameState)) fadeFrames[legacy.GameState]++;
             ControllerButton input = tick is 10 or >= 100 and <= 105 ? ControllerButton.Start : 0;
             FrontendFrame reference = legacy.Step(input);
-            CapturedFrontendFrame actual = packets.StepCaptured(input, ++sequence, 1);
+            CapturedFrontendFrame actual = packets.StepCaptured(input);
             Compare(reference, actual);
             sawPause |= legacy.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
             AssertEqual(legacy.GameplaySamusX, packets.GameplaySamusX, "capture preserves Samus X");

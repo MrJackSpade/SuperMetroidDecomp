@@ -61,7 +61,8 @@ internal static class RetailRoomPublicationTests
             for (int tick = 0; tick < 13; tick++)
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
-                var packet = new DisplayPacket(new(++sequence, 1, (ushort)tick),
+                sequence++;
+                var packet = new DisplayPacket((ushort)tick,
                     GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 if (fx == PublishedFx.Heat &&
                     ((packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0] is not GameplaySceneLayer heat ||

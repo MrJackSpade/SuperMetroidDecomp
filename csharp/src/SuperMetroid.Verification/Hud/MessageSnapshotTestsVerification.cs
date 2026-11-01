@@ -50,7 +50,8 @@ internal static class MessageSnapshotTestsVerification
                     previousYes = state.ConfirmationSelectionYes;
                     MessageBoxLayer? layer = MessageBoxLayer.Capture(state, messages);
                     DisplayLayer[] layers = layer is null ? [] : [layer];
-                    var packet = new DisplayPacket(new(++samples, 1, (ushort)tick),
+                    samples++;
+                    var packet = new DisplayPacket((ushort)tick,
                         new LayeredScene(memory, layers, 15));
                     if (layer is not null)
                     {
@@ -83,7 +84,8 @@ internal static class MessageSnapshotTestsVerification
             for (int radius = 0; radius <= GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels; radius++)
             {
                 var layer = MessageBoxLayer.Of(height.First(), radius, messages);
-                _ = new DisplayPacket(new(++samples, 1, 0), new LayeredScene(memory, [layer], 15));
+                samples++;
+                _ = new DisplayPacket(0, new LayeredScene(memory, [layer], 15));
             }
         }
         SpriteSheetFrame wrongSize = RepositoryInstallation.Installation.LoadRoomBlockSheets().Bg3Pictures.Values.First()

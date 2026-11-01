@@ -33,7 +33,7 @@ internal static class HiddenSoakTests
             long sequence = 0;
             CapturedFrontendFrame Step(ControllerButton input)
             {
-                return game.StepCaptured(input, ++sequence, 1);
+                return game.StepCaptured(input);
             }
             for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
                 Step(tick % 47 == 0 ? ControllerButton.Start : ControllerButton.None);
@@ -67,10 +67,10 @@ internal static class HiddenSoakTests
                     Check(paused ? isPaused : game.GameState == SuperMetroidGameState.MainGameplay, "soak left requested scene");
                     long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
                     long began = Stopwatch.GetTimestamp();
-                    var frame = game.StepCaptured(0, ++sequence, 1);
+                    var frame = game.StepCaptured(0);
                     // The real producer order: capture and synthesize inside Step, copy and queue PCM, publish.
                     MixAndSubmit(audio, output, game, ref nonzero, ref pcmSamples);
-                    worker.Publish(frame.Snapshot);
+                    worker.Publish(new RenderFrame(new(++sequence, 1), frame.Snapshot));
                     producerMs[tick] = Stopwatch.GetElapsedTime(began).TotalMilliseconds;
                     allocation += GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
                     worker.ThrowIfFaulted();

@@ -55,7 +55,8 @@ internal static class ColorWindowSmokeTests
             var math = new OverlayBlendLayer(bg3, height == 32 ? 32 : 0, height, first, operation,
                 new SampledScrollWave(offset, [.. Enumerable.Range(0, 16)], 7 * 256, 0, 0, 224),
                 new SampledScrollWave(offset, [.. Enumerable.Range(0, 16).Select(sample => -sample)], 3 * 256, 0, 0, 224));
-            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
+            count++;
+            var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background, math }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: BG color math {count}, {operation}, height {height}, first {first}, offset {offset}");
@@ -67,7 +68,8 @@ internal static class ColorWindowSmokeTests
         {
             var coverage = masked ? new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x7ffe, 0x6000, TileInkDepth.SixteenColours,
                 new Extent16<TilemapCells>(width, height)), new Position16<TilePlanePixels>(65535, 511), priority) : null;
-            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
+            count++;
+            var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,
                     new ScreenTintLayer(1, 2, 3), new AddedPicturedPlaneLayer(subscreen, coverage) }, 13));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
@@ -76,7 +78,8 @@ internal static class ColorWindowSmokeTests
         for (int rows = 3; rows <= 6; rows++)
         for (int radius = 0; radius <= 24; radius++)
         {
-            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
+            count++;
+            var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,
                     new MessageBoxLayer(SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundsFixtures.SeededMessagePicture(random, palette, rows), radius) }, 13));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
@@ -86,7 +89,8 @@ internal static class ColorWindowSmokeTests
 
         void Check(ColourAddWindowLayer windows)
         {
-            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
+            count++;
+            var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,
                     windows, new ScreenTintLayer(1, 2, 3), windows }, DisplayBrightness.Combine(13, 11)));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),

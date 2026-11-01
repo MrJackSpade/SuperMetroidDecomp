@@ -49,7 +49,7 @@ internal static class AttractCaptureTestsVerification
                 }
                 ControllerButton input = cancel && legacy.AttractDemoHoldFramesRemaining == 80 ? ControllerButton.Start : 0;
                 FrontendFrame expected = legacy.Step(input);
-                CapturedFrontendFrame actual = captured.StepCaptured(input, tick + 1, 1);
+                CapturedFrontendFrame actual = captured.StepCaptured(input);
                 states.Add(expected.GameState);
                 AssertEqual(expected.GameState, actual.Frame.GameState, "demo capture state");
                 AssertSequenceEqual(legacy.AudioEventsForVerification, captured.AudioEventsForVerification, "demo capture audio event order");

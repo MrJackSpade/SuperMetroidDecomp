@@ -15,11 +15,10 @@ internal sealed class CapturedGameplayFrames : IGameplayFramePublication
     }
 
     /// <inheritdoc />
-    public DisplayPacket Publish(SuperMetroidRuntime runtime, DisplayPacket current, Func<RenderFrameIdentity> nextIdentity)
+    public DisplayPacket Publish(SuperMetroidRuntime runtime, DisplayPacket current, int frameNumber)
     {
         Ensure.NotNull(runtime);
-        Ensure.NotNull(nextIdentity);
         GameplayDisplayFrame frame = runtime.PublishDisplayFrame();
-        return new(nextIdentity(), GameplayDisplayCapture.Capture(frame));
+        return new(frameNumber, GameplayDisplayCapture.Capture(frame));
     }
 }

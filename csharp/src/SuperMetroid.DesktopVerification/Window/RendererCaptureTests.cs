@@ -35,7 +35,7 @@ internal static class RendererCaptureTests
             var before = control.pendingDisplay ?? throw new InvalidOperationException("Host has no pending display.");
             var game = control.game ?? throw new InvalidOperationException("Host has no game.");
             int frameNumber = game.FrameNumber;
-            var expected = DisplayRendering.Render(before);
+            var expected = DisplayRendering.Render(before.Display);
             control.SaveDebuggerState(0);
             for (int i = 0; i < 10; i++) control.StepFrame(0);
             await VerifyAsyncLoadBoundary(control);
@@ -43,7 +43,7 @@ internal static class RendererCaptureTests
             Check(restored.Identity.Generation > before.Identity.Generation, "load must advance host generation");
             Check(restored.Identity.Sequence > before.Identity.Sequence, "load must not rewind host sequence");
             Check(control.game.FrameNumber == frameNumber, "load must not step game");
-            Check(expected.SequenceEqual(DisplayRendering.Render(restored)), "loaded display must match saved pixels");
+            Check(expected.SequenceEqual(DisplayRendering.Render(restored.Display)), "loaded display must match saved pixels");
             form.ClientSize = new(700, 500);
             var worker = control.gpuWorker ?? throw new InvalidOperationException("Host has no GPU worker.");
             await Until(() => worker.LastConsumedSequence == restored.Identity.Sequence, worker);

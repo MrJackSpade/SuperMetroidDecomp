@@ -155,9 +155,9 @@ internal static class ScreenTilePicturesVerification
             FloorScene scene = title.CaptureRenderSnapshot();
             if (scene.Floor is { } floor && sampled.Add($"{title.Phase} {floor.Image.GetHashCode()}"))
             {
-                RgbaPixel[] pictured = DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), scene)).ToArray();
+                RgbaPixel[] pictured = DisplayRendering.Render(new DisplayPacket(0, scene)).ToArray();
                 var shownTitle = title.ShownVram();
-                RgbaPixel[] characters = DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), new FloorScene(scene.Paint,
+                RgbaPixel[] characters = DisplayRendering.Render(new DisplayPacket(0, new FloorScene(scene.Paint,
                     scene.Background, scene.Brightness, scene.Gradient, AffineFloorFixtures.Floor(shownTitle, scene.Paint.Colors)))).ToArray();
                 AssertTrue(pictured.SequenceEqual(characters), $"title {title.Phase}: drawn from its pictures, the Mode 7 background matches its characters");
             }

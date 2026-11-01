@@ -30,10 +30,10 @@ public sealed class D3D11FrameRenderer : IDisposable
     private readonly ID3D11ComputeShader shader;
     /// <summary>Integer RGBA output texture consumed directly by the display pass.</summary>
     internal readonly ID3D11Texture2D output;
-    /// <summary>Identity set only after a frame finishes GPU submission.</summary>
-    internal RenderFrameIdentity? renderedIdentity;
-    /// <summary>Identity of the last successfully submitted frame.</summary>
-    internal RenderFrameIdentity? SubmittedIdentity => renderedIdentity;
+    /// <summary>The display set only after it finishes GPU submission.</summary>
+    internal DisplayPacket? renderedDisplay;
+    /// <summary>The last successfully submitted display.</summary>
+    internal DisplayPacket? SubmittedDisplay => renderedDisplay;
     /// <summary>Owner device used by a presenter sharing this frame texture.</summary>
     internal D3D11RenderDevice DeviceOwner => owner;
     /// <summary>Compute write view for the final integer frame.</summary>
@@ -145,9 +145,9 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         owner.VerifyOwner(); ObjectDisposedException.ThrowIf(disposed, this);
         Ensure.NotNull(packet);
-        renderedIdentity = null;
+        renderedDisplay = null;
         RenderCore(packet);
-        renderedIdentity = packet.Identity;
+        renderedDisplay = packet;
     }
 
     /// <summary>Selects layered, Mode 7, or solid-color composition and submits its compute passes.</summary>
@@ -264,7 +264,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.VerifyOwner(); ObjectDisposedException.ThrowIf(disposed, this);
         if (client.X == 0 || client.Y == 0)
             throw new ArgumentOutOfRangeException(nameof(client), client, "A display target must have positive dimensions.");
-        if (renderedIdentity is null) throw new InvalidOperationException("No frame has been submitted for display.");
+        if (renderedDisplay is null) throw new InvalidOperationException("No frame has been submitted for display.");
         var viewport = DisplayViewport.ForClient(client);
         var data = System.Runtime.InteropServices.MemoryMarshal.Cast<uint, int>(ClearUploadConstants().AsSpan());
         data[0] = viewport.Offset.X; data[1] = viewport.Offset.Y;
@@ -788,7 +788,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         // A single reusable child owns its own buffers, sprite layer and output.
         // The contract prohibits nested windows, bounding scratch resource usage.
         childRenderer ??= Own(new D3D11FrameRenderer(owner));
-        var childPacket = new DisplayPacket(packet.Identity, window.Scene);
+        var childPacket = new DisplayPacket(packet.FrameNumber, window.Scene);
         childRenderer.DrawLayers(childPacket, window.Scene);
         owner.Context.CSSetUnorderedAccessView(0, null);
         owner.Context.CSSetUnorderedAccessView(1, null);

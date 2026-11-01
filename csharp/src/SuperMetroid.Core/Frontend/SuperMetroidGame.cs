@@ -60,7 +60,7 @@ public sealed class SuperMetroidGame
     private AttractGamePhases AttractPhases => field ??= new AttractGamePhases(Session);
 
     /// <summary>
-    /// Binds installed artwork at startup and after debugger-state restoration (<see cref="GameSessionComposer"/>). Each
+    /// Binds installed artwork whenever a host binds the game to its content (<see cref="GameSessionComposer.Bind"/>). Each
     /// catalog whose reference changed reaches the scenes that hold it; unchanged catalogs are left alone. The live runtime
     /// binds through <see cref="SuperMetroidRuntime.BindArtwork"/>.
     /// </summary>
@@ -77,7 +77,7 @@ public sealed class SuperMetroidGame
 
 
     /// <summary>Creates a reset-state session, reading the selected save slot and capturing the boot carry before any dispatcher frame runs.</summary>
-    /// <param name="saves">The battery-backed saves the session owns; the host loads them and persists them on <see cref="SaveRamChanged"/>.</param>
+    /// <param name="saves">The saves the session owns; the host loads them and persists them on <see cref="SavesChanged"/>.</param>
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
     public SuperMetroidGame(
         SaveSlotStore saves,
@@ -94,7 +94,7 @@ public sealed class SuperMetroidGame
     /// Frontend screens are always rendered because their state machines own their own compositors; only
     /// gameplay updates publish through <see cref="SuperMetroidGameHostServices.GameplayFrames"/>.
     /// </remarks>
-    /// <param name="saves">The battery-backed saves the session owns.</param>
+    /// <param name="saves">The saves the session owns.</param>
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="hostServices">The compatibility services and display policy; replay verification supplies recorded evidence here.</param>
     /// <param name="random">The session's random-number word, which the frontend and every gameplay runtime share.</param>
@@ -107,21 +107,21 @@ public sealed class SuperMetroidGame
         Session = new FrontendSession(saves, assists, hostServices, random);
     }
 
-    /// <summary>The session's battery-backed saves, which the host persists after <see cref="SaveRamChanged"/>.</summary>
+    /// <summary>The session's saves, which the host persists after <see cref="SavesChanged"/>.</summary>
     public SaveSlotStore Saves => Session.saves;
 
     /// <summary>
-    /// Raised after translated code changes the battery-backed saves. The core owns them as
-    /// <see cref="Saves"/>; a desktop/console host owns the choice of durable storage medium.
+    /// Raised after the game changes its saves. The game owns them as <see cref="Saves"/>; the host chooses where they
+    /// are kept.
     /// </summary>
-    public event Action? SaveRamChanged
+    public event Action? SavesChanged
     {
-        add => Session.SaveRamChanged += value;
-        remove => Session.SaveRamChanged -= value;
+        add => Session.SavesChanged += value;
+        remove => Session.SavesChanged -= value;
     }
 
     /// <summary>
-    /// Binds the extracted audio catalog at startup and after debugger-state restoration, so
+    /// Binds the extracted audio catalog whenever a host binds the game to its content, so
     /// every following update also synthesizes host PCM (<see cref="CopyAudioFrame"/>).
     /// </summary>
     /// <remarks>
@@ -191,6 +191,7 @@ public sealed class SuperMetroidGame
             Session.GameplayRuntime.Clock.CountDoorMusicLoad(Session.HostServices.DoorMusicLoadFrames);
         var gameplayAudio = new GameplayAudioFramePublication(Session.audio);
         FrameNumber = WrappingCounter.IncrementWord(FrameNumber);
+        Session.display.BeginUpdate(FrameNumber);
         if (Session.Runtime is null)
             Session.frameClock.AdvanceAcceptedFrame();
         AdvanceMenuRandom();
@@ -445,59 +446,59 @@ public sealed class SuperMetroidGame
     private string PhaseName => Phases.Of(Session.GameState).Name;
 
     /// <summary>
-    /// Republishes the retained immutable display under a fresh host identity without
-    /// advancing simulation, audio, or draw-owned state. Used after restoring a captured
-    /// debugger state and when attaching a presenter to an already paused game.
+    /// The display the game last published, stamped with the current frame number, without advancing the game, its
+    /// audio or any scene. A host shows it when it starts presenting a game that is not running, such as one it has
+    /// just restored or one it has paused.
     /// </summary>
-    /// <remarks>
-    /// Returns null when this game has only produced legacy pixels. The host must handle
-    /// that explicitly; this method never fabricates a GPU packet from a CPU raster or
-    /// calls a scene draw routine to reconstruct an earlier display.
-    /// </remarks>
-    public DisplayPacket GetRetainedDisplay(long hostSequence, long hostGeneration)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostSequence);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostGeneration);
-        return Session.display.Retained(new(hostSequence, hostGeneration, FrameNumber));
-    }
+    /// <exception cref="InvalidOperationException">An update is being captured.</exception>
+    public DisplayPacket GetRetainedDisplay() => Session.display.Retained();
 
     /// <summary>
-    /// Advances one frame, capturing extracted scenes instead of rasterizing them.
-    /// Unconverted scenes are explicitly reported as legacy pixel output. The host
-    /// supplies sequence/generation outside the saved game graph, so restoring game
-    /// state must not rewind presentation identity. This is a staged migration API.
+    /// Runs one update and returns its status with the display it published, stamped with the update's frame number.
     /// </summary>
-    public CapturedFrontendFrame StepCaptured(ControllerButton controllerInput, long hostSequence, long hostGeneration)
+    public CapturedFrontendFrame StepCaptured(ControllerButton controllerInput)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostSequence);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostGeneration);
-        var identity = new RenderFrameIdentity(hostSequence, hostGeneration, WordWrap.Unsigned(FrameNumber + 1));
-        Session.display.BeginCapture(identity);
+        Session.display.BeginCapture();
         try
         {
             FrontendFrame frame = Step(controllerInput);
-            return new(frame, Session.display.CompleteCapture(identity));
+            return new(frame, Session.display.CompleteCapture());
         }
         finally { Session.display.EndCapture(); }
     }
 
     /// <summary>
-    /// Copies diagnostic state without reading game data or invoking gameplay.
-    /// Hosts capture this before a frame and again on failure to expose partial mutations.
+    /// Copies where the game is and what Samus is doing, without running the game. A host takes one before an update
+    /// and another when the update fails, so its report shows how far the failed update got.
     /// </summary>
-    public string CaptureGameplayFailureContext()
+    public GameplaySnapshot CaptureGameplaySnapshot() => new()
     {
-        string location = $"frame=${FrameNumber:X4}; state={Session.GameState}; " +
-            $"room={GameplayActiveRoom?.Name}; roomState={GameplayActiveRoomState?.Name}; door={GameplayActiveDoor?.Name}";
-        if (Session.Runtime?.Player.Samus is not { } samus)
-            return location + "; Samus=not initialized";
-        return location + $"; pose={samus.Pose}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer.RemainingFrames}; " +
-            $"animatedPose={samus.AnimatedPose}; position={samus.Position.X.Whole},{samus.Position.Y.Whole}; " +
-            $"input=${Session.Runtime.Controller1.Current:X}; newlyPressed=${Session.Runtime.Controller1.NewlyPressed:X}; inputLocked={samus.Control.AlphaLocked}; " +
-            $"drainedPhase={samus.Drained.Phase}; drainedHandler={samus.Drained.GetUpHandler}; " +
-            $"escapeTimer={Session.Runtime.EscapeTimer.Phase}; fx={samus.LiquidPhysics.FxType}; medium={samus.LiquidPhysics.LiquidPhysicsType}; " +
-            $"waterY=${samus.LiquidPhysics.FxYPosition:X4}; acidY=${samus.LiquidPhysics.LavaAcidYPosition:X4}";
-    }
+        FrameNumber = FrameNumber,
+        GameState = Session.GameState,
+        Room = GameplayActiveRoom?.Name,
+        RoomState = GameplayActiveRoomState?.Name,
+        Door = GameplayActiveDoor?.Name,
+        Samus = Session.Runtime is { Player.Samus: { } samus } runtime
+            ? new SamusSnapshot
+            {
+                Pose = samus.Pose,
+                AnimationFrame = samus.AnimationFrame,
+                AnimationFramesRemaining = samus.AnimationFrameTimer.RemainingFrames,
+                AnimatedPose = samus.AnimatedPose,
+                Position = samus.Position.Whole,
+                HeldButtons = runtime.Controller1.Current,
+                NewlyPressedButtons = runtime.Controller1.NewlyPressed,
+                InputLocked = samus.Control.AlphaLocked,
+                DrainedPhase = samus.Drained.Phase,
+                DrainedGetUp = samus.Drained.GetUpHandler,
+                EscapeTimer = runtime.EscapeTimer.Phase,
+                Fx = samus.LiquidPhysics.FxType,
+                Medium = samus.LiquidPhysics.LiquidPhysicsType,
+                WaterSurfaceY = samus.LiquidPhysics.FxYPosition,
+                LavaAcidSurfaceY = samus.LiquidPhysics.LavaAcidYPosition,
+            }
+            : null,
+    };
 
     /// <summary>
     /// Changes the assists the session plays under, as after an interactive debugger-state load. Game state, resource

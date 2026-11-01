@@ -30,7 +30,7 @@ internal static class FrontendRenderCaptureTestsVerification
         {
             MapPresentation = presentation,
         });
-        AssertEqual(new RgbaPixel(0, 0, 0, 255), captured.GetRetainedDisplay(1, 1).SolidColor,
+        AssertEqual(new RgbaPixel(0, 0, 0, 255), captured.GetRetainedDisplay().SolidColor,
             "the initial display is a published black frame");
         var states = new HashSet<SuperMetroidGameState>();
         int packetCount = 0;
@@ -40,7 +40,7 @@ internal static class FrontendRenderCaptureTestsVerification
         {
             ControllerButton input = tick % 47 == 0 ? ControllerButton.Start : 0;
             FrontendFrame expected = legacy.Step(input);
-            CapturedFrontendFrame actual = captured.StepCaptured(input, tick + 1, 7);
+            CapturedFrontendFrame actual = captured.StepCaptured(input);
             AssertEqual(expected.GameState, actual.Frame.GameState, "captured frontend state cadence");
             AssertEqual(expected.Phase, actual.Frame.Phase, "captured frontend phase cadence");
             AssertEqual(expected.FrameNumber, actual.Frame.FrameNumber, "captured frontend NMI identity");
@@ -57,19 +57,13 @@ internal static class FrontendRenderCaptureTestsVerification
                 AssertEqual(expected.GameState, metadata.GameState, "metadata state");
                 AssertEqual(expected.Phase, metadata.Phase, "metadata phase");
                 AssertEqual(expected.FrameNumber, metadata.FrameNumber, "metadata frame identity");
-                AssertEqual(tick + 1L, packet.Identity.Sequence, "host sequence is not cartridge frame");
-                AssertEqual(7L, packet.Identity.Generation, "host generation preserved");
-                AssertEqual(expected.FrameNumber, packet.Identity.SimulationFrame, "snapshot tracks completed simulation call");
+                AssertEqual(expected.FrameNumber, packet.FrameNumber, "snapshot carries the completed update's frame number");
                 actualPixels = DisplayRendering.Render(packet);
-                // Republish twice, as a paused host may attach/resize or load a new
-                // presentation generation. Neither operation may replay draw effects.
-                DisplayPacket retained = captured.GetRetainedDisplay(10000 + tick, 8);
-                DisplayPacket repeated = captured.GetRetainedDisplay(20000 + tick, 9);
-                AssertEqual(10000L + tick, retained.Identity.Sequence, "retained display gets host sequence");
-                AssertEqual(8L, retained.Identity.Generation, "retained display gets new generation");
-                AssertEqual(expected.FrameNumber, retained.Identity.SimulationFrame, "republish retains simulation identity");
+                // Republish twice, as a paused host may attach a presenter or resize it. Neither may replay draw effects.
+                DisplayPacket retained = captured.GetRetainedDisplay();
+                DisplayPacket repeated = captured.GetRetainedDisplay();
+                AssertEqual(expected.FrameNumber, retained.FrameNumber, "republish keeps the frame number");
                 AssertEqual(expected.FrameNumber, captured.FrameNumber, "republish does not step simulation");
-                AssertEqual(7L, packet.Identity.Generation, "republish does not mutate in-flight identity");
                 AssertTrue(actualPixels.SequenceEqual(RenderForComparison(retained)),
                     "republished display preserves exact pixels and outer fades");
                 AssertTrue(actualPixels.SequenceEqual(RenderForComparison(repeated)),

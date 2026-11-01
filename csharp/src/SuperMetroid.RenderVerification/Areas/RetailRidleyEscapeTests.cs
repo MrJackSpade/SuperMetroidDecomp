@@ -63,7 +63,8 @@ internal static class RetailRidleyEscapeTests
                     // (#1307), so the published frame, not the live getaway, decides whether this picture shows it.
                     if (frame.Latched.PerspectiveFloor is { Below: BelowPerspectiveFloor.Layer2 } && scene.Layers[0] is not TurningRoomLayer { Floor: not null })
                         throw new InvalidOperationException("Native Mode-7 escape omitted its preserved floor layer.");
-                    var packet = new DisplayPacket(new(++samples, 1, (ushort)tick), scene);
+                    samples++;
+                    var packet = new DisplayPacket((ushort)tick, scene);
                     PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                         $"{device.Kind}: Ridley native escape hits={hitThreshold}, tick={tick}, phase={ridley.Function}");
                 }

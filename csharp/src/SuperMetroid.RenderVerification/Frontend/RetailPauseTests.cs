@@ -24,10 +24,9 @@ internal static class RetailPauseTests
             Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0),
             MapPresentation = InstalledFixtures.Maps, SpriteSheets = InstalledFixtures.SpriteSheets,
         });
-        int samples = 0;
         void Compare(string page)
         {
-            var packet = new DisplayPacket(new(++samples, 1, 0), pause.CaptureRenderSnapshot());
+            var packet = new DisplayPacket(0, pause.CaptureRenderSnapshot());
             PixelComparison.Verify(packet, DisplayRendering.Render(packet), renderer.RenderForReadback(packet), $"{device.Kind}: pause {page}");
         }
         Compare("map");

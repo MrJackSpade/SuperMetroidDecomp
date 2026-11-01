@@ -56,7 +56,8 @@ internal static class XrayGameplayTests
                 BlendOperation.Add, ScrollBands.Uniform(0), ScrollBands.Uniform(0)) : null;
             var layer = new GameplayBlendLayer(new(registers, bg1), lines, reveal, new SceneBlend { Layers = controls, BlendsWithLayersBehind = true, FixedColor = new RgbColor(7, 7, 7) }, bg3);
             var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, 15);
-            var packet = new DisplayPacket(new(++count, 1, 0), scene);
+            count++;
+            var packet = new DisplayPacket(0, scene);
             var pixels = DisplayRendering.Render(scene);
             // Independent scalar expectations, not just parity between two implementations.
             RgbaPixel MathPixel(bool exempt)
@@ -99,7 +100,8 @@ internal static class XrayGameplayTests
                     Check(addPixels[64 * 256 + 64], yellow, "BG2 additive color contribution / black identity");
                     Check(addPixels[64 * 256 + 16], palette < 4 ? new(255, 0, 0) : yellow, "BG2 subscreen OBJ palette eligibility");
                     Check(addPixels[0], pixels[0], "BG2 subscreen preserves HUD");
-                    var addPacket = new DisplayPacket(new(++count, 1, 0), addScene);
+                    count++;
+                    var addPacket = new DisplayPacket(0, addScene);
                     PixelComparison.Verify(addPacket, addPixels, renderer.RenderForReadback(addPacket), "BG2 subscreen positive colors and black identity");
                 }
             }
@@ -116,7 +118,8 @@ internal static class XrayGameplayTests
                 Check(darkPixels[64 * 256 + 72], new(0, 0, 0, 255), "Fireflea backdrop subtraction");
                 Check(darkPixels[64 * 256 + 80], new(255, 0, 0, 255), "Fireflea foreground exemption");
                 Check(darkPixels[64 * 256 + 16], new(255, 0, 0, 255), "Fireflea OBJ exemption");
-                var darkPacket = new DisplayPacket(new(++count, 1, 0), darkScene);
+                count++;
+                var darkPacket = new DisplayPacket(0, darkScene);
                 PixelComparison.Verify(darkPacket, darkPixels, renderer.RenderForReadback(darkPacket), "normal Fireflea sources");
             }
         }
@@ -152,7 +155,8 @@ internal static class XrayGameplayTests
             byte obsel = (byte)random.Next(256);
             var memory = FramePaint.FromOam(bytes, colors, oam, 128, obsel);
             var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, (byte)(frame % 16));
-            var packet = new DisplayPacket(new(++count, 1, 0), scene);
+            count++;
+            var packet = new DisplayPacket(0, scene);
             var expected = DisplayRendering.Render(scene);
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: patterned X-ray {frame}");
         }
@@ -172,7 +176,8 @@ internal static class XrayGameplayTests
             var layer = new GameplayBlendLayer(gameplay, lines, true, new SceneBlend { Layers = (ColorBlend)random.Next(256), BlendsWithLayersBehind = false, FixedColor = new RgbColor((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)) }, null);
             var memory = FramePaint.FromOam(bytes, colors, oam, 128, 3);
             var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, 15);
-            var packet = new DisplayPacket(new(++count, 1, 0), scene);
+            count++;
+            var packet = new DisplayPacket(0, scene);
             PixelComparison.Verify(packet, DisplayRendering.Render(scene), renderer.RenderForReadback(packet),
                 $"{device.Kind}: X-ray reveal pictures {frame}");
         }

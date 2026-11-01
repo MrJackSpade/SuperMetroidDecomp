@@ -37,16 +37,16 @@ internal static class Mode7SmokeTests
         foreach (FloorOverflowMode overflow in Enum.GetValues<FloorOverflowMode>())
         {
             var registers = new AffineTransform(scale, 113, -113, scale, new Offset16<FloorPixels>(128, 112), new Offset16<FloorPixels>(offset, offset), overflow);
-            var frame = new DisplayPacket(new(++count, 1, 0),
+            var frame = new DisplayPacket(0,
                 new FloorScene(memory, registers, DisplayBrightness.Combine(13, 11), floor: map));
             Check(frame);
-            Check(new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
+            Check(new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { new SpritesLayer(), new TurningFloorLayer(registers, map),
                     new ScreenTintLayer(3, 7, 11) }, 15)));
-            Check(new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
+            Check(new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { new TurningFloorLayer(registers, map, AddsForeground: true) }, 15)));
         }
-        Check(new DisplayPacket(new(++count, 1, 0), new FloorScene(memory, null, 15)));
+        Check(new DisplayPacket(0, new FloorScene(memory, null, 15)));
         foreach (int hud in new[] { 0, 8, 32, 208 })
         foreach (int? floorStart in new int?[] { null, 208, 223 })
         foreach (short scale in new short[] { 256, -113, 511, 0 })
@@ -57,7 +57,7 @@ internal static class Mode7SmokeTests
             var layer = new TurningRoomLayer(
                 new(scale, 71, -71, scale, new(128, 112), new(-17, 211), FloorOverflowMode.Wrap),
                 map, hud, band);
-            Check(new DisplayPacket(new(++count, 1, 0),
+            Check(new DisplayPacket(0,
                 new LayeredScene(memory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, 13)));
         }
         // A Ceres room's floor with its floor animation frames drawn over it (#1467), and the fixture's floor, with outside
@@ -75,13 +75,16 @@ internal static class Mode7SmokeTests
             var layer = new TurningRoomLayer(
                 new(scale, 71, -71, scale, new(128, 112), new(-17, 211), fill ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
                 shown, hud, null);
-            Check(new DisplayPacket(new(++count, 1, 0),
+            Check(new DisplayPacket(0,
                 new LayeredScene(memory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, 13)));
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact Mode 7 comparisons passed.");
 
-        void Check(DisplayPacket frame) => PixelComparison.Verify(frame,
-            DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
-            $"{device.Kind}: Mode 7 sample {count}");
+        void Check(DisplayPacket frame)
+        {
+            count++;
+            PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
+                $"{device.Kind}: Mode 7 sample {count}");
+        }
     }
 }

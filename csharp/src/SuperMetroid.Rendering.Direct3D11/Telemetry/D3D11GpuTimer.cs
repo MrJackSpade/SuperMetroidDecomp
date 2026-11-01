@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Rendering.Direct3D11.Frames;
 using Vortice.Direct3D11;
 using SuperMetroid.Rendering.Direct3D11.Device;
 

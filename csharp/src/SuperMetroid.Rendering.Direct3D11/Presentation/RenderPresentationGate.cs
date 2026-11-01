@@ -1,5 +1,5 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Rendering.Direct3D11.Frames;
 
 namespace SuperMetroid.Rendering.Direct3D11.Presentation;
 

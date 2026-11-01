@@ -42,9 +42,9 @@ internal static class TitleSnapshotTestsVerification
                     RgbaPixel[] expected = scene.Render();
                     FloorScene packet = scene.CaptureRenderSnapshot();
                     Match(expected, DisplayRendering.Render(
-                        new DisplayPacket(new(frame + 1, 1, (ushort)frame), packet)), frame, phase);
-                    Match(expected, DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), packet)), frame, phase);
-                    Match(expected, DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), packet)), frame, phase);
+                        new DisplayPacket((ushort)frame, packet)), frame, phase);
+                    Match(expected, DisplayRendering.Render(new DisplayPacket(0, packet)), frame, phase);
+                    Match(expected, DisplayRendering.Render(new DisplayPacket(0, packet)), frame, phase);
                     FloorScene repeat = scene.CaptureRenderSnapshot();
                     AssertTrue(packet.Paint.SpriteParts().SequenceEqual(repeat.Paint.SpriteParts()), "repeat title OAM capture");
                     Match(control.Render(), expected, frame, phase);
@@ -54,7 +54,7 @@ internal static class TitleSnapshotTestsVerification
                     ControllerButton input = phase == TitleSequencePhase.TitleScreen ? ControllerButton.Start : 0;
                     scene.Step(input);
                     control.Step(input);
-                    Match(expected, DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), packet)), frame, phase);
+                    Match(expected, DisplayRendering.Render(new DisplayPacket(0, packet)), frame, phase);
                 }
                 else
                 {

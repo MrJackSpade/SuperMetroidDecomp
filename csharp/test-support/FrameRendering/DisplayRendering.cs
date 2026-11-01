@@ -14,17 +14,12 @@ internal static class DisplayRendering
 {
     /// <summary>This thread's renderer, or null before its first frame.</summary>
     [ThreadStatic] private static D3D11FrameRenderer? renderer;
-    /// <summary>The publication sequence this thread's next frame takes.</summary>
-    [ThreadStatic] private static long sequence;
 
     /// <summary>The pixels <paramref name="packet"/> shows, row by row from the top.</summary>
     internal static RgbaPixel[] Render(DisplayPacket packet) => Renderer().RenderForReadback(packet);
 
     /// <summary>The pixels a packet of <paramref name="scene"/> alone shows.</summary>
-    internal static RgbaPixel[] Render(LayeredScene scene) => Render(new DisplayPacket(NextFrame(), scene));
-
-    /// <summary>The identity of this thread's next frame.</summary>
-    internal static RenderFrameIdentity NextFrame() => new(++sequence, 1, 0);
+    internal static RgbaPixel[] Render(LayeredScene scene) => Render(new DisplayPacket(0, scene));
 
     /// <summary>This thread's renderer, made with its WARP device on first use.</summary>
     private static D3D11FrameRenderer Renderer() => renderer ??= new D3D11FrameRenderer(new D3D11RenderDevice(D3D11DeviceKind.Warp));

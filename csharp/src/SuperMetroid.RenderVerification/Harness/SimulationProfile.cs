@@ -47,13 +47,12 @@ internal static class SimulationProfile
             new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true, SamusCannotDie = true });
         game.BindAudio(DesktopAccess.LoadAudioClips());
         var pcm = new short[AudioSession.PcmSamplesPerFrame];
-        long sequence = 0;
         long nonzeroPcmSamples = 0;
         SimulationStepCost Step(ControllerButton input)
         {
             long allocationStart = GC.GetAllocatedBytesForCurrentThread();
             long start = Stopwatch.GetTimestamp();
-            game.StepCaptured(input, ++sequence, 1);
+            game.StepCaptured(input);
             long captured = Stopwatch.GetTimestamp();
             game.CopyAudioFrame(pcm);
             long end = Stopwatch.GetTimestamp();

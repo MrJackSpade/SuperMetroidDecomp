@@ -48,7 +48,7 @@ internal static class PauseHudLocationVerification
             game.GameState = SuperMetroidGameState.PausedB;
             for (int frame = 0; frame < 24; frame++)
             {
-                game.StepCaptured(0, frame + 1, 1);
+                game.StepCaptured(0);
                 AssertEqual(center, pause.screen.Bg3Tiles[centerWord].PackedWord, $"phase {phase} frame {frame} retained HUD position tile");
                 for (int color = 0; color < centerColors.Length; color++)
                     AssertEqual(centerColors[color], pause.screen.Palette.Colors[inks + 1 + color], $"phase {phase} frame {frame} HUD position ink {color + 1}");

@@ -20,7 +20,7 @@ internal static class AutonomousPerformanceStateFixture
         for (int frame = 1; frame <= targetFrame; frame++)
         {
             data.Record(0);
-            var result = data.Game.StepCaptured(0, frame, data.Generation);
+            var result = data.Game.StepCaptured(0);
             // Rendering observes immutable packets and is not needed to advance earlier frames.
             if (frame != targetFrame) continue;
             var packet = result.Snapshot;

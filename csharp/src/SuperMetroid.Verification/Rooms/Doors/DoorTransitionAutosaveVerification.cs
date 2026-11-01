@@ -54,7 +54,7 @@ internal static class DoorTransitionAutosaveVerification
             game.AdoptRuntime(runtime);
             // A host persists save RAM through an object that owns native handles, as the desktop window does (#1424).
             using var saveRamHost = new NativeHandleSaveRamHost();
-            game.SaveRamChanged += saveRamHost.Persist;
+            game.SavesChanged += saveRamHost.Persist;
             var assets = RepositoryInstallation.Installation.LoadAudioClips();
             game.BindAudio(assets);
             var identity = GameContentIdentity.Create(new string('A', 64), new string('B', 64), new string('C', 64),

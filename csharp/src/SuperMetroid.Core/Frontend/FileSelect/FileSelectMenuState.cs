@@ -106,7 +106,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     public bool TitleRequested { get; private set; }
 
     /// <summary>True only on the frame in which Copy or Clear changed the saves.</summary>
-    public bool SaveRamChangedThisFrame { get; private set; }
+    public bool SavesChangedThisFrame { get; private set; }
 
     /// <summary>
     /// True when the next update continues a step that waits out a frame of the display
@@ -117,7 +117,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Advances one menu frame from a raw controller word.</summary>
     public void Step(ControllerButton controllerInput)
     {
-        SaveRamChangedThisFrame = false;
+        SavesChangedThisFrame = false;
         controller.Latch(controllerInput);
         ControllerButton pressed = controller.NewlyPressed;
 
@@ -590,7 +590,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             BuildClearCompletedTilemap();
             Phase = FileSelectPhase.ClearCompleted;
         }
-        SaveRamChangedThisFrame = true;
+        SavesChangedThisFrame = true;
     }
 
     /// <summary>Restores the prior source or destination selection page after B or No.</summary>

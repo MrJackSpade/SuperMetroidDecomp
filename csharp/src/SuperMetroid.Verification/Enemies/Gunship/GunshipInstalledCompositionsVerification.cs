@@ -99,28 +99,27 @@ internal static class GunshipInstalledCompositionsVerification
             RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
             RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
         });
-        long sequence = 0;
         SetState(game, SuperMetroidGameState.SetUpNewGame);
-        game.StepCaptured(0, ++sequence, 1);
+        game.StepCaptured(0);
         // Finish the new game's native loading waits; left pending, the Zebes landing load would resume them instead.
         while (game.Session.ResumesGameLoadingWait)
-            game.StepCaptured(0, ++sequence, 1);
+            game.StepCaptured(0);
         game.GameplayRuntimeForVerification.System.SetBossBits(AreaId.Ceres, BossBits.AreaBoss);
         game.GameplayRuntimeForVerification.System.LoadSavedLoadingGameState(SaveLoadingGameStateCodec.Word(SaveLoadingGameState.CeresDestruction));
         SetState(game, SuperMetroidGameState.CeresGoesBoom);
-        game.StepCaptured(0, ++sequence, 1);
+        game.StepCaptured(0);
         var scene = game.Session.ScreenAs<CeresDestructionCinematicState>();
         (scene ?? throw new InvalidOperationException("Verification requires scene.")).Phase = CeresDestructionPhase.Finished;
-        game.StepCaptured(0, ++sequence, 1);
-        game.StepCaptured(0, ++sequence, 1);
+        game.StepCaptured(0);
+        game.StepCaptured(0);
         AssertEqual(AreaId.Crateria, game.GameplayRuntimeForVerification.Room.LoadedRoom.AreaIndex,
             "#1154 fixture reaches the reported Landing Site through the existing loader");
         // The landing's native loading waits publish black; only the subsequent
         // gameplay fade owns the gunship OAM draw that failed in the player report.
-        while (game.Session.ResumesGameLoadingWait) game.StepCaptured(0, ++sequence, 1);
+        while (game.Session.ResumesGameLoadingWait) game.StepCaptured(0);
         AssertEqual(SuperMetroidGameState.MainGameplayFadeIn, game.GameState,
             "#1154 fixture reaches the reported first fade-in frame");
-        game.StepCaptured(0, ++sequence, 1);
+        game.StepCaptured(0);
         Console.WriteLine("#1154: reported first Landing Site fade-in draw completes with installed enemy compositions (RAM-only gameplay).");
     }
 

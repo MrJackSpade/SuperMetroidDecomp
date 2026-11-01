@@ -87,7 +87,7 @@ internal static class InstalledPowerBombIsolationTests
                         if (second is not null)
                         {
                             var memoryImage = FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []);
-                            var packet = new DisplayPacket(new(framesToRender.Count + 1, 1, 0),
+                            var packet = new DisplayPacket(0,
                                 new LayeredScene(memoryImage, new DisplayLayer[] { second }, 15));
                             framesToRender.Add(new ContextFrame(packet, context));
                             // With a black backdrop this center pixel must be exactly the

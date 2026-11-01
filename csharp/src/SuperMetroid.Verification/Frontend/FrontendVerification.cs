@@ -224,7 +224,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
         "copy chooses distinct destination slot");
     copyMenu.Step(0);
     copyMenu.Step(ControllerButton.A);
-    AssertTrue(copyMenu.SaveRamChangedThisFrame, "copy publishes SRAM mutation frame");
+    AssertTrue(copyMenu.SavesChangedThisFrame, "copy reports the frame it changed the saves");
     AssertEqual(FileSelectPhase.CopyCompleted, copyMenu.Phase, "copy reaches completion screen");
     SuperMetroidSaveSlot copied = saveRam.ReadSlot(1)
         ?? throw new InvalidOperationException("File-select COPY did not create slot B.");
@@ -246,7 +246,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
         "clear chooses first nonempty slot");
     clearMenu.Step(0);
     clearMenu.Step(ControllerButton.A);
-    AssertTrue(clearMenu.SaveRamChangedThisFrame, "clear publishes SRAM mutation frame");
+    AssertTrue(clearMenu.SavesChangedThisFrame, "clear reports the frame it changed the saves");
     AssertEqual(FileSelectPhase.ClearCompleted, clearMenu.Phase,
         "clear reaches DATA CLEARED screen");
     AssertTrue(saveRam.ReadSlot(0) is null, "file-select CLEAR invalidates slot A checksums");

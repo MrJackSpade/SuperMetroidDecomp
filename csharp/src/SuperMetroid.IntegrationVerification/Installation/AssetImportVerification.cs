@@ -76,7 +76,7 @@ try
             Check(!MetadataShape.DeclaresProperty(romFreeSession.Bus.GetType(), "Rom"),
                 "an installed session boots from extracted assets with no ROM copy");
             for (int frame = 0; frame < 90; frame++)
-                romFreeSession.Game.StepCaptured(0, frame + 1, romFreeSession.Generation);
+                romFreeSession.Game.StepCaptured(0);
             string saved = romFreeSession.SaveSlot(0);
             Check(saved.Contains("slot 0", StringComparison.OrdinalIgnoreCase) &&
                 !MetadataShape.DeclaresProperty(romFreeSession.Bus.GetType(), "Rom"),
@@ -184,7 +184,7 @@ try
     using (var session = new SuperMetroid.Diagnostics.Sessions.InstalledGameSession(root))
     {
         for (int frame = 0; frame < 90; frame++)
-            session.Game.StepCaptured(0, frame + 1, session.Generation);
+            session.Game.StepCaptured(0);
         Check(!MetadataShape.DeclaresProperty(session.Bus.GetType(), "Rom"),
             "an installed session boots from extracted content without retaining cartridge bytes");
     }

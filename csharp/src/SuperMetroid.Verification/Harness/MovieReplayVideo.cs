@@ -46,7 +46,8 @@ internal sealed class MovieReplayVideo : IDisposable
     /// <summary>Runs one production update and appends its picture and sound.</summary>
     internal FrontendFrame Step(SuperMetroidGame game, ControllerButton input)
     {
-        CapturedFrontendFrame captured = game.StepCaptured(input, ++sequence, 1);
+        sequence++;
+        CapturedFrontendFrame captured = game.StepCaptured(input);
         DisplayPacket snapshot = captured.Snapshot;
         RgbaPixel[] pixels = DisplayRendering.Render(snapshot);
         if (encoder is null)

@@ -34,7 +34,8 @@ internal static class Mode7GameplaySnapshotTestsVerification
             // The floor band below shows the room's layer-2 plane (#1403); the retail Ridley capture below draws it.
             var m = new AffineTransform(matrix, 17, -33, matrix, new Offset16<FloorPixels>(128, 96), new Offset16<FloorPixels>(-13, unchecked((short)scroll)));
             var layer = new TurningRoomLayer(m, AffineFloorFixtures.Floor(fixtureVram.Bytes, ToColors(palette)), ScreenGeometry.GameplayHudHeightPixels);
-            var packet = new DisplayPacket(new(++samples, 1, 0), new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
+            samples++;
+            var packet = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
             AssertEqual(layer, (TurningRoomLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0], "the Mode-7 band layer keeps all register fields");
             if (samples == 1)
             {
@@ -58,7 +59,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RgbaPixel[] retail = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
-        var retained = new DisplayPacket(new(100, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
+        var retained = new DisplayPacket(0, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");
         getaway.GetawayActive = false; getaway.FloorMatrixA = default;
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);

@@ -40,7 +40,8 @@ internal static class SaveLoadRandomAudit
             void Step(ControllerButton input)
             {
                 if (!game.NextUpdateResumesFrameWait) dispatches++;
-                game.StepCaptured(input, ++sequence, 1);
+                sequence++;
+                game.StepCaptured(input);
             }
             for (int tick = 0; tick < 2000 && game.RuntimeForVerification is null; tick++)
             {
@@ -96,7 +97,8 @@ internal static class SaveLoadRandomAudit
             {
                 // The map's final dispatch resumes after its forced-blank NMI wait without a main-loop call.
                 bool resumesFrameWait = game.NextUpdateResumesFrameWait;
-                game.StepCaptured(tick % 47 == 0 ? ControllerButton.Start : 0, ++sequence, 1);
+                sequence++;
+                game.StepCaptured(tick % 47 == 0 ? ControllerButton.Start : 0);
                 if (!resumesFrameWait)
                     expected.NextRandom();
                 if (game.DispatcherRandomNumber != expected.RandomNumber)
@@ -106,7 +108,8 @@ internal static class SaveLoadRandomAudit
                 throw new InvalidDataException("Continue-menu audit did not replace the loaded runtime.");
             Console.WriteLine($"CONTINUE RNG wait={wait} rng={expected.RandomNumber}");
             game.GameState = SuperMetroidGameState.Reset;
-            game.StepCaptured(0, ++sequence, 1);
+            sequence++;
+            game.StepCaptured(0);
             if (game.DispatcherRandomNumber != 758)
                 throw new InvalidDataException("A true reset must reseed before the state-zero main-loop advance.");
         }

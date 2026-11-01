@@ -67,12 +67,12 @@ internal static class StartupReferenceTests
                 if (differences < closestDifference)
                 {
                     closestDifference = differences;
-                    closestPacket = new DisplayPacket(new(tick + 1, 1, (ushort)tick), title.CaptureRenderSnapshot());
+                    closestPacket = new DisplayPacket((ushort)tick, title.CaptureRenderSnapshot());
                 }
             }
             if (digest == referenceDigest)
             {
-                var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), title.CaptureRenderSnapshot());
+                var packet = new DisplayPacket((ushort)tick, title.CaptureRenderSnapshot());
                 PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet),
                     $"{device.Kind}: independent Snes9x {scene} reference at managed tick {tick}");
                 Console.WriteLine($"{device.Kind}: native Snes9x {scene} RGBA reference matches managed/GPU at tick {tick}, phase {title.Phase}.");
@@ -82,7 +82,7 @@ internal static class StartupReferenceTests
         }
         if (closestPacket is not null && nativePixels is not null)
         {
-            Console.WriteLine($"Closest {scene}: managed tick {closestPacket.Identity.SimulationFrame}, {closestDifference} different pixels.");
+            Console.WriteLine($"Closest {scene}: managed tick {closestPacket.FrameNumber}, {closestDifference} different pixels.");
             var gpu = renderer.RenderForReadback(closestPacket);
             PixelComparison.Verify(closestPacket, DisplayRendering.Render(closestPacket), gpu, "closest native candidate GPU/WARP parity");
             PixelComparison.Verify(closestPacket, nativePixels, gpu, $"independent {scene}, closest candidate (not timing alignment proof)");

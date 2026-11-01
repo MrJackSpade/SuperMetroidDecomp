@@ -31,7 +31,7 @@ internal static class RetailAttractTests
             {
                 ControllerButton input = cancel && legacy.AttractDemoHoldFramesRemaining == 80 ? ControllerButton.Start : ControllerButton.None;
                 var expected = legacy.Step(input);
-                var actual = captured.StepCaptured(input, tick + 1, 1);
+                var actual = captured.StepCaptured(input);
                 states.Add(expected.GameState);
                 if (expected.GameState != actual.Frame.GameState ||
                     expected.Phase != actual.Frame.Phase || !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))

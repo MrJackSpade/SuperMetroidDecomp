@@ -24,7 +24,7 @@ internal static class DisplayPassTests
         random.NextBytes(vram);
         RgbColor[] palette = Enumerable.Range(0, SnesCgram.ColorCount)
             .Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
-        var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(FramePaint.FromNative(palette, []),
+        var packet = new DisplayPacket(0, new LayeredScene(FramePaint.FromNative(palette, []),
             [new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
                 new Position16<TilePlanePixels>(3, 11), null)], 15));
         var native = DisplayRendering.Render(packet);
@@ -38,7 +38,7 @@ internal static class DisplayPassTests
             using var view = device.Device.CreateRenderTargetView(target);
             using var staging = device.Device.CreateTexture2D(new Texture2DDescription(Format.B8G8R8A8_UNorm,
                 (uint)width, (uint)height, 1, 1, BindFlags.None, ResourceUsage.Staging, CpuAccessFlags.Read));
-            if (!timer.TryBegin(packet.Identity)) throw new InvalidOperationException("Display timing ring unexpectedly full.");
+            if (!timer.TryBegin(new(1, 1))) throw new InvalidOperationException("Display timing ring unexpectedly full.");
             renderer.Render(packet);
             timer.MarkCompositionFinished();
             renderer.DrawDisplay(view, new Extent16<DisplayPixels>((ushort)width, (ushort)height));

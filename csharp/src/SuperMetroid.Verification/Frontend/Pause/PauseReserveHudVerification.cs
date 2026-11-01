@@ -53,8 +53,7 @@ internal static class PauseReserveHudVerification
         ushort originalAuto = Shown(8);
         ushort[] initialHud = BackgroundTileWordBytes.Words(pause.screen.Bg3Tiles.AsSpan(Layer3Plane.Columns, HudStateConstants.MutableTileCount));
         ushort[] initialFx = BackgroundTileWordBytes.Words(pause.screen.Bg3Tiles.AsSpan(Layer3PlaneConstants.HudRows * Layer3Plane.Columns, PauseClearedEffectWords));
-        long sequence = 0;
-        void Step(ControllerButton input = ControllerButton.None) => game.StepCaptured(input, ++sequence, 1);
+        void Step(ControllerButton input = ControllerButton.None) => game.StepCaptured(input);
         Step(ControllerButton.A);
         AssertEqual(ReserveTankMode.Manual, samus.ReserveTankMode, "paused A switches to manual");
         AssertEqual(originalAuto, Shown(8), "AUTO remains until next accepted NMI");

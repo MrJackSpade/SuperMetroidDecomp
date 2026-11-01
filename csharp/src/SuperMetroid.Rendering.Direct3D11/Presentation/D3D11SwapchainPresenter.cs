@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Spatial;
 using Microsoft.Win32.SafeHandles;
-using SuperMetroid.Core.Rendering;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
 using SuperMetroid.Rendering.Direct3D11.Device;
@@ -61,19 +60,19 @@ public sealed class D3D11SwapchainPresenter : IDisposable
     public bool TryAcquireFrameOpportunity() { Verify(); return latency.WaitOne(0); }
 
     /// <summary>Draws the submitted display and presents only if the frame still belongs to the current generation.</summary>
-    internal D3D11PresentationResult Present(D3D11FrameRenderer renderer, RenderFrameIdentity identity,
+    internal D3D11PresentationResult Present(D3D11FrameRenderer renderer, RenderFrame frame,
         RenderPresentationGate gate, D3D11GpuTimer? timer)
     {
         Verify();
         if (!ReferenceEquals(renderer.DeviceOwner, owner)) throw new InvalidOperationException("Renderer and swapchain must share a device owner.");
         if (target is null) throw new InvalidOperationException("Swapchain target is unavailable after failed resize.");
-        if (renderer.SubmittedIdentity != identity) throw new InvalidOperationException("Presentation identity does not match the rendered frame.");
+        if (!ReferenceEquals(renderer.SubmittedDisplay, frame.Display)) throw new InvalidOperationException("Presentation frame does not match the rendered frame.");
         renderer.DrawDisplay(target, size);
         // Finish GPU timing after display commands, before the CPU's blocking Present.
         // This remains one timestamp-disjoint interval for the whole rendered frame.
         timer?.End();
         D3D11PresentationResult outcome = D3D11PresentationResult.StaleGeneration;
-        gate.TryPresent(identity, () =>
+        gate.TryPresent(frame.Identity, () =>
         {
             var result = swapchain.Present(1, PresentFlags.None);
             result.CheckError();

@@ -131,7 +131,8 @@ internal static class Program
                     long sequence = 0;
                     MinimapBlinkAudit.Run(runtime =>
                     {
-                        var packet = new DisplayPacket(new(++sequence, 1, runtime.Clock.Counter),
+                        sequence++;
+                        var packet = new DisplayPacket(runtime.Clock.Counter,
                             GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                         var pixels = renderer.RenderForReadback(packet);
                         PixelComparison.Verify(packet, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()), pixels,
@@ -206,7 +207,8 @@ internal static class Program
                 foreach (byte alpha in new byte[] { 0, 1, 128, 255 })
                 for (byte brightness = 0; brightness <= 15; brightness++)
                 {
-                    var frame = new DisplayPacket(new(++samples, 1, 0), new RgbaPixel(231, 123, 47, alpha), DisplayBrightness.Combine(brightness, 11));
+                    samples++;
+                    var frame = new DisplayPacket(0, new RgbaPixel(231, 123, 47, alpha), DisplayBrightness.Combine(brightness, 11));
                     RgbaPixel[] expected = DisplayRendering.Render(frame);
                     RgbaPixel[] actual = renderer.RenderForReadback(frame);
                     PixelComparison.Verify(frame, expected, actual, $"{kind}: solid compute sample {samples}");

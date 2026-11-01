@@ -32,7 +32,8 @@ internal static class RetailTransitionTests
                 var scene = destruction.CaptureRenderSnapshot();
                 mode1 |= scene.Layers.Any(layer => layer is PicturedPlaneLayer);
                 mode7 |= scene.Layers.Any(layer => layer is TurningFloorLayer);
-                var packet = new DisplayPacket(new(++cinematicCount, 1, (ushort)tick), scene);
+                cinematicCount++;
+                var packet = new DisplayPacket((ushort)tick, scene);
                 Check(packet, expected, $"Ceres/Zebes {destruction.Phase}, tick {tick}");
                 destruction.Step();
                 Check(packet, expected, $"retained Ceres/Zebes tick {tick}");
@@ -49,7 +50,8 @@ internal static class RetailTransitionTests
             for (int tick = 0; tick < 300 && !menu.ContinueRequested && !menu.TitleRequested; tick++)
             {
                 var expected = menu.Render();
-                var packet = new DisplayPacket(new(++menuCount, 2, (ushort)tick), menu.CaptureRenderSnapshot());
+                menuCount++;
+                var packet = new DisplayPacket((ushort)tick, menu.CaptureRenderSnapshot());
                 Check(packet, expected, $"game-over {menu.Phase}, no={chooseNo}, tick {tick}");
                 ControllerButton input = 0;
                 if (menu.Phase == GameOverMenuPhase.Main)

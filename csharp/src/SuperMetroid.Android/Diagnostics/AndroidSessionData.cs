@@ -92,8 +92,6 @@ internal sealed class AndroidSessionData : IDisposable
     public SuperMetroidGame Game { get; private set; }
     /// <summary>Fingerprint of installed audio, maps, projectiles, and artwork.</summary>
     public SuperMetroid.AssetExtraction.Installation.GameContentIdentity ContentIdentity { get; }
-    /// <summary>Capture generation incremented whenever the live game graph is replaced.</summary>
-    public long Generation { get; private set; } = 1;
 
     /// <summary>Appends one consumed controller word to the active session recording.</summary>
     public void Record(ControllerButton input) => recorder.RecordFrame(input);
@@ -132,11 +130,10 @@ internal sealed class AndroidSessionData : IDisposable
         // All decoding/validation happens before replacing the live game, including the
         // audio binding, which rejects a state whose session never bound clips. Retain the
         // precise seed before future saves can overwrite this user-visible slot.
-        GameSessionComposer.Restore(loaded.Game, content, saveFile);
+        loaded.BindGame(content, saveFile);
         recorder.Dispose();
         Bus = loaded.AddressSpace;
         Game = loaded.Game;
-        Generation++;
         recorder = StartRecorder();
         string seed = Path.ChangeExtension(recorder.Path, ".seed.smstate");
         File.Copy(states.GetSlotPath(slot), seed, overwrite: false);

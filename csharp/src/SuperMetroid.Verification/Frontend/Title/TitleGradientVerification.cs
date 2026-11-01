@@ -476,7 +476,7 @@ internal static class TitleGradientVerification
     {
         FloorScene scene = capture.Scene;
         ScreenGradient gradient = capture.Gradient;
-        RgbaPixel[] Draw(ScreenGradient? shown) => DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(),
+        RgbaPixel[] Draw(ScreenGradient? shown) => DisplayRendering.Render(new DisplayPacket(0,
             new FloorScene(scene.Paint, scene.Background, DisplayBrightness.Full, shown is null ? null : new ScreenGradientLayer(shown), scene.Floor)));
         ImmutableArray<GradientStop> everyLine = [.. Enumerable.Range(gradient.Top, gradient.Bottom - gradient.Top)
             .Select(line => StopCovering(gradient, line) with { Line = line })];

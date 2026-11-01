@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
@@ -18,7 +17,7 @@ public sealed class LatestRenderFrameMailbox
     /// <summary>Serializes ownership transfer and generation changes without holding the lock during rendering.</summary>
     internal readonly Lock sync = new();
     /// <summary>At most one unpublished immutable visual packet; a newer publish replaces it.</summary>
-    internal DisplayPacket? Pending { get; private set; }
+    internal RenderFrame? Pending { get; private set; }
     /// <summary>Current simulation load/reset identity accepted for publication.</summary>
     internal long Generation { get; private set; }
     /// <summary>Highest published sequence, retained across generations to reject rewinds.</summary>
@@ -45,7 +44,7 @@ public sealed class LatestRenderFrameMailbox
     /// Publishes a complete packet from the simulation owner. Sequence may skip but
     /// never rewind, even across generations; malformed publication is a loud error.
     /// </summary>
-    public void Publish(DisplayPacket frame)
+    public void Publish(RenderFrame frame)
     {
         Ensure.NotNull(frame);
         lock (sync)
@@ -62,11 +61,11 @@ public sealed class LatestRenderFrameMailbox
     }
 
     /// <summary>Returns the newest complete frame once, without waiting for a producer.</summary>
-    public DisplayPacket? TakeLatest()
+    public RenderFrame? TakeLatest()
     {
         lock (sync)
         {
-            DisplayPacket? frame = Pending;
+            RenderFrame? frame = Pending;
             Pending = null;
             if (frame is not null) Taken++;
             return frame;
@@ -94,7 +93,7 @@ public sealed class LatestRenderFrameMailbox
     /// presenter must coordinate its final submission with reset/resize lifecycle;
     /// this observation alone is not an atomic check-and-Present operation.
     /// </summary>
-    public bool IsCurrent(DisplayPacket frame)
+    public bool IsCurrent(RenderFrame frame)
     {
         Ensure.NotNull(frame);
         lock (sync) return frame.Identity.Generation == Generation;

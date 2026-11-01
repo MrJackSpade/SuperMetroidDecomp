@@ -116,15 +116,17 @@ public static class GitHubErrorReporterSmokeTest
         samus.LiquidPhysics.LavaAcidYPosition = 100;
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
-        string before = game.CaptureGameplayFailureContext();
+        GameplaySnapshot beforeSnapshot = game.CaptureGameplaySnapshot();
+        string before = GameplayFrameFailureDiagnostics.Describe(beforeSnapshot);
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 18, 1);
-        string after = game.CaptureGameplayFailureContext();
+        GameplaySnapshot afterSnapshot = game.CaptureGameplaySnapshot();
+        string after = GameplayFrameFailureDiagnostics.Describe(afterSnapshot);
         Require(before.Contains("animationFrame=8;") && !before.Contains("animationFrame=18;"),
             "Before-frame snapshot changed with mutable Samus state.");
         Require(after.Contains("animationFrame=18;") && after.Contains("animationTimer=1;") &&
             after.Contains("drainedHandler=UnableToStand;") && after.Contains("pose=$09;") && after.Contains("fx=Acid;"),
             "Failed-frame snapshot omitted the reported invalid animation and its installed handler.");
-        string diagnostics = GameplayFrameFailureDiagnostics.Format(before, after, ControllerButton.Up | ControllerButton.A, "fixture.smrec", 70000);
+        string diagnostics = GameplayFrameFailureDiagnostics.Format(beforeSnapshot, afterSnapshot, ControllerButton.Up | ControllerButton.A, "fixture.smrec", 70000);
         Require(diagnostics.Contains("Build:") && diagnostics.Contains("Core build ID:") &&
             diagnostics.Contains("Host build ID:") && diagnostics.Contains("Attempted input: $0880") &&
             diagnostics.Contains("zero-based): 70000") && diagnostics.Contains("fixture.smrec") &&

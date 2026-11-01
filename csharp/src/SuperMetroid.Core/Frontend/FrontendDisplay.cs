@@ -13,19 +13,19 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// The frontend's published display: one immutable frame at a time, under the host's identity while it captures and
-/// the display's own otherwise. Each scene publishes its composed frame through here once per update; the session may
-/// then set the screen's brightness, which dims that frame until the next scene publishes, and pixels are drawn from
-/// the published frame on demand.
+/// The frontend's published display: one immutable frame at a time, stamped with the number of the update that
+/// published it. Each scene publishes its composed frame through here once per update; the session may then set the
+/// screen's brightness, which dims that frame until the next scene publishes, and pixels are drawn from the published
+/// frame on demand.
 /// </summary>
 internal sealed class FrontendDisplay
 {
     /// <summary>How gameplay updates become the published display.</summary>
     private readonly IGameplayFramePublication gameplayFrames;
-    /// <summary>The host's identity for the frame being captured; null outside a host capture.</summary>
-    private RenderFrameIdentity? captureIdentity;
-    /// <summary>Sequence of frames published outside a host capture.</summary>
-    private long uncapturedSequence;
+    /// <summary>The number of the update now running, which every frame it publishes carries.</summary>
+    private int frameNumber;
+    /// <summary>Whether an update's frame is being captured for the host.</summary>
+    private bool capturing;
     /// <summary>The frame as its scene composed it, at the scene's own brightness; black until a scene publishes.</summary>
     private DisplayPacket composedDisplay;
     /// <summary>The screen brightness the session set on <see cref="composedDisplay"/>, or null while it has set none.</summary>
@@ -38,70 +38,70 @@ internal sealed class FrontendDisplay
     internal FrontendDisplay(IGameplayFramePublication gameplayFrames)
     {
         this.gameplayFrames = Ensure.NotNull(gameplayFrames);
-        composedDisplay = publishedDisplay = new(NextIdentity(), Black);
+        composedDisplay = publishedDisplay = new(frameNumber, Black);
     }
 
     /// <summary>The solid color a blank frame shows.</summary>
     private static RgbaPixel Black => new(0, 0, 0, 255);
 
-    /// <summary>The identity to publish under: the host's while it captures, otherwise the next own sequence number.</summary>
-    private RenderFrameIdentity NextIdentity() => captureIdentity ?? new(++uncapturedSequence, 1, 0);
+    /// <summary>Starts an update: every frame published until the next one carries <paramref name="number"/>.</summary>
+    /// <param name="number">The number of the update now running.</param>
+    internal void BeginUpdate(int number) => frameNumber = number;
 
-    /// <summary>Republishes the last frame under a new identity without recapturing.</summary>
-    /// <param name="identity">The new identity.</param>
-    internal DisplayPacket Retained(RenderFrameIdentity identity)
+    /// <summary>The last published frame, without recapturing a scene.</summary>
+    internal DisplayPacket Retained()
     {
-        if (captureIdentity is not null) throw new InvalidOperationException("Cannot republish during display capture.");
-        return Shown(identity);
+        if (capturing) throw new InvalidOperationException("Cannot republish during display capture.");
+        return Shown(frameNumber);
     }
 
-    /// <summary>Starts capturing the frame published under <paramref name="identity"/>.</summary>
-    internal void BeginCapture(RenderFrameIdentity identity)
+    /// <summary>Starts capturing the frame the next update publishes.</summary>
+    internal void BeginCapture()
     {
-        if (captureIdentity is not null) throw new InvalidOperationException("Reentrant display capture.");
-        captureIdentity = identity;
+        if (capturing) throw new InvalidOperationException("Reentrant display capture.");
+        capturing = true;
     }
 
     /// <summary>
-    /// The captured display for this publication. A dispatcher state may deliberately retain its prior display;
-    /// that immutable content takes this publication's identity without recapturing a scene that has already
-    /// advanced into the next state.
+    /// The captured display for this update. A dispatcher state may deliberately retain its prior display; that
+    /// immutable content takes this update's frame number without recapturing a scene that has already advanced into
+    /// the next state.
     /// </summary>
-    internal DisplayPacket CompleteCapture(RenderFrameIdentity identity)
+    internal DisplayPacket CompleteCapture()
     {
-        publishedDisplay = Shown(identity);
+        publishedDisplay = Shown(frameNumber);
         return publishedDisplay;
     }
 
     /// <summary>Ends a capture, whether or not the frame completed.</summary>
-    internal void EndCapture() => captureIdentity = null;
+    internal void EndCapture() => capturing = false;
 
     /// <summary>Publishes the title scene's composed frame.</summary>
-    internal void PublishMenu(TitleSequenceState scene) => Compose(new(NextIdentity(), scene.CaptureRenderSnapshot()));
+    internal void PublishMenu(TitleSequenceState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()));
 
     /// <summary>Publishes the file-select menu's composed frame.</summary>
-    internal void PublishMenu(FileSelectMenuState scene) => Compose(new(NextIdentity(), scene.CaptureRenderSnapshot()));
+    internal void PublishMenu(FileSelectMenuState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()));
 
     /// <summary>Publishes the game options menu's composed frame.</summary>
-    internal void PublishMenu(GameOptionsMenuState scene) => Compose(new(NextIdentity(), scene.CaptureRenderSnapshot()));
+    internal void PublishMenu(GameOptionsMenuState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()));
 
     /// <summary>Publishes the paused room and menu composition without advancing the scene.</summary>
-    internal void PublishMenu(PauseMenuState scene) => Compose(new(NextIdentity(), scene.CaptureRenderSnapshot()));
+    internal void PublishMenu(PauseMenuState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()));
 
     /// <summary>Publishes the current game-over menu composition.</summary>
-    internal void PublishMenu(GameOverMenuState scene) => Compose(new(NextIdentity(), scene.CaptureRenderSnapshot()));
+    internal void PublishMenu(GameOverMenuState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()));
 
     /// <summary>Publishes the Ceres destruction cinematic's composed frame.</summary>
-    internal void PublishCeresDestruction(CeresDestructionCinematicState scene) => Compose(new(NextIdentity(), scene.CaptureRenderSnapshot()));
+    internal void PublishCeresDestruction(CeresDestructionCinematicState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()));
 
     /// <summary>Publishes the ending credits presentation owned by the active scene.</summary>
-    internal void PublishEnding(EndingCreditsState scene) => Compose(new(NextIdentity(), EndingCreditsPresentation.CaptureRenderSnapshot(scene)));
+    internal void PublishEnding(EndingCreditsState scene) => Compose(new(frameNumber, EndingCreditsPresentation.CaptureRenderSnapshot(scene)));
 
     /// <summary>Publishes the file-select map after its selection and animation state updates.</summary>
-    internal void PublishFileMap(FileSelectMapMenuState scene) => Compose(new(NextIdentity(), scene.CaptureRenderSnapshot()));
+    internal void PublishFileMap(FileSelectMapMenuState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()));
 
     /// <summary>Publishes the intro cinematic's composed frame, which every intro update must provide.</summary>
-    internal void PublishIntro(IntroCinematicState scene) => Compose(new(NextIdentity(), scene.CaptureTranslatedRenderSnapshot()
+    internal void PublishIntro(IntroCinematicState scene) => Compose(new(frameNumber, scene.CaptureTranslatedRenderSnapshot()
         ?? throw new InvalidOperationException("Intro publication omitted its render snapshot.")));
 
     /// <summary>
@@ -110,12 +110,12 @@ internal sealed class FrontendDisplay
     /// </summary>
     internal void PublishGameplay(SuperMetroidRuntime activeRuntime)
     {
-        DisplayPacket next = gameplayFrames.Publish(activeRuntime, composedDisplay, NextIdentity);
+        DisplayPacket next = gameplayFrames.Publish(activeRuntime, composedDisplay, frameNumber);
         if (!ReferenceEquals(next, composedDisplay)) Compose(next);
     }
 
-    /// <summary>Replaces the published scene with opaque black under the current capture identity.</summary>
-    internal void PublishBlack() => Compose(new(NextIdentity(), Black));
+    /// <summary>Replaces the published scene with opaque black.</summary>
+    internal void PublishBlack() => Compose(new(frameNumber, Black));
 
     /// <summary>
     /// Sets the screen's brightness for the published frame, replacing any level set on it before. The frame is shown at
@@ -127,7 +127,7 @@ internal sealed class FrontendDisplay
     internal void SetBrightness(int brightness)
     {
         screenBrightness = DisplayBrightness.Require(brightness);
-        publishedDisplay = Shown(publishedDisplay.Identity);
+        publishedDisplay = Shown(publishedDisplay.FrameNumber);
     }
 
     /// <summary>Publishes a newly composed frame at its own brightness; a brightness set on the previous frame no longer applies.</summary>
@@ -137,16 +137,16 @@ internal sealed class FrontendDisplay
         screenBrightness = null;
     }
 
-    /// <summary>The composed frame under <paramref name="identity"/>, at the brightness the session set on it.</summary>
-    private DisplayPacket Shown(RenderFrameIdentity identity)
+    /// <summary>The composed frame stamped with <paramref name="number"/>, at the brightness the session set on it.</summary>
+    private DisplayPacket Shown(int number)
     {
         DisplayPacket frame = composedDisplay;
         int brightness = screenBrightness is { } level ? DisplayBrightness.Combine(frame.Brightness, level) : frame.Brightness;
         if (frame.Layers is { } layers)
-            return new(identity, brightness == layers.Brightness ? layers : new LayeredScene(layers.Paint, layers.Layers, brightness));
+            return new(number, brightness == layers.Brightness ? layers : new LayeredScene(layers.Paint, layers.Layers, brightness));
         if (frame.Floor is { } floor)
-            return new(identity, brightness == floor.Brightness ? floor : new FloorScene(floor.Paint, floor.Background, brightness, floor.Gradient, floor.Floor));
-        if (frame.SolidColor is { } color) return new(identity, color, brightness);
+            return new(number, brightness == floor.Brightness ? floor : new FloorScene(floor.Paint, floor.Background, brightness, floor.Gradient, floor.Floor));
+        if (frame.SolidColor is { } color) return new(number, color, brightness);
         throw new InvalidDataException("Captured display has no composition.");
     }
 }

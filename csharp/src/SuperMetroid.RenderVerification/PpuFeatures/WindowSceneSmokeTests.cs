@@ -35,7 +35,7 @@ internal static class WindowSceneSmokeTests
         // The parent's pictured plane and the child's floor pack once; drawing them before the counted frames leaves each of
         // those only its memory and sprite-draw uploads.
         int count = 0;
-        renderer.RenderForReadback(new DisplayPacket(new(++count, 1, 0), new LayeredScene(parentMemory.Paint,
+        renderer.RenderForReadback(new DisplayPacket(0, new LayeredScene(parentMemory.Paint,
             [background, new InsetSceneLayer(Child(15), 0, 0, 256, 224)], 15)));
         // Each scene render uploads its memory and sprite-draw buffers once. The draw buffer uploads its grown capacity,
         // so a frame's bytes are fixed per window shape rather than computable from the scene alone.
@@ -46,7 +46,8 @@ internal static class WindowSceneSmokeTests
         {
             LayeredScene child = Child(brightness);
             var window = new InsetSceneLayer(child, edges.Left, edges.Top, edges.Right, edges.Bottom);
-            var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(parentMemory.Paint,
+            count++;
+            var frame = new DisplayPacket(0, new LayeredScene(parentMemory.Paint,
                 new DisplayLayer[] { new SpriteDepthLayer(0), window,
                     background,
                     new SpriteDepthLayer(3), window, new ScreenTintLayer(1,2,3) }, DisplayBrightness.Combine(13, 11)));

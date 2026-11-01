@@ -11,6 +11,6 @@ internal static class TitleSequenceStatePixelsAccess
     extension(TitleSequenceState scene)
     {
         /// <summary>Captures the scene and draws its snapshot with the game's renderer.</summary>
-        internal RgbaPixel[] Render() => DisplayRendering.Render(new DisplayPacket(new RenderFrameIdentity(1, 1, 0), scene.CaptureRenderSnapshot()));
+        internal RgbaPixel[] Render() => DisplayRendering.Render(new DisplayPacket(0, scene.CaptureRenderSnapshot()));
     }
 }

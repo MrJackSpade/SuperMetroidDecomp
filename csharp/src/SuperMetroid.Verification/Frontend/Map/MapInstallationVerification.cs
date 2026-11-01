@@ -18,12 +18,14 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
+
 namespace SuperMetroid.Verification.Frontend.Map;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Verifies that installed map and projectile overrides survive import, loading, and host startup.</summary>
 internal static class MapInstallationVerification

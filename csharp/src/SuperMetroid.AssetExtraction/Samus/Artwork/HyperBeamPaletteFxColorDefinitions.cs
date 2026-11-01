@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Palettes;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>
 /// Compiled control skeleton for the Hyper Beam palette-FX program.

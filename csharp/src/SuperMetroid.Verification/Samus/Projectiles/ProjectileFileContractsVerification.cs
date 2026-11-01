@@ -9,8 +9,10 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks file selection, provenance, and rejection behavior for installed projectile resources.</summary>
 internal static class ProjectileFileContractsVerification

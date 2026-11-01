@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Grapple-specific visual muzzle origins, separate from ordinary charge-flare origins.</summary>
 public static class GrappleFlarePlacementDefinitions

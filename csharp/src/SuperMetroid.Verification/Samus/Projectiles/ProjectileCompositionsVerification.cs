@@ -22,11 +22,13 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend;
+
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks imported projectile OAM against native records, production draw owners, and installed edits.</summary>
 internal static class ProjectileCompositionsVerification

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>The warm and blue tint added to a shine shade.</summary>
 /// <param name="Warm">The warm.</param>

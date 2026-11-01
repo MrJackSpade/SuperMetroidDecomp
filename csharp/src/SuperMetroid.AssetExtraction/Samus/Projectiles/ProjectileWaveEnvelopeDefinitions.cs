@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Projectiles;
+namespace SuperMetroid.AssetExtraction.Samus.Projectiles;
 
 /// <summary>Fixed Wave-lobe placement basis, shared by stock artwork and physical envelopes.
 /// Independent imported artwork edits never change collision mechanics. The five source offsets

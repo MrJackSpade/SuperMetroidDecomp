@@ -14,6 +14,8 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
+
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 /// <summary>Checks extracted Hyper Beam palette artwork against native CGRAM frames, reconstruction rules and editable JSON inputs.</summary>

@@ -1,6 +1,6 @@
-using static SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions;
+using static SuperMetroid.AssetExtraction.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions;
 
-namespace SuperMetroid.Core.Samus.Projectiles;
+namespace SuperMetroid.AssetExtraction.Samus.Projectiles;
 
 /// <summary>The axial distance of each outward step of a Wave lobe.</summary>
 internal static class ProjectileWaveEnvelope

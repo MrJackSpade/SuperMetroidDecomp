@@ -24,6 +24,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         // A soft reset discards every gameplay
         // owner. The reseeded random generator and the frame clock already live in the session.
         session.DiscardRuntime();
+        // The reset forgets everything the game kept, the live and stored explored maps with it.
+        StoredExploredMapLoads.ClearAll(session.storedExploredMaps);
         session.Show(new TitleSequenceState(
             session.audio,
             session.Artwork.MapPresentation?.TitleGradient,
@@ -62,6 +64,12 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.ActiveFileSelect.Step(controllerInput);
         if (session.ActiveFileSelect.SavesChangedThisFrame)
             session.RaiseSavesChanged();
+        if (session.ActiveFileSelect.ClearedSaveThisFrame)
+        {
+            // Clearing a file starts a new one, which clears every stored explored map, then loads the live map from a
+            // stored map that is now empty.
+            StoredExploredMapLoads.ClearAll(session.storedExploredMaps);
+        }
         session.display.PublishMenu(session.ActiveFileSelect);
         if (session.ActiveFileSelect.TitleRequested)
         {

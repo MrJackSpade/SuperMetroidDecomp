@@ -35,7 +35,9 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 random ?? new SuperMetroid.Core.Compatibility.SharedRandom(),
                 // A tooling runtime powers on as the game does with an empty save store.
                 new SuperMetroid.Core.Saves.SaveSlotStore().EarthquakeSoundDelayAtPowerOn(),
-                new SuperMetroid.Core.Compatibility.SaveChoiceInputCadence());
+                new SuperMetroid.Core.Compatibility.SaveChoiceInputCadence(),
+                // A tooling runtime's explored maps are its own, as power-on leaves them.
+                SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn());
     }
 
     /// <summary>Provides direct room-loading seams for ROM-backed debug and extraction hosts.</summary>

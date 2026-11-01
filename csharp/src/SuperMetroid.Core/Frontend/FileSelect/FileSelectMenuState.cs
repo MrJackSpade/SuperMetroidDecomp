@@ -108,6 +108,9 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>True only on the frame in which Copy or Clear changed the saves.</summary>
     public bool SavesChangedThisFrame { get; private set; }
 
+    /// <summary>True only on the frame in which Clear cleared a save.</summary>
+    public bool ClearedSaveThisFrame { get; private set; }
+
     /// <summary>
     /// True when the next update continues a step that waits out a frame of the display
     /// rather than starting a new update of the menu, so the per-update random advance is absent.
@@ -118,6 +121,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     public void Step(ControllerButton controllerInput)
     {
         SavesChangedThisFrame = false;
+        ClearedSaveThisFrame = false;
         controller.Latch(controllerInput);
         ControllerButton pressed = controller.NewlyPressed;
 
@@ -586,6 +590,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         else
         {
             saves.ClearSlot(operationSourceSlot);
+            ClearedSaveThisFrame = true;
             saveSlots[operationSourceSlot] = null;
             BuildClearCompletedTilemap();
             Phase = FileSelectPhase.ClearCompleted;

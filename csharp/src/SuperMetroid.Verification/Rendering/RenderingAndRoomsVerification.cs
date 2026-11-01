@@ -47,7 +47,7 @@ private static RoomScrollGrid LoadExplicitScrollFixture(
 {
     byte[] storage = new byte[RoomScrollGrid.StorageByteCount];
     source[..Math.Min(source.Length, storage.Length)].CopyTo(storage);
-    return RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), storage, size);
+    return RoomScrollGrid.LoadCompiled(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), storage, size);
 }
 
 /// <summary>An explicit scroll table whose 50 copied bytes are all blue (one).</summary>

@@ -77,7 +77,7 @@ internal sealed class RoomLoader
     /// <summary>Holds Samus and her load-time presentation state.</summary>
     private readonly SamusFrameState _player;
     /// <summary>The session's room scroll allocation; it outlives each room so implicit tables keep the previous room's tail.</summary>
-    private readonly RoomScrollStorage _scrollStorage = new();
+    private readonly RoomScrollStorage _scrollStorage;
     /// <summary>Constructs room PLMs after persistent state has been restored.</summary>
     private readonly PlmShotBlockVisuals _shotBlockVisuals;
     /// <summary>Resets Samus projectiles for the destination room.</summary>
@@ -128,6 +128,7 @@ internal sealed class RoomLoader
         _tourianStatueDependencies = dependencies.TourianStatueDependencies;
         _system = dependencies.System;
         _assists = dependencies.Assists;
+        _scrollStorage = new RoomScrollStorage(_system.StoredExploredMaps);
 
     }
     /// <summary>The door's four-pixel scroll trajectory, retained across atomic room construction.</summary>
@@ -278,6 +279,8 @@ internal sealed class RoomLoader
         };
         _artwork.BindSamusPalettePresentation();
         slot.ApplyTo(_player.Samus, _system);
+        // Loading the save sets the stored explored maps from it; the live map is loaded only at file select.
+        StoredExploredMapLoads.LoadFile(_system.StoredExploredMaps, slot.Progression);
         _assists.ResetSavedEncounters();
         _assists.GrantLoadoutToNewSamus();
         // Loading clears both persisted HUD selection values after the save restore.
@@ -338,6 +341,10 @@ internal sealed class RoomLoader
         samus.PreviousHealthForHurtCheck = samus.Health;
         samus.Kinematics.Position = samus.Kinematics.Position.WithX(new FixedCoordinate(station.SamusPosition.X, 0)).WithY(new FixedCoordinate(station.SamusPosition.Y, 0));
         samus.Control.LockHandlers();
+
+        // The landing branch moves the game to Crateria and loads the live explored map from
+        // Crateria's stored one before the room loads.
+        _system.StoredExploredMaps.LoadLiveMap(AreaId.Crateria);
 
         // The special loader still executes the normal room-object teardown before it
         // constructs Landing Site. CeresElevatorArrival models two projectiles
@@ -716,6 +723,14 @@ internal sealed class RoomLoader
             throw new InvalidOperationException(
                 $"Pending door changed from {door.Name} to " +
                 $"{consumedDoor.Name} while its destination assets were prepared.");
+        }
+
+        // A door that exchanges explored maps stores the live map as the departed area's,
+        // then, with the destination's header loaded, loads the live map from the entered area's.
+        if (ExploredMapExchangeDoorDefinitions.Doors.Contains(door))
+        {
+            _system.StoredExploredMaps.StoreLiveMap(_room.LoadedRoom.AreaIndex);
+            _system.StoredExploredMaps.LoadLiveMap(room.AreaIndex);
         }
 
         // The door transition promotes a departing elevator's global status from one to

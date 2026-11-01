@@ -155,15 +155,17 @@ internal sealed class SuperMetroidRuntime
     /// <param name="random">The session's random-number word, which outlives each runtime and is never copied.</param>
     /// <param name="earthquakeSoundDelay">The frame the save file found at power-on adds to every earthquake rumble's delay.</param>
     /// <param name="saveChoiceInput">The session's cadence of an open save confirmation's controller reads.</param>
+    /// <param name="storedExploredMaps">The session's live and stored explored maps, which outlive each runtime.</param>
     internal SuperMetroidRuntime(GameplayAssists assists, IGameplayArtwork artwork,
         FrameClock clock, UnauthoredBoostCadence unauthoredBoostCadence, SharedRandom random,
-        PowerOnEarthquakeSoundDelay earthquakeSoundDelay, SaveChoiceInputCadence saveChoiceInput)
+        PowerOnEarthquakeSoundDelay earthquakeSoundDelay, SaveChoiceInputCadence saveChoiceInput,
+        StoredExploredMaps<AreaId> storedExploredMaps)
     {
         Ensure.NotNull(artwork);
         MessageBox = new GameplayMessageBoxState(saveChoiceInput);
         SamusOverreads = artwork.SamusOverreads ?? throw new InvalidOperationException(
             "Gameplay requires the installed Samus overread services.");
-        System = new SharedGameState(random, earthquakeSoundDelay);
+        System = new SharedGameState(random, earthquakeSoundDelay, storedExploredMaps);
         Display = new GameplayDisplayState();
         var spriteSets = new SpriteColourSets();
         Player = new SamusFrameState(spriteSets);

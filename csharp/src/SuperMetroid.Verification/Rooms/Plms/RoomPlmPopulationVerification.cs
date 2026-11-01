@@ -1041,7 +1041,7 @@ internal static class RoomPlmPopulationVerification
         SeedRoomPlmPopulation(bus, emptyPopulation, [0x00, 0x00]);
         RoomLevelData level = CreateRoom(new(32, 32), new RoomTerrainBlock[32 * 32],
             new RoomBlockBehavior[32 * 32]);
-        RoomScrollGrid scrolls = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(),
+        RoomScrollGrid scrolls = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()),
             new byte[RoomScrollGrid.StorageByteCount], new Extent16<RoomScreens>(2, 2));
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         var system = new SharedGameState();

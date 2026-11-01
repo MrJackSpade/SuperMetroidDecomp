@@ -30,7 +30,7 @@ internal static class RoomScrollDefinitionsVerification
             .Order()
             .ToArray();
 
-        var storage = new RoomScrollStorage();
+        var storage = new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn());
         var auditedStates = new HashSet<ushort>();
         var explicitPointers = new HashSet<ushort>();
         int explicitStateCount = 0;
@@ -92,7 +92,7 @@ internal static class RoomScrollDefinitionsVerification
         AssertEqual(RoomScrollDefinitionsConstants.ExplicitDefinitionCount, explicitPointers.Count,
             "compiled scroll catalog contains every distinct explicit allocation");
         AssertThrows<ArgumentException>(
-            () => RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), [0], new Extent16<RoomScreens>(1, 1)),
+            () => RoomScrollGrid.LoadCompiled(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), [0], new Extent16<RoomScreens>(1, 1)),
             "compiled scroll installation rejects incomplete storage");
 
         SelectedRoom ceres = SelectedRoom.LoadUsingCompiledSelection(

@@ -173,8 +173,8 @@ internal sealed class EnemyGraphicsSet
                 return new SpriteGraphics(entry.TileIndexBase, new GraphicsSetMemberColouring(entry.DefinitionId));
         }
 
-        // LoadEnemyGfxIndexes uses standard sprite character zero and palette row five, the enemy projectiles'
-        // colours, when an actor has no room graphics-set record. That fallback supports invisible/control
+        // LoadEnemyGfxIndexes uses standard sprite character zero and the enemy projectiles' sprite colour
+        // set, when an actor has no room graphics-set record. That fallback supports invisible/control
         // enemies without synthesizing an asset association.
         return SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles);
     }

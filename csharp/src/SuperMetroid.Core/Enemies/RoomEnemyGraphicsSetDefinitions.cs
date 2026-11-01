@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>Compiled graphics-set membership and staging order for all retail room states.</summary>
 /// <remarks>
 /// The 302 lists contain 425 records.
-/// Palette rows and staging blocks are fixed engine staging metadata;
+/// Colour sets and staging blocks are fixed engine staging metadata;
 /// editable pixel/color content is loaded separately through enemy artwork assets.
 /// </remarks>
 [NumberedIdentities("Each numbered member is the enemy graphics set of one numbered room or room state, named for it; no caller indexes the sets by number.")]

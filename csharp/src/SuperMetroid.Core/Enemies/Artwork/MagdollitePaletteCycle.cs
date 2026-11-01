@@ -9,26 +9,26 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// </summary>
 public sealed class MagdollitePaletteCycle
 {
-    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    /// <summary>Canonical selected RGB5 colors and ordered cycle frames, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("MagdollitePaletteCycle-v1", content =>
         {
             content.Append("frames", MagdollitePaletteDefinitions.FrameCount);
-            Span<RgbColor> row = stackalloc RgbColor[MagdollitePaletteDefinitions.AnimatedColorCount];
+            Span<RgbColor> frameColours = stackalloc RgbColor[MagdollitePaletteDefinitions.AnimatedColorCount];
             for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
             {
-                for (int color = 0; color < row.Length; color++) row[color] = Resolve(frame, color);
-                content.AppendColors("row", row);
+                for (int color = 0; color < frameColours.Length; color++) frameColours[color] = Resolve(frame, color);
+                content.AppendColors("row", frameColours);
             }
         });
 
-    /// <summary>Four independently authored glow colors underlying the row rotations.</summary>
+    /// <summary>Four independently authored glow colors underlying the frames' rotations.</summary>
     private readonly RgbColor[] colors;
-    /// <summary>Later-row cells that differ from the rotation of the first row.</summary>
+    /// <summary>Later-frame cells that differ from the rotation of the first frame.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>
     /// Palette_Magdollite_Glow_0..3 rotates left one color per
-    /// phase in the four OBJ rows. Preserve arbitrary edited later rows
+    /// frame of the four-frame cycle. Preserve arbitrary edited later frames
     /// as deviations from that rotation, without rebuilding the table.
     /// </summary>
     internal MagdollitePaletteCycle(RgbColor[][] frames)
@@ -40,11 +40,11 @@ public sealed class MagdollitePaletteCycle
                 edits.Add(new ColourCell(frame, color), frames[frame][color]);
     }
 
-    /// <summary>Returns one selected glow color, using the first row's left rotation unless the requested later-row cell was independently edited.</summary>
-    /// <param name="frame">Zero-based palette-cycle row 0..3, not an elapsed-update count.</param>
+    /// <summary>Returns one selected glow color, using the first frame's left rotation unless the requested later-frame cell was independently edited.</summary>
+    /// <param name="frame">Zero-based palette-cycle frame 0..3, not an elapsed-update count.</param>
     /// <param name="color">Zero-based glow color 0..3, corresponding to OBJ palette colors nine through twelve.</param>
-    /// <returns>Packed BGR555 color from the selected row.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The row or color index is outside 0..3.</exception>
+    /// <returns>Packed BGR555 color from the selected frame.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside 0..3.</exception>
     public RgbColor Resolve(int frame, int color)
     {
         if ((uint)frame >= MagdollitePaletteDefinitions.FrameCount)
@@ -55,10 +55,10 @@ public sealed class MagdollitePaletteCycle
             ? edited : colors[(color + frame) % colors.Length];
     }
 
-    /// <summary>Writes the selected four-color row without advancing cycle timing or altering the other colors in Magdollite's OBJ palette.</summary>
+    /// <summary>Writes the selected frame's four colors without advancing cycle timing or altering the other colors in Magdollite's OBJ palette.</summary>
     /// <param name="animated">The four animated colours of Magdollite's colour set.</param>
-    /// <param name="frame">Palette-cycle row 0..3 chosen by the enemy's graphics-drawn hook.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The row index is invalid.</exception>
+    /// <param name="frame">Palette-cycle frame 0..3 chosen by the enemy's graphics-drawn hook.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The frame index is invalid.</exception>
     /// <exception cref="ArgumentException">The run is not four colours.</exception>
     public void ApplyFrame(ColourRun animated, int frame)
     {

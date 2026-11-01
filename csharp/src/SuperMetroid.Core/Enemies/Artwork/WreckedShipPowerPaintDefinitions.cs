@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// </summary>
 internal static class WreckedShipPowerPaintDefinitions
 {
-    /// <summary>Exact copied ink-zero metadata of green/magenta door rows; background ink zero is transparent.</summary>
+    /// <summary>Exact copied ink-zero metadata of the green and magenta door sets; background ink zero is transparent.</summary>
     internal static readonly RgbColor DoorTransparentMetadata = new(3, 0, 8);
     /// <summary>Common gold door/machine accent endpoints and selected middle red.</summary>
     internal const int GoldMiddleRed = 23, GoldDarkRed = 12, GoldLightGreen = 22, GoldDarkGreen = 5;

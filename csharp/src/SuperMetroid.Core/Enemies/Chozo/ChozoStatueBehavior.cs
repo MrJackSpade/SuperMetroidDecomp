@@ -78,8 +78,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs the complete palette-only initializer. The retail record begins
-    /// with the deletion property, so it exists solely long enough to replace target palette rows
-    /// nine and ten; the scheduler removes it before any main-AI frame.
+    /// with the deletion property, so it exists solely long enough to replace the Chozo-and-tube
+    /// sprite colour sets; the scheduler removes it before any main-AI frame.
     /// </summary>
     internal void InitializeN00bTubeCracks()
     {

@@ -9,23 +9,23 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// </summary>
 public sealed class WorkRobotPaletteCycle
 {
-    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    /// <summary>Canonical selected RGB5 colors and ordered cycle frames, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("WorkRobotPaletteCycle-v1", content =>
         {
             content.Append("frames", WorkRobotPaletteTimingDefinitions.RecordCount);
-            Span<RgbColor> row = stackalloc RgbColor[WorkRobotPaletteDefinitions.ColorCount];
+            Span<RgbColor> frameColours = stackalloc RgbColor[WorkRobotPaletteDefinitions.ColorCount];
             for (int frame = 0; frame < WorkRobotPaletteTimingDefinitions.RecordCount; frame++)
             {
-                for (int color = 0; color < row.Length; color++)
-                    row[color] = Resolve(frame, color);
-                content.AppendColors("row", row);
+                for (int color = 0; color < frameColours.Length; color++)
+                    frameColours[color] = Resolve(frame, color);
+                content.AppendColors("row", frameColours);
             }
         });
 
-    /// <summary>Edited RGB5 rows, or null when every cell follows the compiled stock color pattern.</summary>
+    /// <summary>Edited RGB5 frames, or null when every cell follows the compiled stock color pattern.</summary>
     internal readonly RgbColor[][]? frames;
 
-    /// <summary>Keeps authored rows only when at least one color differs from the rotation.</summary>
+    /// <summary>Keeps authored frames only when at least one color differs from the rotation.</summary>
     internal WorkRobotPaletteCycle(RgbColor[][] frames)
     {
         for (int frame = 0; frame < frames.Length; frame++)

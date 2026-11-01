@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// </summary>
 public sealed class ChozoAndTubeColorCatalog
 {
-    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    /// <summary>Canonical selected RGB5 colors in their tube and statue order, independent of JSON encoding.</summary>
     public string ContentIdentity => ChozoAndTubeColors.ContentIdentity(this);
 
     /// <summary>The selected crack seeds and the tube and statue deviations from calculated paint.</summary>

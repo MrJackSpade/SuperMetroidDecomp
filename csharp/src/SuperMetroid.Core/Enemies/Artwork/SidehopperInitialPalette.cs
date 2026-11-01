@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// The drain's first row and the live target share the initial Sidehopper palette. The drain
+/// The drain's first stage and the live target share the initial Sidehopper palette. The drain
 /// imports its first15 words; the live target imports16. White slots1/9 and
 /// repeated slots14=11/15=12 and the body/detail/claw shades calculate. The standalone16-color target uses reviewed paints; the shifted15-color stock auxiliary has a separate calculated paint owner.
 /// Each instance owns its supplied content; edits never couple separate catalogs.
@@ -19,7 +19,7 @@ internal sealed class SidehopperInitialPalette
     /// <summary>Whether all sixteen colors use the reviewed standalone stock paint catalog.</summary>
     private readonly bool stockTarget;
     /// <summary>Fifteen for the shifted auxiliary import or sixteen for the standalone target.</summary>
-    [IntegerQuantity("number of colors in the palette row")]
+    [IntegerQuantity("number of colors in the palette")]
     internal int Count { get; }
 
     /// <summary>Selects stock, calculated, or independent paint ownership from the supplied palette values.</summary>

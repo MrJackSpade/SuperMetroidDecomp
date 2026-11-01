@@ -16,7 +16,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new WreckedShipGhostEntity(this, slot, common);
 
-    /// <summary>Owns the live OBJ palette row whitened and restored during each apparition.</summary>
+    /// <summary>Owns the live OBJ colour set whitened and restored during each apparition.</summary>
     private readonly EnemyPresentation _presentation;
 
     /// <summary>Binds the ghost's palette updates to the room's shared presentation buffer.</summary>

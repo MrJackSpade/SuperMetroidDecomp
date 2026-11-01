@@ -32,7 +32,7 @@ internal sealed class BlockReactionPlms
         if (!behavior.IsBreakableGrappleReaction)
             throw new ArgumentOutOfRangeException(nameof(behavior), "Breakable grapple behaviour must be one or two.");
 
-        // Spawn_PLM probes $4E,$4C,...,$00. Matching it matters if multiple
+        // Spawning searches the PLM slots from the last down to the first. Matching it matters if multiple
         // PLMs mutate the same room on one frame because the handler uses the same order.
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;

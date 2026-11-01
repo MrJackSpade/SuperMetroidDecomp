@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>Decodes and names the orientation of a door-cap draw list.</summary>
 internal static class DoorCapOrientations
 {
-    /// <summary>The orientations in the order the cap draw-list tables at $84:A6xx..$84:AAxx store them.</summary>
+    /// <summary>The orientations in the order the door caps' draw tables list them.</summary>
     private static readonly ColoredDoorOrientation[] TableOrder =
         [ColoredDoorOrientation.Left, ColoredDoorOrientation.Right, ColoredDoorOrientation.Up, ColoredDoorOrientation.Down];
 

@@ -28,14 +28,17 @@ public sealed class TourianStatuePalettes
     /// <summary>Eight grey inks installed at the animation cue's palette destination.</summary>
     internal readonly PaletteBand greyColors;
 
-    /// <summary>Separates the supplied base, statue, eye, and grey colors into independent paint bands.</summary>
-    internal TourianStatuePalettes(RgbColor[] baseColors, RgbColor[] statueColors,
-        RgbColor[][] eyeColors, RgbColor[] greyColors)
+    /// <summary>Keeps the base, statue, eye, and grey colors as independent paint bands.</summary>
+    /// <param name="baseColors">The base-decoration band.</param>
+    /// <param name="statueColors">The statue-body band.</param>
+    /// <param name="eyeColors">The four eye glows, glow after glow, as one band.</param>
+    /// <param name="greyColors">The grey-transition band.</param>
+    internal TourianStatuePalettes(PaletteBand baseColors, PaletteBand statueColors, PaletteBand eyeColors, PaletteBand greyColors)
     {
-        this.baseColors = new(TourianStatuePaintBand.Base, baseColors);
-        this.statueColors = new(TourianStatuePaintBand.Statue, statueColors);
-        this.eyeColors = new(TourianStatuePaintBand.Eye, eyeColors.SelectMany(glow => glow).ToArray());
-        this.greyColors = new(TourianStatuePaintBand.Grey, greyColors);
+        this.baseColors = baseColors;
+        this.statueColors = statueColors;
+        this.eyeColors = eyeColors;
+        this.greyColors = greyColors;
     }
 
     /// <summary>Gets packed RGB5 base-decoration ink 0–15, including its retained transparent-slot word.</summary>
@@ -83,14 +86,16 @@ public sealed class TourianStatuePalettes
         /// <summary>Number of indexed colors in this band's palette geometry.</summary>
         private readonly int count;
         /// <summary>Only supplied colors that differ from the calculated stock band.</summary>
-        internal readonly Dictionary<ColourCell, RgbColor> edits = [];
-        /// <summary>Compares supplied colors with stock paint and retains independent edits.</summary>
-        internal PaletteBand(TourianStatuePaintBand band, ReadOnlySpan<RgbColor> supplied)
+        internal readonly Dictionary<ColourCell, RgbColor> edits;
+        /// <summary>Keeps a band's geometry and the supplied colors that differ from its stock paint.</summary>
+        /// <param name="band">The calculated stock paint family.</param>
+        /// <param name="count">The band's colour count.</param>
+        /// <param name="edits">The supplied colours the import found differing from the stock paint.</param>
+        internal PaletteBand(TourianStatuePaintBand band, int count, Dictionary<ColourCell, RgbColor> edits)
         {
             this.band = band;
-            count = supplied.Length;
-            for (int color = 0; color < count; color++)
-                if (supplied[color] != TourianStatuePaint.Color(band, color)) edits.Add(new ColourCell(0, color), supplied[color]);
+            this.count = count;
+            this.edits = edits;
         }
         /// <summary>Resolves an edited color or calculates its stock paint after validating the index.</summary>
         internal RgbColor Read(int color)

@@ -13,7 +13,7 @@ public sealed class KiHunterEnemyState
     {
         // The definition word is mutable storage and is cleared during deletion.
         // Role is established by the initializer and must survive that later write because
-        // body/wing callbacks continue using physical +/-$40 slot aliases.
+        // body/wing callbacks continue to reach the neighbouring slot's record.
         IsWing = KiHunterBehavior.IsKiHunterWingDefinition(slot.DefinitionId);
     }
 

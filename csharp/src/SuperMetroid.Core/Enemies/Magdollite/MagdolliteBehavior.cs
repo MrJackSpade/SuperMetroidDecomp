@@ -293,7 +293,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteEnemyState state,
         SamusState? samus)
     {
-        // The arm reads velocity at X-$40: the preceding head owns the
+        // The arm reads the velocity of the slot before it: the preceding head owns the
         // population speed parameter. The arm's own parameter is zero in retail.
         (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(body);
         MagdolliteEnemyState speedOwner = head.RequireSpeciesState<MagdolliteEnemyState>();
@@ -642,7 +642,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the shared post-combat tail.</summary>
     private void ResolveMagdolliteCombatAfterCommon(RoomEnemySlot current)
     {
-        // The callback literally addresses current+$40 and current+$80. Ordinary
+        // The callback reaches the next two slots after the current one. Ordinary
         // touch/shot reaches only the collision-enabled head, but power bombs may expose
         // this retail cross-record quirk, so do not silently normalize current to a group.
         RoomEnemySlot? following = current.SlotIndex + 1 < EnemySlotOrder.Capacity

@@ -39,13 +39,13 @@ public sealed class HopperEnemyState
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Extension offset $00's installed landed or jumping animation: where the typed program (#641) resumes.</summary>
+    /// <summary>Installed landed or jumping animation: where the typed program (#641) resumes.</summary>
     internal AnimationProgramCursor<HopperProgram> Program { get; set; }
-    /// <summary>Extension offset $02: initial quadratic record index, within the table's 95 records, calculated with step 3 and accumulated-height threshold 4096 using the game's odd-byte speed-word reads.</summary>
+    /// <summary>Initial quadratic record index, within the table's 95 records, calculated with step 3 and accumulated-height threshold 4096 using the game's odd-byte speed-word reads.</summary>
     public int SmallHopInitialYSpeedTableIndex { get; internal set; }
-    /// <summary>Extension offset $04: initial quadratic record index, within the table's 95 records, calculated with step 4 and accumulated-height threshold 12288 using the game's odd-byte speed-word reads.</summary>
+    /// <summary>Initial quadratic record index, within the table's 95 records, calculated with step 4 and accumulated-height threshold 12288 using the game's odd-byte speed-word reads.</summary>
     public int BigHopInitialYSpeedTableIndex { get; internal set; }
-    /// <summary>Extension offset $06: true selects motion back toward the attachment surface, downward for floor Hoppers or upward for ceiling Hoppers; collision or the apex ends the outward phase.</summary>
+    /// <summary>True selects motion back toward the attachment surface, downward for floor Hoppers or upward for ceiling Hoppers; collision or the apex ends the outward phase.</summary>
     public bool Falling { get; internal set; }
     /// <summary>Latch set by the idle animation's ready cue and consumed by WaitToHop; authored animation cadence, not a host jump timer, controls the next hop.</summary>
     public bool ReadyToHop { get; internal set; }

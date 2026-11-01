@@ -168,8 +168,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
         if (slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
         {
-            // For slot two, the equally strange +61 indexed read aliases slot zero's +$06
-            // Y-position word. The opening pad sits one pixel above the top hull origin.
+            // For slot two, the equally strange read lands on slot zero's Y position.
+            // The opening pad sits one pixel above the top hull origin.
             if (slot.SlotIndex < 2)
                 throw new InvalidDataException("Gunship entrance pad requires two preceding enemy slots.");
             slot.Position = slot.Position.WithWrappedWholeY(_slotTable.Slots[slot.SlotIndex - 2].Position.Y.Whole - 1);

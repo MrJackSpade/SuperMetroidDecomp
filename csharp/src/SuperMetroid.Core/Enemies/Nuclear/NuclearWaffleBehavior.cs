@@ -147,7 +147,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot owner,
         NuclearWaffleEnemyState state)
     {
-        // Init parameters $08,$06,$04,$02 select four extra-RAM association words.
+        // The four spawn parameters each select one segment's association.
         // Keep array order identical to the later descending update loop.
         for (int segmentIndex = 0; segmentIndex < state.ProjectileSegments.Length; segmentIndex++)
         {

@@ -13,7 +13,7 @@ public sealed class RoomEnemyProjectileSlot
     /// <summary>Assigns the fixed pool index used for projectile slot addressing.</summary>
     internal RoomEnemyProjectileSlot(int slotIndex) => SlotIndex = slotIndex;
 
-    /// <summary>Gets the physical pool index from zero through seventeen; twice this value is the byte index $00..$22.</summary>
+    /// <summary>Gets the slot's position in the pool, zero through seventeen.</summary>
     public int SlotIndex { get; }
     /// <summary>Gets the definition identity occupying the slot; zero releases the slot without clearing its other words.</summary>
     public RoomEnemyProjectileKind Kind { get; internal set; }
@@ -99,9 +99,8 @@ public sealed class RoomEnemyProjectileSlot
     /// <summary>The enemy a death explosion or its drop came from, and whether the explosion rebuilds it when it ends.</summary>
     public KilledEnemy KilledEnemy { get; internal set; }
     /// <summary>
-    /// Enemy-header pointer retained in the parallel projectile
-    /// metadata. Death explosions use offset $3A of this record to find their six-byte
-    /// drop table.
+    /// The enemy whose drops a death explosion scatters: the explosion reads that enemy's
+    /// drop chances when it finishes.
     /// </summary>
     public EnemyDefinitionId DropDefinitionId { get; internal set; }
     /// <summary>The chance table a boss-selected drop rolls against instead of its enemy header's, or null.</summary>

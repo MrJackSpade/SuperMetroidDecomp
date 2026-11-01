@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// A species' header power-bomb reaction (+$28). The power-bomb pass runs its stages around common power-bomb
+/// A species' power-bomb reaction, from its header. The power-bomb pass runs its stages around common power-bomb
 /// damage at the game's positions; a reaction sets only the stages it has.
 /// </summary>
 /// <param name="matches">Whether an enemy uses this reaction (its definition and header reaction callback).</param>

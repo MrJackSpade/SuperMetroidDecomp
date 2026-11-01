@@ -77,8 +77,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!state.IsBalloon)
         {
-            // Enemy[-1] is not a descriptive relationship in the original—it is a literal
-            // $40-byte negative index. Reject malformed populations instead of accidentally
+            // The body's balloon is simply the slot before it, whatever occupies that slot.
+            // Reject malformed populations instead of accidentally
             // binding a body to an unrelated actor.
             RequirePowampBalloon(slot);
             state.FunctionTimer = WrappingCountdown.Start(PowampRestFrames);

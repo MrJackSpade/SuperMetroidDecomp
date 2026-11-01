@@ -49,9 +49,9 @@ public sealed class MagdolliteEnemyState
     /// </summary>
     public Offset16<RoomPixels> RiseDisplacement { get; internal set; }
 
-    /// <summary>AnimationActiveFlag at extension offset $02, set and cleared by instruction callbacks to gate head transitions and completion of the hand's throw.</summary>
+    /// <summary>AnimationActiveFlag, set and cleared by instruction callbacks to gate head transitions and completion of the hand's throw.</summary>
     public bool AnimationBusy { get; internal set; }
-    /// <summary>EmergeNotReadyFlag at extension offset $04: set by the head after submerging and cleared by the arm on landing so the head may emerge.</summary>
+    /// <summary>EmergeNotReadyFlag: set by the head after submerging and cleared by the arm on landing so the head may emerge.</summary>
     public bool HeadWaitsForBodyLanding { get; internal set; }
     /// <summary>
     /// The part's whole-pixel spawn position, captured before its initializer moves it; only Y is meaningful. The head
@@ -76,9 +76,9 @@ public sealed class MagdolliteEnemyState
     /// not a negation; the rising arm consumes the head's copy.
     /// </summary>
     public SignedSixteenSixteen UpwardVelocity { get; internal set; }
-    /// <summary>FinishedGrowingFlag at extension offset $18, set by the arm at maximum or Samus-relative height and cleared by the hand when shrinking begins.</summary>
+    /// <summary>FinishedGrowingFlag, set by the arm at maximum or Samus-relative height and cleared by the hand when shrinking begins.</summary>
     public bool BodyReachedApex { get; internal set; }
-    /// <summary>NotEmergedFlag at extension offset $1A: despite the host name, true holds the arm dormant; the head clears it to start growth and landing sets it again.</summary>
+    /// <summary>NotEmergedFlag: despite the host name, true holds the arm dormant; the head clears it to start growth and landing sets it again.</summary>
     public bool BodyWakeRequested { get; internal set; }
     /// <summary>Whole-pixel room position captured at the apex and used as the base for hand-animation shifts and restoration.</summary>
     public Position16<RoomPixels> ThrowOrigin { get; internal set; }

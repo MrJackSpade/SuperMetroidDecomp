@@ -12,23 +12,11 @@ namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 internal sealed class KraidHealthBands : IReadOnlyList<RgbColor>
 {
     /// <summary>Edited authored endpoints or interior samples that differ from calculated interpolation.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> deviations = new();
+    internal readonly Dictionary<ColourCell, RgbColor> deviations;
 
-    /// <summary>Records endpoint edits before comparing interior colors against those selected endpoints.</summary>
-    internal KraidHealthBands(RgbColor[] supplied)
-    {
-        // Authored cells first: interior interpolation reads the (possibly edited) endpoints.
-        for (int index = 0; index < supplied.Length; index++)
-            if (KraidPaint.HealthAuthored(index) is RgbColor stock && stock != supplied[index])
-                deviations.Add(new ColourCell(0, index), supplied[index]);
-        for (int index = 0; index < supplied.Length; index++)
-            if (KraidPaint.HealthAuthored(index) is null && Calculate(index) != supplied[index])
-                deviations.Add(new ColourCell(0, index), supplied[index]);
-    }
-
-    /// <summary>The secondary bands: the health bands themselves when the supplied colors match them exactly.</summary>
-    internal static IReadOnlyList<RgbColor> Secondary(RgbColor[] supplied, KraidHealthBands health) =>
-        supplied.SequenceEqual(health) ? health : new KraidHealthBands(supplied);
+    /// <summary>Keeps the supplied colors that differ from the authored or calculated health colors.</summary>
+    /// <param name="deviations">The edited endpoints and interior samples the import found.</param>
+    internal KraidHealthBands(Dictionary<ColourCell, RgbColor> deviations) => this.deviations = deviations;
 
     /// <summary>
     /// Interpolates one channelwise health color for <paramref name="band"/> between the first

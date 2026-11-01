@@ -24,12 +24,12 @@ public static class KraidColorFile
         document = JsonAssetDocument.Read<KraidColorDocument>(json, JsonOptions, "Kraid colors");
         if (document.Version != KraidColorFormat.Version)
             throw new InvalidDataException("Kraid colors require the supported version.");
-        return new(
+        return new(KraidColorEdits.Sources(
             Compile(document.RoomBackdrop, KraidPaletteSource.RoomBackdrop),
             Compile(document.InitialTarget, KraidPaletteSource.InitialTarget),
             Compile(document.Health, KraidPaletteSource.Health),
             Compile(document.Secondary, KraidPaletteSource.Secondary),
-            Compile(document.DeathArm, KraidPaletteSource.DeathArm));
+            Compile(document.DeathArm, KraidPaletteSource.DeathArm)));
     }
 
     /// <summary>Serializes the five editable sources to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Read"/>.</summary>

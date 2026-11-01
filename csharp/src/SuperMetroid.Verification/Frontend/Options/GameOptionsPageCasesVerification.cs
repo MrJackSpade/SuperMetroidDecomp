@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Frontend.Options;
@@ -14,6 +15,7 @@ using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 internal static class GameOptionsPageCasesVerification
 {
     /// <summary>Compares page addresses, descriptions, and decompressed tilemaps with the pinned ROM.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Game Options Page Cases with GameOptionsPresentationExtractor output read from the cartridge.")]
     internal static void VerifyGameOptionsPageCases()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

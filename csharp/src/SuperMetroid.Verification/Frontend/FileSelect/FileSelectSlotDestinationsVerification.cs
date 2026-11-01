@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -14,6 +15,7 @@ using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 internal static class FileSelectSlotDestinationsVerification
 {
     /// <summary>Compares 24 native destinations with typed layouts and extracted text or numeric anchors.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares File Select Slot Destinations with FileSelectPresentationExtractor output read from the cartridge.")]
     internal static void VerifyFileSelectSlotDestinations()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

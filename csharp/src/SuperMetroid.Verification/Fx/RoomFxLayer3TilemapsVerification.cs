@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
@@ -26,6 +27,7 @@ internal static class RoomFxLayer3TilemapsVerification
     private static readonly JsonSerializerOptions CamelCaseCaseInsensitiveJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true };
 
     /// <summary>Checks all six extracted BG3 pages and guarded installed FX loads against native VRAM words.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Room Fx Layer3 Tilemaps with RoomFxLayer3TilemapExtractor and RoomFxPaletteBlendExtractor output read from the cartridge.")]
     internal static void VerifyRoomFxLayer3Tilemaps()
     {
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

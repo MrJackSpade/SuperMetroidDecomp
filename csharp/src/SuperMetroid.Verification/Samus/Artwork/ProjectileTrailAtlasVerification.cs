@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -9,6 +10,7 @@ namespace SuperMetroid.Verification.Samus.Artwork;
 internal static class ProjectileTrailAtlasVerification
 {
     /// <summary>Confirms stock atlas parity and isolation of each of twelve edited trail characters.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Projectile Trail Atlas with ProjectileTrailAtlasExtractor output read from the cartridge.")]
     internal static void VerifyProjectileTrailAtlas(ISnesAddressSpace bus)
     {
         byte[] png = ProjectileTrailAtlasExtractor.Extract(bus);

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Tooling;
@@ -18,6 +19,7 @@ namespace SuperMetroid.Verification.Frontend.GameOver.Artwork;
 internal static class GameOverPresentationVerification
 {
     /// <summary>Compares a No-to-title sequence, then checks visible overrides, live rebinding, and malformed assets.</summary>
+    [PrivateInstallation("Checks the import pipeline's GameOverPresentationExtractor on the cartridge: Game Over Presentation Assets.")]
     internal static void VerifyGameOverPresentationAssets(
         ISnesAddressSpace bus,
         string stock,

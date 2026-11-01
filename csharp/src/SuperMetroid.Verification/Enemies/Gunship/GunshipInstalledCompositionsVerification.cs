@@ -30,6 +30,7 @@ internal static class GunshipInstalledCompositionsVerification
     /// the reported gunship frames, legacy-override inheritance and landing draw.
     /// Native bytes are an extraction/reference oracle, never the gameplay bus.
     /// </summary>
+    [PrivateInstallation("Checks the import pipeline's EnemyTileArtworkFiles on the cartridge: Extracted Gunship Compositions.")]
     internal static void VerifyExtractedGunshipCompositions(string installationRoot, string romPath, string outputRoot)
     {
         var imported = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(romPath));

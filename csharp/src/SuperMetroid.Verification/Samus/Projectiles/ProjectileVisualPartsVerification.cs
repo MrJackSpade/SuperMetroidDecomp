@@ -64,8 +64,7 @@ internal static class ProjectileVisualPartsVerification
         var source = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath(projectileRom));
         Suite(nameof(VerifyProjectileVisualParts), () => VerifyProjectileVisualParts());
-        Suite(nameof(VerifyProjectileCompositions), () => VerifyProjectileCompositions(source, compositionOnly: true,
-            sourceRom: projectileRom));
+        Suite(nameof(VerifyProjectileCompositions), () => VerifyProjectileCompositions(source, compositionOnly: true));
         return 0;
     }
 }

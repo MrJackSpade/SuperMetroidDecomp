@@ -14,11 +14,10 @@ using SuperMetroid.TestSupport.SaveMapFixtures;
 internal static class SaveLoadRandomAudit
 {
     /// <summary>Tracks dispatcher RNG across file-map waits, debugger restore, continued saves, and true reset.</summary>
-    public static int Run(string rom, Action<SuperMetroidGame> bindPresentation)
+    public static int Run(Action<SuperMetroidGame> bindPresentation)
     {
         foreach (int wait in new[] { 0, 1, 2 })
         {
-            var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(rom);
             var save = new SuperMetroidSaveSnapshot
             {
                 Area = (ushort)AreaId.Tourian, SaveStation = 0,
@@ -28,7 +27,7 @@ internal static class SaveLoadRandomAudit
                 PowerBombs = 5, MaxPowerBombs = 5,
                 Missiles = 10, MaxMissiles = 10, SuperMissiles = 10, MaxSuperMissiles = 10,
             };
-            var saves = new SaveSlotStore(SaveMapPresentationFixture.Create(bus));
+            var saves = new SaveSlotStore(SaveMapPresentationFixture.Create());
             saves.SaveSlot(0, save);
             var game = new SuperMetroidGame(saves);
             bindPresentation(game);
@@ -120,6 +119,6 @@ internal static class SaveLoadRandomAudit
     [VerificationCommand("--save-load-rng-fixture")]
     internal static int SaveLoadRngFixtureCommand()
     {
-     return SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), InstalledFixtures.BindGame); 
+     return SaveLoadRandomAudit.Run(InstalledFixtures.BindGame); 
     }
 }

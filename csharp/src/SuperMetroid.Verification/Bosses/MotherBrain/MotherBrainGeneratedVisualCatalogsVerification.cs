@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -55,6 +56,7 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
     }
 
     /// <summary>Checks 16 BG2 frames, excluding the dummy, and parity of generated extraction JSON.</summary>
+    [PrivateInstallation("Checks the import pipeline's MotherBrainBodyBg2FrameFiles on the cartridge: Mother Brain Generated Bg2 Catalog.")]
     internal static void VerifyMotherBrainGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
     {
         SpritemapFrameDefinition[] expected = OriginalMotherBrainFrames.Where(frame => frame.Pointer != 0xa320)

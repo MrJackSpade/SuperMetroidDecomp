@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -14,6 +15,7 @@ namespace SuperMetroid.Verification.Frontend.Menus;
 internal static class MenuShoulderHighlightPixelsVerification
 {
     /// <summary>Compares stock planar tiles with retail VRAM data and preserves individual pixel edits.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Menu Shoulder Highlight Pixels with MapSpriteExtractor output read from the cartridge.")]
     internal static void VerifyMenuShoulderHighlightPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0x3c, 0x3d, 0x43, 0x51];

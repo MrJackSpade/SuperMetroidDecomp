@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
@@ -62,6 +63,7 @@ internal static class EndingObjectArtworkVerification
     }
 
     /// <summary>Compares the six cloud compositions and grids with native OAM.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Ending Cloud Definitions with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyEndingCloudDefinitions(ISnesAddressSpace bus)
     {
         string[] names = ["scene-b-upper-a", "scene-b-upper-b", "scene-b-lower-a", "scene-b-lower-b", "scene-a-right", "scene-a-left"];
@@ -120,6 +122,7 @@ internal static class EndingObjectArtworkVerification
     }
 
     /// <summary>Checks ending OBJ sheets, sprite actors, backgrounds, edits, and guarded runtime reads.</summary>
+    [PrivateInstallation("Checks that installer repair restores corrupted ending object stock files on a private copy.")]
     internal static void VerifyEndingObjectArtwork(GameInstallation installation)
     {
         EndingObjectSourceArtwork stock = installation.LoadEndingObjectArt();

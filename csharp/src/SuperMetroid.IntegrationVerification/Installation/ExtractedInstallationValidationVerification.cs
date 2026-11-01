@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
@@ -13,6 +14,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class ExtractedInstallationValidationVerification
 {
     /// <summary>Checks ROM-free startup and strict path-bearing diagnostics for known damaged installations.</summary>
+    [PrivateInstallation("Checks that OpenOrRepair accepts valid extracted-only content without a ROM, the startup contract the strict diagnostics share.")]
     internal static int Run(string sourceRoot)
     {
         GameInstallation source = GameAssetInstallerTooling.ValidateExtractedContent(sourceRoot);
@@ -85,6 +87,7 @@ internal static class ExtractedInstallationValidationVerification
     }
 
     /// <summary>Checks that a damaged fixture is rejected without repair or any content mutation.</summary>
+    [PrivateInstallation("Checks that OpenOrRepair refuses to repair a damaged installation without its ROM and leaves its content untouched.")]
     private static void VerifyRejection<T>(GameInstallation fixture, string failingPath, string scenario) where T : Exception
     {
         Dictionary<string, string> damaged = Snapshot(fixture.ContentDirectory);

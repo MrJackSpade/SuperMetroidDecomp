@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
@@ -28,6 +29,7 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 internal static class CeresRidleyColorsVerification
 {
     /// <summary>Verifies extracted colors, edited palette effects, legacy override migration, and guarded ROM access.</summary>
+    [PrivateInstallation("Checks the import pipeline's CeresRidleyColorExtractor and MapPresentationExtractor on the cartridge: Ceres Ridley Color Override.")]
     internal static void VerifyCeresRidleyColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentation original, ISnesAddressSpace rom,
         GameplayBasePalette initialPalettes,

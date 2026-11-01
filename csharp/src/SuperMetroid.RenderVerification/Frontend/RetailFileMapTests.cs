@@ -19,7 +19,6 @@ internal static class RetailFileMapTests
     /// <summary>Covers all areas, backdrop and scroll variants, then both load and cancel routes.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         int samples = 0;
         void Compare(RgbaPixel[] expected, LayeredScene scene, string context)
         {
@@ -43,7 +42,7 @@ internal static class RetailFileMapTests
         }
         foreach (bool cancel in new[] { false, true })
         {
-            var saves = new SuperMetroid.Core.Saves.SaveSlotStore(SaveMapPresentationFixture.Create(bus));
+            var saves = new SuperMetroid.Core.Saves.SaveSlotStore(SaveMapPresentationFixture.Create());
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
             saves.SaveSlot(0, save);

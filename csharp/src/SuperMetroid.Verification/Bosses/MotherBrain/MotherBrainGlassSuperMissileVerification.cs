@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -39,10 +39,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         enemies.MotherBrainEncounter.MotherBrain = state;
         ((List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
-        string root = Path.GetFullPath("out/workbook-investigation/crocomire-install");
-        var installation = GameAssetInstaller.EnsureInstalled(root) ??
-            GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), root);
-        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = installation.LoadProjectiles().FrameBindings } };
+        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = RepositoryInstallation.Installation.LoadProjectiles().FrameBindings } };
         var bombs = new SamusBombProjectileSystem();
         // A fired Super Missile occupies two slots at one position, as on the movie's frame:
         // the missile and its zero-radius link, with the instruction lists the port fires.

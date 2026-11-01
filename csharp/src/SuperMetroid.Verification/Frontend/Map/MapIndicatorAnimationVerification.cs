@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Pause;
@@ -23,6 +24,7 @@ internal static class MapIndicatorAnimationVerification
     }
 
     /// <summary>Compares native frame delays and 49 ticks of marker phase and backing alternation.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Map Indicator Delays with MapSaveMarkerExtractor output read from the cartridge.")]
     internal static void VerifyMapIndicatorDelays(ISnesAddressSpace rom)
     {
         AssertEqual((byte)0xe0, rom.ReadCartridgeByte(0x82ba06), "native marker frame CPX");

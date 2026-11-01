@@ -11,7 +11,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Hardware;
@@ -30,8 +30,7 @@ internal static class DmaArtworkBoundaryVerification
         Suite(nameof(VerifyVramWriteQueue), () => VerifyVramWriteQueue());
         Suite(nameof(VerifyDmaSourceRouting), () => VerifyDmaSourceRouting());
         Suite(nameof(VerifyQueuedVramAssets), () => VerifyQueuedVramAssets());
-        using var temporary = new TestScratchDirectory("map-catalog");
-        GameInstallation installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
+        GameInstallation installation = RepositoryInstallation.Installation;
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         InstalledEnemyArtwork art = installation.LoadEnemyTiles();
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();

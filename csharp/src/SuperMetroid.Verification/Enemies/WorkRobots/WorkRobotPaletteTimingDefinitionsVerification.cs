@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Samus.Palettes;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
@@ -21,6 +22,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>Compares six native timing records and colors, then follows a full edited-color cycle through CGRAM.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Work Robot Palette Timing Definitions with WorkRobotPaletteCycleExtractor output read from the cartridge.")]
     internal static void VerifyWorkRobotPaletteTimingDefinitions(
         SuperMetroidAddressSpace rom)
     {

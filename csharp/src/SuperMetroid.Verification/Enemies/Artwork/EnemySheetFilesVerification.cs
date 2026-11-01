@@ -22,6 +22,7 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 internal static class EnemySheetFilesVerification
 {
     /// <summary>Extracts the enemy sheets into a scratch directory, loads them and compares each frame with its composition.</summary>
+    [PrivateInstallation("Checks the import pipeline's EnemySheetFiles on the cartridge: Enemy Sheet Files.")]
     internal static void VerifyEnemySheetFiles()
     {
         DirectoryInfo scratch = Directory.CreateTempSubdirectory("sm-enemy-sheets-");

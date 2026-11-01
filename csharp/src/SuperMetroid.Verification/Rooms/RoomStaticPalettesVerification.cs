@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -19,6 +20,7 @@ using SuperMetroid.Core.World.RoomStates;
 internal static class RoomStaticPalettesVerification
 {
     /// <summary>Compares all distinct native palettes and checks room loading plus a single-color JSON edit.</summary>
+    [PrivateInstallation("Checks the import pipeline's RoomStaticPaletteExtractor on the cartridge: Room Static Palette Extraction.")]
     internal static void VerifyRoomStaticPaletteExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");

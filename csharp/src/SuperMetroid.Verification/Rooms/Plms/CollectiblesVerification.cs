@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Hud;
@@ -702,6 +703,7 @@ internal static class CollectiblesVerification
             ?? throw new InvalidOperationException("An active suit pickup captures its window.")).Window;
 
     /// <summary>Checks suit-pickup window staging, beam curve, palette reveal, input release, and Gravity priority.</summary>
+    [PrivateInstallation("Runs SamusSuitColorExtractor over this fixture's own seeded test address space rather than the retail cartridge the repository installation was extracted from.")]
     private static void VerifySuitPickupTransformation()
     {
         TestAddressSpace bus = CreateSuitPickupCartridge();

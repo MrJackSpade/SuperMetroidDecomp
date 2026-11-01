@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Audio;
 namespace SuperMetroid.IntegrationVerification.Installation;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
@@ -26,17 +27,20 @@ using SuperMetroid.AssetExtraction.Assets;
 /// </summary>
 internal static class InstallationOverrideLifecycleVerification
 {
-    /// <summary>Installs into scratch storage and checks override survival across ROM-free startup, stock repair, and format upgrade.</summary>
-    internal static int Run(string sourceRom)
+    /// <summary>
+    /// Copies the repository installation into scratch storage and checks override survival across ROM-free startup,
+    /// stock repair, and format upgrade.
+    /// </summary>
+    [PrivateInstallation("Checks the installer's stock repair and extraction-format upgrade on an installation that holds every override domain, and that OpenOrRepair opens it without its ROM.")]
+    internal static int Run()
     {
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
         using var temporaryScratch = new TestScratchDirectory("override-lifecycle");
         string temporary = temporaryScratch.Root;
         Directory.CreateDirectory(temporary);
         try
         {
-            string input = Path.Combine(temporary, "import-input.smc");
-            File.Copy(sourceRom, input);
-            GameInstallation installation = GameAssetInstaller.Install(input, Path.Combine(temporary, "installation"));
+            GameInstallation installation = copy.Installation;
             Dictionary<string, string> stockFiles = FileSnapshot(installation.ContentDirectory);
             Dictionary<string, string> baseline = CatalogSnapshot(installation);
             string[] domains = CopyEveryOverrideDomain(installation);
@@ -49,7 +53,6 @@ internal static class InstallationOverrideLifecycleVerification
 
             string heldRom = Path.Combine(temporary, "held-import-copy.smc");
             File.Move(installation.RomPath, heldRom);
-            File.Delete(input);
             Assert(GameAssetInstaller.OpenOrRepair(installation.Root) is not null,
                 "complete overridden installation opens with source and installed ROM unavailable");
             VerifySelected(installation, edits, selected, overrideFiles, "ROM-unavailable startup");
@@ -196,6 +199,7 @@ internal static class InstallationOverrideLifecycleVerification
     }
 
     /// <summary>Checks that a malformed user PNG remains on disk and reports its path instead of falling back to stock.</summary>
+    [PrivateInstallation("Checks that OpenOrRepair leaves an installation with an invalid override in place instead of repairing it destructively.")]
     private static void VerifyInvalidOverrideIsRetained(GameInstallation installation, Dictionary<string, string> expected)
     {
         string path = Path.Combine(installation.StandardObjectOverrideDirectory, StandardObjectArtworkFormat.FileName);

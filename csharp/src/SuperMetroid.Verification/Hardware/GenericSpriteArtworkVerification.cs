@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
@@ -32,8 +33,7 @@ internal static class GenericSpriteArtworkVerification
     /// </summary>
     internal static void VerifyGenericSpriteArtwork(string sourceRom)
     {
-        using var temporary = new TestScratchDirectory("map-catalog");
-        GameInstallation installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
+        GameInstallation installation = RepositoryInstallation.Installation;
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         AreaMapPresentation maps = installation.LoadMaps();

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
@@ -40,6 +41,7 @@ internal static class PaletteJsonContractsFixturesVerification
         .Select(row => PaletteContractColors(colors, row)).ToArray();
 
     /// <summary>Supplies one valid document per supported palette family, including native frame and CGRAM dimensions.</summary>
+    [PrivateInstallation("Checks the import pipeline's RoomPaletteFxPresentationExtractor on the cartridge: Palette Json Contracts.")]
     internal static IEnumerable<PaletteJsonContract> PaletteJsonContracts()
     {
         yield return new("room static", PaletteContractDocument(new RoomStaticPaletteDocument

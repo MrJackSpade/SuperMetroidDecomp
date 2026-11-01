@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -455,6 +456,7 @@ internal static class LookupStream1Verification
     /// <summary>Reads the native centisecond correction table in bank $80.</summary>
     private static byte LookupStream1TimerCadenceRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks escape timer glyph geometry, independently edited pixels, and encoded VRAM output.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Timer Glyphs with EscapeTimerTileAtlasExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream1TimerGlyphs(ISnesAddressSpace rom)
     {
         byte[] png = EscapeTimerTileAtlasExtractor.Extract(rom);
@@ -854,6 +856,7 @@ internal static class LookupStream1Verification
     private static byte LookupStream1BodyGraphicsOriginsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks drained-pose Y offsets and independent spritemap geometry edits.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Drained Geometry with SamusBodyArtworkFiles output read from the cartridge.")]
     internal static void VerifyLookupStream1DrainedGeometry(ISnesAddressSpace rom)
     {
         string directory = Path.GetFullPath("csharp/test-temp/drained-geometry-native");
@@ -914,6 +917,7 @@ internal static class LookupStream1Verification
     /// <summary>Reads native drained Samus pose offsets for geometry comparison.</summary>
     private static byte LookupStream1DrainedGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks morph-transition posture offsets independently of tile and spritemap edits.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Posture Geometry with SamusBodyArtworkFiles output read from the cartridge.")]
     internal static void VerifyLookupStream1PostureGeometry(ISnesAddressSpace rom)
     {
         string directory = Path.GetFullPath("csharp/test-temp/posture-geometry-native");
@@ -1188,6 +1192,7 @@ internal static class LookupStream1Verification
 
 
     /// <summary>Checks arm-cannon pose pointers and independent edited placement against native selections.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Cannon Poses with SamusArmCannonArtworkFiles output read from the cartridge.")]
     internal static void VerifyLookupStream1CannonPoses(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");
@@ -1290,6 +1295,7 @@ internal static class LookupStream1Verification
     private static byte LookupStream1HudPostureRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the escape timer's anchors, its sheet draws against the native sprites, and independent anchor and spacing edits.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Timer Layout with EscapeTimerPresentationExtractor and EscapeTimerTileAtlasExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream1TimerLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1TimerLayoutRomByte(rom, address), LookupStream1TimerLayoutRomByte(rom, address + 1));
@@ -1354,6 +1360,7 @@ internal static class LookupStream1Verification
     /// <summary>Reads native escape timer OAM layout bytes.</summary>
     private static byte LookupStream1TimerLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks flare origin words, independent placement edits, and emitted OAM.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Flare Placement with ChargeFlarePlacementExtractor, ChargeFlareSpriteExtractor and GrappleFlarePlacementExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream1FlarePlacement(ISnesAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(LittleEndianBytes.Word(LookupStream1FlarePlacementRomByte(rom, address), LookupStream1FlarePlacementRomByte(rom, address + 1))));
@@ -1760,6 +1767,7 @@ internal static class LookupStream1Verification
     private static byte LookupStream1DeathDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks charge-flare sprite selectors and extracted visual records against native pointers.</summary>
+    [PrivateInstallation("Checks the import pipeline's ChargeFlareSpriteExtractor on the cartridge: Visual Catalogs.")]
     private static void VerifyLookupStream1VisualCatalogs(ISnesAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1VisualCatalogsRomByte(rom, address), LookupStream1VisualCatalogsRomByte(rom, address + 1));
@@ -1891,6 +1899,7 @@ internal static class LookupStream1Verification
     /// <summary>Reads native pose policy bytes, including the special drained poses.</summary>
     private static byte LookupStream1SamusPolicyDomainsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks arm-cannon tile source words and independent source selection across directions.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Arm Cannon Tile Sources with SamusArmCannonArtworkFiles output read from the cartridge.")]
     internal static void VerifyLookupStream1ArmCannonTileSources(ISnesAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1ArmCannonTileSourcesRomByte(rom, address), LookupStream1ArmCannonTileSourcesRomByte(rom, address + 1));
@@ -2046,6 +2055,7 @@ internal static class LookupStream1Verification
         SpritePart.Single(tileRow * SpriteArtwork.CharactersPerRow + tileColumn, palette, priority,
             (flipHorizontally ? TileFlip.Horizontal : TileFlip.None) | (flipVertically ? TileFlip.Vertical : TileFlip.None));
     /// <summary>Checks arm-cannon drawing commands and extracted placement through native OAM results.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Cannon Drawing Controls with SamusArmCannonArtworkFiles output read from the cartridge.")]
     internal static void VerifyLookupStream1CannonDrawingControls(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");
@@ -2270,6 +2280,7 @@ internal static class LookupStream1Verification
     private static byte LookupStream1AtmosphericAttributesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks extracted escape typewriter glyph and placement data against native text drawing.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Escape Text with EscapeTypewriterExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream1EscapeText(ISnesAddressSpace rom)
     {
         byte[] json = EscapeTypewriterExtractor.Extract(rom);
@@ -2371,6 +2382,7 @@ internal static class LookupStream1Verification
     private static byte LookupStream1EscapeTextRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks Samus visor color extraction, channel relationships, and independent edits.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Visor Colors with SamusVisorColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream1VisorColors(ISnesAddressSpace rom)
     {
         var document = RequiredJson.Deserialize<SamusVisorColorDocument>(
@@ -2666,6 +2678,7 @@ internal static class LookupStream1Verification
     /// <summary>Reads native projectile program words for control and hold comparison.</summary>
     private static byte LookupStream1ProjectileProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks cannon placement relative to Samus body poses and edited artwork geometry.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Cannon Placement with SamusBodyArtworkFiles output read from the cartridge.")]
     internal static void VerifyLookupStream1CannonPlacement(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");
@@ -2765,6 +2778,7 @@ internal static class LookupStream1Verification
     private static byte LookupStream1CannonPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks Samus spritemap pointer roots and independently editable OAM definitions.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Oam Pointers with SamusBodyArtworkFiles output read from the cartridge.")]
     internal static void VerifyLookupStream1OamPointers(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");
@@ -2847,6 +2861,7 @@ internal static class LookupStream1Verification
     }
 
     /// <summary>Checks body tile pixel inputs, derived bytes, and independent edited planar data.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Body Pixels with SamusBodyArtworkFiles output read from the cartridge.")]
     internal static void VerifyLookupStream1BodyPixels(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");
@@ -2942,6 +2957,7 @@ internal static class LookupStream1Verification
     /// <summary>Reads planar Samus body tile bytes before derived pixel expansion.</summary>
     private static byte LookupStream1BodyPixelsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks body tile DMA definitions and actual native-sized VRAM transfer output.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Body Transfers with SamusBodyArtworkFiles output read from the cartridge.")]
     internal static void VerifyLookupStream1BodyTransfers(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");

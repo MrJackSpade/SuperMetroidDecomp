@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -14,6 +15,7 @@ namespace SuperMetroid.Verification.Frontend.Menus;
 internal static class MenuThinBorderPixelsVerification
 {
     /// <summary>Compares stock atlas uploads and every border pixel, then checks edited art and invalid coordinates.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Menu Thin Border Pixels with MapSpriteExtractor output read from the cartridge.")]
     internal static void VerifyMenuThinBorderPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0xad, 0xae];

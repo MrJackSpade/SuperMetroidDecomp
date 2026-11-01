@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Samus.Palettes;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -21,6 +22,7 @@ internal static class CrocomireRumbleDefinitionsVerification
     private const ushort RumbleEndMarker = 0x8080;
 
     /// <summary>Audits all source words, then compares every rumble update through wall-spike palette publication.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Crocomire Rumble Definitions with CrocomireColorExtractor output read from the cartridge.")]
     internal static void VerifyCrocomireRumbleDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa498ca;

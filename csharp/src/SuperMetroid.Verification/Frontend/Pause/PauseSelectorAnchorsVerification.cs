@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -14,6 +15,7 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseSelectorAnchorsVerification
 {
     /// <summary>Compares original selector names and coordinates with compiled stock and checks edited component storage.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Pause Selector Anchors with PauseSelectorExtractor output read from the cartridge.")]
     internal static void VerifyPauseSelectorAnchors(ISnesAddressSpace rom)
     {
         // Original names from the preconversion definition table, kept only as the oracle.
@@ -59,6 +61,7 @@ internal static class PauseSelectorAnchorsVerification
     }
 
     /// <summary>Rejects omitted, substituted, case-changed, and extra pause label keys.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Pause Label Identity Admission with PauseEquipmentLabelExtractor output read from the cartridge.")]
     private static void VerifyPauseLabelIdentityAdmission(ISnesAddressSpace rom, string[] names)
     {
         byte[] source = PauseEquipmentLabelExtractor.Extract(rom);

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -88,6 +89,7 @@ internal static class MapSaveMarkersVerification
     }
 
     /// <summary>Checks marker OAM, edited Maridia position, snapshot rebind, and load handoff timing.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Map Save Markers with MapPresentationExtractor output read from the cartridge.")]
     internal static void VerifyMapSaveMarkers(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
         var guard = NewSaveMarkerGuard(bus);

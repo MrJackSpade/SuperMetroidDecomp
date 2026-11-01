@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -130,6 +131,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
     }
 
     /// <summary>Checks extracted stock validation, override persistence, and rejection of malformed or tampered visual files.</summary>
+    [PrivateInstallation("Checks the RoomPlmMotherBrainGlassVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     private static void VerifyMotherBrainGlassVisualInstallation(
         SuperMetroidAddressSpace rom)
     {

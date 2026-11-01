@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -19,6 +20,7 @@ internal static class ZebesPlanetBandPartsVerification
 {
     /// <summary>Compares stock part fields and visible or wrapped OAM, then
     /// checks each independently edited field bypasses calculated substitution.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Zebes Planet Band Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyZebesPlanetBandParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("ZebesPlanetBand", value.AppendIdentity);

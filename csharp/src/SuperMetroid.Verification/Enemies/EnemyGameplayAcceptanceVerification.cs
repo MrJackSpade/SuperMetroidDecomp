@@ -72,9 +72,9 @@ internal static class EnemyGameplayAcceptanceVerification
     private static void VerifyEnemyPopulationPresentationIsolation(CartridgeImportAddressSpace source)
     {
         using var temporary = new TestScratchDirectory("map-catalog");
-        string stockPath = Path.Combine(temporary.Root, "stock");
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        string stockPath = copy.Installation.EnemyTileDirectory;
         string overridePath = Path.Combine(temporary.Root, "overrides");
-        EnemyTileArtworkFiles.Extract(source, stockPath, SupportedCartridge.Sha256);
         InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(stockPath, null);
 
         // Body/wing adjacency is gameplay-visible: the wing initializer aliases the

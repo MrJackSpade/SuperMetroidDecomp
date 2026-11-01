@@ -29,6 +29,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 internal static class RoomCharacterInstallationVerification
 {
     /// <summary>Stock import, live edit, repair and invalid-override contract for room art, in a writable installation.</summary>
+    [PrivateInstallation("Checks that installer repair restores deleted room character, palette, block and background stock files on a private copy while their overrides survive.")]
     internal static void VerifyRoomArtworkInstallation(GameInstallation installed, CartridgeImportAddressSpace bus, SelectedRoom landing)
     {
         AssertTrue(File.Exists(Path.Combine(installed.RoomCharacterDirectory,

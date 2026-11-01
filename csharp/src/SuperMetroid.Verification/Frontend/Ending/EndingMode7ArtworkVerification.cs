@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend;
@@ -23,6 +24,7 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingMode7ArtworkVerification
 {
     /// <summary>Checks three installed scenes against decompressed cartridge data and rendered output, then verifies map/PNG edits, partial DMA preservation, and stock repair.</summary>
+    [PrivateInstallation("Checks that installer repair regenerates the corrupted stock ending Mode 7 artwork on a private copy.")]
     internal static void VerifyEndingMode7Artwork(GameInstallation installation)
     {
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

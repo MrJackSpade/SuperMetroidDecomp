@@ -473,7 +473,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyElevatubeScrolling), () => VerifyElevatubeScrolling()),
         .. RenderContractSuites(),
         new(nameof(VerifyRandomNumberGeneratorExhaustively), () => VerifyRandomNumberGeneratorExhaustively()),
-        new(nameof(SaveLoadRandomAudit), () => SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), InstalledFixtures.BindGame)),
+        new(nameof(SaveLoadRandomAudit), () => SaveLoadRandomAudit.Run(InstalledFixtures.BindGame)),
         new(nameof(VerifySandAnimatedTiles), () => VerifySandAnimatedTiles()),
         new(nameof(VerifyQuicksand), () => VerifyQuicksand()),
         new(nameof(VerifyTreadmillPhysics), () => VerifyTreadmillPhysics()),

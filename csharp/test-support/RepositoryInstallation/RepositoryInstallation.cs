@@ -27,7 +27,12 @@ internal static class RepositoryInstallation
     private static readonly TimeSpan SetupLockWait = TimeSpan.FromMinutes(30);
 
     /// <summary>Installs the pinned repository ROM into ignored verifier content on first access.</summary>
-    private static readonly Lazy<GameInstallation> installation = new(() => SharedFixtureTiming.Load("Fixture: repository installation", () =>
+    private static readonly Lazy<GameInstallation> installation =
+        new(() => SharedFixtureTiming.Load("Fixture: repository installation", InstallShared));
+
+    /// <summary>Opens, repairs or extracts the one installation every check in the process shares.</summary>
+    [PrivateInstallation("The shared repository installation itself: every other check reads it or copies it instead of installing.")]
+    private static GameInstallation InstallShared()
     {
         string root = Path.GetFullPath(Path.Combine(CacheRoot, "verification-installed-content"));
         DateTime deadline = DateTime.UtcNow + SetupLockWait;
@@ -47,7 +52,7 @@ internal static class RepositoryInstallation
                 Thread.Sleep(TimeSpan.FromSeconds(2));
             }
         }
-    }));
+    }
 
     /// <summary>The installation's presentation catalogs, loaded once per process and bound to every fixture.</summary>
     private static readonly Lazy<GameArtwork> artwork =

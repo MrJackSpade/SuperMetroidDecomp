@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -27,6 +28,7 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 internal static class CeresDestructionArtworkVerification
 {
     /// <summary>Confirms native maps, characters, and OAM, then exercises editable actor, sprite, map, and PNG overrides through the running scene.</summary>
+    [PrivateInstallation("Checks that installer repair restores corrupted Ceres destruction stock files on a private copy while their overrides survive.")]
     internal static void VerifyCeresDestructionArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Tooling;
@@ -170,6 +171,7 @@ internal static class MotherBrainBodyPresentationVerification
     }
 
     /// <summary>Invokes import-only parsers for the 17 statically inventoried body roots.</summary>
+    [PrivateInstallation("Checks the import pipeline's EnemyExtendedFrameFiles and MotherBrainBodyBg2FrameFiles on the cartridge: Mother Brain Body Stock Presentation.")]
     internal static void VerifyMotherBrainBodyStockPresentation()
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -191,8 +193,8 @@ internal static class MotherBrainBodyPresentationVerification
         Console.WriteLine($"PASS stock import: 17 Mother Brain roots, {limbs} OAM limbs/{sprites} sprites, " +
             $"16 BG2 frames/{runs} ordered runs/{tiles} tile words. Production runtime receives no cartridge source.");
         using var temporary = new TestScratchDirectory("map-catalog");
-        string stockPath = Path.Combine(temporary.Root, "stock"), overridePath = Path.Combine(temporary.Root, "overrides");
-        EnemyTileArtworkFiles.Extract(source, stockPath, SupportedCartridge.Sha256);
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        string stockPath = copy.Installation.EnemyTileDirectory, overridePath = Path.Combine(temporary.Root, "overrides");
         EnemyTileArtworkFiles.ValidateStock(stockPath);
         InstalledEnemyArtwork installed = EnemyTileArtworkFiles.Load(stockPath, null);
         AssertEqual(bg2.ContentIdentity, (installed.Bosses.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires installed.MotherBrainBodyBg2Frames.")).ContentIdentity,

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
@@ -26,6 +27,7 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 internal static class CeresEscapeVramTransferDefinitionsVerification
 {
     /// <summary>Compares nineteen native records and three terminators, then queues production transfers without descriptor reads.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Ceres Escape Vram Transfer Definitions with CeresEscapeOverlayTilemapFiles output read from the cartridge.")]
     internal static void VerifyCeresEscapeVramTransferDefinitions(ISnesAddressSpace rom)
     {
         IReadOnlyList<TileTransferDefinition> records =
@@ -120,6 +122,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
 
 
     /// <summary>Imports indexed character pages needed to run the installed Ceres escape transfer path.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Import Ceres Escape Tile Pages with IndexedTilePageExtractor output read from the cartridge.")]
     private static RoomCharacterAtlas[] ImportCeresEscapeTilePages(ISnesAddressSpace rom) =>
         CeresEscapeTileArtworkDefinitions.All.Select((page, index) =>
             RoomCharacterAtlasPng.Read(new MemoryStream(

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction;
@@ -19,26 +20,19 @@ internal static class BombTorizoHandArtworkVerification
     internal static void VerifyBombTorizoHandArtwork()
     {
         var importer = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),
-            "bomb-torizo-hand-artwork-" + Guid.NewGuid().ToString("N"));
-        try
-        {
-            EnemyTileArtworkFiles.Extract(importer, directory, SupportedCartridge.Sha256);
-            InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory, null);
-            TorizoTileSheet page = TorizoSwapArtworkDefinitions.ChozoDebris;
-            AssertTrue(new EnemyTileTransfers(stock).TryResolve(page.SourceAddress, page.ByteCount, out ReadOnlyMemory<byte> bytes),
-                "installed Chozo debris page exists");
-            for (int index = 0; index < bytes.Length; index++)
-                AssertEqual(importer.ReadCartridgeByte(page.SourceAddress + index), bytes.Span[index],
-                    $"imported debris tile byte {index:X4} matches the pinned cartridge");
-            VerifyBombTorizoDebrisOverride(directory, stock, page);
-            Console.WriteLine("Bomb Torizo hand artwork: 1,024 native tile bytes, PNG override editing and missing-page " +
-                "rejection pass.");
-        }
-        finally
-        {
-            if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
-        }
+        // The override check edits and deletes stock enemy-tile files, so it runs on a private installation copy.
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        string directory = copy.Installation.EnemyTileDirectory;
+        InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory, null);
+        TorizoTileSheet page = TorizoSwapArtworkDefinitions.ChozoDebris;
+        AssertTrue(new EnemyTileTransfers(stock).TryResolve(page.SourceAddress, page.ByteCount, out ReadOnlyMemory<byte> bytes),
+            "installed Chozo debris page exists");
+        for (int index = 0; index < bytes.Length; index++)
+            AssertEqual(importer.ReadCartridgeByte(page.SourceAddress + index), bytes.Span[index],
+                $"imported debris tile byte {index:X4} matches the pinned cartridge");
+        VerifyBombTorizoDebrisOverride(directory, stock, page);
+        Console.WriteLine("Bomb Torizo hand artwork: 1,024 native tile bytes, PNG override editing and missing-page " +
+            "rejection pass.");
     }
 
     /// <summary>Checks a PNG override changes exactly its edited planar pixel of the installed debris page.</summary>

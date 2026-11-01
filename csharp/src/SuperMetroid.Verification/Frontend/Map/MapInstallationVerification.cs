@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
@@ -32,6 +33,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 internal static class MapInstallationVerification
 {
     /// <summary>Opt-in full importer transaction; all ROM/audio/fixture data stays in ignored test-temp.</summary>
+    [PrivateInstallation("Checks the full installer: fresh import, startup that never opens the ROM, cancelled and real format upgrades, the no-op restart and override preservation.")]
     internal static void VerifyMapInstallation(string sourceRom)
     {
         using var rootScratch = new TestScratchDirectory("map-installation");

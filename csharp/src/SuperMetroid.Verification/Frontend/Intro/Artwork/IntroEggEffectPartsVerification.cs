@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -14,6 +15,7 @@ namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 internal static class IntroEggEffectPartsVerification
 {
     /// <summary>Preserves custom edits while checking original-frame identity and visible or wrapped OAM output.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Intro Egg Effect Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyIntroEggEffectParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("egg-effect", value.AppendIdentity);

@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Desktop.Window;
 namespace SuperMetroid.DesktopVerification.Startup;
@@ -12,10 +14,11 @@ using SuperMetroid.Core;
 /// </summary>
 internal static class RomlessDesktopStartupTest
 {
-    /// <summary>Installs assets into a temporary directory, removes that copy's
+    /// <summary>Copies the repository installation into a temporary directory, removes that copy's
     /// ROM, and verifies host startup, frame advance, debugger state, and replay
     /// recover the same pixels without cartridge data.</summary>
-    public static void Run(string sourceRom)
+    [PrivateInstallation("Checks that OpenOrRepair accepts a complete extracted installation whose ROM has been removed, as the Windows host's startup does.")]
+    public static void Run()
     {
         string tempRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp"));
         string root = Path.GetFullPath(Path.Combine(tempRoot,
@@ -25,7 +28,8 @@ internal static class RomlessDesktopStartupTest
             throw new InvalidOperationException("ROM-less desktop test escaped test-temp.");
         try
         {
-            GameInstallation installation = GameAssetInstaller.Install(sourceRom, root);
+            PrivateInstallationCopy.CopyInstallation(RepositoryInstallation.Installation.Root, root);
+            var installation = new GameInstallation(root);
             File.Move(installation.RomPath, Path.Combine(root, "held-rom.smc"));
             if (GameAssetInstaller.OpenOrRepair(root) is null)
                 throw new InvalidOperationException(

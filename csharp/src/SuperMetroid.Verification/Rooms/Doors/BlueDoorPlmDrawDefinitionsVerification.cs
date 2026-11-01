@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -121,6 +122,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
         DoorPlmNativeListAddresses.BlueEntries.Single(entry => entry.Program == program).Entry;
 
     /// <summary>Checks stock extraction and persistent visual override loading, including invalid artwork and stock tampering.</summary>
+    [PrivateInstallation("Checks the RoomPlmBlueDoorVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     private static void VerifyBlueDoorVisualInstallation(
         SuperMetroidAddressSpace rom, ushort firstDraw)
     {

@@ -79,8 +79,8 @@ internal static class DesktopAccess
         AudioSessionAccess.CreateSynthesizing(LoadAudioAssets(audioDirectory));
 
     /// <summary>
-    /// A game control over the installation beside a ROM path, importing it on first use, or over
-    /// an explicit extracted data directory.
+    /// A game control over the installation placed beside a ROM path (see <see cref="InstallationDirectoryName"/>),
+    /// or over an explicit extracted data directory.
     /// </summary>
     internal static PlayableGameControl CreateGameControl(
         string romPath,
@@ -91,10 +91,13 @@ internal static class DesktopAccess
         string? dataDirectory = null) =>
         new(InstallationFor(romPath, dataDirectory), hostOptions, driver, errorReporter, audioDirectory);
 
-    /// <summary>Directory beside a ROM where <see cref="InstallationFor"/> opens or creates its installation.</summary>
+    /// <summary>Directory beside a ROM where <see cref="InstallationFor"/> opens the installation a check placed there.</summary>
     internal const string InstallationDirectoryName = "SuperMetroid-installed";
 
-    /// <summary>Uses an explicit extracted directory or repairs and opens the installation beside a ROM.</summary>
+    /// <summary>
+    /// Uses an explicit extracted directory or opens the complete installation a check copied beside a ROM; a check
+    /// never imports the ROM here, and a missing or incomplete copy fails.
+    /// </summary>
     internal static GameInstallation InstallationFor(string romPath, string? dataDirectory = null)
     {
         if (dataDirectory is not null)
@@ -102,7 +105,8 @@ internal static class DesktopAccess
         string fullRomPath = Path.GetFullPath(romPath);
         string root = Path.Combine(Path.GetDirectoryName(fullRomPath)
             ?? throw new InvalidOperationException("Cartridge path has no parent directory."), InstallationDirectoryName);
-        return GameAssetInstaller.OpenOrRepair(root) ?? GameAssetInstaller.Install(fullRomPath, root);
+        return GameAssetInstaller.TryOpenExtractedContent(root) ?? throw new InvalidOperationException(
+            $"No complete installation was placed beside {fullRomPath} at {root}.");
     }
 
 }

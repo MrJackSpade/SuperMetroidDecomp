@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -15,6 +16,7 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics.Artwork;
 internal static class CeresReflectedStarPartsVerification
 {
     /// <summary>Verifies stock reflection, bounds, independent edits, and OAM after presentation reload.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Ceres Reflected Star Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyCeresReflectedStarParts(ISnesAddressSpace rom)
     {
         var original = IntroCinematicSpriteFrameExtractor.Extract(rom, 0x9478, 25, "stars");

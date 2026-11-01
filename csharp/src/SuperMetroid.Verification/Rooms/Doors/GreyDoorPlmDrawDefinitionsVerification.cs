@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -287,6 +288,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
     }
 
     /// <summary>Extracts stock grey-door art, applies an override and checks refresh persistence and tamper rejection.</summary>
+    [PrivateInstallation("Checks the RoomPlmGreyDoorVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     private static void VerifyGreyDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("grey-door-visual");

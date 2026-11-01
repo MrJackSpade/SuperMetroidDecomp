@@ -25,11 +25,12 @@ internal static class MotherBrainCorpseArtworkVerification
     /// <summary>Extracts the retail corpse sheet and runs its installation and edit checks from a validated stock catalog.</summary>
     internal static void VerifyMotherBrainCorpseStockArtwork()
     {
-        using var temporary = new TestScratchDirectory("map-catalog");
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        EnemyTileArtworkFiles.Extract(source, temporary.Root, SupportedCartridge.Sha256);
-        EnemyTileArtworkFiles.ValidateStock(temporary.Root);
-        Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(temporary.Root, EnemyTileArtworkFiles.Load(temporary.Root, null)));
+        // The corpse suite writes overrides beside the stock files, so it runs on a private installation copy.
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        string stock = copy.Installation.EnemyTileDirectory;
+        EnemyTileArtworkFiles.ValidateStock(stock);
+        Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(stock, EnemyTileArtworkFiles.Load(stock, null)));
     }
 
     /// <summary>Reads the banked native corpse character sheet solely as a verification oracle.</summary>

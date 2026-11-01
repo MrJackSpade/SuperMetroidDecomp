@@ -10,7 +10,7 @@ internal static class InstallationCopyVerification
     /// A writable copy of the repository installation in <paramref name="root"/>, for checks that edit, delete and repair
     /// installed files: the shared installation never changes, and a copy costs far less than extracting the ROM again.
     /// </summary>
-    /// <exception cref="InvalidDataException">The copy holds no ROM.</exception>
+    /// <exception cref="InvalidDataException">The copy is not a complete extracted installation.</exception>
     internal static GameInstallation CopyRepositoryInstallation(string root)
     {
         string source = RepositoryInstallation.Installation.ContentDirectory;
@@ -20,7 +20,7 @@ internal static class InstallationCopyVerification
             Directory.CreateDirectory(Path.Combine(destination, Path.GetRelativePath(source, directory)));
         foreach (string file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
             File.Copy(file, Path.Combine(destination, Path.GetRelativePath(source, file)));
-        return GameAssetInstaller.EnsureInstalled(root)
-            ?? throw new InvalidDataException($"The installation copied to {root} holds no ROM.");
+        return GameAssetInstaller.TryOpenExtractedContent(root)
+            ?? throw new InvalidDataException($"The installation copied to {root} is not complete.");
     }
 }

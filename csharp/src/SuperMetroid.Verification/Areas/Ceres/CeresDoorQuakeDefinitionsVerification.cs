@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Tooling;
@@ -27,6 +28,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     /// <summary>Compares four native offsets, timer aliases, real OAM phases, and an isolated sprite edit.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Ceres Door Quake Definitions with EnemySpritemapFiles output read from the cartridge.")]
     internal static void VerifyCeresDoorQuakeDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa6a321;

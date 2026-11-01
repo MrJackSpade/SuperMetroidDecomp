@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -17,6 +18,7 @@ using SuperMetroid.Core.Rooms;
 internal static class GameplayMessageTitlesVerification
 {
     /// <summary>Compares installed title rows to cartridge words, then lays a shown message out from a UTF-8 edit and from stock.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Gameplay Message Titles with GameplayMessageTitleExtractor output read from the cartridge.")]
     internal static void VerifyGameplayMessageTitles(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);

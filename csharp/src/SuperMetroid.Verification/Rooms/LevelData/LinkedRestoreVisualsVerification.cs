@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Areas.Escape;
@@ -82,6 +83,7 @@ internal static class LinkedRestoreVisualsVerification
     }
 
     /// <summary>Checks stock extraction, editable override persistence, and rejection of malformed restore artwork.</summary>
+    [PrivateInstallation("Checks the RoomPlmLinkedRestoreVisualFiles extraction itself: the stock files it writes from the cartridge and a repeated extraction over them.")]
     internal static void VerifyLinkedRestoreVisualInstallation(
         SuperMetroidAddressSpace rom)
     {

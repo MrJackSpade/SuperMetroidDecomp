@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Tooling;
@@ -19,6 +20,7 @@ internal static class BotwoonVisualsVerification
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     /// <summary>Compares sixteen installed head frames to native OAM and confirms pre-Botwoon edits survive schema upgrade.</summary>
+    [PrivateInstallation("Checks the import pipeline's EnemySpritemapFiles on the cartridge: Installed Botwoon Visuals.")]
     internal static void VerifyInstalledBotwoonVisuals(
         SuperMetroidAddressSpace rom, EnemyTileSourceArtwork stock)
     {

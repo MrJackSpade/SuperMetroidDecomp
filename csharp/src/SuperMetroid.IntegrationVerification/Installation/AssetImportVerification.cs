@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Diagnostics.Configuration;
@@ -12,6 +13,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class AssetImportVerification
 {
 /// <summary>Exercises invalid imports first, then optional retail extraction, audio parity, cancellation, recovery, and host startup.</summary>
+[PrivateInstallation("Checks the importer itself: rejected non-ROM and wrong-revision input, cancellation, extracted-content reuse, repair after the selected document is gone, and recovery.")]
 public static int Run(string? romPath)
 {
 using var temporaryScratch = new TestScratchDirectory("import-verification");

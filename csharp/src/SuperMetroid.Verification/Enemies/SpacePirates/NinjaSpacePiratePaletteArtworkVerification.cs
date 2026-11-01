@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
@@ -18,6 +19,7 @@ namespace SuperMetroid.Verification.Enemies.SpacePirates;
 internal static class NinjaSpacePiratePaletteArtworkVerification
 {
     /// <summary>Compares native CGRAM, checks an isolated live color edit, and verifies guard and override persistence.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Installed Ninja Space Pirate Palette with EnemyTileArtworkFiles output read from the cartridge.")]
     internal static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

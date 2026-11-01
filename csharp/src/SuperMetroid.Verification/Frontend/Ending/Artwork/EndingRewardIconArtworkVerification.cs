@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Hardware;
@@ -21,6 +22,7 @@ namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 internal static class EndingRewardIconArtworkVerification
 {
     /// <summary>Compares retail pixels and VRAM, then checks map and PNG override rebinds during the landing upload.</summary>
+    [PrivateInstallation("Checks that installer repair restores corrupted ending reward icon stock files on a private copy while their overrides survive.")]
     internal static void VerifyEndingRewardIconArtwork(GameInstallation installation)
     {
         EndingFloorArtwork stock = installation.LoadEndingMode7Art();

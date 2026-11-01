@@ -11,6 +11,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -91,47 +92,42 @@ internal static class LookupStream5Verification
         var oracle = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Melt tilemap source revision");
-        string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"), "lookup-melt-maps-" + Guid.NewGuid().ToString("N"));
-        try
+        InstalledEnemyArtwork catalog = SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(
+            RepositoryInstallation.Installation.EnemyTileDirectory, null);
+        CrocomireMeltingArtwork art = (catalog.Bosses.CrocomireMelting ?? throw new InvalidOperationException("Verification requires catalog.CrocomireMelting."));
+        var native = new ushort[2][];
+        for (int phase = 0; phase < 2; phase++)
         {
-            SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Extract(oracle, directory, SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256);
-            InstalledEnemyArtwork catalog = SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(directory, null);
-            CrocomireMeltingArtwork art = (catalog.Bosses.CrocomireMelting ?? throw new InvalidOperationException("Verification requires catalog.CrocomireMelting."));
-            var native = new ushort[2][];
-            for (int phase = 0; phase < 2; phase++)
+            CrocomireMeltingIllustration source = phase == 0 ? CrocomireMeltingIllustration.First : CrocomireMeltingIllustration.Second;
+            native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingSources.Tilemap(source) + i * 2)).ToArray();
+            var calculated = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, BackgroundTileWordBytes.Tiles(native[phase]));
+            AssertEqual(0, calculated.edits.Count,
+                "Every native melt tilemap word calculates without fallback");
+            AssertTrue(BackgroundTileWordBytes.Words(calculated.Tiles()).SequenceEqual(native[phase]), "All native melt words");
+            AssertTrue(BackgroundTileWordBytes.Words((art ?? throw new InvalidOperationException("Verification requires art.")).Tilemap(source)).SequenceEqual(native[phase]), "Installed melt words");
+            VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
+                ? CrocomireBodyProgram.MeltingOneTopRow : CrocomireBodyProgram.MeltingTwoTopRow);
+            for (int index = 0; index < 256; index++)
             {
-                CrocomireMeltingIllustration source = phase == 0 ? CrocomireMeltingIllustration.First : CrocomireMeltingIllustration.Second;
-                native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingSources.Tilemap(source) + i * 2)).ToArray();
-                var calculated = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, BackgroundTileWordBytes.Tiles(native[phase]));
-                AssertEqual(0, calculated.edits.Count,
-                    "Every native melt tilemap word calculates without fallback");
-                AssertTrue(BackgroundTileWordBytes.Words(calculated.Tiles()).SequenceEqual(native[phase]), "All native melt words");
-                AssertTrue(BackgroundTileWordBytes.Words((art ?? throw new InvalidOperationException("Verification requires art.")).Tilemap(source)).SequenceEqual(native[phase]), "Installed melt words");
-                VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
-                    ? CrocomireBodyProgram.MeltingOneTopRow : CrocomireBodyProgram.MeltingTwoTopRow);
-                for (int index = 0; index < 256; index++)
-                {
-                    ushort[] edited = (ushort[])native[phase].Clone(); edited[index] ^= 0xffff;
-                    var independent = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, BackgroundTileWordBytes.Tiles(edited));
-                    edited[index] = native[phase][index];
-                    ushort[] expected = (ushort[])native[phase].Clone(); expected[index] ^= 0xffff;
-                    AssertTrue(BackgroundTileWordBytes.Words(independent.Tiles()).SequenceEqual(expected), "Full-word edit owns input and preserves neighbors");
-                    AssertTrue(BackgroundTileWordBytes.Words(calculated.Tiles()).SequenceEqual(native[phase]), "Edited map does not mutate stock");
-                }
-                AssertThrows<InvalidDataException>(() => _ = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, new BackgroundTile[255]), "Short melt map rejects");
+                ushort[] edited = (ushort[])native[phase].Clone(); edited[index] ^= 0xffff;
+                var independent = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, BackgroundTileWordBytes.Tiles(edited));
+                edited[index] = native[phase][index];
+                ushort[] expected = (ushort[])native[phase].Clone(); expected[index] ^= 0xffff;
+                AssertTrue(BackgroundTileWordBytes.Words(independent.Tiles()).SequenceEqual(expected), "Full-word edit owns input and preserves neighbors");
+                AssertTrue(BackgroundTileWordBytes.Words(calculated.Tiles()).SequenceEqual(native[phase]), "Edited map does not mutate stock");
             }
-            var first = (art ?? throw new InvalidOperationException("Verification requires art.")).first;
-            var second = art.second;
-            string expectedIdentity = SelectedPresentationHash.Create("enemy-crocomire-melt-v2", content =>
-            {
-                content.Append("first", first.Characters.Span); content.Append("second", second.Characters.Span);
-                content.AppendTiles("first-map", BackgroundTileWordBytes.Tiles(native[0])); content.AppendTiles("second-map", BackgroundTileWordBytes.Tiles(native[1]));
-            });
-            AssertEqual(expectedIdentity, art.ContentIdentity, "Original canonical melt identity");
-            AssertThrows<InvalidDataException>(() => { _ = art.Tilemap(CrocomireMeltingIllustration.Second + 1); }, "Unknown map identity rejects");
-            Console.WriteLine("Crocomire melt layouts: 512 native words, 512 isolated full-word edits, input ownership, both actual guarded BG2 uploads and canonical identity pass.");
+            AssertThrows<InvalidDataException>(() => _ = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, new BackgroundTile[255]), "Short melt map rejects");
         }
-        finally { if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true); }
+        var first = (art ?? throw new InvalidOperationException("Verification requires art.")).first;
+        var second = art.second;
+        string expectedIdentity = SelectedPresentationHash.Create("enemy-crocomire-melt-v2", content =>
+        {
+            content.Append("first", first.Characters.Span); content.Append("second", second.Characters.Span);
+            content.AppendTiles("first-map", BackgroundTileWordBytes.Tiles(native[0])); content.AppendTiles("second-map", BackgroundTileWordBytes.Tiles(native[1]));
+        });
+        AssertEqual(expectedIdentity, art.ContentIdentity, "Original canonical melt identity");
+        AssertThrows<InvalidDataException>(() => { _ = art.Tilemap(CrocomireMeltingIllustration.Second + 1); }, "Unknown map identity rejects");
+        Console.WriteLine("Crocomire melt layouts: 512 native words, 512 isolated full-word edits, input ownership, both actual guarded BG2 uploads and canonical identity pass.");
     }
     /// <summary>Checks Crocomire skeleton VRAM transfer staging and destinations.</summary>
     internal static void VerifyLookupStream5SkeletonTransfers()
@@ -141,23 +137,15 @@ internal static class LookupStream5Verification
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)),
             "Skeleton transfer oracle revision");
-        string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),
-            "lookup-skeleton-transfers-" + Guid.NewGuid().ToString("N"));
-        try
-        {
-            SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Extract(oracle, directory,
-                SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256);
-            VerifyCrocomireSkeletonArtwork(oracle, directory,
-                SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(directory, null));
-            AssertThrows<InvalidDataException>(() => CrocomireSkeletonArtwork.IsChunk(-1),
-                "Skeleton negative transfer index rejects");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = CrocomireSourceDefinitions.SkeletonChunk(6),
-                "Skeleton view excludes sentinel");
-        }
-        finally
-        {
-            if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
-        }
+        // The skeleton check writes an override beside the stock files and corrupts a stock file.
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        string directory = copy.Installation.EnemyTileDirectory;
+        VerifyCrocomireSkeletonArtwork(oracle, directory,
+            SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(directory, null));
+        AssertThrows<InvalidDataException>(() => CrocomireSkeletonArtwork.IsChunk(-1),
+            "Skeleton negative transfer index rejects");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = CrocomireSourceDefinitions.SkeletonChunk(6),
+            "Skeleton view excludes sentinel");
     }
 
     /// <summary>Compares Ceres rumble and falling debris emissions with the native room routine.</summary>
@@ -439,6 +427,7 @@ internal static class LookupStream5Verification
         Console.WriteLine("Phantoon exposure: three native window lengths,210 actual countdown calls, exact collision/shot/close transitions and separate swoop hold pass.");
     }
     /// <summary>Compares Ceres overlay tile words and their installed draw order with retail data.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Ceres Overlay Words with CeresEscapeOverlayTilemapFiles output read from the cartridge.")]
     internal static void VerifyLookupStream5CeresOverlayWords(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlayTilemapFiles.Extract(rom);
@@ -610,6 +599,7 @@ internal static class LookupStream5Verification
         Console.WriteLine("Ceres source page cases: two character sheets/five overlays preserve exact identities, order, extents, enumeration and range domains.");
     }
     /// <summary>Checks authored area-map landmark tiles and their native reveal cases.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Map Landmark Cases with MapLandmarkExtractor and MapSpriteExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream5MapLandmarkCases(SuperMetroidAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Map.MapLandmarkExtractor.Extract(rom);
@@ -773,6 +763,7 @@ internal static class LookupStream5Verification
         Console.WriteLine("Phantoon collision: 22 native frames, 25 components, all seven rectangles/callbacks, actual full-body/eye selection and bounds pass.");
     }
     /// <summary>Compares Phantoon fade color rows and transition timing with cartridge palettes.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Phantoon Fade with PhantoonColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream5PhantoonFade(SuperMetroidAddressSpace rom)
     {
         byte[] bytes = SuperMetroid.AssetExtraction.Bosses.PhantoonColorExtractor.Extract(rom);
@@ -919,6 +910,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Compares Zebes starfield sprite positions and attributes with the native OAM composition.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Zebes Star Fields with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream5ZebesStarFields(SuperMetroidAddressSpace rom)
     {
         var frames = new Dictionary<string, SpriteVisualPart[]>();
@@ -1001,6 +993,7 @@ internal static class LookupStream5Verification
         }
     }
     /// <summary>Checks Tourian statue palette ramps and their CGRAM destinations against native colors.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Statue Ramps with TourianStatueColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream5StatueRamps(SuperMetroidAddressSpace rom)
     {
         byte[] nativeJson = SuperMetroid.AssetExtraction.TourianStatueColorExtractor.Extract(rom);
@@ -1115,6 +1108,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks Magdollite's palette pulse frames and the eight-frame update cadence.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Magdollite Pulse with MagdollitePaletteCycleExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream5MagdollitePulse(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Enemies.MagdollitePaletteCycleExtractor.Extract(rom);
@@ -1164,6 +1158,7 @@ internal static class LookupStream5Verification
         }
     }
     /// <summary>Checks Zebetite color pulses against the installed frame sequence and CGRAM positions.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Zebetite Pulse with ZebetiteColorExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream5ZebetitePulse(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.ZebetiteColorExtractor.Extract(rom);
@@ -1838,6 +1833,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks the Ceres door quake's byte-indexed offsets against original ROM words.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Door Quake Decoding with EnemySpritemapFiles output read from the cartridge.")]
     internal static void VerifyLookupStream5DoorQuakeDecoding(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCeresDoorQuakeDefinitions), () => VerifyCeresDoorQuakeDefinitions(rom));
@@ -1877,6 +1873,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks the Ceres flight scene's transferred colors and CGRAM destinations.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Ceres Flight Palette with CeresFlightArtworkExtractor output read from the cartridge.")]
     internal static void VerifyLookupStream5CeresFlightPalette(SuperMetroidAddressSpace rom)
     {
         var colors = new PaletteRgb5[SnesCgram.ColorCount];

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
@@ -31,6 +32,7 @@ internal static class RoomFxPaletteBlendsVerification
             new DisplayLayer[] { haze }, DisplayBrightness.Full))[120 * DisplayScreen.Width];
 
     /// <summary>Compares compiled FX palettes with the retail source and checks guarded load and reload paths.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Room Fx Palette Blends with RoomFxPaletteBlendExtractor output read from the cartridge.")]
     internal static void VerifyRoomFxPaletteBlends()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -90,6 +92,7 @@ internal static class RoomFxPaletteBlendsVerification
     }
 
     /// <summary>Checks that edited haze channels reach both renderers without changing the stock fade timing.</summary>
+    [PrivateInstallation("Checks the import pipeline's RoomFxPaletteBlendExtractor on the cartridge: Ceres Haze Tint Override.")]
     private static void VerifyCeresHazeTintOverride(ISnesAddressSpace rom)
     {
         RoomFxPaletteBlendDocument stock = JsonSerializer.Deserialize<RoomFxPaletteBlendDocument>(

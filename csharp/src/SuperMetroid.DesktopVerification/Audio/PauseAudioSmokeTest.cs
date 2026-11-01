@@ -1,7 +1,6 @@
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Title;
@@ -18,12 +17,10 @@ namespace SuperMetroid.DesktopVerification.Audio;
 public static class PauseAudioSmokeTest
 {
     /// <summary>Seeds a Crateria save, enters gameplay through the frontend, and measures managed audio while pausing, switching pages, and resuming.</summary>
-    /// <param name="romPath">Retail cartridge used to construct the isolated game and seeded save.</param>
     /// <returns>PCM continuity and command counts after all pause assertions pass; mismatches throw.</returns>
-    public static PauseAudioSmokeTestResult Run(string romPath)
+    public static PauseAudioSmokeTestResult Run()
     {
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        SaveSlotStore saves = SeedCrateriaSave(bus);
+        SaveSlotStore saves = SeedCrateriaSave();
         var game = new SuperMetroidGame(
             saves,
             new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true });
@@ -156,7 +153,7 @@ public static class PauseAudioSmokeTest
     }
 
     /// <summary>Writes a Crateria station save with Morph Ball and Bombs so the frontend follows the saved-game route.</summary>
-    private static SaveSlotStore SeedCrateriaSave(SuperMetroidAddressSpace bus)
+    private static SaveSlotStore SeedCrateriaSave()
     {
         var system = new SharedGameState();
         system.SetBossBits(0, BossBits.AreaTorizo);
@@ -168,7 +165,7 @@ public static class PauseAudioSmokeTest
             EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         };
-        var saves = new SaveSlotStore(SaveMapPresentationFixture.Create(bus));
+        var saves = new SaveSlotStore(SaveMapPresentationFixture.Create());
         saves.SaveSlot(
             0,
             SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = 0, SaveStation = 0 }));

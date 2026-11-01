@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -18,6 +19,7 @@ internal static class CeresSmallAsteroidPartsVerification
 {
     /// <summary>Compares stock parts and wrapped OAM, then checks individual
     /// edits stay supplied while whole asteroid groups retain calculated shape.</summary>
+    [PrivateInstallation("Cartridge-oracle check: compares Ceres Small Asteroid Parts with IntroCinematicSpriteFrameExtractor output read from the cartridge.")]
     internal static void VerifyCeresSmallAsteroidParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);

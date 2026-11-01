@@ -19,6 +19,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Assets;
+using SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// Installer acceptance for the source-inventoried presentation domains. Import is
@@ -106,6 +107,8 @@ internal static class InstallationOverrideLifecycleVerification
     /// </summary>
     private static readonly string[] StockOnlyDomains =
     [
+        // Room characters take no overrides since #1466 retired their override directory.
+        nameof(GameInstallationLayout.RoomCharacterDirectoryName),
         nameof(GameInstallationLayout.RoomLevelStreamDirectoryName),
         nameof(GameInstallationLayout.RoomMetatileDirectoryName),
         nameof(GameInstallationLayout.SamusOverreadDirectoryName),
@@ -167,6 +170,8 @@ internal static class InstallationOverrideLifecycleVerification
             {
                 InstalledProjectilePresentation projectile => projectile.SelectedSha256,
                 RoomStaticPalettes palettes => RoomTilesetSources.PaletteIdentity(palettes),
+                // The enemy directory's identity is the one a host records for it (#1463).
+                InstalledEnemyArtwork enemyDirectory => InstalledEnemyArtwork.DirectoryIdentity(enemyDirectory.Enemies, enemyDirectory.Bosses, enemyDirectory.Areas),
                 _ => catalog.GetType().GetProperty("ContentIdentity")?.GetValue(catalog) as string
                     ?? throw new InvalidDataException($"Catalog {loader.Name} lacks selected-content identity."),
             };

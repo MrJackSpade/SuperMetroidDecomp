@@ -8,10 +8,11 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation;
 /// installer itself. A full install from the ROM costs minutes and tens of gigabytes allocated, so every such member is a
 /// stated decision.
 /// </summary>
-/// <param name="reason">Why the member cannot read the shared installation or write into a copy of it.</param>
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property, AllowMultiple = false)]
-internal sealed class PrivateInstallationAttribute(string reason) : Attribute
+internal sealed class PrivateInstallationAttribute : Attribute
 {
-    /// <summary>Why the member builds an installation of its own instead of reading or copying the shared one.</summary>
-    public string Reason { get; } = reason;
+    /// <summary>Records the member's reason; SME6455 reads it from the attribute's argument.</summary>
+    /// <param name="reason">Why the member cannot read the shared installation or write into a copy of it.</param>
+    /// <exception cref="ArgumentException">The reason is empty or blank.</exception>
+    public PrivateInstallationAttribute(string reason) => ArgumentException.ThrowIfNullOrWhiteSpace(reason);
 }

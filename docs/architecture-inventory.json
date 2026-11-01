@@ -128455,6 +128455,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.PrivateInstallationAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/PrivateInstallationAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.EnsureAnalyzer.Contracts.PublishedTypeReachability",
       "kind": "static class",
       "scope": "tool",
@@ -129246,6 +129259,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.EnsureVerification/Contracts/ParameterListAnalyzerTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.EnsureVerification.Contracts.PrivateInstallationAnalyzerTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.EnsureVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureVerification/Contracts/PrivateInstallationAnalyzerTests.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -136224,6 +136250,23 @@
       ],
       "files": [
         "csharp/test-support/RepositoryInstallation/InstallStepTiming.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.RepositoryInstallation.PrivateInstallationAttribute",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DebugRunner",
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/RepositoryInstallation/PrivateInstallationAttribute.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -145475,6 +145518,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkZebetiteColorsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Artwork.EnemyTileStockReExtraction",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileStockReExtraction.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -156018,6 +156074,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Frontend/Map/MapSpritesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Frontend.Map.MapStockReExtraction",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Frontend/Map/MapStockReExtraction.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

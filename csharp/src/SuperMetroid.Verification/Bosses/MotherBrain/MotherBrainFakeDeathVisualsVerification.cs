@@ -28,7 +28,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain stock oracle revision");
         // A private installation copy, whose override is written and whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmMotherBrainFakeDeathVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
             RoomPlmMotherBrainFakeDeathVisualFiles.ValidateStock(
@@ -70,10 +70,9 @@ internal static class MotherBrainFakeDeathVisualsVerification
                 new(12, 0), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope).Appearance,
                 null);
 
-            // The shared installation's stock directory stands for a stock directory the installer replaced.
-            string refreshed = RepositoryInstallation.Installation.RoomPlmMotherBrainFakeDeathVisualDirectory;
+            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
             AssertEqual(RoomBlockAppearance.Of(0x59),
-                RoomPlmMotherBrainFakeDeathVisualFiles.Load(refreshed,
+                ReExtractMotherBrainFakeDeathStock(rom, refreshed,
                     installation.RoomPlmMotherBrainFakeDeathVisualOverrideDirectory)
                     .GetAppearance(
                         PlmDraw.Of(MotherBrainFakeDeathDraw.ClearBottomRightTube),
@@ -123,5 +122,13 @@ internal static class MotherBrainFakeDeathVisualsVerification
     {
         Suite(nameof(VerifyMotherBrainFakeDeathVisuals), () => VerifyMotherBrainFakeDeathVisuals());
         return 0;
+    }
+
+    /// <summary>Extracts stock Mother Brain fake-death visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmMotherBrainFakeDeathVisualFiles.Extract into a fresh stock directory beside the copy's Mother Brain fake-death override, to check that a stock replacement keeps the edited bottom-right tube clear block (appearance 59) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static RoomPlmMotherBrainFakeDeathVisualCatalog ReExtractMotherBrainFakeDeathStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmMotherBrainFakeDeathVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmMotherBrainFakeDeathVisualFiles.Load(refreshed, overrides);
     }
 }

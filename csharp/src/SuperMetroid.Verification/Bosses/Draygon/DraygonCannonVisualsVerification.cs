@@ -21,7 +21,7 @@ internal static class DraygonCannonVisualsVerification
         SuperMetroidAddressSpace rom)
     {
         // A private installation copy, whose override is written and whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmDraygonCannonVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
             RoomPlmDraygonCannonVisualFiles.ValidateStock(
@@ -47,10 +47,9 @@ internal static class DraygonCannonVisualsVerification
                     PlmDraw.Of(DraygonCannonDraw.RightShieldA), 0, 0),
                 "installed cannon override selects its edited block");
 
-            // The shared installation's stock directory stands for a stock directory the installer replaced.
-            string refreshed = RepositoryInstallation.Installation.RoomPlmDraygonCannonVisualDirectory;
+            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
             AssertEqual(RoomBlockAppearance.Of(0x53),
-                RoomPlmDraygonCannonVisualFiles.Load(refreshed,
+                ReExtractDraygonCannonStock(rom, refreshed,
                     installation.RoomPlmDraygonCannonVisualOverrideDirectory)
                     .GetAppearance(PlmDraw.Of(DraygonCannonDraw.RightShieldA), 0, 0),
                 "cannon override survives stock replacement");
@@ -61,5 +60,13 @@ internal static class DraygonCannonVisualsVerification
                     installation.RoomPlmDraygonCannonVisualDirectory),
                 "tampered cannon stock fails manifest validation");
         }
+    }
+
+    /// <summary>Extracts stock Draygon cannon visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmDraygonCannonVisualFiles.Extract into a fresh stock directory beside the copy's Draygon cannon override, to check that a stock replacement keeps the edited right-shield-a block (appearance 53) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static RoomPlmDraygonCannonVisualCatalog ReExtractDraygonCannonStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmDraygonCannonVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmDraygonCannonVisualFiles.Load(refreshed, overrides);
     }
 }

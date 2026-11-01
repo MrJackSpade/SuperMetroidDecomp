@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Palettes;
@@ -108,10 +107,11 @@ internal static class CeresRidleyMode7ColorsVerification
         document.ZoomRows[0][0] = document.ZoomRows[0][0] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => CeresRidleyMode7ColorFile.Write(document),
             "Ceres Mode-7 colors reject invalid RGB5 values");
-        // The shared installation's stock maps stand for stock maps the installer replaced.
-        string replacementStock = RepositoryInstallation.Installation.MapDirectory;
+        string replacementStock = Path.Combine(
+            Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
+            "ceres-mode7-reextract");
         byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
-        AreaMapPresentation repaired = MapPresentationFiles.Load(replacementStock, overrideDirectory);
+        AreaMapPresentation repaired = SuperMetroid.Verification.Frontend.Map.MapStockReExtraction.ReExtractStock(rom, replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, repaired.ContentIdentity,
             "stock re-extraction preserves Ceres Mode-7 override");
         AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),

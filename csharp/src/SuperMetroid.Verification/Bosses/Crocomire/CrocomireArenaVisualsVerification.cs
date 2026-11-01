@@ -28,7 +28,7 @@ internal static class CrocomireArenaVisualsVerification
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Crocomire stock oracle revision");
         // A private installation copy, whose override is written and whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmCrocomireVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
             RoomPlmCrocomireVisualFiles.ValidateStock(
@@ -65,10 +65,9 @@ internal static class CrocomireArenaVisualsVerification
             VerifyCrocomireVisualDraw(PlmHeaderId.ClearCrocomireBridge,
                 new(9, 0), RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air), RoomBlockAppearance.Of(0x80), null);
 
-            // The shared installation's stock directory stands for a stock directory the installer replaced.
-            string refreshed = RepositoryInstallation.Installation.RoomPlmCrocomireVisualDirectory;
+            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
             AssertEqual(RoomBlockAppearance.Of(0x59),
-                RoomPlmCrocomireVisualFiles.Load(refreshed,
+                ReExtractCrocomireStock(rom, refreshed,
                     installation.RoomPlmCrocomireVisualOverrideDirectory)
                     .GetAppearance(PlmDraw.Of(CrocomireArenaDraw.CreateInvisibleWall),
                         2, 7),
@@ -115,5 +114,13 @@ internal static class CrocomireArenaVisualsVerification
     {
         Suite(nameof(VerifyCrocomireArenaVisuals), () => VerifyCrocomireArenaVisuals());
         return 0;
+    }
+
+    /// <summary>Extracts stock Crocomire arena visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmCrocomireVisualFiles.Extract into a fresh stock directory beside the copy's Crocomire arena override, to check that a stock replacement keeps the edited invisible-wall block (appearance 59) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static RoomPlmCrocomireVisualCatalog ReExtractCrocomireStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmCrocomireVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmCrocomireVisualFiles.Load(refreshed, overrides);
     }
 }

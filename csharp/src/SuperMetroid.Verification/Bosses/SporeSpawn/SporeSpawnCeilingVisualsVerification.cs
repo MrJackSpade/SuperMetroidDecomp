@@ -31,7 +31,7 @@ internal static class SporeSpawnCeilingVisualsVerification
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Spore ceiling stock oracle revision");
         // A private installation copy, whose override is written and whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmSporeSpawnCeilingVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
             RoomPlmSporeSpawnCeilingVisualFiles.ValidateStock(
@@ -69,10 +69,9 @@ internal static class SporeSpawnCeilingVisualsVerification
             VerifySporeSpawnCeilingVisualSeparation(edited, clear: false);
             VerifySporeSpawnCeilingVisualSeparation(edited, clear: true);
 
-            // The shared installation's stock directory stands for a stock directory the installer replaced.
-            string refreshed = RepositoryInstallation.Installation.RoomPlmSporeSpawnCeilingVisualDirectory;
+            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
             AssertEqual(RoomBlockAppearance.Of(0x59),
-                RoomPlmSporeSpawnCeilingVisualFiles.Load(refreshed,
+                ReExtractSporeSpawnCeilingStock(rom, refreshed,
                     installation.RoomPlmSporeSpawnCeilingVisualOverrideDirectory)
                     .GetAppearance(PlmDraw.Of(SporeSpawnCeilingDraw.Clear), 1, 1),
                 "Spore Spawn override survives stock replacement");
@@ -195,5 +194,13 @@ internal static class SporeSpawnCeilingVisualsVerification
     {
         Suite(nameof(VerifySporeSpawnCeilingVisuals), () => VerifySporeSpawnCeilingVisuals());
         return 0;
+    }
+
+    /// <summary>Extracts stock Spore Spawn ceiling visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmSporeSpawnCeilingVisualFiles.Extract into a fresh stock directory beside the copy's Spore Spawn ceiling override, to check that a stock replacement keeps the edited clear-frame block (appearance 59) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static RoomPlmSporeSpawnCeilingVisualCatalog ReExtractSporeSpawnCeilingStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmSporeSpawnCeilingVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmSporeSpawnCeilingVisualFiles.Load(refreshed, overrides);
     }
 }

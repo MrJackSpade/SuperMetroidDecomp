@@ -69,8 +69,10 @@ internal static class BotwoonWallVisualsVerification
     /// <summary>Checks extraction, installed overrides, stock repair, and rejection of physical-bit edits.</summary>
     internal static void VerifyBotwoonWallVisuals()
     {
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
         // A private installation copy, whose override is written and whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmBotwoonWallVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
             RoomPlmBotwoonWallVisualFiles.ValidateStock(
@@ -107,10 +109,9 @@ internal static class BotwoonWallVisualsVerification
                 "Botwoon wall override edits the fourth clear block");
             VerifyBotwoonWallVisualSeparation(edited);
 
-            // The shared installation's stock directory stands for a stock directory the installer replaced.
-            string refreshed = RepositoryInstallation.Installation.RoomPlmBotwoonWallVisualDirectory;
+            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
             AssertEqual(RoomBlockAppearance.Of(0x058),
-                RoomPlmBotwoonWallVisualFiles.Load(refreshed,
+                ReExtractBotwoonWallStock(rom, refreshed,
                     installation.RoomPlmBotwoonWallVisualOverrideDirectory)
                     .GetAppearance(BotwoonWallPlmDrawDefinitions.Clear, 0, 3),
                 "Botwoon wall override survives stock replacement");
@@ -170,5 +171,13 @@ internal static class BotwoonWallVisualsVerification
     {
         Suite(nameof(VerifyBotwoonWallVisuals), () => VerifyBotwoonWallVisuals());
         return 0;
+    }
+
+    /// <summary>Extracts stock Botwoon wall visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmBotwoonWallVisualFiles.Extract into a fresh stock directory beside the copy's Botwoon wall override, to check that a stock replacement keeps the edited fourth clear block (appearance 058) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static InstalledRoomPlmBotwoonWallVisuals ReExtractBotwoonWallStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmBotwoonWallVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmBotwoonWallVisualFiles.Load(refreshed, overrides);
     }
 }

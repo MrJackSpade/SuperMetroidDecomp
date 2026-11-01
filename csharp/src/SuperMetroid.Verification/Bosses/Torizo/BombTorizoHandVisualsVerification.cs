@@ -24,7 +24,7 @@ internal static class BombTorizoHandVisualsVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         // A private installation copy, whose override is written and whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmBombTorizoHandVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
             RoomPlmBombTorizoHandVisualFiles.ValidateStock(
@@ -52,10 +52,9 @@ internal static class BombTorizoHandVisualsVerification
                     PlmDraw.Of(BombTorizoHandDraw.Intact), 0, 0),
                 "installed hand override selects its changed block");
 
-            // The shared installation's stock directory stands for a stock directory the installer replaced.
-            string refreshed = RepositoryInstallation.Installation.RoomPlmBombTorizoHandVisualDirectory;
+            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
             AssertEqual(RoomBlockAppearance.Of(0x53),
-                RoomPlmBombTorizoHandVisualFiles.Load(refreshed,
+                ReExtractBombTorizoHandStock(rom, refreshed,
                     installation.RoomPlmBombTorizoHandVisualOverrideDirectory)
                     .GetAppearance(PlmDraw.Of(BombTorizoHandDraw.Intact), 0, 0),
                 "hand override survives stock replacement");
@@ -66,5 +65,13 @@ internal static class BombTorizoHandVisualsVerification
                     installation.RoomPlmBombTorizoHandVisualDirectory),
                 "tampered hand stock fails manifest validation");
         }
+    }
+
+    /// <summary>Extracts stock Bomb Torizo hand visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmBombTorizoHandVisualFiles.Extract into a fresh stock directory beside the copy's Bomb Torizo hand override, to check that a stock replacement keeps the edited intact-hand block (appearance 53) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static RoomPlmBombTorizoHandVisualCatalog ReExtractBombTorizoHandStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmBombTorizoHandVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmBombTorizoHandVisualFiles.Load(refreshed, overrides);
     }
 }

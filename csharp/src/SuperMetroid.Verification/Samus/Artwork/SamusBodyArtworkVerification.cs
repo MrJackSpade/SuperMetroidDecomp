@@ -334,19 +334,20 @@ internal static class SamusBodyArtworkVerification
         document.Required("frames").Required(0)["topPosition"] = originalPosition == 0 ? 1 : 0;
         sbyte originalYOffset = (sbyte)document.Required("graphicsYOffsets").Required(1).GetValue<int>();
         document.Required("graphicsYOffsets")[1] = originalYOffset + 1;
-        JsonNode poseOneRecord = document.Required("spritemaps").Required(
+        // Each spritemap is its list of parts; a part's horizontal place is its offsetX.
+        JsonNode poseOneParts = document.Required("spritemaps").Required(
             SamusSpritemapNative.Ordinal(stock.Spritemaps.Entries[stock.Spritemaps.TopBase(SamusPoseId.FacingRightNormalPose)]));
-        int originalPartX = poseOneRecord.Required("parts").Required(0).Required("x").GetValue<int>();
-        poseOneRecord.Required("parts").Required(0)["x"] = originalPartX + 1;
+        int originalPartX = poseOneParts.Required(0).Required("offsetX").GetValue<int>();
+        poseOneParts.Required(0)["offsetX"] = originalPartX + 1;
         foreach (int owner in new[]
         {
             SamusSpritemapNative.Ordinal(stock.Spritemaps.Entries[0x018F]),
             SamusSpritemapNative.Ordinal(stock.Spritemaps.Entries[(deathSamus.DeathSequence.ExplosionSpritemapIndex ?? throw new InvalidOperationException("Verification requires deathSamus.DeathSequence.ExplosionSpritemapIndex."))]),
         })
         {
-            JsonNode ownerRecord = document.Required("spritemaps").Required(owner);
-            ownerRecord.Required("parts").Required(0)["x"] =
-                ownerRecord.Required("parts").Required(0).Required("x").GetValue<int>() + 1;
+            JsonNode ownerParts = document.Required("spritemaps").Required(owner);
+            ownerParts.Required(0)["offsetX"] =
+                ownerParts.Required(0).Required("offsetX").GetValue<int>() + 1;
         }
         byte originalLandingYOffset = (byte)document.Required("landingYOffsets").Required(0).GetValue<int>();
         document.Required("landingYOffsets")[0] = originalLandingYOffset + 1;
@@ -355,8 +356,12 @@ internal static class SamusBodyArtworkVerification
             SamusAtmosphericArtworkFiles.ArtworkFileName);
         JsonNode atmosphereDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
             installation.SamusBodyDirectory, SamusAtmosphericArtworkFiles.ArtworkFileName)));
-        int originalAttribute = atmosphereDocument.Required("typeOne").Required(0).GetValue<int>();
-        atmosphereDocument.Required("typeOne")[0] = originalAttribute + 1;
+        // Type one's first part names the next character, so its OAM character byte rises by one.
+        JsonNode typeOnePart = atmosphereDocument.Required("typeOne").Required(0);
+        int nextCharacter = typeOnePart.Required("tileRow").GetValue<int>() * SpriteArtwork.CharactersPerRow +
+            typeOnePart.Required("tileColumn").GetValue<int>() + 1;
+        typeOnePart["tileRow"] = nextCharacter / SpriteArtwork.CharactersPerRow;
+        typeOnePart["tileColumn"] = nextCharacter % SpriteArtwork.CharactersPerRow;
         File.WriteAllText(atmosphereOverride, atmosphereDocument.ToJsonString());
         string deathOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
             SamusDeathPaletteArtworkFiles.ArtworkFileName);
@@ -405,7 +410,8 @@ internal static class SamusBodyArtworkVerification
             IndexedPng.Write(output, new(armImage.Size.X, armImage.Size.Y), armPixels,
                 armImage.Colours);
         SamusBodyCharacterArtwork replacementCharacters = SamusBodyArtworkFiles.LoadCharacters(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
-        InstalledSamusBodyArtwork replacement = replacementCharacters.Body;
+        // The edited body shows its own characters, so its sheets compose from them.
+        InstalledSamusBodyArtwork replacement = SamusBodySheetFixtures.Register(replacementCharacters);
         SamusDeathTileAtlas replacementDeathTiles = SamusDeathTileArtworkFiles.Load(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
         AssertTrue(stock.ArmCannon.ReadDrawingByteAt(armXAddress) !=
                 replacement.ArmCannon.ReadDrawingByteAt(armXAddress),

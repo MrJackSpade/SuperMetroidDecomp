@@ -1,7 +1,8 @@
 using System.Text.Json;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>
 /// The installed post-credits reward icon (#1409): its full 128x128 Mode 7 map, unlike the repeated half-map of the earlier

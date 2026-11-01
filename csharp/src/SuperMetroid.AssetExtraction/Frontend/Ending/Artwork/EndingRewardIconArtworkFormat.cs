@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>File identities and dimensions of the reward-jump icon artwork.</summary>
 public static class EndingRewardIconArtworkFormat

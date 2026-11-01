@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -127,7 +128,7 @@ internal static class EndingMode7ArtworkVerification
                     ?? throw new InvalidDataException($"Ending {id} map JSON is empty.");
             Array.Fill(map.Tiles, 0);
             using (var output = File.Create(mapOverride))
-                EndingFloorSceneArtwork.WriteMap(output, map);
+                EndingFloorSceneCharacters.WriteMap(output, map);
             EndingFloorArtwork editedMap = installation.LoadEndingMode7Art();
             state.Stage.BindFloorArtwork(editedMap);
             // The ending draws its floor from the floor sheet the import composes from the map, so the edited map reaches
@@ -229,7 +230,7 @@ internal static class EndingMode7ArtworkVerification
                 ?? throw new InvalidDataException("Stock ending map is empty.");
         persistentMap.Tiles[0] = unchecked((byte)(persistentMap.Tiles[0] + 1));
         using (var output = File.Create(invalidMapPath))
-            EndingFloorSceneArtwork.WriteMap(output, persistentMap);
+            EndingFloorSceneCharacters.WriteMap(output, persistentMap);
         byte[] selectedMap = installation.LoadEndingMode7Art()[EndingFloorSceneId.EscapeA]
             .Map.ToArray();
         string stockPngPath = Path.Combine(installation.EndingMode7Directory,

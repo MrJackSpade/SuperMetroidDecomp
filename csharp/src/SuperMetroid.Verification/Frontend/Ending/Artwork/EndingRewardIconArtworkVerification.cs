@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
@@ -28,7 +29,7 @@ internal static class EndingRewardIconArtworkVerification
         byte[] native = RomDataReader.Decompress(source,
             EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,
             EndingSourceDefinitions.Artwork.DecompressionLimit);
-        AssertTrue(stock.RewardIcon.Bytes.Span.SequenceEqual(native.AsSpan(0,
+        AssertTrue(EndingFloorCharacters.RewardIconOf(stock).Bytes.Span.SequenceEqual(native.AsSpan(0,
                 EndingRewardIconArtworkFormat.ByteCount)),
             "reward icon JSON/PNG preserves all interleaved native map and character bytes");
 
@@ -73,7 +74,7 @@ internal static class EndingRewardIconArtworkVerification
             "installed reward icon never rereads its compressed cartridge stream");
         AssertTrue(installedScene.ShownVram()
                 [..EndingRewardIconArtworkFormat.ByteCount].SequenceEqual(
-                    stock.RewardIcon.Bytes.Span),
+                    EndingFloorCharacters.RewardIconOf(stock).Bytes.Span),
             "all sixteen native landing chunks reconstruct the installed icon image");
 
         Directory.CreateDirectory(installation.EndingMode7OverrideDirectory);
@@ -115,7 +116,7 @@ internal static class EndingRewardIconArtworkVerification
                     partial.LoadRewardChunk(chunk);
                 byte[] partialVram = EndingScreenMemory.Compose(partial, edited, null, null, null, EndingReward.Armored);
                 AssertTrue(partialVram[..(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)].AsSpan()
-                        .SequenceEqual(edited.RewardIcon.Bytes.Span
+                        .SequenceEqual(EndingFloorCharacters.RewardIconOf(edited).Bytes.Span
                             [..(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)]) &&
                         partialVram[(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)..]
                             .All(value => value == 0),
@@ -163,7 +164,7 @@ internal static class EndingRewardIconArtworkVerification
                 var shownScene = scene.ShownVram();
                 AssertTrue(shownScene
                         [..EndingRewardIconArtworkFormat.ByteCount]
-                        .SequenceEqual(edited.RewardIcon.Bytes.Span),
+                        .SequenceEqual(EndingFloorCharacters.RewardIconOf(edited).Bytes.Span),
                     $"{name} supplies every final native upload byte");
                 LayeredScene baseline = EndingCreditsPresentation.CaptureRenderSnapshot(installedScene);
                 LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
@@ -207,7 +208,7 @@ internal static class EndingRewardIconArtworkVerification
         using (var output = File.Create(userPng))
             IndexedPng.Write(output, new(persistentImage.Size.X, persistentImage.Size.Y),
                 persistentImage.Pixels, persistentImage.Colours);
-        byte[] selected = installation.LoadEndingMode7Art().RewardIcon.Bytes.ToArray();
+        byte[] selected = EndingFloorCharacters.RewardIconOf(installation.LoadEndingMode7Art()).Bytes.ToArray();
         string stockMap = Path.Combine(installation.EndingMode7Directory,
             EndingRewardIconArtworkFormat.MapFileName);
         File.WriteAllBytes(stockMap, [0]);
@@ -215,7 +216,7 @@ internal static class EndingRewardIconArtworkVerification
             "an icon override cannot mask corrupt installed stock map JSON");
         GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
             ?? throw new InvalidOperationException("Reward icon content vanished during stock repair.");
-        AssertTrue(repaired.LoadEndingMode7Art().RewardIcon.Bytes.Span.SequenceEqual(selected),
+        AssertTrue(EndingFloorCharacters.RewardIconOf(repaired.LoadEndingMode7Art()).Bytes.Span.SequenceEqual(selected),
             "stock icon repair preserves the player's separately stored PNG override");
         File.Delete(userPng);
         Console.WriteLine("Reward icon: native sixteen-chunk VRAM/pixel parity, mid-upload rebind and independently visible map/PNG edits pass.");

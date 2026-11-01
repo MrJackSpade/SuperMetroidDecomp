@@ -1,6 +1,9 @@
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
+using System.Text.Json;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -46,4 +49,48 @@ public sealed class EndingFloorSceneCharacters : EndingFloorSceneArtwork
     /// <exception cref="InvalidDataException">The scene was not read from installed artwork.</exception>
     public static EndingFloorSceneCharacters Of(EndingFloorSceneArtwork scene) => scene as EndingFloorSceneCharacters
         ?? throw new InvalidDataException("The ending backdrop was not read from installed artwork.");
+
+    /// <summary>Reads and validates a 128x64 map's ordered tile indices.</summary>
+    /// <param name="mapJson">Version-1 JSON containing 8192 ordered tile indices in the range 0..255.</param>
+    /// <exception cref="InvalidDataException">The map schema is invalid.</exception>
+    internal static int[] ReadMapCells(Stream mapJson) =>
+        ReadMap(Ensure.NotNull(mapJson)).Tiles.Select(tile => Ensure.BetweenInclusive(0, byte.MaxValue, tile)).ToArray();
+
+    /// <summary>Serializes an ending backdrop map, validating the complete encoded document before writing any bytes to the destination.</summary>
+    /// <param name="json">Destination stream for the map JSON.</param>
+    /// <param name="document">Version-1, 128x64 map with exactly 8192 eight-bit tile indices.</param>
+    /// <exception cref="ArgumentNullException">The destination stream is null.</exception>
+    /// <exception cref="InvalidDataException">The serialized document does not satisfy the ending backdrop map schema.</exception>
+    public static void WriteMap(Stream json, EndingFloorMapDocument document)
+    {
+        Ensure.NotNull(json);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
+            ArtworkJson.Options);
+        _ = ReadMap(new MemoryStream(bytes, writable: false));
+        json.Write(bytes);
+    }
+
+    /// <summary>Loads and validates the 128-by-64 backdrop half-map and its byte-valued tile indices.</summary>
+    private static EndingFloorMapDocument ReadMap(Stream json)
+    {
+        EndingFloorMapDocument document;
+        try
+        {
+            document = JsonSerializer.Deserialize<EndingFloorMapDocument>(json,
+                ArtworkJson.Options)
+                ?? throw new InvalidDataException("Ending Mode-7 map JSON is null.");
+        }
+        catch (JsonException error)
+        {
+            throw new InvalidDataException("Invalid ending Mode-7 map JSON.", error);
+        }
+        if (document.Version != EndingFloorArtworkFormat.Version ||
+            document.Width != EndingFloorArtworkFormat.MapWidth ||
+            document.Height != EndingFloorArtworkFormat.MapHeight ||
+            document.Tiles is not { Length: EndingFloorArtworkFormat.MapByteCount } ||
+            document.Tiles.Any(tile => (uint)tile > byte.MaxValue))
+            throw new InvalidDataException(
+                "Ending Mode-7 map requires 128x64 ordered eight-bit tile indexes.");
+        return document;
+    }
 }

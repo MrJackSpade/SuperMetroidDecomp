@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>The ending and credits artwork loads whose exact byte lengths the catalog enforces.</summary>
 public enum EndingObjectTransfer

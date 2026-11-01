@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>
 /// Names and sizes each ending palette resource (<see cref="EndingPaletteDefinitions"/>) by its semantic palette role.

@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>File identities and transfer geometry for the three ending backdrops.</summary>
 public static class EndingFloorArtworkFormat

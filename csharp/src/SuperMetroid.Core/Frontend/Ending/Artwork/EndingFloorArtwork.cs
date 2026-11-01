@@ -13,26 +13,20 @@ public abstract class EndingFloorArtwork
     /// <summary>Large Zebes backdrop used during the planet explosion.</summary>
     private readonly EndingFloorSceneArtwork planetExplosion;
 
-    /// <summary>Installs the three decoded backdrop pairs and the complete post-credits beam/icon transfer.</summary>
+    /// <summary>Installs the three decoded backdrop pairs.</summary>
     /// <param name="escapeA">Zebes zoom-out map and character lanes for the first escape scene.</param>
     /// <param name="escapeB">Grey-cloud map and character lanes for the second escape scene.</param>
     /// <param name="planetExplosion">Large-Zebes map and character lanes for the explosion scene.</param>
-    /// <param name="rewardIcon">Interleaved map and characters progressively uploaded during the post-credits reward jump.</param>
     /// <exception cref="ArgumentNullException">Any artwork argument is null.</exception>
     internal EndingFloorArtwork(EndingFloorSceneArtwork escapeA,
-        EndingFloorSceneArtwork escapeB, EndingFloorSceneArtwork planetExplosion,
-        EndingRewardIconArtwork rewardIcon)
+        EndingFloorSceneArtwork escapeB, EndingFloorSceneArtwork planetExplosion)
     {
         this.escapeA = Ensure.NotNull(escapeA);
         this.escapeB = Ensure.NotNull(escapeB);
         this.planetExplosion = Ensure.NotNull(planetExplosion);
-        RewardIcon = Ensure.NotNull(rewardIcon);
     }
 
-    /// <summary>Interleaved map/character sheet transferred during the reward landing.</summary>
-    public EndingRewardIconArtwork RewardIcon { get; }
-
-    /// <summary>Identity of each decoded scene's two transfer lanes and the full reward-icon transfer.</summary>
+    /// <summary>Identity of each decoded scene's two transfer lanes and the import's reward-icon transfer.</summary>
     public abstract string ContentIdentity { get; }
 
     /// <summary>Gets the map and character lanes for the selected ending backdrop.</summary>

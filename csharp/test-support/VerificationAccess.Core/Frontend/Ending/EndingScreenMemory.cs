@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -36,7 +37,7 @@ internal static class EndingScreenMemory
             EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.CreditsCharacterArt), artwork);
         for (int chunk = 0; chunk < screen.RewardChunksLoaded; chunk++)
             vram.LoadBytes(EndingVramDestinationsConstants.RewardChunkWordOf(chunk) * sizeof(ushort),
-                EndingRewardIconCharacters.Of(Required(floor).RewardIcon).Bytes.Span.Slice(EndingRewardGraphicsUploads.ChunkOffset(chunk),
+                EndingRewardIconCharacters.Of(EndingFloorCharacters.RewardIconOf(Required(floor))).Bytes.Span.Slice(EndingRewardGraphicsUploads.ChunkOffset(chunk),
                     EndingRewardGraphicsUploadDefinitions.ChunkBytes));
         if (screen.ExplosionMapsLoaded)
         {

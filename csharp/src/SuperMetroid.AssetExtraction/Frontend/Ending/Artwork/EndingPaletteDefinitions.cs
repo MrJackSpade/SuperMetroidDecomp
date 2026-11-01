@@ -1,4 +1,8 @@
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Exact sizes and file identities for ending colors.</summary>
 public static class EndingPaletteDefinitions

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -46,7 +47,7 @@ public static class EndingMode7ArtworkFiles
             for (int cell = 0; cell < lowMap.Length; cell++)
                 lowMap[cell] = packedMap[cell * 2];
             using var mapJson = new MemoryStream();
-            EndingFloorSceneArtwork.WriteMap(mapJson, new EndingFloorMapDocument
+            EndingFloorSceneCharacters.WriteMap(mapJson, new EndingFloorMapDocument
             {
                 Version = EndingFloorArtworkFormat.Version,
                 Width = EndingFloorArtworkFormat.MapWidth,

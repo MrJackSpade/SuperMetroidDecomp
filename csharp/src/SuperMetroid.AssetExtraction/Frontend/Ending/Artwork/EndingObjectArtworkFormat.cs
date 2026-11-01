@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>File identities and exact ending/credits artwork dimensions.</summary>
 public static class EndingObjectArtworkFormat

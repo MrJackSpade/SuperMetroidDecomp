@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -17,9 +19,18 @@ public sealed class EndingFloorCharacters : EndingFloorArtwork
     /// <exception cref="ArgumentNullException">Any artwork argument is null.</exception>
     public EndingFloorCharacters(EndingFloorSceneArtwork escapeA, EndingFloorSceneArtwork escapeB,
         EndingFloorSceneArtwork planetExplosion, EndingRewardIconArtwork rewardIcon)
-        : base(escapeA, escapeB, planetExplosion, rewardIcon)
+        : base(escapeA, escapeB, planetExplosion)
     {
+        RewardIcon = Ensure.NotNull(rewardIcon);
     }
+
+    /// <summary>Interleaved map/character sheet transferred during the reward landing.</summary>
+    public EndingRewardIconArtwork RewardIcon { get; }
+
+    /// <summary>The reward icon the installed ending floor artwork <paramref name="floor"/> was read with.</summary>
+    /// <exception cref="InvalidDataException">The artwork was not read from an installation.</exception>
+    public static EndingRewardIconArtwork RewardIconOf(EndingFloorArtwork floor) => (Ensure.NotNull(floor) as EndingFloorCharacters)?.RewardIcon
+        ?? throw new InvalidDataException("The ending floor artwork was not read from an installation, so it has no reward icon.");
 
     /// <inheritdoc/>
     /// <exception cref="InvalidDataException">A scene or the reward icon was not read from installed artwork.</exception>

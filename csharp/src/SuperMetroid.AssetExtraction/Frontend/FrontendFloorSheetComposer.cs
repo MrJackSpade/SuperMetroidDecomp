@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.Core;
@@ -184,8 +185,8 @@ internal static class FrontendFloorSheetComposer
     /// <exception cref="InvalidDataException">The icon's artwork is shorter than its chunks load.</exception>
     private static ComposedSpriteSheet RewardIcon(EndingFloorArtwork mode7, EndingPaletteSet palettes)
     {
-        ReadOnlySpan<byte> words = EndingRewardIconCharacters.Of(Ensure.NotNull(mode7).RewardIcon).Bytes.Span;
-        ReadOnlySpan<byte> map = mode7.RewardIcon.Map.Span;
+        ReadOnlySpan<byte> words = EndingRewardIconCharacters.Of(EndingFloorCharacters.RewardIconOf(mode7)).Bytes.Span;
+        ReadOnlySpan<byte> map = EndingFloorCharacters.RewardIconOf(mode7).Map.Span;
         if (map.Length < FloorSheetComposer.CellCount || words.Length < FloorSheetComposer.TileSetBytes * sizeof(ushort))
             throw new InvalidDataException("The reward icon's artwork is shorter than its chunks load.");
         var pixels = new byte[FloorSheetComposer.TileSetBytes];

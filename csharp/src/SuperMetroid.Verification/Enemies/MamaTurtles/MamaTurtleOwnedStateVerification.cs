@@ -1,6 +1,8 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.MamaTurtles;
 namespace SuperMetroid.Verification.Enemies.MamaTurtles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Mama Turtle's owned 16.16 hover acceleration: the carried add, the speed cap and the wall reversal's carry quirk.</summary>
 internal static class MamaTurtleOwnedStateVerification
@@ -35,7 +37,14 @@ internal static class MamaTurtleOwnedStateVerification
         AssertEqual(SignedSixteenSixteen.FromParts(0, 0), state.Velocity.X, "a kill empties the whole horizontal pixels");
         AssertEqual(SignedSixteenSixteen.FromParts(1, 0x2000), state.Velocity.Y, "the vertical velocity outlives the kill");
         AssertEqual(null, state.Function, "a kill empties the function");
-        Console.WriteLine("Mama Turtle owned state: the hover add, cap, wall reversal quirk and cleared record match.");
+
+        // Her fall and contact box read the first slot's values, so a Mama anywhere else is refused (#1500).
+        var enemies = new RoomEnemySystem(new EnemySession(new UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        RoomEnemySlot misplaced = enemies.SlotTable.Slots[1];
+        misplaced.Bind(EnemyDefinitionId.MamaTurtle, misplaced.Definition);
+        AssertThrows<InvalidDataException>(() => MamaTurtleBehavior.InitializeMamaTurtle(misplaced),
+            "a Mama Turtle after the first slot is refused");
+        Console.WriteLine("Mama Turtle owned state: the hover add, cap, wall reversal quirk, cleared record and first-slot placement match.");
     }
 
     /// <summary>Runs the focused Mama Turtle owned-state check.</summary>

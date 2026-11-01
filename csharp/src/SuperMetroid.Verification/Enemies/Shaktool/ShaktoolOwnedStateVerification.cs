@@ -52,7 +52,16 @@ internal static class ShaktoolOwnedStateVerification
         AssertEqual(new ShaktoolOwnedStateVerifyShaktoolOwnedStateCase(RotationAngle.Zero, RotationAngle.Zero, 0, 0), new ShaktoolOwnedStateVerifyShaktoolOwnedStateCase(states[6].TargetAngle, states[6].OrbitAngle, states[6].AngularVelocity, states[6].OwnerSlotIndex),
             "a kill empties the segment's angles, rate and owner");
         AssertEqual(null, states[6].FrameBehavior, "a kill empties the segment's motion");
-        Console.WriteLine("Shaktool owned state: orbit wrap, reversed orientation, wall reversal and the cleared record match.");
+
+        // The chain's death deletes the first seven slots, so a chain starting anywhere else is refused (#1500).
+        var misplacedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        RoomEnemySlot misplaced = misplacedEnemies.SlotTable.Slots[1];
+        misplaced.Bind(EnemyDefinitionId.Shaktool, misplaced.Definition);
+        misplaced.Bind(misplaced.DefinitionId, default(RoomEnemyDefinition));
+        misplaced.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 0);
+        AssertThrows<InvalidDataException>(() => misplacedEnemies.ShaktoolBehavior.InitializeShaktool(misplaced),
+            "a Shaktool chain starting after the first slot is refused");
+        Console.WriteLine("Shaktool owned state: orbit wrap, reversed orientation, wall reversal, the cleared record and the first-slot chain match.");
     }
 
     /// <summary>Initializes the seven Shaktool segments in slots zero through six.</summary>

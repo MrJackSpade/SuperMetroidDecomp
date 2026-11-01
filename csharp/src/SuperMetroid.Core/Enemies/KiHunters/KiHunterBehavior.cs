@@ -758,16 +758,17 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidDataException("Unknown Ki-Hunter body variant."),
         };
         // During wing initialization its typed state does not exist yet, so insist on the
-        // authored matching definition. Once initialization has established the pair, retain
-        // the physical alias even if deletion cleared the definition or the slot was
-        // subsequently reused. The latter is intentional: the game would alias and
-        // mutate that replacement record too rather than performing a type check.
+        // authored matching definition. Once initialization has established the pair, the slot
+        // stays the wing's after deletion clears its identity. Every retail Ki-Hunter room places
+        // the wing right after its body and nothing in those rooms places another enemy in a freed
+        // slot, so a slot that now holds a different enemy is refused rather than written as the wing.
+        bool established = wings.SpeciesState<KiHunterEnemyState>() is not null;
         if (wings.DefinitionId != expected &&
-            wings.SpeciesState<KiHunterEnemyState>() is null)
+            !(established && wings.DefinitionId == EnemyDefinitionId.None))
         {
             throw new InvalidDataException(
                 $"Ki-Hunter body slot {body.SlotIndex} is followed by {wings.DefinitionId}, " +
-                $"not expected wing {expected}.");
+                $"not expected wing {expected} or its deleted record.");
         }
         return wings;
     }

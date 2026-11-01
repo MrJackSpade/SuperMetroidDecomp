@@ -109,14 +109,25 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int MamaTurtleRisingSpeed = 7;
     /// <summary>Ticks held at the ascent peak before Mama begins falling.</summary>
     private const int MamaTurtlePeakPauseFrames = 30;
-    /// <summary>Whole-speed cap consulted by the fall routine's slot-zero read.</summary>
+    /// <summary>Whole-speed cap the fall compares Mama's own vertical speed with.</summary>
     private const int MamaTurtleMaximumFallingSpeed = 4;
     /// <summary>Whole-speed cap for horizontal hover acceleration.</summary>
     private const int MamaTurtleMaximumHoveringSpeed = 3;
 
     /// <summary>Initializes the Mama Turtle.</summary>
+    /// <exception cref="InvalidDataException">Mama is not in the first enemy slot.</exception>
     internal static void InitializeMamaTurtle(RoomEnemySlot slot)
     {
+        // The fall's speed cap and the expanded contact box read the first enemy slot's values, not the
+        // current enemy's. The one retail Mama Turtle population places Mama in that slot, so they are her own;
+        // anywhere else she would take another enemy's speed and bounds, which no retail room reaches.
+        if (slot.SlotIndex != 0)
+        {
+            throw new InvalidDataException(
+                $"Mama Turtle occupies enemy slot {slot.SlotIndex}; her fall and contact box read the first slot, " +
+                "where the one retail Mama Turtle population places her.");
+        }
+
         var state = new MamaTurtleEnemyState
         {
             Function = MamaTurtleAiFunction.Initial,
@@ -469,11 +480,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ResolveMamaTurtleExpandedContact(mama, samus);
 
-        // The original cap comparison accidentally omits X and reads slot-zero's extension.
-        // The retail parent is slot zero, but retaining the explicit source documents the
-        // behavior for debugger-created populations as well.
-        MamaTurtleEnemyState comparisonState = _slotTable.Slots[0].SpeciesState<MamaTurtleEnemyState>() ?? state;
-        if (WordWrap.Signed(comparisonState.Velocity.Y.WholeWord - MamaTurtleMaximumFallingSpeed) < 0)
+        // The cap compares the first enemy slot's speed, which initialization requires to be Mama's own.
+        if (WordWrap.Signed(state.Velocity.Y.WholeWord - MamaTurtleMaximumFallingSpeed) < 0)
         {
             // The one-eighth-pixel fraction step carries into the whole word; both are one 16.16 add.
             state.Velocity = state.Velocity.WithY(
@@ -770,17 +778,15 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot mama,
         SamusState samus)
     {
-        // Four bounds deliberately come from physical slot zero because all four of the game's
-        // loads omit `,x`. The damage callback still runs for the current Mama slot.
-        RoomEnemySlot boundsSource = _slotTable.Slots[0];
+        // The four bounds come from the first enemy slot, which initialization requires to be Mama's own.
         int left = CoordinateAxis.Wrap(
-            boundsSource.Position.X.Whole - boundsSource.Radius.X - 8);
+            mama.Position.X.Whole - mama.Radius.X - 8);
         int right = CoordinateAxis.Wrap(
-            boundsSource.Position.X.Whole + boundsSource.Radius.X + 8);
+            mama.Position.X.Whole + mama.Radius.X + 8);
         int top = CoordinateAxis.Wrap(
-            boundsSource.Position.Y.Whole - boundsSource.Radius.Y + 4);
+            mama.Position.Y.Whole - mama.Radius.Y + 4);
         int bottom = CoordinateAxis.Wrap(
-            boundsSource.Position.Y.Whole + boundsSource.Radius.Y - 4);
+            mama.Position.Y.Whole + mama.Radius.Y - 4);
 
         int samusLeftMinusOne = CoordinateAxis.Wrap(
             samus.Position.X.Whole - samus.Kinematics.Radius.X - 1);

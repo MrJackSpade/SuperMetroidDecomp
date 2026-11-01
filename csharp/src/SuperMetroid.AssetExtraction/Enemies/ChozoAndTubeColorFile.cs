@@ -20,10 +20,10 @@ public static class ChozoAndTubeColorFile
         document = JsonAssetDocument.Read<ChozoAndTubeColorDocument>(json, ArtworkJson.Options, "Chozo/tube color");
         if (document.Version != ChozoAndTubeColorFormat.Version)
             throw new InvalidDataException("Chozo/tube colors require the supported version.");
-        return new(
+        return new(ChozoAndTubeColorEdits.Select(
             Compile(document.TubeCracks, "tube cracks"),
             Compile(document.WreckedShip, "Wrecked Ship"),
-            Compile(document.LowerNorfair, "Lower Norfair"));
+            Compile(document.LowerNorfair, "Lower Norfair")));
     }
 
     /// <summary>Serializes the three color images as indented camel-case UTF-8 JSON, validating version, 32-color dimensions, and RGB5 channel bounds before returning the bytes.</summary>

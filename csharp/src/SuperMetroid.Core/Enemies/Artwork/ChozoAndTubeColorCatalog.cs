@@ -15,11 +15,8 @@ public sealed class ChozoAndTubeColorCatalog
     internal readonly ChozoAndTubeColorSelection selection;
 
     /// <summary>Preserves authored crack seeds and only deviations from calculated stock tube and statue colors.</summary>
-    internal ChozoAndTubeColorCatalog(RgbColor[] tubeCracks, RgbColor[] wreckedShip,
-        RgbColor[] lowerNorfair) =>
-        selection = new(ChozoAndTubeColors.TubeSeeds(tubeCracks), ChozoAndTubeColors.TubeEdits(tubeCracks),
-            ChozoAndTubeColors.StatueEdits(ChozoStatuePalette.WreckedShip, wreckedShip),
-            ChozoAndTubeColors.StatueEdits(ChozoStatuePalette.LowerNorfair, lowerNorfair));
+    /// <param name="selection">The seeds and deviations the import selected.</param>
+    internal ChozoAndTubeColorCatalog(ChozoAndTubeColorSelection selection) => this.selection = selection;
 
     /// <summary>Gets packed RGB5 tube-crack ink 0–31; the stock second sixteen-color half repeats the first, while supplied edits remain independent.</summary>
     public RgbColor ResolveTubeCracks(int color) => ChozoAndTubeColors.TubeCrack(this, color);

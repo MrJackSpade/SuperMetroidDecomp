@@ -4,8 +4,8 @@ using SuperMetroid.Core.Enemies.Animals;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// Dachora's installed colours: the speed and shine frames calculated from the normal palette, which supplied colours
-/// are edits of them, how each resolves, and the identity of all of them.
+/// Dachora's installed colours: the speed and shine frames calculated from the normal palette, how each colour resolves
+/// from its edit or that calculation, and the identity of all of them.
 /// </summary>
 internal static class DachoraColors
 {
@@ -18,32 +18,12 @@ internal static class DachoraColors
             content.AppendColorFrames("shine", Frames(colors, DachoraPalettePhase.Shine));
         });
 
-    /// <summary>The supplied speed-frame colours that differ from the calculated blue ramp.</summary>
-    internal static Dictionary<ColourCell, RgbColor> SpeedEdits(RgbColor[] normal, RgbColor[][] speed)
-    {
-        var edits = new Dictionary<ColourCell, RgbColor>();
-        for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
-        for (int color = 0; color < DachoraColorDefinitions.ColorsPerFrame; color++)
-            if (speed[frame][color] != SpeedColor(normal, frame, color)) edits.Add(new ColourCell(frame, color), speed[frame][color]);
-        return edits;
-    }
-
-    /// <summary>The supplied shine-frame colours that differ from the calculated fade toward white.</summary>
-    internal static Dictionary<ColourCell, RgbColor> ShineEdits(RgbColor[] normal, RgbColor[][] shine)
-    {
-        var edits = new Dictionary<ColourCell, RgbColor>();
-        for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
-        for (int color = 0; color < DachoraColorDefinitions.ColorsPerFrame; color++)
-            if (shine[frame][color] != ShineColor(normal, frame, color)) edits.Add(new ColourCell(frame, color), shine[frame][color]);
-        return edits;
-    }
-
     /// <summary>
     /// Frame k raises each color's blue channel toward min(blue + 16, 31),
     /// rounding to nearest over three steps; red and green keep the normal color. The first
     /// frame's transparent slot is the authored flash backdrop, later frames keep the normal one.
     /// </summary>
-    private static RgbColor SpeedColor(RgbColor[] normal, int frame, int color)
+    internal static RgbColor SpeedColor(RgbColor[] normal, int frame, int color)
     {
         RgbColor basis = normal[color];
         if (color == 0) return frame == 0 ? DachoraColorCatalog.SpeedFlashBackdrop : basis;
@@ -58,7 +38,7 @@ internal static class DachoraColors
     /// Frame k fades every channel toward white by k/5, as
     /// channel + floor(k * (31 - channel) / 5); the transparent slot keeps the normal color.
     /// </summary>
-    private static RgbColor ShineColor(RgbColor[] normal, int frame, int color)
+    internal static RgbColor ShineColor(RgbColor[] normal, int frame, int color)
     {
         RgbColor basis = normal[color];
         if (color == 0) return basis;

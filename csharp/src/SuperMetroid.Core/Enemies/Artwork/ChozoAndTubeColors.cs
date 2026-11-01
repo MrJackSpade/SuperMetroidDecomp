@@ -4,13 +4,13 @@ using SuperMetroid.Core.Enemies.Chozo;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// The installed n00b-tube crack and Chozo statue colors: which supplied colors are edits of their calculated stock
-/// paint, how each resolves and installs, and the identity of all of them.
+/// The installed n00b-tube crack and Chozo statue colors: how each resolves from its edit or its calculated stock paint,
+/// how each installs, and the identity of all of them.
 /// </summary>
 internal static class ChozoAndTubeColors
 {
     /// <summary>The authored crack seed inks the rest of the tube image is calculated from.</summary>
-    private const int TubeSeedCount = 8;
+    internal const int TubeSeedCount = 8;
 
     /// <summary>Hashes the tube cracks, then the Wrecked Ship and Lower Norfair statues.</summary>
     internal static string ContentIdentity(ChozoAndTubeColorCatalog colors) =>
@@ -23,30 +23,6 @@ internal static class ChozoAndTubeColors
             content.AppendColors("lowerNorfair", Statue(colors, ChozoStatuePalette.LowerNorfair));
         });
 
-    /// <summary>The eight crack seed colors, which are authored paint.</summary>
-    internal static RgbColor[] TubeSeeds(RgbColor[] tubeCracks) => tubeCracks[..TubeSeedCount];
-
-    /// <summary>The supplied crack colors after the seeds that differ from the calculated ramp and repeated half.</summary>
-    internal static Dictionary<ColourCell, RgbColor> TubeEdits(RgbColor[] tubeCracks)
-    {
-        RgbColor[] seeds = TubeSeeds(tubeCracks);
-        Dictionary<ColourCell, RgbColor> edits = [];
-        for (int color = TubeSeedCount; color < tubeCracks.Length; color++)
-            if (tubeCracks[color] != TubeColor(seeds, color))
-                edits.Add(new ColourCell(0, color), tubeCracks[color]);
-        return edits;
-    }
-
-    /// <summary>The supplied statue colors that differ from the variant's calculated paint.</summary>
-    internal static Dictionary<ColourCell, RgbColor> StatueEdits(ChozoStatuePalette palette, RgbColor[] statue)
-    {
-        Dictionary<ColourCell, RgbColor> edits = [];
-        for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
-            if (statue[color] != ChozoStatuePaint.Color(palette, color))
-                edits.Add(new ColourCell(0, color), statue[color]);
-        return edits;
-    }
-
     /// <summary>A tube-crack ink: its edit, or the calculated stock color.</summary>
     internal static RgbColor TubeCrack(ChozoAndTubeColorCatalog colors, int color)
     {
@@ -58,7 +34,7 @@ internal static class ChozoAndTubeColors
     }
 
     /// <summary>Two equal16-color halves; colors8..15 linearly shade RGB5(31,27,29) to(0,0,1).</summary>
-    private static RgbColor TubeColor(RgbColor[] seeds, int color)
+    internal static RgbColor TubeColor(RgbColor[] seeds, int color)
     {
         int local = color % 16;
         if (local < TubeSeedCount) return seeds[local];

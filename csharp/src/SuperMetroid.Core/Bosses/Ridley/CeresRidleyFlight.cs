@@ -337,7 +337,7 @@ internal sealed class CeresRidleyFlight
         RoomEnemySlot slot,
         RidleyEnemyState state)
     {
-        // $BD:BC raises Ridley past Y=$20 while the Baby still follows his original hand
+        // Ridley rises past Y=$20 while the Baby still follows his original hand
         // anchor. Crossing that line starts the Baby's independent falling function and a
         // 21-underflow wait before Ridley changes to the retrieval pose.
         state.MovementMinimum = state.MovementMinimum.WithY(WordWrap.Unsigned(-192));

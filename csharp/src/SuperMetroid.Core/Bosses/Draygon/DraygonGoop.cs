@@ -349,7 +349,7 @@ internal sealed class DraygonGoop
         int horizontalRadius = powerBomb.ExplosionRadius.WholePixels;
         if (horizontalRadius == 0)
             return;
-        // `LSR; ADC $12; LSR` carries the first shift's low bit into the addition.
+        // The vertical radius is three quarters of the horizontal: half of it, rounded up, plus the whole, halved.
         int verticalRadius = ((horizontalRadius >> 1) + horizontalRadius + (horizontalRadius & 1)) >> 1;
         int xDistance = CoordinateAxis.Distance(powerBomb.Position.X, projectile.Position.X.Whole);
         int yDistance = CoordinateAxis.Distance(powerBomb.Position.Y, projectile.Position.Y.Whole);

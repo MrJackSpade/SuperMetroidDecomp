@@ -261,7 +261,7 @@ public sealed class BabyMetroidCutsceneState
         switch (Phase)
         {
             case BabyMetroidCutscenePhase.DashOntoScreen:
-                // `$F8` is decremented before BMI, so calls 1..248 leave the Baby still and
+                // The timer of 248 is decremented before the sign test, so calls 1..248 leave the Baby still and
                 // call 249 wraps zero to -1. The expiry call immediately executes the
                 // first curve update before the common mover consumes its new velocity.
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
@@ -359,7 +359,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.StopDraining:
                 // Shaking ceases immediately: every wait call pins to the unoffset brain
-                // coordinate before decrementing `$40`. BMI expires only after 65 calls.
+                // coordinate before decrementing the timer of 64, which expires only after 65 calls.
                 Position = Position.WithWhole(head + BrainLatchOffset);
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
@@ -926,10 +926,9 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Advances 16.16 position from 8.8 velocity while leaving the low subposition byte untouched.</summary>
     private void MoveAccordingToVelocity()
     {
-        // SEP #$20 adds velocity's low byte to subposition byte +1. REP #$20 then sign-
-        // extends velocity's high byte, retaining the 8-bit ADC carry for whole pixels. That
-        // is exactly a 16.16 add of the 8.8 velocity shifted left eight bits: the low
-        // subposition byte receives zero and the carry out of the fraction enters the whole.
+        // The velocity's fraction is added to the upper half of the subpixel position and its
+        // whole part to the whole pixels, with the fraction's carry. That is exactly a 16.16
+        // add of the 8.8 velocity: the lower half of the subpixel position is unchanged.
         Position = Position.Advance(Velocity.ToSixteenSixteen());
     }
 

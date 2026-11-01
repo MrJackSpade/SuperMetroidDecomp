@@ -108,8 +108,8 @@ internal sealed class NorfairRidleyCombat
         };
         CeresRidleyFlight.StartRidleyProgram(_ridleyEncounter.Ridley, slot, RidleyBodyProgram.Initial);
 
-        // WriteColorsToTargetPalette($140, $20) installs both body and manual
-        // tail/wing source palettes. The following loops clear the two fifteen-color OBJ
+        // The initial colours install both the body and the tail/wing
+        // source palettes. The following loops clear the two fifteen-color OBJ
         // ranges that the reveal gradually fills; color zero remains transparent.
         (_bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
             "Norfair Ridley requires installed colors."))

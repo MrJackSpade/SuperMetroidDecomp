@@ -292,8 +292,8 @@ internal sealed class CrocomireSkeleton
             throw new InvalidOperationException("Crocomire spike wall spawned without an owner.");
         SpriteGraphics graphics = state.Body.Graphics;
 
-        // The initializer indexes Y by projectile index minus $14. Clearing the pool
-        // immediately before this call guarantees slots 17..10 and Y=$38,$48,...,$A8.
+        // Each piece's height follows its projectile slot. Clearing the pool immediately
+        // before this call guarantees slots 17..10 and heights 56, 72, ..., 168.
         for (int count = 0; count < 8; count++)
         {
             RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();

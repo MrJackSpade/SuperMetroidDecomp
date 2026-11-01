@@ -24,7 +24,7 @@ public sealed class CrocomireDeathState
     /// <summary>Six-frame acid smoke cadence.</summary>
     public WrappingCountdown AcidSmokeTimer { get; internal set; }
 
-    /// <summary>Thirty-two-frame acid damage sound cadence (Crocomire var $20).</summary>
+    /// <summary>Thirty-two-frame acid damage sound cadence.</summary>
     public WrappingCountdown AcidSoundTimer { get; internal set; }
 
     /// <summary>One-shot dust latch for the 1536 bridge approach threshold.</summary>

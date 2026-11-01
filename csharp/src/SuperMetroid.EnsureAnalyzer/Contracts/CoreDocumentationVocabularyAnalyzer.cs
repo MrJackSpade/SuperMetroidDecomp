@@ -11,8 +11,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <summary>
 /// The documentation counterpart of SME6438 (#1482, SME6454): in <c>SuperMetroid.Core</c>, no comment or string literal
 /// cites a cartridge address (<c>$BB:AAAA</c>, <c>$AAAA</c>) or names the machine (WRAM, VRAM, CGRAM, OAM, DMA, HDMA,
-/// NMI, SNES, APU, SPC, DSP, PPU, ROM, native, bank, cartridge, or a jump mnemonic). Core's documentation states game
-/// behaviour in game terms; provenance belongs to the import pipeline or a check's native catalog. Only a
+/// NMI, SNES, APU, SPC, DSP, PPU, ROM, native, bank, cartridge, the processor's direct page, or a jump mnemonic), and none
+/// describes state by what a debugger sees, edits or stores (#1501). Core's documentation states game behaviour in game
+/// terms; provenance belongs to the import pipeline or a check's native catalog. Only a
 /// <c>[CompatibilityService]</c> type, which reproduces hardware behaviour, or an <c>[EncodingOwner]</c> codec, which owns
 /// an encoding, may describe the hardware. One diagnostic per comment or literal; there is no allowance list.
 /// See <c>docs/core-vocabulary.md</c>.
@@ -20,15 +21,19 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
 {
-    /// <summary>A Core comment or string literal names the hardware or cites an address.</summary>
+    /// <summary>A Core comment or string literal names the hardware or the debugger, or cites an address.</summary>
     public const string DocumentationHardwareId = "SME6454";
 
     /// <summary>A cartridge or memory address: a bank and offset, or a bare four- to six-digit hexadecimal address.</summary>
     private static readonly Regex Address = new(@"\$[0-9A-Fa-f]{2}:[0-9A-Fa-f]{4}|\$[0-9A-Fa-f]{4,6}\b", RegexOptions.CultureInvariant);
 
-    /// <summary>The machine's vocabulary in prose, as whole words with a plural or verb ending.</summary>
+    /// <summary>
+    /// The machine's vocabulary in prose, as whole words with a plural or verb ending; the processor's direct page, spaced
+    /// or hyphenated; and the debugger in any word form (debugger, debugging, debuggable).
+    /// </summary>
     private static readonly Regex HardwareProse = new(
-        @"\b(WRAM|VRAM|CGRAM|OAM|DMA|HDMA|NMI|SNES|APU|SPC|DSP|PPU|ROM|Native|Bank|Cartridge|RTS|RTL|JSR|JSL|JMP|JML)(s|es|ed|ing)?\b|\b65C?816\b|\bdisassembl\w*",
+        @"\b(WRAM|VRAM|CGRAM|OAM|DMA|HDMA|NMI|SNES|APU|SPC|DSP|PPU|ROM|Native|Bank|Cartridge|RTS|RTL|JSR|JSL|JMP|JML)(s|es|ed|ing)?\b|\b65C?816\b|\bdisassembl\w*" +
+        @"|\bdirect[-\s]+pages?\b|\bdebugg\w*",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>The analyzers' same-line allowance markers: enforcement syntax, not prose, so their words are not read.</summary>
@@ -40,14 +45,14 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
 
     private static readonly DiagnosticDescriptor Rule = new(
         DocumentationHardwareId,
-        "Core documentation names the hardware",
-        "Core text names the hardware ('{0}'); describe the game behaviour, and keep provenance in the import pipeline or a check's native catalog",
+        "Core documentation names the hardware or the debugger",
+        "Core text names the hardware or the debugger ('{0}'); describe the game behaviour, and keep provenance in the import pipeline or a check's native catalog",
         "Design",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Core is a C# game: its comments and text say what things do in the game, never which address, chip or " +
-            "memory the original used. Only compatibility services and encoding owners describe the hardware they reproduce " +
-            "(#1482, docs/core-vocabulary.md).");
+            "memory the original used, and never what a debugger sees or stores. Only compatibility services and encoding " +
+            "owners describe the hardware they reproduce (#1482, #1501, docs/core-vocabulary.md).");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];

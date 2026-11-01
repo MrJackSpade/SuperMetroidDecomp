@@ -34,14 +34,20 @@ internal sealed class ReachabilityGraph
     }
 
     /// <summary>Traverses direct and type-implied edges to a fixed point from the supplied roots.</summary>
-    public HashSet<string> Reach(IEnumerable<string> roots)
+    public HashSet<string> Reach(IEnumerable<string> roots) => Reach(roots, _ => true);
+
+    /// <summary>
+    /// Traverses direct and type-implied edges from the supplied roots, entering only keys <paramref name="admits"/>
+    /// accepts: a reference into a refused key is not followed, so nothing is reached through it.
+    /// </summary>
+    public HashSet<string> Reach(IEnumerable<string> roots, Func<string, bool> admits)
     {
         var reached = new HashSet<string>();
         var pending = new Stack<string>(roots);
         while (pending.Count > 0)
         {
             string current = pending.Pop();
-            if (!reached.Add(current))
+            if (!admits(current) || !reached.Add(current))
                 continue;
             if (edges.TryGetValue(current, out var targets))
                 foreach (string target in targets)

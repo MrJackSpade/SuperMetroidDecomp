@@ -46,6 +46,12 @@ internal static class Program
                     var solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
                     return ReachabilityReport.Check(ReachabilityAnalysis.Run(solution), Path.GetFullPath(outputDirectory));
                 }
+                case ["--solution", var solutionPath, "--core-import-only", var outputFile]:
+                {
+                    // Lists the Core declarations the game never reads: reached only through the import pipeline or tools.
+                    var solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
+                    return CoreImportOnlyReport.Write(ReachabilityAnalysis.Run(solution), Path.GetFullPath(outputFile));
+                }
                 case ["--solution", var solutionPath, "--remove-keys", var keysFile, "--retired-fields", var retiredFields]:
                 {
                     // Deletes the declarations whose symbol keys (one per line, as reports print them) are listed.
@@ -102,7 +108,7 @@ internal static class Program
                         + "(--output <directory> | --remove <category,...> --retired-fields <file> [--path-prefix <repo-relative path>] "
                         + "| --relocate <category> --to <project directory> | --why <symbol text> "
                         + "| --prune-keeping-verification-used <category,...> --path-prefix <repo-relative path,...> --to <test-support directory> --retired-fields <file> "
-                        + "| --remove-keys <file> --retired-fields <file> | --check --output <directory>)");
+                        + "| --remove-keys <file> --retired-fields <file> | --core-import-only <file> | --check --output <directory>)");
             }
         }
         catch (Exception exception)

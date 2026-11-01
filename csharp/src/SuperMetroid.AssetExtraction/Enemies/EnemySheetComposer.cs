@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rendering;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
@@ -27,47 +26,57 @@ internal static class EnemySheetComposer
     private const int EnemyRegionTableByte = EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter * SpriteCharacterTableLayout.CharacterByteCount;
 
 
-    /// <summary>Every graphics set's sheets, each distinct sheet once.</summary>
+    /// <summary>
+    /// Every graphics set's sheets, each distinct sheet once. Every sheet is laid out first, and sheets whose layouts
+    /// share an identity paint alike, so each distinct layout is painted and encoded once, in parallel, each worker on
+    /// its own reused canvas (#1490). The sheets are then named in set order: a layout that paints the same files as an
+    /// earlier one takes its name, as composing and comparing every sheet in turn would.
+    /// </summary>
     internal static EnemySheetComposition Compose(EnemySheetInputs inputs)
     {
         Ensure.NotNull(inputs);
-        var distinct = new Dictionary<string, string>(StringComparer.Ordinal);
-        var sheets = new Dictionary<string, ComposedSpriteSheet>(StringComparer.Ordinal);
-        var perEnemy = new Dictionary<EnemyDefinitionId, int>();
+        var layouts = new List<SpriteSheetLayout>();
+        var layoutOf = new Dictionary<string, int>(StringComparer.Ordinal);
+        var laidSets = new List<LaidGraphicsSet>();
+        foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetDefinitions.DrawnUnder)
+        {
+            GraphicsSetSheetSources setSources = Sources(inputs, set);
+            laidSets.Add(new LaidGraphicsSet(set.Name,
+                [.. setSources.Enemies.Select(source => new LaidEnemySheet(source.Enemy, Laid(source.Sources, layouts, layoutOf),
+                    source.Pictures, source.RotPictures))],
+                [.. setSources.Spawned.Select(source => new LaidSpawnedSheet(source.Plan, Laid(source.Sources, layouts, layoutOf),
+                    source.Pictures, source.RotPictures))]));
+        }
+        var encoded = new EncodedSpriteSheet[layouts.Count];
+        Parallel.For(0, layouts.Count, () => new SpriteSheetEncoder(), (index, _, encoder) =>
+        {
+            encoded[index] = encoder.Encode(layouts[index]);
+            return encoder;
+        }, encoder => encoder.Dispose());
+        var names = new SheetNames(encoded);
         var sets = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
         var spawned = new Dictionary<string, Dictionary<string, SpawnedObjectSheetDocument>>(StringComparer.Ordinal);
         var pictures = new Dictionary<string, Dictionary<string, Dictionary<string, CharacterRange[][]>>>(StringComparer.Ordinal);
         var spawnedPictures = new Dictionary<string, Dictionary<string, Dictionary<string, CharacterRange[][]>>>(StringComparer.Ordinal);
         var rotPictures = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>(StringComparer.Ordinal);
         var spawnedRotPictures = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>(StringComparer.Ordinal);
-        var perBase = new Dictionary<int, int>();
-        foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetDefinitions.DrawnUnder)
+        foreach (LaidGraphicsSet set in laidSets)
         {
-            GraphicsSetSheetSources setSources = Sources(inputs, set);
             var members = new Dictionary<string, string>(StringComparer.Ordinal);
             var memberPictures = new Dictionary<string, Dictionary<string, CharacterRange[][]>>(StringComparer.Ordinal);
             var memberRotPictures = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
-            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRange[][]> framePictures,
-                         IReadOnlyDictionary<string, string> frameRots) in setSources.Enemies)
+            foreach (LaidEnemySheet sheet in set.Enemies)
             {
-                ComposedSpriteSheet composed = SpriteSheetComposer.Compose(sources, 0, 0);
-                string key = Fingerprint(composed);
-                if (!distinct.TryGetValue(key, out string? name))
-                {
-                    int ordinal = perEnemy.GetValueOrDefault(enemy);
-                    perEnemy[enemy] = ordinal + 1;
-                    name = SheetName(enemy, ordinal);
-                    distinct.Add(key, name);
-                    sheets.Add(name, composed);
-                }
+                EnemyDefinitionId enemy = sheet.Enemy;
+                string name = names.Of(sheet.Layout, enemy.ToString());
                 // A set that lists an enemy twice loads it once into each record's row; both must show alike.
                 if (members.TryGetValue(enemy.ToString(), out string? listed) && listed != name)
                     throw new InvalidDataException($"Enemy graphics set {set.Name} colours {enemy} two ways.");
                 members[enemy.ToString()] = name;
-                if (framePictures.Count > 0)
-                    memberPictures[enemy.ToString()] = new Dictionary<string, CharacterRange[][]>(framePictures, StringComparer.Ordinal);
-                if (frameRots.Count > 0)
-                    memberRotPictures[enemy.ToString()] = new Dictionary<string, string>(frameRots, StringComparer.Ordinal);
+                if (sheet.Pictures.Count > 0)
+                    memberPictures[enemy.ToString()] = new Dictionary<string, CharacterRange[][]>(sheet.Pictures, StringComparer.Ordinal);
+                if (sheet.RotPictures.Count > 0)
+                    memberRotPictures[enemy.ToString()] = new Dictionary<string, string>(sheet.RotPictures, StringComparer.Ordinal);
             }
             sets.Add(set.Name, members);
             if (memberPictures.Count > 0)
@@ -77,19 +86,10 @@ internal static class EnemySheetComposer
             var bases = new Dictionary<string, SpawnedObjectSheetDocument>(StringComparer.Ordinal);
             var basePictures = new Dictionary<string, Dictionary<string, CharacterRange[][]>>(StringComparer.Ordinal);
             var baseRotPictures = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
-            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRange[][]> framePictures,
-                         IReadOnlyDictionary<string, string> frameRots) in setSources.Spawned)
+            foreach (LaidSpawnedSheet sheet in set.Spawned)
             {
-                ComposedSpriteSheet composed = SpriteSheetComposer.Compose(sources, 0, 0);
-                string key = Fingerprint(composed);
-                if (!distinct.TryGetValue(key, out string? name))
-                {
-                    int ordinal = perBase.GetValueOrDefault(plan.TileBase);
-                    perBase[plan.TileBase] = ordinal + 1;
-                    name = $"Spawned-{plan.TileBase:X3}.{ordinal}";
-                    distinct.Add(key, name);
-                    sheets.Add(name, composed);
-                }
+                SpawnedObjectSheetPlan plan = sheet.Plan;
+                string name = names.Of(sheet.Layout, $"Spawned-{plan.TileBase:X3}");
                 bases.Add(plan.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture), new SpawnedObjectSheetDocument
                 {
                     Sheet = name,
@@ -97,12 +97,12 @@ internal static class EnemySheetComposer
                     Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
                     Anywhere = plan.Anywhere,
                 });
-                if (framePictures.Count > 0)
+                if (sheet.Pictures.Count > 0)
                     basePictures[plan.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture)] =
-                        new Dictionary<string, CharacterRange[][]>(framePictures, StringComparer.Ordinal);
-                if (frameRots.Count > 0)
+                        new Dictionary<string, CharacterRange[][]>(sheet.Pictures, StringComparer.Ordinal);
+                if (sheet.RotPictures.Count > 0)
                     baseRotPictures[plan.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture)] =
-                        new Dictionary<string, string>(frameRots, StringComparer.Ordinal);
+                        new Dictionary<string, string>(sheet.RotPictures, StringComparer.Ordinal);
             }
             spawned.Add(set.Name, bases);
             if (basePictures.Count > 0)
@@ -110,11 +110,103 @@ internal static class EnemySheetComposer
             if (baseRotPictures.Count > 0)
                 spawnedRotPictures.Add(set.Name, baseRotPictures);
         }
-        return new EnemySheetComposition(sheets, new EnemySheetManifestDocument
+        return new EnemySheetComposition(names.Sheets, new EnemySheetManifestDocument
         {
             Version = EnemySheetFiles.ManifestVersion, Sets = sets, Spawned = spawned, Pictures = pictures,
             SpawnedPictures = spawnedPictures, RotPictures = rotPictures, SpawnedRotPictures = spawnedRotPictures,
         });
+    }
+
+    /// <summary>
+    /// Lays out one sheet and gives the index in <paramref name="layouts"/> of the first layout with its identity, adding
+    /// it when it is the first.
+    /// </summary>
+    private static int Laid(SpriteSheetSources sources, List<SpriteSheetLayout> layouts, Dictionary<string, int> layoutOf)
+    {
+        var layout = new SpriteSheetLayout(sources, 0, 0);
+        if (!layoutOf.TryGetValue(layout.Identity, out int index))
+        {
+            index = layouts.Count;
+            layoutOf.Add(layout.Identity, index);
+            layouts.Add(layout);
+        }
+        return index;
+    }
+
+    /// <summary>A graphics set's sheets, each by the distinct layout it paints.</summary>
+    /// <param name="Name">The set's name.</param>
+    /// <param name="Enemies">Each enemy's sheet, in the order the set's sources list them.</param>
+    /// <param name="Spawned">Each spawned-object sheet, in the order the set's sources list them.</param>
+    private sealed record LaidGraphicsSet(string Name, IReadOnlyList<LaidEnemySheet> Enemies, IReadOnlyList<LaidSpawnedSheet> Spawned);
+
+    /// <summary>One enemy's sheet under a graphics set.</summary>
+    /// <param name="Enemy">The enemy.</param>
+    /// <param name="Layout">The index of the distinct layout its sheet paints.</param>
+    /// <param name="Pictures">The layers each frame drawn over uploaded regions draws as.</param>
+    /// <param name="RotPictures">The corpse each frame drawn over a corpse's rows shows the rot of.</param>
+    private sealed record LaidEnemySheet(EnemyDefinitionId Enemy, int Layout, IReadOnlyDictionary<string, CharacterRange[][]> Pictures,
+        IReadOnlyDictionary<string, string> RotPictures);
+
+    /// <summary>One spawned-object sheet under a graphics set.</summary>
+    /// <param name="Plan">The tile base, palette and spawners of the objects it draws.</param>
+    /// <param name="Layout">The index of the distinct layout its sheet paints.</param>
+    /// <param name="Pictures">The layers each frame drawn over uploaded regions draws as.</param>
+    /// <param name="RotPictures">The corpse each frame drawn over a corpse's rows shows the rot of.</param>
+    private sealed record LaidSpawnedSheet(SpawnedObjectSheetPlan Plan, int Layout, IReadOnlyDictionary<string, CharacterRange[][]> Pictures,
+        IReadOnlyDictionary<string, string> RotPictures);
+
+    /// <summary>
+    /// Names the distinct sheets in the order they are first asked for: a layout whose files are the same as an earlier
+    /// named sheet's takes its name; otherwise its owner's next ordinal, an enemy's sheets named for the enemy and a
+    /// spawned-object sheet for its tile base.
+    /// </summary>
+    private sealed class SheetNames
+    {
+        /// <summary>Starts naming the distinct layouts' sheets.</summary>
+        /// <param name="encoded">Each distinct layout's encoded files.</param>
+        internal SheetNames(EncodedSpriteSheet[] encoded)
+        {
+            this.encoded = encoded;
+            names = new string?[encoded.Length];
+        }
+
+        /// <summary>Each distinct layout's encoded files.</summary>
+        private readonly EncodedSpriteSheet[] encoded;
+
+        /// <summary>The name each layout's sheet was given, or null before it is asked for.</summary>
+        private readonly string?[] names;
+
+        /// <summary>The name of the sheet with each fingerprint.</summary>
+        private readonly Dictionary<string, string> distinct = new(StringComparer.Ordinal);
+
+        /// <summary>How many distinct sheets each owner has been given.</summary>
+        private readonly Dictionary<string, int> ordinals = new(StringComparer.Ordinal);
+
+        /// <summary>Each distinct sheet by installed name, in the order they were named.</summary>
+        internal Dictionary<string, EncodedSpriteSheet> Sheets { get; } = new(StringComparer.Ordinal);
+
+        /// <summary>The installed name of the sheet layout <paramref name="layout"/> paints, owned by <paramref name="owner"/> when it is new.</summary>
+        internal string Of(int layout, string owner)
+        {
+            if (names[layout] is string known)
+                return known;
+            string key = Fingerprint(encoded[layout]);
+            if (!distinct.TryGetValue(key, out string? name))
+            {
+                int ordinal = ordinals.GetValueOrDefault(owner);
+                ordinals[owner] = ordinal + 1;
+                name = $"{owner}.{ordinal}";
+                distinct.Add(key, name);
+                Sheets.Add(name, encoded[layout]);
+            }
+            names[layout] = name;
+            return name;
+        }
+
+        /// <summary>A sheet's content hash, which sheets with the same files share.</summary>
+        private static string Fingerprint(EncodedSpriteSheet sheet) =>
+            Convert.ToHexString(SHA256.HashData(sheet.Image)) + Convert.ToHexString(SHA256.HashData(sheet.Palette))
+            + Convert.ToHexString(SHA256.HashData(sheet.Frames));
     }
 
     /// <summary>
@@ -246,21 +338,6 @@ internal static class EnemySheetComposer
                     yield return new ComposedFrame(EnemySheetDefinitions.ComponentFrameName(frame, component), components.Span[component].Parts);
             }
         }
-    }
-
-    /// <summary>The installed name of an enemy's <paramref name="ordinal"/>th distinct sheet.</summary>
-    private static string SheetName(EnemyDefinitionId enemy, int ordinal) => $"{enemy}.{ordinal}";
-
-    /// <summary>A composed sheet's content hash, which identical sheets share.</summary>
-    private static string Fingerprint(ComposedSpriteSheet sheet)
-    {
-        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        hash.AppendData(MemoryMarshal.AsBytes(sheet.Pixels.AsSpan()));
-        hash.AppendData(sheet.PaletteIndices);
-        hash.AppendData(sheet.Priorities);
-        hash.AppendData(sheet.PartGroups);
-        hash.AppendData(SpriteSheetManifestWriter.Write(sheet.Manifest));
-        return Convert.ToHexString(hash.GetHashAndReset());
     }
 
     /// <summary>A shown frame's composition, by the sheet frame name it takes.</summary>

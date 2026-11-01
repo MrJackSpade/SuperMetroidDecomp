@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using System.Buffers.Binary;
 using System.IO.Compression;
+using System.Runtime.InteropServices;
 using System.Text;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
@@ -36,36 +37,61 @@ public static class RgbaPng
     public static void Write(Stream output, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels)
     {
         Ensure.NotNull(output);
+        using var buffers = new RgbaPngBuffers();
+        output.Write(Encode(size, pixels, buffers));
+    }
+
+    /// <summary>
+    /// Encodes an RGBA image as a PNG file's bytes: the header chunk, every row unfiltered and compressed as one zlib
+    /// stream at the optimal level in one data chunk, and the end chunk. The rows and their compressed stream are laid out
+    /// in <paramref name="buffers"/>, which the caller reuses from one image to the next (#1490), so encoding allocates
+    /// only the finished file once the buffers have grown to the image's size.
+    /// </summary>
+    /// <param name="size">The image's width and height; both are positive.</param>
+    /// <param name="pixels">Width times height pixels, row by row from the top.</param>
+    /// <param name="buffers">The working buffers of the thread encoding the image.</param>
+    /// <returns>The whole PNG file.</returns>
+    /// <exception cref="ArgumentException">A dimension is zero or the pixel count does not match.</exception>
+    internal static byte[] Encode(Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels, RgbaPngBuffers buffers)
+    {
+        Ensure.NotNull(buffers);
         if (size.X == 0 || size.Y == 0 || pixels.Length != size.X * size.Y)
             throw new ArgumentException($"A {size.X}x{size.Y} image needs {size.X * size.Y} pixels, not {pixels.Length}.", nameof(pixels));
-        output.Write(Signature);
-        Span<byte> header = stackalloc byte[13];
+        int stride = size.X * PixelBytes;
+        Span<byte> raw = buffers.Scanlines(size.Y * (stride + 1));
+        for (int row = 0; row < size.Y; row++)
+        {
+            Span<byte> line = raw.Slice(row * (stride + 1), stride + 1);
+            // The reused buffer still holds the previous image's rows, so each row's filter byte is written too.
+            line[0] = NoFilter;
+            // A pixel's four channels are laid out in the order the file stores them.
+            MemoryMarshal.AsBytes(pixels.Slice(row * size.X, size.X)).CopyTo(line[1..]);
+        }
+        MemoryStream compressed = buffers.EmptyCompressed();
+        using (var zlib = new ZLibStream(compressed, CompressionLevel.Optimal, leaveOpen: true))
+            zlib.Write(raw);
+        ReadOnlySpan<byte> data = compressed.GetBuffer().AsSpan(0, checked((int)compressed.Length));
+        var file = new byte[Signature.Length + ChunkBytes(HeaderLength) + ChunkBytes(data.Length) + ChunkBytes(0)];
+        Signature.CopyTo(file);
+        Span<byte> header = stackalloc byte[HeaderLength];
         BinaryPrimitives.WriteUInt32BigEndian(header, size.X);
         BinaryPrimitives.WriteUInt32BigEndian(header[4..], size.Y);
         header[8] = 8;
         header[9] = RgbaColourType;
-        WriteChunk(output, "IHDR", header);
-        int stride = size.X * PixelBytes;
-        var raw = new byte[size.Y * (stride + 1)];
-        for (int row = 0; row < size.Y; row++)
-        {
-            int line = row * (stride + 1);
-            for (int column = 0; column < size.X; column++)
-            {
-                RgbaPixel pixel = pixels[row * size.X + column];
-                int at = line + 1 + column * PixelBytes;
-                raw[at] = pixel.R;
-                raw[at + 1] = pixel.G;
-                raw[at + 2] = pixel.B;
-                raw[at + 3] = pixel.A;
-            }
-        }
-        using var compressed = new MemoryStream();
-        using (var zlib = new ZLibStream(compressed, CompressionLevel.Optimal, leaveOpen: true))
-            zlib.Write(raw);
-        WriteChunk(output, "IDAT", compressed.ToArray());
-        WriteChunk(output, "IEND", []);
+        Span<byte> rest = WriteChunk(file.AsSpan(Signature.Length), "IHDR"u8, header);
+        rest = WriteChunk(rest, "IDAT"u8, data);
+        WriteChunk(rest, "IEND"u8, []);
+        return file;
     }
+
+    /// <summary>The filter type of a row stored as its raw bytes.</summary>
+    private const byte NoFilter = 0;
+
+    /// <summary>The bytes of a chunk's type name.</summary>
+    private const int ChunkTypeLength = 4;
+
+    /// <summary>The bytes a chunk of <paramref name="dataLength"/> data bytes takes with its length, type and CRC.</summary>
+    private static int ChunkBytes(int dataLength) => sizeof(uint) + ChunkTypeLength + dataLength + sizeof(uint);
 
     /// <summary>
     /// Reads only an RGBA PNG's size from its header chunk, which follows the signature, checking its CRC and form as
@@ -207,17 +233,15 @@ public static class RgbaPng
         return toLeft <= toUp && toLeft <= toUpLeft ? left : toUp <= toUpLeft ? up : upLeft;
     }
 
-    /// <summary>Writes one chunk with its length and CRC.</summary>
-    private static void WriteChunk(Stream output, string type, ReadOnlySpan<byte> data)
+    /// <summary>Writes one chunk with its length and CRC at the start of <paramref name="destination"/>.</summary>
+    /// <returns>The rest of <paramref name="destination"/>, after the chunk.</returns>
+    private static Span<byte> WriteChunk(Span<byte> destination, ReadOnlySpan<byte> type, ReadOnlySpan<byte> data)
     {
-        Span<byte> number = stackalloc byte[4];
-        BinaryPrimitives.WriteUInt32BigEndian(number, (uint)data.Length);
-        output.Write(number);
-        byte[] name = Encoding.ASCII.GetBytes(type);
-        output.Write(name);
-        output.Write(data);
-        BinaryPrimitives.WriteUInt32BigEndian(number, Crc(name, data));
-        output.Write(number);
+        BinaryPrimitives.WriteUInt32BigEndian(destination, (uint)data.Length);
+        type.CopyTo(destination[sizeof(uint)..]);
+        data.CopyTo(destination[(sizeof(uint) + type.Length)..]);
+        BinaryPrimitives.WriteUInt32BigEndian(destination[(sizeof(uint) + type.Length + data.Length)..], Crc(type, data));
+        return destination[ChunkBytes(data.Length)..];
     }
 
     /// <summary>The PNG CRC-32 of a chunk's type and data.</summary>

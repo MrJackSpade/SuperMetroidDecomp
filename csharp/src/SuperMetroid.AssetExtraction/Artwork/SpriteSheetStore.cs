@@ -76,38 +76,34 @@ internal sealed class SpriteSheetStore
     }
 
     /// <summary>
-    /// Writes every sheet: their images and manifests are encoded in parallel, the slow part (PNG compression), and
-    /// written in the given order, so the files and the provenance manifest are the same as writing them one by one.
+    /// Writes every sheet: their images and manifests are encoded in parallel, the slow part (PNG compression), each
+    /// worker reusing one encoder's buffers for every sheet it encodes, and written in the given order, so the files and
+    /// the provenance manifest are the same as writing them one by one.
     /// </summary>
     internal void WriteAll(IReadOnlyList<NamedComposedSheet> sheets)
     {
         Ensure.NotNull(sheets);
-        var encoded = new EncodedSheet[sheets.Count];
-        Parallel.For(0, sheets.Count, index => encoded[index] = Encode(sheets[index].Name, sheets[index].Sheet));
-        foreach (EncodedSheet sheet in encoded)
-            WriteEncoded(sheet);
-    }
-
-    /// <summary>One sheet's three files, encoded and ready to write.</summary>
-    private readonly record struct EncodedSheet(string Name, byte[] Image, byte[] Palette, byte[] Frames);
-
-    /// <summary>Encodes one composed sheet's image, palette map and frame manifest.</summary>
-    private static EncodedSheet Encode(string name, ComposedSpriteSheet composed)
-    {
-        Ensure.NotNull(composed);
-        using var image = new MemoryStream();
-        RgbaPng.Write(image, composed.Size, composed.Pixels);
-        using var palette = new MemoryStream();
-        RgbaPng.Write(palette, composed.Size, PaletteImage(composed.PaletteIndices, composed.Priorities, composed.PartGroups));
-        return new(name, image.ToArray(), palette.ToArray(), SpriteSheetManifestWriter.Write(composed.Manifest));
+        var encoded = new EncodedSpriteSheet[sheets.Count];
+        Parallel.For(0, sheets.Count, () => new SpriteSheetEncoder(), (index, _, encoder) =>
+        {
+            ComposedSpriteSheet sheet = Ensure.NotNull(sheets[index].Sheet);
+            encoded[index] = encoder.Encode(new SpriteSheetPlanes(sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.Priorities,
+                sheet.PartGroups), sheet.Manifest);
+            return encoder;
+        }, encoder => encoder.Dispose());
+        for (int index = 0; index < sheets.Count; index++)
+            Write(sheets[index].Name, encoded[index]);
     }
 
     /// <summary>Writes one encoded sheet's files and records their hashes.</summary>
-    private void WriteEncoded(EncodedSheet sheet)
+    /// <param name="name">The sheet's installed name.</param>
+    /// <param name="sheet">Its encoded files.</param>
+    internal void Write(string name, EncodedSpriteSheet sheet)
     {
-        WriteFile(ImageFile(sheet.Name), sheet.Image);
-        WriteFile(PaletteFile(sheet.Name), sheet.Palette);
-        WriteFile(FrameFile(sheet.Name), sheet.Frames);
+        Ensure.NotNull(sheet);
+        WriteFile(ImageFile(name), sheet.Image);
+        WriteFile(PaletteFile(name), sheet.Palette);
+        WriteFile(FrameFile(name), sheet.Frames);
     }
 
     /// <summary>Writes the provenance manifest of every file written.</summary>
@@ -201,18 +197,6 @@ internal sealed class SpriteSheetStore
 
     /// <summary>A sheet's frame manifest file name.</summary>
     internal static string FrameFile(string name) => name + ".json";
-
-    /// <summary>
-    /// The palette-index image: each index in red, priority in green and part colour group's code in blue, opaque where
-    /// a colour is shown.
-    /// </summary>
-    private static RgbaPixel[] PaletteImage(ReadOnlySpan<byte> indices, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partGroups)
-    {
-        var pixels = new RgbaPixel[indices.Length];
-        for (int pixel = 0; pixel < indices.Length; pixel++)
-            pixels[pixel] = new RgbaPixel(indices[pixel], priorities[pixel], partGroups[pixel], indices[pixel] == 0 ? (byte)0 : byte.MaxValue);
-        return pixels;
-    }
 
     /// <summary>Writes a new stock file and records its hash.</summary>
     private void WriteFile(string name, byte[] bytes)

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 public enum WalkingSpacePirateFunction
 {
-    /// <summary>The shared RTS copied by initialization and flinch lists.</summary>
+    /// <summary>The shared empty behaviour copied by initialization and flinch animations.</summary>
     NoOperation = 1,
 
     /// <summary>Walk left, fall when unsupported, and turn at a wall, ledge, or patrol post.</summary>
@@ -15,6 +15,6 @@ public enum WalkingSpacePirateFunction
     /// <summary>Walk right, fall when unsupported, and turn at a wall, ledge, or patrol post.</summary>
     WalkingRight,
 
-    /// <summary>The second RTS used while a firing/look-around list owns presentation.</summary>
+    /// <summary>The second empty behaviour, used while a firing/look-around animation owns presentation.</summary>
     AnimationOwnedNoOperation,
 }

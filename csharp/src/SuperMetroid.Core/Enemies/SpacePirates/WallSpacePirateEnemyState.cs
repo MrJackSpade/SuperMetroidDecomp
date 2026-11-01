@@ -12,7 +12,7 @@ public sealed class WallSpacePirateEnemyState
     internal AnimationProgramCursor<WallSpacePirateProgram> Program { get; set; }
 
     /// <summary>
-    /// AI entry, initialized for the starting wall and replaced by instruction $B2:EF83 as attack, jump, and
+    /// AI entry, initialized for the starting wall and replaced by an animation cue as attack, jump, and
     /// landing lists advance; none once a kill has emptied the record.
     /// </summary>
     public WallSpacePirateFunction? Function { get; internal set; }
@@ -34,7 +34,7 @@ public sealed class WallSpacePirateEnemyState
     public WallSpacePirateClimbDirection ClimbDirection { get; internal set; }
 
     /// <summary>
-    /// Whole room-pixel jump-ellipse center, set by $B2:EED4/$EEFD: X is the departure X plus or minus half parameter
+    /// Whole room-pixel jump-ellipse center, set when a jump starts: X is the departure X plus or minus half parameter
     /// two and Y the departure Y.
     /// </summary>
     public Position16<RoomPixels> WallJumpArcCenter { get; internal set; }

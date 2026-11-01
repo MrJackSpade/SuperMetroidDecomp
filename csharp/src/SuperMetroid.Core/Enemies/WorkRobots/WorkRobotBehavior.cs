@@ -92,8 +92,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Powered = true;
 
-        // ORA #$A000 installs the common instruction bit and unknown-but-observable bit
-        // $8000. Population records already carry process-off-screen $0800 in retail rooms.
+        // The initializer sets the animation-script bit and the unknown-but-observable high
+        // bit. Population records already carry process-off-screen in retail rooms.
         slot.Properties = slot.Properties.With(
             EnemyProperties.SolidToSamus | EnemyProperties.RunsAnimationScript);
         slot.FrameHold = WrappingCountdown.Start(4);
@@ -103,7 +103,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         state.LaserCooldown = WrappingCountdown.Start(0);
 
         // The graphics-drawn hook is global. Every powered initialization resets its shared
-        // clock/table and remembers this actor's OBJ palette exactly as $A8:CB83-$CBCB does.
+        // clock/table and remembers this actor's sprite palette exactly as the game does.
         WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(1);
         WorkRobotPaletteAnimationRecord = 0;
         WorkRobotPaletteAnimationColouring = slot.Colouring;
@@ -116,7 +116,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The range check accidentally accepts parameter three even though the
         // pointer table has only three entries; retail populations use zero/one, and the
-        // overrun into code at $CC36 fails loudly in the animation selection.
+        // overrun into the following code fails loudly in the animation selection.
         int animation = slot.SpawnSettings<WorkRobotSpawnSettings>().Pose;
         if (WordWrap.Signed(animation) < 0 || animation >= 4)
             animation = 0;
@@ -131,10 +131,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(0);
         state.FallVelocity = WorkRobotInitialFallVelocity;
 
-        // $A8:CC1C writes four colors to active palette RAM through a stale global palette
+        // The deactivated initializer writes four colors to the active palette through a stale global palette
         // index. Room fade immediately overwrites them, and no retail deactivated robot can
         // select its own palette there. The deliberately ineffective writes are documented
-        // rather than synthesized into CGRAM, matching the visible cartridge result.
+        // rather than synthesized into the palette, matching the visible game result.
     }
 
     /// <summary>Ports the gravity-only <c>MainAI_Robot</c>.</summary>
@@ -254,7 +254,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!step.CheckLedge)
             return null;
 
-        // The ROM moves only whole X/Y words for this temporary foot probe. In particular,
+        // The game moves only whole X/Y words for this temporary foot probe. In particular,
         // MoveEnemyDown's collision-produced Y subposition survives after Y is restored.
         state.BackupPosition = slot.Position.Whole;
         slot.Position = slot.Position.WithWrappedWholeX(
@@ -305,7 +305,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports custom touch $A8:D174. Work Robots are moving solids: body contact publishes a
+    /// Runs the robot's custom touch. Work Robots are moving solids: body contact publishes a
     /// four-pixel external push away from their center and deliberately deals no touch damage.
     /// </summary>
     private static void ResolveWorkRobotTouch(RoomEnemySlot robot, SamusState samus)
@@ -315,7 +315,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports the private tail of powered shot AI $A8:D192 after common shot handling. The
+    /// Runs the private tail of powered shot AI after common shot handling. The
     /// indestructible vulnerability table leaves health unchanged, but the accepted impact
     /// still chooses an ahead/behind recoil list and delays the next laser by 64 frames.
     /// </summary>
@@ -374,7 +374,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Rejects powered-robot bomb damage before Phantoon's defeat and applies recoil after admitted hits.</summary>
     internal void AddWorkRobotBombReactions(EnemySharedReactions table)
     {
-        // Powered Work Robot returns until Phantoon is dead. Bank $A0 has already marked the bomb, so callback
+        // Powered Work Robot returns until Phantoon is dead. The bomb pass has already marked the bomb, so callback
         // rejection belongs here rather than in collision admission.
         table.AddBombCommon(new EnemyBombReaction(c => IsWorkRobotDefinition(c.Enemy.DefinitionId) &&
                                                        c.SelectedShotAi is EnemyReaction.WorkRobotShot or EnemyReaction.WorkRobotNoPowerShot)
@@ -426,8 +426,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Allocates one of bank $86's five Work Robot laser definitions. Horizontal left/right
-    /// share $D2B4; the sign in the owner's laser velocity supplies the sixth direction.
+    /// Allocates one of the five Work Robot laser definitions. Horizontal left/right
+    /// share one definition; the sign in the owner's laser velocity supplies the sixth direction.
     /// </summary>
     internal void SpawnWorkRobotLaser(
         RoomEnemySlot robot,
@@ -442,7 +442,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // SpawnEnemyProjectileY_ParameterA_XGraphics installs the complete seven-word
         // definition before entering the family initializer. Keeping that division here is
         // important: the five records do not share radii or damage, and the common helper
-        // also supplies the native $8000 pre-draw map sentinel and all three property bits.
+        // also supplies the pre-draw map sentinel and all three property bits.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             definition.ProjectileKind(),
@@ -460,18 +460,18 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // All five initializers place the muzzle four pixels in the signed facing direction
         // and sixteen pixels above the robot. The temporary graphics word comes from the
-        // owner; pre-instruction $D3BF clears it before the first draw, matching the ROM's
+        // owner; the laser's frame behaviour clears it before the first draw, matching the game's
         // use of palette/tile bits embedded directly in the laser spritemaps.
         projectile.Position = new(new(CoordinateAxis.Wrap(robot.Position.X.Whole +
             (state.LaserVelocity.X.SignedRawValue < 0 ? -4 : 4)), 0), new(CoordinateAxis.Wrap(robot.Position.Y.Whole - 16), 0));
-        // $86:D326 clears the graphics word in the down-left/right initializer itself.
+        // The down-left/right initializer clears the graphics word itself.
         // Upward and horizontal variants retain the owner's word until common
-        // pre-instruction $D3BF clears it on their first projectile pass.
+        // frame behaviour clears it on their first projectile pass.
         if (definition is
             WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight)
             projectile.Graphics = default;
 
-        // Preserve the original $86:D35B viewport bug. Its final Y comparison omits
+        // Preserve the original laser viewport bug. Its final Y comparison omits
         // `CMP Layer1YPosition`, so lasers only request sound while their owner's absolute
         // top edge is above scanline 224, even when a lower room row is on screen.
         bool horizontallyVisible =
@@ -484,7 +484,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.WorkRobot, WorkRobotLaserSound, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Ports pre-instruction $86:D3BF: X collision, then Y collision, else move.</summary>
+    /// <summary>Runs the laser's per-frame behaviour: X collision, then Y collision, else move.</summary>
     internal static void RunWorkRobotLaserFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)

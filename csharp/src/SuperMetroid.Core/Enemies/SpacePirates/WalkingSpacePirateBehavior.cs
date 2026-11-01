@@ -113,7 +113,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             : WalkingSpacePirateProgram.WalkingLeft);
         state.Function = WalkingSpacePirateFunction.NoOperation;
 
-        // Native ADC/SBC wrap at 16 bits. A modded patrol radius can therefore straddle the
+        // The game's additions wrap at 16 bits. A modded patrol radius can therefore straddle the
         // world-coordinate seam; keeping ushort arithmetic preserves its signed CMP behavior.
         state.RightPost = new(CoordinateAxis.Wrap(slot.Position.X.Whole + settings.PatrolReach), 0);
         state.LeftPost = new(CoordinateAxis.Wrap(slot.Position.X.Whole - settings.PatrolReach), 0);
@@ -178,7 +178,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             return;
 
         // Left and right are not mirrors in the game. Left probes a point 17 pixels
-        // away, then walks by -$3801 subpixels; right probes +16 and walks by +$3800.
+        // away, then walks by -14337 subpixels; right probes +16 and walks by +14336.
         // Preserve that one-subpixel/one-pixel asymmetry instead of normalizing the speed.
         int originalX = slot.Position.X.Whole;
         slot.Position = slot.Position.WithWrappedWholeX(
@@ -188,7 +188,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         if (floorAhead)
         {
-            // The ignored `$A0:BBBF` probe checks raw level-word bit 15 at -9 pixels. Its
+            // The ignored horizontal probe checks raw level-word bit 15 at -9 pixels. Its
             // only mutable result is the DP displacement pair, which the following move
             // immediately overwrites. It therefore has no persistent actor-side effect.
             bool hitWall = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
@@ -283,7 +283,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         InstallWalkingSpacePirateInstruction(slot, state, list);
     }
 
-    /// <summary>Ports instruction <c>$B2:FCC8</c>'s direct-list selection.</summary>
+    /// <summary>Runs the movement cue's direct animation selection.</summary>
     private static WalkingSpacePirateProgram SelectWalkingSpacePirateMovement(
         RoomEnemySlot slot,
         SamusState? samus)
@@ -339,7 +339,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
-    /// <summary>Ports firing opcodes <c>$B2:FC68/$FC90</c> and initializer $86:A009.</summary>
+    /// <summary>Runs the firing cues and the laser initializer.</summary>
     private void SpawnWalkingSpacePirateLaser(
         RoomEnemySlot source,
         WalkingSpacePirateEnemyState state,
@@ -353,7 +353,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>
-    /// Ports the common projectile initializer <c>$86:A009</c>. Wall and walking Pirates
+    /// Runs the common laser initializer. Wall and walking Pirates
     /// use different actor opcodes and muzzle offsets, but the allocated projectile is the
     /// same retail definition and therefore belongs in one shared implementation.
     /// </summary>
@@ -396,7 +396,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>
-    /// Ports the common projectile initializer <c>$86:A009</c> after the caller has chosen
+    /// Runs the common laser initializer after the caller has chosen
     /// its muzzle coordinate. Walking Pirates, wall Pirates, and Mother Brain enter through
     /// different actor opcodes, but the game deliberately funnels all of them through
     /// this definition so animation, speed flags, collision damage, and disposal agree.
@@ -430,8 +430,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         projectile.State = new PirateLaserState(speed == PirateLaserSpeed.Slow);
 
-        // A009 replaces the projectile definition's property word with enemy damage OR
-        // $1000. The source palette/VRAM are *not* copied: SpawnEprojWithRoomGfx passes a
+        // The initializer replaces the projectile definition's property word with enemy damage OR
+        // 0x1000. The source palette and tiles are *not* copied: SpawnEprojWithRoomGfx passes a
         // graphics index of zero so the laser uses the room projectile tiles/palette.
         projectile.Damage = source.Definition.Damage;
         projectile.CanDamageSamus = true;
@@ -526,16 +526,16 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateHitboxShotAction(c.Enemy, c.Projectile, c.HitboxShotAi);
         if (pirateAction != PirateHitboxShotActions.PirateHitboxShotAction.Normal)
         {
-            // `$A0:9CD1-$9CD6` marks a non-plasma projectile as having entered an extended hitbox before the
+            // The extended walker marks a non-plasma projectile as having entered an extended hitbox before the
             // selected callback runs. Normal hits get the equivalent lifecycle transition from TryStartEnemyImpact;
-            // rejected and reflected hits return before that shared host path. Enemy property bit $1000 also forces
+            // rejected and reflected hits return before that shared host path. Enemy property bit 0x1000 also forces
             // the mark in code, but its broader meaning is not yet proven, so it deliberately remains a
             // documented raw bit rather than a prematurely named enum member.
             c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
         {
-            // `$B2:883E` deliberately returns for a just-fired Super Missile whose link variable is still zero.
+            // The Ninja body callback deliberately returns for a just-fired Super Missile whose link variable is still zero.
             // The multibox collision walk nevertheless exits after invoking that callback.
             return true;
         }

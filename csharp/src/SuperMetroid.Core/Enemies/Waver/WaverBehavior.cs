@@ -82,9 +82,9 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot,
                 horizontalDisplacement))
         {
-            // `$A3:875F-$8781` negates the overlapping velocity bytes and writes them back
+            // The wall reversal negates the overlapping velocity bytes and writes them back
             // as two words. For every initialized Waver this is exactly a signed 16.16
-            // negation; expressing that value directly preserves the native ±1.5 px/frame.
+            // negation; expressing that value directly preserves the game's ±1.5 px/frame.
             state.XVelocity = SignedSixteenSixteen.FromRaw(unchecked(-horizontalDisplacement));
             // A wall turns Waver around and ends any spin.
             state.RequestedAnimation = WaverPrograms.TurnedAround(state.RequestedAnimation);

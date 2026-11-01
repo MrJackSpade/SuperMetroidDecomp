@@ -29,7 +29,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Spawns paired landing dust sprites.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
-    /// <summary>Provides CGRAM for the gold ninja's copied palette.</summary>
+    /// <summary>Provides the palette for the gold ninja's copied palette.</summary>
     private readonly EnemyPresentation _presentation;
 
     /// <summary>Receives sound requests from shared Space Pirate instruction opcodes.</summary>
@@ -46,7 +46,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         _presentation = presentation;
     }
 
-    /// <summary>Native 8.8 speed assigned at the start of a divekick jump and descent.</summary>
+    /// <summary>8.8 speed assigned at the start of a divekick jump and descent.</summary>
     private const int NinjaPirateInitialDiveSpeed = 1536;
     /// <summary>Maximum horizontal distance at which an idle ninja activates.</summary>
     private const int NinjaPirateActivationDistance = 128;
@@ -101,7 +101,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         requestedHalfSpan >>= 1;
         state.PostsMidpoint = new(CoordinateAxis.Wrap(requestedLeft + requestedHalfSpan), 0);
 
-        // `$B2:F632` truncates the half-span to one byte before moving it to the high byte.
+        // The post setup truncates the half-span to one byte before moving it to the high byte.
         // The do/while always executes once, including a zero-span debug population.
         int distanceInSubpixels = CoordinateAxis.Wrap(EightEight.FromWhole(WordWrap.LowByte(requestedHalfSpan)));
         int speed = 0;
@@ -242,12 +242,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if (samusProjectiles is null)
             return false;
 
-        // `$B2:F72E` selects only the highest occupied Samus projectile slot. If that one is
+        // The projectile check selects only the highest occupied Samus projectile slot. If that one is
         // far away, it returns immediately instead of searching a lower slot that is closer.
         SamusProjectileSlot? projectile = null;
         for (int index = Math.Min(4, samusProjectiles.Slots.Count - 1); index >= 0; index--)
         {
-            // Native `$B2:F72E` selects by nonzero projectile type, not by bank-$93's
+            // The check selects by nonzero projectile type, not by the projectile's
             // animation-list pointer. This includes the invisible zero-list Murder Beam.
             if (samusProjectiles.Slots[index].HasEnemyCollisionPayload)
             {
@@ -468,7 +468,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // MoveEnemyDownBy_14_12 receives the high speed byte as the signed integer word and
         // the low byte as only the low eight bits of the fractional word. This odd packing is
         // preserved literally; treating Speed as a conventional 8.8 fixed value is subtly
-        // different from the 65816 register setup/$FA9F.
+        // different from the game's own speed arithmetic.
         int displacement = (SixteenSixteen.FromWhole(EightEight.WholeOf(state.Speed.RawValue))) | (EightEight.FractionOf(state.Speed.RawValue));
         bool landed = _terrain.MoveEnemyVertically(level, slot, displacement);
         if (!landed)
@@ -488,7 +488,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             direction == HorizontalDirection.Right
                 ? NinjaSpacePirateProgram.WalkToRightPost
                 : NinjaSpacePirateProgram.WalkToLeftPost);
-        // $B2:FA0E/$FAE2 store the spawn row's whole Y only; the dive's Y fraction stays.
+        // Landing at either post stores the spawn row's whole Y only; the dive's Y fraction stays.
         slot.Position = slot.Position.WithWholeY(state.SpawnPosition.Y);
         SpawnNinjaPirateLandingDust(slot, state);
     }
@@ -699,8 +699,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             {
                 PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateNormalBombHitboxShotAction(c.Enemy, c.SelectedShotAi);
                 if (pirateAction != PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
-                    throw new InvalidDataException("Gold Ninja normal-bomb callbacks must ignore family $0500.");
-                // Both gold-Ninja component callbacks compare family $0500 against Power Bomb family $0300 and return
+                    throw new InvalidDataException("Gold Ninja normal-bomb callbacks must ignore the normal-bomb family.");
+                // Both gold-Ninja component callbacks compare the normal-bomb family against the Power Bomb family and return
                 // immediately. The extended collision walker has already marked the bomb, so this is an
                 // accepted physical overlap without damage, impact replacement, reflection, or the Lower-Norfair
                 // special-drop death tail.

@@ -8,7 +8,7 @@ internal static class PirateHitboxShotActions
 {
     /// <summary>
     /// Dispatches the common and Pirate-specific shot callbacks in hitbox records. Only the
-    /// gold Ninja gives `$87C8/$883E` special meaning; every other Pirate deliberately falls
+    /// gold Ninja gives the two Ninja body callbacks special meaning; every other Pirate deliberately falls
     /// through to normal shot AI even when it displays one of the shared Ninja maps.
     /// </summary>
     internal static PirateHitboxShotAction SelectPirateHitboxShotAction(
@@ -63,10 +63,10 @@ internal static class PirateHitboxShotActions
     }
 
     /// <summary>
-    /// Dispatches a family-$0500 normal bomb through the same three component
+    /// Dispatches a normal bomb through the same three component
     /// callbacks as the ordinary projectile path. Non-gold Pirates always jump to normal
-    /// Pirate shot handling. Gold Ninjas return from both `$87C8` and `$883E` because a
-    /// normal bomb sorts after Power Bomb family `$0300`; consequently bombs neither damage
+    /// Pirate shot handling. Gold Ninjas return from both body callbacks because a
+    /// normal bomb's family sorts after the Power Bomb family; consequently bombs neither damage
     /// nor reflect from either authored body region.
     /// </summary>
     internal static PirateHitboxShotAction SelectPirateNormalBombHitboxShotAction(

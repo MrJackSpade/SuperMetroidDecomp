@@ -24,7 +24,7 @@ public sealed class NinjaSpacePirateEnemyState
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Variable C: the active stance animation, facing Samus, that becoming active continues at.</summary>
+    /// <summary>The active stance animation, facing Samus, that becoming active continues at.</summary>
     internal NinjaSpacePirateProgram ActiveProgram { get; set; }
 
     /// <summary>

@@ -19,7 +19,7 @@ internal static class WorkRobotPaletteTimingDefinitions
     /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A8.asm:
     /// the six unsigned timer words+10*i repeat a three-record cadence,
     /// 64 ticks at i%3==0 and 16 otherwise. Validate offsets before division/modulo;
-    /// only 0,10,20,30,40,50 are durations. $A8:CCFD is the separate color terminator,
+    /// only 0,10,20,30,40,50 are durations. The separate color terminator is
     /// resolved by NormalizeByteOffset at offset 60, never a seventh duration.
     /// </remarks>
     internal static readonly ushort[] Durations = [64, 16, 16, 64, 16, 16];

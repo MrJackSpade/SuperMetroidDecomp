@@ -12,7 +12,7 @@ public sealed class WorkRobotEnemyState
     internal AnimationProgramCursor<WorkRobotProgram> Program { get; set; }
 
     /// <summary>
-    /// True only when definition $E8FF saw the area's boss bit during initialization. Definition $E8FF can therefore
+    /// True only when the unpowered robot definition saw the area's boss bit during initialization. That definition can therefore
     /// own a deactivated state before Phantoon is defeated.
     /// </summary>
     public bool Powered { get; internal set; }

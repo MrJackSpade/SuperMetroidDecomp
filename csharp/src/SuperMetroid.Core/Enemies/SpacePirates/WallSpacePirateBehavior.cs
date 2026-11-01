@@ -116,8 +116,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
             case WallSpacePirateFunction.AttackAnimationOnLeftWall:
             case WallSpacePirateFunction.AttackAnimationOnRightWall:
-                // These are literal RTS functions. Actor presentation and timing are owned
-                // entirely by the currently-running instruction list.
+                // These behaviours do nothing. Actor presentation and timing are owned
+                // entirely by the currently-running animation.
                 return;
 
             case WallSpacePirateFunction.WallJumpingRight:
@@ -184,7 +184,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Applies the split alignment rule when a Pirate starts or lands on a wall.</summary>
     private static void SnapWallSpacePirateXToTile(RoomEnemySlot slot)
     {
-        // `$B2:EFFF` deliberately has two alignment grids. Nibbles 0..10 round down to an
+        // The wall alignment deliberately has two alignment grids. Nibbles 0..10 round down to an
         // eight-pixel boundary; 11..15 round up to the next sixteen-pixel boundary.
         int x = slot.Position.X.Whole;
         slot.Position = slot.Position.WithWholeX(RoomGridConversions.OffsetWithinBlock(x) < 11
@@ -280,8 +280,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
-        // `$86:A009` queues $67 for every successful allocation. The later wall-jump opcode
-        // independently queues $66; both are observable, distinct library-two requests.
+        // The laser initializer queues sound 103 for every successful allocation. The later wall-jump cue
+        // independently queues sound 102; both are observable, distinct library-two requests.
         if (_walkingSpacePirateBehavior.SpawnSpacePirateLaser(slot, direction == HorizontalDirection.Right, WallPirateLaserMuzzleYOffset))
         {
             state.SpawnedLaserCount++;
@@ -367,8 +367,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 // variant four: a wall Pirate's jump destination (used only as a debug destination, so its fatal clear
                 // is observable) or a Ninja's spin-jump speed; a walking Pirate keeps nothing there.
                 ClearPirateMoveOnShotDeath(c.Enemy);
-                // $B2:878F records the Gold Ninja's position as the drop origin before EnemyDeath clears the slot;
-                // $B2:87B4 then spawns the death explosion before MetalNinjaPirateDeathItemDropRoutine
+                // The Gold Ninja's death records its position as the drop origin before EnemyDeath clears the slot;
+                // it then spawns the death explosion before MetalNinjaPirateDeathItemDropRoutine
                 // spawns the drops.
                 bool spawnsGoldNinjaDrops = c.Enemy.DefinitionId == EnemyDefinitionId.PirateGoldNinja;
                 Position16<RoomPixels> dropOrigin = c.Enemy.Position.Whole;
@@ -389,7 +389,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                                EnemyCollision.TouchAi(slot) == EnemyReaction.SpacePirateTouch,
             context =>
             {
-                // Space Pirate extended maps currently use the shared `$B2:876C` touch
+                // Space Pirate extended maps currently use the shared Pirate touch
                 // callback in every retail hitbox. Keep the pointer check explicit: silently
                 // treating a later family-specific attack box as ordinary body contact would
                 // recreate the exact radius-flattening bug this path is intended to remove.
@@ -398,7 +398,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                     throw new InvalidDataException(
                         $"Space Pirate hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
-                // `$B2:876C` returns before common touch AI while frozen. The overlap was
+                // The shared Pirate touch returns before common touch AI while frozen. The overlap was
                 // still found, but neither Samus nor the Pirate receives contact damage.
                 if (!context.Slot.FrozenTimer.IsZero)
                     return;

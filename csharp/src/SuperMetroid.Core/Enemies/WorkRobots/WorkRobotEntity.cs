@@ -14,7 +14,7 @@ internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot s
     public EnemyMainAiHandler? FindMain() => WorkRobotPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         WorkRobotPart.Robot => species.RunWorkRobotMainAi,
-        // The unpowered robot's main is the RTL.
+        // The unpowered robot's main does nothing.
         WorkRobotPart.RobotNoPower => EnemyNoOpAi.Main,
         _ => throw new InvalidOperationException($"WorkRobot entity bound to {Slot.DefinitionId}."),
     };

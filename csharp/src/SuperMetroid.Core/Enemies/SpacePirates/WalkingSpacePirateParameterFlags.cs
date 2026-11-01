@@ -10,6 +10,6 @@ public enum WalkingSpacePirateParameterFlags
     None = 0,
     /// <summary>Population parameter-one bit 0, tested by <c>InitAI_PirateWalking</c>: selects the right-facing initial animation; clear selects left, independently of bit 15.</summary>
     StartsFacingRight = 1,
-    /// <summary>Population parameter-one bit 15: $B2:FD3B enables the projectile-flinch check after normal AI, and the inherited laser parameter selects two rather than four horizontal pixels per projectile update.</summary>
+    /// <summary>Population parameter-one bit 15: enables the projectile-flinch check after normal AI, and the inherited laser parameter selects two rather than four horizontal pixels per projectile update.</summary>
     SlowLaserAndProjectileFlinch = 2,
 }

@@ -12,7 +12,7 @@ internal static class WorkRobotPoses
             return WorkRobotInitializationDefinitions.InitialPrograms[parameter];
         if (parameter == WorkRobotInitializationDefinitions.InitialPrograms.Length)
             throw new InvalidDataException(
-                "Work Robot parameter 3 reads past the three-entry list table into code at $A8:CC36; no retail population uses it.");
+                "Work Robot parameter 3 reads past the three-entry animation table; no retail population uses it.");
         throw new ArgumentOutOfRangeException(nameof(parameter));
     }
 }

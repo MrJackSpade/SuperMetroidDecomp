@@ -7,8 +7,8 @@ internal enum SpacePirateProjectileCueKind
     StartMoving,
 
     /// <summary>
-    /// Installs the movement routine and runs it once at once (<c>Instruction_EnemyProjectile_FrameBehaviorInY_ExecuteY</c>,
-    /// $86:A050): the laser moves on the update it starts.
+    /// Installs the movement routine and runs it at once:
+    /// the laser moves on the update it starts.
     /// </summary>
     StartMovingNow,
 }

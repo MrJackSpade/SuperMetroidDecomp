@@ -1099,8 +1099,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // movement-type byte. Y direction is data consumed by the selected
         // handler, never a replacement dispatcher. In particular, crouched
         // turn `$44` can retain downward direction while its type remains
-        // `$0E`; treating that word as type `$17` sent it into A790 and
-        // produced the live replay crash from issue 58.
+        // `$0E`; treating it as type `$17` sent it into the aerial turn's handler
+        // and produced the live replay crash from issue 58.
         SamusMovementType turnMovementType = SamusPoseMetadata.ReadMovementKind(samus);
         if (turnMovementType == SamusMovementType.TurningOnGround ||
             (turnMovementType == SamusMovementType.TurningWhileJumping &&

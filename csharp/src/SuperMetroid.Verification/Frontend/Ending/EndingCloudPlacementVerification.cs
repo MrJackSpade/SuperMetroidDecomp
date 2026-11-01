@@ -41,6 +41,13 @@ internal static class EndingCloudPlacementVerification
             new IntroDiscoverySprite(new(128, unchecked((ushort)nativeY[index])), definition.Colouring,
                 definition.Program), roles[index])).ToArray();
         var cloudSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().CloudSprites);
+        // The live clouds draw from their installed sheet, so no cloud character reaches the shown VRAM (#1463, #1467). The
+        // native objects are drawn over the characters $8B:D4D1 decompresses from the cartridge to the OBJ name base (#1497).
+        byte[] nativeCloudCharacters = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus),
+                SuperMetroid.AssetExtraction.CartridgeTables.EndingSourceDefinitions.Artwork.EscapeCloudCharacters,
+                SuperMetroid.AssetExtraction.CartridgeTables.EndingSourceDefinitions.Artwork.DecompressionLimit)
+            .AsSpan(0, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.CloudByteCount).ToArray();
         int checkedFrames = 0;
         for (int frame = 0; frame < 200; frame++)
         {
@@ -64,10 +71,14 @@ internal static class EndingCloudPlacementVerification
             foreach (var actor in actors) actor.Sprite.Draw(oam, installedArt: cloudSprites);
             oam.FinalizeFrame();
             var actual = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-            byte[] actualVram = ending.ShownVram();
+            int objectSelection = SuperMetroid.AssetExtraction.Frontend.Ending.EndingSheetObjectSelectionDefinitions.Of(
+                EndingCreditsPresentation.CurrentEscapeObjectSheet(ending));
+            byte[] nativeVram = ending.ShownVram();
+            nativeCloudCharacters.CopyTo(nativeVram.AsSpan(
+                SuperMetroid.AssetExtraction.Artwork.ObjCharacterImage.ResolveTileByteAddress(0, objectSelection)));
             byte[] oamBytes = [.. oam.LowTable.ToArray(), .. oam.HighTable.ToArray()];
-            var expectedMemory = actual.Paint.WithNativeColoursAndOam(actualVram, actual.Paint.Colors,
-                oamBytes, oam.LastFinalizedSpriteCount, SuperMetroid.AssetExtraction.Frontend.Ending.EndingSheetObjectSelectionDefinitions.Of(EndingCreditsPresentation.CurrentEscapeObjectSheet(ending)));
+            var expectedMemory = actual.Paint.WithNativeColoursAndOam(nativeVram, actual.Paint.Colors,
+                oamBytes, oam.LastFinalizedSpriteCount, objectSelection);
             var expected = DisplayRendering.Render(new LayeredScene(expectedMemory, actual.Layers, actual.Brightness));
             var pixels = ending.Render();
             int differs = pixels.ToArray().Zip(expected, (live, native) => live != native).ToList().IndexOf(true);

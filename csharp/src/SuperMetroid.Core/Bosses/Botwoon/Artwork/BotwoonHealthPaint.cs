@@ -10,22 +10,18 @@ namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
 internal sealed class BotwoonHealthPaint
 {
     /// <summary>Imported band colors that differ from the reviewed endpoint interpolation.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
     /// <summary>Retains source colors only where they differ from the eight-band health ramp.</summary>
-    internal BotwoonHealthPaint(RgbColor[][] healthBands)
-    {
-        for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
-            for (int color = 0; color < BotwoonHealthPaletteDefinitions.ColorsPerPalette; color++)
-                if (healthBands[band][color] != Calculate(band, color)) edits.Add(new ColourCell(band, color), healthBands[band][color]);
-    }
+    /// <param name="edits">The imported colours the import found differing from the ramp.</param>
+    internal BotwoonHealthPaint(Dictionary<ColourCell, RgbColor> edits) => this.edits = edits;
 
     /// <summary>Returns an imported exception or interpolates the selected healthy and damaged paints.</summary>
     internal RgbColor Resolve(int band, int color) => edits.TryGetValue(new ColourCell(band, color), out RgbColor value)
         ? value : Calculate(band, color);
 
     /// <summary>Interpolates RGB5 channels over seven intervals while preserving copied slot-zero metadata.</summary>
-    private static RgbColor Calculate(int band, int color)
+    internal static RgbColor Calculate(int band, int color)
     {
         if (color == 0) return band is 1 or 2 ? BotwoonHealthPaintDefinitions.EarlyBandTransparentTarget : RgbColor.Black;
         RgbColor first = Endpoint(BotwoonHealthEndpoint.Healthy, color), last = Endpoint(BotwoonHealthEndpoint.Damaged, color);

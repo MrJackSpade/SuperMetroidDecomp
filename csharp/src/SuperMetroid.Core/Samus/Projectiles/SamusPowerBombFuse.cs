@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>$90:C157 fuse transition, independent of which projectile array half owns the slot.</summary>
+/// <summary>The fuse transition, independent of which projectile array half owns the slot.</summary>
 public static class SamusPowerBombFuse
 {
     /// <summary>
-    /// Computes the native timer/list writes and requests the caller's existing explosion
+    /// Computes the timer/list writes and requests the caller's existing explosion
     /// or deletion operation. Collision consumes the expiration sentinel after this call;
     /// it must not be folded into the fuse, because other callbacks can reach this routine.
     /// </summary>

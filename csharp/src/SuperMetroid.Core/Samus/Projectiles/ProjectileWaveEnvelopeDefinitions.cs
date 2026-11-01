@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Fixed native Wave-lobe placement basis, shared by stock artwork and physical envelopes.
+/// <summary>Fixed Wave-lobe placement basis, shared by stock artwork and physical envelopes.
 /// Independent imported artwork edits never change collision mechanics. The five source offsets
 /// remain required under ProjectileSpriteCatalog.frames; sharing them grants no art exemption.</summary>
 internal static class ProjectileWaveEnvelopeDefinitions
@@ -14,7 +14,7 @@ internal static class ProjectileWaveEnvelopeDefinitions
         [3] = 16,
     };
 
-    /// <summary>$93:D64A: selected initial Spazer lane distance 4, preceding the four Wave distances.
+    /// <summary>Selected initial Spazer lane distance 4, preceding the four Wave distances.
     /// REQUIRED artwork input; its numerical equality with a half-tile does not dispose of its selection.</summary>
     internal const int SpazerInitialAxialSpread = 4;
 }

@@ -13,8 +13,8 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The five bomb slots shared by bank-$90 projectile logic, bank-$93 instruction lists,
-/// bank-$94 block reactions, and bank-$A0 Samus/projectile overlap handling.
+/// The five bomb slots shared by projectile logic, instruction lists,
+/// block reactions, and Samus/projectile overlap handling.
 /// </summary>
 /// <remarks>
 /// Slot order: Samus has <see cref="SlotCount"/> bomb slots, each with a fixed ordinal. A placed bomb takes the lowest
@@ -54,7 +54,7 @@ public sealed class SamusBombProjectileSystem
         }
     }
 
-    /// <summary>Bank-$88 owner of the flash, damaging radius, and armed flag.</summary>
+    /// <summary>Owner of the flash, damaging radius, and armed flag.</summary>
     public SamusPowerBombExplosionState PowerBombExplosion { get; } = new();
 
     /// <summary>How many bombs Samus has out by the placing routines' count; kept separately from the free-slot search.</summary>
@@ -87,7 +87,7 @@ public sealed class SamusBombProjectileSystem
     public BombProjectileFrameResult LastFrameResult { get; private set; }
 
     /// <summary>
-    /// Sound guard after the per-line effect update but before bomb pre-instructions. Native
+    /// Sound guard after the per-line effect update but before bomb frame behaviours. The game's
     /// humanoid weapon production precedes those instructions; the split projectile
     /// owners must retain this earlier value when a bomb activates later in alpha.
     /// </summary>
@@ -112,8 +112,8 @@ public sealed class SamusBombProjectileSystem
         bool powerBombCleanup = PowerBombExplosion.StepFrame();
         if (powerBombCleanup && !crystalFlashWindowWasActive)
         {
-            // $88:8B4E offers Crystal Flash only if Samus has remained on the exact bomb
-            // origin. Failure (including moving one pixel) releases $0CEA immediately.
+            // The explosion offers Crystal Flash only if Samus has remained on the exact bomb
+            // origin. Failure (including moving one pixel) releases the power-bomb lock immediately.
             bool crystalFlashStarted =
                 samus.Position.X.Whole == PowerBombExplosion.Position.X &&
                 samus.Position.Y.Whole == PowerBombExplosion.Position.Y &&
@@ -125,7 +125,7 @@ public sealed class SamusBombProjectileSystem
             if (!crystalFlashStarted)
                 PowerBombExplosion.ReleaseFlag();
         }
-        // $88:8B78 runs Samus command $1E at the end of every cleanup, including the
+        // The explosion runs Samus command $1E at the end of every cleanup, including the
         // Crystal Flash window's own.
         if (powerBombCleanup)
             ResumeSoundsAfterPowerBombExplosion(samus, gameState);
@@ -134,7 +134,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// Runs the bomb-owned portion of Samus frame-handler alpha, followed by the bank-$A0
+    /// Runs the bomb-owned portion of Samus frame-handler alpha, followed by the enemy
     /// overlap pass that the main gameplay loop invokes before movement-handler beta.
     /// </summary>
     public BombProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ControllerButton controllerInput, ControllerButton controllerNewInput, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate, PowerBombExplosionStep explosion = PowerBombExplosionStep.Advance)
@@ -146,9 +146,9 @@ public sealed class SamusBombProjectileSystem
         if (explosion == PowerBombExplosionStep.Advance)
             AdvancePowerBombExplosion(samus, controllerInput);
 
-        // $90:AC1C runs before the movement-type-specific HUD handler. A value of one
+        // The cooldown runs before the movement-type-specific HUD handler. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.
-        // The forward-facing branch at $90:DCE3/$90:DCE8 skips this call as well
+        // The forward-facing branch skips this call as well
         // as the HUD producer, but must still run the existing projectile slots below.
         // Command-zero alpha calls HandleProjectile directly, skipping the HUD
         // dispatcher that owns cooldown and new bomb placement.
@@ -207,7 +207,7 @@ public sealed class SamusBombProjectileSystem
             explosionStarted |= slotExplosionStarted;
             if (slotExplosionStarted && wasNormalBomb)
             {
-                // `$90:C128` requests this sound at normal priority for every normal bomb
+                // The fuse requests this sound at normal priority for every normal bomb
                 // whose fuse expires. Keep the append-only shape because several spread
                 // bombs can expire during one Samus projectile pass.
                 soundRequests.Add(new SoundRequest(
@@ -227,10 +227,10 @@ public sealed class SamusBombProjectileSystem
                     SoundSuppressed: soundSuppressedBeforeFrameBehavior));
             }
 
-            // The native loop still calls $93:81E9 after a pre-instruction clears a slot.
+            // The loop still steps the animation after a frame behaviour clears a slot.
             // Its cleared timer underflows and returns without reading pointer zero. An
             // inactive host slot has the same externally visible result, so skip the
-            // otherwise meaningless decrement rather than pretending bank $93:0000 ran.
+            // otherwise meaningless decrement rather than pretending an empty animation ran.
             if (!slot.IsActive)
             {
                 projectileDeleted = true;
@@ -240,7 +240,7 @@ public sealed class SamusBombProjectileSystem
             projectileDeleted |= RunProjectileInstructionHandler(slot);
         }
 
-        // GameState_8 invokes $A0:9785 after frame-handler alpha (which placed/updated the
+        // GameState_8 runs the bomb overlap check after frame-handler alpha (which placed/updated the
         // bombs) and before beta moves Samus. Store only the low direction byte here. The
         // same frame's hit-interruption phase can arm the bomb movement handler.
         // Runtime defers this until the humanoid shot producer has also run: a
@@ -275,7 +275,7 @@ public sealed class SamusBombProjectileSystem
 
         foreach (SamusBombProjectileSlot slot in InUpdateOrder)
         {
-            // Type $0300 power bombs and type $0500 normal bombs both use the same bank-$93
+            // Power bombs and normal bombs both use the same projectile
             // timed-spritemap interpreter. The large power-bomb flash itself is a per-line
             // color-math window and is composed separately from the sprites.
             SamusProjectileFamily family = slot.Type.Family;
@@ -283,16 +283,16 @@ public sealed class SamusBombProjectileSystem
                 family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
                 continue;
 
-            // `$93:835F-$8364` suppresses family `$0300` as soon as its shared
-            // projectile-variable word reaches zero. `$90:C157` publishes that zero on
+            // The projectile draw suppresses power bombs as soon as their shared
+            // projectile-variable word reaches zero. The fuse publishes that zero on
             // the detonation frame, so the small placed-bomb OBJ must disappear exactly
             // when the large explosion effect begins. Normal bomb explosions keep
-            // drawing their bank-$93 spritemaps with a zero BombTimer and are unaffected.
+            // drawing their spritemaps with a zero BombTimer and are unaffected.
             if (family == SamusProjectileFamily.PowerBomb && slot.BombTimer.IsZero)
                 continue;
 
-            // $93:837F admits X in [-48,304). Y is admitted only when the high byte of
-            // the wrapped room-relative word is zero, i.e. [0,255]. OAM itself clips the
+            // The bomb draw admits X in [-48,304). Y is admitted only when the high byte of
+            // the wrapped room-relative word is zero, i.e. [0,255]. The screen itself clips the
             // bottom 32 scanlines outside this runtime's 224-line rendered viewport.
             int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, layer1.X);
             int screenY = CoordinateAxis.Wrap(slot.Position.Y.Whole - layer1.Y);
@@ -318,7 +318,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// Samus command $1E ($90:F4A2). In main gameplay a spinning Samus re-queues her spin
+    /// Samus command $1E. In main gameplay a spinning Samus re-queues her spin
     /// sound through command $1C; otherwise a flare of at least $10 resumes the charge loop.
     /// </summary>
     private static void ResumeSoundsAfterPowerBombExplosion(
@@ -337,13 +337,13 @@ public sealed class SamusBombProjectileSystem
             samus.LiquidPhysics.QueueMovementSound(Library1Sound.ResumeChargingBeam, priority: SoundRequestPriority.High);
     }
 
-    /// <summary>$90:F4C2: the flare count from which a charging beam's loop is audible.</summary>
+    /// <summary>The flare count from which a charging beam's loop is audible.</summary>
     private const int ChargeSoundFlareThreshold = 16;
 
     /// <summary>Ticks the shared shot cooldown, or holds it at $20 during X-Ray time freeze.</summary>
     private void StepCooldown(bool timeIsFrozen)
     {
-        // $90:AC32: while time is frozen the cooldown is held at $20 instead of counting
+        // While time is frozen the cooldown is held at 32 instead of counting
         // down, so the first shot after X-ray waits out the full delay.
         if (timeIsFrozen)
         {
@@ -354,7 +354,7 @@ public sealed class SamusBombProjectileSystem
         if (CooldownTimer.IsZero)
             return;
 
-        // $90:AC1C also clamps already-negative/crossed-negative values to zero. Normal
+        // The cooldown also clamps already-negative/crossed-negative values to zero. Normal
         // bomb cooldowns are small positive words, but retaining the signed edge keeps a
         // debugger mutation from producing a permanently locked firing state.
         if (CooldownTimer.IsNegative)
@@ -376,7 +376,7 @@ public sealed class SamusBombProjectileSystem
         out bool rejectedPlacementClearedCharge)
     {
         rejectedPlacementClearedCharge = false;
-        // The outer $90:BF9D test uses held Shoot. Both item branches eventually call
+        // The outer morph-ball handler test uses held Shoot. Both item branches eventually call
         // helper two, which separately insists on the newly-pressed bit.
         const ControllerButton shoot = ControllerButton.X;
         if ((controllerInput & shoot) == ControllerButton.None)
@@ -386,7 +386,7 @@ public sealed class SamusBombProjectileSystem
         if (placingPowerBomb && PowerBombExplosion.IsArmed)
             return null;
 
-        // Normal bombs require the Bomb item. The selected-power-bomb branch in the ROM
+        // Normal bombs require the Bomb item. The game's selected-power-bomb branch
         // deliberately bypasses this equipment check and calls helper two directly.
         if (!placingPowerBomb && !samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs))
             return null;
@@ -395,7 +395,7 @@ public sealed class SamusBombProjectileSystem
         {
             // Helper two also owns charge cancellation when it rejects placement
             // (no new Shoot edge, active-slot limit or cooldown). Merely returning
-            // no bomb leaves a carried partial charge alive beyond its native lifetime.
+            // no bomb leaves a carried partial charge alive beyond its lifetime.
             // Earlier equipment/power-bomb guards do not execute helper two and must
             // preserve charge. Publish through the existing runtime palette/SFX bridge.
             rejectedPlacementClearedCharge = samus.ProjectileFlareCounter != 0;
@@ -403,7 +403,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         // Retail HUD selection cannot normally point at an empty ammo class. Preserve the
-        // native ordering nonetheless: helper two has already incremented the aggregate
+        // game's ordering nonetheless: helper two has already incremented the aggregate
         // counter if a debugger forces selected item three with zero power bombs.
         if (placingPowerBomb && samus.PowerBombs == 0)
             return null;
@@ -452,7 +452,7 @@ public sealed class SamusBombProjectileSystem
         if (!shootHeld)
         {
             // The outer Morph-Ball handler cancels charge before testing HUD selection
-            // ($90:BFA0-$BFC4). Releasing Shoot must also cancel with Power Bombs selected;
+            //. Releasing Shoot must also cancel with Power Bombs selected;
             // only held Shoot reaches their branch. Runtime consumes the palette/SFX bridge.
             return samus.ProjectileFlareCounter != 0
                 ? BombSpreadAdmission.ChargeCancelled
@@ -483,7 +483,7 @@ public sealed class SamusBombProjectileSystem
         return BombSpreadAdmission.Spawned;
     }
 
-    /// <summary>Installs five bank-$93 projectiles with slot-specific launch values and clears Samus's stored charge.</summary>
+    /// <summary>Installs five projectiles with slot-specific launch values and clears Samus's stored charge.</summary>
     internal void SpawnBombSpread(SamusState samus)
     {
         int verticalModifier =
@@ -501,7 +501,7 @@ public sealed class SamusBombProjectileSystem
             slot.BombTimer = WrappingCountdown.FromRaw(launch.FuseTimer);
             slot.BombSpreadHorizontal = launch.XVelocity;
             // The held charge adds up to three whole pixels of upward launch speed; the negated whole word
-            // wraps exactly as the cartridge's sixteen-bit subtraction from zero does.
+            // wraps exactly as the game's sixteen-bit subtraction from zero does.
             slot.BombSpreadLaunchVelocity = SignedSixteenSixteen.FromParts(
                 WordWrap.Signed(-(launch.YSpeed.Whole + verticalModifier)), launch.YSpeed.Fraction);
             slot.BombSpreadVerticalVelocity = slot.BombSpreadLaunchVelocity;
@@ -519,9 +519,9 @@ public sealed class SamusBombProjectileSystem
         if ((controllerNewInput & shoot) == ControllerButton.None)
             return false;
 
-        // $90:C0E7 allows the first bomb regardless of cooldown. With any active bomb,
+        // The first bomb is allowed regardless of cooldown. With any active bomb,
         // five slots or a nonzero LOW cooldown byte reject the edge. The high byte is not
-        // part of this test; that oddity is intentional 65C816 SEP-width behavior.
+        // part of this test; that oddity is intentional eight-bit-width behavior.
         if (BombCounter != 0 &&
             (BombCounter >= SlotCount || CooldownTimer.EightBitCount != 0))
         {
@@ -569,7 +569,7 @@ public sealed class SamusBombProjectileSystem
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
-    /// <summary>Advances one bomb fuse or spread trajectory, starts explosions and visits terrain on the native trigger frame.</summary>
+    /// <summary>Advances one bomb fuse or spread trajectory, starts explosions and visits terrain on the trigger frame.</summary>
     private bool RunBombFrameBehavior(
         RoomLevelData level,
         SamusBombProjectileSlot slot,
@@ -623,8 +623,8 @@ public sealed class SamusBombProjectileSystem
             }
             else if (slot.BombTimer.IsZero)
             {
-                // $93:814E reads the pointer word embedded in the bomb-explosion data
-                // record at $93:8683 and resets the instruction timer to one.
+                // The explosion reads the pointer word embedded in the bomb-explosion data
+                // record and resets the instruction timer to one.
                 slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileProgram.BombExplosion);
                 slot.FrameHold = WrappingCountdown.Start(1);
                 explosionStarted = true;
@@ -645,9 +645,9 @@ public sealed class SamusBombProjectileSystem
         }
         else if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
-            // Collision mode three first turns the fuse-expiration sentinel $FFFF into
+            // Collision mode three first turns the fuse-expiration sentinel 65535 into
             // zero without touching terrain. Every later frame scans the newly reached
-            // rectangle border using the high bytes of bank-$88's shared radii.
+            // rectangle border using the high bytes of the explosion's shared radii.
             if (slot.BombTimer.IsNegative)
             {
                 slot.BombTimer = WrappingCountdown.Start(0);
@@ -711,7 +711,7 @@ public sealed class SamusBombProjectileSystem
         slot.BombSpreadHorizontal = slot.BombSpreadHorizontal.Reversed();
     }
 
-    /// <summary>Tests the bomb center against room bounds, extension parents, solid tiles and the cartridge's non-square slope heights.</summary>
+    /// <summary>Tests the bomb center against room bounds, extension parents, solid tiles and the game's non-square slope heights.</summary>
     internal static bool BombSpreadCollides(
         RoomLevelData level,
         SamusBombProjectileSlot slot)
@@ -741,7 +741,7 @@ public sealed class SamusBombProjectileSystem
         if (!block.Behavior.IsNonSquareSlope)
             return true;
 
-        // `$94:A58F` mirrors X before indexing the slope-height row, then compares the
+        // Non-square slope collision mirrors X before indexing the slope-height row, then compares the
         // resulting height with Y within the block. Equality counts as collision.
         int xWithinBlock = (block.Behavior.SlopeFlipsHorizontally
             ? slot.Position.X.Whole ^ 15
@@ -754,7 +754,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// $94:A06A boundary traversal, shared by every callback that dispatches to it.
+    /// The power-bomb boundary traversal, shared by every callback that dispatches to it.
     /// Coordinates and radius belong to the global explosion, not the calling slot.
     /// </summary>
     internal static void CollectPowerBombBoundaryReactions(
@@ -778,7 +778,7 @@ public sealed class SamusBombProjectileSystem
             level.Size.Y - 1,
             (explosion.Y + verticalRadius) >> 4);
 
-        // $94:A0F4/$A11A visit all four inclusive edges in this exact order. Corners are
+        // The traversal visits all four inclusive edges in this exact order. Corners are
         // intentionally visited twice; synchronous PLM terrain mutation means the second
         // visit can observe a different collision type than the first.
         for (int x = left; x <= right; x++)
@@ -791,7 +791,7 @@ public sealed class SamusBombProjectileSystem
             CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(right, y), reactions, roomPlms, areaIndex, projectileType);
     }
 
-    /// <summary>Visits the normal bomb's five-block cross in native order when its fuse reaches zero.</summary>
+    /// <summary>Visits the normal bomb's five-block cross in order when its fuse reaches zero.</summary>
     private static void CollectBlockExplosionReactions(
         RoomLevelData level,
         SamusBombProjectileSlot slot,
@@ -801,7 +801,7 @@ public sealed class SamusBombProjectileSystem
     {
         int centerX = slot.Position.X.Whole >> 4;
         int centerY = slot.Position.Y.Whole >> 4;
-        // The centre, then above, right, left and below, in the native reaction order.
+        // The centre, then above, right, left and below, in the reaction order.
         Offset16<RoomBlocks>[] cross = [new(0, 0), new(0, -1), new(1, 0), new(-1, 0), new(0, 1)];
 
         foreach (Offset16<RoomBlocks> member in cross)
@@ -810,7 +810,7 @@ public sealed class SamusBombProjectileSystem
             int y = centerY + member.Y;
             if ((uint)x >= level.Size.X || (uint)y >= level.Size.Y)
             {
-                // $94:9CAC first admits the bomb centre through the room's scroll bounds,
+                // The bomb collision first admits the bomb centre through the room's scroll bounds,
                 // and valid rooms surround reachable bomb centres with an edge wall. An
                 // out-of-range cross member therefore identifies malformed room/caller
                 // state rather than another bomb reaction routine.
@@ -842,7 +842,7 @@ public sealed class SamusBombProjectileSystem
         RoomCollisionBlock visitedBlock = level.GetCollisionBlock(bombedBlock);
         reactions.Add(new BombBlockReaction());
 
-        // `$94:9411/$9447` do not react to an extension block directly. A nonzero signed
+        // The block reactions do not react to an extension block directly. A nonzero signed
         // behaviour redirects CurrentBlockIndex horizontally (type $5) or by whole room rows
         // (type $D), then rewinds the dispatcher return address so the resolved parent
         // is dispatched again. A zero-behaviour extension is simply air for this reaction.
@@ -860,8 +860,8 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // `$94:9F2E` selects temporary PLM $C83E for both type-$8 special collision and
-        // type-$C shootable collision with behaviour $44. Setup $84:C7E2 deletes that temporary
+        // The shot dispatch selects the temporary generic trigger PLM for both type-$8 special collision and
+        // type-$C shootable collision with behaviour $44. Its setup deletes that temporary
         // slot, finds the resident actor at the same block, and publishes this projectile
         // word. The n00b tube begins as type $8 but its intact draw changes the live origin
         // to type $C, so narrowing this seam to colored doors strands the progression PLM.
@@ -877,12 +877,12 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // `$94:9EA6[40..43]` routes the four ordinary blue-door cap orientations to
+        // The shot-block table's entries 40..43 route the four ordinary blue-door cap orientations to
         // Setup_BlueDoor regardless of whether the collision came from the shot or bomb
-        // dispatcher. Normal bombs use projectile family `$0500` and are accepted; Power
-        // Bomb family `$0300` is rejected inside the shared bank-$84 setup. Treating these
+        // dispatcher. Normal bombs use the bomb projectile family and are accepted; the Power
+        // Bomb family is rejected inside the shared setup. Treating these
         // private door behaviours as ordinary table indices both crashed on `$41` and lost
-        // the cartridge behavior that allows a bomb placed beside a blue door to open it.
+        // the game behavior that allows a bomb placed beside a blue door to open it.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetBlueDoorOrientation(out _))
         {
@@ -899,7 +899,7 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // $94:A052 dispatches these types to immediate clear/set-carry routines. They
+        // The bomb dispatch sends these types to immediate clear/set-carry routines. They
         // spawn no PLM and do not alter the room's terrain or behaviours, so recording the visit is
         // the complete observable effect for this runtime.
         if (block.CollisionType is
@@ -916,25 +916,25 @@ public sealed class SamusBombProjectileSystem
 
         if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
         {
-            // Both bombable-air and bombable-solid handlers use `$94:A012`. Negative
-            // behaviour takes the native duplicate/area-dependent early return and therefore
+            // Both bombable-air and bombable-solid handlers use the bomb-block table. Negative
+            // behaviour takes the duplicate/area-dependent early return and therefore
             // neither allocates a PLM nor mutates terrain.
             if (block.Behavior.UsesAreaReactionTable)
                 return;
             if (!block.Behavior.IsNormalReactionIndex(16))
             {
-                // $94:A012 is a literal sixteen-word table. Retail room data must keep a
+                // The bomb-block table is a literal sixteen-word table. Retail room data must keep a
                 // nonnegative bombable behaviour within that table; a larger value would make
-                // the 65C816 read unrelated following ROM as a PLM header.
+                // the game read unrelated following data as a PLM header.
                 throw new InvalidDataException(
                     $"Bombable block {block.Index} has behaviour ${block.Behavior.Value:X2} outside " +
-                    "the native $94:A012 reaction table.");
+                    "the bomb-block reaction table.");
             }
             if (roomPlms is null)
             {
                 // Gameplay always owns the room's PLM pool. Null is supported only for
                 // nonreactive synthetic fixtures, so reaching a producer without it is a
-                // caller-composition error rather than untranslated cartridge behavior.
+                // caller-composition error rather than untranslated game behavior.
                 throw new InvalidOperationException(
                     $"Bombed block reaction type {block.CollisionType}/behaviour ${block.Behavior.Value:X2} " +
                     $"at ({x},{y}) requires a room PLM owner.");
@@ -983,14 +983,14 @@ public sealed class SamusBombProjectileSystem
             {
                 throw new InvalidDataException(
                     $"Shootable block {block.Index} has behaviour ${block.Behavior.Value:X2} outside " +
-                    "the translated native bomb-reaction table range.");
+                    "the translated bomb-reaction table range.");
             }
             if (block.Behavior.UsesAreaReactionTable &&
                 !block.Behavior.IsAreaReactionIndex(8))
             {
                 throw new InvalidDataException(
                     $"Area-dependent shootable block {block.Index} has behaviour " +
-                    $"${block.Behavior.Value:X2} outside its eight-entry native table.");
+                    $"${block.Behavior.Value:X2} outside its eight-entry table.");
             }
             if (roomPlms is null)
             {
@@ -1034,11 +1034,11 @@ public sealed class SamusBombProjectileSystem
             $"behaviour ${block.Behavior.Value:X2} at ({x},{y}).");
     }
 
-    /// <summary>Ticks the bank-$93 bomb instruction list, including timed maps, delete and goto opcodes.</summary>
+    /// <summary>Ticks the bomb instruction list, including timed maps, delete and goto opcodes.</summary>
     internal bool RunProjectileInstructionHandler(
         SamusBombProjectileSlot slot)
     {
-        // $93:81F2 is a wrapping 16-bit DEC. A legitimate initialized timer is always at
+        // The animation timer is a wrapping 16-bit decrement. A legitimate initialized timer is always at
         // least one, but preserving wrap gives corrupt-state inspection the same behavior.
         slot.FrameHold = slot.FrameHold.Decrement().Remaining;
         if (!slot.FrameHold.IsZero)

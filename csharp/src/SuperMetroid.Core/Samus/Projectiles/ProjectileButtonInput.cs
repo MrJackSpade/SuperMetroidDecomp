@@ -10,6 +10,6 @@ public readonly record struct ProjectileButtonInput
     /// <summary>Current normalized press-edge word for firing decisions.</summary>
     public required ControllerButton ControllerNewInput { get; init; }
 
-    /// <summary>Previous normalized press-edge latch, independently consulted by native beam/missile firing rather than recomputed from held input.</summary>
+    /// <summary>Previous normalized press-edge latch, independently consulted by beam/missile firing rather than recomputed from held input.</summary>
     public ControllerButton ControllerPreviousNewInput { get; init; }
 }

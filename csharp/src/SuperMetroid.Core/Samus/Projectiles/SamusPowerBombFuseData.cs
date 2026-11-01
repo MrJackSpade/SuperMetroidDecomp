@@ -3,10 +3,10 @@ using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Constants used by the native $90:C157 Power Bomb fuse routine.</summary>
+/// <summary>Constants used by the Power Bomb fuse.</summary>
 public static class SamusPowerBombFuseData
 {
-    /// <summary>$90:C157 switches to the fast animation when the decremented fuse reaches fifteen.</summary>
+    /// <summary>The fuse switches to the fast animation when the decremented fuse reaches fifteen.</summary>
     public const int FastAnimationTimer = 15;
     /// <summary>
     /// The fast-animation position each slow bomb and Power Bomb position switches to: the same frame in the fast list.
@@ -24,6 +24,6 @@ public static class SamusPowerBombFuseData
             [new(SamusProjectileProgram.Bomb, 3)] = new(SamusProjectileProgram.FastBomb, 2),
             [new(SamusProjectileProgram.Bomb, 4)] = new(SamusProjectileProgram.FastBomb, 3),
         }.ToFrozenDictionary();
-    /// <summary>Fuse-expiration marker consumed separately by the subsequent bank-$94 collision routine.</summary>
+    /// <summary>Fuse-expiration marker consumed separately by the subsequent collision routine.</summary>
     public const int ExplosionStartedSentinel = ushort.MaxValue;
 }

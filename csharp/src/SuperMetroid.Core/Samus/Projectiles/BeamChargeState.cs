@@ -2,11 +2,11 @@ using SuperMetroid.Core.Samus.Palettes;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Beam charge state: the flare counter $0CD0, the previous charge $0DC2, the charged-shot glow timer $0B18, the charge palette index $0B62 and the three flare components' frames and timers.</summary>
+/// <summary>Beam charge state: the flare counter, the previous charge, the charged-shot glow timer, the charge palette index and the three flare components' frames and timers.</summary>
 internal sealed class BeamChargeState
 {
 
-    /// <summary>WRAM <c>$0CD0</c>, 0 through 65535; 60 frames arms a charged shot, 120 is the SBA clamp.</summary>
+    /// <summary>0 through 65535; 60 frames arms a charged shot, 120 is the SBA clamp.</summary>
     [IntegerQuantity("updates the charge flare has shown")]
     public int FlareCounter
     {
@@ -14,7 +14,7 @@ internal sealed class BeamChargeState
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>WRAM <c>$0DC2</c>, 0 through 65535; sampled before the current charge-input update.</summary>
+    /// <summary>0 through 65535; sampled before the current charge-input update.</summary>
     public int PreviousBeamChargeCounter
     {
         get;
@@ -22,9 +22,9 @@ internal sealed class BeamChargeState
     }
 
     /// <summary>
-    /// WRAM <c>$0B18</c>. Ordinary charged shots use values four through zero for three
-    /// white frames and a fourth-call suit restore. Hyper Beam uses `$8014` through `$8000`
-    /// for ten ROM palettes held two calls each before the same restore path.
+    /// The charged-shot glow timer. Ordinary charged shots use values four through zero for three
+    /// white frames and a fourth-call suit restore. Hyper Beam uses 32788 through 32768
+    /// for ten authored palettes held two calls each before the same restore path.
     /// </summary>
     public WrappingCountdown ChargedShotGlowTimer { get; internal set; }
 
@@ -38,10 +38,10 @@ internal sealed class BeamChargeState
         internal set => field = Ensure.BetweenInclusive(0, SamusChargePaletteDefinitions.ChargeSteps - 1, value);
     }
 
-    /// <summary>The most recent `$91:D743` charged-shot palette sub-handler result, which survives room loads.</summary>
+    /// <summary>The most recent charged-shot palette sub-handler result, which survives room loads.</summary>
     internal SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; set; }
 
-    /// <summary>The nested `$91:D83F` visor palette result, which survives room loads.</summary>
+    /// <summary>The nested visor palette result, which survives room loads.</summary>
     internal SamusVisorPaletteStepResult LastVisorPaletteStep { get; set; }
 
     /// <summary>Current animation frame for each of the three flare components.</summary>
@@ -75,7 +75,7 @@ internal sealed class BeamChargeState
         StartFlareTimer(2, 4);
     }
 
-    /// <summary>Hyper Beam's literal stores at <c>$90:BD29-$BD52</c>: frames 29, 5 and 5, each countdown at 3.</summary>
+    /// <summary>Hyper Beam's literal stores: frames 29, 5 and 5, each countdown at 3.</summary>
     internal void StartHyperBeamFlare()
     {
         FlareFrames[0] = 29;

@@ -8,7 +8,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Firing beams, missiles and the Hyper Beam: charge cancellation, spawn position and velocity, the interaction-immunity timer $18AC, and the charged and combo launch paths.</summary>
+/// <summary>Firing beams, missiles and the Hyper Beam: charge cancellation, spawn position and velocity, the interaction-immunity timer, and the charged and combo launch paths.</summary>
 [RoomLifetime]
 internal sealed class BeamFiring
 {
@@ -18,7 +18,7 @@ internal sealed class BeamFiring
     private readonly BeamChargeState _charge;
     /// <summary>Handles the special beam attack after the charge counter reaches 120.</summary>
     private readonly BeamCombos _combos;
-    /// <summary>Owns the five counted projectile slots and their native counter.</summary>
+    /// <summary>Owns the five counted projectile slots and their counter.</summary>
     private readonly ProjectileSlotTable _slotTable;
     /// <summary>Runs initial muzzle collision against room terrain and PLMs.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
@@ -47,7 +47,7 @@ internal sealed class BeamFiring
     public void CancelChargeForBombSpread()
         => CancelCharge();
     /// <summary>
-    /// Native Samus command four ($90:F19B/$90:F19E): consume Pseudo Screw charge,
+    /// Samus command four: consume Pseudo Screw charge,
     /// clear its visible flare and restore the normal suit palette. Unlike HUD
     /// cancellation, this does not rewrite the previous-charge sampling word.
     /// </summary>
@@ -80,9 +80,9 @@ internal sealed class BeamFiring
         const ControllerButton shoot = ControllerButton.X;
         _charge.PreviousBeamChargeCounter = _charge.FlareCounter;
 
-        // `$90:B80D` gives the Hyper flag priority over Charge equipment. It still uses
+        // The fire handler gives the Hyper flag priority over Charge equipment. It still uses
         // held Shoot rather than a new edge, with its own 21-frame cooldown preventing a
-        // desktop-held button from allocating more frequently than the cartridge.
+        // desktop-held button from allocating more frequently than the game.
         if (samus.HyperBeamEnabled)
         {
             (int? slot, SoundEffectId? sound) = (controllerInput & shoot) != ControllerButton.None
@@ -111,7 +111,7 @@ internal sealed class BeamFiring
 
         if (samus.PendingTransitionShot is not null)
         {
-            // `$90:B82D-$B83A` forces release before testing held Shoot. This is why a
+            // The charge handler forces release before testing held Shoot. This is why a
             // charged beam can leave the OLD gun direction while a normal-jump or moonwalk
             // transition installs new body art. Values below 60 release an ordinary beam;
             // values 60+ release the charged family through the same allocation gate.
@@ -130,7 +130,7 @@ internal sealed class BeamFiring
 
         if (held)
         {
-            // `$90:B843` increments through 120 and fires one ordinary shot on the first
+            // The charge handler increments through 120 and fires one ordinary shot on the first
             // held frame. Charge Beam therefore changes sustained-fire semantics rather
             // than suppressing the familiar initial power shot.
             if (_charge.FlareCounter < BeamChargeDefinitions.SpecialAttackCounter)
@@ -149,7 +149,7 @@ internal sealed class BeamFiring
                     return new(slot, sound, sound is null ? null : SoundRequestPriority.Essential);
                 }
 
-                // `$90:BAFC` owns both flare graphics and their audio. Its draw-time call
+                // The flare draw owns both flare graphics and their audio. Its draw-time call
                 // queues library-one sequence `$08` exactly once at counter sixteen. The
                 // C# renderer is intentionally side-effect free, so publish the same command
                 // here, on the alpha pass that advances the counter to sixteen.
@@ -160,7 +160,7 @@ internal sealed class BeamFiring
             }
             else if (_combos.TryActivateCombo(samus, sharedProjectiles, out SoundEffectId? comboSound))
             {
-                // Native tries FireSBA only on the call after charge reaches 120.
+                // The game tries FireSBA only on the call after charge reaches 120.
                 // Successful activation clears flare animation and restores the suit;
                 // failed family dispatch leaves charge intact, including its ammo debit.
                 _charge.FlareCounter = 0;
@@ -190,7 +190,7 @@ internal sealed class BeamFiring
     /// <summary>
     /// Applies the shared tail of <c>FireUnchargedBeam</c>/<c>FireChargedBeam</c>. A
     /// successful shot's own essential-priority sound replaces the charging sound. If allocation or
-    /// muzzle initialization rejects a release after counter sixteen, the cartridge queues
+    /// muzzle initialization rejects a release after counter sixteen, the game queues
     /// library-one `$02` instead so the sustained charge cannot remain audible.
     /// </summary>
     private BeamFiringResult CompleteBeamRelease(
@@ -222,9 +222,9 @@ internal sealed class BeamFiring
     {
         const ControllerButton shoot = ControllerButton.X;
 
-        // `$90:B823/$90:B986` converge on this allocation gate for every ordinary and
+        // Both release paths converge on this allocation gate for every ordinary and
         // charged beam combination. Without Charge Beam, callers attempt a shot every held
-        // frame and cooldown `$0CCC` supplies the native rate limit; charged releases reach
+        // frame and the beam cooldown supplies the rate limit; charged releases reach
         // the same gate once.
         if (_slotTable.ProjectileCounter >= SamusProjectileSystem.SlotCount ||
             sharedProjectiles.CooldownTimer.EightBitCount != 0)
@@ -232,7 +232,7 @@ internal sealed class BeamFiring
             return new BeamShot(null, null);
         }
 
-        // `$90:AC39` writes one before allocating storage. A corrupt counter/free-slot
+        // Allocation writes one before allocating storage. A corrupt counter/free-slot
         // disagreement is therefore intentionally observable rather than silently repaired.
         sharedProjectiles.SetSharedCooldown(1);
         _slotTable.ProjectileCounter = WrappingCounter.IncrementWord(_slotTable.ProjectileCounter);
@@ -248,7 +248,7 @@ internal sealed class BeamFiring
 
         // The fire routines overwrite only the words they initialize. Words such as the
         // subpixels keep the slot's previous occupant until velocity setup, so the left
-        // muzzle check's -1 speed ($90:BDA7) can carry back into the same whole pixel.
+        // muzzle check's -1 speed can carry back into the same whole pixel.
         SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
 
         int direction = samus.PendingTransitionShot?.Direction ?? SamusPoseMetadata.ReadShotDirection(samus);
@@ -271,7 +271,7 @@ internal sealed class BeamFiring
         // composition in one projectile slot, so no child projectiles are created here.
         SamusBeamCombination beamType = slot.Type.BeamCombination;
 
-        // `$93:8000` indexes a data-table pointer by beam type, stores damage, chooses the
+        // The projectile setup indexes a data-table pointer by beam type, stores damage, chooses the
         // direction-specific list, samples its initial radii, and arms a one-frame timer.
         SamusProjectileHeader header = SamusProjectileSelection.Select(
             charged ? SamusProjectileSelectorTable.ChargedBeam : SamusProjectileSelectorTable.UnchargedBeam, beamType.TableIndex);
@@ -281,7 +281,7 @@ internal sealed class BeamFiring
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.FrameHold = WrappingCountdown.Start(1);
 
-        // $90:B8ED checks Charge equipment and both input-edge latches before
+        // The cooldown selection checks Charge equipment and both input-edge latches before
         // selecting ordinary cooldown. Only uncharged auto-fire without those
         // conditions uses the longer held-fire delay.
         int cooldown = charged
@@ -300,7 +300,7 @@ internal sealed class BeamFiring
         // FireUnchargedBeam and FireChargedBeam explicitly zero both speed words and call
         // CheckBeamCollByDir/WaveBeam_CheckColl before installing the pre-instruction and
         // initial speed. This is what lets a muzzle already overlapping a door cap trigger
-        // its bank-$94 shot reaction instead of moving its leading edge beyond the cap.
+        // its shot reaction instead of moving its leading edge beyond the cap.
         bool initialImpact = _terrainCollision.RunInitialBeamCollision(
             level,
             slot,
@@ -309,7 +309,7 @@ internal sealed class BeamFiring
             sharedProjectiles.PowerBombExplosion);
         if (!initialImpact)
         {
-            // The cartridge installs the callback only after muzzle collision. Do not
+            // The game installs the callback only after muzzle collision. Do not
             // infer it from Wave bits: the table is the dispatcher, including overreads.
             SamusBeamCallbackDefinition callback =
                 SamusBeamCallbacks.Resolve(charged, beamType);
@@ -327,7 +327,7 @@ internal sealed class BeamFiring
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomPlms? roomPlms)
     {
-        // `$90:AC39` is shared with normal beams: five counted ordinary slots and a nonzero
+        // Allocation is shared with normal beams: five counted ordinary slots and a nonzero
         // low cooldown byte reject firing before any slot fields are touched.
         if (_slotTable.ProjectileCounter >= SamusProjectileSystem.SlotCount ||
             sharedProjectiles.CooldownTimer.EightBitCount != 0)
@@ -360,7 +360,7 @@ internal sealed class BeamFiring
 
         // The Hyper Beam is a charged Plasma beam for its projectile data and art even though
         // acquisition equips Wave and Plasma tiles and palette. It first reads the charged
-        // Plasma entry; `$90:BD21` then deliberately replaces its damage with 1000 before the
+        // Plasma entry; Hyper's setup then deliberately replaces its damage with 1000 before the
         // first instruction record executes.
         slot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true);
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
@@ -385,7 +385,7 @@ internal sealed class BeamFiring
         slot.FrameBehavior = SamusProjectileFrameBehavior.HyperBeam;
         InitializePowerBeamVelocity(samus.ProjectileInheritance, slot);
 
-        // These are literal stores at `$90:BD29-$BD52`. `$8014` is not an ordinary four-call
+        // These are literal stores. 32788 is not an ordinary four-call
         // glow timer: its sign bit identifies Hyper's palette phase to the later consumer.
         sharedProjectiles.SetSharedCooldown(21);
         _charge.ChargedShotGlowTimer = WrappingCountdown.Start((1 << 15) | 20);
@@ -406,16 +406,16 @@ internal sealed class BeamFiring
     {
         const ControllerButton shoot = ControllerButton.X;
 
-        // `$90:BE65-$BE72` accepts either the current new-press word or the previous filtered
+        // The fire test accepts either the current new-press word or the previous filtered
         // drawing word. Live gameplay retains that edge through the next alpha, allowing
         // a press one frame before cooldown expires to fire on the following frame.
-        // Bank-$91 demo playback supplies the analogous scripted edge. Cooldown still
+        // Demo playback supplies the analogous scripted edge. Cooldown still
         // owns admission, so the delayed copy cannot manufacture held-button auto-fire.
         if (((controllerNewInput | controllerPreviousNewInput) & shoot) == ControllerButton.None)
             return new BeamShot(null, null);
 
         // Admission reserves room for a Super Missile's later collision link. Ammo/free-
-        // slot rejection rolls back the native count, but does not undo its cooldown write.
+        // slot rejection rolls back the count, but does not undo its cooldown write.
         bool isSuperMissile = samus.SelectedHudItem == HudItem.SuperMissile;
         int ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
         int admissionLimit = isSuperMissile ? SuperMissileDefinitions.AdmissionLimit : SamusProjectileSystem.SlotCount;
@@ -469,7 +469,7 @@ internal sealed class BeamFiring
             ? SamusProjectileFrameBehavior.SuperMissile
             : SamusProjectileFrameBehavior.Missile;
 
-        // Retail constants embedded beside the bank-$90 producer: missile sound library-one
+        // Retail constants embedded beside the producer: missile sound library-one
         // effect three and ten-frame shared cooldown. A Select press made while Item Cancel
         // is held records a one-shot auto-cancel index; a successful missile consumes that
         // request before the ordinary empty-ammo fallback. Murder Beam uses this exact path
@@ -496,7 +496,7 @@ internal sealed class BeamFiring
         int poseYOffset = SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
 
-        // `$90:BA94` uses the running/moonwalk origin table for movement type one and for
+        // The muzzle origin uses the running/moonwalk origin table for movement type one and for
         // the two diagonally-up moonwalk poses $75/$76. Every other pose uses the default.
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
@@ -531,12 +531,12 @@ internal sealed class BeamFiring
     }
 
     /// <summary>
-    /// WRAM <c>$18AC</c>; humanoid shots temporarily suppress Samus/projectile
+    /// The interaction-immunity timer; humanoid shots temporarily suppress Samus/projectile
     /// interaction, including bomb jumps. Decremented by the shared gameplay tail.
     /// </summary>
     public WrappingCountdown ProjectileInvincibilityTimer { get; internal set; }
 
-    /// <summary>Decrements the projectile-owned word of native DecrementSamusTimers.</summary>
+    /// <summary>Decrements the projectile-owned word of DecrementSamusTimers.</summary>
     public void DecrementInteractionTimer()
     {
         ProjectileInvincibilityTimer = ProjectileInvincibilityTimer.DecrementToZero();

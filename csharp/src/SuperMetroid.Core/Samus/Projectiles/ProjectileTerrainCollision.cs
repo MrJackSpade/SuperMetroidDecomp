@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 [RoomLifetime]
 internal sealed class ProjectileTerrainCollision
 {
-    /// <summary>Clears projectile slots when the native kill dispatcher rejects an already converted family.</summary>
+    /// <summary>Clears projectile slots when the kill dispatcher rejects an already converted family.</summary>
     private readonly ProjectileAnimation _animation;
     /// <summary>Publishes the shared quake requested by a Super Missile impact.</summary>
     private readonly ProjectileEarthquakes _earthquakes;
@@ -53,9 +53,9 @@ internal sealed class ProjectileTerrainCollision
         SamusPowerBombExplosionState powerBomb)
     {
         // The producer explicitly stores zero in both 8.8 speed words. Direction seven is
-        // the sole exception: `$90:BDA4/$BDF2` writes -1 before the horizontal scan so the
+        // the sole exception: its firing setup writes -1 before the horizontal scan so the
         // amount-sign branch samples the left radius. Diagonal-left directions retain zero,
-        // including the cartridge's counterintuitive right-edge initial horizontal probe.
+        // including the game's counterintuitive right-edge initial horizontal probe.
         slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(slot.Direction == SamusProjectileDirection.Left
             ? -1
             : 0));
@@ -81,7 +81,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // Diagonals call vertical collision only when the no-Wave horizontal call returned
-        // carry clear. Wave's native horizontal routine always returns clear even when it
+        // carry clear. Wave's horizontal routine always returns clear even when it
         // publishes a block reaction, so it necessarily reaches this second axis as well.
         bool diagonal = direction is
             SamusProjectileDirection.UpRight or
@@ -126,7 +126,7 @@ internal sealed class ProjectileTerrainCollision
         return ScanVerticalShotReactions(level, slot, roomPlms);
     }
 
-    /// <summary>Checks every block along the projectile's vertical span and reports collision only when the native scan's solid counter completes.</summary>
+    /// <summary>Checks every block along the projectile's vertical span and reports collision only when the scan's solid counter completes.</summary>
     internal static bool ScanHorizontalShotReactions(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -146,7 +146,7 @@ internal sealed class ProjectileTerrainCollision
             return false;
         }
 
-        // `$94:A1B5` decrements its target counter only for carry-set reactions. A tall
+        // The span scan decrements its target counter only for carry-set reactions. A tall
         // projectile grazing air beside one solid block therefore keeps moving; every
         // touched block still gets its side effect before that aggregate result is tested.
         bool everyBlockSolid = true;
@@ -242,7 +242,7 @@ internal sealed class ProjectileTerrainCollision
         Array.IndexOf(KindsByFamily, block.Collision));
 
     /// <summary>
-    /// $94:A66A (horizontal) and $94:A71A (vertical) for a beam: the quarter cells of a
+    /// Square-slope collision for a beam, horizontal or vertical: the quarter cells of a
     /// square slope that the beam's edges reach in this block. A hit returns carry like a
     /// solid block; unlike a non-square slope it does not end the span.
     /// </summary>
@@ -252,7 +252,7 @@ internal sealed class ProjectileTerrainCollision
         if (slot.Type.IsFamily(SamusProjectileFamily.Missile) ||
             slot.Type.IsFamily(SamusProjectileFamily.SuperMissile))
         {
-            // Missiles take the point test in RunMissileFrameBehavior; the native missile
+            // Missiles take the point test in RunMissileFrameBehavior; the missile
             // branch ($1E set) has no caller in this port.
             throw new InvalidOperationException("Missile reached the beam square-slope shot reaction.");
         }
@@ -301,7 +301,7 @@ internal sealed class ProjectileTerrainCollision
         Axis axis = Axis.Horizontal)
     {
         endSpan = false;
-        // `$94:9411/$9447` are shared by shot, bomb, grapple, collision, and inside
+        // The extension-block resolution is shared by shot, bomb, grapple, collision, and inside
         // dispatch. Door caps deliberately put the shootable origin at one end and type-
         // `$D` extension words across the other three cells. Resolve those signed behaviour
         // links before selecting a reaction; otherwise a centered horizontal beam merely
@@ -314,7 +314,7 @@ internal sealed class ProjectileTerrainCollision
             return SquareSlopeShotReaction(slot, block, span, axis == Axis.Horizontal);
         if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.SlopeShape >= 5)
         {
-            // $94:A147/A15E dispatch non-square slopes through the projectile's
+            // Non-square slopes dispatch through the projectile's
             // perpendicular center block, not every row/column touched by its radius.
             int centerBlock = axis == Axis.Horizontal ? slot.Position.Y.Whole >> 4 : slot.Position.X.Whole >> 4;
             int slopeBlock = axis == Axis.Horizontal ? block.Index / level.Size.X : block.Index % level.Size.X;
@@ -325,14 +325,14 @@ internal sealed class ProjectileTerrainCollision
             if (block.Behavior.SlopeFlipsHorizontally) x ^= 15;
             if (block.Behavior.SlopeFlipsVertically) y ^= 15;
             bool hit = SlopeHeights.Read(block.Behavior.SlopeShape, x) <= y;
-            // $94:A5DC/A5DE clears both scan counters on a surface hit. This overrides
+            // A surface hit clears both scan counters. This overrides
             // earlier air rows and ends the span; Wave still discards collision carry.
             endSpan = hit;
             return hit;
         }
 
         // Chozo orbs and concealed item blocks are type-$C/behaviour-$45. Their special
-        // reaction does not use the ordinary behaviour 0..F shot-block table: header $EED3
+        // reaction does not use the ordinary behaviour 0..F shot-block table: its header
         // finds and triggers the already-loaded permanent-item PLM at this origin.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior == RoomBlockBehaviorValues.CollectibleTrigger)
@@ -341,7 +341,7 @@ internal sealed class ProjectileTerrainCollision
             return true;
         }
 
-        // Both type-$8 and type-$C behaviour-$44 collision routes allocate generic trigger $C83E,
+        // Both type-$8 and type-$C behaviour-$44 collision routes allocate the generic shot trigger,
         // which publishes the live projectile word to the resident PLM at this block.
         if (block.CollisionType == RoomCollisionType.SolidBlock &&
             block.Behavior == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
@@ -365,7 +365,7 @@ internal sealed class ProjectileTerrainCollision
             return block.CollisionType == RoomCollisionType.ShootableBlock;
         }
 
-        // `$94:A175/$A195` return carry for 8/B/E directly. Door ($9), spike ($A), and
+        // The block reactions return carry for 8/B/E directly. Door ($9), spike ($A), and
         // bombable ($F) also collide; their actor/weapon-gated setup remains a later slice.
         return block.CollisionType.IsSolidKind();
     }
@@ -448,18 +448,18 @@ internal sealed class ProjectileTerrainCollision
 
         // The intact n00b tube, colored doors, eye doors, grey doors, and other resident
         // actors all share type-$C/behaviour-$44. The resident PLM determines the accepted family
-        // after generic trigger $C83E publishes the projectile word.
+        // after the generic shot trigger publishes the projectile word.
         if (block.Behavior == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
         {
             NotifyResidentProjectileHit(roomPlms, block, slot.Type);
             return;
         }
 
-        // `$94:9EA6[40..43]` selects the four blue-door entry PLMs. These are not
+        // The shot-block table's entries 40..43 select the four blue-door entry PLMs. These are not
         // ordinary breakable blocks: setup changes the cap origin to type $8 and the
-        // cartridge list opens all four blocks over eighteen frames. Keep this dispatch
+        // door's animation opens all four blocks over eighteen frames. Keep this dispatch
         // beside the general table lookup so every beam/missile/bomb collision reaches the
-        // same bank-$84 owner and power bombs retain Setup_BlueDoor's rejection behavior.
+        // same owner and power bombs retain Setup_BlueDoor's rejection behavior.
         if (block.Behavior.TryGetBlueDoorOrientation(out _))
         {
             roomPlms.DoorPlms.TrySpawnBlueDoorOpening(
@@ -470,12 +470,12 @@ internal sealed class ProjectileTerrainCollision
             return;
         }
 
-        // Nonnegative behaviour 0..F indexes the ordinary retail `$94:9EA6` entries, and $10 is
-        // the table's deliberate `$84:B974` collision-probe/no-op PLM. Negative behaviour
-        // 0..7 is also admitted so shootable-solid can preserve its native area-table no-op
+        // Nonnegative behaviour 0..F indexes the ordinary retail shot-block entries, and $10 is
+        // the table's deliberate collision-probe/no-op PLM. Negative behaviour
+        // 0..7 is also admitted so shootable-solid can preserve its area-table no-op
         // slot; shootable-air's method exits without allocating. The RoomPlm owner performs
         // the power-bomb/Super-Missile family checks for entries 8..B synchronously, just as
-        // each bank-$84 setup sees the current native projectile type during Spawn_PLM.
+        // each setup sees the current projectile type during Spawn_PLM.
         bool translatedBehavior = block.Behavior.IsAreaReactionIndex(8) ||
             block.Behavior == EscapeAnimalWallDefinitions.ReactionBehavior ||
             block.Behavior.IsNormalReactionIndex(16) ||
@@ -508,7 +508,7 @@ internal sealed class ProjectileTerrainCollision
     }
 
     /// <summary>
-    /// Bank $94 overlaps DP $12/$13 so an 8.8 velocity word becomes a signed 16.16 delta by
+    /// Block collision overlaps two scratch bytes so an 8.8 velocity word becomes a signed 16.16 delta by
     /// shifting it left eight. Advancing by it as one wrapped 32-bit quantity is exactly
     /// equivalent to its low-word ADC followed by sign-word ADC.
     /// </summary>
@@ -516,8 +516,8 @@ internal sealed class ProjectileTerrainCollision
         SignedEightEight.FromSignedRaw(velocity).ToSixteenSixteenDelta();
 
     /// <summary>
-    /// $90:AE06 Kill_Projectile for a beam, as bank $94's block collision calls it: the
-    /// explosion's library-two $0C queues ($93:80EF, no cinematic test) before the swap.
+    /// Kill_Projectile for a beam, as block collision calls it: the
+    /// explosion's library-two $0C queues (no cinematic test) before the swap.
     /// </summary>
     internal void KillBeamOnBlockCollision(SamusProjectileSlot slot,
         SamusPowerBombExplosionState powerBomb)
@@ -526,11 +526,11 @@ internal sealed class ProjectileTerrainCollision
         KillBeam(slot);
     }
 
-    /// <summary>Moves a beam explosion to its directional leading edge and installs the native explosion program.</summary>
+    /// <summary>Moves a beam explosion to its directional leading edge and installs the explosion program.</summary>
     internal static void KillBeam(SamusProjectileSlot slot)
     {
-        // `$90:AE3A` moves the explosion anchor to the leading edge before bank $93 swaps
-        // the instruction list. Diagonals adjust both axes in their respective signs.
+        // Killing the beam moves the explosion anchor to the leading edge before the explosion
+        // replaces the animation. Diagonals adjust both axes in their respective signs.
         int direction = slot.Direction.ToAimIndex();
         if (direction is 1 or 2 or 3)
             slot.Position += new Offset16<RoomPixels>(CoordinateAxis.AsSigned(slot.Radius.X), 0);
@@ -554,7 +554,7 @@ internal sealed class ProjectileTerrainCollision
         SamusProjectileSlot slot,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        // The native kill dispatcher clears families beyond missiles immediately. A Super
+        // The kill dispatcher clears families beyond missiles immediately. A Super
         // Missile's supplemental probe can collide again after becoming an explosion;
         // restarting its animation here would extend both its lifetime and damage.
         if (slot.Type.Family.IsBombOrExplosion)
@@ -564,7 +564,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // Missile point collisions already supply the impact coordinate. Only the beam
-        // branch of the native dispatcher applies a leading-edge radius adjustment.
+        // branch of the dispatcher applies a leading-edge radius adjustment.
 
         // Impact audio is separate from launch audio and can also originate in enemy
         // collision before the projectile movement owner executes.
@@ -579,7 +579,7 @@ internal sealed class ProjectileTerrainCollision
 
         if (wasSuperMissile)
         {
-            // The impact writes the shared room quake immediately; later native producers
+            // The impact writes the shared room quake immediately; later producers
             // can replace it before the frame's shake handler consumes the request.
             _earthquakes.RequestSuperMissileEarthquake(SuperMissileDefinitions.EarthquakeType);
         }
@@ -589,7 +589,7 @@ internal sealed class ProjectileTerrainCollision
         if (sharedProjectiles.CooldownTimer.IsAtLeast(21))
             sharedProjectiles.SetSharedCooldown(20);
     }
-    /// <summary>Preserves bank $94:A352's byte indexing and chained-ADC carry.</summary>
+    /// <summary>Preserves the horizontal scan's byte indexing and chained-add carry.</summary>
     internal static void ScanHorizontalWaveShotReactions(
         RoomLevelData level, SamusProjectileSlot slot, ISamusRoomPlms? roomPlms)
     {
@@ -638,7 +638,7 @@ internal sealed class ProjectileTerrainCollision
     }
 
     /// <summary>
-    /// Preserves bank $94:A3E4's linear tile addressing across the room's side edges.
+    /// Preserves the vertical scan's linear tile addressing across the room's side edges.
     /// </summary>
     internal static void ScanVerticalWaveShotReactions(
         RoomLevelData level, SamusProjectileSlot slot, ISamusRoomPlms? roomPlms)
@@ -660,7 +660,7 @@ internal sealed class ProjectileTerrainCollision
         // byte-offset shift consume words. X is deliberately not clipped to the
         // room width: right-edge spans reach the following row; left underflow
         // starts 4095 tiles forward while the center remains inside the room.
-        // The native block reaction dispatcher bounds the resulting allocation
+        // The block reaction dispatcher bounds the resulting allocation
         // offset, not the horizontal extent of this individual tile span.
         int rowOffset = WordWrap.LowByte(targetY >> 4) * level.Size.X;
         int byteOffset = CoordinateAxis.Wrap((rowOffset + (left >> 4)) * 2);

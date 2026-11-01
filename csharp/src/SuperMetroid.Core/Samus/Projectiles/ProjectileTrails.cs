@@ -20,7 +20,7 @@ internal sealed class ProjectileTrails
         _starts = Ensure.NotNull(starts);
     }
 
-    /// <summary>Selects native trail lists and positions both sides from the shot's current animation record.</summary>
+    /// <summary>Selects trail animations and positions both sides from the shot's current animation record.</summary>
     internal void SpawnTrail(SamusProjectileSlot projectile)
     {
         int trailEntry;
@@ -172,7 +172,7 @@ internal sealed class ProjectileTrails
         if (side.FrameHold.IsZero)
             return;
 
-        // `$90:B6F4/$B703` require both complete 16-bit camera-relative coordinates to have
+        // The trail draw requires both complete 16-bit camera-relative coordinates to have
         // a zero high byte. Unlike the generic spritemap path, negative or 256+ coordinates
         // are skipped rather than wrapped or parked.
         int screenX = CoordinateAxis.Wrap(side.DisplayedPosition.X - layer1.X);

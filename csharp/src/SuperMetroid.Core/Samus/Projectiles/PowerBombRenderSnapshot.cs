@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// Value-only render input for the power bomb's windowed fixed-color addition: the window
 /// table's producing phase and radii, and its colour. Taking it never advances the explosion.
 /// </summary>
-/// <param name="IsActive">Whether the bank-$88 color-math animation is running.</param>
+/// <param name="IsActive">Whether the color-math animation is running.</param>
 /// <param name="Position">Room-pixel centre of the explosion.</param>
 /// <param name="RenderedPhase">Phase whose per-line window the current update produced.</param>
 /// <param name="RenderedShape">Pre-scaled shape the current window was built from, or null when it used none.</param>

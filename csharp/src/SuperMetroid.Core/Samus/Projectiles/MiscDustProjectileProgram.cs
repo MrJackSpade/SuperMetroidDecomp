@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// The thirty misc-dust explosion, smoke, dust, beam and drop programs (#641), one per list a spawn, branch or family routine enters, in authored order.
-/// Generated from the verified native lists; see <see cref="MiscDustProjectileAnimations"/>.
+/// Generated from the verified animation scripts; see <see cref="MiscDustProjectileAnimations"/>.
 /// </summary>
 internal enum MiscDustProjectileProgram
 {

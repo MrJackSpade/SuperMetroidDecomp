@@ -9,7 +9,7 @@ internal sealed class ProjectileEnemyImpacts
 {
     /// <summary>Owns projectile clearing when reflection retires a Super Missile link.</summary>
     private readonly ProjectileAnimation _animation;
-    /// <summary>Receives the native Super Missile enemy-hit quake request.</summary>
+    /// <summary>Receives the Super Missile enemy-hit quake request.</summary>
     private readonly ProjectileEarthquakes _earthquakes;
     /// <summary>Projectile records whose direction, damage, and animation change on enemy contact.</summary>
     private readonly ProjectileSlotTable _slotTable;
@@ -25,7 +25,7 @@ internal sealed class ProjectileEnemyImpacts
         _terrainCollision = terrainCollision;
     }
     /// <summary>
-    /// Applies the projectile-owned side effects that `$A0:9CC8-$9CD6` performs before any
+    /// Applies the projectile-owned side effects that enemy collision performs before any
     /// enemy callback which returns without entering ordinary impact conversion. This is
     /// shared by extended hitboxes and radius-based custom reactions such as shutters.
     /// </summary>
@@ -52,16 +52,16 @@ internal sealed class ProjectileEnemyImpacts
 
     /// <summary>
     /// Compatibility name retained for callers whose geometry is specifically an extended
-    /// spritemap. The behavior is the same bank-$A0 projectile prelude, not a separate fix.
+    /// spritemap. The behavior is the same projectile prelude, not a separate fix.
     /// </summary>
     public void ApplyExtendedEnemyCollisionPrelude(int slotIndex, bool markCollisionState) =>
         ApplyEnemyCollisionPrelude(slotIndex, markCollisionState);
 
     /// <summary>
-    /// Ports <c>ProjectileReflection</c> at `$90:BE00` after an enemy callback has replaced
+    /// Ports <c>ProjectileReflection</c> after an enemy callback has replaced
     /// the projectile direction. Reflection preserves the projectile family/type and world
-    /// position, but reconstructs its bank-$93 damage, direction-specific animation, radii,
-    /// and family pre-instruction exactly as the native routine does.
+    /// position, but reconstructs its damage, direction-specific animation, radii,
+    /// and family pre-instruction exactly as the routine does.
     /// </summary>
     public void ReflectFromEnemy(SamusState samus, int slotIndex)
     {
@@ -76,7 +76,7 @@ internal sealed class ProjectileEnemyImpacts
         SamusProjectileFamily family = slot.Type.Family;
         if (family == SamusProjectileFamily.SuperMissile)
         {
-            // `$90:BE17` clears the slot the Super Missile names as its link before
+            // Reflection clears the slot the Super Missile names as its link before
             // repurposing the owner; it does not broadly delete unrelated Super Missiles.
             if (slot.SuperMissileLinkSlot is { } linkIndex && linkIndex != slotIndex && _slotTable.Slots[linkIndex].IsActive)
                 _animation.ClearProjectile(_slotTable.Slots[linkIndex]);
@@ -106,7 +106,7 @@ internal sealed class ProjectileEnemyImpacts
         }
         else
         {
-            // The native reflection producer only selects beams and the two missile
+            // The reflection producer only selects beams and the two missile
             // families. Reaching this method with a bomb/explosion payload is corrupt
             // scheduler state rather than an unimplemented reflection behavior.
             throw new InvalidDataException(
@@ -141,13 +141,13 @@ internal sealed class ProjectileEnemyImpacts
     }
 
     /// <summary>
-    /// Applies intro Mother Brain's external projectile test at <c>$8B:B78A..B7BA</c>.
+    /// Applies intro Mother Brain's external projectile test.
     /// </summary>
     /// <remarks>
     /// The cinematic scans the slots from the highest down for the first ordinary missile
     /// and only kills it once its signed X coordinate
     /// is below $54. This is not terrain collision, so the actor owns the predicate while
-    /// the projectile system owns the exact bank-$90 impact conversion.
+    /// the projectile system owns the exact impact conversion.
     /// </remarks>
     public bool TryImpactIntroMotherBrainMissile(
         SamusBombProjectileSystem sharedProjectiles)
@@ -170,7 +170,7 @@ internal sealed class ProjectileEnemyImpacts
     }
 
     /// <summary>
-    /// Converts one live beam or missile into its ordinary bank-$93 impact animation after
+    /// Converts one live beam or missile into its ordinary impact animation after
     /// an enemy-owned overlap test accepts it. Enemy shot AI owns damage/counters; this
     /// projectile owner alone mutates the parallel slot arrays and shared cooldown.
     /// </summary>
@@ -192,7 +192,7 @@ internal sealed class ProjectileEnemyImpacts
             SamusProjectileFrameBehavior.SpazerCombo or SamusProjectileFrameBehavior.SpazerComboFalling or
             SamusProjectileFrameBehavior.PlasmaCombo)
         {
-            // Enemy collision only marks the native direction word. These particles own
+            // Enemy collision only marks the direction word. These particles own
             // hit deletion (and Spazer's paired deletion) in their next pre-instruction;
             // replacing that handler with a beam explosion loses their family lifecycle.
             // Plasma normally pierces, unless the target explicitly stops Plasma beams.
@@ -207,13 +207,13 @@ internal sealed class ProjectileEnemyImpacts
         switch (slot.Type.Family)
         {
             case SamusProjectileFamily.Beam:
-                // Native enemy collision marks direction bit $10 only when the
+                // Enemy collision marks direction bit $10 only when the
                 // target blocks Plasma or the shot lacks Plasma. Ordinary penetrating
                 // beams, not just special beam-combo particles, retain their lifecycle.
                 if (!blocksPlasmaBeam &&
                     slot.Type.BeamCombination.HasPlasma)
                     return true;
-                // $A0:9A07 only marks the shot; enemy hits never reach Kill_Projectile's sound.
+                // Enemy collision only marks the shot; enemy hits never reach Kill_Projectile's sound.
                 ProjectileTerrainCollision.KillBeam(slot);
                 return true;
             case SamusProjectileFamily.Missile:

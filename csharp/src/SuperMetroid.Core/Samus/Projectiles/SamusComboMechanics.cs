@@ -26,7 +26,7 @@ internal static class SamusComboMechanics
     };
 
     /// <summary>
-    /// CostOfSBAsInPowerBombs at $90:CC21: one Power Bomb for Wave, Ice,
+    /// CostOfSBAsInPowerBombs: one Power Bomb for Wave, Ice,
     /// Spazer, and Plasma alone; zero for the eight non-combo beam indexes.
     /// </summary>
     /// <remarks>Independently reviewed for #1165 against NTSC J/U v1.0 and pinned
@@ -37,11 +37,11 @@ internal static class SamusComboMechanics
         ComboKind(beam) is null ? 0 : 1;
 
     /// <summary>
-    /// IcePlasmaSBAProjectileOriginAngles at $90:CD08: four evenly spaced
+    /// IcePlasmaSBAProjectileOriginAngles: four evenly spaced
     /// eight-bit angles assigned in projectile-slot order.
     /// </summary>
     /// <remarks>Independently reviewed for #1165 against NTSC J/U v1.0 and pinned
-    /// bank_90.asm: 64*slot for validated slot=0..3. Native Ice/Plasma initialization
+    /// bank_90.asm: 64*slot for validated slot=0..3. Ice/Plasma initialization
     /// reads word offsets 6,4,2,0; the caller supplies undoubled projectile slots.
     /// The adjacent unused diagonal-angle words are not further projectile slots;
     /// the bounded progression does not extrapolate into them.</remarks>
@@ -53,13 +53,13 @@ internal static class SamusComboMechanics
     }
 
     /// <summary>
-    /// Applies the unsigned hardware-multiply sequence at $90:CC39 to the low
-    /// bytes of an angle and amplitude. Native negates the truncated positive
+    /// Applies the unsigned hardware-multiply sequence to the low
+    /// bytes of an angle and amplitude. The game negates the truncated positive
     /// magnitude, so this deliberately truncates toward zero in all quadrants.
     /// </summary>
-    /// <remarks>Independently reviewed for #1165 against $90:CC39/$CC8A and all
-    /// original positive sine words at $A0:B443. Multiplying a whole sample and
-    /// shifting eight bits equals the native low-byte product high byte plus
+    /// <remarks>Independently reviewed for #1165 against the combos' sine and cosine and all
+    /// original positive sine words. Multiplying a whole sample and
+    /// shifting eight bits equals the low-byte product high byte plus
     /// the high-byte product; restore sign afterward, including the exact 256 peak.
     /// Ice, Plasma and Spazer callers supply byte-cycle angles; Y subtracts 64
     /// with byte wrap. Amplitude uses its low byte as the hardware multiplier does.

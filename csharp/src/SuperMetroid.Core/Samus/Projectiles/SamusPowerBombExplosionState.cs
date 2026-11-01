@@ -27,10 +27,10 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>Room-pixel centre copied from the projectile when its fuse reaches zero.</summary>
     public Position16<RoomPixels> Position { get; private set; }
 
-    /// <summary>WRAM $0CEC, the pre-explosion flash's unsigned 8.8 radius.</summary>
+    /// <summary>The pre-explosion flash's unsigned 8.8 radius.</summary>
     public PowerBombRadius PreExplosionRadius { get; private set; }
 
-    /// <summary>WRAM $0CEA, the damaging explosion's unsigned 8.8 radius.</summary>
+    /// <summary>The damaging explosion's unsigned 8.8 radius.</summary>
     public PowerBombRadius ExplosionRadius { get; internal set; }
 
     /// <summary>
@@ -47,7 +47,7 @@ public sealed class SamusPowerBombExplosionState
     /// </summary>
     public PowerBombShapeCursor? RenderedShape { get; private set; }
 
-    /// <summary>Current semantic phase of the native sleeping instruction list.</summary>
+    /// <summary>Current semantic phase of the sleeping instruction list.</summary>
     public PowerBombExplosionPhase Phase { get; private set; }
 
     /// <summary>
@@ -60,10 +60,10 @@ public sealed class SamusPowerBombExplosionState
     /// </remarks>
     public PowerBombExplosionPhase RenderedPhase { get; internal set; }
 
-    /// <summary>Pre-explosion radius consumed before the native end-of-frame update.</summary>
+    /// <summary>Pre-explosion radius consumed before the end-of-frame update.</summary>
     public PowerBombRadius RenderedPreExplosionRadius { get; internal set; }
 
-    /// <summary>Explosion radius consumed before the native end-of-frame update.</summary>
+    /// <summary>Explosion radius consumed before the end-of-frame update.</summary>
     public PowerBombRadius RenderedExplosionRadius { get; internal set; }
 
     /// <summary>The colour the explosion adds inside its window.</summary>
@@ -88,13 +88,13 @@ public sealed class SamusPowerBombExplosionState
     private int _afterglowStepsRemaining;
 
     /// <summary>
-    /// Native Crystal Flash completion count, kept separate from the editable colour so
+    /// Crystal Flash completion count, kept separate from the editable colour so
     /// rebinding colors cannot change the effect's cleanup frame after restoration.
     /// </summary>
     private int _crystalFlashAfterglowStepsRemaining;
 
     /// <summary>
-    /// Implements $90:BF9D's early power-bomb lock before a projectile slot is initialized.
+    /// Implements the morph-ball handler's early power-bomb lock before a projectile slot is initialized.
     /// </summary>
     public void Arm()
     {
@@ -102,7 +102,7 @@ public sealed class SamusPowerBombExplosionState
     }
 
     /// <summary>
-    /// Implements $88:8AA4 after $90:C157 has copied the projectile's world position.
+    /// Implements the explosion's spawn after the fuse has copied the projectile's world position.
     /// </summary>
     public void Spawn(Position16<RoomPixels> position)
     {
@@ -129,7 +129,7 @@ public sealed class SamusPowerBombExplosionState
     }
 
     /// <summary>
-    /// Implements `$90:D6AE-$D6C5` and both setup calls at `$88:A2E4/$A309` after
+    /// Implements Crystal Flash's explosion request and both setup calls after
     /// Crystal Flash completes its ten-step rise.
     /// </summary>
     public void BeginCrystalFlash(Position16<RoomPixels> position)
@@ -158,13 +158,13 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>
     /// Runs one update of the explosion's active stage step.
     /// </summary>
-    /// <returns>True only on the frame that $88:8B4E completes cleanup.</returns>
+    /// <returns>True only on the frame that cleanup completes.</returns>
     public bool StepFrame()
     {
         if (!IsActive)
             return false;
 
-        // Every bank-$88 pre-instruction first builds this frame's window and only then
+        // Every pre-instruction first builds this frame's window and only then
         // mutates its radius/pointer or advances the sleeping instruction list. Record
         // that input phase here so post-logic desktop composition sees the generated
         // frame rather than the state prepared for the following one.
@@ -216,7 +216,7 @@ public sealed class SamusPowerBombExplosionState
     /// </summary>
     public void ReleaseFlag() => IsArmed = false;
 
-    /// <summary>Clears every bank-$88/WRAM field during room/runtime reset.</summary>
+    /// <summary>Clears every explosion field during room/runtime reset.</summary>
     public void Reset()
     {
         IsArmed = false;
@@ -256,8 +256,8 @@ public sealed class SamusPowerBombExplosionState
             PowerBombFixedColorSequence.PreExplosion,
             (PreExplosionRadius.WholePixels >> 3) & 15);
 
-        // $88:90DF uses wrapping 16-bit addition. It subtracts acceleration only while
-        // the newly computed radius is still below $9200.
+        // The white pre-explosion uses wrapping 16-bit addition. It subtracts acceleration only while
+        // the newly computed radius is still below 37376.
         PreExplosionRadius = AdvanceRadiusWrapping(PreExplosionRadius);
         if (PreExplosionRadius.RawValue < PowerBombExplosionDefinitions.PreExplosionWhiteLimit.RawValue)
         {
@@ -286,7 +286,7 @@ public sealed class SamusPowerBombExplosionState
         return shape;
     }
 
-    /// <summary>Advances a radius by the shared speed with the cartridge's sixteen-bit wraparound ($88:90DF).</summary>
+    /// <summary>Advances a radius by the shared speed with the game's sixteen-bit wraparound.</summary>
     private PowerBombRadius AdvanceRadiusWrapping(PowerBombRadius radius) => radius.WrappingAdd(RadiusSpeed);
 
     /// <summary>
@@ -305,13 +305,13 @@ public sealed class SamusPowerBombExplosionState
             PowerBombFixedColorSequence.PreExplosion,
             (PreExplosionRadius.WholePixels >> 3) & 15);
 
-        // $91A8 builds this frame's two 192-byte window tables before incrementing the
+        // The yellow pre-explosion builds this frame's two 192-byte window tables before incrementing the
         // source pointer. Preserve that consumed pointer for a host compositor running
         // after the logic frame has completed.
         RenderedShape = ConsumeShape(out bool finishedShapes);
 
         // The carry test is performed on the sum before either state word is changed.
-        // If it would exceed $FFFF, both radius and speed remain frozen for this frame.
+        // If it would exceed 65535, both radius and speed remain frozen for this frame.
         if (TryAdvanceRadiusWithoutCarry(PreExplosionRadius, out PowerBombRadius nextRadius))
         {
             PreExplosionRadius = nextRadius;
@@ -321,7 +321,7 @@ public sealed class SamusPowerBombExplosionState
         if (!finishedShapes)
             return;
 
-        // CallFar($8B39) initializes the actual damaging radius before the next frame's
+        // CallFar initializes the actual damaging radius before the next frame's
         // ExplosionYellow pre-instruction. PreExplosionRadius remains debugger-visible.
         ExplosionRadius = PowerBombRadius.FromRaw(PowerBombExplosionDefinitions.InitialRadius);
         RadiusSpeed = PowerBombRadius.Zero;
@@ -343,8 +343,8 @@ public sealed class SamusPowerBombExplosionState
             return;
         }
 
-        // The next instruction calls $8B47, selecting the first of seventeen expanding
-        // white shape tables, then installs $8EB2 and sleeps.
+        // The next step selects the first of seventeen expanding
+        // white shape tables, then installs the white explosion and sleeps.
         Shape = new PowerBombShapeCursor(PowerBombShapeStream.White, 0);
         RenderedShape = null;
         Phase = PowerBombExplosionPhase.ExplosionWhite;
@@ -369,8 +369,8 @@ public sealed class SamusPowerBombExplosionState
         if (!finishedShapes)
             return;
 
-        // $88:8EB2 primes D=32 and timer=0. The list then installs the afterglow
-        // pre-instruction; it performs the first decrement on the following frame.
+        // The white explosion primes D=32 and timer=0. The list then installs the afterglow
+        // frame behaviour; it performs the first decrement on the following frame.
         _afterglowStepsRemaining = 32;
         _afterglowTimer = WrappingCountdown.Start(0);
         Phase = PowerBombExplosionPhase.Afterglow;
@@ -390,8 +390,8 @@ public sealed class SamusPowerBombExplosionState
             IsActive = false;
             PreExplosionRadius = PowerBombRadius.Zero;
             ExplosionRadius = PowerBombRadius.Zero;
-            // $88:8B4E does not clear the shared radius-speed word. Retain it
-            // until the next pre-explosion setup, as on the cartridge.
+            // Cleanup does not clear the shared radius-speed word. Retain it
+            // until the next pre-explosion setup, as on the game.
             Shape = null;
             RenderedShape = null;
             Phase = PowerBombExplosionPhase.Inactive;
@@ -410,7 +410,7 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>Uses the explosion curve to expand Crystal Flash only to its smaller radius limit.</summary>
     private void StepCrystalFlashExplosion()
     {
-        // `$88:A552` is a deliberately shorter clone of the yellow Power Bomb expansion.
+        // Crystal Flash's explosion is a deliberately shorter clone of the yellow Power Bomb expansion.
         // It uses the same curve and fixed-color table, but stops at radius `$20.00`.
         RenderedExplosionRadius = ExplosionRadius;
         ReadFixedColor(
@@ -439,7 +439,7 @@ public sealed class SamusPowerBombExplosionState
         if (!_afterglowTimer.IsNegative)
             return false;
 
-        // `$88:A35D` wakes once the stock components reach zero. The compiled operand
+        // Crystal Flash's afterglow wakes once the stock components reach zero. The compiled operand
         // tracks the same number of decrements; editable colors only affect the fade
         // displayed inside the retained final window. The byte reload still preserves
         // the underflowed high byte, so every following call remains signed-negative.
@@ -483,10 +483,10 @@ public sealed class SamusPowerBombExplosionState
         _afterglowStepsRemaining--;
     }
 
-    /// <summary>Reloads only the low timer byte, retaining the underflowed high byte as native 8-bit STA does.</summary>
+    /// <summary>Reloads only the low timer byte, retaining the underflowed high byte as the game's 8-bit store does.</summary>
     private void ReloadAfterglowTimerLowByte()
     {
-        // Both $88:8BD5 and $88:A3A2 execute STA with an eight-bit accumulator.
+        // Both afterglows store with an eight-bit accumulator.
         // DEC turned zero into FFFF; retaining FF is observable, not unused scratch.
         _afterglowTimer = _afterglowTimer.WithEightBitCount(PowerBombExplosionDefinitions.AfterglowTimerReload);
     }

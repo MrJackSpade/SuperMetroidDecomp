@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public static class ProjectileTrailSelection
 {
     /// <summary>
-    /// The program <paramref name="side"/> runs for low-six-bit selection <paramref name="selection"/>. Native indexes each
+    /// The program <paramref name="side"/> runs for low-six-bit selection <paramref name="selection"/>. The game indexes each
     /// side's thirty-nine-entry table with all six bits: a left selection past its table reads the right table's entries,
     /// and a right selection past its table reads the trail spawner's own code, which names no trail program, so that
     /// trail is not drawn (null).

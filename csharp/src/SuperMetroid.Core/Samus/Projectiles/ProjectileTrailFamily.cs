@@ -42,6 +42,6 @@ internal enum ProjectileTrailFamily
     /// <summary>The trails of the Wave Spazer special beam attack.</summary>
     SbaWaveSpazer,
 
-    /// <summary>The trails of the Spazer and Ice Spazer special beam attack, which the cartridge leaves unused.</summary>
+    /// <summary>The trails of the Spazer and Ice Spazer special beam attack, which the game leaves unused.</summary>
     SbaSpazer,
 }

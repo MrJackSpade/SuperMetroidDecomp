@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusBombSpreadLaunches
 {
     /// <summary>
-    /// $90:D8CF..D8F6 BombSpreadData: five symmetric launches. Fuse length increases
+    /// BombSpreadData: five symmetric launches. Fuse length increases
     /// ten frames per step from center; outward X speed grows by half a pixel/frame, leftward for the two left slots.
     /// Y rises two-and-a-half at center, one beside it, and zero at the edges.
     /// </summary>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>One side of a two-stream bank-$90 projectile-trail animation.</summary>
+/// <summary>One side of a two-stream projectile-trail animation.</summary>
 public sealed class SamusProjectileTrailSide
 {
     /// <summary>Room-pixel trail-sprite position.</summary>
@@ -14,11 +14,11 @@ public sealed class SamusProjectileTrailSide
     public ProjectileTrailCursor? Cursor { get; internal set; }
     /// <summary>
     /// The pose this side last showed, which it draws; null once cleared. Allocation does not clear it, so a new trail
-    /// shows the slot's previous pose until its own first one, as the cartridge's retained tile word does.
+    /// shows the slot's previous pose until its own first one, as the game's retained tile word does.
     /// </summary>
     public ProjectileTrailFrame? ShownPose { get; internal set; }
     /// <summary>
-    /// Room-pixel position the side shows this frame: <see cref="Position"/> when the side last advanced. `$90:B6A9`
+    /// Room-pixel position the side shows this frame: <see cref="Position"/> when the side last advanced. The trail update
     /// draws each side right after advancing it, so a sibling's later move command shows only on the next frame.
     /// </summary>
     public Position16<RoomPixels> DisplayedPosition { get; internal set; }

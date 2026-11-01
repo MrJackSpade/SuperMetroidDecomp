@@ -23,7 +23,7 @@ internal sealed class ProjectileEarthquakes
     /// room owner is bound, allowing later quake producers to supersede this request.
     /// </summary>
     /// <param name="earthquakeType">
-    /// The impact's type at $93:8125, or the enemy-hit type at $A0:9CB7/$A0:A1E9.
+    /// The impact's type, or the enemy-hit type.
     /// </param>
     internal void RequestSuperMissileEarthquake(int earthquakeType)
     {
@@ -31,7 +31,7 @@ internal sealed class ProjectileEarthquakes
         EarthquakeTimer = SuperMissileDefinitions.EarthquakeDuration;
         if (_roomEarthquake is { } earthquake)
         {
-            // Publish at the native collision call, not at frame end: later enemy/room
+            // Publish at the collision call, not at frame end: later enemy/room
             // producers may replace this request, and earlier draw owners may read it.
             earthquake.EarthquakeType = EarthquakeType;
             earthquake.EarthquakeTimer = WrappingCountdown.Start(EarthquakeTimer);

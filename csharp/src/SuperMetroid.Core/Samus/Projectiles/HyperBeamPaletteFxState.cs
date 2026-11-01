@@ -7,13 +7,13 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Translation of palette-FX object <c>$8D:E1F0</c>, the projectile palette cycle
+/// Translation of the Hyper Beam palette-FX object, the projectile palette cycle
 /// installed when Samus receives the Hyper Beam.
 /// </summary>
 /// <remarks>
-/// The state retains the native instruction pointer and timer. Fixed program control is
+/// The state retains the instruction pointer and timer. Fixed program control is
 /// compiled separately from the live BGR555 payloads so presentation replacement cannot
-/// silently change engine cadence or route restored state into adjacent cartridge data.
+/// silently change engine cadence or route restored state into adjacent game data.
 /// </remarks>
 public sealed class HyperBeamPaletteFxState
 {
@@ -30,11 +30,11 @@ public sealed class HyperBeamPaletteFxState
         .OfType<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep>()
         .Select(step => step.Frame.Record)];
 
-    /// <summary>True after controller function three has spawned object <c>$E1F0</c>.</summary>
+    /// <summary>True after controller function three has spawned the object.</summary>
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// Native per-object instruction timer. Spawn initializes it to one; the handler
+    /// Per-object frame hold. Spawn initializes it to one; the handler
     /// decrements before testing, so the first palette record executes on its first call.
     /// </summary>
     public WrappingCountdown FrameHold { get; private set; }
@@ -43,18 +43,18 @@ public sealed class HyperBeamPaletteFxState
     public int CurrentFrameIndex { get; private set; } = -1;
 
     /// <summary>
-    /// Number of completed ten-frame loops, a port-side debugger count. No cartridge word holds it and nothing in
+    /// Number of completed ten-frame loops, a port-side debugger count. No game word holds it and nothing in
     /// gameplay reads it, so it is an ordinary count that starts at zero on spawn and grows by one per loop.
     /// </summary>
     public int CompletedCycles { get; private set; }
 
     /// <summary>
     /// Performs <c>Spawn_PaletteFXObject</c>'s state initialization for object
-    /// <c>$8D:E1F0</c>. No colors are copied until the global handler runs.
+    /// the Hyper Beam palette object. No colors are copied until the global handler runs.
     /// </summary>
     public void Spawn()
     {
-        // Native allocation clears the color index and auxiliary timer, installs timer
+        // Allocation clears the color index and auxiliary timer, installs timer
         // one, then calls the object's no-op setup routine. This specialized state has no
         // reusable slot fields to clear, but preserves every observable field and delay.
         IsActive = true;
@@ -84,7 +84,7 @@ public sealed class HyperBeamPaletteFxState
                 $"{definition.SetupCallback}, program {definition.InitialProgram}.");
         }
 
-        // `$8D:C552` decrements before testing. A timer of two therefore displays a frame
+        // The handler decrements before testing. A timer of two therefore displays a frame
         // on the load call and one following call, then advances on the third handler call.
         FrameHold = FrameHold.Decrement().Remaining;
         if (!FrameHold.IsZero)

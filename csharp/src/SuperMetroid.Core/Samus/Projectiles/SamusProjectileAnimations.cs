@@ -4,7 +4,7 @@ using P = SuperMetroid.Core.Samus.Projectiles.SamusProjectileProgram;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The Samus projectiles' programs (#1301), in place of their bank-$93 lists. Generated from the verified native lists:
+/// The Samus projectiles' programs (#1301). Generated from the verified animation scripts:
 /// each eight-byte timed record shows a <see cref="SamusProjectileFrame"/> for its duration, and the lists' gotos and
 /// deletes end their programs.
 /// </summary>

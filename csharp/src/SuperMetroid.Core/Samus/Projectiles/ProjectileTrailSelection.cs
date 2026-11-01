@@ -7,19 +7,22 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public static class ProjectileTrailSelection
 {
     /// <summary>
-    /// The program <paramref name="side"/> runs for low-six-bit selection <paramref name="selection"/>. The game indexes each
-    /// side's thirty-nine-entry table with all six bits: a left selection past its table reads the right table's entries,
-    /// and a right selection past its table reads the trail spawner's own code, which names no trail program, so that
-    /// trail is not drawn (null).
+    /// The program <paramref name="side"/> runs for selection <paramref name="selection"/>, one of the thirty-nine each
+    /// side's table holds.
     /// </summary>
-    internal static ProjectileTrailProgram? Select(int selection, HorizontalDirection side)
-    {
-        if ((uint)selection >= 64)
-            throw new ArgumentOutOfRangeException(nameof(selection), selection, "A trail selection is six bits.");
-        if (selection < TableSelections)
-            return Select(selection, right: side == HorizontalDirection.Right);
-        return side == HorizontalDirection.Left ? Select(selection - TableSelections, right: true) : null;
-    }
+    /// <remarks>
+    /// The game indexes both tables with the low six bits of the shot's type, so a selection past thirty-eight would read
+    /// the right table from the left and the trail spawner's own code from the right. No shot reaches one (#1500): only
+    /// the ordinary beam updates, the missile and Super Missile updates and the Ice, Wave and Spazer special attacks spawn
+    /// trails, and their selections are a beam row of 0 through 31, the missiles' 32 and 33, and the Spazer attack's
+    /// trailing pair's 36. The Shinespark crash's echo, at 41, has its own update, which spawns none. A selection past
+    /// the table is therefore rejected.
+    /// </remarks>
+    /// <exception cref="ArgumentOutOfRangeException">The selection lies past the side's table.</exception>
+    internal static ProjectileTrailProgram Select(int selection, HorizontalDirection side) =>
+        (uint)selection < TableSelections
+            ? Select(selection, right: side == HorizontalDirection.Right)
+            : throw new ArgumentOutOfRangeException(nameof(selection), selection, "No shot that spawns a trail selects one past the trail tables.");
 
     /// <summary>Chooses a left or right trail program from beam effects and special projectile selectors.</summary>
     private static ProjectileTrailProgram Select(int selection, bool right)

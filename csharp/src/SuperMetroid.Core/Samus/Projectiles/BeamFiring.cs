@@ -22,15 +22,19 @@ internal sealed class BeamFiring
     private readonly ProjectileSlotTable _slotTable;
     /// <summary>Runs initial muzzle collision against room terrain and PLMs.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
+    /// <summary>The speeds a Spazer and Plasma beam launches at.</summary>
+    private readonly UnauthoredBeamLaunchSpeeds<SamusBeamCombination> _unauthoredSpeeds;
 
     /// <summary>Connects firing to charge, animation, slot allocation, combo, and terrain systems.</summary>
-    internal BeamFiring(ProjectileAnimation animation, BeamChargeState charge, BeamCombos combos, ProjectileSlotTable slotTable, ProjectileTerrainCollision terrainCollision)
+    internal BeamFiring(ProjectileAnimation animation, BeamChargeState charge, BeamCombos combos, ProjectileSlotTable slotTable,
+        ProjectileTerrainCollision terrainCollision, UnauthoredBeamLaunchSpeeds<SamusBeamCombination> unauthoredSpeeds)
     {
         _animation = animation;
         _charge = charge;
         _combos = combos;
         _slotTable = slotTable;
         _terrainCollision = terrainCollision;
+        _unauthoredSpeeds = Ensure.NotNull(unauthoredSpeeds);
     }
     /// <summary>
     /// Applies the shared side effect of all six <c>SwitchToHudHandler_*</c> routines:
@@ -313,9 +317,14 @@ internal sealed class BeamFiring
             // infer it from Wave bits: the table is the dispatcher, including overreads.
             SamusBeamCallbackDefinition callback =
                 SamusBeamCallbacks.Resolve(charged, beamType);
+            // The callbacks with no translation are Spazer and Plasma combinations whose table read lands on an
+            // address that holds no game code: work memory or an unconnected region. The game then executes
+            // whatever those bytes hold, which only full memory and processor emulation could reproduce, so the
+            // port rejects the shot under the emulation scope limit (#1500).
             slot.FrameBehavior = callback.Translated ?? throw new NotSupportedException(
-                $"Beam callback {callback.Callback} is not translated.");
-            InitializePowerBeamVelocity(samus.ProjectileInheritance, slot);
+                $"Beam callback {callback.Callback} executes work memory or an unconnected region as code; " +
+                "reproducing it needs full memory and processor emulation, which is outside the port's scope.");
+            InitializePowerBeamVelocity(samus.ProjectileInheritance, slot, _unauthoredSpeeds);
         }
         return new BeamShot(slotIndex, sound);
     }
@@ -383,7 +392,7 @@ internal sealed class BeamFiring
             waveBeam: true,
             sharedProjectiles.PowerBombExplosion);
         slot.FrameBehavior = SamusProjectileFrameBehavior.HyperBeam;
-        InitializePowerBeamVelocity(samus.ProjectileInheritance, slot);
+        InitializePowerBeamVelocity(samus.ProjectileInheritance, slot, _unauthoredSpeeds);
 
         // These are literal stores. 32788 is not an ordinary four-call
         // glow timer: its sign bit identifies Hyper's palette phase to the later consumer.
@@ -504,18 +513,22 @@ internal sealed class BeamFiring
         slot.Position = slot.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + origin.X), CoordinateAxis.Wrap(samus.Position.Y.Whole + origin.Y - poseYOffset)));
     }
 
-    /// <summary>Selects beam speed from its combination and diagonal direction before applying inherited velocity.</summary>
+    /// <summary>
+    /// Selects beam speed from its combination and diagonal direction before applying inherited velocity. Every retail
+    /// combination launches at the same authored pair; a Spazer and Plasma combination launches at the pair
+    /// <paramref name="unauthoredSpeeds"/> decoded for it.
+    /// </summary>
     internal static void InitializePowerBeamVelocity(
         ProjectileInheritanceRecords inheritance,
-        SamusProjectileSlot slot)
+        SamusProjectileSlot slot,
+        UnauthoredBeamLaunchSpeeds<SamusBeamCombination> unauthoredSpeeds)
     {
+        Ensure.NotNull(unauthoredSpeeds);
         int direction = slot.Direction.ToAimIndex();
         bool diagonal = direction is 1 or 3 or 6 or 8;
-        int rowOffset = slot.Type.BeamCombination.TableIndex * SamusFiringTableDefinitions.InitialSpeedRowBytes;
-        int speed = WordWrap.Signed(SamusProjectileAccelerations.ReadWord(
-            (diagonal
-                ? SamusFiringTableDefinitions.DiagonalSpeeds
-                : SamusFiringTableDefinitions.HorizontalVerticalSpeeds) + rowOffset));
+        SamusBeamCombination beams = slot.Type.BeamCombination;
+        int authoredSpeed = diagonal ? SamusProjectileMotionDefinitions.DiagonalSpeed : SamusProjectileMotionDefinitions.CardinalSpeed;
+        int speed = beams.IsRetail ? authoredSpeed : unauthoredSpeeds.Speed(beams, diagonal);
 
         InitializeDirectionalVelocity(inheritance, slot, speed);
     }

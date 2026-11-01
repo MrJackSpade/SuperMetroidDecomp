@@ -3,12 +3,13 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Compiled NTSC beam speeds and beam/missile acceleration definitions.</summary>
 internal static class SamusProjectileMotionDefinitions
 {
-    /// <summary>BeamSpeeds_Horizontal_Vertical: all twelve authored rows use 4 px/frame.</summary>
+    /// <summary>
+    /// The horizontal and vertical speed every retail beam combination launches at, in 256ths of a pixel per update:
+    /// four pixels.
+    /// </summary>
     internal const int CardinalSpeed = 1024;
-    /// <summary>BeamSpeeds_Diagonal: all twelve authored rows use 683/256 px/frame.</summary>
+    /// <summary>The diagonal speed every retail beam combination launches at, in 256ths of a pixel per update.</summary>
     internal const int DiagonalSpeed = 683;
-    /// <summary>MissileInitializedBitset: adjacent word reached by invalid beam combinations.</summary>
-    internal const int MissileInitialized = 256;
     /// <summary>The 8.8 base speed a fired missile ignites at: one pixel per update.</summary>
     internal const int MissileIgnitionSpeed = 256;
     /// <summary>

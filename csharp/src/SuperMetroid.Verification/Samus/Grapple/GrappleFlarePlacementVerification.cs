@@ -31,10 +31,10 @@ internal static class GrappleFlarePlacementVerification
     internal static void VerifyGrappleFlarePlacement(SuperMetroidAddressSpace rom)
     {
         byte[] json = GrappleFlarePlacementExtractor.Extract(rom);
-        var stock = ChargeFlarePlacements.Load(new MemoryStream(json));
+        var stock = ChargeFlarePlacements.LoadGrapple(new MemoryStream(json));
         var document = RequiredJson.Parse(json);
         foreach (bool running in new[] { false, true })
-        for (int direction = 0; direction < 16; direction++)
+        for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
         {
             var offset = stock.Resolve(running, direction);
             int x = running ? SamusSourceDefinitions.GrappleRunningFlareX.Value : SamusSourceDefinitions.GrappleDefaultFlareX.Value;
@@ -45,7 +45,7 @@ internal static class GrappleFlarePlacementVerification
             editedOffset["x"] = unchecked((short)(offset.X + 7));
             editedOffset["y"] = unchecked((short)(offset.Y - 9));
         }
-        var edited = ChargeFlarePlacements.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
+        var edited = ChargeFlarePlacements.LoadGrapple(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
         var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleBeamDrawing.RefreshFiringDrawOrigins);
         Func<SamusState, SamusGrappleState, Position16<RoomPixels>, GrappleAnchorKind, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);

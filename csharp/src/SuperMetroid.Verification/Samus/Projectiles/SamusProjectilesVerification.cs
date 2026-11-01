@@ -107,7 +107,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var beamCgram = new SamusColourRig();
     var beamPalettes = BeamPaletteFile.Read(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
     var beamArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), beamPalettes);
-    SamusProjectileSystem.LoadBeamPalette(beamCgram.Samus.Beam, equippedBeams: 0, beamPalettes);
+    SamusProjectileSystem.LoadBeamPalette(beamCgram.Samus.Beam, equippedBeams: 0, beamPalettes, InstalledFixtures.SamusOverreads.ChainsawColours);
     ReadOnlySpan<byte> beamPage = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, beamArtwork,
         InstalledFixtures.Projectiles.TrailTiles)
         .For(SuperMetroid.Core.Progression.SamusBeamFlags.None).Characters;

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>Identities for the ordinary projectile slots used by crash echoes.</summary>
 public static class ShinesparkEchoDefinitions
 {
-    /// <summary>The value each key selects; DepartureAngles looks it up.</summary>
+    /// <summary>The angles a crash finishing in each of the six crash poses sends its echoes out at.</summary>
     internal static readonly IReadOnlyDictionary<SamusPoseId, ShinesparkDepartureAngles> DepartureAngleTable = new Dictionary<SamusPoseId, ShinesparkDepartureAngles>
     {
         [SamusPoseId.ShinesparkHorizontalRightPose] = Departure(0, 128),
@@ -14,8 +14,6 @@ public static class ShinesparkEchoDefinitions
         [SamusPoseId.ShinesparkVerticalLeftPose] = Departure(64, 192),
         [SamusPoseId.ShinesparkDiagonalRightPose] = Departure(224, 96),
         [SamusPoseId.ShinesparkDiagonalLeftPose] = Departure(32, 160),
-        [SamusPoseId.DrainedCrouchingRightPose] = Departure(22, 157),
-        [SamusPoseId.DrainedCrouchingLeftPose] = Departure(182, 10),
     };
 
     /// <summary>The departure angles at two table indexes.</summary>

@@ -9,9 +9,10 @@ internal static class SamusOverreadFormat
     /// <summary>
     /// Supported Samus overread schema revision. Revision eight holds each over-read's decoded domain result in place of
     /// cartridge byte ranges and list positions (#1474); revision nine holds SpaceTime's overwrite as the events, bosses,
-    /// orbs, items, doors, stations and maps it decides rather than table bytes (#1475).
+    /// orbs, items, doors, stations and maps it decides rather than table bytes (#1475); revision ten adds what the Spazer
+    /// and Plasma beams' launch, the Chainsaw beam's palette and the drained Shinespark crash read past their tables (#1500).
     /// </summary>
-    internal const int Version = 9;
+    internal const int Version = 10;
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "samus-overreads.json";
     /// <summary>Manifest filename recording the overread file's cartridge identity and digest.</summary>

@@ -974,7 +974,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks landing and facing offsets, edited placement, and strict selector bounds.</summary>
     internal static void VerifyLookupStream1BodyFacingOffsets(ISnesAddressSpace rom)
     {
-        int[] landing = Enumerable.Range(0, 17).Select(index => (int)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d28 + index)).ToArray();
+        int[] landing = Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount).Select(index => (int)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d28 + index)).ToArray();
         sbyte[] posture = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d80 + index))).ToArray();
         InstalledSamusBodyArtwork template = CreateSamusIdentityFixture();
         InstalledSamusBodyArtwork Create(int[] selectedLanding, sbyte[] selectedPosture) => new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToArray(), GraphicsYOffsets = template.GraphicsYOffsets.ToArray(), Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = selectedLanding, PostureYOffsets = selectedPosture, DrainedYOffsets = template.DrainedYOffsets.ToArray() }, template.BodyCharactersContentIdentity);
@@ -988,7 +988,7 @@ internal static class LookupStream1Verification
             int source = index is >= 4 and < 8 or >= 12 and < 16 ? index - 4 : index;
             AssertEqual(source, SamusBodyPlacements.LandingSourceIndex(index), "Native normal/spin facing row alias");
             AssertEqual(landing[index], landing[source], "Direct native landing facing equality");
-            AssertEqual(landing[index], (ushort)SamusBodyPlacements.DefaultLandingByte(index), "Direct native semantic landing default including adjacent PLB");
+            AssertEqual(landing[index], (ushort)SamusBodyPlacements.DefaultLandingByte(index), "Direct native semantic landing default");
         }
         for (int index = 0; index < posture.Length; index++)
         {
@@ -1000,10 +1000,10 @@ internal static class LookupStream1Verification
         {
             AssertTrue(catalog.LandingYOffsets.SequenceEqual(expectedLanding), "Landing snapshot preserves supplied bytes");
             AssertTrue(catalog.PostureYOffsets.SequenceEqual(expectedPosture), "Posture snapshot preserves supplied bytes");
-            for (int index = 0; index < 16; index++)
+            for (int index = 0; index < expectedLanding.Length; index++)
             {
-                AssertTrue(catalog.TryLandingYOffset(index, out int actual), "Landing word admission");
-                AssertEqual(LittleEndianBytes.Word(unchecked((byte)expectedLanding[index]), unchecked((byte)expectedLanding[index + 1])), actual, "Native unaligned landing word including adjacent byte");
+                AssertTrue(catalog.TryLandingYOffset(index, out int actual), "Landing byte admission");
+                AssertEqual(expectedLanding[index], actual, "Landing offset is the frame's own byte");
             }
             for (int index = 0; index < 24; index++)
             {
@@ -1021,27 +1021,26 @@ internal static class LookupStream1Verification
             };
             samus.Presentation.BodyFrames.BindBodyFixture(stock);
             samus.Presentation.Draw(samus, new SpriteFrameBuffer(), layer1: new(0, 0));
-            ushort nativeWord = LittleEndianBytes.Word(unchecked((byte)landing[index]), unchecked((byte)landing[index + 1]));
-            AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.Presentation.SpritemapPosition.Y, "Actual rendering preserves every bounded native landing word");
+            // The game subtracts a word whose high byte the drawn position never shows; the body sits by the low byte (#1500).
+            AssertEqual(unchecked((ushort)(128 - landing[index])), samus.Presentation.SpritemapPosition.Y, "Actual rendering places every landing frame by its own byte");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Visual landing correction does not change physical position");
         }
         string identity = stock.ContentIdentity;
-        for (int edit = 0; edit < 41; edit++)
+        for (int edit = 0; edit < landing.Length + posture.Length; edit++)
         {
             int[] changedLanding = (int[])landing.Clone(); sbyte[] changedPosture = (sbyte[])posture.Clone();
-            if (edit < 17) changedLanding[edit] ^= 1; else changedPosture[edit - 17] ^= 1;
+            if (edit < landing.Length) changedLanding[edit] ^= 1; else changedPosture[edit - landing.Length] ^= 1;
             InstalledSamusBodyArtwork changed = Create(changedLanding, changedPosture);
             Check(changed, changedLanding, changedPosture);
             AssertTrue(changed.ContentIdentity != identity, "Every independent placement edit changes identity");
             Check(stock, landing, posture);
             AssertEqual(identity, stock.ContentIdentity, "Placement edits leave stock identity immutable");
         }
-        foreach (int index in new[] { -1, 16, 17, int.MaxValue })
-            AssertTrue(!stock.TryLandingYOffset(index, out _), "Landing reader original word bounds");
+        foreach (int index in new[] { -1, 16, int.MaxValue })
+            AssertTrue(!stock.TryLandingYOffset(index, out _), "Landing reader bounds");
         foreach (int index in new[] { -1, 24, int.MaxValue })
             AssertTrue(!stock.TryPostureYOffset(index, out _), "Posture reader original bounds");
-        AssertEqual(0xab, landing[16], "Adjacent native PLB byte is the exact retained instruction observation");
-        Console.WriteLine("Body facing offsets:17 direct landing defaults with zero overrides,24 posture bytes,41 independent edits,16 unaligned windows and content identities pass.");
+        Console.WriteLine("Body facing offsets:16 direct landing defaults with zero overrides,24 posture bytes,40 independent edits,16 landing placements and content identities pass.");
     }
 
     /// <summary>Reads native landing and posture offset words for Samus placement.</summary>
@@ -1360,11 +1359,11 @@ internal static class LookupStream1Verification
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         AssertEqual(0, stock.offsets.Count, "Beam flare stock has zero stored fallback origins");
         for (int mode = 0; mode < 2; mode++)
-        for (int direction = 0; direction < 16; direction++)
+        for (int direction = 0; direction < (mode == 0 ? ChargeFlarePlacementDefinitions.StandingDirectionCount : ChargeFlarePlacementDefinitions.DirectionCount); direction++)
         {
             var expected = new ChargeFlareOffset { X = Word((mode == 0 ? 0x90c1a8 : 0x90c1dc) + 2 * direction),
                 Y = Word((mode == 0 ? 0x90c1c2 : 0x90c1f0) + 2 * direction) };
-            AssertEqual(expected.Offset, ChargeFlarePlacementOffsets.BeamOffset(mode != 0, direction), "Named flare default matches direct native coordinates and aliases");
+            AssertEqual(expected.Offset, ChargeFlarePlacementOffsets.BeamOffset(mode != 0, direction), "Named flare default and turning placement match direct native coordinates");
             AssertEqual(expected.Offset, stock.Resolve(mode != 0, direction), "Installed flare default matches native");
             for (int axis = 0; axis < 2; axis++)
             {
@@ -1375,20 +1374,20 @@ internal static class LookupStream1Verification
                 var edited = ChargeFlarePlacements.Load(new MemoryStream(ChargeFlarePlacements.Write(document)));
                 AssertEqual(1, edited.offsets.Count, "One independent origin edit stores exactly one override");
                 for (int selectedMode = 0; selectedMode < 2; selectedMode++)
-                for (int selectedDirection = 0; selectedDirection < 16; selectedDirection++)
+                for (int selectedDirection = 0; selectedDirection < (selectedMode == 0 ? ChargeFlarePlacementDefinitions.StandingDirectionCount : ChargeFlarePlacementDefinitions.DirectionCount); selectedDirection++)
                     AssertEqual(document.Offsets[ChargeFlarePlacementOffsets.Key(selectedMode != 0, selectedDirection)].Offset,
-                        edited.Resolve(selectedMode != 0, selectedDirection), "Editing a source origin does not edit an independently supplied adjacent alias");
+                        edited.Resolve(selectedMode != 0, selectedDirection), "Editing one origin leaves every other independent origin");
             }
         }
         var grappleDocument = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options);
-        var grapple = ChargeFlarePlacements.LoadGrapple(new MemoryStream(ChargeFlarePlacements.Write(grappleDocument)));
+        var grapple = ChargeFlarePlacements.LoadGrapple(new MemoryStream(ChargeFlarePlacements.WriteGrapple(grappleDocument)));
         AssertEqual(0, grapple.offsets.Count, "Grapple stock has zero stored fallback origins");
         for (int mode = 0; mode < 2; mode++)
-        for (int direction = 0; direction < 16; direction++)
+        for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
         {
             var expected = new ChargeFlareOffset { X = Word((mode == 0 ? 0x9bc14a : 0x9bc19a) + direction * 2),
                 Y = Word((mode == 0 ? 0x9bc15e : 0x9bc1ae) + direction * 2) };
-            AssertEqual(expected.Offset, ChargeFlarePlacementOffsets.GrappleOffset(mode != 0, direction), "Grapple direct defaults preserve all native words including packed adjacent bytes");
+            AssertEqual(expected.Offset, ChargeFlarePlacementOffsets.GrappleOffset(mode != 0, direction), "Grapple direct defaults preserve the native words");
             AssertEqual(expected.Offset, grapple.Resolve(mode != 0, direction), "Installed Grapple defaults match native");
             for (int axis = 0; axis < 2; axis++)
             {
@@ -1396,20 +1395,26 @@ internal static class LookupStream1Verification
                 string key = ChargeFlarePlacementOffsets.Key(mode != 0, direction);
                 var before = document.Offsets[key];
                 document.Offsets[key] = axis == 0 ? before with { X = (short)(before.X + 7) } : before with { Y = (short)(before.Y + 7) };
-                var edited = ChargeFlarePlacements.LoadGrapple(new MemoryStream(ChargeFlarePlacements.Write(document)));
+                var edited = ChargeFlarePlacements.LoadGrapple(new MemoryStream(ChargeFlarePlacements.WriteGrapple(document)));
                 AssertEqual(1, edited.offsets.Count, "Grapple independent edit stores exactly one override");
                 for (int selectedMode = 0; selectedMode < 2; selectedMode++)
-                for (int selectedDirection = 0; selectedDirection < 16; selectedDirection++)
+                for (int selectedDirection = 0; selectedDirection < ChargeFlarePlacementDefinitions.DirectionCount; selectedDirection++)
                     AssertEqual(document.Offsets[ChargeFlarePlacementOffsets.Key(selectedMode != 0, selectedDirection)].Offset, edited.Resolve(selectedMode != 0, selectedDirection),
-                        "Grapple edits preserve every other independent origin and alias");
+                        "Grapple edits preserve every other independent origin");
             }
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+        foreach (int invalid in new[] { int.MinValue, -1, ChargeFlarePlacementDefinitions.StandingDirectionCount, 15, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(false, invalid), "Flare placement catalog bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(true, invalid), "Grapple catalog bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementOffsets.GrappleOffset(false, invalid), "Grapple calculated bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementOffsets.BeamOffset(true, invalid), "Flare calculated bounds");
+        }
+        // No pose selects past the turning placements standing or past the named directions running (#1500).
+        foreach (int invalid in new[] { ChargeFlarePlacementDefinitions.DirectionCount, ChargeFlarePlacementDefinitions.StandingDirectionCount - 1 })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, invalid), "Running flare placement rejects selections past the named directions");
+            AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(false, invalid), "Grapple flare placement has no turning placements");
         }
         var compositions = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         var body = CreateSamusIdentityFixture();
@@ -1609,11 +1614,12 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1ProjectileMotion(ISnesAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1ProjectileMotionRomByte(rom, address), LookupStream1ProjectileMotionRomByte(rom, address + 1));
-        for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
-            AssertEqual(Word(address), SamusProjectileAccelerations.ReadWord(address - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 all native projectile motion words");
-        foreach (int invalid in new[] { int.MinValue, 0x90c2d0, 0x90c2d2, 0x90c37b, int.MaxValue })
+        for (int address = 0x90c303; address < 0x90c37b; address += 2)
+            AssertEqual(Word(address), SamusProjectileAccelerations.ReadWord(address - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 all native projectile acceleration words");
+        foreach (int invalid in new[] { int.MinValue, 0x90c2d0, 0x90c2d1, 0x90c2d2, 0x90c37b, int.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusProjectileAccelerations.ReadWord(invalid - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 exact projectile motion address domain");
-        var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
+        var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>((records, launched) =>
+            BeamFiring.InitializePowerBeamVelocity(records, launched, InstalledFixtures.SamusOverreads.UnauthoredBeamSpeeds));
         var stationary = new ProjectileInheritanceRecords();
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)
@@ -1861,18 +1867,8 @@ internal static class LookupStream1Verification
     /// <summary>Checks Samus pose policy tables across the complete byte-valued pose domain.</summary>
     private static void VerifyLookupStream1SamusPolicyDomains(ISnesAddressSpace rom)
     {
-        for (int pose = 0; pose <= byte.MaxValue; pose++)
-        {
-            // The six crash poses, and the drained-crouch poses a drained controller installs mid-crash, which read on past the table.
-            if (pose is >= 0xc9 and <= 0xce ||
-                SamusPoseNumbering.FromNumber(pose) is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
-            {
-                var angles = ShinesparkEchoDepartures.DepartureAngles(SamusPoseNumbering.FromNumber(pose));
-                AssertEqual(LookupStream1SamusPolicyDomainsRomByte(rom, 0x90d4c6 + (pose - 0xc9) * 2), angles.First.TableIndex, "native crash first departure angle");
-                AssertEqual(LookupStream1SamusPolicyDomainsRomByte(rom, 0x90d4c7 + (pose - 0xc9) * 2), angles.Second.TableIndex, "native crash opposite departure angle");
-            }
-            else AssertThrows<InvalidOperationException>(() => ShinesparkEchoDepartures.DepartureAngles(SamusPoseNumbering.FromNumber(pose)), "crash departure exact pose domain");
-        }
+        // The crash echo departures, including the drained poses that read past their table, are checked by the
+        // Shinespark family's own crash departure check (#1500).
         foreach (byte invalid in new byte[] { 28, byte.MaxValue })
             AssertEqual(false, SamusMovementTypeNativeWords.Types.TryDecode(invalid, out _), "movement byte exact domain");
         var undefinedMovement = (SamusMovementType)(-1);

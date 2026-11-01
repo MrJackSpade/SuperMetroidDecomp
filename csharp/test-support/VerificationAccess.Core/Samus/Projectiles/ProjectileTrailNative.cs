@@ -10,11 +10,11 @@ internal static class ProjectileTrailNative
     /// <summary>$90:B5BB, the left selection table; the right table follows it at $90:B609.</summary>
     private const int LeftSelections = 0x90b5bb;
 
-    /// <summary>The words the selector reads: the left table, the right table and the spawner code past it.</summary>
-    private const int SelectorWords = 103;
-
     /// <summary>The selections each side's table holds.</summary>
     private const int TableSelections = 39;
+
+    /// <summary>The words the selector reads: the left table, then the right table.</summary>
+    private const int SelectorWords = 2 * TableSelections;
 
     /// <summary>The bank-$90 address of the movement instruction a move step names.</summary>
     internal static ushort InstructionAddress(ProjectileTrailInstruction movement) => movement switch
@@ -39,20 +39,16 @@ internal static class ProjectileTrailNative
         /// <summary>$90:B5A1, the missile program.</summary>
         internal static ushort Missile => ProjectileTrailSources.Start(ProjectileTrailProgram.Missile);
 
-        /// <summary>
-        /// The start of the program the selector word at <paramref name="address"/> selects, or null for a word past the
-        /// right table, which names no program.
-        /// </summary>
-        internal static ushort? ReadSelector(int address)
+        /// <summary>The start of the program the selector word at <paramref name="address"/>, in either side's table, selects.</summary>
+        internal static ushort ReadSelector(int address)
         {
             int offset = address - LeftSelections;
             if ((uint)offset >= SelectorWords * sizeof(ushort) || (offset & 1) != 0)
-                throw new InvalidDataException($"Projectile trail selector ${address:X6} is outside the bounded selector window.");
+                throw new InvalidDataException($"Projectile trail selector ${address:X6} is outside the two selector tables.");
             int index = offset / sizeof(ushort);
-            ProjectileTrailProgram? program = index < TableSelections
+            return ProjectileTrailSources.Start(index < TableSelections
                 ? ProjectileTrailSelection.Select(index, HorizontalDirection.Left)
-                : ProjectileTrailSelection.Select(index - TableSelections, HorizontalDirection.Right);
-            return program is { } selected ? ProjectileTrailSources.Start(selected) : null;
+                : ProjectileTrailSelection.Select(index - TableSelections, HorizontalDirection.Right));
         }
     }
 

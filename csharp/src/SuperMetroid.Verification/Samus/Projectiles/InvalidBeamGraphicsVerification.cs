@@ -22,9 +22,11 @@ internal static class InvalidBeamGraphicsVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertThrows<InvalidOperationException>(() => CpuBusRegionRead.Read(bus, 0x907fff),
             "plain high-level address reads do not acquire an invented open-bus value");
-        // ROM oracle for the typed glitched palette: colour c is the word whose low byte is the
+        // ROM oracle for the installed Chainsaw colours (#1500): colour c is the word whose low byte is the
         // byte before Samus_Animate's byte 2c (the open-bus pointer bank for colour zero) and
         // whose high byte is Samus_Animate's byte 2c, kept as CGRAM keeps it.
+        ChainsawBeamColours<RgbColor> chainsaw = InstalledFixtures.SamusOverreads.ChainsawColours;
+        AssertEqual(BeamPaletteDefinitions.ColorCount, chainsaw.Colours.Count, "the installed Chainsaw palette holds a beam palette's colours");
         for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)
         {
             int highByteAddress = ChainsawBeamGraphicsDefinitionsConstants.InstructionAddress + color * 2;
@@ -32,10 +34,13 @@ internal static class InvalidBeamGraphicsVerification
                 ? ChainsawBeamGraphicsDefinitionsConstants.OpenBusByte
                 : bus.ReadCartridgeByte(highByteAddress - 1);
             RgbColor native = RgbColor.FromWordIgnoringTopBit(LittleEndianBytes.Word(low, bus.ReadCartridgeByte(highByteAddress)));
-            AssertEqual(native, ChainsawBeamGraphicsDefinitions.Colours[color],
+            AssertEqual(native, chainsaw.Colours[color],
                 $"Chainsaw palette colour {color} is the open-bus byte and Samus_Animate's instruction bytes as CGRAM keeps them");
         }
         var artwork = InstalledFixtures.Projectiles.BeamTiles;
+        AssertThrows<InvalidOperationException>(
+            () => SamusProjectileSystem.LoadBeamPalette(new SamusColourRig().Samus.Beam, ChainsawBeamGraphicsDefinitions.Selection, artwork.Palettes, null),
+            "the Chainsaw beam's palette needs the installed Chainsaw colours");
         AssertTrue(artwork.TryResolve(ChainsawBeamGraphicsDefinitionsConstants.TileSource, 256, out var legacyTiles),
             "restored native Chainsaw DMA resolves through installed artwork");
         AssertTrue(legacyTiles.Span.SequenceEqual(artwork.Resolve(InstalledArtworkId.BeamChainsawTiles).Span),
@@ -44,7 +49,7 @@ internal static class InvalidBeamGraphicsVerification
         for (ushort beam = 0; beam < 12; beam++)
         {
             var ordinary = new SamusColourRig();
-            SamusProjectileSystem.LoadBeamPalette(ordinary.Samus.Beam, (SamusBeamFlags)beam, artwork.Palettes);
+            SamusProjectileSystem.LoadBeamPalette(ordinary.Samus.Beam, (SamusBeamFlags)beam, artwork.Palettes, InstalledFixtures.SamusOverreads.ChainsawColours);
             int table = SamusSourceDefinitions.PalettePointers.Value + beam * 2;
             int source = (int)new SnesAddress(0x90, LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, table), CpuBusRegionRead.Read(bus, table + 1)));
             for (int color = 0; color < 16; color++)
@@ -57,7 +62,7 @@ internal static class InvalidBeamGraphicsVerification
             0x8067, 0x1cad, 0xc90a, 0x004d, 0x19f0, 0x4ec9, 0xf000, 0xad14];
         {
             var cgram = new SamusColourRig();
-            SamusProjectileSystem.LoadBeamPalette(cgram.Samus.Beam, (SamusBeamFlags)0x000d, artwork.Palettes);
+            SamusProjectileSystem.LoadBeamPalette(cgram.Samus.Beam, (SamusBeamFlags)0x000d, artwork.Palettes, InstalledFixtures.SamusOverreads.ChainsawColours);
             // The page Chainsaw's equipped word binds shows the bytes its native DMA reads.
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
                 InstalledFixtures.Projectiles.TrailTiles);

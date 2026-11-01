@@ -266,7 +266,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // Setup performs the ordinary beam palette load before copying the full intro palette, which
         // replaces it; the flashback projectile pages bind the beam's characters.
-        SamusProjectileSystem.LoadBeamPalette(palette.Colours(ScreenColourGroup.SamusBeams), equippedBeams: 0, beamPalettes);
+        SamusProjectileSystem.LoadBeamPalette(palette.Colours(ScreenColourGroup.SamusBeams), equippedBeams: 0, beamPalettes, samusOverreads.ChainsawColours);
         characterArtwork.Palette.LoadTo(palette);
 
         // The loads above are invisible: the intro stays black until its fade.

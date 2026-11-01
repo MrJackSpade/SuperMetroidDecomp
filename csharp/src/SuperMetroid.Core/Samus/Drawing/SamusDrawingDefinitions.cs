@@ -10,8 +10,11 @@ public static class SamusDrawingDefinitions
     /// <summary>How many vertical offsets each of Samus's body offset lists holds.</summary>
     public static class BodyOffsets
     {
-            /// <summary>Sixteen landing bytes plus the adjacent byte read by the final unaligned word.</summary>
-            public const int LandingVerticalOffsetByteCount = 17;
+            /// <summary>
+            /// Four landing poses with four visual offset bytes each. The game reads each as the low byte of a word whose
+            /// high byte, the next landing byte or the byte after the table, the drawn position never shows (#1500).
+            /// </summary>
+            public const int LandingVerticalOffsetByteCount = 16;
             /// <summary>Twelve transition poses with two visual offset bytes each.</summary>
             public const int PostureTransitionVerticalOffsetByteCount = 24;
             /// <summary>Contiguous drained-body visual offset interval.</summary>

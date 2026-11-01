@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Abilities;
@@ -21,6 +22,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusOverreadDecoding
 {
+    /// <summary>
+    /// The drained poses a Shinespark crash can finish in: Mother Brain's drain replaces the crash pose with a drained
+    /// crouch while the crash keeps running.
+    /// </summary>
+    internal static readonly SamusPoseId[] DrainedCrashPoses = [SamusPoseId.DrainedCrouchingRightPose, SamusPoseId.DrainedCrouchingLeftPose];
+
     /// <summary>Decodes every glitch read into the installed document.</summary>
     internal static SamusOverreadDocument Decode(IImportCartridgeSource cartridge)
     {
@@ -34,7 +41,10 @@ internal static class SamusOverreadDecoding
             ChainsawFuseLandings(lists),
             ChargeFlareDelaysBelowPrograms(cartridge),
             PostureAdmissions(cartridge),
-            SpeedBoosterOverrunColours(cartridge));
+            SpeedBoosterOverrunColours(cartridge),
+            UnauthoredBeamLaunchSpeeds(cartridge),
+            DrainedCrashDepartures(cartridge),
+            ChainsawPaletteColours(cartridge));
     }
 
     /// <summary>
@@ -300,4 +310,47 @@ internal static class SamusOverreadDecoding
             .Select(index => PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(cartridge.ReadCartridgeWord(
                 SamusOverreadSourceDefinitions.SpeedBoosterGrappleCode + index * RgbColor.ByteCount))))],
     };
+
+    /// <summary>
+    /// The speeds each Spazer and Plasma combination launches at: the beam initializer reads a cardinal then a diagonal
+    /// word at four bytes per combination from the speed table's start, so these combinations read the words after the
+    /// table's twelve rows.
+    /// </summary>
+    private static Dictionary<string, SamusOverreadDocument.LaunchSpeeds> UnauthoredBeamLaunchSpeeds(IImportCartridgeSource cartridge) =>
+        Enum.GetValues<SamusBeamCombination>()
+            .Where(beams => !beams.IsRetail)
+            .ToDictionary(beams => beams.ToString(), beams =>
+            {
+                int row = SamusOverreadSourceDefinitions.BeamSpeedTable + beams.TableIndex * 2 * sizeof(ushort);
+                return new SamusOverreadDocument.LaunchSpeeds(
+                    unchecked((short)cartridge.ReadCartridgeWord(row)),
+                    unchecked((short)cartridge.ReadCartridgeWord(row + sizeof(ushort))));
+            });
+
+    /// <summary>
+    /// The angles a crash finishing in each drained pose releases its echoes at: the crash's end reads two angle bytes at
+    /// the pose's distance from the first crash pose, so a drained pose reads past the table's six pairs.
+    /// </summary>
+    private static Dictionary<string, SamusOverreadDocument.CrashDepartures> DrainedCrashDepartures(IImportCartridgeSource cartridge) =>
+        DrainedCrashPoses.ToDictionary(pose => pose.ToString(), pose =>
+        {
+            int pair = SamusOverreadSourceDefinitions.CrashDepartureTable +
+                SamusPoseNumbering.Offset(pose, SamusPoseId.ShinesparkHorizontalRightPose) * 2;
+            return new SamusOverreadDocument.CrashDepartures(cartridge.ReadCartridgeByte(pair), cartridge.ReadCartridgeByte(pair + 1));
+        });
+
+    /// <summary>
+    /// The Chainsaw beam's sixteen colours: the loader copies sixteen words from the place it reads past the palette
+    /// table, whose first byte answers with the open bus and whose other bytes are Samus_Animate's code. The palette keeps
+    /// each word without its top bit.
+    /// </summary>
+    private static PaletteRgb5[] ChainsawPaletteColours(IImportCartridgeSource cartridge) =>
+        [.. Enumerable.Range(0, ChainsawBeamColours<RgbColor>.ColourCount).Select(colour =>
+        {
+            int place = SamusOverreadSourceDefinitions.ChainsawPaletteStart + colour * RgbColor.ByteCount;
+            ushort word = colour == 0
+                ? unchecked((ushort)(SamusOverreadSourceDefinitions.ChainsawPaletteOpenBusByte | cartridge.ReadCartridgeByte(place + 1) << 8))
+                : cartridge.ReadCartridgeWord(place);
+            return PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
+        })];
 }

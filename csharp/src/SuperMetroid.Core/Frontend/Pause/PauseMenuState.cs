@@ -670,8 +670,15 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             return;
         if (dispatchedCategory == PauseEquipmentCategory.Beams && samus.CollectedBeams == SamusBeamFlags.None)
             return;
+        // Moving into the reserve rows on the frame A is pressed toggles with the reserve category, whose equipment and
+        // label tables hold no entries: the game takes the scratch words it has just written as the equipment word, its
+        // mask and the label to copy, and writes to wherever they then point in work memory. What it overwrites depends
+        // on scratch left by unrelated code, which only full memory emulation could reproduce, so the toggle is
+        // rejected under the emulation scope limit (#1500).
         if (SelectedCategory == PauseEquipmentCategory.Reserves)
-            throw new NotSupportedException("A same-frame equipment toggle into the reserve rows reads past the equipment tables; that read is not reproduced.");
+            throw new NotSupportedException(
+                "A same-frame equipment toggle into the reserve rows writes work memory through stale scratch words; " +
+                "reproducing it needs full memory emulation, which is outside the port's scope.");
 
         // Dispatch precedes movement. Boots->Plasma therefore retains the Boots copy
         // length and bypasses the Weapons handler's Spazer/Plasma exclusion. Do not use

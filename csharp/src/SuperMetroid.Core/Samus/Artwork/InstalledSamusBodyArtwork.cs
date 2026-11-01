@@ -17,7 +17,7 @@ public abstract class InstalledSamusBodyArtwork
 
     /// <summary>Pose art-origin edits independent of physical collision offsets.</summary>
     internal readonly Dictionary<int, int> graphicsYOffsets;
-    /// <summary>Edited landing visual bytes, including an adjacent unaligned-read byte.</summary>
+    /// <summary>Edited landing visual bytes.</summary>
     internal readonly Dictionary<int, int> landingYOffsets;
     /// <summary>The installed posture-transition art offsets.</summary>
     private readonly sbyte[] postureYOffsets;
@@ -100,7 +100,7 @@ public abstract class InstalledSamusBodyArtwork
     public ReadOnlySpan<int> GraphicsYOffsets => graphicsYOffsetsTable ??= Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset(SamusPoseNumbering.FromNumber(index))).ToArray();
     /// <summary>The materialized <see cref="GraphicsYOffsets"/>; the installed tables never change after construction.</summary>
     private int[]? graphicsYOffsetsTable;
-    /// <summary>The landing table, including the one adjacent byte read by an unaligned word.</summary>
+    /// <summary>The landing table: four bytes for each landing pose.</summary>
     public ReadOnlySpan<int> LandingYOffsets => landingYOffsetsTable ??= Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount).Select(LandingByte).ToArray();
     /// <summary>The materialized <see cref="LandingYOffsets"/>; the installed tables never change after construction.</summary>
     private int[]? landingYOffsetsTable;
@@ -112,18 +112,22 @@ public abstract class InstalledSamusBodyArtwork
     private int LandingByte(int index) => landingYOffsets.ContainsKey(index)
         ? landingYOffsets[index] : SamusBodyPlacements.LandingSourceIndex(index) == index
             ? SamusBodyPlacements.DefaultLandingByte(index) : LandingByte(SamusBodyPlacements.LandingSourceIndex(index));
-    /// <summary>Attempts to read the unaligned landing-offset word at a byte index.</summary>
-    /// <param name="index">The starting byte index.</param>
-    /// <param name="value">Receives the little-endian landing-offset word.</param>
-    /// <returns><see langword="true"/> when two bytes are available.</returns>
+    /// <summary>
+    /// Attempts to read the landing visual offset at a byte index. The game reads a word there, but only its low byte
+    /// reaches the drawn position, so the next landing byte, and for the last frame the byte after the table, are not
+    /// read (#1500).
+    /// </summary>
+    /// <param name="index">The byte index: four per landing pose, then the animation frame.</param>
+    /// <param name="value">Receives the unsigned landing offset, 0 through 255 pixels upward.</param>
+    /// <returns><see langword="true"/> when the index is in range.</returns>
     public bool TryLandingYOffset(int index, out int value)
     {
-        if ((uint)index >= SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount - 1)
+        if ((uint)index >= SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount)
         {
             value = 0;
             return false;
         }
-        value = LittleEndianWord.Unsigned(LandingByte(index), LandingByte(index + 1));
+        value = LandingByte(index);
         return true;
     }
     /// <summary>Attempts to read a signed posture-transition art offset.</summary>

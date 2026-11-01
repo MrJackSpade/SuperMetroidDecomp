@@ -132,7 +132,7 @@ internal static class ProjectileTrailCoordinatesVerification
             };
             spawn(shot);
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
-            if (!TrailSpawnDraws(type, lists, offsets, y))
+            if (!TrailSpawnDraws(lists, offsets, y))
             {
                 AssertTrue(actual.Left.FrameHold.IsZero, $"type ${type:X4} direction {direction} frame {frame} draws no trail");
                 cases++;
@@ -162,7 +162,7 @@ internal static class ProjectileTrailCoordinatesVerification
             };
             spawn(shot);
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
-            if (offsets is not { } list || !TrailSpawnDraws(type, lists, list, y))
+            if (offsets is not { } list || !TrailSpawnDraws(lists, list, y))
             {
                 AssertTrue(actual.Left.FrameHold.IsZero, $"reflected type ${type:X4} direction {direction} draws no trail");
                 cases++;
@@ -198,21 +198,12 @@ internal static class ProjectileTrailCoordinatesVerification
     }
 
     /// <summary>
-    /// Whether a trail for <paramref name="type"/> draws from the record at <paramref name="y"/>: both programs are
-    /// selected, the direction entry names a placement list, and the record lies in the cartridge. A read into
-    /// direct-page scratch draws no trail instead (#1318).
+    /// Whether a trail draws from the record at <paramref name="y"/>: the direction entry names a placement list, and the
+    /// record lies in the cartridge. A read into direct-page scratch draws no trail instead (#1318). Every shot that
+    /// trails selects both programs within the selector tables (#1500).
     /// </summary>
-    private static bool TrailSpawnDraws(ushort type, Dictionary<ushort, ProjectileTrailPlacementList> lists, ushort list, ushort y) =>
-        TrailProgramsSelected(type) && lists.ContainsKey(list) && RecordIsCartridge(y);
-
-    /// <summary>Whether <paramref name="type"/> selects both trail programs.</summary>
-    private static bool TrailProgramsSelected(ushort type)
-    {
-        int family = LittleEndianBytes.HighByte(type);
-        int index = family == 0 ? type & 63 : family + 31;
-        return ProjectileTrailSelection.Select(index, HorizontalDirection.Left) is not null &&
-            ProjectileTrailSelection.Select(index, HorizontalDirection.Right) is not null;
-    }
+    private static bool TrailSpawnDraws(Dictionary<ushort, ProjectileTrailPlacementList> lists, ushort list, ushort y) =>
+        lists.ContainsKey(list) && RecordIsCartridge(y);
 
     /// <summary>Every projectile type $90:BE17 can reflect, with its bank-$93 data table and index.</summary>
     private static IEnumerable<ReflectableTrailTypesResult> ReflectableTrailTypes()

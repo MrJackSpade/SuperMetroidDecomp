@@ -20,15 +20,14 @@ internal static class SamusBodyPlacements
     /// <summary>Landing left-facing copies use their right-facing row; each source default follows the named landing/recovery phase.</summary>
     internal static int LandingSourceIndex(int index)
     {
-        if ((uint)index > LandingDataBytes) throw new ArgumentOutOfRangeException(nameof(index));
-        return index == LandingDataBytes ? index : index / (2 * LandingPoseBytes) * (2 * LandingPoseBytes) + index % LandingPoseBytes;
+        if ((uint)index >= LandingDataBytes) throw new ArgumentOutOfRangeException(nameof(index));
+        return index / (2 * LandingPoseBytes) * (2 * LandingPoseBytes) + index % LandingPoseBytes;
     }
 
-    /// <summary>Named landing compression, standing recovery, inactive padding and adjacent instruction observation.</summary>
+    /// <summary>Named landing compression, standing recovery and inactive padding.</summary>
     internal static int DefaultLandingByte(int index)
     {
         int source = LandingSourceIndex(index);
-        if (source == LandingDataBytes) return AdjacentLandingPlb;
         bool spin = source >= 2 * LandingPoseBytes;
         int frame = source % LandingPoseBytes;
         int recoveryFrame = spin ? 2 : 1;

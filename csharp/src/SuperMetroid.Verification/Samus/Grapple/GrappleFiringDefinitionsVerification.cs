@@ -38,11 +38,11 @@ internal static class GrappleFiringDefinitionsVerification
         var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose });
         var grapple = samus.Grapple;
         var stockFlare = grapple.FlarePlacement;
-        var editedFlare = ChargeFlarePlacements.Load(new MemoryStream(
-            ChargeFlarePlacements.Write(new()
+        var editedFlare = ChargeFlarePlacements.LoadGrapple(new MemoryStream(
+            ChargeFlarePlacements.WriteGrapple(new()
             {
                 Version = ChargeFlarePlacementDefinitions.Version,
-                Offsets = RunningStates.SelectMany(running => Enumerable.Range(0, 16)
+                Offsets = RunningStates.SelectMany(running => Enumerable.Range(0, ChargeFlarePlacementDefinitions.DirectionCount)
                     .Select(direction => new EditedFlare(running, direction))).ToDictionary(
                         entry => ChargeFlarePlacementOffsets.Key(entry.Running, entry.Direction),
                         _ => new ChargeFlareOffset { X = 0x55aa, Y = 0x55aa }),

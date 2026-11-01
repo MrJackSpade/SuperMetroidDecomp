@@ -4,12 +4,12 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Extracts Grapple visual offsets, including adjacent-row results for nibble directions, not physical hand origins.</summary>
+/// <summary>Extracts Grapple visual offsets for the ten named aiming directions, not physical hand origins.</summary>
 public static class GrappleFlarePlacementExtractor
 {
-    /// <summary>Exports Grapple's standing and running visual flare offsets for all sixteen low-nibble direction selectors.</summary>
-    /// <param name="bus">Import-capable cartridge source for $9B:C14A/C15E and $9B:C19A/C1AE, including bounded reads into adjacent rows for selectors 10..15.</param>
-    /// <returns>A new UTF-8 JSON buffer with thirty-two movement-mode/direction keys and signed pixel X/Y offsets from Samus's drawing origin.</returns>
+    /// <summary>Exports Grapple's standing and running visual flare offsets for the ten named aiming directions.</summary>
+    /// <param name="bus">Import-capable cartridge source for $9B:C14A/C15E and $9B:C19A/C1AE.</param>
+    /// <returns>A new UTF-8 JSON buffer with twenty movement-mode/direction keys and signed pixel X/Y offsets from Samus's drawing origin.</returns>
     /// <remarks>Uses the shared charge-flare placement schema, but reads Grapple's tables rather than beam-charge origins; physical hand/beam origins are not exported.</remarks>
     /// <exception cref="ArgumentException"><paramref name="bus"/> does not provide cartridge import access, including null.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
@@ -26,6 +26,6 @@ public static class GrappleFlarePlacementExtractor
                 Y = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), y + direction * 2)),
             });
         }
-        return ChargeFlarePlacements.Write(new() { Version = ChargeFlarePlacementDefinitions.Version, Offsets = offsets });
+        return ChargeFlarePlacements.WriteGrapple(new() { Version = ChargeFlarePlacementDefinitions.Version, Offsets = offsets });
     }
 }

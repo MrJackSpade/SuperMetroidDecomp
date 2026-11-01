@@ -32,7 +32,10 @@ internal static class SamusOverreadServicesReader
             ChainsawFuseShift(Require(document.ChainsawFuseLandings, nameof(document.ChainsawFuseLandings))),
             ChargeFlareDelays(Require(document.ChargeFlareDelaysBelowPrograms, nameof(document.ChargeFlareDelaysBelowPrograms))),
             PostureAdmission(Require(document.PostureAdmissions, nameof(document.PostureAdmissions))),
-            SpeedBoosterColours(Require(document.SpeedBoosterOverrunColours, nameof(document.SpeedBoosterOverrunColours))));
+            SpeedBoosterColours(Require(document.SpeedBoosterOverrunColours, nameof(document.SpeedBoosterOverrunColours))),
+            UnauthoredBeamSpeeds(Require(document.UnauthoredBeamLaunchSpeeds, nameof(document.UnauthoredBeamLaunchSpeeds))),
+            DrainedCrashDepartures(Require(document.DrainedCrashDepartures, nameof(document.DrainedCrashDepartures))),
+            ChainsawColours(Require(document.ChainsawBeamColours, nameof(document.ChainsawBeamColours))));
     }
 
     /// <summary>Every pose with an animation program and its program's successor.</summary>
@@ -183,6 +186,48 @@ internal static class SamusOverreadServicesReader
             throw new InvalidDataException($"Samus overread file holds colours for {colours.Count} Speed Booster steps, not {result.Count}.");
         return new(result);
     }
+
+    /// <summary>The launch speeds of every Spazer and Plasma combination, which the beam speed table does not author.</summary>
+    private static UnauthoredBeamLaunchSpeeds<SamusBeamCombination> UnauthoredBeamSpeeds(
+        IReadOnlyDictionary<string, SamusOverreadDocument.LaunchSpeeds> speeds)
+    {
+        var cardinal = new Dictionary<SamusBeamCombination, int>();
+        var diagonal = new Dictionary<SamusBeamCombination, int>();
+        foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>().Where(beams => !beams.IsRetail))
+        {
+            if (!speeds.TryGetValue(beams.ToString(), out SamusOverreadDocument.LaunchSpeeds? pair) || pair is null ||
+                pair.Cardinal is < short.MinValue or > short.MaxValue || pair.Diagonal is < short.MinValue or > short.MaxValue)
+                throw new InvalidDataException($"Samus overread file holds no valid launch speeds for {beams}.");
+            cardinal.Add(beams, pair.Cardinal);
+            diagonal.Add(beams, pair.Diagonal);
+        }
+        if (speeds.Count != cardinal.Count)
+            throw new InvalidDataException($"Samus overread file holds launch speeds for {speeds.Count} combinations, not {cardinal.Count}.");
+        return new(cardinal, diagonal);
+    }
+
+    /// <summary>The echo angles of a crash finishing in each drained pose a crash can finish in.</summary>
+    private static DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> DrainedCrashDepartures(
+        IReadOnlyDictionary<string, SamusOverreadDocument.CrashDepartures> departures)
+    {
+        var result = new Dictionary<SamusPoseId, ShinesparkDepartureAngles>();
+        foreach (SamusPoseId pose in SamusOverreadDecoding.DrainedCrashPoses)
+        {
+            if (!departures.TryGetValue(pose.ToString(), out SamusOverreadDocument.CrashDepartures? pair) || pair is null ||
+                pair.First is < 0 or > byte.MaxValue || pair.Second is < 0 or > byte.MaxValue)
+                throw new InvalidDataException($"Samus overread file holds no valid crash departures for {pose}.");
+            result.Add(pose, ShinesparkEchoDefinitions.Departure(pair.First, pair.Second));
+        }
+        if (departures.Count != result.Count)
+            throw new InvalidDataException($"Samus overread file holds crash departures for {departures.Count} poses, not {result.Count}.");
+        return new(result);
+    }
+
+    /// <summary>The Chainsaw beam's sixteen colours.</summary>
+    private static ChainsawBeamColours<RgbColor> ChainsawColours(IReadOnlyList<PaletteRgb5> colours) =>
+        colours.Count == ChainsawBeamColours<RgbColor>.ColourCount
+            ? new([.. colours.Select(colour => colour.ToRgbColor())])
+            : throw new InvalidDataException($"Samus overread file holds {colours.Count} Chainsaw beam colours, not {ChainsawBeamColours<RgbColor>.ColourCount}.");
 
     /// <summary>A sparkle's signed offset from its projectile, -128 through 127 pixels.</summary>
     private static Offset16<RoomPixels> Sparkle(Offset16<RoomPixels> offset) => new(SparkleOffset(offset.X), SparkleOffset(offset.Y));

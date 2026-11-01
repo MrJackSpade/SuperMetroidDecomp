@@ -50,14 +50,28 @@ internal static class BeamSpeedRowsVerification
             AssertEqual(unchecked((short)(x + ax)), shot.Velocity.X.SignedRawValue, $"beam {combination} direction {direction} native speed-row X");
             AssertEqual(unchecked((short)(y + ay)), shot.Velocity.Y.SignedRawValue, $"beam {combination} direction {direction} native speed-row Y");
         }
-        // Unlike the twelve identical authored rows, C..F overread different adjacent
-        // words. Exercise the actual initializer to detect a dropped combination index.
-        var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
+        // Unlike the twelve identical authored rows, the Spazer and Plasma combinations C..F read different words past
+        // the speed table, which the installed service holds (#1500). Each pair is the two words at its four-byte row.
+        UnauthoredBeamLaunchSpeeds<SamusBeamCombination> unauthored = InstalledFixtures.SamusOverreads.UnauthoredBeamSpeeds;
+        foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
+        {
+            int row = 0x90c2d1 + beams.TableIndex * 4;
+            if (beams.IsRetail)
+            {
+                AssertThrows<ArgumentOutOfRangeException>(() => unauthored.Speed(beams, diagonal: false), $"{beams}'s authored speeds are not read past the table");
+                continue;
+            }
+            AssertEqual((int)unchecked((short)retail.ReadCartridgeWord(row)), unauthored.Speed(beams, diagonal: false), $"{beams} cardinal speed read past the table");
+            AssertEqual((int)unchecked((short)retail.ReadCartridgeWord(row + 2)), unauthored.Speed(beams, diagonal: true), $"{beams} diagonal speed read past the table");
+        }
+        // Exercise the actual initializer to detect a dropped combination index.
+        var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>((records, launched) =>
+            BeamFiring.InitializePowerBeamVelocity(records, launched, unauthored));
         var stationary = new ProjectileInheritanceRecords();
-        for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
+        for (int address = 0x90c303; address < 0x90c37b; address += 2)
             AssertEqual(retail.ReadCartridgeWord(address), SamusProjectileAccelerations.ReadWord(address - SamusSourceDefinitionsConstants.FiringTables.Value),
-                "All 85 compiled motion words match the pinned ROM without authored reads");
-        foreach (int address in new[] { 0x908000, 0x90c2d0, 0x90c2d2, 0x90c37b, 0x90ffff })
+                "All 60 compiled acceleration words match the pinned ROM without authored reads");
+        foreach (int address in new[] { 0x908000, 0x90c2d0, 0x90c2d1, 0x90c2d2, 0x90c301, 0x90c37b, 0x90ffff })
             AssertThrows<InvalidDataException>(
                 () => SamusProjectileAccelerations.ReadWord(address - SamusSourceDefinitionsConstants.FiringTables.Value),
                 "Unknown or unaligned projectile motion address fails instead of reading adjacent ROM");
@@ -114,7 +128,7 @@ internal static class BeamSpeedRowsVerification
                 AssertEqual(y, new FixedCoordinate(owner.Position.Y.Whole, owner.Position.Y.Fraction).RawValue, "Missile Y trajectory retains fixed-point carry");
             }
         }
-        Console.WriteLine("Projectile motion definitions: 85 native words, loud non-catalog rejection, 120 beam launches, 160 indexed initializations and 120 missile trajectory frames pass with motion ROM reads forbidden.");
+        Console.WriteLine("Projectile motion definitions: 60 native acceleration words, the Spazer/Plasma launch speeds, loud non-catalog rejection, 120 beam launches, 160 indexed initializations and 120 missile trajectory frames pass with motion ROM reads forbidden.");
     }
 
     /// <summary>Forwards fixture writes while rejecting native projectile-mechanics source reads.</summary>

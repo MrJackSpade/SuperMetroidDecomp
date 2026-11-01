@@ -75,6 +75,9 @@ public sealed class SamusProjectileSystem
     /// </summary>
     internal PostureAdmissionBeyondTransitions<SamusPoseId> PostureAdmission { get; }
 
+    /// <summary>The angles a Shinespark crash finishing in a drained pose releases its echoes into these slots at.</summary>
+    internal DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> DrainedCrashDepartures { get; }
+
     /// <summary>Creates one room's five projectile slots, eighteen trail slots and the owners that run them.</summary>
     /// <param name="charge">The held beam charge, flare and charge palette, which outlive each room's projectiles.</param>
     /// <param name="overreads">The installed services reproducing the glitch reads the shots, trails and flare make.</param>
@@ -83,17 +86,18 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(overreads);
         Charge = Ensure.NotNull(charge);
         PostureAdmission = overreads.PostureAdmission;
+        DrainedCrashDepartures = overreads.DrainedCrashDepartures;
         SlotTable = new ProjectileSlotTable();
         Earthquakes = new ProjectileEarthquakes();
         ImpactAudio = new ProjectileImpactAudio();
         Animation = new ProjectileAnimation(Charge, SlotTable, overreads.ChargeFlareDelays);
         TerrainCollision = new ProjectileTerrainCollision(Animation, Earthquakes, ImpactAudio);
-        EnemyImpacts = new ProjectileEnemyImpacts(Animation, Earthquakes, SlotTable, TerrainCollision);
+        EnemyImpacts = new ProjectileEnemyImpacts(Animation, Earthquakes, SlotTable, TerrainCollision, overreads.UnauthoredBeamSpeeds);
         Trails = new ProjectileTrails(SlotTable, overreads.TrailStarts);
         Chainsaw = new ChainsawPowerBombCallback(Animation, overreads.ChainsawFuseShift);
         Shinespark = new ShinesparkEchoProjectile(Animation, SlotTable);
         Combos = new BeamCombos(Animation, Charge, SlotTable, Trails, overreads.SpaceTimeOverwrite);
-        Firing = new BeamFiring(Animation, Charge, Combos, SlotTable, TerrainCollision);
+        Firing = new BeamFiring(Animation, Charge, Combos, SlotTable, TerrainCollision, overreads.UnauthoredBeamSpeeds);
         Motion = new ProjectileMotion(Animation, SlotTable, TerrainCollision, Trails);
     }
 
@@ -147,21 +151,27 @@ public sealed class SamusProjectileSystem
     public static void LoadBeamPalette(
         ColourRun beam,
         SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams,
-        SuperMetroid.Core.Samus.Artwork.InstalledBeamPalettes? palettes) =>
-        LoadBeamPalette(beam, SelectedCombination(equippedBeams), palettes);
+        SuperMetroid.Core.Samus.Artwork.InstalledBeamPalettes? palettes,
+        ChainsawBeamColours<RgbColor>? chainsawColours) =>
+        LoadBeamPalette(beam, SelectedCombination(equippedBeams), palettes, chainsawColours);
 
     /// <summary>The beam combination the equipped beams select.</summary>
     private static SamusBeamCombination SelectedCombination(SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams) =>
         SamusBeamCombinations.Of(equippedBeams);
 
-    /// <summary>Loads a beam combination's final palette from installed art or the special beam definitions.</summary>
+    /// <summary>
+    /// Loads a beam combination's final palette from installed art, the Chainsaw beam's colours
+    /// <paramref name="chainsawColours"/> the installation decoded, or the SpaceTime beam's definitions.
+    /// </summary>
     public static void LoadBeamPalette(ColourRun beam,
-        SamusBeamCombination selection, SuperMetroid.Core.Samus.Artwork.InstalledBeamPalettes? palettes)
+        SamusBeamCombination selection, SuperMetroid.Core.Samus.Artwork.InstalledBeamPalettes? palettes,
+        ChainsawBeamColours<RgbColor>? chainsawColours)
     {
         switch (selection)
         {
             case ChainsawBeamGraphicsDefinitions.Selection:
-                LoadChainsawPalette(beam);
+                LoadChainsawPalette(beam, chainsawColours ?? throw new InvalidOperationException(
+                    "The Chainsaw beam's palette requires the installed Chainsaw beam colours."));
                 break;
             case SpacetimeBeamGraphicsDefinitions.Selection:
                 SpacetimeBeamGraphics.LoadPalette(beam);
@@ -180,10 +190,10 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>Writes the glitched Chainsaw beam palette's sixteen colours into the beam palette.</summary>
-    private static void LoadChainsawPalette(ColourRun beam)
+    private static void LoadChainsawPalette(ColourRun beam, ChainsawBeamColours<RgbColor> chainsawColours)
     {
-        for (int color = 0; color < ChainsawBeamGraphicsDefinitions.Colours.Count; color++)
-            beam.Write(color, ChainsawBeamGraphicsDefinitions.Colours[color]);
+        for (int color = 0; color < chainsawColours.Colours.Count; color++)
+            beam.Write(color, chainsawColours.Colours[color]);
     }
     /// <summary>
     /// Runs <c>HandleBeamChargePalettes</c> against the
@@ -506,8 +516,8 @@ public sealed class SamusProjectileSystem
                 // port cannot execute arbitrary mutable data as code; fail at the
                 // same callback-dispatch seam instead of silently substituting Wave motion.
                 throw new NotSupportedException(
-                    "Charged Chainsaw callback enters Samus's mutable state " +
-                    "as code; executing arbitrary data is not translated.");
+                    "Charged Chainsaw callback enters Samus's mutable state as code; reproducing it needs full " +
+                    "memory and processor emulation, which is outside the port's scope.");
             }
             else if (slot.FrameBehavior ==
                 SamusProjectileFrameBehavior.MurderBeamMisalignedExecution)
@@ -518,8 +528,9 @@ public sealed class SamusProjectileSystem
                 // game stops making forward progress. Keep that unsafe execution
                 // explicit instead of silently substituting ordinary beam motion.
                 throw new NotSupportedException(
-                    "Unsafe Murder Beam callback enters unrelated game code; " +
-                    "only the safe left-facing zero-list shot is translated.");
+                    "Unsafe Murder Beam callback enters the middle of unrelated game code; reproducing it needs full " +
+                    "memory and processor emulation, which is outside the port's scope. Only the safe left-facing " +
+                    "zero-list shot is translated.");
             }
 
             // Kill_Projectile replaces rather than clears a live beam. Consequently the

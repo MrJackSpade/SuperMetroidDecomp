@@ -1739,7 +1739,7 @@ internal static class LookupStream4Verification
                 var actual = SamusColourRig.Starting(filler);
                 if (edit is -1 or 0 or 575)
                     SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam,
-                        (SamusBeamFlags)((ushort)(selection | 0x1000)), selected);
+                        (SamusBeamFlags)((ushort)(selection | 0x1000)), selected, InstalledFixtures.SamusOverreads.ChainsawColours);
                 else selected.LoadTo(actual.Samus.Beam, SamusBeamCombinations.FromTableIndex(selection));
                 int pointer = 0x900000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3c9 + selection * 2));
                 // The rig composes every colour on each read, so the selection's colours are composed once and then compared.

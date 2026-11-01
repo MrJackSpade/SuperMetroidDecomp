@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
@@ -40,13 +41,13 @@ internal static class BeamPaletteArtworkVerification
             }
             var nativeQueue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expected, nativeQueue, selection);
-            SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam, (SamusBeamFlags)selection, catalog);
+            SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam, (SamusBeamFlags)selection, catalog, InstalledFixtures.SamusOverreads.ChainsawColours);
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "Extracted beam palette matches native full CGRAM including untouched neighbors");
             var document = RequiredJson.Parse(bytes);
             var red = document.Required("palettes").Required(BeamPaletteSources.Key(SamusBeamCombinations.FromTableIndex(selection))).Required(3);
             red["red"] = red.Required("red").GetValue<int>() ^ 1;
             var edited = BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
-            SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam, (SamusBeamFlags)selection, edited);
+            SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam, (SamusBeamFlags)selection, edited, InstalledFixtures.SamusOverreads.ChainsawColours);
             for (int i = 0; i < SnesCgram.ColorCount; i++)
                 AssertEqual((ushort)(expected.Colors[i].ToWord() ^ (i == SamusColourNative.BeamFirstCgram + 3 ? 1 : 0)),
                     actual.Colors[i], "Palette edit changes exactly the selected color channel bit");

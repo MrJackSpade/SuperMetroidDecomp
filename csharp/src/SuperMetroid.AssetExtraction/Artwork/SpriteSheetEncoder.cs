@@ -15,6 +15,21 @@ internal sealed class SpriteSheetEncoder : IDisposable
     /// <summary>The palette-index image of the sheet being encoded.</summary>
     private RgbaPixel[] paletteImage = [];
 
+    /// <summary>The planes a laid-out sheet is painted on before it is encoded.</summary>
+    private readonly SpriteSheetCanvas canvas = new();
+
+    /// <summary>
+    /// Paints a laid-out sheet on the reused canvas and encodes it, so a sheet that is only written needs no planes of
+    /// its own (#1490).
+    /// </summary>
+    internal EncodedSpriteSheet Encode(SpriteSheetLayout layout)
+    {
+        Ensure.NotNull(layout);
+        SpriteSheetPlanes planes = canvas.Cleared(layout.Size);
+        SpriteSheetDocument manifest = layout.Paint(planes);
+        return Encode(planes, manifest);
+    }
+
     /// <summary>Encodes one sheet's image, palette-index image and frame manifest.</summary>
     /// <param name="planes">The sheet's pixel planes.</param>
     /// <param name="manifest">The sheet's frame manifest.</param>

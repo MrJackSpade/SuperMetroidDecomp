@@ -36,7 +36,8 @@ public static class EnemySheetFiles
     {
         EnemySheetComposition composition = EnemySheetComposer.Compose(EnemySheetInputs.Load(content));
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ProvenanceFileName);
-        store.WriteAll([.. composition.Sheets.Select(entry => new NamedComposedSheet(entry.Key, entry.Value))]);
+        foreach (KeyValuePair<string, EncodedSpriteSheet> sheet in composition.Sheets)
+            store.Write(sheet.Key, sheet.Value);
         store.Finish(sourceCartridgeSha256);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(composition.Manifest, JsonOptions));

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Escape.Artwork;
+namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Editable text and overlay placement for a single escape-warning line.</summary>
 public sealed record EscapeTypewriterLineDocument

@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 

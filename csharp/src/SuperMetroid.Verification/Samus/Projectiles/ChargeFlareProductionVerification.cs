@@ -29,7 +29,7 @@ internal static class ChargeFlareProductionVerification
         InstalledSamusBodyArtwork body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentation maps)
     {
-        var placement = ChargeFlarePlacements.Load(new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
+        var placement = ChargeFlarePlacementFile.Load(new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
         int ticks = 0;
         foreach (SamusPoseId pose in new[]
         {

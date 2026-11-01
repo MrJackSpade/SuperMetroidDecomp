@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable JSON schema for displayed Grapple swing orientations; physical body offsets, facing selection, and animation timing remain engine-owned.</summary>
 public sealed record GrappleSwingFrameDocument

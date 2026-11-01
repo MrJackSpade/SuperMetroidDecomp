@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable mapping from timed projectile records to presentation-only compositions, leaving animation mechanics unchanged.</summary>
 public sealed record ProjectileFrameBindingDocument

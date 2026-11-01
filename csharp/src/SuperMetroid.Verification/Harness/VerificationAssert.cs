@@ -298,6 +298,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Harness;
 

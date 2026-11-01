@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Hud;
 

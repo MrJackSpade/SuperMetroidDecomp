@@ -59,6 +59,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -1246,7 +1247,7 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.SegmentAttributeAddress(invalid), "stream 3 rope operand address bounds");
             AssertThrows<InvalidDataException>(() => grappleSprites.Segment(invalid), "stream 3 rope attribute bounds");
         }
-        var swingFrames = InstalledGrappleSwingFrames.Load(new MemoryStream(
+        var swingFrames = GrappleSwingFrameFile.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameExtractor.Extract(rom)));
         for (int angle = 0; angle < 256; angle++)
             AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve(new ByteAngle((byte)angle)), "stream 3 native calculated swing art frame");
@@ -1256,7 +1257,7 @@ internal static class LookupStream3Verification
         {
             int original = editedFrames[editedAngle];
             editedFrames[editedAngle] = (original + 1) & 31;
-            var edited = InstalledGrappleSwingFrames.Load(new MemoryStream(InstalledGrappleSwingFrames.Write(new()
+            var edited = GrappleSwingFrameFile.Load(new MemoryStream(GrappleSwingFrameFile.Write(new()
             { Version = 1, Frames = editedFrames })));
             for (int angle = 0; angle < 256; angle++)
                 AssertEqual((byte)editedFrames[angle], edited.Resolve(new ByteAngle((byte)angle)), "stream 3 independently edited swing art frame");

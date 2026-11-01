@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
 
@@ -38,8 +39,8 @@ internal static class GrappleFiringDefinitionsVerification
         var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose });
         var grapple = samus.Grapple;
         var stockFlare = grapple.FlarePlacement;
-        var editedFlare = ChargeFlarePlacements.LoadGrapple(new MemoryStream(
-            ChargeFlarePlacements.WriteGrapple(new()
+        var editedFlare = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(
+            ChargeFlarePlacementFile.WriteGrapple(new()
             {
                 Version = ChargeFlarePlacementDefinitions.Version,
                 Offsets = RunningStates.SelectMany(running => Enumerable.Range(0, ChargeFlarePlacementDefinitions.DirectionCount)

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Stable visual-file identity for all authored timed projectile instructions.</summary>
 public static class ProjectileFrameBindingFormat

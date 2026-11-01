@@ -20,6 +20,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 using SuperMetroid.Verification.Harness;

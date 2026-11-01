@@ -5,8 +5,8 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 

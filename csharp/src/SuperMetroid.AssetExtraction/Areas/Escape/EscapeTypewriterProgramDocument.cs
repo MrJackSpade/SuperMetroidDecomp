@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Escape.Artwork;
+namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Editable ordered lines for one escape warning; the owning dictionary supplies its scenario identity.</summary>
 public sealed record EscapeTypewriterProgramDocument

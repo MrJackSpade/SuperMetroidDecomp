@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Frontend.Title;

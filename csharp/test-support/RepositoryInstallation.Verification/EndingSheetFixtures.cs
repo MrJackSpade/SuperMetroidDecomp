@@ -45,7 +45,7 @@ internal static class EndingSheetFixtures
             foreach (SpriteSheetId sheet in EndingPictureSheets)
             {
                 ComposedSpriteSheet tiles = EndingPictureSheetComposer.Compose(sheet, tileSources);
-                sheets[sheet] = SpriteSheet.Load(new MemoryStream(SpriteSheetManifestWriter.Write(tiles.Manifest), writable: false),
+                sheets[sheet] = SpriteSheetFile.Load(new MemoryStream(SpriteSheetManifestWriter.Write(tiles.Manifest), writable: false),
                     $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture-{key[..8]}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartGroups);
             }
             return new InstalledSpriteSheets(sheets);
@@ -63,7 +63,7 @@ internal static class EndingSheetFixtures
                      SpriteSheetId.EndingPlanetExplosionFloor, SpriteSheetId.EndingRewardIconFloor })
         {
             ComposedSpriteSheet tiles = FrontendFloorSheetComposer.Compose(sheet, tileSources);
-            sheets[sheet] = SpriteSheet.Load(new MemoryStream(SpriteSheetManifestWriter.Write(tiles.Manifest), writable: false),
+            sheets[sheet] = SpriteSheetFile.Load(new MemoryStream(SpriteSheetManifestWriter.Write(tiles.Manifest), writable: false),
                 $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartGroups);
         }
         return new InstalledSpriteSheets(sheets);

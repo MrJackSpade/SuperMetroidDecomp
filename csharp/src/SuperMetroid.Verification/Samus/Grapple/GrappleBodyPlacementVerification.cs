@@ -31,8 +31,8 @@ internal static class GrappleBodyPlacementVerification
                 address => $"Compiled Grapple body offset read ROM ${address:X6}.");
         var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         byte[] json = GrappleSwingFrameExtractor.Extract(rom);
-        var stock = InstalledGrappleSwingFrames.Load(new MemoryStream(json));
-        var edited = InstalledGrappleSwingFrames.Load(new MemoryStream(InstalledGrappleSwingFrames.Write(new()
+        var stock = GrappleSwingFrameFile.Load(new MemoryStream(json));
+        var edited = GrappleSwingFrameFile.Load(new MemoryStream(GrappleSwingFrameFile.Write(new()
         {
             Version = 1, Frames = Enumerable.Range(0, 256).Select(angle => (stock.Resolve(new ByteAngle((byte)angle)) + 11) & 31).ToArray(),
         })));
@@ -63,10 +63,10 @@ internal static class GrappleBodyPlacementVerification
             AssertEqual(g.RopeStart.Y, g.BeamStart.Y, "Swing Flare follows physical Start Y");
         }
         foreach (string invalid in new[] { "null", "{}", "{", "{\"version\":1,\"version\":1,\"frames\":[]}" })
-            AssertThrows<InvalidDataException>(() => InstalledGrappleSwingFrames.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid))), "Invalid swing-frame JSON rejected");
+            AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid))), "Invalid swing-frame JSON rejected");
         foreach (int invalid in new[] { -1, 32 })
-            AssertThrows<InvalidDataException>(() => InstalledGrappleSwingFrames.Write(new() { Version = 1, Frames = Enumerable.Repeat(invalid, 256).ToArray() }), "Invalid swing-frame index rejected");
-        AssertThrows<InvalidDataException>(() => InstalledGrappleSwingFrames.Write(new() { Version = 1, Frames = new int[255] }), "Incomplete swing-frame table rejected");
+            AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Write(new() { Version = 1, Frames = Enumerable.Repeat(invalid, 256).ToArray() }), "Invalid swing-frame index rejected");
+        AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Write(new() { Version = 1, Frames = new int[255] }), "Incomplete swing-frame table rejected");
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
         foreach (bool faceRight in new[] { false, true })
         for (int angle = 0; angle < 256; angle += 32)

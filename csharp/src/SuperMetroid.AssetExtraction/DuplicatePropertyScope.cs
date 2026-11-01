@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Which objects of a JSON document the duplicate-property check examines.</summary>
 internal enum DuplicatePropertyScope

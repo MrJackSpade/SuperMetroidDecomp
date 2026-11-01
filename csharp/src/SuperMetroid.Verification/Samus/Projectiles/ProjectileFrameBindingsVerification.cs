@@ -20,7 +20,7 @@ internal static class ProjectileFrameBindingsVerification
     internal static void VerifyProjectileFrameBindings(ISnesAddressSpace rom)
     {
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
-        var stock = InstalledProjectileFrameBindings.Load(new MemoryStream(stockJson, writable: false));
+        var stock = ProjectileFrameBindingFile.Load(new MemoryStream(stockJson, writable: false));
         AssertEqual(ProjectileFrameBindingFormat.FrameCount,
             SamusProjectileRecordDefinitions.TimedRecordAddresses.Count,
             "physical timed records and visual frame bindings have identical coverage");
@@ -103,8 +103,8 @@ internal static class ProjectileFrameBindingsVerification
                 !comparison.HighTable.SequenceEqual(stockOam.HighTable);
         });
         document.Frames[frameName] = ProjectileSpriteDefinitions.Name(replacement);
-        byte[] editedJson = InstalledProjectileFrameBindings.Write(document);
-        var edited = InstalledProjectileFrameBindings.Load(new MemoryStream(editedJson));
+        byte[] editedJson = ProjectileFrameBindingFile.Write(document);
+        var edited = ProjectileFrameBindingFile.Load(new MemoryStream(editedJson));
         var editedShot = new SamusProjectileSlot(0)
             { Cursor = SamusProjectileProgramAddresses.CursorAt(editedPointer), FrameHold = WrappingCountdown.Start(1), Damage = 30 };
         new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = edited } }
@@ -139,10 +139,10 @@ internal static class ProjectileFrameBindingsVerification
         AssertThrows<InvalidDataException>(() => ProjectilePresentationFiles.Load(stockDirectory, overrides),
             "invalid frame-binding override fails loudly");
         document.Frames.Remove(frameName);
-        AssertThrows<InvalidDataException>(() => InstalledProjectileFrameBindings.Write(document),
+        AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Write(document),
             "missing timed frame fails before gameplay");
         document.Frames[frameName] = "sprite_0000";
-        AssertThrows<InvalidDataException>(() => InstalledProjectileFrameBindings.Write(document),
+        AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Write(document),
             "uncatalogued sprite selection fails before gameplay");
         Console.WriteLine("Projectile frame bindings: 805 timed records, both handlers, observable OAM edit, identity, and malformed resources pass.");
     }

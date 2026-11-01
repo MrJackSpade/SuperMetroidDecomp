@@ -1,9 +1,11 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>The installed manifest of a sprite sheet: each frame's rectangle on the sheet image, origin and blending.</summary>
 public sealed record SpriteSheetDocument
 {
-    /// <summary>The manifest's schema revision, <see cref="SpriteSheet.Version"/>.</summary>
+    /// <summary>The manifest's schema revision, <see cref="SpriteSheetFile.Version"/>.</summary>
     public required int Version { get; init; }
 
     /// <summary>Which half of the colour table the sheet's palette indices and colours name.</summary>

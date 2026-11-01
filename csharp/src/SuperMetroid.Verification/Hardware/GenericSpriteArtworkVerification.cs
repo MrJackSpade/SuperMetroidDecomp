@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;

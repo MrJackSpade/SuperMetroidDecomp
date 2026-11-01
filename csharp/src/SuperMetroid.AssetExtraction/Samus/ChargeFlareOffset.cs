@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Signed whole-pixel visual muzzle displacement from Samus's render center, applied before camera subtraction and the renderer's separate pose-graphics Y adjustment.</summary>
 [SpatialComponents("External format: the placement JSON stores each muzzle displacement as signed x/y words.")]

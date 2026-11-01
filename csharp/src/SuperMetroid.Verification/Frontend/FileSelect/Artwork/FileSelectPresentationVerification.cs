@@ -11,6 +11,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.FileSelect.Artwork;
 

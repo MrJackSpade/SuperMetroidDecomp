@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks installed pause equipment base tiles through page transitions and debugger rebinding.</summary>

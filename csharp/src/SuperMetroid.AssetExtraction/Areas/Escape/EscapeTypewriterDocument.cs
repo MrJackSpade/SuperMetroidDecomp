@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Escape.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Editable warning schema containing the exact two named escape programs.</summary>
 public sealed record EscapeTypewriterDocument

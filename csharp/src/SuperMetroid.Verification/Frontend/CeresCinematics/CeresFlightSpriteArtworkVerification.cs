@@ -17,6 +17,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 

@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable JSON schema shared by beam-charge and Grapple visual flare placements; the importing resource determines source kind, and the engine retains animation and physical-origin rules.</summary>
 public sealed record ChargeFlarePlacementDocument

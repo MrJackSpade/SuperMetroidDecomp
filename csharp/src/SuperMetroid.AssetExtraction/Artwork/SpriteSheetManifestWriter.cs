@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -9,5 +8,5 @@ public static class SpriteSheetManifestWriter
 {
     /// <summary>Serializes a sheet manifest.</summary>
     public static byte[] Write(SpriteSheetDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(Ensure.NotNull(document), SpriteSheet.Options);
+        JsonSerializer.SerializeToUtf8Bytes(Ensure.NotNull(document), SpriteSheetFile.Options);
 }

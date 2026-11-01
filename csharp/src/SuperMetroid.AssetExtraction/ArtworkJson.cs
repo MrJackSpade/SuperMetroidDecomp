@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction;
 
 /// <summary>The serializer settings shared by installed artwork resources of every domain.</summary>
 public static class ArtworkJson

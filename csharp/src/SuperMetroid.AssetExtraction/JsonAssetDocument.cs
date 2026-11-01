@@ -2,8 +2,9 @@ using System.Buffers;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using SuperMetroid.Core;
 
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Rejects ambiguous authored properties before deserializing installed presentation data.</summary>
 internal static class JsonAssetDocument

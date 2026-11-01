@@ -8,8 +8,8 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 

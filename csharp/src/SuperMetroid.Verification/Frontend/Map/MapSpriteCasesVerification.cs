@@ -17,6 +17,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 

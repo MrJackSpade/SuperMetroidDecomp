@@ -10,9 +10,9 @@ using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Map;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Map.Artwork;
 
 /// <summary>Checks occupancy-derived SRAM map packing against native lists and production save/load behavior.</summary>

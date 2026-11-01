@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Hud;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Builds a constructed pause presentation from retail source data and isolated fixture visuals.</summary>

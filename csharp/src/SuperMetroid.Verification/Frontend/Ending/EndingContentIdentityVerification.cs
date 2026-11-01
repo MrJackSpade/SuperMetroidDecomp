@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;

@@ -19,6 +19,7 @@ using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks reserve tank visuals across supply, flicker, edits, restore, and health transfer.</summary>

@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightSpriteArtworkVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
@@ -22,6 +21,7 @@ using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
 /// <summary>Checks installed Ceres flight Mode 7, sprite, actor, and palette art against retail sources.</summary>

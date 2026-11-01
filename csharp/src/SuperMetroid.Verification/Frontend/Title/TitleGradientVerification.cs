@@ -20,6 +20,7 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.AssetExtraction.Video;
 using System.Collections.Immutable;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Fx.Artwork;

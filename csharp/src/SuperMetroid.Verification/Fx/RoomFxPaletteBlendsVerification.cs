@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;

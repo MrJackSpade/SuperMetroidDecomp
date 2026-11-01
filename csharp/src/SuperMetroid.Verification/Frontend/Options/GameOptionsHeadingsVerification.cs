@@ -6,9 +6,9 @@ using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Options;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>Checks the three game-options heading sprites and placement anchors against cartridge instructions.</summary>

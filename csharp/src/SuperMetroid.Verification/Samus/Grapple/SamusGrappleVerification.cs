@@ -32,9 +32,9 @@ internal static void VerifySamusGrappleSwingAndRelease()
     {
         BindSyntheticSamusRendering(bus, state);
         // Capture the fixture's currently authored visual offsets at construction time.
-        state.Grapple.FlarePlacement = ChargeFlarePlacements.LoadGrapple(
+        state.Grapple.FlarePlacement = ChargeFlarePlacementFile.LoadGrapple(
             new MemoryStream(GrappleFlarePlacementExtractor.Extract(bus)));
-        state.Grapple.SwingFrames = InstalledGrappleSwingFrames.Load(
+        state.Grapple.SwingFrames = GrappleSwingFrameFile.Load(
             new MemoryStream(GrappleSwingFrameExtractor.Extract(bus)));
     }
     SamusState CreateSamus(SamusPoseId pose, Position16<RoomPixels> position)

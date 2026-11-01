@@ -6,9 +6,9 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>Checks file-select cursor rows and helmet anchors against native geometry and extracted presentation.</summary>

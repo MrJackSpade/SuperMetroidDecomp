@@ -21,6 +21,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 

@@ -22,6 +22,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 /// <summary>Checks installed full-body palette cycles and editable shade components against the retail color tables.</summary>

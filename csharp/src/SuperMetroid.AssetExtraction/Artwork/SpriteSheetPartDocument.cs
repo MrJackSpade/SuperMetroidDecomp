@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>One part of a sprite sheet frame in its manifest: the part image it shows and where, from the frame's origin.</summary>
 public sealed record SpriteSheetPartDocument

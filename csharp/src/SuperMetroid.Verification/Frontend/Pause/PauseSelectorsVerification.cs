@@ -22,6 +22,7 @@ using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks pause equipment selector placement, animation, editable art, and restored-state rebinding.</summary>

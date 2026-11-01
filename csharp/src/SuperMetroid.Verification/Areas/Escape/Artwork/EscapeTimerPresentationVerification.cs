@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
 
 using SuperMetroid.Verification.Harness;
@@ -70,7 +71,7 @@ internal static class EscapeTimerPresentationVerification
                 nativeSecondTiles.SequenceEqual(tileAtlas.Resolve(InstalledArtworkId.EscapeTimerSecondTiles).ToArray()),
             "Mother Brain synchronous timer pages hold the installed artwork");
 
-        var presentation = EscapeTimerPresentation.Load(new MemoryStream(extracted));
+        var presentation = EscapeTimerPresentationFile.Load(new MemoryStream(extracted));
         SpriteSheet sheet = EscapeTimerDrawChecks.Sheet(bus);
         var timer = new EscapeTimer();
         timer.Clear();

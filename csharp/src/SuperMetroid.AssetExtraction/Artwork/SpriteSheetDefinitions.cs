@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Each installed sprite sheet's file name.</summary>
 public static class SpriteSheetDefinitions

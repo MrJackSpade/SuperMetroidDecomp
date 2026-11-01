@@ -7,6 +7,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -42,6 +43,9 @@ public sealed record BossSourceArtwork : BossArtworkCatalog
 
     /// <summary>Editable tile pages for Bomb and Golden Torizo's instruction-time VRAM uploads.</summary>
     public TorizoSwapArtwork? TorizoSwaps { get; init; }
+
+    /// <summary>Editable source tile sheet for Mother Brain's corpse-rotting staging.</summary>
+    public RoomCharacterAtlas? MotherBrainCorpse { get; init; }
 
     /// <summary>Editable OBJ characters for the Mother Brain escape typewriter transfer.</summary>
     public RoomCharacterAtlas? MotherBrainEscapeText { get; init; }

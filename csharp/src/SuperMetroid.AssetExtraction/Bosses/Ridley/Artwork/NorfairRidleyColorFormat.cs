@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 /// <summary>Editable visual rows; the reveal's cadence and zero terminator stay in code.</summary>
 public static class NorfairRidleyColorFormat

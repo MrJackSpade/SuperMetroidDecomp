@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 

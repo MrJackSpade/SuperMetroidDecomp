@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
 
 /// <summary>Defines the filename and schema revision for editable Draygon colors.</summary>
 public static class DraygonColorFormat

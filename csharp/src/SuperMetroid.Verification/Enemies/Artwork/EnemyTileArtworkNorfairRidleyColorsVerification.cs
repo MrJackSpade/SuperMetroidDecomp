@@ -12,11 +12,13 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Video;
+
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
 
+using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 /// <summary>Checks installed Norfair Ridley palette rows against native CGRAM writes and reveal cadence.</summary>
 internal static class EnemyTileArtworkNorfairRidleyColorsVerification
 {

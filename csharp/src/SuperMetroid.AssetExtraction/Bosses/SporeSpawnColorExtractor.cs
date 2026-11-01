@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.SporeSpawn;
-using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 

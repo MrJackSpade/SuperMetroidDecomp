@@ -15,8 +15,9 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
-
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
+
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks installed and edited Kraid RGB5 rows through the palette consumers that write CGRAM.</summary>

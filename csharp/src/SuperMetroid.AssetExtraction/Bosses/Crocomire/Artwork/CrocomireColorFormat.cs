@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 
 /// <summary>Installed filename and supported schema revision for Crocomire's bounded editable palette-transfer payloads.</summary>
 public static class CrocomireColorFormat

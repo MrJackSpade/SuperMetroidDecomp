@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Artwork;
 
 /// <summary>The frame counts of Ridley's, Draygon's and Spore Spawn's assembled sprite frames.</summary>
 internal static class BossSpriteFrameDefinitions

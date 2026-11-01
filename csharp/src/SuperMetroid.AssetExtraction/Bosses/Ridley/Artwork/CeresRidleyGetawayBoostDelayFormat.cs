@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 /// <summary>The installed file holding the Speed Booster delays the getaway's wing frames leave behind (#1338, #1479).</summary>
 public static class CeresRidleyGetawayBoostDelayFormat

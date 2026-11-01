@@ -18,6 +18,8 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Installed and edited Mother Brain room-color checks across entry, flash, phase two, and recovery-light CGRAM writes.</summary>

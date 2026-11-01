@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
 
 /// <summary>Installed filename and supported schema revision for the boss's bounded editable palette images.</summary>
 public static class SporeSpawnColorFormat

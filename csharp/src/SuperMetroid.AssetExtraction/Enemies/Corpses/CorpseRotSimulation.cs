@@ -1,11 +1,11 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
@@ -101,7 +101,7 @@ internal sealed class CorpseRotSimulation
     /// The rotting corpses among <paramref name="drawn"/>, each rotted from installed <paramref name="enemies"/> or
     /// <paramref name="bosses"/> art.
     /// </summary>
-    internal static IReadOnlyList<CorpseRotSimulation> Of(EnemyTileSourceArtwork enemies, BossArtworkCatalog bosses, IEnumerable<EnemyDefinitionId> drawn)
+    internal static IReadOnlyList<CorpseRotSimulation> Of(EnemyTileSourceArtwork enemies, BossSourceArtwork bosses, IEnumerable<EnemyDefinitionId> drawn)
     {
         Ensure.NotNull(enemies);
         Ensure.NotNull(bosses);
@@ -157,7 +157,7 @@ internal sealed class CorpseRotSimulation
     /// Mother Brain's corpse, which uploads its six rows after each rot step but the last, whose finished table returns
     /// before its uploads are queued ($A9:B1DD).
     /// </summary>
-    private static CorpseRotSimulation MotherBrain(BossArtworkCatalog bosses)
+    private static CorpseRotSimulation MotherBrain(BossSourceArtwork bosses)
     {
         RoomCharacterAtlas atlas = bosses.MotherBrainCorpse
             ?? throw new InvalidDataException($"Installed boss art holds no Mother Brain corpse ({MotherBrainCorpseArtworkDefinitions.FileName}).");
@@ -165,7 +165,7 @@ internal sealed class CorpseRotSimulation
             throw new InvalidDataException($"Installed {MotherBrainCorpseArtworkDefinitions.FileName} holds {atlas.Characters.Length} bytes, not {MotherBrainCorpseArtworkDefinitions.ByteCount}.");
         return Batch("MotherBrain", null, [.. MotherBrainCorpseArtworkDefinitions.RotRows.Select(row =>
                 new CorpseRotRow(row.Row, EnemySourceDefinitions.CorpseRottingHeap + row.RottingOffset, row.ByteCount,
-                    row.FirstCharacter * SuperMetroid.Core.Assets.SpriteArtwork.CharacterByteCount))],
+                    MotherBrainCorpseSheet.RotRowFirstCharacter(row) * SuperMetroid.Core.Assets.SpriteArtwork.CharacterByteCount))],
             new CorpseRotSchedule(MotherBrainCorpseArtworkDefinitions.PixelRowCount),
             new StagedCorpse(CorpseStaging.MotherBrain(atlas.Characters.Span), CorpseRowGeometry.MotherBrain), uploadsLastStep: false);
     }

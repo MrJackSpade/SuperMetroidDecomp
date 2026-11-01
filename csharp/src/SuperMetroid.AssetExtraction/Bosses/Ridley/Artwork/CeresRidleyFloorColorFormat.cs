@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 /// <summary>Editable color-resource filename and JSON revision, separate from zoom-state and palette-destination definitions.</summary>
 public static class CeresRidleyFloorColorFormat

@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>
 /// Mother Brain's special sprite sheets for legs, Baby, attack restoration and the exploded door: their installed

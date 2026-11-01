@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
+﻿using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
+
+namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>Cartridge values and helpers of <see cref="CrocomireBodyVisualDefinitions"/> that only verification reads.</summary>
 internal static class CrocomireBodyVisualDefinitionsConstants

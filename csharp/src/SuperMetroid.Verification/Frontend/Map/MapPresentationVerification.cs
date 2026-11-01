@@ -94,6 +94,7 @@ using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Video;
+
 namespace SuperMetroid.Verification.Frontend.Map;
 
 using SuperMetroid.Verification.Harness;
@@ -107,6 +108,7 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Hud;
 
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// <summary>Checks editable map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
 internal static class MapPresentationVerification
 {

@@ -12,6 +12,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

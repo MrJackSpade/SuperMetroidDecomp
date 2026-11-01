@@ -33,8 +33,16 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Escape.Artwork;
-
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
+
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Exports every retail room-enemy graphics sheet; user PNG overrides live outside stock content.</summary>

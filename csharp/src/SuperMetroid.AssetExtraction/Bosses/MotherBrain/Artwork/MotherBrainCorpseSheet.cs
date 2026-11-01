@@ -1,6 +1,7 @@
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using static SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainCorpseArtworkDefinitions;
 
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Lays out Mother Brain's corpse sheet: where each row's initial copy and each page begin, and which pixels each outline column shows.</summary>
 public static class MotherBrainCorpseSheet
@@ -23,4 +24,8 @@ public static class MotherBrainCorpseSheet
     /// <summary>The sprite character corpse page <paramref name="page"/> shows from.</summary>
     public static int PageFirstCharacter(int page) => (uint)page < RowCount
         ? FirstPageCharacter + page * CharactersPerPage : throw new ArgumentOutOfRangeException(nameof(page));
+
+    /// <summary>The sprite character the rotting part <paramref name="row"/> shows from: its column within its row's corpse page.</summary>
+    public static int RotRowFirstCharacter(MotherBrainCorpseRotRow row) =>
+        PageFirstCharacter(row.Row) + RightFrameColumn + row.FirstColumn;
 }

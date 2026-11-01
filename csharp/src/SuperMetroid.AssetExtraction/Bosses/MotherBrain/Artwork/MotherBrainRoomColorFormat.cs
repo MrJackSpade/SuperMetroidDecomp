@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Installation filename and compatible schema revisions for Mother Brain's room and cutscene color artwork.</summary>
 public static class MotherBrainRoomColorFormat

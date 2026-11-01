@@ -6,14 +6,13 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Artwork;
 
 /// <summary>
-/// The bosses' installed artwork beside the shared enemy sheets (#1395) that gameplay reads: Mother Brain's corpse
-/// characters and each boss's colors. Each boss reads only its own entries. The characters and frames the bosses'
-/// pre-coloured pictures and body sheets are composed from belong to the import pipeline's subclass (#1463, #1466).
+/// The bosses' installed artwork beside the shared enemy sheets (#1395) that gameplay reads: each boss's colors. Each
+/// boss reads only its own entries. The characters and frames the bosses' pre-coloured pictures and body sheets are
+/// composed from, Mother Brain's corpse characters among them, belong to the import pipeline's subclass (#1463, #1466).
 /// </summary>
 [ArchitectureReview("context-bag", "The bosses' installed artwork catalogs gameplay reads; its members are data, not services.")]
 public abstract record BossArtworkCatalog
@@ -29,9 +28,6 @@ public abstract record BossArtworkCatalog
 
     /// <summary>Installed Kraid RGB5 artwork; null only for constructed fixtures.</summary>
     public KraidColorCatalog? KraidColors { get; init; }
-
-    /// <summary>Editable source tile sheet for Mother Brain's corpse-rotting staging.</summary>
-    public RoomCharacterAtlas? MotherBrainCorpse { get; init; }
 
     /// <summary>Editable Mother Brain death-fade and exploded-door colors.</summary>
     public MotherBrainDeathColorCatalog? MotherBrainDeathColors { get; init; }

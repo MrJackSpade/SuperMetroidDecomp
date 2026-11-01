@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Whether the frames of a Mother Brain palette sequence carry a trailing rear-leg colour.</summary>
 internal enum MotherBrainTrailingColor

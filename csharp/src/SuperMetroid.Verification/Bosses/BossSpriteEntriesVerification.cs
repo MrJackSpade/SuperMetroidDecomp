@@ -24,6 +24,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Fx.Artwork;
 
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// <summary>
 /// Checks #1344: boss and scripted-actor sprite parts publish whole-frame entries over the gameplay OBJ page, and their
 /// OBJ artwork reaches that page as named owned sources rather than VRAM writes or bus addresses.

@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Video;
+
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationOracles;
@@ -18,6 +19,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape.Artwork;
 
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// <summary>Checks installed Mother Brain sprite pages, the native leg-loading records and the page selection bounds.</summary>
 internal static class MotherBrainSpecialSpriteArtworkVerification
 {

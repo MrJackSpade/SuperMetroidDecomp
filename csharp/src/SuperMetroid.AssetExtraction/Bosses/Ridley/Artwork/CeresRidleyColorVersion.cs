@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 /// <summary>Schema generations of the installed Ridley/Baby RGB5 palette document.</summary>
 public enum CeresRidleyColorVersion

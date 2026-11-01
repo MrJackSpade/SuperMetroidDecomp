@@ -3,7 +3,6 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -30,6 +29,8 @@ using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

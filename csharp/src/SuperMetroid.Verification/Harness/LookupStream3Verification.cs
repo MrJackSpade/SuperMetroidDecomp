@@ -61,6 +61,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
+
 namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Core.Progression;
@@ -76,6 +77,7 @@ using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
 {
@@ -1465,7 +1467,7 @@ internal static class LookupStream3Verification
             int nativeStaging = (int)new SnesAddress(LittleEndianBytes.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 4));
             AssertEqual(nativeStaging, EnemySourceDefinitions.CorpseRottingHeap + rotRow.RottingOffset, "stream 3 native corpse rot row source");
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 6) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
-                rotRow.FirstCharacter * 32, "stream 3 native corpse rot row placement");
+                MotherBrainCorpseSheet.RotRowFirstCharacter(rotRow) * 32, "stream 3 native corpse rot row placement");
             int pageEntry = 0xa99003 + row * 7;
             uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
             AssertEqual(source, (uint)(MotherBrainSourceDefinitions.Corpse.Characters + MotherBrainCorpseSheet.PageOffset(row)),

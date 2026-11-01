@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 

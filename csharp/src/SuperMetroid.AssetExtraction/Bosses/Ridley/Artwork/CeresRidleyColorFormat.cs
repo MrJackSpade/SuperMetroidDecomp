@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 /// <summary>Filename and schema-version identities for the installed Ridley/Baby RGB5 palette asset and its supported legacy override migrations.</summary>
 public static class CeresRidleyColorFormat

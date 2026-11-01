@@ -14,8 +14,9 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
+
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks installed Draygon palette bands against retail colors and edited intro, hurt, flash, and health CGRAM paths.</summary>

@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Installed editable pages for legs, Baby, attack restoration, and the exploded door.</summary>
 public sealed class MotherBrainSpecialSpriteArtworkCatalog

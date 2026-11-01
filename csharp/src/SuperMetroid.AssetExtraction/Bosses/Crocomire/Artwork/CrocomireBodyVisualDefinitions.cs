@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 
 /// <summary>
 /// The fifty distinct fight-body extended-frame roots selected by Crocomire's

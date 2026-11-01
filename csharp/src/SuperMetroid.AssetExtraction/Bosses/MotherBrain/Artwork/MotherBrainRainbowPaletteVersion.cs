@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Schema revisions of the editable Mother Brain rainbow palette document.</summary>
 public enum MotherBrainRainbowPaletteVersion

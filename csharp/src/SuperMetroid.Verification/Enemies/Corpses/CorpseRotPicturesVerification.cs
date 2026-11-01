@@ -61,7 +61,7 @@ internal static class CorpseRotPicturesVerification
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
         CorpseRotSimulation simulation = CorpseRotSimulation.Of(RuntimeArtworkContent.Of(runtime).EnemyTiles,
-            runtime.Enemies.BossArtworkBinding.Artwork ?? throw new InvalidOperationException("The runtime loads the boss art."), [enemy])
+            RuntimeArtworkContent.Of(runtime).BossTiles, [enemy])
             .Single(corpse => corpse.Flesh == rot.Kind.Name);
         var camera = new Position16<RoomPixels>(unchecked((ushort)(slot.Position.X.Whole - 128)), unchecked((ushort)(slot.Position.Y.Whole - 112)));
         int updates = 0, rotted = 0, painted = 0;

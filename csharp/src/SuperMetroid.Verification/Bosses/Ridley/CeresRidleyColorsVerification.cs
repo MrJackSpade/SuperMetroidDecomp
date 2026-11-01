@@ -20,6 +20,8 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Verification.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
+
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>Checks Ceres and Norfair Ridley palette installation against native CGRAM rows.</summary>

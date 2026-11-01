@@ -4,6 +4,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Compatibility;
+using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 using static SuperMetroid.AssetExtraction.CartridgeTables.CeresSourceDefinitions.FloorAnimation;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;

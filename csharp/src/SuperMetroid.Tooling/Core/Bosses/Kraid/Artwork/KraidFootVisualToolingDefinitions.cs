@@ -1,4 +1,5 @@
-﻿
+﻿using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
+
 namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>Development-tool members of <see cref="KraidFootVisualDefinitions"/>; never linked by player hosts.</summary>

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Installed filename and supported schema revision for the encounter's selected pulse and target colors.</summary>
 public static class ShitroidColorFormat

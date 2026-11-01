@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 
 /// <summary>Installed-resource identity and schema revision for Kraid's five editable color sources.</summary>
 public static class KraidColorFormat

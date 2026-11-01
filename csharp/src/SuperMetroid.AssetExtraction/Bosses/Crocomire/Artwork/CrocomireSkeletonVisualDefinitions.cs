@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 
 /// <summary>Sprite composition roots for Crocomire's falling, collapsing, stable and river skeleton.</summary>
 internal static class CrocomireSkeletonVisualDefinitions

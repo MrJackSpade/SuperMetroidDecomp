@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -17,6 +18,7 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
+using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 /// <summary>Checks installed Crocomire palette bands against native RGB5 data
 /// and live boss CGRAM writes under a cartridge-read guard.</summary>
 internal static class EnemyTileArtworkCrocomireColorsVerification

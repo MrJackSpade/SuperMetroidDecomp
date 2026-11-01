@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Installed-resource identity and schema revision for Mother Brain death and escape-door colors.</summary>
 public static class MotherBrainDeathColorFormat

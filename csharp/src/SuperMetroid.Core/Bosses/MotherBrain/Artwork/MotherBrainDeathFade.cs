@@ -26,14 +26,18 @@ internal sealed class MotherBrainDeathFade
     internal int ColorCount { get; }
 
     /// <summary>Detects whether the supplied stages follow stock interpolation or need exact storage.</summary>
-    internal MotherBrainDeathFade(RgbColor[][] frames, MotherBrainFadeTarget target, MotherBrainPalettePart part = MotherBrainPalettePart.Body)
+    /// <param name="frames">The supplied stages.</param>
+    /// <param name="last">The drained-body colours the corpse fade ends at, or null for a fade that ends at black.</param>
+    /// <param name="part">The palette part whose stock starting colours the fade compares against.</param>
+    internal MotherBrainDeathFade(RgbColor[][] frames, MotherBrainRainbowPalettePresentation.DrainedBodyColors? last,
+        MotherBrainPalettePart part = MotherBrainPalettePart.Body)
     {
         this.part = part;
         ColorCount = frames[0].Length;
         for (int color = 0; color < ColorCount; color++)
             if (frames[0][color] != MotherBrainHealthPalettePresentation.StockDeathStartColor(part, color))
             { first = frames[0]; break; }
-        last = target == MotherBrainFadeTarget.Black ? null : new MotherBrainRainbowPalettePresentation.DrainedBodyColors(frames[^1]);
+        this.last = last;
         FrameCount = frames.Length;
         for (int frame = 0; frame < FrameCount; frame++)
         for (int color = 0; color < ColorCount; color++)

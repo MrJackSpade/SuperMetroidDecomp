@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 
 /// <summary>Names and versions the editable Botwoon health-color asset.</summary>
 public static class BotwoonColorFormat

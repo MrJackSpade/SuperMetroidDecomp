@@ -39,7 +39,7 @@ internal static class TitlePaletteExtractor
             TitleScreenAmbientPaletteFxColorDefinition definition =
                 TitleScreenAmbientPaletteFxColorDefinitions.All.Single(
                     item => item.Owner == owner);
-            return PaletteFxColorExtraction.ReadFrames(bus, definition.Rows);
+            return PaletteFxColorExtraction.ReadFrames(bus, definition.ColorFrames);
         }
     }
 }

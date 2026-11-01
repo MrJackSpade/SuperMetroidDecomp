@@ -11,11 +11,11 @@ namespace SuperMetroid.Core.Fx.Artwork;
 internal static class LoadingPaletteColors
 {
     /// <summary>The nine records of <paramref name="suit"/>'s loading program.</summary>
-    internal static PaletteFxColorRows Rows(PaletteFxHeatSuit suit) => suit switch
+    internal static PaletteFxColorFrames ColorFrames(PaletteFxHeatSuit suit) => suit switch
     {
-        PaletteFxHeatSuit.Power => SamusLoadingSuitPaletteFxColorDefinitions.All[0].Rows,
-        PaletteFxHeatSuit.Varia => SamusLoadingSuitPaletteFxColorDefinitions.All[1].Rows,
-        PaletteFxHeatSuit.Gravity => SamusLoadingSuitPaletteFxColorDefinitions.All[2].Rows,
+        PaletteFxHeatSuit.Power => SamusLoadingSuitPaletteFxColorDefinitions.All[0].ColorFrames,
+        PaletteFxHeatSuit.Varia => SamusLoadingSuitPaletteFxColorDefinitions.All[1].ColorFrames,
+        PaletteFxHeatSuit.Gravity => SamusLoadingSuitPaletteFxColorDefinitions.All[2].ColorFrames,
         _ => throw new ArgumentOutOfRangeException(nameof(suit), suit, "Unknown loading suit."),
     };
 
@@ -24,7 +24,7 @@ internal static class LoadingPaletteColors
     {
         foreach (PaletteFxHeatSuit candidate in (ReadOnlySpan<PaletteFxHeatSuit>)[PaletteFxHeatSuit.Power, PaletteFxHeatSuit.Varia, PaletteFxHeatSuit.Gravity])
         {
-            if (Rows(candidate).TryLocate(key, out row, out slot))
+            if (ColorFrames(candidate).TryLocate(key, out row, out slot))
             {
                 suit = candidate;
                 return true;
@@ -73,7 +73,7 @@ internal static class LoadingPaletteColors
     {
         value = RgbColor.Black;
         if (!TryLocate(key, out PaletteFxHeatSuit suit, out int row, out int slot) || row is not (1 or 5 or 7)) return false;
-        PaletteFxColorRows rows = Rows(suit);
+        PaletteFxColorFrames rows = ColorFrames(suit);
         int group = row / 2;
         int shade = group == 0 ? 0 : group - 1;
         bool power = suit == PaletteFxHeatSuit.Power;
@@ -150,28 +150,28 @@ internal static class LoadingPaletteColors
     /// <summary>The loading color <paramref name="slot"/> names.</summary>
     internal static PaletteFxColorKey Key(LoadingSuitColor slot) => slot switch
     {
-        LoadingSuitColor.PowerDim1 => Rows(PaletteFxHeatSuit.Power).Color(7, 1),
-        LoadingSuitColor.PowerDim2 => Rows(PaletteFxHeatSuit.Power).Color(7, 2),
-        LoadingSuitColor.PowerBright9 => Rows(PaletteFxHeatSuit.Power).Color(1, 9),
-        LoadingSuitColor.PowerDim12 => Rows(PaletteFxHeatSuit.Power).Color(7, 12),
-        LoadingSuitColor.VariaBright10 => Rows(PaletteFxHeatSuit.Varia).Color(1, 10),
-        LoadingSuitColor.VariaBright11 => Rows(PaletteFxHeatSuit.Varia).Color(1, 11),
-        LoadingSuitColor.VariaDim12 => Rows(PaletteFxHeatSuit.Varia).Color(7, 12),
-        LoadingSuitColor.GravityDim2 => Rows(PaletteFxHeatSuit.Gravity).Color(7, 2),
+        LoadingSuitColor.PowerDim1 => ColorFrames(PaletteFxHeatSuit.Power).Color(7, 1),
+        LoadingSuitColor.PowerDim2 => ColorFrames(PaletteFxHeatSuit.Power).Color(7, 2),
+        LoadingSuitColor.PowerBright9 => ColorFrames(PaletteFxHeatSuit.Power).Color(1, 9),
+        LoadingSuitColor.PowerDim12 => ColorFrames(PaletteFxHeatSuit.Power).Color(7, 12),
+        LoadingSuitColor.VariaBright10 => ColorFrames(PaletteFxHeatSuit.Varia).Color(1, 10),
+        LoadingSuitColor.VariaBright11 => ColorFrames(PaletteFxHeatSuit.Varia).Color(1, 11),
+        LoadingSuitColor.VariaDim12 => ColorFrames(PaletteFxHeatSuit.Varia).Color(7, 12),
+        LoadingSuitColor.GravityDim2 => ColorFrames(PaletteFxHeatSuit.Gravity).Color(7, 2),
         _ => throw new ArgumentOutOfRangeException(nameof(slot), slot, "Not a calculated loading tint endpoint."),
     };
 
     /// <summary>The normal-suit color each calculated loading tint endpoint derives from.</summary>
     internal static PaletteFxColorKey NormalSource(LoadingSuitColor slot) => slot switch
     {
-        LoadingSuitColor.PowerDim1 => Rows(PaletteFxHeatSuit.Power).Color(0, 1),
-        LoadingSuitColor.PowerDim2 => Rows(PaletteFxHeatSuit.Power).Color(0, 2),
-        LoadingSuitColor.PowerBright9 => Rows(PaletteFxHeatSuit.Power).Color(0, 9),
-        LoadingSuitColor.PowerDim12 => Rows(PaletteFxHeatSuit.Power).Color(0, 12),
-        LoadingSuitColor.VariaBright10 => Rows(PaletteFxHeatSuit.Varia).Color(0, 10),
-        LoadingSuitColor.VariaBright11 => Rows(PaletteFxHeatSuit.Varia).Color(0, 11),
-        LoadingSuitColor.VariaDim12 => Rows(PaletteFxHeatSuit.Varia).Color(0, 12),
-        LoadingSuitColor.GravityDim2 => Rows(PaletteFxHeatSuit.Gravity).Color(0, 2),
+        LoadingSuitColor.PowerDim1 => ColorFrames(PaletteFxHeatSuit.Power).Color(0, 1),
+        LoadingSuitColor.PowerDim2 => ColorFrames(PaletteFxHeatSuit.Power).Color(0, 2),
+        LoadingSuitColor.PowerBright9 => ColorFrames(PaletteFxHeatSuit.Power).Color(0, 9),
+        LoadingSuitColor.PowerDim12 => ColorFrames(PaletteFxHeatSuit.Power).Color(0, 12),
+        LoadingSuitColor.VariaBright10 => ColorFrames(PaletteFxHeatSuit.Varia).Color(0, 10),
+        LoadingSuitColor.VariaBright11 => ColorFrames(PaletteFxHeatSuit.Varia).Color(0, 11),
+        LoadingSuitColor.VariaDim12 => ColorFrames(PaletteFxHeatSuit.Varia).Color(0, 12),
+        LoadingSuitColor.GravityDim2 => ColorFrames(PaletteFxHeatSuit.Gravity).Color(0, 2),
         _ => throw new ArgumentOutOfRangeException(nameof(slot), slot, "Not a calculated loading tint endpoint."),
     };
 
@@ -196,10 +196,10 @@ internal static class LoadingPaletteColors
     /// Differing custom colors remain explicit overrides before this mapping.</remarks>
     private static PaletteFxColorKey ShareSuit(PaletteFxHeatSuit suit, int row, int slot)
     {
-        if (suit == PaletteFxHeatSuit.Varia && row == 0 && slot == 0) return Rows(PaletteFxHeatSuit.Power).Color(1, 0);
+        if (suit == PaletteFxHeatSuit.Varia && row == 0 && slot == 0) return ColorFrames(PaletteFxHeatSuit.Power).Color(1, 0);
         bool distinct = suit == PaletteFxHeatSuit.Power || (suit == PaletteFxHeatSuit.Varia
             ? (row == 0 ? slot is 0 or 2 or 10 or 11 : slot is 1 or 2 or 10 or 11 or 12)
             : (row == 0 ? slot is 2 or 10 or 11 or 12 : slot is 2 or 10 or 11));
-        return Rows(distinct ? suit : PaletteFxHeatSuit.Power).Color(row, slot);
+        return ColorFrames(distinct ? suit : PaletteFxHeatSuit.Power).Color(row, slot);
     }
 }

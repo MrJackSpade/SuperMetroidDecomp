@@ -13,6 +13,6 @@ internal static class CinematicGlowPaletteFxColorDefinitionAccess
         internal int CycleFrames =>
             CinematicGlowPaletteFxColorDefinitionsConstants.FrameCount * self.FrameDuration;
         /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        public PaletteFxColorKey Color(int frame, int color) => self.Rows.Color(frame, color);
+        public PaletteFxColorKey Color(int frame, int color) => self.ColorFrames.Color(frame, color);
     }
 }

@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class PlanetZebesTextPaletteFxColorDefinitions
 {
     /// <summary>Eight brightness records per fade.</summary>
-    public static int FrameCount => All[0].Rows.FrameCount;
+    public static int FrameCount => All[0].ColorFrames.FrameCount;
 
     /// <summary>Three text colors per record.</summary>
     public const int ColorsPerFrame = 3;
@@ -29,12 +29,12 @@ public static class PlanetZebesTextPaletteFxColorDefinitions
             new()
             {
                 Owner = PlanetZebesTextPaletteFxProgramOwner.FadeIn,
-                Rows = PaletteFxColorRows.Of(PaletteFxProgram.FadeInPlanetZebesText, ColorsPerFrame),
+                ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.FadeInPlanetZebesText, ColorsPerFrame),
             },
             new()
             {
                 Owner = PlanetZebesTextPaletteFxProgramOwner.FadeOut,
-                Rows = PaletteFxColorRows.Of(PaletteFxProgram.FadeOutPlanetZebesText, ColorsPerFrame),
+                ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.FadeOutPlanetZebesText, ColorsPerFrame),
             },
         ];
 

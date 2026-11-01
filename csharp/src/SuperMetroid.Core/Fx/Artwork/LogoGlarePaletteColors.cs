@@ -20,7 +20,7 @@ internal static class LogoGlarePaletteColors
     internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
         value = RgbColor.Black;
-        if (!PostCreditsIconGlarePaletteFxColorDefinitions.Rows.TryLocate(key, out int frame, out int color) || frame == 13 ||
+        if (!PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames.TryLocate(key, out int frame, out int color) || frame == 13 ||
             !colors.TryGetValue(PostCreditsIconGlarePaletteFxColorDefinitions.Color(13, color), out RgbColor basis))
             return false;
         int t = frame < 7 ? frame + 1 : 13 - frame;

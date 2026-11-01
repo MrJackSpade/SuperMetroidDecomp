@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 internal static class TourianEscapeRedFlashPaletteFxColorDefinitionsConstants
 {
     /// <summary>Both loops contain fourteen timed records.</summary>
-    public static int FrameCount => TourianEscapeRedFlashPaletteFxColorDefinitions.All[0].Rows.FrameCount;
+    public static int FrameCount => TourianEscapeRedFlashPaletteFxColorDefinitions.All[0].ColorFrames.FrameCount;
 }

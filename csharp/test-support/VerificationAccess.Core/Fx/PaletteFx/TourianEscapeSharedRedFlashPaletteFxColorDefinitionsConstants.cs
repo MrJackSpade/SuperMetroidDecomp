@@ -16,7 +16,7 @@ internal static class TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConsta
         internal static int CycleFrames => TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConstants.CycleFrames;
     }
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => TourianEscapeSharedRedFlashPaletteFxColorDefinitions.Rows.Color(frame, color);
+    public static PaletteFxColorKey Color(int frame, int color) => TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ColorFrames.Color(frame, color);
     /// <summary>The shared loop contains fourteen records.</summary>
-    public static int FrameCount => TourianEscapeSharedRedFlashPaletteFxColorDefinitions.Rows.FrameCount;
+    public static int FrameCount => TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ColorFrames.FrameCount;
 }

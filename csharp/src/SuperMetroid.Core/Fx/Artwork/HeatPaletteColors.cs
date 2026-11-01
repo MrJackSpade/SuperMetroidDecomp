@@ -23,17 +23,17 @@ internal static class HeatPaletteColors
     /// <summary>The heat palette color <paramref name="endpoint"/> names.</summary>
     internal static PaletteFxColorKey Key(HeatPaletteEndpoint endpoint) => endpoint switch
     {
-        HeatPaletteEndpoint.Red => Rows(PaletteFxHeatSuit.Power).Color(7, 3),
-        HeatPaletteEndpoint.Mixed => Rows(PaletteFxHeatSuit.Power).Color(7, 4),
+        HeatPaletteEndpoint.Red => ColorFrames(PaletteFxHeatSuit.Power).Color(7, 3),
+        HeatPaletteEndpoint.Mixed => ColorFrames(PaletteFxHeatSuit.Power).Color(7, 4),
         _ => throw new ArgumentOutOfRangeException(nameof(endpoint), endpoint, "Not a heat palette endpoint."),
     };
 
     /// <summary>The sixteen phases of <paramref name="suit"/>'s heat program.</summary>
-    internal static PaletteFxColorRows Rows(PaletteFxHeatSuit suit) => suit switch
+    internal static PaletteFxColorFrames ColorFrames(PaletteFxHeatSuit suit) => suit switch
     {
-        PaletteFxHeatSuit.Power => PaletteFxHeatProgramMechanicsDefinitions.All[0].Rows,
-        PaletteFxHeatSuit.Varia => PaletteFxHeatProgramMechanicsDefinitions.All[1].Rows,
-        PaletteFxHeatSuit.Gravity => PaletteFxHeatProgramMechanicsDefinitions.All[2].Rows,
+        PaletteFxHeatSuit.Power => PaletteFxHeatProgramMechanicsDefinitions.All[0].ColorFrames,
+        PaletteFxHeatSuit.Varia => PaletteFxHeatProgramMechanicsDefinitions.All[1].ColorFrames,
+        PaletteFxHeatSuit.Gravity => PaletteFxHeatProgramMechanicsDefinitions.All[2].ColorFrames,
         _ => throw new ArgumentOutOfRangeException(nameof(suit), suit, "Unknown heat suit."),
     };
 
@@ -46,14 +46,14 @@ internal static class HeatPaletteColors
     /// <summary>Canonicalizes one suit's mirrored phases, shared Power slots, and constant color columns.</summary>
     private static bool TrySuit(PaletteFxColorKey key, PaletteFxHeatSuit suit, out PaletteFxColorKey canonical)
     {
-        PaletteFxColorRows rows = Rows(suit);
+        PaletteFxColorFrames rows = ColorFrames(suit);
         if (!rows.TryLocate(key, out int phase, out int color)) { canonical = default; return false; }
         int row = phase == 15 ? (suit == PaletteFxHeatSuit.Power ? 1 : 0) :
             (Math.Min(phase, 15 - phase) + 1) / 2;
         int firstPhase = row == 0 ? 0 : 2 * row - 1;
         bool sharedWithPower = suit != PaletteFxHeatSuit.Power && color is not (1 or 9 or 10) &&
             !(suit == PaletteFxHeatSuit.Gravity && row == 0 && color == 11);
-        if (sharedWithPower) rows = Rows(PaletteFxHeatSuit.Power);
+        if (sharedWithPower) rows = ColorFrames(PaletteFxHeatSuit.Power);
         if (color == 5 || (suit != PaletteFxHeatSuit.Power && color == 1)) firstPhase = 0;
         canonical = rows.Color(firstPhase, color);
         return true;
@@ -74,9 +74,9 @@ internal static class HeatPaletteColors
     {
         foreach (PaletteFxHeatSuit suit in (ReadOnlySpan<PaletteFxHeatSuit>)[PaletteFxHeatSuit.Power, PaletteFxHeatSuit.Varia, PaletteFxHeatSuit.Gravity])
         {
-            if (Rows(suit).TryLocate(key, out int phase, out int color) && phase == 0)
+            if (ColorFrames(suit).TryLocate(key, out int phase, out int color) && phase == 0)
             {
-                source = LoadingPaletteColors.Rows(suit).Color(0, color + 1);
+                source = LoadingPaletteColors.ColorFrames(suit).Color(0, color + 1);
                 return true;
             }
         }
@@ -107,13 +107,13 @@ internal static class HeatPaletteColors
     {
         value = RgbColor.Black;
         PaletteFxHeatSuit suit;
-        if (Rows(PaletteFxHeatSuit.Power).TryLocate(key, out int phase, out int color) && phase == 7 && color is 1 or 8)
+        if (ColorFrames(PaletteFxHeatSuit.Power).TryLocate(key, out int phase, out int color) && phase == 7 && color is 1 or 8)
             suit = PaletteFxHeatSuit.Power;
-        else if (Rows(PaletteFxHeatSuit.Varia).TryLocate(key, out phase, out color) && phase == 7 && color == 9)
+        else if (ColorFrames(PaletteFxHeatSuit.Varia).TryLocate(key, out phase, out color) && phase == 7 && color == 9)
             suit = PaletteFxHeatSuit.Varia;
         else
             return false;
-        PaletteFxColorKey source = Rows(suit).Color(0, color);
+        PaletteFxColorKey source = ColorFrames(suit).Color(0, color);
         if (!(colors.TryGetValue(source, out RgbColor start) || TryBaseColor(source, colors, out start))) return false;
         value = start.WithRed((start.Red + 32) / 2);
         return true;
@@ -148,7 +148,7 @@ internal static class HeatPaletteColors
         PaletteFxHeatSuit suit, int colorIndex, int roundingBias, out RgbColor value)
     {
         value = RgbColor.Black;
-        PaletteFxColorRows rows = Rows(suit);
+        PaletteFxColorFrames rows = ColorFrames(suit);
         if (!rows.TryLocate(key, out int phase, out int color) || color != colorIndex || phase is not (1 or 3 or 5)) return false;
         if (!TryInputColor(rows.Color(0, colorIndex), colors, out RgbColor start) ||
             !TryInputColor(rows.Color(7, colorIndex), colors, out RgbColor end)) return false;
@@ -169,7 +169,7 @@ internal static class HeatPaletteColors
     internal static bool TryMixedRamp(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
         value = RgbColor.Black;
-        PaletteFxColorRows rows = Rows(PaletteFxHeatSuit.Power);
+        PaletteFxColorFrames rows = ColorFrames(PaletteFxHeatSuit.Power);
         if (!rows.TryLocate(key, out int phase, out int color) || color != 4 || phase is not (1 or 3 or 5)) return false;
         if (!TryInputColor(rows.Color(0, 4), colors, out RgbColor start) ||
             !TryInputColor(rows.Color(7, 4), colors, out RgbColor end)) return false;
@@ -197,22 +197,22 @@ internal static class HeatPaletteColors
     {
         value = RgbColor.Black;
         if (!TryCanonical(key, out PaletteFxColorKey canonical) || key != canonical) return false;
-        PaletteFxColorRows power = Rows(PaletteFxHeatSuit.Power);
-        PaletteFxColorRows rows;
+        PaletteFxColorFrames power = ColorFrames(PaletteFxHeatSuit.Power);
+        PaletteFxColorFrames rows;
         int phase, index;
         if (power.TryLocate(key, out phase, out index))
         {
             rows = power;
             if (index is not (0 or 2 or 6 or 7 or 9 or 10 or 11 or 12 or 13 or 14)) return false;
         }
-        else if (Rows(PaletteFxHeatSuit.Varia).TryLocate(key, out phase, out index))
+        else if (ColorFrames(PaletteFxHeatSuit.Varia).TryLocate(key, out phase, out index))
         {
-            rows = Rows(PaletteFxHeatSuit.Varia);
+            rows = ColorFrames(PaletteFxHeatSuit.Varia);
             if (index != 10) return false;
         }
         else
         {
-            rows = Rows(PaletteFxHeatSuit.Gravity);
+            rows = ColorFrames(PaletteFxHeatSuit.Gravity);
             if (!rows.TryLocate(key, out phase, out index) || index is not (9 or 10)) return false;
         }
         if (phase == 0) return false;
@@ -227,8 +227,8 @@ internal static class HeatPaletteColors
     }
 
     /// <summary>Power phase zero, color three: the base heat color supplying <see cref="HeatPaletteEndpoint.Red"/>'s unselected channels.</summary>
-    internal static PaletteFxColorKey RedEndpointBase => Rows(PaletteFxHeatSuit.Power).Color(0, 3);
+    internal static PaletteFxColorKey RedEndpointBase => ColorFrames(PaletteFxHeatSuit.Power).Color(0, 3);
 
     /// <summary>Power phase zero, color four: the base heat color supplying <see cref="HeatPaletteEndpoint.Mixed"/>'s blue.</summary>
-    internal static PaletteFxColorKey MixedEndpointBase => Rows(PaletteFxHeatSuit.Power).Color(0, 4);
+    internal static PaletteFxColorKey MixedEndpointBase => ColorFrames(PaletteFxHeatSuit.Power).Color(0, 4);
 }

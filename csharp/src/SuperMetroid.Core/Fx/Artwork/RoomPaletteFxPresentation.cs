@@ -35,26 +35,26 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         // Collapse only values equal to the calculated row alias. Differing player
         // edits keep their original per-frame identity, including edits to base rows.
         foreach (var program in PaletteFxHeatProgramMechanicsDefinitions.All)
-        foreach (PaletteFxColorKey key in Keys(program.Rows))
+        foreach (PaletteFxColorKey key in Keys(program.ColorFrames))
         {
             if (HeatPaletteColors.TryCanonical(key, out PaletteFxColorKey canonical) &&
                 canonical != key && colors[key] == colors[canonical]) colors.Remove(key);
         }
         foreach (var program in PaletteFxHeatProgramMechanicsDefinitions.All)
-        foreach (PaletteFxColorKey key in Keys(program.Rows))
+        foreach (PaletteFxColorKey key in Keys(program.ColorFrames))
         {
             if (colors.TryGetValue(key, out RgbColor supplied) &&
                 HeatPaletteColors.TryCalculatedColor(key, colors, out RgbColor calculated) && supplied == calculated)
                 colors.Remove(key);
         }
         foreach (var program in SamusLoadingSuitPaletteFxColorDefinitions.All)
-        foreach (PaletteFxColorKey key in Keys(program.Rows))
+        foreach (PaletteFxColorKey key in Keys(program.ColorFrames))
         {
             if (LoadingPaletteColors.TryCanonical(key, out PaletteFxColorKey canonical) &&
                 canonical != key && colors[key] == colors[canonical]) colors.Remove(key);
         }
         foreach (var program in SamusLoadingSuitPaletteFxColorDefinitions.All)
-        foreach (PaletteFxColorKey key in Keys(program.Rows))
+        foreach (PaletteFxColorKey key in Keys(program.ColorFrames))
         {
             if (colors.TryGetValue(key, out RgbColor supplied) &&
                 LoadingPaletteColors.TryCalculatedColor(key, colors, out RgbColor calculated) && supplied == calculated)
@@ -62,29 +62,29 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         }
         // Only matching samples are discarded. If the player edits a base color,
         // unchanged intermediate samples that no longer fit remain explicit values.
-        foreach (PaletteFxColorKey key in Keys(PostCreditsIconGlarePaletteFxColorDefinitions.Rows, lastFrame: PostCreditsIconGlarePaletteFxColorDefinitions.FrameCount - 1))
+        foreach (PaletteFxColorKey key in Keys(PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames, lastFrame: PostCreditsIconGlarePaletteFxColorDefinitions.FrameCount - 1))
         {
             if (LogoGlarePaletteColors.TryCalculatedColor(key, colors, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
-        foreach (PaletteFxColorKey key in Keys(ZebesExplosionGunshipPaletteFxColorDefinitions.Rows, lastFrame: ZebesExplosionGunshipPaletteFxColorDefinitions.FrameCount - 1))
+        foreach (PaletteFxColorKey key in Keys(ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames, lastFrame: ZebesExplosionGunshipPaletteFxColorDefinitions.FrameCount - 1))
         {
             if (EndingGunshipPaletteColors.TryCalculatedColor(key, colors, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
         // Keep both endpoints and independent sample edits. Only values matching
         // their supplied endpoints can be reconstructed on demand.
-        foreach (PaletteFxColorKey key in Keys(TourianStatueGreyPaletteFxColorDefinitions.Rows, firstFrame: 1, lastFrame: TourianStatueGreyPaletteFxColorDefinitions.FrameCount - 1))
+        foreach (PaletteFxColorKey key in Keys(TourianStatueGreyPaletteFxColorDefinitions.ColorFrames, firstFrame: 1, lastFrame: TourianStatueGreyPaletteFxColorDefinitions.FrameCount - 1))
         {
             if (TourianStatueGreyPaint.TryCalculatedColor(key, colors, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
-        foreach (PaletteFxColorKey key in Keys(CrateriaLightningColorDefinitions.SurfaceProgram.Rows))
+        foreach (PaletteFxColorKey key in Keys(CrateriaLightningColorDefinitions.SurfaceProgram.ColorFrames))
         {
             if (CrateriaLightningColors.TryCalculatedColor(key, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
-        foreach (PaletteFxColorKey key in Keys(CrateriaLightningColorDefinitions.DarkProgram.Rows, firstFrame: 1))
+        foreach (PaletteFxColorKey key in Keys(CrateriaLightningColorDefinitions.DarkProgram.ColorFrames, firstFrame: 1))
         {
             if (CrateriaLightningColors.TryCalculatedDarkColor(key, colors, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
@@ -99,7 +99,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                 && colors[key] == calculated) colors.Remove(key);
         }
         foreach (var program in MaridiaEnvironmentalPaletteFxColorDefinitions.All)
-        foreach (PaletteFxColorKey key in Keys(program.Rows))
+        foreach (PaletteFxColorKey key in Keys(program.ColorFrames))
         {
             if (MaridiaEnvironmentalColors.TrySource(key, out PaletteFxColorKey source)
                 && source != key && colors[key] == colors[source]) colors.Remove(key);
@@ -122,11 +122,11 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
          (heatInputs.TryGetValue(canonical, out color) ||
           HeatPaletteColors.TryCalculatedColor(canonical, heatInputs, out color)));
 
-    /// <summary>Every color of <paramref name="rows"/> from <paramref name="firstFrame"/> up to <paramref name="lastFrame"/>, by row then color.</summary>
-    private static IEnumerable<PaletteFxColorKey> Keys(PaletteFxColorRows rows, int firstFrame = 0, int? lastFrame = null)
+    /// <summary>Every color of <paramref name="colorFrames"/> from <paramref name="firstFrame"/> up to <paramref name="lastFrame"/>, by framethen color.</summary>
+    private static IEnumerable<PaletteFxColorKey> Keys(PaletteFxColorFrames colorFrames, int firstFrame = 0, int? lastFrame = null)
     {
-        for (int frame = firstFrame; frame < (lastFrame ?? rows.FrameCount); frame++)
-        for (int color = 0; color < rows.ColorsPerFrame; color++)
-            yield return rows.Color(frame, color);
+        for (int frame = firstFrame; frame < (lastFrame ?? colorFrames.FrameCount); frame++)
+        for (int color = 0; color < colorFrames.ColorsPerFrame; color++)
+            yield return colorFrames.Color(frame, color);
     }
 }

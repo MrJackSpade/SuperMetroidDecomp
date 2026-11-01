@@ -17,7 +17,7 @@ public static class CrateriaEscapeLightningPaletteFxColorDefinitions
         Owner = CrateriaEscapeLightningPaletteOwner.YellowLightning,
         Object = PaletteFxObject.CrateriaEscapeYellowLightning,
         ColorsPerFrame = 11,
-        Rows = PaletteFxColorRows.Of(PaletteFxProgram.Crateria41, 11),
+        ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.Crateria41, 11),
     };
     /// <summary>The CRE pixel program targets the shared five-color tail from colour byte $AE.</summary>
     private static readonly CrateriaEscapeLightningPaletteFxColorDefinition CreBlockPixel = new()
@@ -25,7 +25,7 @@ public static class CrateriaEscapeLightningPaletteFxColorDefinitions
         Owner = CrateriaEscapeLightningPaletteOwner.CreBlockPixel,
         Object = PaletteFxObject.CrateriaEscapeCreBlockPixel,
         ColorsPerFrame = 5,
-        Rows = PaletteFxColorRows.Of(PaletteFxProgram.Crateria401, 5),
+        ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.Crateria401, 5),
     };
     /// <summary>The yellow-lightning and CRE-pixel programs in definition order.</summary>
     public static IReadOnlyList<CrateriaEscapeLightningPaletteFxColorDefinition> All { get; } = [YellowLightning, CreBlockPixel];

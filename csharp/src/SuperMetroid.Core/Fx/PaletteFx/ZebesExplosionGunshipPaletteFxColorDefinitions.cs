@@ -27,7 +27,7 @@ public static class ZebesExplosionGunshipPaletteFxColorDefinitions
     public const int ColorsPerFrame = 16;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.GunshipEmergingFromZebesExplosion, ColorsPerFrame);
+    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxProgram.GunshipEmergingFromZebesExplosion, ColorsPerFrame);
 
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
     public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);

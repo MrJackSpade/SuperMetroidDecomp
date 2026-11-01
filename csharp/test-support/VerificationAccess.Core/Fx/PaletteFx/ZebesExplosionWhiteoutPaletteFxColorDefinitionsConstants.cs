@@ -24,7 +24,7 @@ internal static class ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants
         internal static ushort WideExplosionBackgroundDefinitionPointer => ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants.WideExplosionBackgroundDefinitionPointer;
     }
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => ZebesExplosionWhiteoutPaletteFxColorDefinitions.Rows.Color(frame, color);
+    public static PaletteFxColorKey Color(int frame, int color) => ZebesExplosionWhiteoutPaletteFxColorDefinitions.ColorFrames.Color(frame, color);
     /// <summary>The shared one-shot ramp contains fifteen timed records.</summary>
-    public static int FrameCount => ZebesExplosionWhiteoutPaletteFxColorDefinitions.Rows.FrameCount;
+    public static int FrameCount => ZebesExplosionWhiteoutPaletteFxColorDefinitions.ColorFrames.FrameCount;
 }

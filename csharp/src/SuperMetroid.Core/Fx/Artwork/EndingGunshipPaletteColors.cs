@@ -25,7 +25,7 @@ internal static class EndingGunshipPaletteColors
     internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
         value = RgbColor.Black;
-        if (!ZebesExplosionGunshipPaletteFxColorDefinitions.Rows.TryLocate(key, out int frame, out int color) || frame == 15 || (frame == 7 && color == 15))
+        if (!ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames.TryLocate(key, out int frame, out int color) || frame == 15 || (frame == 7 && color == 15))
             return false;
         if (frame == 0)
         {

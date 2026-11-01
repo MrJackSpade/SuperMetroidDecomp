@@ -39,7 +39,7 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
             Colours = PaletteFxColours.BabyMetroidTubeLight,
             FrameCount = 2 * TubeDimmingSteps,
             ColorsPerFrame = TubeColourCount,
-            Rows = PaletteFxColorRows.Of(PaletteFxProgram.TitleScreenBabyMetroidTubeLight1, TubeColourCount),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.TitleScreenBabyMetroidTubeLight1, TubeColourCount),
         };
     /// <summary>The two-frame flickering displays.</summary>
     public static TitleScreenAmbientPaletteFxColorDefinition Displays { get; } =
@@ -49,7 +49,7 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
             Colours = PaletteFxColours.TitleScreenDisplays,
             FrameCount = DisplayStates,
             ColorsPerFrame = DisplayColourCount,
-            Rows = PaletteFxColorRows.Of(PaletteFxProgram.TitleScreenFlickeringDisplays1, DisplayColourCount),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.TitleScreenFlickeringDisplays1, DisplayColourCount),
         };
 
     /// <summary>The two semantic palette owners in definition order.</summary>

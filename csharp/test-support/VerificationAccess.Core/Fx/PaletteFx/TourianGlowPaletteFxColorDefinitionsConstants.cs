@@ -24,7 +24,7 @@ internal static class TourianGlowPaletteFxColorDefinitionsConstants
         internal static ushort LiveDefinitionPointer => TourianGlowPaletteFxColorDefinitionsConstants.LiveDefinitionPointer;
     }
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => TourianGlowPaletteFxColorDefinitions.Rows.Color(frame, color);
+    public static PaletteFxColorKey Color(int frame, int color) => TourianGlowPaletteFxColorDefinitions.ColorFrames.Color(frame, color);
     /// <summary>Eleven ten-frame records form one complete glow cycle.</summary>
-    public static int FrameCount => TourianGlowPaletteFxColorDefinitions.Rows.FrameCount;
+    public static int FrameCount => TourianGlowPaletteFxColorDefinitions.ColorFrames.FrameCount;
 }

@@ -23,35 +23,35 @@ internal static class RoomPaletteFxPresentationToolingExtensions
                 foreach (PaletteFxColorKey key in self.colors.Keys)
                     if (!MaridiaEnvironmentalColors.TrySource(key, out _) &&
                         !PlanetZebesTextColors.TryCoordinates(key, out _, out _, out _) &&
-                        !CrateriaLightningColorDefinitions.SurfaceProgram.Rows.TryLocate(key, out _, out _) &&
-                        !CrateriaLightningColorDefinitions.DarkProgram.Rows.TryLocate(key, out _, out _) &&
+                        !CrateriaLightningColorDefinitions.SurfaceProgram.ColorFrames.TryLocate(key, out _, out _) &&
+                        !CrateriaLightningColorDefinitions.DarkProgram.ColorFrames.TryLocate(key, out _, out _) &&
                         !HeatPaletteColors.TryCanonical(key, out _) &&
                         !LoadingPaletteColors.TryCanonical(key, out _) &&
-                        !PostCreditsIconGlarePaletteFxColorDefinitions.Rows.TryLocate(key, out _, out _) &&
-                        !ZebesExplosionGunshipPaletteFxColorDefinitions.Rows.TryLocate(key, out _, out _) &&
-                        !TourianStatueGreyPaletteFxColorDefinitions.Rows.TryLocate(key, out _, out _)) yield return key;
+                        !PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames.TryLocate(key, out _, out _) &&
+                        !ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames.TryLocate(key, out _, out _) &&
+                        !TourianStatueGreyPaletteFxColorDefinitions.ColorFrames.TryLocate(key, out _, out _)) yield return key;
                 foreach (var program in MaridiaEnvironmentalPaletteFxColorDefinitions.All)
-                    foreach (PaletteFxColorKey key in Keys(program.Rows)) yield return key;
+                    foreach (PaletteFxColorKey key in Keys(program.ColorFrames)) yield return key;
                 foreach (var program in PlanetZebesTextPaletteFxColorDefinitions.All)
-                    foreach (PaletteFxColorKey key in Keys(program.Rows)) yield return key;
-                foreach (PaletteFxColorKey key in Keys(CrateriaLightningColorDefinitions.DarkProgram.Rows)) yield return key;
-                foreach (PaletteFxColorKey key in Keys(CrateriaLightningColorDefinitions.SurfaceProgram.Rows)) yield return key;
-                foreach (PaletteFxColorKey key in Keys(TourianStatueGreyPaletteFxColorDefinitions.Rows)) yield return key;
-                foreach (PaletteFxColorKey key in Keys(ZebesExplosionGunshipPaletteFxColorDefinitions.Rows)) yield return key;
-                foreach (PaletteFxColorKey key in Keys(PostCreditsIconGlarePaletteFxColorDefinitions.Rows)) yield return key;
+                    foreach (PaletteFxColorKey key in Keys(program.ColorFrames)) yield return key;
+                foreach (PaletteFxColorKey key in Keys(CrateriaLightningColorDefinitions.DarkProgram.ColorFrames)) yield return key;
+                foreach (PaletteFxColorKey key in Keys(CrateriaLightningColorDefinitions.SurfaceProgram.ColorFrames)) yield return key;
+                foreach (PaletteFxColorKey key in Keys(TourianStatueGreyPaletteFxColorDefinitions.ColorFrames)) yield return key;
+                foreach (PaletteFxColorKey key in Keys(ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames)) yield return key;
+                foreach (PaletteFxColorKey key in Keys(PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames)) yield return key;
                 foreach (var program in SamusLoadingSuitPaletteFxColorDefinitions.All)
-                    foreach (PaletteFxColorKey key in Keys(program.Rows)) yield return key;
+                    foreach (PaletteFxColorKey key in Keys(program.ColorFrames)) yield return key;
                 foreach (var program in PaletteFxHeatProgramMechanicsDefinitions.All)
-                    foreach (PaletteFxColorKey key in Keys(program.Rows)) yield return key;
+                    foreach (PaletteFxColorKey key in Keys(program.ColorFrames)) yield return key;
             }
         }
     }
 
-    /// <summary>Every color of <paramref name="rows"/>, by row then color.</summary>
-    private static IEnumerable<PaletteFxColorKey> Keys(PaletteFxColorRows rows)
+    /// <summary>Every color of <paramref name="colorFrames"/>, by frame then color.</summary>
+    private static IEnumerable<PaletteFxColorKey> Keys(PaletteFxColorFrames colorFrames)
     {
-        for (int frame = 0; frame < rows.FrameCount; frame++)
-            for (int index = 0; index < rows.ColorsPerFrame; index++)
-                yield return rows.Color(frame, index);
+        for (int frame = 0; frame < colorFrames.FrameCount; frame++)
+            for (int index = 0; index < colorFrames.ColorsPerFrame; index++)
+                yield return colorFrames.Color(frame, index);
     }
 }

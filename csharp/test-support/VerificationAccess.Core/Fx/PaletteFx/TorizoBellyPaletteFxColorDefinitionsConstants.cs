@@ -16,5 +16,5 @@ internal static class TorizoBellyPaletteFxColorDefinitionsConstants
         internal static int CycleFrames => TorizoBellyPaletteFxColorDefinitionsConstants.CycleFrames;
     }
     /// <summary>Six timed records form one complete belly-color cycle.</summary>
-    public static int FrameCount => TorizoBellyPaletteFxColorDefinitions.All[0].Rows.FrameCount;
+    public static int FrameCount => TorizoBellyPaletteFxColorDefinitions.All[0].ColorFrames.FrameCount;
 }

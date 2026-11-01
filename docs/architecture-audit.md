@@ -261,7 +261,7 @@ reports a switch over an enum whose every arm maps a member to the member after 
 order, stepped with `EnumOrder.Next` or `EnumOrder.NextWrapping`, and a partial map lists the members that have a
 successor in one arm. **SME6430** reports a member signature carrying a tuple with three or more named elements, or a
 tuple shaped like a type Core declares; the value gets its declared type, held to the same spatial and encoding rules
-as any other. Palette-FX colour families read their rows from their programs (`PaletteFxColorRows.Of`), the rainbow-beam
+as any other. Palette-FX colour families read their frames from their programs (`PaletteFxColorFrames.Of`), the rainbow-beam
 sequence runs on Mother Brain's body functions, and timeline animations run on the one program-set engine.
 
 ## Variants are types, not tags

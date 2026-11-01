@@ -15,7 +15,7 @@ internal static class TourianStatueGreyPaint
     internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
         value = RgbColor.Black;
-        if (!TourianStatueGreyPaletteFxColorDefinitions.Rows.TryLocate(key, out int frame, out int color) || frame is 0 or 7 ||
+        if (!TourianStatueGreyPaletteFxColorDefinitions.ColorFrames.TryLocate(key, out int frame, out int color) || frame is 0 or 7 ||
             !colors.TryGetValue(TourianStatueGreyPaletteFxColorDefinitions.Color(0, color), out RgbColor first) ||
             !colors.TryGetValue(TourianStatueGreyPaletteFxColorDefinitions.Color(7, color), out RgbColor last))
             return false;

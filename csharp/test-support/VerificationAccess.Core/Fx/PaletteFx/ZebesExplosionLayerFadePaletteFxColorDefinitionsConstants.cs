@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 internal static class ZebesExplosionLayerFadePaletteFxColorDefinitionsConstants
 {
     /// <summary>Both one-shot fades contain eight timed records.</summary>
-    public static int FrameCount => ZebesExplosionLayerFadePaletteFxColorDefinitions.All[0].Rows.FrameCount;
+    public static int FrameCount => ZebesExplosionLayerFadePaletteFxColorDefinitions.All[0].ColorFrames.FrameCount;
 }

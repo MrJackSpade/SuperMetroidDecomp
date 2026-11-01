@@ -20,7 +20,7 @@ internal static class UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConsta
         internal static ushort DefinitionPointer => UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.Rows.Color(frame, color);
+    public static PaletteFxColorKey Color(int frame, int color) => UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.ColorFrames.Color(frame, color);
     /// <summary>The loop contains fourteen timed records.</summary>
-    public static int FrameCount => UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.Rows.FrameCount;
+    public static int FrameCount => UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.ColorFrames.FrameCount;
 }

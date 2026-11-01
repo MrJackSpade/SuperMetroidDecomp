@@ -11,7 +11,7 @@ internal static class PlanetZebesTextColors
     {
         foreach (var program in PlanetZebesTextPaletteFxColorDefinitions.All)
         {
-            if (program.Rows.TryLocate(key, out frame, out color))
+            if (program.ColorFrames.TryLocate(key, out frame, out color))
             {
                 owner = program.Owner;
                 return true;

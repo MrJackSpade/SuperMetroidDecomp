@@ -17,7 +17,7 @@ public static class HyperBeamFxColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        PaletteRgb5[][] frames = PaletteFxColorExtraction.ReadFrames(bus, HyperBeamPaletteFxColorDefinitions.Rows);
+        PaletteRgb5[][] frames = PaletteFxColorExtraction.ReadFrames(bus, HyperBeamPaletteFxColorDefinitions.ColorFrames);
         return HyperBeamFxColorFile.Write(new() { Version = HyperBeamFxColorFormat.Version, Frames = frames });
     }
 }

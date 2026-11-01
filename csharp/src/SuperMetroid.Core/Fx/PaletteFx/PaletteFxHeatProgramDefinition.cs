@@ -16,5 +16,5 @@ public sealed class PaletteFxHeatProgramDefinition
     public required PaletteFxHeatSuit Suit { get; init; }
 
     /// <summary>The sixteen phase records and the colours each writes.</summary>
-    public required PaletteFxColorRows Rows { get; init; }
+    public required PaletteFxColorFrames ColorFrames { get; init; }
 }

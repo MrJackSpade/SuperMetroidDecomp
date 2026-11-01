@@ -20,7 +20,7 @@ internal static class ExplodingZebesFadePaletteFxColorDefinitionsConstants
         internal static ushort DefinitionPointer => ExplodingZebesFadePaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => ExplodingZebesFadePaletteFxColorDefinitions.Rows.Color(frame, color);
+    public static PaletteFxColorKey Color(int frame, int color) => ExplodingZebesFadePaletteFxColorDefinitions.ColorFrames.Color(frame, color);
     /// <summary>The one-shot fade contains seven timed records.</summary>
-    public static int FrameCount => ExplodingZebesFadePaletteFxColorDefinitions.Rows.FrameCount;
+    public static int FrameCount => ExplodingZebesFadePaletteFxColorDefinitions.ColorFrames.FrameCount;
 }

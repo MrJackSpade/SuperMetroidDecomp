@@ -250,7 +250,7 @@ internal static class LogoGlarePaletteColorDefinitionsAddressAccess
         internal static bool TryCoordinates(int pointer, out int frame, out int color)
         {
             frame = color = 0;
-            return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && PostCreditsIconGlarePaletteFxColorDefinitions.Rows.TryLocate(key, out frame, out color);
+            return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames.TryLocate(key, out frame, out color);
         }
     }
 }
@@ -280,7 +280,7 @@ internal static class EndingGunshipPaletteColorDefinitionsAddressAccess
         internal static bool TryCoordinates(int pointer, out int frame, out int color)
         {
             frame = color = 0;
-            return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && ZebesExplosionGunshipPaletteFxColorDefinitions.Rows.TryLocate(key, out frame, out color);
+            return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames.TryLocate(key, out frame, out color);
         }
     }
 }
@@ -310,7 +310,7 @@ internal static class TourianStatueGreyColorDefinitionsAddressAccess
         internal static bool TryCoordinates(int pointer, out int frame, out int color)
         {
             frame = color = 0;
-            return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && TourianStatueGreyPaletteFxColorDefinitions.Rows.TryLocate(key, out frame, out color);
+            return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && TourianStatueGreyPaletteFxColorDefinitions.ColorFrames.TryLocate(key, out frame, out color);
         }
     }
 }
@@ -347,7 +347,7 @@ internal static class CrateriaLightningColorDefinitionsAddressAccess
         internal static bool TrySurfaceCoordinates(int pointer, out int frame, out int color)
         {
             frame = color = 0;
-            return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && CrateriaLightningColorDefinitions.SurfaceProgram.Rows.TryLocate(key, out frame, out color);
+            return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && CrateriaLightningColorDefinitions.SurfaceProgram.ColorFrames.TryLocate(key, out frame, out color);
         }
     }
 }

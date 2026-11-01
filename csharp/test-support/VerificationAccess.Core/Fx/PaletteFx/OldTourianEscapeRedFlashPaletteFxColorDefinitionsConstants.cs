@@ -20,7 +20,7 @@ internal static class OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants
         internal static ushort DefinitionPointer => OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => OldTourianEscapeRedFlashPaletteFxColorDefinitions.Rows.Color(frame, color);
+    public static PaletteFxColorKey Color(int frame, int color) => OldTourianEscapeRedFlashPaletteFxColorDefinitions.ColorFrames.Color(frame, color);
     /// <summary>The loop contains fourteen timed records.</summary>
-    public static int FrameCount => OldTourianEscapeRedFlashPaletteFxColorDefinitions.Rows.FrameCount;
+    public static int FrameCount => OldTourianEscapeRedFlashPaletteFxColorDefinitions.ColorFrames.FrameCount;
 }

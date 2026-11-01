@@ -18,7 +18,7 @@ internal static class CrateriaLightningColors
     internal static bool TryCalculatedColor(PaletteFxColorKey key, out RgbColor color)
     {
         color = RgbColor.Black;
-        if (!SurfaceProgram.Rows.TryLocate(key, out int frame, out int index))
+        if (!SurfaceProgram.ColorFrames.TryLocate(key, out int frame, out int index))
             return false;
         int phase = frame < 9 ? 4 - Math.Abs(4 - frame) : 13 - frame;
         // Colour words follow a base plus a per-phase step minus a per-position step: channels (12, 11, 11) rise
@@ -36,7 +36,7 @@ internal static class CrateriaLightningColors
     internal static bool TryCalculatedDarkColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> inputs, out RgbColor color)
     {
         color = RgbColor.Black;
-        if (!DarkProgram.Rows.TryLocate(key, out int frame, out int index) || frame == 0 ||
+        if (!DarkProgram.ColorFrames.TryLocate(key, out int frame, out int index) || frame == 0 ||
             !inputs.TryGetValue(DarkProgram.Color(0, index), out RgbColor first))
             return false;
         int phase = frame < 9 ? 4 - Math.Abs(4 - frame) : frame == 9 ? 0 : 14 - frame;

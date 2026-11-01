@@ -19,5 +19,5 @@ public sealed class NorfairEnvironmentalPaletteFxColorDefinition
     public required bool PublishesHeatPhase { get; init; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public required PaletteFxColorRows Rows { get; init; }
+    public required PaletteFxColorFrames ColorFrames { get; init; }
 }

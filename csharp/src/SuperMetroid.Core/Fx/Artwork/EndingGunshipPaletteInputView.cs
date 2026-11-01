@@ -131,7 +131,7 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
     public bool TryGetValue(PaletteFxColorKey key, out RgbColor value)
     {
         // Colors 0, 2 and 15 of the final frame are not inks; they stay stored values.
-        if (ZebesExplosionGunshipPaletteFxColorDefinitions.Rows.TryLocate(key, out int frame, out int color) && frame == 15 &&
+        if (ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames.TryLocate(key, out int frame, out int color) && frame == 15 &&
             InkAtColor.TryGetValue(color, out EndingGunshipPaletteInk paintedInk))
         {
             RgbColor calculated = paintedInk switch

@@ -12,7 +12,7 @@ internal static class MaridiaEnvironmentalColors
     {
         foreach (var program in MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {
-            if (!program.Rows.TryLocate(key, out int frame, out int color)) continue;
+            if (!program.ColorFrames.TryLocate(key, out int frame, out int color)) continue;
             int group = color / program.FrameCount;
             int rotated = (color + frame) % program.FrameCount;
             if (program.Owner == MaridiaEnvironmentalPaletteOwner.SandFalls)

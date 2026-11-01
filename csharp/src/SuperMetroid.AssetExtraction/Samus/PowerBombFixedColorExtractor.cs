@@ -12,6 +12,9 @@ namespace SuperMetroid.AssetExtraction.Samus;
 [EncodingOwner("Power Bomb fixed-colour triplet")]
 public static class PowerBombFixedColorExtractor
 {
+        /// <summary>The five-bit channel in each stored fixed-colour byte.</summary>
+        public const int ComponentMask = 0b1_1111;
+
     /// <summary>Imports the sixteen pre-explosion and thirty-two explosion fixed-color triplets used by Power Bomb effects.</summary>
     /// <param name="bus">Non-null cartridge import address space containing the native three-byte fixed-color sequences.</param>
     /// <returns>New UTF-8 JSON bytes containing ordered RGB5 colors, with each native component masked to 0..31.</returns>
@@ -40,9 +43,9 @@ public static class PowerBombFixedColorExtractor
             int offset = index * SamusSourceDefinitions.PowerBombBytesPerColor;
             colors[index] = new PaletteRgb5
             {
-                Red = source[offset] & SamusPaletteDefinitions.PowerBomb.ComponentMask,
-                Green = source[offset + 1] & SamusPaletteDefinitions.PowerBomb.ComponentMask,
-                Blue = source[offset + 2] & SamusPaletteDefinitions.PowerBomb.ComponentMask,
+                Red = source[offset] & ComponentMask,
+                Green = source[offset + 1] & ComponentMask,
+                Blue = source[offset + 2] & ComponentMask,
             };
         }
         return colors;

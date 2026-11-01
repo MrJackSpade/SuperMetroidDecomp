@@ -31,15 +31,6 @@ public static class EnemyTileBaseDefinitions
     public const int MotherBrainObjectCharacters = 64;
 
     /// <summary>
-    /// The character indexes, beside its own, each enemy's spawned objects draw from, so its spawned-object sheets are
-    /// composed there too: Mother Brain's at <see cref="MotherBrainObjectCharacters"/> (#1435).
-    /// </summary>
-    public static IReadOnlyDictionary<EnemyDefinitionId, int[]> SpawnsAlsoAt { get; } = new Dictionary<EnemyDefinitionId, int[]>
-    {
-        [EnemyDefinitionId.MotherBrainBody] = [MotherBrainObjectCharacters],
-    };
-
-    /// <summary>
     /// The enemy whose character index each enemy that copies one draws at: the slot it follows. A gunship's bottom
     /// reads its top's, a Baby Turtle its Mama's, Ki-Hunter wings their body's, an Evir's projectile its Evir's and
     /// Phantoon's eye, tentacles and mouth her body's.

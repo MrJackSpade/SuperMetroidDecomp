@@ -139,7 +139,7 @@ public sealed class CrocomireMeltingArtwork
     };
 
     /// <summary>Bytes of one row of a melt image's characters: sixteen four-bit characters.</summary>
-    private const int RowByteCount = CrocomireMeltingDefinitions.BandRowCharacters * RoomCharacterAtlasFormat.BytesPerTile;
+    private const int RowByteCount = CrocomireMeltDissolve.BandRowCharacters * RoomCharacterAtlasFormat.BytesPerTile;
 
     /// <summary>
     /// The bytes of <paramref name="illustration"/>'s image the cartridge assembles: a row per band, and the row and word

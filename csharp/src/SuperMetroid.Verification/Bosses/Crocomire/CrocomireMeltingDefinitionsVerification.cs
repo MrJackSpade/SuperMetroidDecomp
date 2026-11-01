@@ -118,12 +118,12 @@ internal static class CrocomireMeltingDefinitionsVerification
             for (int band = 0; band < bands; band++)
             {
                 int upload = UploadListAddress(pass) + band * 8;
-                AssertEqual(CrocomireMeltingDefinitions.BandCharacterCount * RoomCharacterAtlasFormat.BytesPerTile,
+                AssertEqual(CrocomireMeltDissolve.BandCharacterCount * RoomCharacterAtlasFormat.BytesPerTile,
                     source.ReadCartridgeWord(upload), $"Crocomire {pass} melt band {band} size");
                 AssertEqual(CrocomireMeltDissolve.BandFirstWord(band), source.ReadCartridgeWord(upload + 2),
                     $"Crocomire {pass} melt band {band} first character word");
                 AssertEqual(ImageBank, rom.ReadCartridgeByte(upload + 4), $"Crocomire {pass} melt band {band} image bank");
-                AssertEqual(ImageAddress + band * CrocomireMeltingDefinitions.BandRowCharacters * RoomCharacterAtlasFormat.BytesPerTile,
+                AssertEqual(ImageAddress + band * CrocomireMeltDissolve.BandRowCharacters * RoomCharacterAtlasFormat.BytesPerTile,
                     source.ReadCartridgeWord(upload + 6), $"Crocomire {pass} melt band {band} image row");
             }
             AssertEqual(Terminator, source.ReadCartridgeWord(UploadListAddress(pass) + bands * 8),

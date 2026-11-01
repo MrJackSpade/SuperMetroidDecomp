@@ -14,6 +14,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusDeathSheetComposer
 {
+    /// <summary>Right-facing base index in Samus's death-explosion spritemap table.</summary>
+    public const int RightExplosionSpritemap = 2076;
+
+    /// <summary>Left-facing base index in Samus's death-explosion spritemap table.</summary>
+    public const int LeftExplosionSpritemap = 2085;
+
     /// <summary>Every facing the explosion is drawn in.</summary>
     internal static IReadOnlyList<HorizontalDirection> Facings { get; } = [HorizontalDirection.Right, HorizontalDirection.Left];
 
@@ -46,6 +52,6 @@ internal static class SamusDeathSheetComposer
 
     /// <summary>The Samus spritemap the explosion's frame <paramref name="frame"/> shows facing <paramref name="facing"/>.</summary>
     internal static int ExplosionSpritemap(HorizontalDirection facing, int frame) =>
-        (facing == HorizontalDirection.Left ? SamusDeathSequenceDefinitions.LeftExplosionSpritemap
-            : SamusDeathSequenceDefinitions.RightExplosionSpritemap) + frame;
+        (facing == HorizontalDirection.Left ? LeftExplosionSpritemap
+            : RightExplosionSpritemap) + frame;
 }

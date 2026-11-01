@@ -17,7 +17,7 @@ public static class MotherBrainDeathColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var body = new PaletteRgb5[MotherBrainDeathDefinitions.BodyFadeFrameCount][];
+        var body = new PaletteRgb5[MotherBrainDeathColorFile.BodyFadeFrameCount][];
         var leg = new PaletteRgb5[body.Length][];
         for (int frame = 0; frame < body.Length; frame++)
         {
@@ -26,7 +26,7 @@ public static class MotherBrainDeathColorExtractor
             leg[frame] = Read(source + MotherBrainDeathDefinitions.BodyColorCount *
                 sizeof(ushort), MotherBrainDeathDefinitions.BodyColorCount);
         }
-        var corpse = new PaletteRgb5[MotherBrainDeathDefinitions.CorpseFadeFrameCount][];
+        var corpse = new PaletteRgb5[MotherBrainDeathColorFile.CorpseFadeFrameCount][];
         for (int frame = 0; frame < corpse.Length; frame++)
             corpse[frame] = Read(MotherBrainSourceDefinitions.Death.CorpseFadeColors(frame),
                 MotherBrainDeathDefinitions.CorpseColorCount);

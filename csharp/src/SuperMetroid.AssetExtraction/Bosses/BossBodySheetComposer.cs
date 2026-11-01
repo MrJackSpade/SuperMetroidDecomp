@@ -21,6 +21,9 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// </summary>
 internal static class BossBodySheetComposer
 {
+    /// <summary>The first row of the bottom-left page, where his lower body is drawn.</summary>
+    internal const int LowerPageTopRow = 64;
+
     /// <summary>The enemy whose rooms each boss's body is drawn in.</summary>
     private static readonly Dictionary<BossBodyOwner, EnemyDefinitionId> Enemies = new()
     {
@@ -111,7 +114,7 @@ internal static class BossBodySheetComposer
         BackgroundTile[] working = KraidWorkingMap.Compose(art);
         BackgroundTile[] upper = working[..KraidWorkingMapDefinitions.PageCells];
         BackgroundTile[] lower = working[KraidWorkingMapDefinitions.LowerPageFirstCell..(KraidWorkingMapDefinitions.LowerPageFirstCell + KraidWorkingMapDefinitions.PageCells)];
-        int lowerCell = KraidBodyLayout.LowerPageTopRow * BossBodyDefinitions.ColumnCount;
+        int lowerCell = LowerPageTopRow * BossBodyDefinitions.ColumnCount;
         foreach (KraidBodyAppearance appearance in new[] { KraidBodyAppearance.BehindSprites, KraidBodyAppearance.InFrontOfSprites })
         {
             bool inFront = appearance == KraidBodyAppearance.InFrontOfSprites;

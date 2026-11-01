@@ -9,8 +9,6 @@ public static class CeresRidleyPaletteDefinitions
     /// <summary>The colours Ceres Ridley's initialization loads: the door and Baby container colours and the Baby's initial colours.</summary>
     public const int StartColorCount = 32;
 
-    /// <summary>The Baby's shades: resting, horizontal squish, round and vertical squish, selected by its animation.</summary>
-    public const int BabyShadeCount = 4;
     /// <summary>The colours of one Baby shade, excluding the transparent colour zero.</summary>
     public const int BabyColorCount = 15;
 

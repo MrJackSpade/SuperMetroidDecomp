@@ -21,12 +21,6 @@ internal static class CrocomireMeltingDefinitions
     /// </summary>
     public const int SecondPassBandCount = 7;
 
-    /// <summary>Characters in one row of a melt image, and so between the first characters of consecutive bands.</summary>
-    public const int BandRowCharacters = 16;
-
-    /// <summary>Characters a band shows from the start of its row.</summary>
-    public const int BandCharacterCount = 11;
-
     /// <summary>Lowest BG2 source row the distortion stretches back to, in both passes.</summary>
     public const int LowestDistortionSourceRow = 88;
 

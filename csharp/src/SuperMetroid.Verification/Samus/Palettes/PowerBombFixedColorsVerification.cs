@@ -42,11 +42,11 @@ internal static class PowerBombFixedColorsVerification
                 byte red = (byte)color.Red;
                 byte green = (byte)color.Green;
                 byte blue = (byte)color.Blue;
-                AssertEqual((byte)(rom.ReadCartridgeByte(address) & SamusPaletteDefinitions.PowerBomb.ComponentMask),
+                AssertEqual((byte)(rom.ReadCartridgeByte(address) & PowerBombFixedColorExtractor.ComponentMask),
                     red, $"{sequence} native red {index}");
-                AssertEqual((byte)(rom.ReadCartridgeByte(address + 1) & SamusPaletteDefinitions.PowerBomb.ComponentMask),
+                AssertEqual((byte)(rom.ReadCartridgeByte(address + 1) & PowerBombFixedColorExtractor.ComponentMask),
                     green, $"{sequence} native green {index}");
-                AssertEqual((byte)(rom.ReadCartridgeByte(address + 2) & SamusPaletteDefinitions.PowerBomb.ComponentMask),
+                AssertEqual((byte)(rom.ReadCartridgeByte(address + 2) & PowerBombFixedColorExtractor.ComponentMask),
                     blue, $"{sequence} native blue {index}");
                 compared++;
             }

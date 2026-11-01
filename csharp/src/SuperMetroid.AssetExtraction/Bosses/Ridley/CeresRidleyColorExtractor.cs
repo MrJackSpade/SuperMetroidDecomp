@@ -38,7 +38,7 @@ public static class CeresRidleyColorExtractor
             RetreatShared = ReadColors(RidleySourceDefinitions.Ceres.RetreatSharedColors,
                 CeresRidleyPaletteDefinitions.RetreatSharedColorCount),
             BabyShades = CeresBabyCartridgeShades.FromSteps(ReadRows(RidleySourceDefinitions.Ceres.BabyColors,
-                CeresRidleyPaletteDefinitions.BabyShadeCount,
+                CeresBabyCartridgeShades.BabyShadeCount,
                 CeresRidleyPaletteDefinitions.BabyColorCount)),
         });
 

@@ -47,8 +47,8 @@ internal sealed class ProjectileTrails
                 throw new InvalidOperationException($"Undefined {nameof(SamusProjectileFamily)} {projectile.Type.Family}.");
         }
 
-        ProjectileTrailProgram? leftProgram = ProjectileTrailSelection.Select(trailEntry, HorizontalDirection.Left);
-        ProjectileTrailProgram? rightProgram = ProjectileTrailSelection.Select(trailEntry, HorizontalDirection.Right);
+        ProjectileTrailProgram left = ProjectileTrailSelection.Select(trailEntry, HorizontalDirection.Left);
+        ProjectileTrailProgram right = ProjectileTrailSelection.Select(trailEntry, HorizontalDirection.Right);
 
         // Retail reads the previously installed record, even when the animation timer
         // will expire later this frame. Reading ahead advances Spazer's trail spread early.
@@ -59,10 +59,10 @@ internal sealed class ProjectileTrails
         ProjectileTrailPlacementList? list = ProjectileTrailPlacements.List(
             group, projectile.Type.BeamCombination, projectile.Direction.ToAimIndex());
 
-        // A selection that names no program or placement list draws no trail, and so does a read that reaches direct-page
+        // A shot whose direction names no placement list draws no trail, and so does a read that reaches direct-page
         // scratch: its exact appearance would need direct-page emulation the port does not model, so it is exempt (owner
         // decision on #1318).
-        if (leftProgram is not { } left || rightProgram is not { } right || list is not { } placements ||
+        if (list is not { } placements ||
             ProjectileTrailPlacements.Start(placements, animationFrame, _starts) is not { } placement)
             return;
 

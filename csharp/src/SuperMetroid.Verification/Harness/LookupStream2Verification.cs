@@ -1446,25 +1446,21 @@ internal static class LookupStream2Verification
     {
 
         int start = SamusProjectileRomDataTrailsConstants.LeftInstructionPointers;
-        int end = SamusProjectileRomDataTrailsConstants.RightInstructionPointers + 64 * sizeof(ushort);
+        int end = SamusProjectileRomDataTrailsConstants.RightInstructionPointers +
+            SamusProjectileRomDataTrailsConstants.InstructionPointerCount * sizeof(ushort);
         for (int address = start; address < end; address += sizeof(ushort))
-        {
-            ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-            if (ProjectileTrailDefinitions.ReadSelector(address) is { } selected)
-                AssertEqual(native, selected, "Trail selectors retain every reachable aligned native word");
-            else
-                AssertTrue(!ProjectileTrailProgramDefinitions.TryRead(SamusSourceDefinitions.MovementBank.Value | native, out _),
-                    "A selector word past the right table names no trail step");
-        }
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailDefinitions.ReadSelector(address),
+                "Trail selectors retain every aligned native word of both tables");
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2), "Trail selector rejects the preceding word");
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start + 1), "Trail selector rejects unaligned reads");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end), "Trail selector rejects the following word");
-        // Every projectile that trails: each beam combination uncharged and charged, both echoes, and both missiles.
+        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end), "Trail selector rejects the word past the right table");
+        // Every projectile that trails: each beam combination uncharged and charged, the Spazer special attack's trailing
+        // pair, and both missiles. The Shinespark crash's echo runs its own update, which spawns no trail (#1500).
         SamusProjectileType[] trailing =
         [
             .. Enum.GetValues<SamusBeamCombination>().Select(beams => SamusProjectileType.Beam(beams, charged: false)),
             .. Enum.GetValues<SamusBeamCombination>().Select(beams => SamusProjectileType.Beam(beams, charged: true)),
-            SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail), SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho),
+            SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail),
             SamusProjectileType.Of(SamusProjectileFamily.Missile), SamusProjectileType.Of(SamusProjectileFamily.SuperMissile),
         ];
         foreach (SamusProjectileType trailingType in trailing)
@@ -1491,12 +1487,12 @@ internal static class LookupStream2Verification
             // An empty trail family (programs, direction list or coordinates outside the compiled data) draws no trail (#1318).
             if (trail.Left.FrameHold.IsZero)
                 continue;
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects left trail including adjacent right-table entries");
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn retains right-table overrun behavior");
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects the left table's trail");
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn selects the right table's trail");
             AssertEqual(1, trail.Left.FrameHold.RawValue, "Selector extraction leaves allocation timer unchanged");
             AssertEqual(96, trail.Left.Position.X, "Selector extraction leaves origin offset unchanged");
         }
-        Console.WriteLine("Trail selectors: 103 reachable native words and every trailing projectile's real spawn selection pass with the complete selector window forbidden.");
+        Console.WriteLine("Trail selectors: both tables' native words and every trailing projectile's real spawn selection pass.");
     }
 
     /// <summary>Checks Mother Brain tube palette ramps and actual CGRAM sequence.</summary>

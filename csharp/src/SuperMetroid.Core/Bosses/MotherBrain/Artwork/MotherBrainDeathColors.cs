@@ -17,10 +17,6 @@ internal static class MotherBrainDeathColors
             colors.selection.CorpseFade.AppendIdentity(content, "corpseFade");
         });
 
-    /// <summary>The supplied door colours when they are edits, or null when they match the reviewed paint.</summary>
-    internal static RgbColor[]? EditedDoor(RgbColor[] explodedDoor) =>
-        MotherBrainExplodedDoorPaint.Matches(explodedDoor) ? null : explodedDoor;
-
     /// <summary>Returns a colour of the exploded escape door, from its edits or the reviewed paint.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The color index is outside 0..13.</exception>
     internal static RgbColor ExplodedDoorColor(RgbColor[]? explodedDoor, int color) =>

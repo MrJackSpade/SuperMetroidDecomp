@@ -62,7 +62,18 @@ public static class ZebetiteColorFile
                 frames[frame][color] = rgb.ToRgbColor();
             }
         }
-        return new(frames);
+        return new(Edits(frames));
+    }
+
+    /// <summary>Keeps the selected pulse colours that differ from the calculated pulse.</summary>
+    private static Dictionary<ColourCell, RgbColor> Edits(RgbColor[][] frames)
+    {
+        var edits = new Dictionary<ColourCell, RgbColor>();
+        for (int frame = 0; frame < frames.Length; frame++)
+            for (int color = 0; color < frames[frame].Length; color++)
+                if (frames[frame][color] != ZebetitePulsePaint.Color(frame, color))
+                    edits.Add(new ColourCell(frame, color), frames[frame][color]);
+        return edits;
     }
 
     /// <summary>Serializes a Zebetite color document as indented camel-case UTF-8 JSON, then validates the result through <see cref="Read"/> before returning it.</summary>

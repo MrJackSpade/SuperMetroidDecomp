@@ -34,15 +34,6 @@ internal static class DraygonPalette
             }
         });
 
-    /// <summary>Keeps the supplied flash colours that differ from stock white.</summary>
-    internal static Dictionary<ColourCell, RgbColor> WhiteFlashEdits(RgbColor[] whiteFlash)
-    {
-        var edits = new Dictionary<ColourCell, RgbColor>();
-        for (int color = 0; color < whiteFlash.Length; color++)
-            if (whiteFlash[color] != StockWhiteFlash(color)) edits.Add(new ColourCell(0, color), whiteFlash[color]);
-        return edits;
-    }
-
     /// <summary>Gets one of the 16 selected white-flash colors, preserving transparent entry zero.</summary>
     internal static RgbColor WhiteFlash(Dictionary<ColourCell, RgbColor> edits, int color)
     {
@@ -61,7 +52,7 @@ internal static class DraygonPalette
     }
 
     /// <summary>The white flash preserves the backdrop; all visible inks are white.</summary>
-    private static RgbColor StockWhiteFlash(int color) => color == 0 ? DraygonMaterialPaint.ClearTarget : DraygonColorCatalog.FlashInk;
+    internal static RgbColor StockWhiteFlash(int color) => color == 0 ? DraygonMaterialPaint.ClearTarget : DraygonColorCatalog.FlashInk;
 
     /// <summary>Installs the selected opening colors in their place among the colours.</summary>
     internal static void ApplyIntro(DraygonColorCatalog colors, GameplayColours colours)

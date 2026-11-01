@@ -19,13 +19,15 @@ internal sealed class DraygonIntroPaint
     /// <summary>Independent edit of the copied clear target, or null when it retains the value.</summary>
     internal readonly RgbColor? clearEdit;
 
-    /// <summary>Splits the 25 copied colours into primary, clear-target, and door-surface aliases.</summary>
-    internal DraygonIntroPaint(ReadOnlySpan<RgbColor> colors)
+    /// <summary>Keeps the 25 copied colours as their primary, clear-target, and door-surface aliases.</summary>
+    /// <param name="primary">The first sixteen colours, as Draygon's primary material.</param>
+    /// <param name="surface">The final eight colours, as the Ceres escape-door surface material.</param>
+    /// <param name="clearEdit">The edited clear target, or null when it keeps the material's clear target.</param>
+    internal DraygonIntroPaint(DraygonMaterialPaint primary, CeresDoorEscapeSurfacePaint surface, RgbColor? clearEdit)
     {
-        Ensure.LengthEqual(colors, 25);
-        primary = new(colors[..16]);
-        surface = new(colors[17..]);
-        clearEdit = colors[16] == DraygonMaterialPaint.ClearTarget ? null : colors[16];
+        this.primary = primary;
+        this.surface = surface;
+        this.clearEdit = clearEdit;
     }
 
     /// <summary>Resolves a copied color through its owning material while preserving an edited clear target.</summary>

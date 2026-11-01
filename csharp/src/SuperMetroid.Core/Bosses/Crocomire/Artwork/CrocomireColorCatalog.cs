@@ -61,16 +61,8 @@ public sealed class CrocomireColorCatalog
     internal readonly Dictionary<CrocomireColorKey, RgbColor> edits;
 
     /// <summary>Retains only colors that differ from their calculated material paint.</summary>
-    internal CrocomireColorCatalog(RgbColor[] fightBody, RgbColor[] initialWall,
-        RgbColor[] initialProjectile, RgbColor[] skeletonArm, RgbColor[] wallSpikes) =>
-        edits = CrocomirePalette.Edits(new()
-        {
-            [Band.FightBody] = fightBody,
-            [Band.InitialWall] = initialWall,
-            [Band.InitialProjectile] = initialProjectile,
-            [Band.SkeletonArm] = skeletonArm,
-            [Band.WallSpikes] = wallSpikes,
-        });
+    /// <param name="edits">The supplied colours the import found differing from their calculated material paint.</param>
+    internal CrocomireColorCatalog(Dictionary<CrocomireColorKey, RgbColor> edits) => this.edits = edits;
 
     /// <summary>Installs the initialization transfers in order: seventeen wall colours at colours 160–176, then sixteen projectile colours at 208–223.</summary>
     public void ApplyInitial(GameplayColours colours) => CrocomirePalette.ApplyInitial(this, new BossColours(colours));

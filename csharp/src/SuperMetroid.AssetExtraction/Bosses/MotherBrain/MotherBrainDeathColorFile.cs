@@ -29,7 +29,7 @@ public static class MotherBrainDeathColorFile
         if (document.Version != MotherBrainDeathColorFormat.Version)
             throw new InvalidDataException(
                 "Mother Brain death colors require the supported version.");
-        return new(CompileFrames(document.BodyFade,
+        return new(MotherBrainDeathColorEdits.Select(CompileFrames(document.BodyFade,
                 BodyFadeFrameCount,
                 MotherBrainDeathDefinitions.BodyColorCount, "body fade"),
             CompileFrames(document.LegFade,
@@ -39,7 +39,7 @@ public static class MotherBrainDeathColorFile
                 CorpseFadeFrameCount,
                 MotherBrainDeathDefinitions.CorpseColorCount, "corpse fade"),
             Compile(document.ExplodedDoor, MotherBrainDeathDefinitions.BodyColorCount,
-                "exploded door"));
+                "exploded door")));
     }
 
     /// <summary>Serializes the editable death-color document to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Read"/>.</summary>

@@ -35,7 +35,7 @@ internal static class ProjectileCompositionsVerification
 {
     /// <summary>Compares extracted bank-$93 sprites across coordinate wraps and verifies edits without draw-time ROM access.</summary>
     internal static void VerifyProjectileCompositions(SuperMetroidAddressSpace rom,
-        bool compositionOnly = false, string sourceRom = "Super Metroid.smc")
+        bool compositionOnly = false)
     {
         byte[] json = ProjectileSpriteExtractor.Extract(rom);
         if (!compositionOnly)
@@ -72,11 +72,7 @@ internal static class ProjectileCompositionsVerification
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(document, options);
         var edited = InstalledProjectileSprites.Load(new MemoryStream(editedJson));
         Suite(nameof(VerifyProjectileFiles), () => VerifyProjectileFiles(rom, editedJson));
-        // The retail ROM's installation is shared and only read here; another ROM installs its own.
-        using var temporaryDirectory = new TestScratchDirectory("map-catalog");
-        GameInstallation installation = Path.GetFullPath(sourceRom) == Path.GetFullPath("Super Metroid.smc")
-            ? RepositoryInstallation.Installation
-            : GameAssetInstaller.Install(Path.GetFullPath(sourceRom), temporaryDirectory.Root);
+        GameInstallation installation = RepositoryInstallation.Installation;
         var roomAssets = new MapPresentationInstalledRoomAssets(installation);
         Suite(nameof(VerifyRuntimeProjectileSheets), () => VerifyRuntimeProjectileSheets(editedId, installation.LoadSpriteSheets(),
             roomAssets, installation.LoadMaps()));

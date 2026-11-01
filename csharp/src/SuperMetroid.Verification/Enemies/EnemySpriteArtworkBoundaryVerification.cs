@@ -15,7 +15,7 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -32,11 +32,9 @@ internal static class EnemySpriteArtworkBoundaryVerification
     /// <summary>Verifies the statically identified enemy OAM owners after deleting their address readers.</summary>
     internal static void VerifyEnemySpriteArtworkBoundary(string sourceRom)
     {
-        using var temporary = new TestScratchDirectory("map-catalog");
-        var installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        InstalledEnemyArtwork artwork = installation.LoadEnemyTiles();
+        InstalledEnemyArtwork artwork = RepositoryInstallation.Installation.LoadEnemyTiles();
         EnemyProjectileSpritemapCatalog projectileArtwork = (artwork.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires artwork.ProjectileSpritemaps."));
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         int enemyCases = 0, projectileCases = 0;

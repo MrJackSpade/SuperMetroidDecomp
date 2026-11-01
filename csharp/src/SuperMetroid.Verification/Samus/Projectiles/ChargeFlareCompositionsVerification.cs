@@ -16,7 +16,6 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -25,15 +24,11 @@ internal static class ChargeFlareCompositionsVerification
 {
     /// <summary>Checks extracted parts across selector, position, and OAM capacity cases, then validates visual edits and malformed assets.</summary>
     internal static void VerifyChargeFlareCompositions(SuperMetroidAddressSpace bus,
-        bool flareOnly = false, string sourceRom = "Super Metroid.smc")
+        bool flareOnly = false)
     {
         byte[] json = ChargeFlareSpriteExtractor.Extract(bus);
         var stock = ChargeFlareSprites.Load(new MemoryStream(json));
-        // The retail ROM's installation is shared and only read here; another ROM installs its own.
-        using var temporaryDirectory = new TestScratchDirectory("map-catalog");
-        GameInstallation installation = Path.GetFullPath(sourceRom) == Path.GetFullPath("Super Metroid.smc")
-            ? RepositoryInstallation.Installation
-            : GameAssetInstaller.Install(Path.GetFullPath(sourceRom), temporaryDirectory.Root);
+        GameInstallation installation = RepositoryInstallation.Installation;
         InstalledSamusBodyArtwork body = installation.LoadSamusBodyArt();
         var roomAssets = new MapPresentationInstalledRoomAssets(installation);
         var maps = installation.LoadMaps();
@@ -121,7 +116,7 @@ internal static class ChargeFlareCompositionsVerification
         string flareRom = RepositoryRomPath;
         Suite(nameof(VerifyChargeFlareCompositions), () => VerifyChargeFlareCompositions(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(flareRom)),
-            flareOnly: true, sourceRom: flareRom));
+            flareOnly: true));
         return 0;
     }
 }

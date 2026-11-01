@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SuperMetroid.Core.Audio;
 using static SuperMetroid.AssetExtraction.Audio.SpcSampleExtractionDefinitions;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
@@ -300,7 +299,7 @@ public static class SpcAudioAssetExtractor
                 }
                 loopHistories.TryAdd(history, samples.Count);
             }
-            for (int sampleIndex = 0; sampleIndex < PcmSampleFormat.StreamingWindowSampleCount; sampleIndex++)
+            for (int sampleIndex = 0; sampleIndex < InstrumentSampleFormat.StreamingWindowSampleCount; sampleIndex++)
             {
                 int packed = ram[address + 1 + sampleIndex / 2];
                 int sample = (sampleIndex & 1) == 0 ? packed >> 4 : packed & 0x0f; // cartridge-encoding: allow(Codec) - BRR low sample nibble
@@ -435,20 +434,20 @@ public static class SpcAudioAssetExtractor
         {
             byte[] pcmBytes = new byte[checked(pcm.Length * sizeof(short))];
             Buffer.BlockCopy(pcm, 0, pcmBytes, 0, pcmBytes.Length);
-            string contentKey = $"{PcmSampleFormat.StockSampleRate}:{loopSampleIndex?.ToString() ?? "-"}:" +
+            string contentKey = $"{InstrumentSampleFormat.StockSampleRate}:{loopSampleIndex?.ToString() ?? "-"}:" +
                 Convert.ToHexString(SHA256.HashData(pcmBytes));
             if (idsByContent.TryGetValue(contentKey, out string? existingId))
                 return existingId;
 
             string id = $"sample-{dataIndex:X2}-{source:X2}".ToLowerInvariant();
             string absolutePath = Path.Combine(samplesDirectory, id + ".wav");
-            PcmWaveFile.WriteMonoPcm16(absolutePath, PcmSampleFormat.StockSampleRate, pcm);
+            PcmWaveFile.WriteMonoPcm16(absolutePath, InstrumentSampleFormat.StockSampleRate, pcm);
             byte[] waveBytes = File.ReadAllBytes(absolutePath);
             string relativePath = Path.GetRelativePath(audioDirectory, absolutePath).Replace('\\', '/');
             metadata.Add(new AudioCanonicalSampleMetadata(
                 id,
                 relativePath,
-                PcmSampleFormat.StockSampleRate,
+                InstrumentSampleFormat.StockSampleRate,
                 pcm.Length,
                 loopSampleIndex,
                 Convert.ToHexString(SHA256.HashData(waveBytes))));

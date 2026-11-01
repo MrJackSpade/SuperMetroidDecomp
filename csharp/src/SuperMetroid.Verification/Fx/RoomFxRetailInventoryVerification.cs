@@ -235,7 +235,7 @@ internal static class RoomFxRetailInventoryVerification
         {
             byte blend = ReadRetailFxRecordByte(bus, expectedRecord,
                 RoomFxRomDataRecordTooling.PaletteBlendOffset);
-            AssertTrue(blend == 0 || RoomFxPaletteBlendRules.Ids.Contains(FxNativeWords.PaletteBlend(blend)),
+            AssertTrue(blend == 0 || RoomFxPaletteBlendDocumentRules.Ids.Contains(FxNativeWords.PaletteBlend(blend)),
                 $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
                 $"$83:{doorPointer:X4} uses an extracted FX palette blend (${blend:X2})");
         }

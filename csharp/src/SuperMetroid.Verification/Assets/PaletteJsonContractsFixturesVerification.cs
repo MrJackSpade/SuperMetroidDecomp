@@ -1,6 +1,5 @@
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Assets.PaletteJsonContractsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -24,6 +23,7 @@ using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Assets;
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>Constructs valid palette JSON baselines for the shared schema-mutation checks.</summary>

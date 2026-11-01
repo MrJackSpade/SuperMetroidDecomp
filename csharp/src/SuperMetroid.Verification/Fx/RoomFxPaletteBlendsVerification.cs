@@ -20,6 +20,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 /// <summary>Checks extracted room-FX blend colors, installed CGRAM writes, and Ceres haze color overrides.</summary>
 internal static class RoomFxPaletteBlendsVerification
@@ -54,7 +55,7 @@ internal static class RoomFxPaletteBlendsVerification
         Suite(nameof(VerifyFxWeatherThirdGreen), () => VerifyFxWeatherThirdGreen(rom, catalog));
         Suite(nameof(VerifyFxWeatherThirdBlue), () => VerifyFxWeatherThirdBlue(rom, catalog));
         Suite(nameof(VerifyFxBlendPageDispatch), () => VerifyFxBlendPageDispatch(rom, catalog));
-        foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendRules.Ids)
+        foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendDocumentRules.Ids)
         {
             ReadOnlySpan<RgbColor> compiled = catalog.Resolve(id);
 
@@ -94,9 +95,9 @@ internal static class RoomFxPaletteBlendsVerification
         RoomFxPaletteBlendDocument stock = JsonSerializer.Deserialize<RoomFxPaletteBlendDocument>(
             RoomFxPaletteBlendExtractor.Extract(rom), ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock room-FX color document is null.");
-        AssertEqual(PaletteRgb5.From(RoomFxPaletteBlendRules.StockCeresHazeBlue), stock.CeresHazeBlue,
+        AssertEqual(PaletteRgb5.From(RoomFxPaletteBlendDocumentRules.StockCeresHazeBlue), stock.CeresHazeBlue,
             "extractor names the stock Ceres blue tint");
-        AssertEqual(PaletteRgb5.From(RoomFxPaletteBlendRules.StockCeresHazeRed), stock.CeresHazeRed,
+        AssertEqual(PaletteRgb5.From(RoomFxPaletteBlendDocumentRules.StockCeresHazeRed), stock.CeresHazeRed,
             "extractor names the stock Ceres escape tint");
         var editedDocument = stock with
         {
@@ -135,9 +136,9 @@ internal static class RoomFxPaletteBlendsVerification
                 CeresHazeBlue = null,
                 CeresHazeRed = null,
             })));
-        AssertEqual(RoomFxPaletteBlendRules.StockCeresHazeBlue, legacy.CeresHazeBlue,
+        AssertEqual(RoomFxPaletteBlendDocumentRules.StockCeresHazeBlue, legacy.CeresHazeBlue,
             "older color overrides inherit the stock blue haze tint");
-        AssertEqual(RoomFxPaletteBlendRules.StockCeresHazeRed, legacy.CeresHazeRed,
+        AssertEqual(RoomFxPaletteBlendDocumentRules.StockCeresHazeRed, legacy.CeresHazeRed,
             "older color overrides inherit the stock red haze tint");
     }
 
@@ -150,7 +151,7 @@ internal static class RoomFxPaletteBlendsVerification
             File.ReadAllBytes(Path.Combine(stock, RoomFxPaletteBlendDefinitions.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock room-FX blend document is null.");
-        string key = RoomFxPaletteBlendRules.Key(RoomFxPaletteBlend.Lava);
+        string key = RoomFxPaletteBlendDocumentRules.Key(RoomFxPaletteBlend.Lava);
         PaletteRgb5 original = document.Blends[key][0];
         document.Blends[key][0] = original with { Red = (original.Red + 1) % 32 };
         document = document with

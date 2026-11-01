@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using System.Text.Json;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -28,7 +30,7 @@ public static class EscapeTypewriterExtractor
             programs.Add(id.ToString(), new() { Lines = ReadProgram(bus, id) });
         }
         using var output = new MemoryStream();
-        EscapeTypewriterPresentation.Write(output, new()
+        Write(output, new()
         {
             Version = EscapeTypewriterDefinitions.Version,
             Programs = programs,
@@ -98,4 +100,15 @@ public static class EscapeTypewriterExtractor
         EscapeTypewriterProgramId.None => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
         _ => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
     };
+
+    /// <summary>Serializes and validates both warning programs before writing their UTF-8 document bytes to the destination.</summary>
+    /// <param name="output">Non-null caller-owned writable stream, written at its current position without being disposed.</param>
+    /// <param name="document">Selected programs satisfying the same schema, alphabet, and placement limits as <see cref="EscapeTypewriterPresentation.Load"/>.</param>
+    /// <exception cref="InvalidDataException">The document is null or fails warning-program validation.</exception>
+    public static void Write(Stream output, EscapeTypewriterDocument document)
+    {
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        _ = EscapeTypewriterPresentation.Load(new MemoryStream(bytes, writable: false));
+        output.Write(bytes);
+    }
 }

@@ -126,15 +126,4 @@ public sealed class EscapeTypewriterPresentation
         /// <summary>Exposes the same ordered line sequence through the non-generic collection interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-
-    /// <summary>Serializes and validates both warning programs before writing their UTF-8 document bytes to the destination.</summary>
-    /// <param name="output">Non-null caller-owned writable stream, written at its current position without being disposed.</param>
-    /// <param name="document">Selected programs satisfying the same schema, alphabet, and placement limits as <see cref="Load"/>.</param>
-    /// <exception cref="InvalidDataException">The document is null or fails warning-program validation.</exception>
-    public static void Write(Stream output, EscapeTypewriterDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        output.Write(bytes);
-    }
 }

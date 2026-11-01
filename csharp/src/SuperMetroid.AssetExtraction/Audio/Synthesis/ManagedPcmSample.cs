@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -24,13 +23,13 @@ public sealed class ManagedPcmSample
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         Ensure.NotNull(samples);
-        if (sampleRate is < PcmSampleFormat.MinimumReplacementSampleRate or
-            > PcmSampleFormat.MaximumReplacementSampleRate)
+        if (sampleRate is < InstrumentSampleFormat.MinimumReplacementSampleRate or
+            > InstrumentSampleFormat.MaximumReplacementSampleRate)
         {
             throw new InvalidDataException(
                 $"PCM sample '{id}' rate {sampleRate} Hz is outside " +
-                $"{PcmSampleFormat.MinimumReplacementSampleRate}-" +
-                $"{PcmSampleFormat.MaximumReplacementSampleRate} Hz.");
+                $"{InstrumentSampleFormat.MinimumReplacementSampleRate}-" +
+                $"{InstrumentSampleFormat.MaximumReplacementSampleRate} Hz.");
         }
         if (samples.Length == 0)
             throw new InvalidDataException($"PCM sample '{id}' is empty.");

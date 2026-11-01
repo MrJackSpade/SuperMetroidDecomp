@@ -17,6 +17,7 @@ using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 namespace SuperMetroid.ResourceAudit.Resources;
 

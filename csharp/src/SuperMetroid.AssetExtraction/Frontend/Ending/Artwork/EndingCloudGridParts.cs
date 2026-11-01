@@ -1,8 +1,8 @@
 using System.Collections;
 using Role = SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCloudSpriteDefinitions.Role;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Assets;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 

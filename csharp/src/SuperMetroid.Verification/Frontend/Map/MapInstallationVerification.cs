@@ -24,6 +24,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 /// <summary>Verifies that installed map and projectile overrides survive import, loading, and host startup.</summary>
 internal static class MapInstallationVerification
@@ -136,7 +137,7 @@ internal static class MapInstallationVerification
             RoomFxPaletteBlendDefinitions.FileName);
         var roomFxBlends = RequiredJson.Parse(File.ReadAllText(Path.Combine(
             installation.MapDirectory, RoomFxPaletteBlendDefinitions.FileName)));
-        string lavaBlendKey = RoomFxPaletteBlendRules.Key(RoomFxPaletteBlend.Lava);
+        string lavaBlendKey = RoomFxPaletteBlendDocumentRules.Key(RoomFxPaletteBlend.Lava);
         int lavaBlendRed = roomFxBlends.Required("blends").Required(lavaBlendKey).Required(0).Required("red").GetValue<int>();
         roomFxBlends.Required("blends").Required(lavaBlendKey).Required(0)["red"] = (lavaBlendRed + 1) % 32;
         File.WriteAllText(roomFxBlendOverride, roomFxBlends.ToJsonString());

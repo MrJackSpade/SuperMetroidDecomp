@@ -16,6 +16,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Enemies.Corpses;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 /// <summary>Checks Mother Brain corpse PNG import, VRAM transfers, and rotting buffer setup against native graphics.</summary>
 internal static class MotherBrainCorpseArtworkVerification

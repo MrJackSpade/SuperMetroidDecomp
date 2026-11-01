@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 

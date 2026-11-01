@@ -4,6 +4,7 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 

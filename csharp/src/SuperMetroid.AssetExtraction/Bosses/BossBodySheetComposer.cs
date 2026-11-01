@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -51,7 +52,7 @@ internal static class BossBodySheetComposer
         BossRoomCharacters? characters = null;
         foreach (RoomHeaderDefinition room in RoomHeaderDefinitions.All)
         {
-            RoomStateSettings? state = RoomStateSelection.GetStates(room)
+            RoomStateSettings? state = RoomStateLists.GetStates(room)
                 .FirstOrDefault(candidate => candidate.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == enemy));
             if (state is not null)
             {

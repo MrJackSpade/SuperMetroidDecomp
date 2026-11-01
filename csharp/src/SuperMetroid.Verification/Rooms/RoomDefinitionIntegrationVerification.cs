@@ -18,6 +18,7 @@ namespace SuperMetroid.Verification.Rooms;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 /// <summary>Checks compiled room definitions through the production post-Ceres landing path.</summary>
 internal static class RoomDefinitionIntegrationVerification

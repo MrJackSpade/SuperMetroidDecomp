@@ -8,7 +8,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -257,7 +257,7 @@ internal static class EnemySheetComposer
         hash.AppendData(sheet.PaletteIndices);
         hash.AppendData(sheet.Priorities);
         hash.AppendData(sheet.PartGroups);
-        hash.AppendData(SpriteSheet.Write(sheet.Manifest));
+        hash.AppendData(SpriteSheetManifestWriter.Write(sheet.Manifest));
         return Convert.ToHexString(hash.GetHashAndReset());
     }
 

@@ -7,6 +7,7 @@ namespace SuperMetroid.Verification.Rooms;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 /// <summary>Compares compiled room-state payloads and cartridge-free production selection with the pinned retail ROM.</summary>
 internal static class RoomStateDefinitionsVerification

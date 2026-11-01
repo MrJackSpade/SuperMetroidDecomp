@@ -11,6 +11,8 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
@@ -26,7 +28,7 @@ public static class CeresDoorVisualFiles
     {
         Ensure.NotNull(bus);
         byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            CeresSourceDefinitions.Door.Characters, CeresDoorVisualDefinitions.CharacterBytes);
+            CeresSourceDefinitions.Door.Characters, CeresDoorVisualFormat.CharacterBytes);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
             RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var image = new MemoryStream();
@@ -60,8 +62,8 @@ public static class CeresDoorVisualFiles
     /// <summary>Compiles an in-memory Ceres door PNG/JSON pair into owned runtime visual data without cartridge access.</summary>
     /// <param name="tilePng">Indexed PNG bytes for the fixed-size Ceres door tile transfer.</param>
     /// <param name="paletteJson">Versioned RGB5 appearance document bytes.</param>
-    /// <returns>The validated selected Ceres door visual catalog.</returns>
-    public static CeresDoorVisuals Load(byte[] tilePng, byte[] paletteJson) =>
+    /// <returns>The validated selected Ceres door characters and colours.</returns>
+    public static CeresDoorSourceArtwork Load(byte[] tilePng, byte[] paletteJson) =>
         Read(new MemoryStream(tilePng, writable: false),
             new MemoryStream(paletteJson, writable: false));
 
@@ -69,7 +71,7 @@ public static class CeresDoorVisualFiles
     /// <param name="tilePng">Caller-owned <c>ceres-door-tiles.png</c> stream compiling to $0400 bytes.</param>
     /// <param name="paletteJson">Caller-owned <c>ceres-door-colors.json</c> stream containing setup colors and animation rows.</param>
     /// <returns>The compiled visual snapshot; streams are consumed from their current positions and left open.</returns>
-    public static CeresDoorVisuals Read(Stream tilePng, Stream paletteJson)
+    public static CeresDoorSourceArtwork Read(Stream tilePng, Stream paletteJson)
     {
         Ensure.NotNull(tilePng);
         Ensure.NotNull(paletteJson);
@@ -93,8 +95,8 @@ public static class CeresDoorVisualFiles
         RgbColor[][] animation = document.Animation.Select((row, index) =>
             Compile(row, CeresDoorVisualDefinitions.AnimationColorCount,
                 $"animation row {index}")).ToArray();
-        RoomCharacterAtlas tiles = RoomCharacterAtlasPng.Read(tilePng, CeresDoorVisualDefinitions.CharacterBytes);
-        return CeresDoorVisuals.Load(tiles, normal, escape, animation);
+        RoomCharacterAtlas tiles = RoomCharacterAtlasPng.Read(tilePng, CeresDoorVisualFormat.CharacterBytes);
+        return new CeresDoorSourceArtwork(tiles, CeresDoorVisuals.Load(normal, escape, animation));
     }
 
     /// <summary>Serializes visual JSON as indented camel-case UTF-8, validating version, palette dimensions and RGB5 bounds before returning it; PNG admission is a separate boundary.</summary>

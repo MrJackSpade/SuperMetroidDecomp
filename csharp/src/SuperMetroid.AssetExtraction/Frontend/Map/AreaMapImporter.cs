@@ -3,6 +3,7 @@ using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Progression;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

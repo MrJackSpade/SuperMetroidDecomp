@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas;
 /// </summary>
 public abstract record AreaArtworkBundle
 {
-    /// <summary>The Ceres door actor's special tile transfer and RGB5 rows.</summary>
+    /// <summary>The Ceres door's colours; its characters belong to the import pipeline's subclass.</summary>
     public CeresDoorVisuals? CeresDoorVisual { get; init; }
 
     /// <summary>Editable entrance, eye and grey colors; statue unlocking stays compiled.</summary>

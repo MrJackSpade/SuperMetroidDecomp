@@ -7,9 +7,9 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Escape.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -31,7 +31,7 @@ internal static class SpriteArtworkBytes
         return source switch
         {
             InstalledArtworkCharacters named => installed.Resolve(named.Artwork),
-            CeresDoorCharacters => (Areas(installed).CeresDoorVisual ?? throw new InvalidDataException(
+            CeresDoorCharacters => (Areas(installed).CeresDoor ?? throw new InvalidDataException(
                 "Installed area artwork has no Ceres door visuals.")).Characters,
             CeresWarningTextPage warning => (Areas(installed).CeresEscapeTiles ?? throw new InvalidDataException(
                     "Installed Ceres escape has no editable character pages."))

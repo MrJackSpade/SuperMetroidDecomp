@@ -4,6 +4,8 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 
@@ -29,8 +31,8 @@ internal static class LookupCeresDefaultTintsVerification
             var scalar = RoomFxPaletteBlendRules.StockCeresHazeTint(dead);
             AssertEqual(expected, channelMask == 0x20 ? scalar.Red : channelMask == 0x40 ? scalar.Green : scalar.Blue,
                 "Scalar tint view uses the same native component");
-            AssertEqual(expected, component(RoomFxPaletteBlendRules.StockCeresHaze(dead ? CeresHazeColor.Red : CeresHazeColor.Blue)), "Original Ceres default channel/amplitude");
-            AssertEqual(expected, component(dead ? RoomFxPaletteBlendRules.StockCeresHazeRed : RoomFxPaletteBlendRules.StockCeresHazeBlue), "Named default tint alias");
+            AssertEqual(expected, component(RoomFxPaletteBlendDocumentRules.StockCeresHaze(dead ? CeresHazeColor.Red : CeresHazeColor.Blue)), "Original Ceres default channel/amplitude");
+            AssertEqual(expected, component(dead ? RoomFxPaletteBlendDocumentRules.StockCeresHazeRed : RoomFxPaletteBlendDocumentRules.StockCeresHazeBlue), "Named default tint alias");
             AssertEqual(expected, component(dead ? stock.CeresHazeRed : stock.CeresHazeBlue), "Imported default tint channel");
         }
     }
@@ -40,7 +42,7 @@ internal static class LookupCeresDefaultTintsVerification
     {
         AssertEqual(ReadVerificationWord(rom, 0x88de43), CeresHazeDefinitions.FadeSteps, "Original native fade stop counter");
         foreach (string name in new[] { "StockCeresHazeBlue", "StockCeresHazeRed" })
-            AssertTrue(!MetadataShape.DeclaresField(typeof(RoomFxPaletteBlendDefinitions), $"<{name}>k__BackingField", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic),
+            AssertTrue(!MetadataShape.DeclaresField(typeof(RoomFxPaletteBlendDocumentRules), $"<{name}>k__BackingField", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic),
                 "Default tint is calculated rather than stored in a static record");
     }
 }

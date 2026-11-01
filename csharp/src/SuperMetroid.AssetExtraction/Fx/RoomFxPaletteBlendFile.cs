@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 
@@ -18,16 +19,16 @@ public static class RoomFxPaletteBlendFile
         RoomFxPaletteBlendDocument document;
         document = JsonAssetDocument.Read<RoomFxPaletteBlendDocument>(json, ArtworkJson.Options, "room-FX blend palette");
         if (document.Version != RoomFxPaletteBlendDefinitions.Version ||
-            document.Blends is null || document.Blends.Count != RoomFxPaletteBlendRules.Ids.Count())
+            document.Blends is null || document.Blends.Count != RoomFxPaletteBlendDocumentRules.Ids.Count())
             throw new InvalidDataException("Room-FX blend palettes require the supported version and all eight selections.");
 
-        return new(new RoomFxPaletteBlendParts { Lava = Compile(RoomFxPaletteBlend.Lava), LandingSiteRain = Compile(RoomFxPaletteBlend.LandingSiteRain), MaridiaWaterA = Compile(RoomFxPaletteBlend.MaridiaWaterA), WaterAndAcid = Compile(RoomFxPaletteBlend.WaterAndAcid), Fog = Compile(RoomFxPaletteBlend.Fog), MaridiaWaterB = Compile(RoomFxPaletteBlend.MaridiaWaterB), MaridiaWaterC = Compile(RoomFxPaletteBlend.MaridiaWaterC), MaridiaWaterD = Compile(RoomFxPaletteBlend.MaridiaWaterD), CeresHazeBlue = HazeTint(document.CeresHazeBlue, RoomFxPaletteBlendRules.StockCeresHazeBlue,
-                nameof(document.CeresHazeBlue)), CeresHazeRed = HazeTint(document.CeresHazeRed, RoomFxPaletteBlendRules.StockCeresHazeRed,
+        return new(new RoomFxPaletteBlendParts { Lava = Compile(RoomFxPaletteBlend.Lava), LandingSiteRain = Compile(RoomFxPaletteBlend.LandingSiteRain), MaridiaWaterA = Compile(RoomFxPaletteBlend.MaridiaWaterA), WaterAndAcid = Compile(RoomFxPaletteBlend.WaterAndAcid), Fog = Compile(RoomFxPaletteBlend.Fog), MaridiaWaterB = Compile(RoomFxPaletteBlend.MaridiaWaterB), MaridiaWaterC = Compile(RoomFxPaletteBlend.MaridiaWaterC), MaridiaWaterD = Compile(RoomFxPaletteBlend.MaridiaWaterD), CeresHazeBlue = HazeTint(document.CeresHazeBlue, RoomFxPaletteBlendDocumentRules.StockCeresHazeBlue,
+                nameof(document.CeresHazeBlue)), CeresHazeRed = HazeTint(document.CeresHazeRed, RoomFxPaletteBlendDocumentRules.StockCeresHazeRed,
                 nameof(document.CeresHazeRed)) });
 
         RoomFxBlendColors Compile(RoomFxPaletteBlend id)
         {
-            if (!document.Blends.TryGetValue(RoomFxPaletteBlendRules.Key(id), out PaletteRgb5[]? colors) ||
+            if (!document.Blends.TryGetValue(RoomFxPaletteBlendDocumentRules.Key(id), out PaletteRgb5[]? colors) ||
                 colors is null || colors.Length != RoomFxPaletteBlendDefinitions.ColorCount)
                 throw new InvalidDataException($"Room-FX blend {id} requires three colors.");
             var words = new RgbColor[colors.Length];

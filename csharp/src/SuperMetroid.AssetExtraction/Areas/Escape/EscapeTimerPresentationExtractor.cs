@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using System.Text.Json;
 using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
@@ -10,7 +12,7 @@ public static class EscapeTimerPresentationExtractor
     public static byte[] Extract()
     {
         using var output = new MemoryStream();
-        EscapeTimerPresentation.Write(output, new()
+        Write(output, new()
         {
             Version = EscapeTimerPresentationDefinitions.Version,
             DigitSpacing = 8,
@@ -23,5 +25,16 @@ public static class EscapeTimerPresentationExtractor
             },
         });
         return output.ToArray();
+    }
+
+    /// <summary>Serializes and validates a timer document before writing any of its UTF-8 JSON bytes.</summary>
+    /// <param name="output">Destination stream written at its current position and left open; existing trailing bytes are not truncated.</param>
+    /// <param name="document">Authored layout whose collections are read for serialization, not retained by the writer.</param>
+    /// <exception cref="InvalidDataException">The serialized document fails the same schema and anchor checks as <see cref="EscapeTimerPresentation.Load"/>.</exception>
+    public static void Write(Stream output, EscapeTimerPresentationDocument document)
+    {
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        _ = EscapeTimerPresentation.Load(new MemoryStream(bytes, writable: false));
+        output.Write(bytes);
     }
 }

@@ -20,6 +20,7 @@ namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 /// <summary>Constructs cartridge-free enemy-effect artwork and Crocomire state fixtures.</summary>
 internal static class EnemyEffectsFixtureVerification

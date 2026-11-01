@@ -30,6 +30,7 @@ using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -16,9 +17,9 @@ internal static class RoomStateDefinitionsAccess
     /// <summary>The pointers of a room's states.</summary>
     extension(RoomStateSelection)
     {
-        /// <summary>The pointers of <see cref="RoomStateSelection.GetStates"/>, default first.</summary>
+        /// <summary>The pointers of <see cref="RoomStateLists.GetStates"/>, default first.</summary>
         internal static IReadOnlyList<ushort> GetStatePointers(RoomHeaderDefinition room) =>
-            RoomStateSelection.GetStates(room).Select(RoomStateSourcesConstants.PointerOf).ToArray();
+            RoomStateLists.GetStates(room).Select(RoomStateSourcesConstants.PointerOf).ToArray();
     }
 
     /// <summary>The bank-$8F pointer of a state.</summary>

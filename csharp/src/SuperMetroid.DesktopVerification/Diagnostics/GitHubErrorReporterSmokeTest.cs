@@ -1,7 +1,6 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Runtime;
@@ -16,6 +15,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Assets;
 namespace SuperMetroid.DesktopVerification.Diagnostics;
 
 /// <summary>Deterministic audit of stable fingerprints and both deduplication layers.</summary>

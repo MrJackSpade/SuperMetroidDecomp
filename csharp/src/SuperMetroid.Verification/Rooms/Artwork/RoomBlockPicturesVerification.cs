@@ -27,6 +27,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -72,7 +73,7 @@ internal static class RoomBlockPicturesVerification
         Check(RoomHeaderDefinitions.CeresRidley, expectUploads: false);
         // The treadmills run once Phantoon, the Wrecked Ship's boss, is defeated.
         Check(RoomHeaderDefinitions.WreckedShipMainShaft, expectUploads: true,
-            RoomStateSelection.GetStates(RoomHeaderDefinitions.WreckedShipMainShaft)
+            RoomStateLists.GetStates(RoomHeaderDefinitions.WreckedShipMainShaft)
                 .Single(state => state.Fx?.Records.Any(record => record.AnimatedTileSlots != RoomFxEffectSlots.None) == true),
             runtime => runtime.System.SetBossBits((int)AreaId.WreckedShip, BossBits.AreaBoss));
     }
@@ -282,7 +283,7 @@ internal static class RoomBlockPicturesVerification
         var rooms = new List<RoomHeaderDefinition> { RoomHeaderDefinitions.Kraid };
         foreach (RoomFxType effect in new[] { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water, RoomFxType.Rain, RoomFxType.Fog, RoomFxType.Spores })
         {
-            rooms.Add(RoomHeaderDefinitions.All.First(room => RoomStateSelection.GetStates(room)[0].Fx?.Records
+            rooms.Add(RoomHeaderDefinitions.All.First(room => RoomStateLists.GetStates(room)[0].Fx?.Records
                 .Any(record => record.Type == effect) == true));
         }
         foreach (RoomHeaderDefinition room in rooms)

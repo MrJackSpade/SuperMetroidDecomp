@@ -9,6 +9,7 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -277,7 +278,7 @@ public static class RoomVisualLayoutFiles
         foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)
         {
             int width = header.Size.ToRoomBlocks().X;
-            foreach (RoomStateSettings state in RoomStateSelection.GetStates(header))
+            foreach (RoomStateSettings state in RoomStateLists.GetStates(header))
             {
                 RoomLevelId level = state.Level;
                 if (levels.TryGetValue(level, out int existing) && existing != width)

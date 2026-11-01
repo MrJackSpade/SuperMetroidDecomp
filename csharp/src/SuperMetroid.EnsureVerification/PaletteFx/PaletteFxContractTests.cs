@@ -95,7 +95,7 @@ internal static class PaletteFxContractTests
         public bool TryReadColor(PaletteFxColorKey key, out RgbColor color)
         {
             color = new RgbColor(31, 0, 0); // Constructed red confirms the first native frame executes after the rejection.
-            return key == CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineRows.Color(0, 0);
+            return key == PaletteFxColorRows.Of(PaletteFxProgram.CutsceneGunshipEngineFlicker1, colorsPerFrame: 1).Color(0, 0);
         }
     }
 }

@@ -74,6 +74,10 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Assets;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for Ceres, boss, projectile and map visual definitions in lookup stream five.</summary>
@@ -332,7 +336,7 @@ internal static class LookupStream5Verification
             Escape = Colors(CeresSourceDefinitions.Door.EscapeColors,15),
             Animation = Enumerable.Range(0,8).Select(row => Colors(CeresSourceDefinitions.Door.AnimationColors +16*row,6)).ToArray(),
         };
-        byte[] planar = Enumerable.Range(0,CeresDoorVisualDefinitions.CharacterBytes)
+        byte[] planar = Enumerable.Range(0,CeresDoorVisualFormat.CharacterBytes)
             .Select(index => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters+index)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
@@ -350,7 +354,7 @@ internal static class LookupStream5Verification
         RoomFloor floor = RoomBackgroundsFixtures.CeresFloor();
         var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), services: new StandaloneRoomEnemyServices(() => 0) { Floor = floor })
         {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = stock },
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoor = stock },
         };
         system.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         var slots = (RoomEnemySlot[])system.SlotTable.Slots;
@@ -1553,18 +1557,18 @@ internal static class LookupStream5Verification
             Escape = Colors(CeresSourceDefinitions.Door.EscapeColors,15),
             Animation = Enumerable.Range(0,8).Select(row => Colors(CeresSourceDefinitions.Door.AnimationColors +16*row,6)).ToArray(),
         };
-        byte[] planar = Enumerable.Range(0,CeresDoorVisualDefinitions.CharacterBytes)
+        byte[] planar = Enumerable.Range(0,CeresDoorVisualFormat.CharacterBytes)
             .Select(index => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters+index)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         byte[] pngBytes = png.ToArray();
-        CeresDoorVisuals Load(CeresDoorVisualDocument value) => CeresDoorVisualFiles.Read(
+        CeresDoorSourceArtwork Load(CeresDoorVisualDocument value) => CeresDoorVisualFiles.Read(
             new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualFiles.Write(value)));
         var stock = Load(document);
         Check(stock,document);
-        var animation = stock.animation;
-        var escape = stock.escape;
+        var animation = stock.Visuals.animation;
+        var escape = stock.Visuals.escape;
         AssertEqual(0, animation.seedEdits.Count,
             "stock animation seeds derive from the normal paint");
         AssertEqual(0, animation.edits.Count,
@@ -1594,8 +1598,8 @@ internal static class LookupStream5Verification
             var changed = document with { Animation = rows };
             Check(Load(changed),changed);
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadAnimationColors(new BackgroundColourSets(),-1),"Ceres animation lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadAnimationColors(new BackgroundColourSets(),8),"Ceres animation upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Visuals.LoadAnimationColors(new BackgroundColourSets(),-1),"Ceres animation lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Visuals.LoadAnimationColors(new BackgroundColourSets(),8),"Ceres animation upper bound");
         Console.WriteLine("Stream 5 Ceres door ramp:48 native colors,48 independently edited cells, actual CGRAM,90 independent setup-channel edits, six shared setup slots and canonical identities pass; stock seeds, phases and escape colors store no edits.");
 
         PaletteRgb5[] Colors(int source,int count) => Enumerable.Range(0,count).Select(index =>
@@ -1604,8 +1608,9 @@ internal static class LookupStream5Verification
             return new PaletteRgb5 { Red = word &31, Green = (word>>5)&31, Blue = (word>>10)&31 };
         }).ToArray();
         static ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green<<5 | color.Blue<<10);
-        void Check(CeresDoorVisuals actual,CeresDoorVisualDocument expected)
+        void Check(CeresDoorSourceArtwork source,CeresDoorVisualDocument expected)
         {
+            CeresDoorVisuals actual = source.Visuals;
             var cgram = new GameplayColours(new SpriteColourSets());
             for(int row =0;row<8;row++)
             {
@@ -1623,7 +1628,7 @@ internal static class LookupStream5Verification
                 content.AppendWords("escape",expected.Escape.Select(Pack).ToArray());
                 content.AppendWordFrames("animation",expected.Animation.Select(row=>row.Select(Pack).ToArray()).ToArray());
             });
-            AssertEqual(identity,actual.ContentIdentity,"Ceres calculated colors preserve canonical resource identity");
+            AssertEqual(identity,source.ContentIdentity,"Ceres calculated colors preserve canonical resource identity");
         }
     }
     /// <summary>Checks the extraction's corpse row upload lists and the corpse geometry bounds.</summary>
@@ -1955,7 +1960,7 @@ internal static class LookupStream5Verification
             Version = 1, Normal = Colors(CeresSourceDefinitions.Door.NormalColors, 15), Escape = Colors(CeresSourceDefinitions.Door.EscapeColors, 15),
             Animation = Enumerable.Range(0, 8).Select(row => Colors(CeresSourceDefinitions.Door.AnimationColors + 16 * row, 6)).ToArray(),
         };
-        byte[] planar = Enumerable.Range(0, CeresDoorVisualDefinitions.CharacterBytes).Select(i => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters + i)).ToArray();
+        byte[] planar = Enumerable.Range(0, CeresDoorVisualFormat.CharacterBytes).Select(i => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -1988,7 +1993,7 @@ internal static class LookupStream5Verification
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), basis.ColorAt(color), "Every supplied normal channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
-                var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = visual } };
+                var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoor = visual } };
                 var cgram = new SamusColourRig();
                 system.Presentation.BindColours(cgram.Gameplay);
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(EnemyDefinitionId.CeresDoor, variant);
@@ -2019,7 +2024,7 @@ internal static class LookupStream5Verification
             Version = 1, Normal = Colors(CeresSourceDefinitions.Door.NormalColors, 15), Escape = Colors(CeresSourceDefinitions.Door.EscapeColors, 15),
             Animation = Enumerable.Range(0, 8).Select(row => Colors(CeresSourceDefinitions.Door.AnimationColors + 16 * row, 6)).ToArray(),
         };
-        byte[] planar = Enumerable.Range(0, CeresDoorVisualDefinitions.CharacterBytes).Select(i => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters + i)).ToArray();
+        byte[] planar = Enumerable.Range(0, CeresDoorVisualFormat.CharacterBytes).Select(i => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         CeresDoorEscapePaint stock = Check();
@@ -2050,7 +2055,7 @@ internal static class LookupStream5Verification
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), basis.ColorAt(color), "Every supplied escape channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
-                var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = visual } };
+                var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoor = visual } };
                 var cgram = new SamusColourRig();
                 system.Presentation.BindColours(cgram.Gameplay);
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(EnemyDefinitionId.CeresDoor, variant);
@@ -2081,7 +2086,7 @@ internal static class LookupStream5Verification
             Version = 1, Normal = Colors(CeresSourceDefinitions.Door.NormalColors, 15), Escape = Colors(CeresSourceDefinitions.Door.EscapeColors, 15),
             Animation = Enumerable.Range(0, 8).Select(row => Colors(CeresSourceDefinitions.Door.AnimationColors + 16 * row, 6)).ToArray(),
         };
-        byte[] planar = Enumerable.Range(0, CeresDoorVisualDefinitions.CharacterBytes).Select(i => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters + i)).ToArray();
+        byte[] planar = Enumerable.Range(0, CeresDoorVisualFormat.CharacterBytes).Select(i => rom.ReadCartridgeByte(CeresSourceDefinitions.Door.Characters + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         CeresDoorAnimationPaint stock = Check(-1);
@@ -2113,7 +2118,7 @@ internal static class LookupStream5Verification
             var visual = CeresDoorVisualFiles.Read(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualFiles.Write(document)));
             for (int row = 0; row < 8; row++) for (int color = 0; color < 6; color++)
                 AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel remains independent");
-            var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), services: new StandaloneRoomEnemyServices(() => 0) { Floor = RoomBackgroundsFixtures.CeresFloor() }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = visual } };
+            var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), services: new StandaloneRoomEnemyServices(() => 0) { Floor = RoomBackgroundsFixtures.CeresFloor() }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoor = visual } };
             var cgram = new SamusColourRig();
             system.Presentation.BindColours(cgram.Gameplay);
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));

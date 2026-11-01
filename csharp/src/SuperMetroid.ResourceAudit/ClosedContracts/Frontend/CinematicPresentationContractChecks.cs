@@ -51,7 +51,6 @@ internal static class CinematicPresentationContractChecks
                     motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(998), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroMotherBrain);
                     explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(67), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroExplosions);
                     explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(997), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroExplosions);
-                    _ = door.Characters;
                     door.LoadNormalColors(screen.SpriteSets.Set(2));
                     door.LoadEscapeColors(screen.SpriteSets.Set(7));
                     door.LoadAnimationColors(backgrounds, CeresDoorVisualDefinitions.AnimationRowCount - 1);

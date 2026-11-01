@@ -5,6 +5,7 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -113,7 +114,7 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x2c, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(RoomFxType.CeresHaze), "Ceres haze type byte");
         AssertEqual(0x34, RoomFxRecordCodec.LayerBlends.Word(LayerBlendingConfiguration.MotherBrainPhaseTwo), "Mother Brain blend byte");
         AssertEqual(0xee, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(RoomFxPaletteBlend.MaridiaWaterD), "Maridia water D blend byte");
-        AssertEqual("blend-EE", RoomFxPaletteBlendRules.Key(RoomFxPaletteBlend.MaridiaWaterD), "installed blend key keeps its name");
+        AssertEqual("blend-EE", RoomFxPaletteBlendDocumentRules.Key(RoomFxPaletteBlend.MaridiaWaterD), "installed blend key keeps its name");
         AssertEqual((byte)0x80, RoomFxRecordEncoding.SlotsByte(RoomFxEffectSlotSet.Slot(7)), "eighth effect slot");
         Console.WriteLine("Fx definition migration: native words, catalog values, atlas picture sources, effect page sources and decoded FX records keep their values.");
     }

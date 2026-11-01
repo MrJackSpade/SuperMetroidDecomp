@@ -4,6 +4,7 @@ using System.Buffers.Binary;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 
@@ -19,7 +20,7 @@ public static class RoomFxPaletteBlendExtractor
     {
         Ensure.NotNull(bus);
         var blends = new Dictionary<string, PaletteRgb5[]>();
-        foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendRules.Ids)
+        foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendDocumentRules.Ids)
         {
             RgbColor? calculatedThird = RoomFxPaletteBlendRules.CalculatedThirdColor(id);
             byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
@@ -39,14 +40,14 @@ public static class RoomFxPaletteBlendExtractor
                     Blue = index < 2 ? RoomFxPaletteBlendRules.CalculatedPairBlue(id, red, green, index == 0) ?? stored.Blue : RoomFxPaletteBlendRules.CalculatedThirdBlue(id, red) ?? stored.Blue,
                 };
             }
-            blends.Add(RoomFxPaletteBlendRules.Key(id), colors);
+            blends.Add(RoomFxPaletteBlendDocumentRules.Key(id), colors);
         }
         return RoomFxPaletteBlendFile.Write(new RoomFxPaletteBlendDocument
         {
             Version = RoomFxPaletteBlendDefinitions.Version,
             Blends = blends,
-            CeresHazeBlue = PaletteRgb5.From(RoomFxPaletteBlendRules.StockCeresHazeBlue),
-            CeresHazeRed = PaletteRgb5.From(RoomFxPaletteBlendRules.StockCeresHazeRed),
+            CeresHazeBlue = PaletteRgb5.From(RoomFxPaletteBlendDocumentRules.StockCeresHazeBlue),
+            CeresHazeRed = PaletteRgb5.From(RoomFxPaletteBlendDocumentRules.StockCeresHazeRed),
         });
     }
 }

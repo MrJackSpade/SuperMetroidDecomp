@@ -11,6 +11,8 @@ using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Escape.Artwork;
 
 namespace SuperMetroid.Verification.Areas;
 
@@ -36,7 +38,7 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(6, CeresFloorDrawingDefinitions.Frames[CeresFloorAnimationFrame.WingFrame0].Count, "the wings' six runs");
 
         // CeresDoorVisualRomData: its counts are Core's, its sources extraction's.
-        AssertEqual(0x0400, CeresDoorVisualDefinitions.CharacterBytes, "door character bytes");
+        AssertEqual(0x0400, CeresDoorVisualFormat.CharacterBytes, "door character bytes");
         AssertEqual(15, CeresDoorVisualDefinitions.SetupColorCount, "door setup colours");
         AssertEqual(8, CeresDoorVisualDefinitions.AnimationRowCount, "door glow rows");
         AssertEqual(6, CeresDoorVisualDefinitions.AnimationColorCount, "door glow colours");

@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Fx.PaletteFx;
+
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>A native timed record as the ROM oracles read it: its timer word and the colour words that follow.</summary>

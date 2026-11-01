@@ -2,7 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 

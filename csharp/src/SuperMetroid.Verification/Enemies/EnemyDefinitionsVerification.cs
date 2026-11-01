@@ -14,6 +14,7 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 /// <summary>Checks compiled enemy headers and auxiliary Mother Brain tube placements against retail records.</summary>
 internal static class EnemyDefinitionsVerification

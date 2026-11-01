@@ -14,6 +14,7 @@ namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 /// <summary>Audits instruction ownership for every named retail enemy definition and population variant.</summary>
 internal static class EnemyInstructionOwnerCoverageVerification

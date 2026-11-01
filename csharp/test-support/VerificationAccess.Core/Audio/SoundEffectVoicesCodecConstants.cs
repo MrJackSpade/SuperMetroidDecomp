@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Audio;
+﻿using SuperMetroid.AssetExtraction.Audio;
+
+namespace SuperMetroid.Core.Audio;
 
 /// <summary>Cartridge values and helpers of <see cref="SoundEffectVoicesCodec"/> that only verification reads.</summary>
 internal static class SoundEffectVoicesCodecConstants

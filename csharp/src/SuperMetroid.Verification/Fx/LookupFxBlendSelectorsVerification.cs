@@ -20,13 +20,13 @@ internal static class LookupFxBlendSelectorsVerification
     internal static void VerifyFxBlendSelectorIdentities()
     {
         byte[] original = OriginalFxBlendIds();
-        AssertTrue(original.SequenceEqual(RoomFxPaletteBlendRules.Ids.Select(id => (byte)SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(id))), "Original blend selector order/domain");
+        AssertTrue(original.SequenceEqual(RoomFxPaletteBlendDocumentRules.Ids.Select(id => (byte)SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(id))), "Original blend selector order/domain");
         for (int value = 0; value <= byte.MaxValue; value++)
         {
             byte id = (byte)value;
             if (original.Contains(id))
-                AssertEqual($"blend-{id:X2}", RoomFxPaletteBlendRules.Key(FxNativeWords.PaletteBlend(id)), "Original document key");
-            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendRules.Key(FxNativeWords.PaletteBlend(id)), "Unknown selector key rejects");
+                AssertEqual($"blend-{id:X2}", RoomFxPaletteBlendDocumentRules.Key(FxNativeWords.PaletteBlend(id)), "Original document key");
+            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDocumentRules.Key(FxNativeWords.PaletteBlend(id)), "Unknown selector key rejects");
         }
     }
 

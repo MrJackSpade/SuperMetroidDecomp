@@ -1325,7 +1325,7 @@ internal static class LookupStream1Verification
         EscapeTimerPresentationDocument Read() => RequiredJson.Deserialize<EscapeTimerPresentationDocument>(json, ArtworkJson.Options);
         static EscapeTimerPresentation Load(EscapeTimerPresentationDocument value)
         {
-            using var stream = new MemoryStream(); EscapeTimerPresentation.Write(stream, value); stream.Position = 0;
+            using var stream = new MemoryStream(); EscapeTimerPresentationExtractor.Write(stream, value); stream.Position = 0;
             return EscapeTimerPresentation.Load(stream);
         }
         OamBuffer DrawDocument(EscapeTimerPresentationDocument selected)
@@ -2275,7 +2275,7 @@ internal static class LookupStream1Verification
         EscapeTypewriterPresentation Load(EscapeTypewriterDocument value)
         {
             using var output = new MemoryStream();
-            EscapeTypewriterPresentation.Write(output, value);
+            EscapeTypewriterExtractor.Write(output, value);
             output.Position = 0;
             return EscapeTypewriterPresentation.Load(output);
         }

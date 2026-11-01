@@ -31,12 +31,12 @@ internal static class GrappleSpriteArtworkVerification
         SpriteSheetSources composed = GrappleSheetComposer.Sources(SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory));
         Dictionary<string, SpriteFrame> frames = composed.Frames.ToDictionary(frame => frame.Name, frame => frame.Frame, StringComparer.Ordinal);
         int cases = 0;
-        for (int point = 0; point < GrappleSheetDefinitions.EndpointFrameCount; point++, cases++)
+        for (int point = 0; point < GrappleSheetComposer.EndpointFrameCount; point++, cases++)
             AssertEqual(SpritePartFrames.SmallObject(catalog.Endpoint, 0).Parts.Single(),
                 frames[GrappleSheets.EndpointFrame(point)].Parts.Single(), $"Grapple endpoint frame {point} is the native endpoint OBJ");
         foreach (GrappleRopeOrientation orientation in Enum.GetValues<GrappleRopeOrientation>())
         for (int segment = 0; segment < GrappleSpriteDefinitions.SegmentFrameCount; segment++)
-        foreach (SpriteMirror mirror in GrappleSheetDefinitions.RopeMirrors)
+        foreach (SpriteMirror mirror in GrappleSheetComposer.RopeMirrors)
         {
             TileFlip flips = ((mirror & SpriteMirror.Horizontal) != 0 ? TileFlip.Horizontal : TileFlip.None) |
                 ((mirror & SpriteMirror.Vertical) != 0 ? TileFlip.Vertical : TileFlip.None);

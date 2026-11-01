@@ -9,7 +9,6 @@ using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Death;
@@ -173,7 +172,7 @@ internal static class SamusBodyArtworkVerification
                 $"atmospheric type {type} uses installed Samus OAM art with native parity");
         }
         foreach (byte type in new byte[] { 1, 4, 6, 7 })
-        for (byte frame = 0; frame < SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount; frame++)
+        for (byte frame = 0; frame < SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount; frame++)
         {
             ushort pointer = type == 1
                 ? SamusSourceDefinitions.TypeOneAtmosphericAttributes

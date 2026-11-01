@@ -13,14 +13,7 @@ public static class GrappleSheets
     public static string RopeFrame(GrappleRopeOrientation orientation, int segmentFrame, SpriteMirror mirror) =>
         $"Rope.{orientation}.{segmentFrame}.{MirrorName(mirror)}";
 
-    /// <summary>The frame-name segment for a rope mirroring, in <see cref="GrappleSheetDefinitions.RopeMirrors"/> order.</summary>
+    /// <summary>The frame-name segment for a rope mirroring.</summary>
     private static string MirrorName(SpriteMirror mirror) =>
         MirrorNames.TryGetValue(mirror, out string? value) ? value : throw new ArgumentOutOfRangeException(nameof(mirror), mirror, "Undefined rope mirroring.");
-
-    /// <summary>Every frame the grapple sheet holds.</summary>
-    public static IEnumerable<string> Frames =>
-        Enumerable.Range(0, EndpointFrameCount).Select(EndpointFrame)
-            .Concat(Enum.GetValues<GrappleRopeOrientation>().SelectMany(orientation =>
-                Enumerable.Range(0, SuperMetroid.Core.Samus.Grapple.GrappleBeamDefinitions.Rendering.SegmentAnimationFrameCount).SelectMany(segment =>
-                    RopeMirrors.Select(mirror => RopeFrame(orientation, segment, mirror)))));
 }

@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -14,6 +13,19 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusAtmosphereSheetComposer
 {
+    /// <summary>The animation frames the diving splash shows.</summary>
+    internal static int DivingSplashFrameCount => SamusAtmosphericAnimations.FrameCount(SamusAtmosphericEffectType.DivingSplash);
+
+    /// <summary>The animation frames the bubbles show.</summary>
+    internal static int BubblesFrameCount => SamusAtmosphericAnimations.FrameCount(SamusAtmosphericEffectType.Bubbles);
+
+    /// <summary>Every frame the sheet holds.</summary>
+    internal static IEnumerable<string> Frames =>
+        Enumerable.Range(0, SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount).Select(SamusAtmosphereSheetDefinitions.FootstepFrame)
+            .Concat(Enumerable.Range(0, SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount).Select(SamusAtmosphereSheetDefinitions.LavaAndDustFrame))
+            .Concat(Enumerable.Range(0, DivingSplashFrameCount).Select(SamusAtmosphereSheetDefinitions.DivingSplashFrame))
+            .Concat(Enumerable.Range(0, BubblesFrameCount).Select(SamusAtmosphereSheetDefinitions.BubblesFrame));
+
     /// <summary>The atmospheric type whose list the footstep splash draws.</summary>
     private const int FootstepType = (int)SamusAtmosphericEffectType.FootstepSplash;
 
@@ -32,17 +44,17 @@ internal static class SamusAtmosphereSheetComposer
         Ensure.NotNull(spritemaps);
         Ensure.NotNull(atmosphere);
         var frames = new List<SheetFrameSource>();
-        for (int frame = 0; frame < SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount; frame++)
+        for (int frame = 0; frame < SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount; frame++)
         {
             frames.Add(Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FootstepFrame(frame), FootstepType, frame));
             frames.Add(Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.LavaAndDustFrame(frame), LavaAndDustType, frame));
         }
-        for (int frame = 0; frame < SamusAtmosphereSheetDefinitions.DivingSplashFrameCount; frame++)
+        for (int frame = 0; frame < DivingSplashFrameCount; frame++)
         {
             frames.Add(Spritemap(inputs, spritemaps, SamusAtmosphereSheetDefinitions.DivingSplashFrame(frame),
                 SamusAtmosphericArtworkDefinitions.DivingSplashFirstEntry + frame));
         }
-        for (int frame = 0; frame < SamusAtmosphereSheetDefinitions.BubblesFrameCount; frame++)
+        for (int frame = 0; frame < BubblesFrameCount; frame++)
         {
             frames.Add(Spritemap(inputs, spritemaps, SamusAtmosphereSheetDefinitions.BubblesFrame(frame),
                 SamusAtmosphericArtworkDefinitions.BubblesFirstEntry + frame));

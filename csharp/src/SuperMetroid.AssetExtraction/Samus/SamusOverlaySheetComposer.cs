@@ -12,6 +12,16 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusOverlaySheetComposer
 {
+    /// <summary>The cover frames an open or opening cannon shows; the closed frame 0 draws nothing.</summary>
+    internal const int FirstCoverFrame = 1, LastCoverFrame = 3;
+
+    /// <summary>Every frame the sheet holds.</summary>
+    internal static IEnumerable<string> Frames =>
+        Enumerable.Range(0, SamusDrawingDefinitions.ArmCannon.DirectionCount)
+            .SelectMany(direction => Enumerable.Range(FirstCoverFrame, LastCoverFrame - FirstCoverFrame + 1)
+                .Select(frame => SamusOverlaySheetDefinitions.ArmCannonFrame(direction, frame)))
+            .Append(SamusOverlaySheetDefinitions.ChestCoverFrame);
+
     /// <summary>
     /// <c>$90:868D</c>: the chest cover is standard sprite character $21 in Samus's palette row, in front of every
     /// background.
@@ -31,7 +41,7 @@ internal static class SamusOverlaySheetComposer
         {
             // `$90:C7DF` uploads the frame's cover to the character the direction's attributes name.
             SpritePart cover = cannon.CoverAppearance(direction);
-            for (int frame = SamusOverlaySheetDefinitions.FirstCoverFrame; frame <= SamusOverlaySheetDefinitions.LastCoverFrame; frame++)
+            for (int frame = FirstCoverFrame; frame <= LastCoverFrame; frame++)
             {
                 frames.Add(new(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, frame),
                     SpritePartFrames.SmallObject(cover, cover.Character), cannon.CoverTile(direction, frame)));

@@ -78,8 +78,8 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
     internal static void VerifyProductionAtmosphericCadence()
     {
         var atmosphericArt = new SamusAtmosphericSourceArtwork(
-            new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount],
-            new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount]);
+            new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount],
+            new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount]);
         for (byte type = 1; type <= 7; type++)
         {
             // This fixture measures timer ownership. Keep the Samus-spritemap

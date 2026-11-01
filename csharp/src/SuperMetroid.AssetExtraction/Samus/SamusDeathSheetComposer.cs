@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -13,15 +14,25 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusDeathSheetComposer
 {
+    /// <summary>Every facing the explosion is drawn in.</summary>
+    internal static IReadOnlyList<HorizontalDirection> Facings { get; } = [HorizontalDirection.Right, HorizontalDirection.Left];
+
+    /// <summary>The explosion frames each facing shows.</summary>
+    internal const int ExplosionFrameCount = SamusDeathExplosionTimingDefinitions.RecordCount;
+
+    /// <summary>Every frame the sheet holds.</summary>
+    internal static IEnumerable<string> Frames =>
+        Facings.SelectMany(facing => Enumerable.Range(0, ExplosionFrameCount).Select(frame => SamusDeathSheetDefinitions.ExplosionFrame(facing, frame)));
+
     /// <summary>What the death sheet composes.</summary>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs)
     {
         Ensure.NotNull(inputs);
         InstalledSamusBodyArtwork body = inputs.SamusBody.Body;
         var frames = new List<SheetFrameSource>();
-        foreach (HorizontalDirection facing in SamusDeathSheetDefinitions.Facings)
+        foreach (HorizontalDirection facing in Facings)
         {
-            for (int frame = 0; frame < SamusDeathSheetDefinitions.ExplosionFrameCount; frame++)
+            for (int frame = 0; frame < ExplosionFrameCount; frame++)
             {
                 string name = SamusDeathSheetDefinitions.ExplosionFrame(facing, frame);
                 // A zero entry in the installed pointer table names direct-page scratch the port does not model and

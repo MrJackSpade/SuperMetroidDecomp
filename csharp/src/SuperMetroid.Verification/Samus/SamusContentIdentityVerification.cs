@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Death;
@@ -97,7 +96,7 @@ internal static class SamusContentIdentityVerification
             new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(1, 0), large: false, character: 1, palette: 0, priority: 0)]),
         ];
         var spritemaps = new SamusSpritemapSources(topBases, bottomBases, entries, definitions);
-        var one = new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount];
+        var one = new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount];
         var shared = new SpritePart[one.Length];
         if (edit == "atmosphere-one") one[0] = SpritePart.Single(character: 1, palette: 0, priority: 0);
         if (edit == "atmosphere-shared") shared[0] = SpritePart.Single(character: 1, palette: 0, priority: 0);

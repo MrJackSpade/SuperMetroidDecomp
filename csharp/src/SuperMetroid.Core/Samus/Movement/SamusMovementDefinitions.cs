@@ -49,12 +49,4 @@ public static class SamusMovementDefinitions
         /// <summary>Per-frame 16.16 extra-run acceleration while charging the Speed Booster: 1/16 pixel.</summary>
         public const uint ExtraRunAcceleration = 4096u;
     }
-
-    /// <summary>Liquid damage, splashes, footsteps, and atmospheric-effect animation data.</summary>
-    public static class Environment
-    {
-
-        /// <summary>Four words per authored direct small-OBJ effect list.</summary>
-        public const int DirectAtmosphericFrameCount = 4;
-    }
 }

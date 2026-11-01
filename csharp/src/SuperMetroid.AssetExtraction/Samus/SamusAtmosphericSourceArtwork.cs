@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -27,8 +26,8 @@ public sealed class SamusAtmosphericSourceArtwork : InstalledSamusAtmosphericArt
     {
         Ensure.NotNull(typeOne);
         Ensure.NotNull(sharedTypeFour);
-        if (typeOne.Length != SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount ||
-            sharedTypeFour.Length != SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount)
+        if (typeOne.Length != SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount ||
+            sharedTypeFour.Length != SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount)
             throw new InvalidDataException("Samus atmospheric small-OBJ lists must each contain four frames.");
         for (int frame = 0; frame < typeOne.Length; frame++)
         {
@@ -37,8 +36,8 @@ public sealed class SamusAtmosphericSourceArtwork : InstalledSamusAtmosphericArt
             if (sharedTypeFour[frame] != SamusAtmosphericAttributes.Attributes(false, frame))
                 this.sharedTypeFour.Add(frame, sharedTypeFour[frame]);
         }
-        TypeOne = [.. Enumerable.Range(0, SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount).Select(frame => Resolve(true, frame))];
-        SharedTypeFour = [.. Enumerable.Range(0, SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount).Select(frame => Resolve(false, frame))];
+        TypeOne = [.. Enumerable.Range(0, SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount).Select(frame => Resolve(true, frame))];
+        SharedTypeFour = [.. Enumerable.Range(0, SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount).Select(frame => Resolve(false, frame))];
     }
 
     /// <summary>SHA-256 of both selected atmospheric appearance lists.</summary>
@@ -65,7 +64,7 @@ public sealed class SamusAtmosphericSourceArtwork : InstalledSamusAtmosphericArt
     /// <returns>True for a supported type and frame; false otherwise without reading cartridge or mutable memory.</returns>
     public bool TryResolve(int type, int frame, out SpritePart attributes)
     {
-        if (type is not (1 or 4 or 6 or 7) || frame < 0 || frame >= SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount)
+        if (type is not (1 or 4 or 6 or 7) || frame < 0 || frame >= SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount)
         {
             attributes = default;
             return false;

@@ -1048,7 +1048,7 @@ internal static void VerifySamusAtmosphericEffects()
     // The shared appearances are the attribute words this fixture's cartridge seeds, decoded by the import codec.
     static SpritePart Shared(ushort word) => new SuperMetroid.AssetExtraction.Artwork.SnesObjAttributeWord(word).ToSinglePart();
     var atmosphericArt = new SamusAtmosphericSourceArtwork(
-        new SpritePart[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount],
+        new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount],
         [Shared(0x2a48), Shared(0x2a49), Shared(0), Shared(0)]);
 
     var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())

@@ -62,18 +62,18 @@ internal static class RoomAppearanceComposition
         Ensure.LengthEqual(values, inputs.Length);
         AppearanceOption[] reaching = Ensure.NotNull(options).Reaching(set, first);
         // The first animation by name that paints the characters and has selected a frame shows that frame there.
-        AppearanceInput? animation = null;
+        AnimationAppearance? animation = null;
         int selected = -1;
         foreach (AppearanceOption option in reaching)
         {
-            if (PrecedenceOf(option.Input) != AppearancePrecedence.Animation)
+            if (option.Input is not AnimationAppearance candidate)
                 continue;
-            int index = inputs.IndexOf(option.Input);
+            int index = inputs.IndexOf(candidate);
             if (index < 0 || values[index] == RoomAppearanceValues.Loaded)
                 continue;
-            if (animation is null || ShowsBefore(option.Input, animation, options))
+            if (animation is null || ShowsBefore(candidate, animation))
             {
-                animation = option.Input;
+                animation = candidate;
                 selected = index;
             }
         }
@@ -110,14 +110,11 @@ internal static class RoomAppearanceComposition
     }
 
     /// <summary>
-    /// Whether animation <paramref name="input"/> comes before <paramref name="other"/>: by token, and among equal tokens
-    /// by the first option naming each.
+    /// Whether animation <paramref name="input"/> comes before <paramref name="other"/>: by name, the order of their tokens,
+    /// which share one prefix before the name. Two animations of one name are one input, so neither comes before the other.
     /// </summary>
-    private static bool ShowsBefore(AppearanceInput input, AppearanceInput other, AppearanceOptions options)
-    {
-        int byToken = string.CompareOrdinal(input.Token, other.Token);
-        return byToken != 0 ? byToken < 0 : options.FirstOptionOf(input) < options.FirstOptionOf(other);
-    }
+    private static bool ShowsBefore(AnimationAppearance input, AnimationAppearance other) =>
+        string.CompareOrdinal(input.Animation.Name, other.Animation.Name) < 0;
 
     /// <summary>Whether <paramref name="input"/>'s artwork shows over another's where both reach the same characters.</summary>
     /// <exception cref="InvalidDataException">The input is of no kind extraction pictures.</exception>

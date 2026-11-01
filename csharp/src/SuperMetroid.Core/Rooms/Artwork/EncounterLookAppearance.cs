@@ -9,8 +9,11 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <param name="Look">The encounter's look.</param>
 public sealed record EncounterLookAppearance(SpriteArtworkSource Look) : AppearanceInput
 {
+    /// <summary>The encounter's look.</summary>
+    public SpriteArtworkSource Look { get; } = Look;
+
     /// <inheritdoc />
-    public override string Token => $"{AppearanceInputTokens.EncounterLookPrefix}{Look}";
+    public override string Token { get; } = $"{AppearanceInputTokens.EncounterLookPrefix}{Look}";
 
     /// <inheritdoc />
     /// <exception cref="InvalidOperationException">No enemy sheets are installed.</exception>

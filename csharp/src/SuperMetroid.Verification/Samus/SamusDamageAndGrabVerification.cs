@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -28,7 +27,6 @@ internal static class SamusDamageAndGrabVerification
 {
 
 /// <summary>Checks drained-pose animation, control recovery, and palette progression against native pose streams.</summary>
-[PrivateInstallation("Runs HyperBeamFxColorExtractor, SamusHyperBeamColorExtractor and SamusSuitColorExtractor over this fixture's own seeded test address space rather than the retail cartridge the repository installation was extracted from.")]
 internal static void VerifySamusDrainedController()
 {
     var bus = new TestAddressSpace();

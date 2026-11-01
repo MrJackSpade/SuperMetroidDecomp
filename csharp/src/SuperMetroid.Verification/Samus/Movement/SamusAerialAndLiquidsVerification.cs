@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -341,7 +340,6 @@ level, fallLeft, 0, unchecked((ushort)(frame + 1))),
 /// indirections. These checks deliberately keep Space Jump physics independent from the
 /// visible Screw Attack pose used when both retail item bits are equipped.
 /// </summary>
-[PrivateInstallation("Runs SamusFullBodyCycleColorExtractor and SamusSuitColorExtractor over this fixture's own seeded test address space rather than the retail cartridge the repository installation was extracted from.")]
 internal static void VerifySamusSpaceJumpAndScrewAttack()
 {
     TestAddressSpace bus = CreateSpaceJumpAndScrewAttackCartridge();

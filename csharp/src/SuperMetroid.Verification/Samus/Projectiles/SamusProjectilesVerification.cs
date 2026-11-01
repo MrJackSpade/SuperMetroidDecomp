@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileDrawEntriesVerification;
@@ -55,7 +54,6 @@ static byte ReadRetailPowerBeamRadiusByte(ISnesAddressSpace rom, int direction, 
     rom.ReadCartridgeByte(0x930000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord((0x938433 + direction * 2)) + offset));
 
 /// <summary>Checks beam and missile records, charge, impact, OAM, sound, and cartridge-timed projectile lifecycles.</summary>
-[PrivateInstallation("Runs BeamPaletteExtractor, BeamTileExtractor, ChargeFlarePlacementExtractor, ChargeFlareSpriteExtractor, ProjectileFrameBindingExtractor, ProjectileSpriteExtractor, ProjectileTrailExtractor, SamusChargeColorExtractor and SamusSuitColorExtractor over this fixture's own seeded test address space rather than the retail cartridge the repository installation was extracted from.")]
 internal static void VerifySamusPowerBeamProjectiles()
 {
     VerifyPlasmaEnemyPenetration();

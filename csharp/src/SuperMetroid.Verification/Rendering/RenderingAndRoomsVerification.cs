@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -115,7 +114,6 @@ internal static void VerifyObjRendering()
 /// Verifies the HUD ROM-template mutation, authentic WRAM queue source, live counters, selection
 /// palettes and minimap words without relying on the private ROM.
 /// </summary>
-[PrivateInstallation("Runs GameplayHudPresentationExtractor over this fixture's own seeded test address space rather than the retail cartridge the repository installation was extracted from.")]
 internal static void VerifyHudState()
 {
     var bus = new TestAddressSpace();
@@ -1000,7 +998,6 @@ static TestAddressSpace CreatePowerBombColorMathWindowCartridge()
 }
 
 /// <summary>Proves that power-bomb composition uses the drawn radius frame and an oval centred on the blast.</summary>
-[PrivateInstallation("Runs PowerBombFixedColorExtractor over this fixture's own seeded test address space rather than the retail cartridge the repository installation was extracted from.")]
 internal static void VerifyPowerBombColorMathWindow()
 {
     TestAddressSpace bus = CreatePowerBombColorMathWindowCartridge();

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
@@ -681,7 +680,6 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
 }
 
 /// <summary>Extracts fixture Ceres-door tiles and colors into an installed Ceres-door visual catalog.</summary>
-[PrivateInstallation("Runs CeresDoorVisualFiles over this fixture's own seeded test address space rather than the retail cartridge the repository installation was extracted from.")]
 private static SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorSourceArtwork CreateCeresDoorFixtureVisuals(TestAddressSpace bus)
 {
     using var directoryScratch = new TestScratchDirectory("ceres-door-fixture");

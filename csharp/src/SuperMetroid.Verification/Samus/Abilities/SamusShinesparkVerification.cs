@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -38,7 +37,6 @@ static void SeedStoredShinePalettes(TestAddressSpace bus)
 }
 
 /// <summary>Checks shine storage and palette selection through launch, movement, collision, crash, echoes, and return to standing.</summary>
-[PrivateInstallation("Runs SamusFullBodyCycleColorExtractor and SamusSuitColorExtractor over this fixture's own seeded test address space rather than the retail cartridge the repository installation was extracted from.")]
 internal static void VerifySamusStoredShineAndShinespark()
 {
     var bus = new TestAddressSpace();

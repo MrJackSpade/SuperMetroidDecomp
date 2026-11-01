@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -95,7 +94,6 @@ static void SeedCrystalFlashCartridge(TestAddressSpace bus)
 }
 
 /// <summary>Checks Crystal Flash admission, ammo drain, pose timing, body and bubble colors, and release.</summary>
-[PrivateInstallation("Runs BeamPaletteExtractor, CrystalFlashColorExtractor and PowerBombFixedColorExtractor over this fixture's own seeded test address space rather than the retail cartridge the repository installation was extracted from.")]
 internal static void VerifySamusCrystalFlash()
 {
     var bus = new TestAddressSpace();
@@ -389,7 +387,6 @@ static void SeedXrayCartridge(TestAddressSpace bus)
 /// `$91:DCB4-$DD30`: admission, all four bodies, dedicated turning, angle frames, setup,
 /// widening, aiming, visor palette, teardown, and the native crouched-turn stand-up glitch.
 /// </summary>
-[PrivateInstallation("Runs SamusSuitColorExtractor and SamusVisorColorExtractor over this fixture's own seeded test address space rather than the retail cartridge the repository installation was extracted from.")]
 internal static void VerifySamusXray()
 {
     var bus = new TestAddressSpace();

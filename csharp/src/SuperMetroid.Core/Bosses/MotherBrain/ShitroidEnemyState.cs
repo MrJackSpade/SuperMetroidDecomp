@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public sealed class ShitroidEnemyState
 {
-    /// <summary>The colours each of the encounter's target rows fades to, staged across its colour transitions (#1405).</summary>
+    /// <summary>The colours each of the encounter's target colour sets fades to, staged across its colour transitions (#1405).</summary>
     private readonly Dictionary<ShitroidColorTarget, RgbColor[]> targetColours = new();
 
     /// <summary>Creates the state for the Shitroid's slot.</summary>
@@ -79,7 +79,7 @@ public sealed class ShitroidEnemyState
     /// side effect directly auditable.
     /// </summary>
     public bool VictimActivationFlag { get; internal set; }
-    /// <summary>The colours <paramref name="target"/>'s row fades to, which encounter colour updates change in place.</summary>
+    /// <summary>The colours <paramref name="target"/>'s colour set fades to, which encounter colour updates change in place.</summary>
     internal Span<RgbColor> TargetColours(ShitroidColorTarget target) =>
         targetColours.TryGetValue(target, out RgbColor[]? colours)
             ? colours

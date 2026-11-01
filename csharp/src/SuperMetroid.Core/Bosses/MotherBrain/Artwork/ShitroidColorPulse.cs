@@ -5,12 +5,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>The Shitroid's normal pulse: shares the target's symmetric dimming curve only when it matches all eight supplied pulse phases.</summary>
 internal sealed class ShitroidColorPulse
 {
-    /// <summary>Visible target inks used to calculate the pulse when the editable rows agree.</summary>
+    /// <summary>Visible target inks used to calculate the pulse when the editable phases agree.</summary>
     private readonly BabyMetroidInitialPalette target;
-    /// <summary>Independent pulse rows retained when an edited frame differs from the calculated curve.</summary>
+    /// <summary>Independent pulse phases retained when an edited phase differs from the calculated curve.</summary>
     internal readonly RgbColor[][]? supplied;
 
-    /// <summary>Compares each supplied ink with the target-derived pulse before deciding whether rows can be shared.</summary>
+    /// <summary>Compares each supplied ink with the target-derived pulse before deciding whether the phases can be shared.</summary>
     public ShitroidColorPulse(RgbColor[][] frames, BabyMetroidInitialPalette target)
     {
         this.target = target;

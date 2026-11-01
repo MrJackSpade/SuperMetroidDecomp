@@ -38,7 +38,6 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.TestSupport.SamusNativeCodecs;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 

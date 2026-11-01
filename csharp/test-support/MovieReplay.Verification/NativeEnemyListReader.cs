@@ -1,6 +1,4 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Enemies;
-using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.TestSupport.MovieReplay.NativeEnemyListDefinitions;
 
 namespace SuperMetroid.TestSupport.MovieReplay.Verification;

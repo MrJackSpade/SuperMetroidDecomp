@@ -5,7 +5,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.FrameRendering;
-using SuperMetroid.TestSupport.MovieReplay;
 
 namespace SuperMetroid.TestSupport.MovieReplay.Verification;
 

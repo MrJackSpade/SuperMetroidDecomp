@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.VerificationImporters;
 using static SuperMetroid.TestSupport.MovieReplay.NativeEnemyProjectileListDefinitions;
 

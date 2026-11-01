@@ -1,6 +1,8 @@
 using static SuperMetroid.Core.Frontend.FileSelect.FileSelectLayout;
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Frontend.FileSelect;
 
-namespace SuperMetroid.Core.Frontend.FileSelect;
+namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
 
 /// <summary>
 /// Places the file-select cursors (<see cref="FileSelectLayout"/>): the main and copy/clear selection rows and each save slot's

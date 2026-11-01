@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
+using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.AssetExtraction.Cartridge;
 

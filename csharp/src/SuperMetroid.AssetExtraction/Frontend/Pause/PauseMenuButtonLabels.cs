@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Pause;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>
 /// Places the pause frame's button labels on its two button rows.

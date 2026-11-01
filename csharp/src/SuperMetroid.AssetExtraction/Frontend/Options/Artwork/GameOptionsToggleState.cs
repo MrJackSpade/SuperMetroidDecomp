@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Options.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>One state of an options-screen toggle.</summary>
 public enum GameOptionsToggleState

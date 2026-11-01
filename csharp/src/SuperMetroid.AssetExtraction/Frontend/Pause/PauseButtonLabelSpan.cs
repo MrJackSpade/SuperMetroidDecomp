@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Pause;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>A run of tilemap words of a pause menu button label.</summary>
 /// <param name="Word">The word.</param>

@@ -48,6 +48,7 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
                 foreach (var constructor in type.InstanceConstructors)
                     graph.ImpliedByType(typeKey, identity.Key(constructor));
             }
+            graph.Constructors(typeKey, type.InstanceConstructors.Select(identity.Key).OfType<string>());
             foreach (var staticConstructor in type.StaticConstructors)
                 graph.ImpliedByType(typeKey, identity.Key(staticConstructor));
             // An explicit layout, or an inline array's element field, is storage the type's

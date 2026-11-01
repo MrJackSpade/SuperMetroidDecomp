@@ -18,6 +18,12 @@ namespace SuperMetroid.ReachabilityAudit.Reporting;
 /// implementations of <c>IReadOnlyList&lt;int&gt;</c>; a call from generic code through an open contract reaches every
 /// implementation of it. Calls the framework makes internally (a LINQ operator enumerating its argument) are not seen.
 /// </para>
+/// <para>
+/// Constructors of types the game reads (#1502): the import builds what the game reads, so when the walk reaches a type
+/// (the game names it, instantiates it or reaches any of its members) it also reaches the type's instance constructors and
+/// what they call. The list then names only logic the game never runs. A constructor this rule marks reached that still
+/// decodes or compresses import data remains a defect to move to the import; the rule does not excuse it.
+/// </para>
 /// </summary>
 internal static class CoreImportOnlyReport
 {

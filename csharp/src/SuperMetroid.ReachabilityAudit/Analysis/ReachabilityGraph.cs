@@ -16,6 +16,8 @@ internal sealed class ReachabilityGraph
     private readonly Dictionary<string, HashSet<string>> dispatchCalls = [];
     /// <summary>Per <see cref="FrameworkDispatch"/> key, the repository members implementing that contract member.</summary>
     private readonly Dictionary<string, List<DispatchImplementation>> dispatchImplementations = [];
+    /// <summary>Per type, its instance constructors, compiler-declared ones included.</summary>
+    private readonly Dictionary<string, List<string>> constructors = [];
 
     /// <summary>Adds a direct reference, ignoring missing or self-referential symbol keys.</summary>
     public void Edge(string? from, string? to)
@@ -61,6 +63,16 @@ internal sealed class ReachabilityGraph
         implementations.Add(new DispatchImplementation(implementationKey, instantiationKeys));
     }
 
+    /// <summary>Records the instance constructors of <paramref name="typeKey"/>.</summary>
+    public void Constructors(string? typeKey, IEnumerable<string> constructorKeys)
+    {
+        if (typeKey is null)
+            return;
+        if (!constructors.TryGetValue(typeKey, out var keys))
+            constructors[typeKey] = keys = [];
+        keys.AddRange(constructorKeys);
+    }
+
     /// <summary>
     /// Traverses direct and type-implied edges to a fixed point from the supplied roots. A reached type's implementations
     /// of framework interface members are already reached through its type-implied edges, so calls through framework
@@ -74,13 +86,15 @@ internal sealed class ReachabilityGraph
     /// have built the objects the admitted walk reads through a framework interface (the import builds a colour band the
     /// game indexes as an <c>IReadOnlyList&lt;T&gt;</c>), so a reached call through a framework interface member also
     /// reaches each repository implementation of that member whose type <paramref name="instantiated"/> shows constructed.
+    /// For the same reason a reached type's instance constructors are reached: the refused import builds the objects the
+    /// admitted walk reads, so their constructors are part of what the admitted code relies on.
     /// </summary>
     public HashSet<string> Reach(IEnumerable<string> roots, Func<string, bool> admits, IReadOnlySet<string> instantiated) =>
         Walk(roots, admits, instantiated);
 
     /// <summary>
     /// Walks edges from <paramref name="roots"/> through admitted keys; with <paramref name="instantiated"/>, also follows
-    /// framework-interface calls to the implementations of instantiated types.
+    /// framework-interface calls to the implementations of instantiated types and reaches each reached type's constructors.
     /// </summary>
     private HashSet<string> Walk(IEnumerable<string> roots, Func<string, bool> admits, IReadOnlySet<string>? instantiated)
     {
@@ -97,6 +111,9 @@ internal sealed class ReachabilityGraph
             if (typeImplied.TryGetValue(current, out var members))
                 foreach (string member in members)
                     pending.Push(member);
+            if (instantiated is not null && constructors.TryGetValue(current, out var typeConstructors))
+                foreach (string constructor in typeConstructors)
+                    pending.Push(constructor);
             if (instantiated is not null && dispatchCalls.TryGetValue(current, out var calls))
                 foreach (string call in calls)
                     if (dispatchImplementations.TryGetValue(call, out var implementations))

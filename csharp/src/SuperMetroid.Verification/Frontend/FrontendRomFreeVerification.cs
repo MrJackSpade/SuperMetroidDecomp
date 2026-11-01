@@ -25,7 +25,6 @@ using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -116,117 +115,27 @@ internal static class FrontendRomFreeVerification
     }
 
     /// <summary>
-    /// Retain the same validated immutable installation catalogs when a diagnostic
-    /// room snapshot is restored. Debugger states omit external artwork by design.
+    /// Binds the installation's catalogs, the ones a host binds, to a new or restored game. Debugger states omit installed
+    /// artwork by design, so a restored room snapshot is bound the same way. <paramref name="enemyArtwork"/> replaces the
+    /// installed enemy, boss and area artwork; when the action's second argument is false, the intro cinematic artwork is
+    /// left as the game has it.
     /// </summary>
     internal static Action<SuperMetroidGame, bool> PrepareRomFreeBindings(GameInstallation installation,
         InstalledEnemyArtwork? enemyArtwork = null)
     {
-        var maps = installation.LoadMaps();
-        var palettes = installation.LoadGameplayBasePalettes();
-        var overreads = installation.LoadSamusOverreads();
-        var enemies = enemyArtwork ?? installation.LoadEnemyTiles();
-        var intro = installation.LoadIntroCinematicArt();
-        var samus = installation.LoadSamusBodyArt();
-        var roomPalettes = installation.LoadRoomPalettes();
-        var blockSheets = installation.LoadRoomBlockSheets();
-        var visualLayouts = installation.LoadRoomVisualLayouts();
-        var levelStreams = installation.LoadRoomLevelStreams();
-        var samusEaterVisuals = installation.LoadRoomPlmSamusEaterVisuals();
-        var assetRoomPlmShotBlockVisuals = installation.LoadRoomPlmShotBlockVisuals();
-        var assetRoomPlmGrappleBlockVisuals = installation.LoadRoomPlmGrappleBlockVisuals();
-        var assetRoomPlmStationVisuals = installation.LoadRoomPlmStationVisuals();
-        var assetRoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals();
-        var assetRoomPlmColoredDoorVisuals = installation.LoadRoomPlmColoredDoorVisuals();
-        var assetRoomPlmGreyDoorVisuals = installation.LoadRoomPlmGreyDoorVisuals();
-        var assetRoomPlmEyeDoorVisuals = installation.LoadRoomPlmEyeDoorVisuals();
-        var assetRoomPlmMotherBrainGlassVisuals = installation.LoadRoomPlmMotherBrainGlassVisuals();
-        var assetRoomPlmNoobTubeVisuals = installation.LoadRoomPlmNoobTubeVisuals();
-        var assetRoomPlmDownwardGateVisuals = installation.LoadRoomPlmDownwardGateVisuals();
-        var assetRoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals();
-        var assetRoomPlmEscapeGateVisuals = installation.LoadRoomPlmEscapeGateVisuals();
-        var assetRoomPlmBombTorizoHandVisuals = installation.LoadRoomPlmBombTorizoHandVisuals();
-        var assetRoomPlmDraygonCannonVisuals = installation.LoadRoomPlmDraygonCannonVisuals();
-        var assetRoomPlmChozoStatueVisuals = installation.LoadRoomPlmChozoStatueVisuals();
-        var assetRoomPlmLinkedRestoreVisuals = installation.LoadRoomPlmLinkedRestoreVisuals();
-        var assetRoomPlmTourianAccessVisuals = installation.LoadRoomPlmTourianAccessVisuals();
-        var assetRoomPlmSpeedBoosterVisuals = installation.LoadRoomPlmSpeedBoosterVisuals();
-        var assetRoomPlmMaridiaElevatubeVisuals = installation.LoadRoomPlmMaridiaElevatubeVisuals();
-        var assetRoomPlmSporeSpawnCeilingVisuals = installation.LoadRoomPlmSporeSpawnCeilingVisuals();
-        var assetRoomPlmSamusEaterVisuals = installation.LoadRoomPlmSamusEaterVisuals();
-        var assetRoomPlmBotwoonWallVisuals = installation.LoadRoomPlmBotwoonWallVisuals();
-        var assetRoomPlmKraidVisuals = installation.LoadRoomPlmKraidVisuals();
-        var assetRoomPlmCrocomireVisuals = installation.LoadRoomPlmCrocomireVisuals();
-        var assetRoomPlmMotherBrainFakeDeathVisuals = installation.LoadRoomPlmMotherBrainFakeDeathVisuals();
-        var assetRoomPlmCollectibleVisuals = installation.LoadRoomPlmCollectibleVisuals();
-        var assetXrayRevealVisuals = installation.LoadXrayRevealVisuals();
-        InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
-        return (game, bindIntro) =>
-        {
-            game.BindArtwork(game.Artwork with
+        GameArtwork artwork = InstalledGameBindings.Artwork(installation);
+        if (enemyArtwork is not null)
+            artwork = artwork with
             {
-                MapPresentation = maps,
-                GameplayBasePalettes = palettes,
-                SamusOverreads = overreads,
-                EnemyTileArtwork = enemies.Enemies,
-                EnemySheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemySheets,
-                SpriteSheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets,
-                BossArtwork = enemies.Bosses,
-                AreaArtwork = enemies.Areas,
-                RoomPlmShotBlockVisuals = assetRoomPlmShotBlockVisuals,
-                RoomPlmGrappleBlockVisuals = assetRoomPlmGrappleBlockVisuals,
-                RoomPlmStationVisuals = assetRoomPlmStationVisuals,
-                RoomPlmBlueDoorVisuals = assetRoomPlmBlueDoorVisuals,
-                RoomPlmColoredDoorVisuals = assetRoomPlmColoredDoorVisuals,
-                RoomPlmGreyDoorVisuals = assetRoomPlmGreyDoorVisuals,
-                RoomPlmEyeDoorVisuals = assetRoomPlmEyeDoorVisuals,
-                RoomPlmMotherBrainGlassVisuals = assetRoomPlmMotherBrainGlassVisuals,
-                RoomPlmNoobTubeVisuals = assetRoomPlmNoobTubeVisuals,
-                RoomPlmDownwardGateVisuals = assetRoomPlmDownwardGateVisuals,
-                RoomPlmElevatorPlatformVisuals = assetRoomPlmElevatorPlatformVisuals,
-                RoomPlmEscapeGateVisuals = assetRoomPlmEscapeGateVisuals,
-                RoomPlmBombTorizoHandVisuals = assetRoomPlmBombTorizoHandVisuals,
-                RoomPlmDraygonCannonVisuals = assetRoomPlmDraygonCannonVisuals,
-                RoomPlmChozoStatueVisuals = assetRoomPlmChozoStatueVisuals,
-                RoomPlmLinkedRestoreVisuals = assetRoomPlmLinkedRestoreVisuals,
-                RoomPlmTourianAccessVisuals = assetRoomPlmTourianAccessVisuals,
-                RoomPlmSpeedBoosterVisuals = assetRoomPlmSpeedBoosterVisuals,
-                RoomPlmMaridiaElevatubeVisuals = assetRoomPlmMaridiaElevatubeVisuals,
-                RoomPlmSporeSpawnCeilingVisuals = assetRoomPlmSporeSpawnCeilingVisuals,
-                RoomPlmSamusEaterVisuals = assetRoomPlmSamusEaterVisuals,
-                RoomPlmBotwoonWallVisuals = assetRoomPlmBotwoonWallVisuals,
-                RoomPlmKraidVisuals = assetRoomPlmKraidVisuals,
-                RoomPlmCrocomireVisuals = assetRoomPlmCrocomireVisuals,
-                RoomPlmMotherBrainFakeDeathVisuals = assetRoomPlmMotherBrainFakeDeathVisuals,
-                RoomPlmCollectibleVisuals = assetRoomPlmCollectibleVisuals,
-                XrayRevealVisuals = assetXrayRevealVisuals,
-                BeamPalettes = projectiles.BeamTiles.Palettes,
-                HyperBeamFxColors = projectiles.BeamTiles.HyperBeamFxColors,
-            });
-            // An already-finished intro is deliberately not rebound for the
-            // isolated gameplay-room census: its restored DMA side effect
-            // would test a retired cinematic, not the room under examination.
-            if (bindIntro)
-                game.BindArtwork(game.Artwork with
-                {
-                    IntroCinematicArt = intro,
-                });
-            game.BindArtwork(game.Artwork with
-            {
-                SamusBodyArt = samus,
-                RoomPaletteArt = roomPalettes,
-                RoomBlockSheets = blockSheets,
-                RoomVisualLayouts = visualLayouts,
-                RoomLevelStreams = levelStreams,
-                RoomPlmSamusEaterVisuals = samusEaterVisuals,
-                BeamPalettes = projectiles.BeamTiles.Palettes,
-                HyperBeamFxColors = projectiles.BeamTiles.HyperBeamFxColors,
-                ProjectileFrameBindings = projectiles.FrameBindings,
-                ChargeFlarePlacement = projectiles.FlarePlacement,
-                GrappleFlarePlacement = projectiles.GrappleTiles.FlarePlacement,
-                GrappleSwingFrames = projectiles.GrappleTiles.SwingFrames,
-            });
-        };
+                EnemyTileArtwork = enemyArtwork.Enemies,
+                BossArtwork = enemyArtwork.Bosses,
+                AreaArtwork = enemyArtwork.Areas,
+            };
+        // An already-finished intro is deliberately not rebound for the isolated gameplay-room census: its restored DMA
+        // side effect would test a retired cinematic, not the room under examination.
+        return (game, bindIntro) => game.BindArtwork(bindIntro
+            ? artwork
+            : artwork with { IntroCinematicArt = game.Artwork.IntroCinematicArt });
     }
 
     /// <summary>
@@ -492,6 +401,17 @@ internal static class FrontendRomFreeVerification
                 $"installed Ceres input state frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
                 $"installed Ceres input phase frame {frame}");
+            // The fired-slot observation attributes allocations frame by frame, so it is read on every frame, not only on
+            // the frames whose pixels are compared.
+            fired |= installed.GameplayLastFiredProjectileSlot is not null;
+            firedDuringSustainedInput |= frame >= 60 &&
+                installed.GameplayLastFiredProjectileSlot is not null;
+            // Keep this controller fixture within the first room boundary. A
+            // later room belongs to its own focused installed-runtime check.
+            if (initialRoom is not null &&
+                installed.GameplayActiveRoom is { } currentRoom &&
+                currentRoom != initialRoom)
+                break;
             if (!ComparesPixels(frame, Changed(before, actual)))
                 continue;
             RgbaPixel[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
@@ -524,16 +444,7 @@ internal static class FrontendRomFreeVerification
                     $"top {installedSamus.Presentation.TopSpritemap}/bottom {installedSamus.Presentation.BottomSpritemap}; " +
                     $"first VRAM diff={firstVram}, first sprite part diff={firstPart}.");
             }
-            fired |= installed.GameplayLastFiredProjectileSlot is not null;
-            firedDuringSustainedInput |= frame >= 60 &&
-                installed.GameplayLastFiredProjectileSlot is not null;
             verifiedFrames++;
-            // Keep this controller fixture within the first room boundary. A
-            // later room belongs to its own focused installed-runtime check.
-            if (initialRoom is not null &&
-                installed.GameplayActiveRoom is { } currentRoom &&
-                currentRoom != initialRoom)
-                break;
         }
         AssertTrue(installed.GameplaySamusX != initialX,
             "ROM-free Ceres input moves Samus in world space");

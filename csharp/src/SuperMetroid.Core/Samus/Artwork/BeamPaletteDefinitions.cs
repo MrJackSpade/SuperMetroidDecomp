@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// Each of the twelve beam combinations selects one of five beam materials (Power, Ice, Wave, Plasma, Spazer), and the
 /// load writes that material's sixteen colours. The selected material paint is owned by BeamPaintDefinitions; its exact
 /// channel composition calculates every stock colour and preserves independent replacements. How the stock colours are
-/// read from the cartridge is the import pipeline's (BeamPaletteFile). Investigation: #625 / #901.
+/// imported is the import pipeline's (BeamPaletteFile). Investigation: #625 / #901.
 /// </remarks>
 public static class BeamPaletteDefinitions
 {

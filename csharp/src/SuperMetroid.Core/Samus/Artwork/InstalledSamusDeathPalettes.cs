@@ -368,7 +368,7 @@ public sealed class InstalledSamusDeathPalettes
     /// <summary>Returns a suitless gray ink's evenly spaced intensity toward black.</summary>
     /// <remarks>The stock gray ramp contains five descending neutral shades.
     /// Ink 11 supplies the peak; inks 11..15 take 5/5, 4/5, 3/5, 2/5, 1/5 of it,
-    /// rounding upward in RGB5. This gives the native 19, 16, 12, 8, 4 intensities.
+    /// rounding upward in RGB5. This gives the stock 19, 16, 12, 8, 4 intensities.
     /// The zero-intensity endpoint is black; no extrapolated sixth ink exists.
     /// Numerator including rounding is at most 159, no saturation or wrap.
     /// Independently edited ink channels override the calculated value.</remarks>

@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -10,7 +11,6 @@ using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
@@ -267,9 +267,9 @@ public static class MapPresentationExtractor
         hashes.Add(TitlePaletteFormat.FileName,
             Convert.ToHexString(SHA256.HashData(titlePaletteBytes)));
         byte[] titleGradientBytes = TitleGradientExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, TitleGradientFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, TitleGradientFile.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(titleGradientBytes);
-        hashes.Add(TitleGradientFormat.FileName,
+        hashes.Add(TitleGradientFile.FileName,
             Convert.ToHexString(SHA256.HashData(titleGradientBytes)));
         byte[] roomPaletteFxBytes = RoomPaletteFxPresentationExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, RoomPaletteFxPresentationFormat.FileName), FileMode.CreateNew, FileAccess.Write))

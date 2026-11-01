@@ -1,8 +1,8 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Title;
 
@@ -54,7 +54,7 @@ internal static class TitleCardOracle
         }
         AssertEqual(cartridge.ReadCartridgeWord((int)FrontendSourceDefinitions.TitleLogoSpritemapOperand),
             extracted[TitleSprite.SuperMetroidLogo], "title logo is extracted from the logo pointer");
-        AssertEqual(TitleSpriteDefinitions.All.Count, extracted.Count, "extraction maps every title composition");
+        AssertEqual(TitleGraphicsFormat.Sprites.Count, extracted.Count, "extraction maps every title composition");
         AssertEqual(extracted.Count, extracted.Values.Distinct().Count(), "every title composition has its own spritemap");
         return compared;
     }

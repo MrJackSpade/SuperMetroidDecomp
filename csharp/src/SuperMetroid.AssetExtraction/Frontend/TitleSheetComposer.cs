@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
@@ -26,7 +27,7 @@ internal static class TitleSheetComposer
         Ensure.NotNull(graphics);
         Ensure.NotNull(palette);
         TitleGraphicsCharacters characters = TitleGraphicsCharacters.Of(graphics);
-        List<SheetFrameSource> frames = [.. TitleSpriteDefinitions.All.Select(sprite =>
+        List<SheetFrameSource> frames = [.. TitleGraphicsFormat.Sprites.Select(sprite =>
         {
             string name = TitleSpriteDefinitions.FrameName(sprite);
             return new SheetFrameSource(name, characters.Frame(sprite, name), characters.ObjectPage, FrontendSheetPalette.FrameColourGroup.Number);

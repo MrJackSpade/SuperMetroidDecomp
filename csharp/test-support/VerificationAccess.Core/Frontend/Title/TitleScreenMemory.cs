@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Video;
@@ -35,7 +36,7 @@ internal static class TitleScreenMemory
         mode7.LoadCharacters(characters[..TitleFloorTileDefinitions.FloorCharacterByteCount]);
         mode7.LoadMap(map[..TitleFloorTileDefinitions.FloorMapByteCount]);
         var title = new TitleVram(vram);
-        title.ObjectCharacters.Load(objects[..Math.Min(TitleSequenceDefinitions.Graphics.ObjectCharacterByteCount, objects.Length)]);
+        title.ObjectCharacters.Load(objects[..Math.Min(TitleGraphicsFormat.ObjectCharacterByteCount, objects.Length)]);
         // The instruction list cycles source pages 0,1,2,1 into Mode 7 destination word $3800, high byte only.
         title.LoadBabyMetroidPage(baby.Slice(page, TitleFloorTileDefinitions.BabyCharacterPageByteCount));
         return vram.CaptureImage();

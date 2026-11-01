@@ -46,7 +46,7 @@ public sealed class TitleGraphicsCharacters : TitleGraphicsPresentation
 
     /// <summary>The title OBJ page the compositions draw from: the OBJ sheet as the title uploads it (#1358).</summary>
     public SpriteArtwork ObjectPage => field ??= new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.TitleObjects),
-        objectCharacters.AsSpan(0, Math.Min(TitleSequenceDefinitions.Graphics.ObjectCharacterByteCount, objectCharacters.Length)));
+        objectCharacters.AsSpan(0, Math.Min(TitleGraphicsFormat.ObjectCharacterByteCount, objectCharacters.Length)));
 
     /// <summary>One title composition as a whole frame over the title OBJ page (#1392); its parts take their draw's palette.</summary>
     internal SpriteFrame Frame(TitleSprite sprite, string name) => sprites.TryGetValue(sprite, out SpriteComposition? composition)
@@ -173,7 +173,7 @@ public sealed class TitleGraphicsCharacters : TitleGraphicsPresentation
         // A correctly sized document can still repeat one composition in place of
         // another. Validate the engine's whole composition set now, before any title
         // frame runs, rather than failing later in DrawSprite.
-        foreach (TitleSprite sprite in TitleSpriteDefinitions.All)
+        foreach (TitleSprite sprite in TitleGraphicsFormat.Sprites)
             if (!result.ContainsKey(sprite))
                 throw new InvalidDataException(
                     $"Title composition is missing required frame {sprite}; " +

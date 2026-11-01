@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionVerification;
@@ -22,7 +23,7 @@ internal static class TitleSequenceRomDataVerification
     {
         byte[] rom = CreateConstructedTitleRom();
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-        TitleGradientPresentation gradient = TitleGradientPresentation.Load(
+        TitleGradientPresentation gradient = TitleGradientFile.Read(
             new MemoryStream(TitleGradientExtractor.Extract(bus), writable: false));
         var state = CreateTitleFixture(bus, titleGradientPresentation: gradient);
         TitleSequencePhase[] naturalOrder =
@@ -134,7 +135,7 @@ internal static class TitleSequenceRomDataVerification
         WriteRepeatedCompressedStream(
             rom,
             TitleSourceDefinitions.ObjectCharacters,
-            TitleSequenceDefinitions.Graphics.ObjectCharacterByteCount,
+            TitleGraphicsFormat.ObjectCharacterByteCount,
             0);
         WriteRepeatedCompressedStream(
             rom,
@@ -195,7 +196,7 @@ internal static class TitleSequenceRomDataVerification
     /// </summary>
     private static ushort ConstructedSpritemap(TitleSprite sprite)
     {
-        int ordinal = TitleSpriteDefinitions.All.ToList().IndexOf(sprite);
+        int ordinal = TitleGraphicsFormat.Sprites.ToList().IndexOf(sprite);
         if (ordinal < 0)
             throw new ArgumentOutOfRangeException(nameof(sprite), sprite, "Undefined title composition.");
         return checked((ushort)(FrontendSourceDefinitions.TitleCopyrightSpritemap + sizeof(ushort) * (1 + ordinal)));

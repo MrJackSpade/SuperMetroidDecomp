@@ -16,7 +16,7 @@ internal static class TitleArtworkReferencesVerification
     /// <summary>Validates statically identified title selectors without running gameplay or reading a ROM.</summary>
     internal static void VerifyTitleArtworkReferences()
     {
-        var frames = TitleSpriteDefinitions.All
+        var frames = TitleGraphicsFormat.Sprites
             .Select(sprite => new TitleSpriteFrame { Sprite = sprite, Parts = [] }).ToArray();
         AssertEqual(TitleGraphicsFormat.SpriteFrameCount, frames.Length,
             "compiled title selectors require exactly 31 distinct artwork frames");

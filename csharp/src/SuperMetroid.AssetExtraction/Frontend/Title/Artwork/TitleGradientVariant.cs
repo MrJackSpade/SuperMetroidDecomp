@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Title.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>The title's gradient for one zoom bucket, described by its stops (#1468).</summary>
 public sealed record TitleGradientVariant

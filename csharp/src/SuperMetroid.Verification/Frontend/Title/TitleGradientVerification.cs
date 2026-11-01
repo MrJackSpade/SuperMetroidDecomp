@@ -105,7 +105,7 @@ internal static class TitleGradientVerification
             TitleFloorTileDefinitions.FloorMapByteCount, presentation.FloorMap,
             "title Mode 7 map");
         AssertSource(TitleSourceDefinitions.ObjectCharacters,
-            TitleSequenceDefinitions.Graphics.ObjectCharacterByteCount, presentation.ObjectCharacters,
+            TitleGraphicsFormat.ObjectCharacterByteCount, presentation.ObjectCharacters,
             "title OBJ characters");
         AssertSource(TitleSourceDefinitions.BabyMetroidCharacters,
             TitleFloorTileDefinitions.BabyCharacterByteCount, presentation.BabyCharacters,
@@ -115,7 +115,7 @@ internal static class TitleGradientVerification
         // editable bank-$8C OAM compositions. The original source addresses are all
         // blocked while the complete natural scene is compared with independently installed stock.
         var guardedBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
-        TitleGradientPresentation gradient = TitleGradientPresentation.Load(
+        TitleGradientPresentation gradient = TitleGradientFile.Read(
             new MemoryStream(TitleGradientExtractor.Extract(bus), writable: false));
         var stock = CreateTitlePresentationFixture(titleGradientPresentation: gradient);
         var installed = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
@@ -431,7 +431,7 @@ internal static class TitleGradientVerification
             _ = TitleGradientDecoder.Decode(tracingBus, checked((ushort)(variant << 4)));
 
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Title.TitleGradientExtractor.Extract(bus);
-        TitleGradientPresentation presentation = TitleGradientPresentation.Load(
+        TitleGradientPresentation presentation = TitleGradientFile.Read(
             new MemoryStream(extracted, writable: false));
         for (ushort zoom = 0; zoom < 256; zoom++)
         {
@@ -507,7 +507,7 @@ internal static class TitleGradientVerification
             ?? throw new InvalidDataException("Extracted title gradient document is null.");
         byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         void Reject(string description) => AssertThrows<InvalidDataException>(
-            () => TitleGradientPresentation.Load(new MemoryStream(Json(), writable: false)),
+            () => TitleGradientFile.Read(new MemoryStream(Json(), writable: false)),
             description);
 
         int version = document.Version;
@@ -536,10 +536,10 @@ internal static class TitleGradientVerification
 
         string extractedText = System.Text.Encoding.UTF8.GetString(extracted);
         void RejectText(string text, string description) => AssertThrows<InvalidDataException>(
-            () => TitleGradientPresentation.Load(new MemoryStream(
+            () => TitleGradientFile.Read(new MemoryStream(
                 System.Text.Encoding.UTF8.GetBytes(text), writable: false)),
             description);
-        string versionField = $"\"version\": {TitleGradientFormat.Version}";
+        string versionField = $"\"version\": {TitleGradientFile.Version}";
         AssertTrue(extractedText.Contains(versionField, StringComparison.Ordinal), "extracted title gradient states its schema version");
         RejectText(extractedText.Replace(versionField, versionField + ",\n  \"nativeAddress\": 9192685", StringComparison.Ordinal),
             "title gradient rejects native-address escape hatch");

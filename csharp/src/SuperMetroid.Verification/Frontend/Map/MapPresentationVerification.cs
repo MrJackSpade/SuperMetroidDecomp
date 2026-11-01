@@ -1087,7 +1087,7 @@ internal static class MapPresentationVerification
         string overrides,
         AreaMapPresentation original)
     {
-        string source = Path.Combine(stock, TitleGradientFormat.FileName);
+        string source = Path.Combine(stock, TitleGradientFile.FileName);
         TitleGradientDocument document = JsonSerializer.Deserialize<TitleGradientDocument>(
             File.ReadAllBytes(source),
             ArtworkJson.Options)
@@ -1098,9 +1098,9 @@ internal static class MapPresentationVerification
             variant.Stops[0] = stop with { Red = stop.Red == 31 ? 30 : stop.Red + 1 };
         }
 
-        string replacement = Path.Combine(overrides, TitleGradientFormat.FileName);
+        string replacement = Path.Combine(overrides, TitleGradientFile.FileName);
         using (var stream = File.Create(replacement))
-            TitleGradientPresentation.Write(stream, document);
+            TitleGradientFile.Write(stream, document);
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title gradient override changes installed-content identity");

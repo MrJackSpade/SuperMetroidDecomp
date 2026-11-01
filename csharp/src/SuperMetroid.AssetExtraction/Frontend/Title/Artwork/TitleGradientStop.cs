@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Title.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>
 /// One stop of the title's gradient (#1468): the line its band begins on, the colour the band blends in, which title

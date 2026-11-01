@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
@@ -19,7 +18,7 @@ internal static class TitleSpriteExtractor
     public static TitleSpriteFrame[] Extract(ISnesAddressSpace bus)
     {
         IReadOnlyDictionary<TitleSprite, int> spritemaps = MapSprites(bus);
-        return TitleSpriteDefinitions.All.Select(sprite => new TitleSpriteFrame
+        return TitleGraphicsFormat.Sprites.Select(sprite => new TitleSpriteFrame
         {
             Sprite = sprite,
             Parts = ReadParts(bus, spritemaps[sprite]),
@@ -79,7 +78,7 @@ internal static class TitleSpriteExtractor
             }
         }
 
-        if (spritemaps.Count != TitleSpriteDefinitions.All.Count ||
+        if (spritemaps.Count != TitleGraphicsFormat.Sprites.Count ||
             spritemaps.Values.Distinct().Count() != spritemaps.Count)
             throw new InvalidDataException(
                 "Imported title spritemaps do not give every title composition its own spritemap.");

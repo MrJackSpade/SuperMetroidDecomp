@@ -1,8 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
@@ -26,7 +24,7 @@ internal static class TitleGraphicsExtractor
             "Mode 7 map");
         byte[] objects = Read(
             TitleSourceDefinitions.ObjectCharacters,
-            TitleSequenceDefinitions.Graphics.ObjectCharacterByteCount,
+            TitleGraphicsFormat.ObjectCharacterByteCount,
             "OBJ characters");
         byte[] baby = Read(
             TitleSourceDefinitions.BabyMetroidCharacters,

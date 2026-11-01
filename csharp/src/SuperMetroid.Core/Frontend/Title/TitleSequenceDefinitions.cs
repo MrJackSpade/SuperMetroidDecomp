@@ -84,8 +84,6 @@ public static class TitleSequenceDefinitions
     /// <summary>The installed title graphics' extents and the Baby Metroid's animation pages.</summary>
     public static class Graphics
     {
-        /// <summary>The title sprites' 512 four-bit characters.</summary>
-        public const int ObjectCharacterByteCount = 512 * 32;
         /// <summary>The Baby Metroid's four-phase page cycle 0, 1, 2, 1.</summary>
         public static TitleBabyPageSequence BabyAnimationSourcePages => default;
     }

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Title.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>Installed file identity and schema revision for title palette paint and its selected ambient animation colors.</summary>
 public static class TitlePaletteFormat

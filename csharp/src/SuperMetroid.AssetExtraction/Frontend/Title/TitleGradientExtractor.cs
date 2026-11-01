@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -21,14 +22,14 @@ internal static class TitleGradientExtractor
             variants[variant] = new TitleGradientVariant
             {
                 ZoomHighNibble = variant,
-                Stops = [.. decoded.Stops.Select(TitleGradientPresentation.Author)],
+                Stops = [.. decoded.Stops.Select(TitleGradientFile.Author)],
             };
         }
 
         using var json = new MemoryStream();
-        TitleGradientPresentation.Write(json, new TitleGradientDocument
+        TitleGradientFile.Write(json, new TitleGradientDocument
         {
-            Version = TitleGradientFormat.Version,
+            Version = TitleGradientFile.Version,
             Variants = variants,
         });
         return json.ToArray();

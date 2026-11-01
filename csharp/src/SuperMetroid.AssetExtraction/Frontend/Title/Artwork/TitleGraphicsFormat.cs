@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.Core.Frontend.Title;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>Schema, dimensions, filenames, and validation limits for editable title graphics.</summary>
 public static class TitleGraphicsFormat
@@ -37,4 +39,19 @@ public static class TitleGraphicsFormat
     public const int BabyWidth = 32;
     /// <summary>Height in pixels of the baby Metroid Mode 7 character image.</summary>
     public const int BabyHeight = 32;
+    /// <summary>The title sprites' 512 four-bit characters.</summary>
+    public const int ObjectCharacterByteCount = 512 * 32;
+    /// <summary>Every <see cref="TitleSprite"/>, each exactly once: the four cards' reveals, the logo and the copyright, which the installed title artwork must provide.</summary>
+    public static readonly IReadOnlyList<TitleSprite> Sprites =
+    [
+        TitleSprite.YearReveal1, TitleSprite.YearReveal2, TitleSprite.YearReveal3, TitleSprite.YearReveal4,
+        TitleSprite.NintendoReveal1, TitleSprite.NintendoReveal2, TitleSprite.NintendoReveal3, TitleSprite.NintendoReveal4,
+        TitleSprite.NintendoReveal5, TitleSprite.NintendoReveal6, TitleSprite.NintendoReveal7, TitleSprite.NintendoReveal8,
+        TitleSprite.PresentsReveal1, TitleSprite.PresentsReveal2, TitleSprite.PresentsReveal3, TitleSprite.PresentsReveal4,
+        TitleSprite.PresentsReveal5, TitleSprite.PresentsReveal6, TitleSprite.PresentsReveal7, TitleSprite.PresentsReveal8,
+        TitleSprite.MetroidThreeReveal1, TitleSprite.MetroidThreeReveal2, TitleSprite.MetroidThreeReveal3,
+        TitleSprite.MetroidThreeReveal4, TitleSprite.MetroidThreeReveal5, TitleSprite.MetroidThreeReveal6,
+        TitleSprite.MetroidThreeReveal7, TitleSprite.MetroidThreeReveal8, TitleSprite.MetroidThreeReveal9,
+        TitleSprite.SuperMetroidLogo, TitleSprite.NintendoCopyright,
+    ];
 }

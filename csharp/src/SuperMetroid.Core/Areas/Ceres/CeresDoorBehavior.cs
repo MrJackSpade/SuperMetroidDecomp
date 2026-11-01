@@ -139,7 +139,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         _areaArtwork.Artwork?.CeresDoorVisual ?? throw new InvalidOperationException(
             "Ceres door requires installed visual artwork.");
 
-    /// <summary>Ports <c>CeresDoor_Init</c> for every retail population variant.</summary>
+    /// <summary>Initializes the Ceres door for every retail population variant.</summary>
     internal void InitializeCeresDoor(RoomEnemySlot slot)
     {
         CeresDoorVariant variant = slot.Spawn.Population.SpawnSettingsOf<CeresDoorSpawnSettings>().Variant;
@@ -253,7 +253,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         _earthquake.EarthquakeType = baseEarthquakeType;
     }
 
-    /// <summary>Ports the 49-call destruction state exactly.</summary>
+    /// <summary>Runs the 49-call destruction state exactly.</summary>
     internal void RunCeresDoorRumbleAndExplosions(RoomEnemySlot slot)
     {
         CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();

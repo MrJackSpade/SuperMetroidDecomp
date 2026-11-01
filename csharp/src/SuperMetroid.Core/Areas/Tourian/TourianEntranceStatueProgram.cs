@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 internal enum TourianEntranceStatueProgram
 {
-    /// <summary>The ridley animation.</summary>
+    /// <summary>The Ridley animation.</summary>
     Ridley,
-    /// <summary>The phantoon animation.</summary>
+    /// <summary>The Phantoon animation.</summary>
     Phantoon,
     /// <summary>The base decoration animation.</summary>
     BaseDecoration,

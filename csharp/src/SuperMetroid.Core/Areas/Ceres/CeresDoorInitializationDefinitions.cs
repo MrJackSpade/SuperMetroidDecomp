@@ -2,7 +2,7 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// Compiled behavior selectors used by <c>InitAI_CeresDoor</c>.
+/// Compiled behavior selectors used by the Ceres door initializer.
 /// </summary>
 internal static class CeresDoorInitializationDefinitions
 {

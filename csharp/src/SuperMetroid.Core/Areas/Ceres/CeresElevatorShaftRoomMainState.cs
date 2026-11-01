@@ -28,7 +28,7 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <summary>Initial turn timer written by the elevator door's setup.</summary>
     public const int InitialRotationTimer = 60;
 
-    /// <summary>State-$20 hold written by <c>SamusCode_02_ReachCeresElevator</c>.</summary>
+    /// <summary>The elevator hold reaching the Ceres elevator writes.</summary>
     public const int DepartureHoldFrames = 60;
 
     /// <summary>Whether the active room owns this room-main routine.</summary>

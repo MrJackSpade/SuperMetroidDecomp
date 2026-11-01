@@ -78,7 +78,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     /// <summary>Health restored by steam's main and touch routines so the vent cannot be destroyed.</summary>
     private const int CeresSteamIndestructibleHealth = 32767;
 
-    /// <summary>Ports <c>CeresSteam_Init</c>.</summary>
+    /// <summary>Initializes the Ceres steam.</summary>
     internal void InitializeCeresSteam(RoomEnemySlot slot)
     {
         CeresSteamInitialization initialization = CeresSteamInitializations.Initialization(
@@ -108,7 +108,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         state.Function = initialization.Function;
     }
 
-    /// <summary>Ports <c>CeresSteam_Main</c>.</summary>
+    /// <summary>Runs the Ceres steam's main AI.</summary>
     private static void RunCeresSteamMain(
         RoomEnemySlot slot,
         TurningFloorTransform? floorTransform)

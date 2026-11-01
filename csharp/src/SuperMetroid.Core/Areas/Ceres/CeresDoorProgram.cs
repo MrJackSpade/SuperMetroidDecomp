@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 internal enum CeresDoorProgram
 {
-    /// <summary>The ridley room facing right animation.</summary>
+    /// <summary>The Ridley room facing right animation.</summary>
     RidleyRoomFacingRight,
-    /// <summary>The ridley room facing right wait animation.</summary>
+    /// <summary>The Ridley room facing right wait animation.</summary>
     RidleyRoomFacingRightWait,
     /// <summary>The normal facing right animation.</summary>
     NormalFacingRight,
@@ -38,12 +38,12 @@ internal enum CeresDoorProgram
     RotatingElevatorInvisibleWall,
     /// <summary>The rotating elevator invisible wall loop animation.</summary>
     RotatingElevatorInvisibleWallLoop,
-    /// <summary>The ridley escape floor left wall animation.</summary>
+    /// <summary>The Ridley escape floor left wall animation.</summary>
     RidleyEscapeFloorLeftWall,
-    /// <summary>The ridley escape floor left wall loop animation.</summary>
+    /// <summary>The Ridley escape floor left wall loop animation.</summary>
     RidleyEscapeFloorLeftWallLoop,
-    /// <summary>The ridley escape floor right wall animation.</summary>
+    /// <summary>The Ridley escape floor right wall animation.</summary>
     RidleyEscapeFloorRightWall,
-    /// <summary>The ridley escape floor right wall loop animation.</summary>
+    /// <summary>The Ridley escape floor right wall loop animation.</summary>
     RidleyEscapeFloorRightWallLoop,
 }

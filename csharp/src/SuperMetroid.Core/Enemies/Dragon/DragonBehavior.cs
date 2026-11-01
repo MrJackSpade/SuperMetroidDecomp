@@ -243,17 +243,9 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void ResolveDragonCombatAfterCommon(RoomEnemySlot actor)
     {
-        // The power-bomb reaction does not test the wing parameter. Normal touch/shot collision excludes
-        // wings via their intangibility property, but the power-bomb scan does not. Consequently a
-        // power bomb may invoke this on a wing and copy into whatever physical record follows
-        // it. Preserve that retail aliasing bug instead of silently normalizing to a body/wing
-        // relationship; several dense populations place another live actor in that slot.
-        if (actor.SlotIndex >= EnemySlotOrder.Capacity - 1)
-        {
-            throw new InvalidDataException(
-                "Dragon combat callback cannot alias beyond the final physical enemy slot.");
-        }
-        RoomEnemySlot following = _slotTable.Slots[actor.SlotIndex + 1];
+        // The follow-up reaches the enemy placed after whichever part was hit: the body's own wing, or,
+        // for a power bomb hitting the intangible wing, the next enemy (FollowUpAfterStruckPart).
+        RoomEnemySlot following = FollowUpAfterStruckPart.Recipients(_slotTable.Slots, actor.SlotIndex, reach: 1)[0];
         if (actor.Health == 0)
         {
             following.Properties = following.Properties.With(EnemyProperties.Deleted);

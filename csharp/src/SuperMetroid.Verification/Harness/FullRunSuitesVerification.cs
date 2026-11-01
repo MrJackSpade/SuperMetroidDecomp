@@ -336,6 +336,7 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidGradualAcceler
 using static SuperMetroid.Verification.Rooms.Plms.ShotBlockPlmProgramsVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterRidingVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterScrewContactVerification;
+using static SuperMetroid.Verification.Enemies.FollowUpAfterStruckPartVerification;
 using static SuperMetroid.Verification.Enemies.SpacePirates.SpacePirateCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SpacetimeBeamVerification;
 using static SuperMetroid.Verification.Enemies.Sparks.SparkCrashAlignmentVerification;
@@ -778,6 +779,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySpringBallFallingFallback), () => VerifySpringBallFallingFallback()),
         new(nameof(VerifyFirefleaDoubleDeath), () => VerifyFirefleaDoubleDeath()),
         new(nameof(VerifyShutterScrewContact), () => VerifyShutterScrewContact()),
+        new(nameof(VerifyFollowUpAfterStruckPart), () => VerifyFollowUpAfterStruckPart()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),
         new(nameof(VerifySaveConfirmationCadence), () => VerifySaveConfirmationCadence()),
         new(nameof(VerifyTourianStatueXrayFreeze), () => VerifyTourianStatueXrayFreeze()),

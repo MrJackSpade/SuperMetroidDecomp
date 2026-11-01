@@ -482,24 +482,15 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the Evir's tail after common touch/shot/power-bomb damage. Applies its next-slot
-    /// and second-next-slot aliases relative to whichever Evir record received the
-    /// callback. Ordinary shots/touch can only reach the body because the arms carry
-    /// their intangibility property, but the power-bomb walker deliberately ignores that property and can
-    /// invoke the same code on the arms. Preserve that odd relative aliasing instead of
-    /// replacing it with a body-only composite helper.
+    /// Runs the Evir's tail after common touch/shot/power-bomb damage, on the two enemies placed after whichever Evir
+    /// part was hit (<see cref="FollowUpAfterStruckPart"/>). Touches and shots reach only the body, whose followers are
+    /// its arms and spit; a power bomb also hits the intangible arms, whose followers are their spit and the next enemy.
     /// </summary>
     private void ResolveEvirCombatAfterCommon(RoomEnemySlot actor)
     {
-        int firstRelativeIndex = actor.SlotIndex + 1;
-        int secondRelativeIndex = actor.SlotIndex + 2;
-        if ((uint)secondRelativeIndex >= _slotTable.Slots.Count)
-        {
-            throw new InvalidDataException(
-                $"Evir callback at slot {actor.SlotIndex} has no slot two places after it to alias.");
-        }
-        RoomEnemySlot firstRelative = _slotTable.Slots[firstRelativeIndex];
-        RoomEnemySlot secondRelative = _slotTable.Slots[secondRelativeIndex];
+        IReadOnlyList<RoomEnemySlot> followers = FollowUpAfterStruckPart.Recipients(_slotTable.Slots, actor.SlotIndex, reach: 2);
+        RoomEnemySlot firstRelative = followers[0];
+        RoomEnemySlot secondRelative = followers[1];
 
         if (actor.Health == 0)
         {

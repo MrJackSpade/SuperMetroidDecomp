@@ -78,7 +78,7 @@ public sealed class WrittenPictureSheet
     public static string NameOf(WrittenPictureLayer layer, TilesetDefinition tileset) =>
         $"{(layer == WrittenPictureLayer.Bg3 ? "Bg3Pictures" : "Written")}.{RoomBlockSheet.NameOf(tileset)}";
 
-    /// <summary>How the pictures of <paramref name="layer"/> are coloured: BG3's from four-colour rows.</summary>
+    /// <summary>How the pictures of <paramref name="layer"/> are coloured: BG3's from colour sets of four.</summary>
     public static SpriteImageColours ColoursOf(WrittenPictureLayer layer) =>
         layer == WrittenPictureLayer.Bg3 ? SpriteImageColours.TwoBppBackground : SpriteImageColours.Background;
 }

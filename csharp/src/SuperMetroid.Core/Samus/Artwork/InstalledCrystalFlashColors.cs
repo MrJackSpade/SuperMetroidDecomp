@@ -25,7 +25,7 @@ public sealed class InstalledCrystalFlashColors
         for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
             calculated &= body[frame][color] == CalculateBody(frame, color);
         this.body = calculated ? null : body;
-        // // The rotating ramp accounts for 35 stock words. The remaining white
+        // The rotating ramp accounts for 35 stock words. The remaining white
         // is an independent painted color choice; retain only that supplied sample.
         // Arbitrary supplied edits remain exact.
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)

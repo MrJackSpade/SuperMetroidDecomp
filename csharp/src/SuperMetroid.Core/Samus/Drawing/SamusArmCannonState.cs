@@ -99,7 +99,7 @@ public sealed class SamusArmCannonState
         Ensure.NotNull(samus);
 
         // The cannon shares Samus's invincibility flicker, and a closed frame performs
-        // // neither sprite nor artwork work. The game returns before even consulting pose data.
+        // neither sprite nor artwork work. The game returns before even consulting pose data.
         if (Frame == 0 || (!samus.InvincibilityTimer.IsZero && (frameCounter & 1) != 0))
             return new SamusArmCannonDrawResult();
 
@@ -117,7 +117,7 @@ public sealed class SamusArmCannonState
         bool spriteWritten = screenX >= 0 && screenX < 256 && screenY >= 0 && screenY < 256;
         if (spriteWritten)
         {
-            // // Selector -> one of four orientation lists -> current cover frame. The game loads that
+            // Selector -> one of four orientation lists -> current cover frame. The game loads that
             // character to the tile the sprite names; the sheet frame is that cover as the sprite shows it. Frame
             // zero, the null entry, returned above.
             InstalledSpriteSheets sheets = samus.Presentation.BodyFrames.Sheets ?? throw new InvalidOperationException(
@@ -179,7 +179,7 @@ public sealed class SamusArmCannonState
             Frame = 0;
         }
 
-        // // The cover ends the transition while retaining the open state.
+        // The cover ends the transition while retaining the open state.
         IsTransitioning = false;
     }
 

@@ -29,7 +29,7 @@ public static class SamusTerrainHazardCollision
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
 
-        // // The spike reaction makes Wrecked Ship's behaviour-zero spike blocks harmless until Phantoon's
+        // The spike reaction makes Wrecked Ship's behaviour-zero spike blocks harmless until Phantoon's
         // area-boss bit is set. Every other area admits that table entry unconditionally.
         samus.OrdinarySpikeBlockBtsZeroDamageEnabled =
             area != AreaId.WreckedShip || areaBossDefeated;
@@ -86,7 +86,7 @@ public static class SamusTerrainHazardCollision
             return;
         }
 
-        // // The spike-air reaction is disabled during shinespark/Screw-Attack/contact-damage bodies and
+        // The spike-air reaction is disabled during shinespark/Screw-Attack/contact-damage bodies and
         // while the common invincibility timer is nonzero. It also restores the normal-air
         // horizontal table before returning, independently of whether damage was admitted.
         samus.HorizontalSpeed.SelectNormalAirSpeedTable();

@@ -52,14 +52,14 @@ public static class SamusGrappleBeamDrawing
         if (!UsesBeamSpecificDrawingPath(grapple.Phase) || grapple.FlareCounter == 0)
             return false;
 
-        // // While firing, the grapple draw handler recomputes the hand origins immediately before the flare. Grapple
+        // While firing, the grapple draw handler recomputes the hand origins immediately before the flare. Grapple
         // physics ran before ordinary Samus movement, so the renderer must reconstruct both
         // hand origins from the final body position or a running shot visibly lags one frame.
         // Connected functions already publish their exact rope/flare pair during movement.
         if (grapple.Phase == GrapplePhase.Firing)
             RefreshFiringDrawOrigins(samus, grapple);
 
-        // // Counter one is a sentinel, not merely the first ordinary animation tick. The game
+        // Counter one is a sentinel, not merely the first ordinary animation tick. The game
         // code force-selects main-flare frame 16 and timer three on every such call, then
         // performs the usual 16-bit DEC/BMI. The first visible frame therefore stores two.
         if (grapple.FlareCounter == 1)
@@ -78,7 +78,7 @@ public static class SamusGrappleBeamDrawing
             {
                 // `$FE,n` is the compact loop command in the shared delay bytecode. The
                 // subtraction applies to the already-incremented frame word and wraps like
-                // // 16-bit add and subtract; malformed data remains visible instead of clamped.
+                // 16-bit add and subtract; malformed data remains visible instead of clamped.
                 int rewind = ChargeFlareAnimations.ReadMainFlareDelay(StepFlareFrame(grapple.FlareAnimationFrame, 1));
                 grapple.FlareAnimationFrame = StepFlareFrame(grapple.FlareAnimationFrame, -rewind);
                 delay = ChargeFlareAnimations.ReadMainFlareDelay(grapple.FlareAnimationFrame);
@@ -89,7 +89,7 @@ public static class SamusGrappleBeamDrawing
 
         int screenX = CoordinateAxis.Wrap(grapple.BeamStart.X - layer1.X);
         int screenY = CoordinateAxis.Wrap(grapple.BeamStart.Y - layer1.Y);
-        // // The draw tests only Y's high byte. X is allowed to wrap into the screen's ninth X bit, while
+        // The draw tests only Y's high byte. X is allowed to wrap into the screen's ninth X bit, while
         // any Y outside unsigned screen rows `$00-$FF` suppresses the whole spritemap.
         if (ScreenConversions.IsOutsideSpriteRange(screenY))
             return false;
@@ -113,7 +113,7 @@ public static class SamusGrappleBeamDrawing
     /// <summary>Seeds the first flare and point frames and all sixteen independently timed rope segment slots.</summary>
     internal static void InitializeBeamAnimation(SamusGrappleState grapple)
     {
-        // // Firing installs counter one after initializing the rope animation slots.
+        // Firing installs counter one after initializing the rope animation slots.
         // The debugger's already-connected seam has no preceding firing history, so it
         // begins at the same authentic first flare state rather than inventing a static OBJ.
         grapple.FlareCounter = 1;
@@ -123,7 +123,7 @@ public static class SamusGrappleBeamDrawing
         grapple.PointAnimationFrame = 0;
         // GrappleFunc_AF87 seeds sixteen independent segment instruction
         // slots. Slot 15 starts on tile $24, slot 14 on $23, slot 13 on $22, slot 12 on
-        // // $21, and that four-phase pattern repeats down to zero. Timer one makes the rope draw
+        // $21, and that four-phase pattern repeats down to zero. Timer one makes the rope draw
         // consume each initial record on its first draw.
         for (int slot = 0; slot < grapple.SegmentAnimationFrames.Length; slot++)
         {
@@ -180,14 +180,14 @@ public static class SamusGrappleBeamDrawing
         // The pair is a begin/end range, not two animation frames. Each
         // six-call interval advances the source by $200 through four endpoint tiles.
         GrapplePointAnimation.Advance(grapple);
-        // // The game loads the endpoint frame and the four rope characters for the angle's sector into
-        // // fixed sprite characters; the draws below bind that selection over the standard sprite page.
+        // The game loads the endpoint frame and the four rope characters for the angle's sector into
+        // fixed sprite characters; the draws below bind that selection over the standard sprite page.
         SpriteSheet installed = sheet ?? throw new InvalidOperationException("The grapple beam requires the installed grapple sheet.");
         SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientation orientation =
             SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientations.For(grapple.Angle);
 
-        // // The rope tile selection increments the shared flare counter after both tile records, saturating
-        // // at 120 by a signed comparison. It happens even at zero rope length; only the
+        // The rope tile selection increments the shared flare counter after both tile records, saturating
+        // at 120 by a signed comparison. It happens even at zero rope length; only the
         // rope renderer below is conditional. This is why a newly fired beam can animate
         // its muzzle flare before its first eight-pixel body segment exists.
         if (grapple.FlareCounter < 120)
@@ -195,7 +195,7 @@ public static class SamusGrappleBeamDrawing
         if (grapple.RopeLength <= 0)
             return;
 
-        // // The rope draw recalculates the draw vector from endpoint-minus-flare geometry. This
+        // The rope draw recalculates the draw vector from endpoint-minus-flare geometry. This
         // is observably different from merely reversing EndAngle while firing, and it also
         // keeps the rope visually attached after pose-specific art-origin correction.
         RotationAngle drawAngle = SamusGrappleMovement.CalculateAngleFromXY(grapple.Anchor - grapple.BeamStart);
@@ -206,7 +206,7 @@ public static class SamusGrappleBeamDrawing
         int stepY = SamusGrappleSwing.ReadSignedSine(drawAngle.TableIndex)
             * GrappleBeamDefinitions.Rendering.SegmentSampleToFixedPoint;
 
-        // // The rope draw derives X/Y flip bits from the grapple angle while retaining the packed
+        // The rope draw derives X/Y flip bits from the grapple angle while retaining the packed
         // palette-five/priority-three instruction word. Tile $20 is the connected endpoint.
         int angleHigh = grapple.Angle.TableIndex;
         int flipBits = (angleHigh & 1 << 7) >> 1;
@@ -215,15 +215,15 @@ public static class SamusGrappleBeamDrawing
             ((flipBits & 1 << 7) != 0 ? SpriteMirror.Vertical : SpriteMirror.None);
         int screenXFixed = unchecked(SixteenSixteen.FromWhole(grapple.BeamStart.X - layer1.X - GrappleBeamDefinitions.Rendering.CharacterCenterOffset));
         int screenYFixed = unchecked(SixteenSixteen.FromWhole(grapple.BeamStart.Y - layer1.Y - GrappleBeamDefinitions.Rendering.CharacterCenterOffset));
-        // // The game enters the loop before decrementing quotient-minus-one: even a
+        // The game enters the loop before decrementing quotient-minus-one: even a
         // positive length whose masked quotient is zero visits one segment.
         int segmentCount = Math.Max(1, (grapple.RopeLength / GrappleBeamDefinitions.Rendering.SegmentSpacing)
             % GrappleBeamDefinitions.Rendering.SegmentCountCycle);
         for (int segment = 0; segment < segmentCount; segment++)
         {
-            // // The rope draw walks animation slots from 15 downward regardless of rope length.
+            // The rope draw walks animation slots from 15 downward regardless of rope length.
             // The first timer expiry reads the already-selected initial record; later
-            // // expiries advance through $21,$22,$23,$24 and the goto back to $21.
+            // expiries advance through $21,$22,$23,$24 and the goto back to $21.
             // Keeping the one-time first expiry explicit preserves the five-draw
             // interval without pretending that all rope pieces share one animation frame.
             int instructionSlot = GrappleBeamDefinitions.Rendering.FirstSegmentSlot - segment;
@@ -243,11 +243,11 @@ public static class SamusGrappleBeamDrawing
 
             int screenX = FixedCoordinate.WholeOf(screenXFixed);
             int screenY = FixedCoordinate.WholeOf(screenYFixed);
-            // // The game ticks this slot before the visibility check, then abandons
+            // The game ticks this slot before the visibility check, then abandons
             // the remaining rope slots entirely at the first off-screen segment.
             if ((screenX | screenY) >= GrappleBeamDefinitions.Rendering.ViewportExtent)
                 break;
-            // // The rope draw's direction flips are ORed into the segment's own; the sheet holds each combination.
+            // The rope draw's direction flips are ORed into the segment's own; the sheet holds each combination.
             SpriteSheetFrame image = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheets.RopeFrame(
                 orientation, grapple.SegmentAnimationFrames[instructionSlot], mirror));
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope, segment), image,
@@ -286,7 +286,7 @@ public static class SamusGrappleBeamDrawing
     /// <summary>Clears the three charge-flare words shared by grapple cancellation and connection cleanup.</summary>
     internal static void ClearFlareAnimation(SamusGrappleState grapple)
     {
-        // // Every grapple teardown clears these same shared charge/grapple
+        // Every grapple teardown clears these same shared charge/grapple
         // words before restoring the ordinary draw handler and projectile palette.
         grapple.FlareCounter = 0;
         grapple.FlareAnimationFrame = 0;

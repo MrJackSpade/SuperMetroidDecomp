@@ -139,7 +139,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
 
             case FileSelectPhase.LoadBackground:
-                // // File select queues the Zebes/stars BG2 tilemap.
+                // File select queues the Zebes/stars BG2 tilemap.
                 Phase = FileSelectPhase.InitializeMain;
                 break;
 
@@ -155,7 +155,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
 
             case FileSelectPhase.FadeIn:
-                // // Index three.
+                // Index three.
                 screenFade.FadeIn(ref brightness);
                 if (brightness == ScreenBrightness.FullyLit)
                     Phase = FileSelectPhase.Main;
@@ -183,7 +183,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
             case FileSelectPhase.TurnSelectedHelmet:
                 StepSelectedHelmet();
-                // // Start/A ends the turn early; otherwise it ends once the
+                // Start/A ends the turn early; otherwise it ends once the
                 // final frame has also used up its own timer, which then reads zero.
                 if ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None ||
                     (HelmetAnimationFrame == FileSelectHelmetAnimation.FrameCount - 1 && helmetAnimationTimer == 0))
@@ -237,7 +237,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         for (int slot = 0; mainScreen && slot < 3; slot++)
         {
             // Menu index 32 fades with the completed (or Start-shortened) helmet turn
-            // // still drawn. Resetting to the first frame during the fade produces
+            // still drawn. Resetting to the first frame during the fade produces
             // a one-frame-visible head snap immediately before loading.
             int frame = FileSelectItemRows.ForSaveSlot(slot) == SelectedItem && Phase is
                     FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions

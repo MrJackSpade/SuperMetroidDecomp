@@ -64,7 +64,7 @@ public sealed class FileSelectStationMarker
     public void Draw(ScreenSprites entries, Position16<MapPixels> scroll, SpriteSheet? sheet = null)
     {
         Position16<ScreenPixels> origin = MapPosition.ToScreen(scroll);
-        // // The backing is drawn behind the station marker on even animation loops.
+        // The backing is drawn behind the station marker on even animation loops.
         if (ShowBacking) Add(MapSpriteId.IndicatorBacking);
         Add(SpritemapId);
 

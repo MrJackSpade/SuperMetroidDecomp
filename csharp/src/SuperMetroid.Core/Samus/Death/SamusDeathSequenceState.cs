@@ -84,7 +84,7 @@ public sealed class SamusDeathSequenceState
             : SamusPoseId.DeathSequenceRightPose;
         int initialFrame = SamusDeathSequenceFrames.InitialFrame(sourceMovementType);
 
-        // // The game initializes pose `$D7/$D8` normally, then overwrites only the visible frame
+        // The game initializes pose `$D7/$D8` normally, then overwrites only the visible frame
         // with the movement-type table result. All six delays are two, so the timer produced
         // by frame-zero initialization remains the correct literal value for every start.
         samus.Pose = deathPose;
@@ -96,7 +96,7 @@ public sealed class SamusDeathSequenceState
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, initialFrame, timer: 2);
 
         // The game subtracts layer 1 directly from Samus's live words because its death
-        // // renderer adds layer 1 back before drawing. Retain world coordinates in Samus
+        // renderer adds layer 1 back before drawing. Retain world coordinates in Samus
         // for this host's shared camera/minimap model and capture the mathematically identical
         // screen-space pair here for the eventual explosion-spritemap path.
         ScreenPosition = samus.Position.Whole.ToScreen(layer1);
@@ -134,7 +134,7 @@ public sealed class SamusDeathSequenceState
         switch (Phase)
         {
             case SamusDeathSequencePhase.PreFlashing:
-                // // The death animation advances the `$D7/$D8` delay stream only during state `$16`.
+                // The death animation advances the `$D7/$D8` delay stream only during state `$16`.
                 // State `$17` freezes that final body frame while its palettes alternate.
                 SamusPresentation.AnimateDeathFrame(samus);
                 drawPose = true;
@@ -147,7 +147,7 @@ public sealed class SamusDeathSequenceState
                 AnimationCounter++;
                 if (AnimationCounter >= SamusDeathSequenceDefinitions.FlashFrameCount)
                 {
-                    // // The explosion step loads palette pair zero, resets the reused counters, and immediately
+                    // The explosion step loads palette pair zero, resets the reused counters, and immediately
                     // draws explosion spritemap zero in this very same game-state-17 call.
                     WritePalettePair(samus, samusColours, paletteIndex: 0, artwork);
                     paletteChanged = true;
@@ -196,7 +196,7 @@ public sealed class SamusDeathSequenceState
                 break;
 
             case SamusDeathSequencePhase.Complete:
-                // // The game advances to the room fade with no Samus draw. The outer game-state
+                // The game advances to the room fade with no Samus draw. The outer game-state
                 // owner has not been translated into this gameplay host, so remain locked.
                 break;
 
@@ -288,7 +288,7 @@ public sealed class SamusDeathSequenceState
         int paletteIndex,
         InstalledSamusDeathPalettes? artwork)
     {
-        // // Each suit's ten death palettes follow the previous suit's.
+        // Each suit's ten death palettes follow the previous suit's.
         int suitList = samus.EquippedItems.ShownSuit().ListPlace();
         if (artwork is not null)
         {

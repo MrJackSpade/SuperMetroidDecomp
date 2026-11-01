@@ -56,7 +56,7 @@ internal sealed class DeathSequenceRunner
             _player.Samus,
             _room.Camera.PixelPosition);
 
-        // // The next frame boundary must see the death poses' definitions. The death game state
+        // The next frame boundary must see the death poses' definitions. The death game state
         // draws once before setup and state 16 draws the new pose on its following call;
         // priming here preserves that same first-visible-frame contract in this thin host.
         _player.Samus.Presentation.PrimeGraphics(_player.Samus);

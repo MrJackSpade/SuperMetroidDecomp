@@ -55,7 +55,7 @@ internal static class AutomaticCheckpointSaver
             ?? throw new InvalidOperationException(
                 "Gunship landing completed without a live Samus actor.");
 
-        // // The gunship sets the ship-landed marker before changing load station 18 to
+        // The gunship sets the ship-landed marker before changing load station 18 to
         // station zero and calling SaveToSram. The marker controls ship/save-point display
         // after reload and therefore belongs inside the atomic checkpoint operation.
         runtime.System.LoadSavedLoadingGameState(SaveLoadingGameStateCodec.Word(SaveLoadingGameState.MainGame));

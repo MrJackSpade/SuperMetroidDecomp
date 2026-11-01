@@ -240,7 +240,7 @@ public sealed class RoomLayer3FxState
         }
         else if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            // // Lava and acid start with timer B at one, so the first per-line effect object pass rotates A
+            // Lava and acid start with timer B at one, so the first per-line effect object pass rotates A
             // from zero to $1E and then reloads either four or six. Expressing the already-
             // resolved waveform phase as zero produces the same first visible table.
             lavaAcidBg2WaveTimer = WrappingCountdown.FromRaw(UsesLavaAcidVerticalWave
@@ -250,7 +250,7 @@ public sealed class RoomLayer3FxState
         }
         else if (Type == RoomFxType.Rain)
         {
-            // // Rain masks the random word with six *after* shifting it once,
+            // Rain masks the random word with six *after* shifting it once,
             // producing byte offsets 0/2/4/6 into a word table. Expressed as a C#
             // element index that is bits two and three of the original random word.
             rainWindVelocity = new Offset16<OverlaySubpixels>(
@@ -284,7 +284,7 @@ public sealed class RoomLayer3FxState
         if (!LavaAcidBg3FrameBehaviorInstalled)
         {
             LavaAcidBg3FrameBehaviorInstalled = true;
-            // // Water's setup sets the sound timer in the same pass that installs the frame behaviour.
+            // Water's setup sets the sound timer in the same pass that installs the frame behaviour.
             if (lavaOrAcid)
                 lavaSoundTimer = WrappingCountdown.Start(LavaAcidWaveDefinitions.AmbientSoundPeriod);
             return;
@@ -293,7 +293,7 @@ public sealed class RoomLayer3FxState
             return;
         if (!lavaOrAcid)
         {
-            // // Water's rising function and tide; water leaves the random number alone.
+            // Water's rising function and tide; water leaves the random number alone.
             AdvanceLiquidMotion(system.RandomNumber, system.EarthquakeSoundDelay);
             return;
         }
@@ -372,14 +372,14 @@ public sealed class RoomLayer3FxState
 
         if (Type == RoomFxType.Spores)
         {
-            // // Spores sample each signed accumulator before adding its velocity.
+            // Spores sample each signed accumulator before adding its velocity.
             // Unlike rain, spores are anchored to the current camera, not its delta.
             Scroll = frame.Camera.AsBg3Scroll() + drift.WholePixels();
             drift = drift.WithY(WordWrap.Signed(drift.Y - AtmosphereDriftDefinitions.SporesVerticalVelocity));
             return;
         }
 
-        // // Fog anchors to layer one and moves its texture by -$40/+50 in 8.8.
+        // Fog anchors to layer one and moves its texture by -$40/+50 in 8.8.
         Scroll = frame.Camera.AsBg3Scroll() + drift.WholePixels();
         drift = new(WordWrap.Signed(drift.X + AtmosphereDriftDefinitions.FogHorizontalVelocity),
             WordWrap.Signed(drift.Y - AtmosphereDriftDefinitions.FogVerticalVelocity));
@@ -539,8 +539,8 @@ public sealed class RoomLayer3FxState
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
         waterSurfaceScreenY = CoordinateAxis.Difference(Surface.Y, camera.Y);
-        // // Lava/acid uses the same surface-relative BG3VOFS equation as water.
-        // // Zeroing it anchored the animated characters to the screen instead of
+        // Lava/acid uses the same surface-relative BG3VOFS equation as water.
+        // Zeroing it anchored the animated characters to the screen instead of
         // beginning their first texture row immediately below the liquid boundary.
         Scroll = camera.AsBg3Scroll().WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
 
@@ -609,7 +609,7 @@ public sealed class RoomLayer3FxState
     /// </summary>
     private void PublishRisingLiquidFeedback(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
     {
-        // // Water's callbacks only wait/move. Lava and acid's
+        // Water's callbacks only wait/move. Lava and acid's
         // parallel callbacks additionally request sound and a global earthquake.
         if (Type is not (RoomFxType.Lava or RoomFxType.Acid))
             return;
@@ -721,7 +721,7 @@ public sealed class RoomLayer3FxState
             return;
         }
 
-        // // The tide indexes the negative-cosine prefix, not the sine origin.
+        // The tide indexes the negative-cosine prefix, not the sine origin.
         int sample = Trigonometry.SignedNegativeCosineWord(Ensure.BetweenInclusive(0, byte.MaxValue, EightEight.WholeOf(TidePhase)));
         TideFixedOffset = SixteenSixteen.FromEightEight(sample * scale);
         AdvanceTidePhase(sample >= 0 ? positiveDelta : negativeDelta);

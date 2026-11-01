@@ -133,7 +133,7 @@ public readonly record struct ControllerBindings(
                 return result.WithAction(other, displaced);
         }
 
-        // // A corrupt saved permutation can omit the selected physical button. The game scans
+        // A corrupt saved permutation can omit the selected physical button. The game scans
         // six peers and then leaves the displaced value nowhere; matching that behavior is
         // safer than inventing a repair policy at runtime.
         return result;

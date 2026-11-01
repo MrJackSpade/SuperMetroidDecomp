@@ -94,7 +94,7 @@ internal sealed class EndingEscapeScenes
     /// <summary>Visits live cinematic slots from high to low, allowing callback replacements in lower slots to run this frame.</summary>
     internal void StepSprites()
     {
-        // // Traversal re-reads each slot. A callback can replace a lower slot,
+        // Traversal re-reads each slot. A callback can replace a lower slot,
         // which then runs later in this same frame; higher slots wait until next frame.
         for (int slot = EndingSpriteSlots.Count - 1; slot >= 0; slot--)
         {

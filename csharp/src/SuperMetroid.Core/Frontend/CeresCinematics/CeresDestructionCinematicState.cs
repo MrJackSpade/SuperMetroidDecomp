@@ -213,7 +213,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         {
             initialFrameWaits++;
             SetupCeresDestruction();
-            // // Setup queues the cinematic music and the state's own track last.
+            // Setup queues the cinematic music and the state's own track last.
             audio?.QueueMusic(MusicRequest.Stop);
             audio?.QueueMusic(
                 MusicRequest.LoadDataSet(MusicDataSet.Ceres));
@@ -244,7 +244,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 break;
 
             case CeresDestructionPhase.FlyToZebesInitial:
-                // // The Zebes scene is set up and the fade-in installed.
+                // The Zebes scene is set up and the fade-in installed.
                 SetupZebesReveal();
                 Phase = CeresDestructionPhase.FadeInZebes;
                 break;
@@ -268,7 +268,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 }
                 else
                 {
-                    // // The final blast snaps the scale to 768, creates the final blast, and
+                    // The final blast snaps the scale to 768, creates the final blast, and
                     // installs the flying-away function on this exact handler call.
                     Zoom = CeresDestructionSceneDefinitions.Motion.CeresExplosionScale;
                     SpawnFinalCeresExplosion();
@@ -300,7 +300,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
             case CeresDestructionPhase.FadeOutCeres:
                 // Once the screen is black the next step is installed; it runs next update.
-                // // The game-over route instead stops the music and ends at the death black-out.
+                // The game-over route instead stops the music and ends at the death black-out.
                 if (StepSlowFadeOut())
                 {
                     if (WithSamus)
@@ -365,7 +365,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 }
                 else
                 {
-                    // // The game disables the ship's BG1 plane before the hold, not
+                    // The game disables the ship's BG1 plane before the hold, not
                     // when the later pan starts. Planet and star OBJ remain enabled.
                     mainScreenLayers = ScreenLayers.Sprites;
                     phaseTimer = CeresDestructionSceneDefinitions.Timing.ZebesHoldFrames;
@@ -644,8 +644,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Starts the power-bomb blast, queues sound, adds its sprite, and replaces the station maps.</summary>
     private void SpawnFinalCeresExplosion()
     {
-        // // The final blast calls the ordinary enemy explosion with screen-space coordinates,
-        // // before replacing the station tilemap. Keep its authored curves/colors/lifetime.
+        // The final blast calls the ordinary enemy explosion with screen-space coordinates,
+        // before replacing the station tilemap. Keep its authored curves/colors/lifetime.
         stationExplosion.Spawn(new(
             CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole),
             CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole)));
@@ -677,8 +677,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             definition.Program);
         actor.InstallFrameBehavior(definition.FrameBehavior);
 
-        // // The initializer writes its stagger directly to the frame hold.
-        // // GeneralTimer is a different counter used by decrement-and-goto steps; using
+        // The initializer writes its stagger directly to the frame hold.
+        // GeneralTimer is a different counter used by decrement-and-goto steps; using
         // it here would make all five blasts appear immediately despite distinct delays.
         actor.DelayFirstInstruction(placement.DelayFrames);
         _ = TryAddCeresActor(actor);
@@ -687,7 +687,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Allocates the highest free sprite slot, preserving the spawner's reserved slot until deletion.</summary>
     private bool TryAddCeresActor(IntroDiscoverySprite actor)
     {
-        // // Allocation searches the highest free slot. The invisible spawner
+        // Allocation searches the highest free slot. The invisible spawner
         // owns its slot until its final spawn instruction and deletion have run.
         for (int slot = CeresDestructionSceneDefinitions.Sprites.AsteroidSlot; slot >= 0; slot--)
         {
@@ -699,8 +699,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             actors.Add(actor);
             return true;
         }
-        // // Allocation reports failure when all slots are occupied. These cinematic
-        // // callers intentionally do not branch on it: this is the game's capacity
+        // Allocation reports failure when all slots are occupied. These cinematic
+        // callers intentionally do not branch on it: this is the game's capacity
         // behavior, not an unsupported instruction or swallowed runtime failure.
         return false;
     }
@@ -741,8 +741,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 }
                 actor.InstallFrameBehavior(definition.SlideFrameBehavior);
                 // Zebes accelerates by $40 in 8.8; all four star sheets use $20. Star
-                // // sheet five owns the reveal's completion. Identify the actors
-                // // by ownership, not their mutable list index: actors delete as they
+                // sheet five owns the reveal's completion. Identify the actors
+                // by ownership, not their mutable list index: actors delete as they
                 // cross -$80, so indexes necessarily shift during this loop.
                 // The slide speed grows by at most $40 a frame and the actor is deleted within a few dozen frames, once
                 // it crosses -$80, so the speed never nears the word's wrap.
@@ -750,9 +750,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 SubtractEightEightY(actor, actor.GeneralTimer);
                 if (CoordinateAxis.AsSigned(actor.WholePosition.Y) < -128)
                 {
-                    // // Each reveal object deletes itself before its 8-bit
-                    // // screen Y coordinate can wrap below the screen. Only star sheet five
-                    // // additionally hands the cinematic back to game load.
+                    // Each reveal object deletes itself before its 8-bit
+                    // screen Y coordinate can wrap below the screen. Only star sheet five
+                    // additionally hands the cinematic back to game load.
                     if (definition.CompletesScene)
                     {
                         Phase = CeresDestructionPhase.Finished;
@@ -783,7 +783,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
             case CinematicSpriteCueKind.StartFlyingToZebes:
                 // The title actor, not a host timer, publishes the camera flight exactly
-                // // where its animation script reaches the flight step.
+                // where its animation script reaches the flight step.
                 Background = new(Background.X.WithWhole(CeresDestructionSceneDefinitions.Motion.FloorExitX),
                     Background.Y.WithWhole(WordWrap.Unsigned(-112)));
                 angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
@@ -837,7 +837,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Subtracts an unsigned 8.8 slide velocity from the actor's 16.16 Y position with borrow.</summary>
     private static void SubtractEightEightY(IntroDiscoverySprite actor, int velocity)
     {
-        // // The cinematic frame behaviours split an unsigned 8.8 velocity into
+        // The cinematic frame behaviours split an unsigned 8.8 velocity into
         // whole/subposition words before a 16-bit subtraction with borrow.
         uint fixedPosition = new FixedCoordinate(actor.Position.Y.Whole, actor.Position.Y.Fraction).RawValue;
         uint fixedVelocity = SixteenSixteen.FromEightEight((uint)velocity);
@@ -871,7 +871,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         else
         {
             // Preserve the existing non-mosaicked Mode 1 path. Mosaic implementation
-            // // is a game-correctness change, not an implicit part of this extraction.
+            // is a game-correctness change, not an implicit part of this extraction.
             // The Zebes reveal shows the planet's installed picture once it is loaded (#1467).
             layers = [new PicturedPlaneLayer(CeresCinematicPictures.Zebes(spriteSheets, ZebesRevealed),
                 new Position16<TilePlanePixels>(0, 0), null)];
@@ -895,7 +895,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private void PrepareRenderSprites()
     {
         objects.BeginFrame();
-        // // Same-priority sprite overlap is decided by drawing order. Allocation order is
+        // Same-priority sprite overlap is decided by drawing order. Allocation order is
         // not stable slot order after an earlier explosion dies and its slot is reused.
         IEnumerable<IntroDiscoverySprite> drawActors = CeresDestructionPhaseGroups.CeresScene.Contains(Phase)
             ? actors.OrderByDescending(actor => ceresActorSlots.First(entry => entry.Actor == actor).Slot) : actors;

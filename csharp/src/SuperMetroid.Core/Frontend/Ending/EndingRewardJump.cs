@@ -39,8 +39,8 @@ internal sealed class EndingRewardJump
     /// <summary>Advances head before body, including shared gravity, landing uploads, and instruction effects.</summary>
     public void Step()
     {
-        // // Fixed slots put the head above the body in the descending handler.
-        // // Both frame behaviours use the shared Samus velocity, so each call accelerates it.
+        // Fixed slots put the head above the body in the descending handler.
+        // Both frame behaviours use the shared Samus velocity, so each call accelerates it.
         if (head is { IsActive: true })
         {
             if (head.FrameBehavior == CinematicSpriteFrameBehavior.RewardHeadFlight)

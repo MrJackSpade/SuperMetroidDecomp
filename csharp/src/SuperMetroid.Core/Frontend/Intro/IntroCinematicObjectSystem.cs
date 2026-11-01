@@ -288,7 +288,7 @@ internal sealed class IntroCinematicObjectSystem
             IntroFinishRequested = true;
             return;
         }
-        // // Instruction_SpawnBlinkingMarkers_WaitForInput_PageN first
+        // Instruction_SpawnBlinkingMarkers_WaitForInput_PageN first
         // sets the caret blinking. Japanese pages two to five then wait for the press that
         // shows their second subtitle, whose object selects the page's input wait.
         SetCaretBlinking();

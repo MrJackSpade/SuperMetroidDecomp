@@ -24,7 +24,7 @@ public sealed class MapPaletteCycle
         FrameCount = durations.Length;
         for (int frame = 0; frame < FrameCount; frame++)
             if (durations[frame] != StockDuration(frame)) durationEdits.Add(frame, durations[frame]);
-        // // The fourteen stock frames traverse eight phases forward then backward.
+        // The fourteen stock frames traverse eight phases forward then backward.
         // Retain the independent phase artwork; only the reverse traversal is calculated.
         int phaseCount = FrameCount == 14 ? 8 : FrameCount;
         colors = suppliedColors[..phaseCount];

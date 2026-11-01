@@ -78,11 +78,11 @@ internal sealed class IntroCeresFlightState
             "space/Ceres OBJ characters");
         Artwork = content;
 
-        // // Setup loads the floor's front view and the sprite characters; the scene shows the front view's installed floor (#1467).
+        // Setup loads the floor's front view and the sprite characters; the scene shows the front view's installed floor (#1467).
         objects = new ScreenSprites();
         content.Palette.LoadTo(palette);
         // The loads above are invisible: the screen stays black until the music queue drains.
-        // // The display setup itself runs as the next dispatch's cinematic function.
+        // The display setup itself runs as the next dispatch's cinematic function.
         Phase = IntroCeresFlightPhase.Initial;
     }
 
@@ -117,7 +117,7 @@ internal sealed class IntroCeresFlightState
         switch (Phase)
         {
             case IntroCeresFlightPhase.Initial:
-                // // The flight's music data, then its track, on the shared queue.
+                // The flight's music data, then its track, on the shared queue.
                 audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
                 audio.ScheduleMusic(
                     MusicRequest.SelectTrack(CeresFlightSceneDefinitions.MusicTrack),
@@ -126,7 +126,7 @@ internal sealed class IntroCeresFlightState
                 break;
 
             case IntroCeresFlightPhase.WaitForMusicQueue:
-                // // The approach enables the display once CheckIfMusicIsQueued reports an empty queue.
+                // The approach enables the display once CheckIfMusicIsQueued reports an empty queue.
                 if (!audio.HasQueuedMusic)
                 {
                     brightness = 15;
@@ -233,12 +233,12 @@ internal sealed class IntroCeresFlightState
     /// <summary>Loads the rear map, places five actors, and primes the white fixed-color flash.</summary>
     private void SetupRearView()
     {
-        // // The rear view's map loads; the rear view's phase selects its installed floor (#1467).
+        // The rear view's map loads; the rear view's phase selects its installed floor (#1467).
         background = new(new(WordWrap.Unsigned(-32), 0), new(WordWrap.Unsigned(-128), 0));
         angle = RotationAngle.FromTableIndex(32);
 
-        // // These five slots are the exact spawn order. Their visual animations
-        // // remain authored scripts; the compiled definitions supply callback identity,
+        // These five slots are the exact spawn order. Their visual animations
+        // remain authored scripts; the compiled definitions supply callback identity,
         // initializer results and the physical motion applied by StepRearViewActors.
         RearViewActors = Enumerable.Range(0, CeresFlightActorDefinitions.RearViewActorCount)
             .Select(index =>
@@ -254,8 +254,8 @@ internal sealed class IntroCeresFlightState
             })
             .ToArray();
 
-        // // CGADSUB=$31 adds the fixed colour to BG1, sprites, and backdrop. The flash begins at
-        // // white and removes one five-bit component step per frame until black.
+        // CGADSUB=$31 adds the fixed colour to BG1, sprites, and backdrop. The flash begins at
+        // white and removes one five-bit component step per frame until black.
         flashIntensity = 31;
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
     }
@@ -277,12 +277,12 @@ internal sealed class IntroCeresFlightState
     /// <summary>Fades fixed color and enlarges the rear-view Mode 7 image until the title begins.</summary>
     private void StepFlyingTowardCeres()
     {
-        // // The fixed-colour flash fades by one component step per frame, clamped at zero
+        // The fixed-colour flash fades by one component step per frame, clamped at zero
         // (the selector-only register values $20/$40/$80).
         flashIntensity = Math.Max(0, flashIntensity - 1);
 
-        // // The rear view drifts BG1 left by an eighth of a pixel and grows the rear-of-gunship Mode 7
-        // // image in two bands: +16 until 3072, then +32 until 8192.
+        // The rear view drifts BG1 left by an eighth of a pixel and grows the rear-of-gunship Mode 7
+        // image in two bands: +16 until 3072, then +32 until 8192.
         background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, -SixteenSixteen.FromWhole(1) / 8));
         if (zoom < 3072)
             zoom += 16;
@@ -295,8 +295,8 @@ internal sealed class IntroCeresFlightState
     /// <summary>Switches to the Mode 1 caption and writes its first glyph.</summary>
     private void SetupSpaceColonyTitle()
     {
-        // // The title switches from Mode 7 to Mode 1, assigns BG1SC=$5C/BG1NBA=$06,
-        // // and starts the caption's background text object. The rear-view cinematic actors are not
+        // The title switches from Mode 7 to Mode 1, assigns BG1SC=$5C/BG1NBA=$06,
+        // and starts the caption's background text object. The rear-view cinematic actors are not
         // deleted, so Ceres and both asteroid layers remain behind the title text.
         CaptionLettersShown = 0;
         spaceColonyHoldStarted = false;
@@ -319,7 +319,7 @@ internal sealed class IntroCeresFlightState
             return;
         }
 
-        // // The caption skips the Japanese caption record for English text. Japanese text draws
+        // The caption skips the Japanese caption record for English text. Japanese text draws
         // it on a one-frame record before the hold.
         if (japaneseText && !JapaneseCaptionShown)
         {
@@ -329,7 +329,7 @@ internal sealed class IntroCeresFlightState
         }
 
         // The list's final record holds the completed caption for $80 frames before
-        // // the fade step installs the ordinary fade owner.
+        // the fade step installs the ordinary fade owner.
         if (!spaceColonyHoldStarted)
         {
             spaceColonyHoldStarted = true;
@@ -344,7 +344,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Lowers brightness every other dispatch until the black screen permits the Ceres handoff.</summary>
     private void StepFadeOut()
     {
-        // // The fade step seeds both fade words with one. The fade-out calls HandleFadingOut, which
+        // The fade step seeds both fade words with one. The fade-out calls HandleFadingOut, which
         // therefore removes one brightness level every other frame and ends with the screen blanked.
         if (fadeDelay-- > 0)
             return;
@@ -392,7 +392,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Accelerates the front stars and both Mode 7 scroll offsets along the same diagonal.</summary>
     private void StepStarsAndBackground()
     {
-        // // The star field adds 128/256 to a signed 8.8 speed, then applies that same growing delta to
+        // The star field adds 128/256 to a signed 8.8 speed, then applies that same growing delta to
         // the star actor and both Mode 7 offsets. This is why the ship rush feels diagonal.
         if (stars.FrameBehavior !=
             CeresFlightActorDefinitions.FrontStars.ActiveFrameBehavior)

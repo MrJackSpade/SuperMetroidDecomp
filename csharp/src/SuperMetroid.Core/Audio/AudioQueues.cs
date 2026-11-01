@@ -122,7 +122,7 @@ public sealed class AudioQueues
         PlayingTrack = null;
         _pendingPowerOnRequests.Clear();
 
-        // // Starting the game installs the shared sounds, then stops the music and withdraws library
+        // Starting the game installs the shared sounds, then stops the music and withdraws library
         // two's request before the first ordinary dispatcher frame.
         _pendingPowerOnRequests.Add(new AudioRequest.ChangeMusicDataSet(null));
         _pendingPowerOnRequests.Add(new AudioRequest.StopMusic());
@@ -152,11 +152,11 @@ public sealed class AudioQueues
         // LoadRoomMusic first silences the current track and loads a changed room data set.
         // LoadNewMusicTrackIfChanged then queues the room's selected track.
         bool changesMusicData = QueueRoomMusicData(music.DataSet);
-        // // A door into a room that inherits its track leaves the music alone. Most post-Ridley Ceres
+        // A door into a room that inherits its track leaves the music alone. Most post-Ridley Ceres
         // states deliberately inherit so track seven and its alarm bed continue through
         // every door. Treating that as a request to stop replaced the live escape track at
         // the first transition.
-        // // The door compares the requested data set and track, not the track alone.
+        // The door compares the requested data set and track, not the track alone.
         // A changed data set restarts the track even when both sets happen to use the same
         // track number. The Ceres interstitial ends on the Zebes-explosion set's track 5;
         // Landing Site requests the empty-Crateria set's track 5 and therefore must queue
@@ -266,7 +266,7 @@ public sealed class AudioQueues
             return admission;
 
         // The ring never fills here: a full ring holds fifteen unread requests, and every priority admits at most fifteen,
-        // // so the occupancy test above has already rejected the request. The game's full-ring branch, which keeps
+        // so the occupancy test above has already rejected the request. The game's full-ring branch, which keeps
         // the higher-priority of two requests in the last free position, is unreachable.
         int write = SoundWritePositions[queue];
         int next = NextSoundPosition(write);
@@ -339,7 +339,7 @@ public sealed class AudioQueues
                 DataSet = change.DataSet;
                 PlayingTrack = null;
                 requests.Add(new AudioRequest.ChangeMusicDataSet(change.DataSet));
-                // // Retiring the data entry returns at once. The timer stays zero,
+                // Retiring the data entry returns at once. The timer stays zero,
                 // so the next entry is fetched only on the following call when it underflows.
                 ClearAndAdvanceMusicEntry();
                 _soundHandlerDowntime = AudioQueueDefinitions.MusicChangeSoundDowntimeCalls;

@@ -140,9 +140,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         BindSpriteSheets(entry.SpriteSheets);
         if (entry.GameplayHud is not null)
         {
-            // // Pause setup moves the HUD layer's tilemap but never loads a replacement
-            // // tilemap. The four-row gameplay HUD already resident there is
-            // // intentionally retained. A fresh host-side display object used to discard that
+            // Pause setup moves the HUD layer's tilemap but never loads a replacement
+            // tilemap. The four-row gameplay HUD already resident there is
+            // intentionally retained. A fresh host-side display object used to discard that
             // state, removing the entire energy/ammo HUD from pause and exposing map BG1
             // pixels in the area that its BG3 plane normally covers. Pause keeps the HUD's
             // images gameplay displayed (#1351, #1466) and draws them under its palette.
@@ -150,7 +150,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
 
         // GameState_13 finishes pause setup by calling QueueClearingOfFxTilemap at
-        // // the end of setup, which blanks every BG3 row beneath the four HUD rows. Pause draws
+        // the end of setup, which blanks every BG3 row beneath the four HUD rows. Pause draws
         // only the HUD's own layer (PauseScreen.RetainedHudPictures), so every otherwise-empty map
         // cell shows nothing rather than pause character zero, the visible orange `1` glyph.
         entry.MapPresentation.Palettes.Pause.LoadTo(screen.Palette);
@@ -193,7 +193,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         if (ScreenMode == PauseScreenMode.Map)
         {
-            // // The map page runs L/R, then Start, then map scrolling. A Start press does not stop
+            // The map page runs L/R, then Start, then map scrolling. A Start press does not stop
             // the same frame's scroll pulse.
             if ((delayedPressed & ControllerButton.R) != ControllerButton.None)
             {
@@ -204,20 +204,20 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             }
             bool mapStart = HandleStartButton(delayedPressed);
             // Map arrows read the ordinary held controller word, not the delayed chrome
-            // // input. An accepted pulse keeps running after release, as in the game.
+            // input. An accepted pulse keeps running after release, as in the game.
             if (MapScrollBounds.Step(heldInput ?? delayedHeldInput, ref mapScrollPosition))
                 audio?.QueueSound(Library1Sound.MapScroll, priority: SoundRequestPriority.Normal);
             return mapStart;
         }
 
-        // // The equipment page runs EquipmentScreenMain, then L/R, then Start, so an A press in the
+        // The equipment page runs EquipmentScreenMain, then L/R, then Start, so an A press in the
         // frame that unpauses still toggles the selected item. EquipmentScreenMain consumes
-        // // the ordinary rising-edge word for D-pad/A; only the shared L/R/Start chrome
-        // // uses the delayed-held word.
+        // the ordinary rising-edge word for D-pad/A; only the shared L/R/Start chrome
+        // uses the delayed-held word.
         HandleEquipmentInput(newlyPressed, frameCounterByte);
         // EquipmentScreenMain refreshes the reserve amount independently of selected
         // label edits. Keep this per-frame write without rebuilding the whole tilemap,
-        // // which would erase the game's same-frame VAR overrun.
+        // which would erase the game's same-frame VAR overrun.
         WriteReserveSupplyDigits();
         UploadEquipmentTilemap();
         if ((delayedPressed & ControllerButton.L) != ControllerButton.None)
@@ -255,12 +255,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// </remarks>
     public void AdvanceAnimations(int frameCounterByte = 0, PauseAnimationPhase phase = PauseAnimationPhase.Stable)
     {
-        // // The fade-out paths emit destination labels before map icons.
+        // The fade-out paths emit destination labels before map icons.
         mapLabelsBeforeIcons = phase == PauseAnimationPhase.FadingOut || Transition == PauseMenuTransition.MapToEquipmentFadeOut;
-        // // Only stable map dispatch handles the scroll arrows. Fade paths retain counters but hide arrows.
+        // Only stable map dispatch handles the scroll arrows. Fade paths retain counters but hide arrows.
         CurrentMapArrows?.StepArrows(_ => false);
         pauseFrameCounterByte = frameCounterByte;
-        // // Stable pause dispatch calls the palette handler afterwards. The
+        // Stable pause dispatch calls the palette handler afterwards. The
         // outer pause/unpause fades draw sprites without advancing this owner.
         if (phase == PauseAnimationPhase.Stable && paletteAnimation.Step(screen.Palette))
             audio?.QueueSound(Library3Sound.PauseBeep, priority: SoundRequestPriority.Normal);
@@ -275,7 +275,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         PrepareRenderSprites();
         // BG fetches start on physical scanline one; OBJ coordinates already use
-        // // output-space Y. Keep the game's scroll and sprite origins unchanged.
+        // output-space Y. Keep the game's scroll and sprite origins unchanged.
         Position16<TilePlanePixels> mapScroll = new(
             ScreenMode == PauseScreenMode.Map ? MapScrollPosition.X : 0,
             CoordinateAxis.Wrap((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + ScreenGeometry.BackgroundRowOffset));
@@ -318,8 +318,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, MapScrollPosition);
             CurrentMapArrows?.DrawArrows(screen.Objects, MapSheet, PauseMapScrollLayout.ArrowVerticalOffset);
             DrawMapPositionIndicator();
-            // // Pause shares the boss lists, defeated overlays and downloaded
-            // // destination lettering with file select. Preserve their per-phase drawing order.
+            // Pause shares the boss lists, defeated overlays and downloaded
+            // destination lettering with file select. Preserve their per-phase drawing order.
             icons.DrawBossMarkers(screen.Objects, MapScrollPosition);
             if (!mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, MapScrollPosition);
         }
@@ -342,7 +342,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 if (TransitionBrightness > 0)
                     return;
 
-                // // The fade-out returns at black before the separate load dispatch.
+                // The fade-out returns at black before the separate load dispatch.
                 Transition = Transition == PauseMenuTransition.MapToEquipmentFadeOut
                     ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad;
                 return;
@@ -352,7 +352,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 if (Transition == PauseMenuTransition.MapToEquipmentLoad)
                 {
                     ScreenMode = PauseScreenMode.Equipment;
-                    // // The selector resets on each equipment-page entry.
+                    // The selector resets on each equipment-page entry.
                     SelectFirstCollectedEquipment();
                     // Equipment setup lights the arrow when reserves are nonempty;
                     // subsequent tank dispatches own animation and selection changes.
@@ -373,7 +373,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
             case PauseMenuTransition.MapToEquipmentFadeIn:
             case PauseMenuTransition.EquipmentToMapFadeIn:
-                // // Load dispatches set delay/counter to one; the fade-in spends a
+                // Load dispatches set delay/counter to one; the fade-in spends a
                 // counter-only update between brightness writes.
                 if (transitionFadeCounter-- > 0) return;
                 transitionFadeCounter = PauseFadeTiming.CounterReload;
@@ -394,7 +394,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Selects reserves first when available, otherwise the first collected inventory item.</summary>
     private void SelectFirstCollectedEquipment()
     {
-        // // The game selects the tank mode control whenever reserve capacity exists,
+        // The game selects the tank mode control whenever reserve capacity exists,
         // including empty tanks. The first beam is only the no-reserve fallback.
         if (samus.MaxReserveEnergy != 0)
         {
@@ -457,7 +457,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Derives map-scroll bounds and initial offset from visible tiles and Samus's map cell.</summary>
     private void SetupMapScrolling()
     {
-        // // DetermineMapScrollLimits scans either the downloaded map
+        // DetermineMapScrollLimits scans either the downloaded map
         // or the persistent explored plane. Expressing the scan in coordinates is exactly
         // equivalent to its byte/bit loops and makes the two-page 64x32 layout explicit.
         bool hasAreaMap = system.HasAreaMap(area);
@@ -466,7 +466,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         bool IsVisible(int x, int y)
         {
             bool explored = system.IsMapTileExplored(area, new(x, y));
-            // // The game's scroll bounds select one bit plane, unlike tile rendering, which
+            // The game's scroll bounds select one bit plane, unlike tile rendering, which
             // also displays explored secrets. Unioning the planes moves the map's center
             // after a secret is explored even though the downloaded bounds are unchanged.
             if (mapRevealMode == MapRevealMode.None)
@@ -497,7 +497,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             right = x;
             break;
         }
-        // // The game's vertical scans return their defaults before checking the final row
+        // The game's vertical scans return their defaults before checking the final row
         // in either direction. Match those boundary cases for sparse explored maps.
         for (int y = 0; y < 31; y++)
         {
@@ -515,7 +515,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
 
         // Every map word below keeps its sixteen-bit wrap where it is computed; the signed
-        // // tests read those words as the game's branches do.
+        // tests read those words as the game's branches do.
         int minimumX = WordWrap.Unsigned(left * 8 - (area == AreaId.Maridia ? 24 : 0));
         int maximumX = WordWrap.Unsigned(right * 8);
         int minimumY = WordWrap.Unsigned(top * 8);
@@ -579,7 +579,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Advances the map marker's timer-before-draw frame cadence.</summary>
     private void StepMapIndicatorAnimation()
     {
-        // // The timer starts at zero, advances to frame one on the first draw, then
+        // The timer starts at zero, advances to frame one on the first draw, then
         // decrements after reloading. This order is intentionally not a conventional
         // "draw frame zero for N ticks" animation helper.
         if (MapIndicatorAnimationTimer == 0)
@@ -606,7 +606,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             return;
 
         // DrawPauseScreenSpriteAnim(3) selects the third timer/frame pair. Its animation
-        // // list holds three-byte entries (delay, unused, ID offset).
+        // list holds three-byte entries (delay, unused, ID offset).
         ItemSelectorAnimationTimer--;
         if (ItemSelectorAnimationTimer > 0)
             return;
@@ -675,7 +675,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         // Dispatch precedes movement. Boots->Plasma therefore retains the Boots copy
         // length and bypasses the Weapons handler's Spazer/Plasma exclusion. Do not use
-        // // upstream C's 'Fixed var bug' category guard: it is absent from the retail game.
+        // upstream C's 'Fixed var bug' category guard: it is absent from the retail game.
         SamusBeamFlags previousBeams = samus.EquippedBeams;
         var target = PauseEquipmentCategories.Get(SelectedCategory);
         PauseEquipmentBit mask = ReadCategoryMask(target, SelectedItem);
@@ -705,7 +705,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     PauseEquipmentCategories.Get(PauseEquipmentCategory.Beams).LabelWordCount, true);
             }
         }
-        // // The game patches only the chosen label, then refreshes the wireframe. Rebuilding
+        // The game patches only the chosen label, then refreshes the wireframe. Rebuilding
         // all labels would erase the intentional overlong copy that displays VAR.
         WriteSamusWireframe();
         UploadEquipmentTilemap();
@@ -729,7 +729,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         {
             if (!ReadCategoryMask(category, item).IsSetIn(samus.CollectedBeams, samus.CollectedItems))
             {
-                // // The suit scan checks byte offset ten only AFTER an unsuccessful probe.
+                // The suit scan checks byte offset ten only AFTER an unsuccessful probe.
                 // Thus directly entering the final suit item can succeed, but scanning
                 // forward from an earlier missing item must not discover it.
                 if (categoryIndex == PauseEquipmentCategory.Suits && step > 0 &&
@@ -843,7 +843,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         catalog.Palettes.Pause.LoadToExcept(screen.Palette, screen.Palette.Colours(ScreenColourGroup.MapHighlight),
             screen.Palette.Colours(ScreenColourGroup.PauseReserveArrowShade), screen.Palette.Colours(ScreenColourGroup.PauseReserveArrowLight));
         // The equipment page is typed state the rebound sheets' pictures show again (#1467): its labels, overrun tail,
-        // // wireframe and reserve display keep exactly what the game's writes left, and nothing is rewritten.
+        // wireframe and reserve display keep exactly what the game's writes left, and nothing is rewritten.
         if (samus.MaxReserveEnergy != 0)
         {
             // A rebind is not a tank dispatch: re-apply the owner's latched arrow state with the
@@ -855,9 +855,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
         if (ScreenMode != PauseScreenMode.Map) UploadEquipmentTilemap();
         // The live button highlight, including a Start/fade highlight, is state the frame's pictures show again; do not
-        // // rerun controls or rebuild equipment: that would erase the game's same-frame label overruns.
+        // rerun controls or rebuild equipment: that would erase the game's same-frame label overruns.
         // Preserve the serialized scroll position and transition timing. Only refresh
-        // // BG1 when it currently contains the map; the equipment page shares that layer.
+        // BG1 when it currently contains the map; the equipment page shares that layer.
         if (ScreenMode == PauseScreenMode.Map) LoadPauseMapTilemap();
     }
 

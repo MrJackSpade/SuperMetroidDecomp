@@ -51,7 +51,7 @@ internal sealed class CreditsObjectState
         scroll = scroll.AdvanceY(EndingMotionDefinitions.CreditsScrollVelocity);
 
         // A new row is taken whenever the scroll advances eight whole pixels, i.e. every sixteen NTSC frames. The
-        // // wrapped signed distance is the game's test.
+        // wrapped signed distance is the game's test.
         if ((ScrollPosition - (previousCopiedScroll + RowAdvance)).Y < 0)
             return;
 

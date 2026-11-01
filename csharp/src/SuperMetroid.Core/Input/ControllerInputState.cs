@@ -91,7 +91,7 @@ public sealed class ControllerInputState
 
         if (Current != ControllerButton.None && Current == Previous)
         {
-            // // The decrement is 16-bit and wraps. If RepeatTimer is zero, it becomes 65535 and does
+            // The decrement is 16-bit and wraps. If RepeatTimer is zero, it becomes 65535 and does
             // not pulse—a detail retained because the retail repeat delays remain zero in
             // the known initialization paths and this output is marked unused.
             RepeatTimer = RepeatTimer.Decrement().Remaining;

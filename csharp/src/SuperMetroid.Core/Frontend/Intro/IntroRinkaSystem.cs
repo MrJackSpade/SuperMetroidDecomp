@@ -30,8 +30,8 @@ internal sealed class IntroRinkaSystem
     /// <summary>Creates the invisible spawner in the highest free slot before its timed animation runs.</summary>
     public IntroRinkaSystem()
     {
-        // // The flashback's setup spawns the invisible spawner while slots 1..14 are all free. Reusing the
-        // // focused animation interpreter preserves its exact 74 then 128 frame waits.
+        // The flashback's setup spawns the invisible spawner while slots 1..14 are all free. Reusing the
+        // focused animation interpreter preserves its exact 74 then 128 frame waits.
         spawner = new(new(0, 0), 0, IntroRinkaDefinitions.SpawnerActor.Program);
         slots[SpawnerSlot] = spawner;
     }
@@ -201,7 +201,7 @@ internal sealed class IntroRinkaSystem
                 MoveHalfPixelX(rinka, IntroRinkaLaunches.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
 
-                // // The Rinka compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
+                // The Rinka compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
                 // the actor survives unless Mother Brain has entered her exploding routine.
                 if (CoordinateAxis.AsSigned(rinka.WholePosition.X + 8) <
                     CoordinateAxis.Difference(samus.Position.X.Whole, 5))

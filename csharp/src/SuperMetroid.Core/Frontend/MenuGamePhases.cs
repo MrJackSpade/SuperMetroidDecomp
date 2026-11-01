@@ -19,7 +19,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     {
         session.Demo.Reset();
         // `Vector_RESET_Async` ultimately stores state one and initializes
-        // // the cinematic function to the opening.
+        // the cinematic function to the opening.
         session.audio.Reset();
         // A soft reset discards every gameplay
         // owner. The reseeded random generator and the frame clock already live in the session.
@@ -43,7 +43,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.display.PublishMenu(session.ActiveTitle);
         if (session.ActiveTitle.FileSelectRequested)
         {
-            // // The title sets the file-select game state only after the slow fade reaches black.
+            // The title sets the file-select game state only after the slow fade reaches black.
             session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.MapPresentation, session.Artwork.SpriteSheets));
             session.GameState = SuperMetroidGameState.FileSelectMenus;
             session.display.PublishMenu(session.ActiveFileSelect);
@@ -74,7 +74,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
             session.SelectSaveSlot(session.ActiveFileSelect.SelectedSaveSlot, session.ActiveFileSelect.SelectedSlotContainsSave);
             session.RaiseSaveRamChanged();
             // Existing slots restore the same seven controller words and two
-            // // special-settings words that saving copied from live state. A new
+            // special-settings words that saving copied from live state. A new
             // slot begins with NewSaveFile's literal defaults.
             SuperMetroidSaveSlot? optionSlot = session.LoadingExistingSave
                 ? session.saves.ReadSlot(session.SelectedSaveSlot)
@@ -118,7 +118,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 if (selectedSlot.StartupRoute ==
                     SaveLoadingGameState.OpeningCinematic)
                 {
-                    // // Loading dispatches the zero word written by SpaceTime Beam
+                    // Loading dispatches the zero word written by SpaceTime Beam
                     // to the intro while the already-loaded Samus inventory remains
                     // live. Retain that inventory for Ceres setup, but do not restore
                     // the corrupted progression planes into the fresh run.
@@ -155,7 +155,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
             }
             else if (session.ConfiguredOptions.SkipOpeningCinematic)
             {
-                // // This is the same dispatcher boundary reached by the intro's end after
+                // This is the same dispatcher boundary reached by the intro's end after
                 // the SPACE COLONY fade. Do not fake Start presses or build a host-
                 // authored Ceres room: the following frame will execute the ordinary
                 // new-game loader, elevator arrival, and movement-unlock sequence.
@@ -182,8 +182,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.display.PublishMenu(gameOver);
         if (gameOver.CeresArrivalRequested)
         {
-            // // Starting a game publishes the Ceres state and reloads the slot in the same dispatch;
-            // // the Ceres loader runs on the next update. Gameplay owners are
+            // Starting a game publishes the Ceres state and reloads the slot in the same dispatch;
+            // the Ceres loader runs on the next update. Gameplay owners are
             // rebuilt from SRAM, so only the live RNG word survives.
             session.Close<GameOverMenuState>();
             session.ContinueSavedGame();
@@ -192,8 +192,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         }
         else if (gameOver.ContinueRequested)
         {
-            // // Menu index six publishes its state after the fully black
-            // // frame. Keep that dispatcher boundary separate from save reload.
+            // Menu index six publishes its state after the fully black
+            // frame. Keep that dispatcher boundary separate from save reload.
             session.Close<GameOverMenuState>();
             session.GameState = SuperMetroidGameState.FileSelectMap;
             session.display.PublishBlack();

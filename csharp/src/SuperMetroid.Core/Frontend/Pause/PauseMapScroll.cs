@@ -40,7 +40,7 @@ internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<M
             else if (up && held.HasFlag(ControllerButton.Up)) direction = MapScrollDirection.Up;
             else if (down && held.HasFlag(ControllerButton.Down)) direction = MapScrollDirection.Down;
         }
-        // // The game explicitly cancels a downward step at its lower limit. Other directions
+        // The game explicitly cancels a downward step at its lower limit. Other directions
         // finish the accepted pulse even when their button has since been released.
         if (direction == MapScrollDirection.Down && !down)
         {

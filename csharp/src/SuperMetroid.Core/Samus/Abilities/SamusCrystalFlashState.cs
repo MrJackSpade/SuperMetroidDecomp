@@ -125,7 +125,7 @@ public sealed class SamusCrystalFlashState
     {
         Ensure.NotNull(samus);
 
-        // // The chord test uses an equality comparison, not a bit test. This deliberately rejects any extra
+        // The chord test uses an equality comparison, not a bit test. This deliberately rejects any extra
         // held button, including Jump, Dash, Select, or the opposite D-pad directions.
         ControllerButton heldButtons = controllerInput;
         ControllerButton shotButton = shotBinding;
@@ -133,7 +133,7 @@ public sealed class SamusCrystalFlashState
         if (inputCheck != CrystalFlashInputCheck.Skipped && heldButtons != requiredInput)
             return false;
 
-        // // The remaining preconditions are literal comparisons. Reserve energy must
+        // The remaining preconditions are literal comparisons. Reserve energy must
         // be empty even when the reserve mode is manual; possession of a reserve tank alone
         // does not matter. Each current ammo count—not its maximum—must supply ten shots.
         if (samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0 ||
@@ -145,7 +145,7 @@ public sealed class SamusCrystalFlashState
             return false;
         }
 
-        // // Crystal Flash considers direction byte four left and every other value right.
+        // Crystal Flash considers direction byte four left and every other value right.
         // Read that byte from the source pose before replacing it with Crystal Flash art.
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         samus.Pose = facingLeft
@@ -164,11 +164,11 @@ public sealed class SamusCrystalFlashState
         samus.Shinespark.RelinquishToCrystalFlash();
         // Reserve Mode leaves X-Ray's cone effect alive but Crystal Flash still replaces
         // the shared special-palette handler. Keep the greyout object; release only its
-        // // palette words so handler seven is the sole owner.
+        // palette words so handler seven is the sole owner.
         samus.Xray.RelinquishPaletteHandler();
         samus.DraygonGrabbed.RelinquishMovementHandler();
         // Flash admission can occur after the Super Metroid has already installed drained
-        // // crouching art. Crystal Flash then replaces that pose/movement owner; if the host kept
+        // crouching art. Crystal Flash then replaces that pose/movement owner; if the host kept
         // its synthetic Drained phase alive, it would re-lock Samus after Flash completed
         // instead of reproducing the documented adjacent timing that frees the stun.
         samus.Drained.RelinquishMovementHandler();
@@ -182,7 +182,7 @@ public sealed class SamusCrystalFlashState
         SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
         BubbleStep = 0;
         SpecialPaletteTimer = WrappingCountdown.Start(1);
-        // // Crystal Flash clears the shared cycle step but does not write the shared timer. The
+        // Crystal Flash clears the shared cycle step but does not write the shared timer. The
         // latter is also Speed Booster's palette timer, so preserve the live aliased value
         // rather than silently inventing the usual zero initialization.
         samus.HorizontalSpeed.CyclePaletteStep = 0;
@@ -245,11 +245,11 @@ public sealed class SamusCrystalFlashState
     /// <summary>Raises Samus two whole pixels for ten calls, then starts the drain phase and requests the bubble effect.</summary>
     private void StepRaising(SamusState samus)
     {
-        // // The raise changes only the whole-pixel word. The subposition survives.
+        // The raise changes only the whole-pixel word. The subposition survives.
         samus.Position -= new Offset16<RoomPixels>(0, 2);
 
-        // // The game initializes nine, then decrements and tests the sign. Values 8..0 return; the tenth call
-        // // underflows to 65535 and installs the main handler after completing its Y move.
+        // The game initializes nine, then decrements and tests the sign. Values 8..0 return; the tenth call
+        // underflows to 65535 and installs the main handler after completing its Y move.
         CountdownStep raiseTimer = RaiseTimer.Decrement();
         RaiseTimer = raiseTimer.Remaining;
         if (raiseTimer.IsNonNegative)
@@ -312,7 +312,7 @@ public sealed class SamusCrystalFlashState
             return;
         }
 
-        // // The ammo handler switches to finish art directly; it does not wait for the main
+        // The ammo handler switches to finish art directly; it does not wait for the main
         // four-frame animation loop to reach a command byte.
         Phase = CrystalFlashPhase.Finishing;
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 12, timer: 3);
@@ -327,7 +327,7 @@ public sealed class SamusCrystalFlashState
         if ((samus.Position.Whole - RaisedPosition).Y != 0)
             samus.Position += new Offset16<RoomPixels>(0, 1);
 
-        // // The pose's delay list ends in `$FD,$01/$02`; pose transition occurs after movement.
+        // The pose's delay list ends in `$FD,$01/$02`; pose transition occurs after movement.
         // Therefore cleanup naturally happens on the following beta pass, once type zero is
         // observable here, and that frame performs no ordinary standing movement.
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Standing)
@@ -366,7 +366,7 @@ public sealed class SamusCrystalFlashState
 
         if (SpecialPaletteTimer.IsNegative)
         {
-            // // Completion reloads the equipped combination's retail beam palette.
+            // Completion reloads the equipped combination's retail beam palette.
             SamusBeamCombination beamType = SamusBeamCombinations.Of(samus.EquippedBeams);
             if (!beamType.IsRetail)
                 throw new ArgumentOutOfRangeException(nameof(samus), "Equipped beam combination is outside the retail table.");
@@ -437,10 +437,10 @@ public sealed class SamusCrystalFlashState
     /// <summary>Mirrors Flash's frame and timer into the words shared with other special palettes.</summary>
     private void PublishSharedPaletteWords(SamusState samus)
     {
-        // // The frame and timer words are not Crystal-Flash-private storage. Speed Booster, Screw Attack,
+        // The frame and timer words are not Crystal-Flash-private storage. Speed Booster, Screw Attack,
         // X-ray, and several other special handlers reuse the same two physical words.
         // Their handlers are mutually exclusive, but exposing the alias keeps breakpoint
-        // // inspection and the next owner's initial state faithful to the game.
+        // inspection and the next owner's initial state faithful to the game.
         samus.HorizontalSpeed.CyclePaletteStep = BubbleStep;
         samus.HorizontalSpeed.SpecialPaletteTimer = WrappingCountdown.FromRaw(BodyPaletteRecordOffset);
     }

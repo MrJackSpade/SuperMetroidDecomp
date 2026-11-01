@@ -130,7 +130,7 @@ internal sealed class HostInfiniteAmmoFrameGuard
             return current == 0 ? 1 : current;
 
         // Removing the loan from a count of one would recreate the forbidden zero. This is
-        // // the final-shot case: the game consumed the borrowed unit during this frame.
+        // the final-shot case: the game consumed the borrowed unit during this frame.
         return current <= 1 ? 1 : current - 1;
     }
 }

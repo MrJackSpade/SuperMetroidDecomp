@@ -133,7 +133,7 @@ internal sealed class IntroDiscoverySprite
             return;
 
         AnimationProgramCursor<CinematicSpriteProgram> cursor = Program;
-        // // Counter steps count the actor's goto-timer word, as the timer-load and countdown steps do. Only a
+        // Counter steps count the actor's goto-timer word, as the timer-load and countdown steps do. Only a
         // counter step changes it, so an owner's own use of the word between steps survives.
         int timerBefore = GeneralTimer;
         WrappingCountdown counter = InstructionLoopCountdown;

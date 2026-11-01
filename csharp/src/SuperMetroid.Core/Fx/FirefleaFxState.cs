@@ -56,7 +56,7 @@ public sealed class FirefleaFxState
         int shade = WordWrap.LowByte(
             FirefleaShades.FlashingShade(index) +
             FirefleaShades.DarknessShade(darkness));
-        // // Each of the game's three writes carries the shade as its five-bit intensity. Past the darkness ramp the
+        // Each of the game's three writes carries the shade as its five-bit intensity. Past the darkness ramp the
         // shade's upper bits only select channels the other writes set to the same value.
         int intensity = shade & RgbColor.MaxChannel;
         fixedColor.Color = new RgbColor(intensity, intensity, intensity);

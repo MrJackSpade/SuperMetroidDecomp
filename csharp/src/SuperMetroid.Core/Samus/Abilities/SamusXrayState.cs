@@ -155,7 +155,7 @@ public sealed class SamusXrayState
         if ((IsActive && !cancellingDirectGMode) || PendingActivationPose is not null)
             return false;
 
-        // // X-ray setup contains a very specific five-bomb/cooldown/divisor rejection.
+        // X-ray setup contains a very specific five-bomb/cooldown/divisor rejection.
         // Preserve the three-way conjunction; rejecting every nonzero cooldown would erase
         // a retail quirk, while ignoring it would permit the exact forbidden state.
         if (conditions.ProjectileCooldownTimer.IsAt(7) && conditions.BombCounter == 5 && samus.XSpeedDivisor == 2)
@@ -187,7 +187,7 @@ public sealed class SamusXrayState
             : facingLeft ? SamusPoseId.XrayingStandingLeftPose : SamusPoseId.XrayingStandingRightPose;
 
         // A second X-Ray setup under direct G-Mode makes the stranded phase-five object
-        // // observe a nonzero freeze word. Its phase-five cleanup immediately
+        // observe a nonzero freeze word. Its phase-five cleanup immediately
         // restores the four subsystem-enable words. Represent the two cone effects
         // at their shared observable boundary instead of inventing gate-specific state.
         if (cancellingDirectGMode)
@@ -223,7 +223,7 @@ public sealed class SamusXrayState
     /// </summary>
     private void BeginAdmittedBeam(bool facingLeft)
     {
-        // // The cone setup runs inside XraySetup itself, before UpdateSamusPose
+        // The cone setup runs inside XraySetup itself, before UpdateSamusPose
         // arbitrates the special command that installs X-Ray's Samus handlers. If a
         // same-frame hurt expiry wins that later arbitration, the beam effect's lifecycle,
         // frozen-time word, and four subsystem disables still remain live: X-Mode.
@@ -258,12 +258,12 @@ public sealed class SamusXrayState
         SpecialPaletteKind = SamusSpecialPaletteType.Xray;
         samus.Shinespark.RelinquishPaletteToXray();
         samus.Shinespark.RelinquishMovementHandler();
-        // // The X-ray command installs both X-Ray handler pointers, so an interrupted Flash's no-op
+        // The X-ray command installs both X-Ray handler pointers, so an interrupted Flash's no-op
         // pose-input pointer is gone as well as its movement pointer. Keeping the host lock
         // would make Samus immobile again when X-Ray teardown restores ordinary input.
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // The same routine replaces the shared movement/palette handlers and clears
-        // // the special-palette timer even when an interrupted Flash, not a normal charge, owns it.
+        // the special-palette timer even when an interrupted Flash, not a normal charge, owns it.
         samus.CrystalFlash.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishPaletteHandler();
         VisorShade = 0;
@@ -356,7 +356,7 @@ public sealed class SamusXrayState
             if ((controllerInput & turnBinding) == ControllerButton.None)
                 return default;
 
-            // // Mirroring through `256 - angle` turns right-space 0-127 into its exact
+            // Mirroring through `256 - angle` turns right-space 0-127 into its exact
             // left-space counterpart and vice versa. This happens before selecting turn art.
             Angle = RotationAngle.NormalizeRaw(-Angle.RawValue);
             bool crouching = movementType == SamusMovementType.Crouching;
@@ -367,8 +367,8 @@ public sealed class SamusXrayState
             return new XrayPoseInputResult();
         }
 
-        // // The game waits until the final visible turning frame has exactly one tick left.
-        // // Its beta movement handler does nothing for type `$0E`, so generic animation owns this
+        // The game waits until the final visible turning frame has exactly one tick left.
+        // Its beta movement handler does nothing for type `$0E`, so generic animation owns this
         // countdown without X-ray's usual per-frame timer reset.
         if (samus.AnimationFrame != 2 || !samus.AnimationFrameTimer.IsAt(1))
             return default;
@@ -429,7 +429,7 @@ public sealed class SamusXrayState
         if (SetupStage != XraySetupStage.Complete)
         {
             // The eight calls execute in order. After the eighth the instruction list
-            // // installs the beam's main frame behaviour; beam state zero itself first runs on the following call.
+            // installs the beam's main frame behaviour; beam state zero itself first runs on the following call.
             SetupStage = SetupStage.Advance();
             return SnapshotBeamStep(phaseAtStart, completed: false);
         }
@@ -468,7 +468,7 @@ public sealed class SamusXrayState
                     break;
                 }
 
-                // // Aiming gives Up priority when opposite directions are both held.
+                // Aiming gives Up priority when opposite directions are both held.
                 if ((controllerInput & ControllerButton.Up) != ControllerButton.None)
                     MoveAngleUp();
                 else if ((controllerInput & ControllerButton.Down) != ControllerButton.None)
@@ -476,7 +476,7 @@ public sealed class SamusXrayState
                 break;
 
             case XrayBeamPhase.RestoreFirstHalf:
-                // // The game's states three/four would wait while the artwork queue lacks room; the managed queue
+                // The game's states three/four would wait while the artwork queue lacks room; the managed queue
                 // always has room for these BG2 transfers, so each restore half completes in one call.
                 BeamPhase = XrayBeamPhase.RestoreSecondHalf;
                 break;
@@ -486,7 +486,7 @@ public sealed class SamusXrayState
                 break;
 
             case XrayBeamPhase.Finish:
-                // // The phase-five cleanup performs every cleanup write only while the shared freeze
+                // The phase-five cleanup performs every cleanup write only while the shared freeze
                 // word is nonzero. Automatic Reserve completion clears that word first;
                 // phase five then remains installed forever and produces greyout mode.
                 if (TimeIsFrozen)
@@ -527,7 +527,7 @@ public sealed class SamusXrayState
 
         if (VisorPaletteMode == XrayVisorPaletteMode.Widening && BeamPhase is not (XrayBeamPhase.NoBeam or XrayBeamPhase.Widening))
         {
-            // // The visor enters the full-beam three-color loop at its first shade.
+            // The visor enters the full-beam three-color loop at its first shade.
             VisorShade = XrayScopeDefinitions.Palette.FullCycleFirstShade;
             CommonPaletteTimer = WrappingCountdown.Start(1);
             VisorPaletteMode = XrayVisorPaletteMode.FullBeam;
@@ -640,7 +640,7 @@ public sealed class SamusXrayState
     /// <summary>Restores Samus' normal pose and handlers, subsystem enables, palette request, and beam state.</summary>
     private void Finish(SamusState samus)
     {
-        // // The X-ray teardown intentionally classifies turning type `$0E` as standing. Releasing
+        // The X-ray teardown intentionally classifies turning type `$0E` as standing. Releasing
         // X-ray during a crouched turn therefore stands Samus up—the documented retail
         // X-ray stand-up glitch—and the radius difference moves her center upward.
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
@@ -655,15 +655,15 @@ public sealed class SamusXrayState
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         int radiusDifference = samus.Kinematics.Radius.Y - oldRadius;
-        // // Teardown owns a direct history shift, including the crouched-
+        // Teardown owns a direct history shift, including the crouched-
         // turn stand-up glitch. It does not consume an ordinary input slot.
         samus.CommitPoseHistory();
         if (radiusDifference >= 0)
             samus.Position -= new Offset16<RoomPixels>(0, WordWrap.Signed(radiusDifference));
 
-        // // The teardown restores both normal Samus handler pointers. X-Mode can arrange for
+        // The teardown restores both normal Samus handler pointers. X-Mode can arrange for
         // an active spark to own the movement word while the old visor effect reaches this
-        // // teardown; replacing that spark while retaining the spark's palette timer is the Blue Suit result.
+        // teardown; replacing that spark while retaining the spark's palette timer is the Blue Suit result.
         samus.Shinespark.RelinquishMovementHandler();
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         TimeIsFrozen = false;

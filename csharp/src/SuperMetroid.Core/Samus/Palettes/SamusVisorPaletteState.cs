@@ -47,7 +47,7 @@ public sealed class SamusVisorPaletteState
     {
         Ensure.NotNull(colours);
 
-        // // X-ray handler eight owns this same visor color. The visor handler returns immediately,
+        // X-ray handler eight owns this same visor color. The visor handler returns immediately,
         // preserving the countdown and shade so ordinary room animation resumes where it stopped.
         if (specialSamusPaletteType == SamusSpecialPaletteType.Xray)
         {
@@ -70,7 +70,7 @@ public sealed class SamusVisorPaletteState
             return new SamusVisorPaletteStepResult();
         }
 
-        // // The visor handler reloads the expired countdown to the frame delay and keeps the shade.
+        // The visor handler reloads the expired countdown to the frame delay and keeps the shade.
         Timer = SamusPaletteDefinitions.Visor.FrameDelay;
         int shade = NextShade;
         colours.ShowVisor((PresentationColors ?? throw new InvalidDataException(

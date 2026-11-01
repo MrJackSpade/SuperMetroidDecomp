@@ -17,8 +17,8 @@ internal sealed class PauseGamePhases(FrontendSession session)
         // colours and inventory labels are installed before the pause fades in.
         // The frame still begins, so the controller's previous sample remains truthful.
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        // // The pause hook returns directly into the pause setup, which sends the three
-        // // sound-library stop sequences before any pause graphics are initialized.
+        // The pause hook returns directly into the pause setup, which sends the three
+        // sound-library stop sequences before any pause graphics are initialized.
         // Letting gameplay SFX continue under frozen gameplay causes stale echo,
         // charge, beam, or environmental voices to pulse throughout the menu.
         session.audio.QueueCancelSoundEffects();
@@ -87,23 +87,23 @@ internal sealed class PauseGamePhases(FrontendSession session)
     {
         // Unpausing restores gameplay's layers, beam tiles, colours,
         // hooks, per-line effects and animated tiles on a blank display. Pause graphics live in a
-        // // separate display image here, so discarding it restores the untouched runtime
+        // separate display image here, so discarding it restores the untouched runtime
         // image without a host-authored reconstruction.
         SamusState resumedSamus = session.GameplayRuntime.Player.Samus ??
             throw new InvalidOperationException(
                 "Pause teardown requires live Samus equipment state.");
         // EquipmentScreenCategory_ButtonResponse mutates the live equipped word,
-        // // but projectile character data and colours are cached display resources. State
+        // but projectile character data and colours are cached display resources. State
         // Unpausing reapplies the beam's tiles and colours before its frame; omitting that handoff
         // made the new damage/type word immediate while art stayed stale until the
         // next room load happened to invoke the same routine.
         session.GameplayRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(resumedSamus.EquippedBeams);
         resumedSamus.ReconcilePauseBallEquipment();
-        // // The unpause teardown also reconciles equipment-dependent momentum.
-        // // Keep the speed pair until the next gameplay frame, as the game does.
+        // The unpause teardown also reconciles equipment-dependent momentum.
+        // Keep the speed pair until the next gameplay frame, as the game does.
         resumedSamus.HorizontalSpeed.ReconcilePauseSpeedBoosterState(
             (resumedSamus.EquippedItems & SamusEquipmentFlags.SpeedBooster) != SamusEquipmentFlags.None);
-        // // Samus's unpause command also reloads her suit palette.
+        // Samus's unpause command also reloads her suit palette.
         // Equipment bits are live, but the restored gameplay palette is cached.
         resumedSamus.Presentation.LoadSuitPalette(resumedSamus, session.GameplayRuntime.Player.Colours);
         session.GameplayRuntime.Room.LoadedScope.Plms.Stations.ResumeMapStationsAfterUnpause();

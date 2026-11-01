@@ -69,7 +69,7 @@ internal sealed class IntroMotherBrainSpriteState
         if (CrossfadingToPageTwo)
         {
             ApplyScreenShake(cinematicFrameCounter);
-            // // The cross-fade behaviour observes the timer after the cinematic function has decremented it.
+            // The cross-fade behaviour observes the timer after the cinematic function has decremented it.
             // At zero it redirects this actor to delete and clears Samus's intro display.
             if (introCrossfadeTimer == 0)
                 IsVisible = false;
@@ -85,8 +85,8 @@ internal sealed class IntroMotherBrainSpriteState
         explodingTimer++;
         if (explodingTimer >= 128)
         {
-            // // The exploding behaviour starts the page-two program. The generic handler below runs its page request and
-            // // frame behaviour install during this same cinematic-object call.
+            // The exploding behaviour starts the page-two program. The generic handler below runs its page request and
+            // frame behaviour install during this same cinematic-object call.
             actor.Start(CinematicSpriteProgram.IntroMotherBrainStartPage2);
             pageTwoInstructionStarted = true;
         }
@@ -134,8 +134,8 @@ internal sealed class IntroMotherBrainSpriteState
         if (HitCount != 4)
             return false;
 
-        // // The fourth hit clears the actor timer before selecting the exploding behaviour. The
-        // // explosion behaviour does not run until the next cinematic-object frame.
+        // The fourth hit clears the actor timer before selecting the exploding behaviour. The
+        // explosion behaviour does not run until the next cinematic-object frame.
         explodingTimer = 0;
         ExplosionStarted = true;
         return true;
@@ -152,9 +152,9 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>Alternates BG1 scroll by four pixels from the inherited flashback offset.</summary>
     private void ApplyScreenShake(int cinematicFrameCounter)
     {
-        // // The shake adds four on even cinematic frames and subtracts four on odd frames.
-        // // The inherited scroll of 8 therefore alternates 12/8; starting this host
-        // // field at zero would produce 4/0 and shift the whole room down one tile.
+        // The shake adds four on even cinematic frames and subtracts four on odd frames.
+        // The inherited scroll of 8 therefore alternates 12/8; starting this host
+        // field at zero would produce 4/0 and shift the whole room down one tile.
         // The scroll wraps at sixteen bits, as every room scroll does.
         Background += (cinematicFrameCounter & 1) == 0
             ? new Offset16<RoomPixels>(0, 4)

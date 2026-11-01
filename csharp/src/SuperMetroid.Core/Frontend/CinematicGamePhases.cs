@@ -18,7 +18,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         session.display.PublishIntro(session.ActiveIntro);
         if (session.ActiveIntro.CeresFlightFinished)
         {
-            // // The intro's end writes the Ceres game state, area six, and load-station zero only
+            // The intro's end writes the Ceres game state, area six, and load-station zero only
             // after the SPACE COLONY fade has gone fully black. Preserve the
             // intervening dispatcher state instead of constructing a debug room
             // directly from cinematic code.
@@ -45,7 +45,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         session.display.PublishCeresDestruction(fatalDestruction);
         if (fatalDestruction.Finished)
         {
-            // // The fatal cinematic's fade-out ends at its game state, already
+            // The fatal cinematic's fade-out ends at its game state, already
             // fully black, after clearing Samus's HUD selection and hurt timers.
             SamusState lostSamus = session.Runtime?.Player.Samus ?? throw new InvalidOperationException(
                 "Ceres destruction with Samus requires her gameplay state.");

@@ -32,7 +32,7 @@ public sealed class FileSelectMapScroll
     {
         Ensure.NotNull(map);
         Ensure.NotNull(system);
-        // // The game selects one plane, not the union: a downloaded map uses its station
+        // The game selects one plane, not the union: a downloaded map uses its station
         // mask even if an explored secret cell lies outside that mask.
         bool Visible(int x, int y) => system.HasAreaMap(map.Area)
             ? map.IsRevealedByMapStation(new(x, y)) : system.IsMapTileExplored(map.Area, new(x, y));
@@ -48,7 +48,7 @@ public sealed class FileSelectMapScroll
         for (int y = 31; y > 0; y--)
             if (Enumerable.Range(0, 64).Any(x => Visible(x, y))) { bottom = y; break; }
         // Every map word below holds its wrapped sixteen-bit value; the signed tests read those
-        // // words as the game's branches do.
+        // words as the game's branches do.
         int minimumX = Wrap(left * 8 - (map.Area == AreaId.Maridia ? 24 : 0));
         int maximumX = Wrap(right * 8);
         int minimumY = Wrap(top * 8);
@@ -70,7 +70,7 @@ public sealed class FileSelectMapScroll
         }
         Scroll = new(Wrap(horizontal), Wrap(vertical));
         Maximum = new(Wrap(maximumX), Wrap(maximumY));
-        // // The game adjusts the upper arrow boundary only after positioning.
+        // The game adjusts the upper arrow boundary only after positioning.
         Minimum = new(Wrap(minimumX), Wrap(minimumY + 24));
     }
 
@@ -97,7 +97,7 @@ public sealed class FileSelectMapScroll
             if (Direction == MapScrollDirection.None && CanScroll(MapScrollControls.ArrowAt(index)) &&
                 (heldInput & MapScrollControls.ButtonFor(MapScrollControls.ArrowAt(index))) != ControllerButton.None)
                 Direction = MapScrollControls.ArrowAt(index);
-        // // The game has this explicit cancellation only for the lower boundary.
+        // The game has this explicit cancellation only for the lower boundary.
         if (Direction == MapScrollDirection.Down && !CanScroll(Direction))
         {
             Direction = MapScrollDirection.None;

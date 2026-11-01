@@ -43,7 +43,7 @@ public sealed class RoomTreadmillAnimatedTilesState
                 _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {definition}."),
             };
             // Other animation families retain their own owners. Selection here is by
-            // // object identity, not room number or an assumed area-specific bit.
+            // object identity, not room number or an assumed area-specific bit.
             if (direction is null) continue;
             var animation = new WreckedShipTreadmillAnimatedTilesState();
             animation.Start(direction.Value);

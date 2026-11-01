@@ -78,8 +78,8 @@ internal sealed class RoomEarthquake
         Offset16<RoomPixels> bg1 = definition.Bg1;
         Offset16<BackgroundPixels> bg2 = definition.Bg2;
 
-        // // The timer alternates which side of the origin is shown. The game forms the
-        // // negative half by negating the same table word.
+        // The timer alternates which side of the origin is shown. The game forms the
+        // negative half by negating the same table word.
         if (ShowsOppositeSide)
         {
             bg1 = -bg1;

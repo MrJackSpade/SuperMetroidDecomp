@@ -233,7 +233,7 @@ internal sealed class FrontendSession
     /// </remarks>
     internal void CollectTranslatedAudioRequests(GameplayAudioFramePublication gameplayAudio)
     {
-        // // Demo loading suppresses room music; the demo's sound switch suppresses
+        // Demo loading suppresses room music; the demo's sound switch suppresses
         // scene SFX while the title track continues. Do not let runtime publishers
         // replace it with each demo room's normal area music.
         if (runtime?.AttractDemo.IsAttractDemo == true)
@@ -241,7 +241,7 @@ internal sealed class FrontendSession
         if (runtime?.Room.ActiveRoom?.State is { } roomState &&
             roomState != LastAudioRoomState)
         {
-            // // Door setup loads music data. The track is selected
+            // Door setup loads music data. The track is selected
             // only after the opening scroll and this data queue have completed.
             if (GameState == SuperMetroidGameState.LoadingNextRoomB)
                 audio.QueueRoomMusicData(roomState.Music.DataSet);
@@ -285,16 +285,16 @@ internal sealed class FrontendSession
         lastAudioRuntimeGameplayPublication =
             runtime.FrameBoundary.CompletedGameplayAudioPublication;
 
-        // // Room-effect actors and palette objects run before Samus,
+        // Room-effect actors and palette objects run before Samus,
         // projectiles, PLMs, and enemies in state eight. Queue their calls first so a full
-        // // sound ring retains the same higher-priority request the game would retain
+        // sound ring retains the same higher-priority request the game would retain
         // when several producers fire during one frame.
         gameplayAudio.PublishPrefix(runtime);
 
         if (runtime.Player.Samus is { } samus)
         {
             // These state machines predate the shared SoundRequest list. Consume their
-            // // one-shot publications here, retaining the exact library and MaxN entry.
+            // one-shot publications here, retaining the exact library and MaxN entry.
             if (samus.HorizontalSpeed.ConsumeEchoSoundRequest())
                 audio.QueueSound(Library3Sound.SpeedBooster, priority: SoundRequestPriority.Normal);
             if (samus.Shinespark.ConsumeStoredShineWarningSoundRequest())
@@ -438,7 +438,7 @@ internal sealed class FrontendSession
             slot.PowerBombs,
             slot.MaxPowerBombs,
             slot.EquippedItems,
-            // // Loading clears the selection before the visible HUD is built.
+            // Loading clears the selection before the visible HUD is built.
             SelectedItem: 0,
             slot.ReserveEnergy,
             slot.ReserveMode));
@@ -449,7 +449,7 @@ internal sealed class FrontendSession
 
         if (spacetimeIntroRestartSlot is { } restartSlot)
         {
-            // // The game loaded the old inventory before the intro was selected. Ceres
+            // The game loaded the old inventory before the intro was selected. Ceres
             // setup then starts from fresh progression while retaining equipment and other
             // resources. The flashback specifically replaces and then clears Missiles.
             runtime.HudSetup.InitializeHud(new HudSnapshot(
@@ -493,7 +493,7 @@ internal sealed class FrontendSession
             runtime.FrameBoundary.PublishWhileLoading();
 
             // Preserve the already-translated Ceres elevator entrance for its checkpoint.
-            // // Every other station uses the general room loader below.
+            // Every other station uses the general room loader below.
             if (slot.StartupRoute == SaveLoadingGameState.CeresElevatorArrival)
             {
                 // Room selection and actors must see the restored mirror, not a
@@ -514,12 +514,12 @@ internal sealed class FrontendSession
             // File selection loaded the saved options before the options menu ran.
             // InitializeSavedGame also serves direct diagnostic loads, so it restores
             // those fields itself. At this frontend boundary, the player's live edits
-            // // take precedence over that original snapshot, just as the game keeps them live.
+            // take precedence over that original snapshot, just as the game keeps them live.
             ApplySelectedGameOptions();
             RoomStateSettings loadedState = runtime.Room.ActiveRoom?.State
                 ?? throw new InvalidOperationException(
                     "Saved-game appearance started without an active room state.");
-            // // Samus's appearance starts appearance track one after 14 frames and, on its fifth
+            // Samus's appearance starts appearance track one after 14 frames and, on its fifth
             // call, schedules the room track 360 frames later. Mark this room state as
             // already handled so the generic room-change collector cannot overwrite the
             // fanfare with an immediate track request.
@@ -535,16 +535,16 @@ internal sealed class FrontendSession
             return false;
         }
 
-        // // New-game loading first publishes the standard HUD/sprite artwork, then
+        // New-game loading first publishes the standard HUD/sprite artwork, then
         // loads the area-six station-zero room and finally runs SamusCode_08. This is the
-        // // same sequence used by the room diagnostic; there is no host
+        // same sequence used by the room diagnostic; there is no host
         // terrain image, hand-placed Samus, or alternate playable-only initialization.
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.FrameBoundary.PublishWhileLoading();
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        // // The intro's end publishes area six/station zero
-        // // and saves immediately before the Ceres game state. Both the
+        // The intro's end publishes area six/station zero
+        // and saves immediately before the Ceres game state. Both the
         // full cinematic and host-configured skip converge here, so neither path can omit
         // the automatic checkpoint.
         AutomaticCheckpointSaver.SaveCeresArrival(saves, runtime, SelectedSaveSlot);

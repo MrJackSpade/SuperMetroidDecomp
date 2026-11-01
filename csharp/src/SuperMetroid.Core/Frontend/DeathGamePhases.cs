@@ -39,7 +39,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
         session.display.PublishGameplay(session.GameplayRuntime);
         if (paletteBlackoutComplete)
         {
-            // // Death setup cancels all three sound libraries, then installs the death
+            // Death setup cancels all three sound libraries, then installs the death
             // music data and track through the ordinary delayed music queue.
             session.audio.QueueSound(Library1Sound.Silence, priority: SoundRequestPriority.Essential);
             session.audio.QueueSound(Library2Sound.Silence, priority: SoundRequestPriority.Essential);
@@ -104,7 +104,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
             throw new InvalidOperationException("Death palette setup requires a runtime.");
 
         ColourImage target = session.Runtime.Colours.Capture();
-        // // The death target keeps only Samus's suit colours; everything else is black.
+        // The death target keeps only Samus's suit colours; everything else is black.
         // Her suitless sprite set and every room and sprite colour therefore fade away.
         target.Fill(RgbColor.Black);
         ColourRun suit = session.Runtime.Player.Colours.Suit;

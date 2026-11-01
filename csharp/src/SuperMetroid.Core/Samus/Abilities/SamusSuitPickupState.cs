@@ -115,7 +115,7 @@ public sealed class SamusSuitPickupState
         LightBeamWideningVelocity = WideningVelocity(SuitPickupBeamDefinitions.InitialWideningSpeed);
         Beam = SamusSuitPickupBeam.None;
 
-        // // The suit pickup cancels every independent speed component before
+        // The suit pickup cancels every independent speed component before
         // changing pose. CancelRunningMomentum also preserves the departing-echo
         // side effect and publishes the immediate palette restore only when boost was live.
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
@@ -141,10 +141,10 @@ public sealed class SamusSuitPickupState
         samus.CommitPoseHistory();
         samus.Control.LockForSuitPickup();
 
-        // // The game writes whole positions but leaves fractional words untouched. These are
+        // The game writes whole positions but leaves fractional words untouched. These are
         // fixed screen coordinates, not a room-specific item-location approximation.
         samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(layer1.X + 120), CoordinateAxis.Wrap(layer1.Y + 136)));
-        // // The pickup stores the same words as the previous position, so this frame's
+        // The pickup stores the same words as the previous position, so this frame's
         // scrolling sees no movement.
         samus.WritePreviousXPosition(samus.Position.X.Whole);
         samus.WritePreviousYPosition(samus.Position.Y.Whole);
@@ -297,7 +297,7 @@ public sealed class SamusSuitPickupState
         }
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
-        // // Stage two widens this column by the authored curve on each scanline.
+        // Stage two widens this column by the authored curve on each scanline.
         Beam = new(SamusSuitPickupBeamShape.CurvedColumn, _lightBeamLeft, _lightBeamRight, 0);
 
         LightBeamWideningVelocity += WideningVelocity(SuitPickupBeamDefinitions.WideningAcceleration);
@@ -339,7 +339,7 @@ public sealed class SamusSuitPickupState
         // The wipe grows from zero by the speed's whole pixels and stops once it reaches 128, so it
         // stays far inside the range where the game's signed comparison is this ordinary one.
         _lightBeamScanlines += EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue);
-        // // The final curved column is wiped by this many scanlines from the top. The game's
+        // The final curved column is wiped by this many scanlines from the top. The game's
         // lower do/while starts at position minus one, so the bottom wipe is one shorter.
         Beam = Beam with { Shape = SamusSuitPickupBeamShape.ClosingCurvedColumn, Progress = _lightBeamScanlines };
 

@@ -18,7 +18,7 @@ internal sealed class IntroScientistCutsceneState
             ? IntroBabyActorDefinitions.DeliveredBaby
             : IntroBabyActorDefinitions.ExaminedBaby;
 
-        // // The delivered and examined babies' definitions use separate laboratory pages and mirrored pan axes.
+        // The delivered and examined babies' definitions use separate laboratory pages and mirrored pan axes.
         baby = new IntroDiscoverySprite(
             definition.Position,
             definition.Colouring,
@@ -56,9 +56,9 @@ internal sealed class IntroScientistCutsceneState
         if (!baby.IsActive)
             return;
 
-        // // The delivery behaviour deletes only when the *alternate* intro counter reaches zero during the
+        // The delivery behaviour deletes only when the *alternate* intro counter reaches zero during the
         // later page-four reverse crossfade. The forward scientist fade decrements the
-        // // cinematic-function counter while IntroCrossFadeTimer remains 127.
+        // cinematic-function counter while IntroCrossFadeTimer remains 127.
         if (introCrossfadeTimer == 0)
         {
             baby.Start(CinematicSpriteProgram.Delete);

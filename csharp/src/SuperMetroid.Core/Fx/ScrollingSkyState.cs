@@ -104,7 +104,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
                 _fixedHorizontalScrolls[section.DataSlot] + (uint)section.Velocity.RawValue);
         }
 
-        // // The sky clears the final fractional and integer words after all 23
+        // The sky clears the final fractional and integer words after all 23
         // additions, keeping the bottommost section stationary.
         _fixedHorizontalScrolls[ScrollingSkyBandDefinitions.DataSlotCount - 1] = 0;
     }

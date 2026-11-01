@@ -43,7 +43,7 @@ internal sealed class SamusHudSelection
         }
         else if ((controllerNewInput & switchMask) != ControllerButton.None)
         {
-            // // The selection ring wraps after X-ray and repeatedly invokes the selected
+            // The selection ring wraps after X-ray and repeatedly invokes the selected
             // handler while it returns carry set. The loop always terminates because
             // entry zero is the unconditional Nothing handler.
             do
@@ -63,7 +63,7 @@ internal sealed class SamusHudSelection
         }
         else
         {
-            // // The game saturates this word at two; it is a short stabilization counter,
+            // The game saturates this word at two; it is a short stabilization counter,
             // never a general elapsed-time counter.
             HudItemChangedThisFrame = Math.Min(HudItemChangedThisFrame + 1, 2);
         }

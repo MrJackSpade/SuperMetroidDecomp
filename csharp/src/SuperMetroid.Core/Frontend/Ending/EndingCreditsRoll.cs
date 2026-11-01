@@ -61,8 +61,8 @@ internal sealed class EndingCreditsRoll
     /// <summary>Restores the post-credits palette except colors zero through three and holds a blank screen for sixty calls.</summary>
     internal void SetupPostCreditsBlank()
     {
-        // // The credits' end copies Intro4 colors 4-255, disables text glow, forces blank, and arms
-        // // function 129 for sixty calls. Preserve colors zero through three as the game does.
+        // The credits' end copies Intro4 colors 4-255, disables text glow, forces blank, and arms
+        // function 129 for sixty calls. Preserve colors zero through three as the game does.
         ScreenColours postCredits = _stage.StaticScreen(EndingPaletteId.PostCredits);
         postCredits.LoadTo(screen.Palette, ScreenColourGroup.EndingPostCreditsRestoredBackground);
         postCredits.LoadTo(screen.Palette, ScreenColourGroup.EndingPostCreditsRestoredSprites);

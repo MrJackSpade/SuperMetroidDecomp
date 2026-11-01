@@ -171,7 +171,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 break;
 
             case GameOverMenuPhase.WaitForInitialMusic:
-                // // The music gate only polls the music queue; it neither animates the Baby nor draws the missile.
+                // The music gate only polls the music queue; it neither animates the Baby nor draws the missile.
                 if (!audio.HasQueuedMusic)
                 {
                     audio.QueueMusic(
@@ -198,7 +198,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 }
                 else if ((pressed & ControllerButton.A) != ControllerButton.None)
                 {
-                    // // The game holds the current Baby frame for 180 ticks once either
+                    // The game holds the current Baby frame for 180 ticks once either
                     // answer is accepted, while the selected fade owner continues drawing.
                     BabyFrameHold =
                         WrappingCountdown.Start(GameOverMenuDefinitions.AcceptedAnswerHoldDuration);

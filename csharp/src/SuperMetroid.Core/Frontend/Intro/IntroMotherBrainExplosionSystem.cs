@@ -108,7 +108,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             if (!IsActive)
                 return;
 
-            // // The explosions delete these actors only when the later page-two crossfade timer
+            // The explosions delete these actors only when the later page-two crossfade timer
             // reaches zero. Starting the delete before the generic decrement makes deletion
             // occur in this same handler call.
             if (introCrossfadeTimer == 0)

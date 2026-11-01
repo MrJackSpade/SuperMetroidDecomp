@@ -13,9 +13,9 @@ internal sealed class IntroEggParticle
     public IntroEggParticle(int index)
     {
         CinematicActorDefinition definition = IntroEggParticleActors.Particle(index);
-        // // The spawn indexes interleaved (X-10h,Y-3Bh) pairs with parameter*4, then restores
+        // The spawn indexes interleaved (X-10h,Y-3Bh) pairs with parameter*4, then restores
         // the two fixed biases. The compiled catalog is independently checked against all
-        // // twelve original words so this physical spawn does not read the original data.
+        // twelve original words so this physical spawn does not read the original data.
         sprite = new IntroDiscoverySprite(
             IntroEggMotion.FragmentInitialPosition(index),
             colouring: ScreenColourGroup.IntroDiscoveryActors,
@@ -50,14 +50,14 @@ internal sealed class IntroEggParticle
                 $"Intro egg particle names invalid pre-instruction {sprite.FrameBehavior}.");
         }
 
-        // // The fragment motion indexes the horizontal velocities by fragment and the gravity table by the
-        // // frames fallen. Each velocity is a signed 16.16 pair stored high-word first,
+        // The fragment motion indexes the horizontal velocities by fragment and the gravity table by the
+        // frames fallen. Each velocity is a signed 16.16 pair stored high-word first,
         // exactly matching the actor's whole/subposition addition order.
         AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotion.FragmentX(Fragment));
         AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotion.FragmentY(FramesFallen));
         if (CoordinateAxis.Difference(sprite.WholePosition.Y, 168) >= 0)
         {
-            // // The game primes the shared one-word delete animation, which the generic handler
+            // The game primes the shared one-word delete animation, which the generic handler
             // consumes later in this same object call.
             sprite.Start(CinematicSpriteProgram.Delete);
         }

@@ -14,7 +14,7 @@ internal static class IntroCinematicMotion
         FixedCoordinate position,
         int wholeVelocity,
         int fractionalVelocity) =>
-        // // A 16-bit add with carry first adds the fractional words, then propagates its carry into
+        // A 16-bit add with carry first adds the fractional words, then propagates its carry into
         // the signed whole-word sum. Packing them produces precisely that wrap/carry model.
         // Each velocity word keeps its low sixteen bits.
         SignedSixteenSixteen

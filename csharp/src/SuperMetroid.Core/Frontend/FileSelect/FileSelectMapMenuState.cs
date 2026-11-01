@@ -138,7 +138,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         FileSelectMapNavigationPhase before = Phase;
         drawArrows = before == FileSelectMapNavigationPhase.Room;
         if (drawArrows) animations.StepArrows(Scroll.CanScroll);
-        // // The game draws/advances map icons before testing input, including the frame
+        // The game draws/advances map icons before testing input, including the frame
         // that requests load/cancel and the following load fade.
         if (before is FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested)
         {

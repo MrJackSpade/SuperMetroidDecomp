@@ -106,7 +106,7 @@ public sealed class SamusAtmosphericEffectsState
 
             if (slot.AnimationTimer.IsZero)
             {
-                // // The effect reloads using the OLD frame and only then advances the frame.
+                // The effect reloads using the OLD frame and only then advances the frame.
                 // That ordering is why a newly created timer-three frame is visible for
                 // two calls before frame one begins.
                 slot.AnimationTimer =
@@ -121,8 +121,8 @@ public sealed class SamusAtmosphericEffectsState
             }
             else if (slot.AnimationTimer.IsNegative)
             {
-                // // Negative timers suppress both drawing and motion. Exactly 32768 is a
-                // // delayed-start marker: reload the current frame's authored duration and draw it.
+                // Negative timers suppress both drawing and motion. Exactly 32768 is a
+                // delayed-start marker: reload the current frame's authored duration and draw it.
                 if (!slot.AnimationTimer.IsAt(DelayedStartMarker))
                     continue;
                 slot.AnimationTimer =
@@ -181,7 +181,7 @@ public sealed class SamusAtmosphericEffectsState
         if (screenX < 0 || screenX >= 256 || screenY < 0 || screenY >= 256)
             return;
 
-        // // Type two's sprite list is missing, so the game reads unrelated scratch memory as its sprite attributes. That
+        // Type two's sprite list is missing, so the game reads unrelated scratch memory as its sprite attributes. That
         // needs direct-page emulation the port does not model; type two is exempt and draws nothing (owner decision
         // on #1318).
         if (type == SamusAtmosphericEffectDefinitions.ScratchListType)
@@ -200,7 +200,7 @@ public sealed class SamusAtmosphericEffectsState
         int screenX = CoordinateAxis.Wrap(slot.Position.X - drawing.Camera.X);
         int screenY = CoordinateAxis.Wrap(slot.Position.Y - drawing.Camera.Y);
 
-        // // The draw rejects any nonzero high byte of Y. X is deliberately not clipped;
+        // The draw rejects any nonzero high byte of Y. X is deliberately not clipped;
         if (ScreenConversions.IsOutsideSpriteRange(screenY))
             return;
 

@@ -152,7 +152,7 @@ public sealed class RoomPaletteFxSystem
         audioPowerBomb = powerBomb;
 
         // PaletteFXObject_Handler owns a new publication window on every game frame.
-        // // Requests are momentary calls into the shared queues, not persistent object state.
+        // Requests are momentary calls into the shared queues, not persistent object state.
         soundRequests.Clear();
         musicRequests.Clear();
 
@@ -166,8 +166,8 @@ public sealed class RoomPaletteFxSystem
             if (slot.Object is null)
                 continue;
 
-            // // The timer decrements before comparing with one. Unsigned underflow is
-            // // intentional game behavior for malformed or externally edited state.
+            // The timer decrements before comparing with one. Unsigned underflow is
+            // intentional game behavior for malformed or externally edited state.
             slot.FrameHold = slot.FrameHold.Decrement().Remaining;
             if (!slot.FrameHold.IsZero)
                 continue;
@@ -183,7 +183,7 @@ public sealed class RoomPaletteFxSystem
         bool areaMiniBossDefeated)
     {
         // Spawn_PaletteFXObject searches byte offsets 14,12,...,0, which is slot order
-        // // 7..0. A full pool silently rejects another spawn; this is a documented
+        // 7..0. A full pool silently rejects another spawn; this is a documented
         // allocation result, not a failed translation that should be hidden by an exception.
         PaletteFxSlot? slot = null;
         for (int index = SlotCount - 1; index >= 0; index--)
@@ -216,7 +216,7 @@ public sealed class RoomPaletteFxSystem
                 return;
 
             case PaletteFxSetup.Norfair:
-                // // The heat object chooses the complete program from the same live suit bits
+                // The heat object chooses the complete program from the same live suit bits
                 // used by Samus. Gravity has priority when both bits are present.
                 slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(
                     PaletteFxHeatPrograms.Start(PaletteFxHeatPrograms.SuitFor(equippedItems)));

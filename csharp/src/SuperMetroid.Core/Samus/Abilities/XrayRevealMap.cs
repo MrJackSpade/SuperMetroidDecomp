@@ -97,7 +97,7 @@ public static class XrayRevealMap
         void Place(int col, int row, RevealedBlock? block)
         {
             // Bottom-edge multi-block commands can write past the two transferred screens, into
-            // // the game's scratch memory; only the shown cells belong to this display projection.
+            // the game's scratch memory; only the shown cells belong to this display projection.
             int cell = XrayRevealCells.CellOf(col, row);
             if (cell >= 0) result[cell] = block;
         }

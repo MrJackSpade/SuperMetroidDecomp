@@ -212,8 +212,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.ZebesExplosionAnimation:
-                // // The explosion actor owns the remaining timing. Its music step publishes the
-                // // exact 120-frame post-explosion music wait, just as the game does.
+                // The explosion actor owns the remaining timing. Its music step publishes the
+                // exact 120-frame post-explosion music wait, just as the game does.
                 EscapeScenes.StepSprites();
                 break;
 
@@ -299,7 +299,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.PostCreditsWaitingBackdrop:
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    // // Function 132 shows the complete result panel in rows nine through seventeen before the
+                    // Function 132 shows the complete result panel in rows nine through seventeen before the
                     // following 180-frame hold.
                     _ = InstalledArtwork.EndingText ?? throw new InvalidOperationException("Post-credits text requires installed ending text.");
                     postCreditsPage.Write(EndingPictureNames.ResultPanel, EndingResultTextLayout.ResultPanelCell);
@@ -336,7 +336,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                         CreditsRoll.ShowRewardCopyright();
                         break;
                     }
-                    // // The reward step replaces the idle actors with the gesture animations.
+                    // The reward step replaces the idle actors with the gesture animations.
                     // BG1/BG2 are disabled during this OBJ-only animation.
                     sprites.Clear();
                     CurrentRewardGesture = new EndingRewardGesture(Stage.EndingReward);
@@ -426,13 +426,13 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 throw new InvalidOperationException($"Undefined {nameof(EndingCreditsPhase)} {Stage.Phase}.");
         }
 
-        // // The cinematic invokes the shared palette-FX interpreter after actors.
+        // The cinematic invokes the shared palette-FX interpreter after actors.
         Stage.PaletteFxSystem.Step(new ScreenPaletteFxColours(screen.Palette), InstalledArtwork.PaletteFxArtwork ?? throw new InvalidOperationException(
                 "Ending palette FX requires installed palette colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         if (Stage.PaletteFxSystem.SoundRequests.Count != 0 || Stage.PaletteFxSystem.MusicRequests.Count != 0)
             throw new InvalidDataException("Ending palette program requested an unhandled audio command.");
-        // // The ending follows cinematic actors even while a text-only main screen hides sprites.
-        // // The credits' end enables the already-initialized records when the credits finish.
+        // The ending follows cinematic actors even while a text-only main screen hides sprites.
+        // The credits' end enables the already-initialized records when the credits finish.
         if (EndingCreditsPhaseGroups.PostCredits.Contains(Stage.Phase))
             (CreditsRoll.ShootingStars ??= new EndingShootingStars()).Step();
         Flyaway.CinematicFrame++;

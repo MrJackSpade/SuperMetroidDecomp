@@ -34,7 +34,7 @@ public readonly record struct TurningFloorTransform(
     /// </summary>
     public Position16<RoomPixels> Transform(Position16<RoomPixels> world)
     {
-        // // The rotation forms both distances with 16-bit subtraction before treating the
+        // The rotation forms both distances with 16-bit subtraction before treating the
         // products as signed. In particular, vertical distance points upward: centre Y - Y.
         int horizontalDistance = CoordinateAxis.Wrap(world.X - Center.X);
         int verticalDistance = CoordinateAxis.Wrap(Center.Y - world.Y);

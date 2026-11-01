@@ -47,7 +47,7 @@ public static class SamusHurtFlashPalette
         }
 
 
-        // // The hurt flash plays the impact sound exactly on call two. Cinematics and the
+        // The hurt flash plays the impact sound exactly on call two. Cinematics and the
         // Mother-Brain drained `$54` handler are the two exceptions; the latter is
         // identified by the same explicit phase/pose pair that replaces its handler word.
         if (counterBefore == 2 &&
@@ -60,7 +60,7 @@ public static class SamusHurtFlashPalette
 
         // Only calls one through six write colors. Odd calls select the fixed hurt palette;
         // even calls restore either the intro palette or the equipment-selected suit. Once
-        // // counter seven is reached the existing colours deliberately remain untouched.
+        // counter seven is reached the existing colours deliberately remain untouched.
         if (WordWrap.Signed(counterBefore - 7) < 0)
         {
             if ((counterBefore & 1) != 0)
@@ -77,7 +77,7 @@ public static class SamusHurtFlashPalette
             }
         }
 
-        // // The game stores the increment before either comparison. The signed branch against
+        // The game stores the increment before either comparison. The signed branch against
         // sixty is preserved rather than simplified to an unsigned host range, retaining
         // the exact wrap behavior for manually corrupted/debugger-written counters.
         int counterAfter = (counterBefore + 1) % HurtFlashCounterPeriod;
@@ -158,7 +158,7 @@ public static class SamusHurtFlashPalette
             return SamusHurtFlashRecoveryAction.None;
         }
 
-        // // The grapple-function comparison accepts firing, swinging, locked,
+        // The grapple-function comparison accepts firing, swinging, locked,
         // wall-grab, and wall-grab-release functions. Cancel and all later teardown/drop
         // handlers intentionally leave grapple audio silent.
         bool grappleSoundActive = samus.Grapple.Phase is

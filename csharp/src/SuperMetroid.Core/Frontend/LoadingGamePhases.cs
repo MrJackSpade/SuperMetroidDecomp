@@ -32,7 +32,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
             StepGameLoadingWait(controllerInput);
             return;
         }
-        // // Loading branches on the save's loading state.
+        // Loading branches on the save's loading state.
         switch (session.StateSixLoadingRoute)
         {
             case SaveLoadingGameState.MainGame:

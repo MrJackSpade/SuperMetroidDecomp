@@ -123,7 +123,7 @@ internal sealed class IntroJapaneseSubtitles
         {
             if (stage == SubtitleStage.AwaitSecondSubtitleInput && newlyPressed != ControllerButton.None)
             {
-                // // The second subtitle's steps: show the second subtitle, hold the input wait it
+                // The second subtitle's steps: show the second subtitle, hold the input wait it
                 // will start, and switch to the done-input list on this same frame.
                 stage = SubtitleStage.StartInputWait;
                 frameHold = WrappingCountdown.Start(1);
@@ -138,7 +138,7 @@ internal sealed class IntroJapaneseSubtitles
                     frameHold = WrappingCountdown.Start(1);
                     return false;
                 case SubtitleStage.AwaitSecondSubtitleInput:
-                    // // One-frame transfer record, then goto itself.
+                    // One-frame transfer record, then goto itself.
                     frameHold = WrappingCountdown.Start(1);
                     return false;
                 case SubtitleStage.FinishFirstSubtitle:

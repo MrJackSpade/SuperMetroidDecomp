@@ -30,7 +30,7 @@ public sealed class MapPaletteAnimation
         if (Timer != 0) return false;
         MapPaletteCycle cycle = content ?? throw new InvalidOperationException(
             "Map palette animation requires installed palette-cycle assets.");
-        // // Preserve the game's increment-before-read and loop sound ownership. A
+        // Preserve the game's increment-before-read and loop sound ownership. A
         // shorter replacement cycle wraps at the next frame boundary, not bind.
         int next = Frame + 1;
         bool wrapped = next >= cycle.FrameCount;

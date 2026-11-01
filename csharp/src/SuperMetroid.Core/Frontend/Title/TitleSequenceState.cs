@@ -136,14 +136,14 @@ public sealed class TitleSequenceState : IFrontendScreen
                 MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.OpeningTrack));
         }
 
-        // // Title setup expands the four artwork streams; the title binds that
+        // Title setup expands the four artwork streams; the title binds that
         // artwork and its capture places the Mode 7 planes, OBJ characters and Baby page.
         objects = new ScreenSprites();
         titlePalettePresentation.Apply(palette);
         ResetConsolePaletteFx();
 
-        // // The Year object's frame behaviour forces full brightness on the first
-        // // processing frame; its position and palette come from its definition.
+        // The Year object's frame behaviour forces full brightness on the first
+        // processing frame; its position and palette come from its definition.
         Brightness = TitleSequenceDefinitions.Timing.MaximumBrightness;
         BeginTextSequence(TitleSequenceDefinitions.TextSequences.Year);
     }
@@ -209,10 +209,10 @@ public sealed class TitleSequenceState : IFrontendScreen
         controller.Latch(controllerInput);
         bool rebuildConsolePaletteFxAfterStep = false;
 
-        // // The title admits B, Start, or A during every pre-title cinematic function. The
+        // The title admits B, Start, or A during every pre-title cinematic function. The
         // original performs a fast fade-out, reconstructs the final title objects, then a
         // fast fade-in. Do not jump straight to a host menu: those intermediate frames and
-        // // their brightness levels are observable in recorded traces.
+        // their brightness levels are observable in recorded traces.
         bool confirmPressed =
             controller.NewlyPressed.HasAny(TitleSequenceDefinitions.Timing.ConfirmButtons);
         if (confirmPressed && Phase is not (TitleSequencePhase.TitleScreenFadeIn or TitleSequencePhase.TitleScreen or
@@ -269,9 +269,9 @@ public sealed class TitleSequenceState : IFrontendScreen
             case TitleSequencePhase.TitleLogoFade:
                 if (--PhaseTimer <= 0)
                 {
-                    // // The copyright holds for 32 frames before arming the
+                    // The copyright holds for 32 frames before arming the
                     // 900-frame demo countdown. The palette FX itself remains future work;
-                    // // its final palette is already the visible colour source.
+                    // its final palette is already the visible colour source.
                     Phase = TitleSequencePhase.CopyrightFade;
                     PhaseTimer = TitleSequenceDefinitions.Timing.CopyrightHoldFrames;
                 }
@@ -288,7 +288,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     Brightness - TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep);
                 if (Brightness == 0)
                 {
-                    // // HandleCinematicsTransitions_1 queues track six before
+                    // HandleCinematicsTransitions_1 queues track six before
                     // rebuilding the immediate title objects.
                     audio?.QueueMusic(
                         MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.ImmediateTitleTrack));
@@ -307,7 +307,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 break;
 
             case TitleSequencePhase.TitleScreen:
-                // // The timeout check wins over confirmation on its final frame.
+                // The timeout check wins over confirmation on its final frame.
                 if (--PhaseTimer <= 0)
                 {
                     fadingToDemo = true;
@@ -338,11 +338,11 @@ public sealed class TitleSequenceState : IFrontendScreen
         }
 
         StepBabyMetroidAnimation();
-        // // The title calls the same palette-FX interpreter as rooms. Its two console
+        // The title calls the same palette-FX interpreter as rooms. Its two console
         // programs own their colors and timers; the host must not synthesize a blink.
         consolePaletteFx.Step(new ScreenPaletteFxColours(palette), titlePalettePresentation ?? throw new InvalidOperationException(
                 "Title palette FX requires installed title colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-        // // The skip reconstruction follows PaletteFxHandler for this frame. Restart
+        // The skip reconstruction follows PaletteFxHandler for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
         if (rebuildConsolePaletteFxAfterStep)
             ResetConsolePaletteFx();
@@ -389,8 +389,8 @@ public sealed class TitleSequenceState : IFrontendScreen
         objects.BeginFrame();
         if (ActiveSprite is { } sprite)
         {
-            // // Cinematic drawing replaces each part's palette bits
-            // // after masking the stored attributes. It does not add a base tile;
+            // Cinematic drawing replaces each part's palette bits
+            // after masking the stored attributes. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
             TitleGraphicsPresentation.DrawSprite(sheet, sprite, objects,
                 ActiveOrigin.ToSpritePosition(), ActiveObjectColouring);
@@ -491,8 +491,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     private void EnterImmediateTitleObjects()
     {
         gradientEnabled = true;
-        // // The skip transition explicitly overwrites the two glyph colors used by
-        // // the Nintendo copyright spritemap after restoring the sprite colours.
+        // The skip transition explicitly overwrites the two glyph colors used by
+        // the Nintendo copyright spritemap after restoring the sprite colours.
         WriteCopyright(
             titlePalettePresentation?.SkipCopyrightWhite ?? TitleSequenceDefinitions.Palette.CopyrightWhite,
             titlePalettePresentation?.SkipCopyrightRed ?? TitleSequenceDefinitions.Palette.CopyrightRed);

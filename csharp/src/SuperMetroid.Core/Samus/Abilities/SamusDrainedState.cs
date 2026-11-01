@@ -121,7 +121,7 @@ public sealed class SamusDrainedState
         {
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 13, timer: 1);
 
-            // // The able branch replaces the hack pointer with a no-op after the first accepted Up
+            // The able branch replaces the hack pointer with a no-op after the first accepted Up
             // edge. Further presses cannot restart the stand-up stream.
             GetUpHandler = DrainedGetUpHandler.Inactive;
             return true;
@@ -131,7 +131,7 @@ public sealed class SamusDrainedState
             samus.AnimationFrame >= 8 &&
             samus.AnimationFrame < 12)
         {
-            // // Unlike the able branch, the failed-stand branch retains its own function pointer. A later
+            // Unlike the able branch, the failed-stand branch retains its own function pointer. A later
             // visit to frames 8..11 can therefore react to another fresh Up edge.
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 18, timer: 1);
             return true;
@@ -207,9 +207,9 @@ public sealed class SamusDrainedState
 
         if (_suitPaletteRestoreRequested)
         {
-            // // The drained palette and command `$17` choose Gravity before Varia, then Power. The table
+            // The drained palette and command `$17` choose Gravity before Varia, then Power. The table
             // stores byte offsets 0/2/4 rather than a host enum, matching every other Samus
-            // // palette restoration path.
+            // palette restoration path.
             SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
             _suitPaletteRestoreRequested = false;
             return true;
@@ -218,7 +218,7 @@ public sealed class SamusDrainedState
         if (!RainbowPaletteEnabled)
             return false;
 
-        // // The handler doubles the palette number, selects one of ten complete palette
+        // The handler doubles the palette number, selects one of ten complete palette
         // frames, and copies all sixteen colors before decrementing the shared timer.
         int paletteFrame = ChargePaletteIndex %
             SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount;
@@ -245,7 +245,7 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
 
-        // // The game computes 21-oldRadius and subtracts it from center Y before changing the
+        // The game computes 21-oldRadius and subtracts it from center Y before changing the
         // pose. This preserves the previous bottom boundary even when the source body did
         // not already have the drained pose's radius of 21 pixels.
         int sourceRadius = samus.Kinematics.Radius.Y;
@@ -253,7 +253,7 @@ public sealed class SamusDrainedState
             samus.Position.Y.Whole - CoordinateAxis.Wrap(21 - sourceRadius));
 
         // Direction byte four is left; every other byte chooses the right-facing record.
-        // // Read it before replacing the pose, exactly as the drained setup does.
+        // Read it before replacing the pose, exactly as the drained setup does.
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         samus.Pose = facingLeft
             ? SamusPoseId.DrainedCrouchingLeftPose
@@ -264,13 +264,13 @@ public sealed class SamusDrainedState
             throw new InvalidDataException("Drained pose $E8/$E9 metadata changed unexpectedly.");
 
         // NewPoseSamusAnimationFrame is literally two. The animation is initialized here,
-        // // but movement remains the normal empty type-$1B handler until command `$F7` appears.
+        // but movement remains the normal empty type-$1B handler until command `$F7` appears.
         SamusPresentation.InitializeAnimation(samus, initialFrame: 2);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         _suitPaletteRestoreRequested = true;
         Phase = DrainedSamusPhase.WaitingForFallingCommand;
-        // // Controller commands 0/1/2/4 return carry set; their dispatcher
+        // Controller commands 0/1/2/4 return carry set; their dispatcher
         // then shifts history even for a same-pose command. Hyper (3) does not.
         samus.CommitPoseHistory();
     }
@@ -289,7 +289,7 @@ public sealed class SamusDrainedState
                 $"Drained falling command requires pose $E8/$E9, not {samus.Pose}.");
         }
 
-        // // Command `$F7` writes the drained falling handler into the single physical movement-handler word.
+        // Command `$F7` writes the drained falling handler into the single physical movement-handler word.
         // It therefore replaces either kind of special owner: an ordinary uncrashed spark
         // retains its boost words as Blue Suit, while Crystal Flash retains its independent
         // palette/input state as Shinespark Suit. Neither old movement routine may resume.
@@ -317,12 +317,12 @@ public sealed class SamusDrainedState
         BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level }, samus, frameCounter, out _, out bool downwardDisplacement);
 
         // Generic Y movement has already applied gravity when it reports the collision.
-        // // Capture the exact magnitude before the landing erases it for on-floor art.
+        // Capture the exact magnitude before the landing erases it for on-floor art.
         UnsignedSixteenSixteen impactYSpeed = samus.Kinematics.YSpeed;
 
         if (vertical.Collided)
         {
-            // // The landing restores the normal movement pointer, jumps directly to art
+            // The landing restores the normal movement pointer, jumps directly to art
             // frame seven for eight ticks, and clears both velocity halves. It does not
             // clear Y direction and it does not select a new pose.
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 7, timer: 8);
@@ -367,7 +367,7 @@ public sealed class SamusDrainedState
         Ensure.NotNull(samus);
 
         // These are literal byte indices into the asymmetrical delay programs, not visual
-        // // frame counts. In particular, left `$E9` index 13 names an operand byte; the game
+        // frame counts. In particular, left `$E9` index 13 names an operand byte; the game
         // intentionally draws that index until the next animation decrement advances it.
         if (samus.Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 13, timer: 1);
@@ -375,7 +375,7 @@ public sealed class SamusDrainedState
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 4, timer: 1);
 
         // The merge path executes even for an unexpected pose. Preserve that surprisingly
-        // // broad behavior instead of rejecting a caller that the game accepts.
+        // broad behavior instead of rejecting a caller that the game accepts.
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -410,7 +410,7 @@ public sealed class SamusDrainedState
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         // Shared rainbow setup calls the previous-pose helper before lock.
         samus.CommitPoseHistory();
-        // // The shared rainbow setup installs the locked current/new state handlers after changing art.
+        // The shared rainbow setup installs the locked current/new state handlers after changing art.
         samus.Control.LockForRainbowBeam();
         Phase = DrainedSamusPhase.RainbowBeamLocked;
     }

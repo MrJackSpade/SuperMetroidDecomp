@@ -160,14 +160,14 @@ internal sealed class EndingStage
                 break;
             case EndingSpriteRole.ExplosionStarsRight:
             case EndingSpriteRole.ExplosionStarsLeft:
-                // // The right starfield runs no flyaway frame behaviour until its animation installs one.
+                // The right starfield runs no flyaway frame behaviour until its animation installs one.
                 if (sprite.FrameBehavior is CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway or CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving)
                     StepFlyawayStars(sprite, sprite.FrameBehavior.Value);
                 if (Phase == EndingCreditsPhase.OperationSuccessfulText)
                     sprite.Delete();
                 break;
             case EndingSpriteRole.ExplosionAfterglow:
-                // // The finale deletes the afterglow at the same null-function handoff.
+                // The finale deletes the afterglow at the same null-function handoff.
                 if (Phase == EndingCreditsPhase.OperationSuccessfulText)
                     sprite.Delete();
                 break;

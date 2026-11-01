@@ -245,7 +245,7 @@ public static class GameplayDisplayCapture
             MainScreenLayers = ordinary.View.MainScreenLayers & ~ScreenLayers.Background,
         }, ordinary.Rooms, ordinary.BackgroundLineScrolls);
         if (mode == LayerBlendingConfiguration.PhantoonHidden) return gameplay;
-        // // Fireflea rooms: TM=$15, TS=$02, CGADSUB=$35. Gameplay HUD is the separate
+        // Fireflea rooms: TM=$15, TS=$02, CGADSUB=$35. Gameplay HUD is the separate
         // band; below it BG2 adds to eligible main sources, never occluding BG1.
         return new GameplayBlendLayer(gameplay, ScreenWindow.Closed, false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
     }

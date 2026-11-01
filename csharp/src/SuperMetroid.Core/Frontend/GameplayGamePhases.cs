@@ -25,7 +25,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
         // State $20 is only the departure hold. The arrival descent runs in
-        // // ordinary main gameplay while the elevator's enemy projectiles lock Samus.
+        // ordinary main gameplay while the elevator's enemy projectiles lock Samus.
         if (session.ceresDeparture.Phase != CeresDeparturePhase.HoldingOnElevator)
             throw new InvalidOperationException("State $20 requires the Ceres departure hold.");
         if (session.ceresDeparture.StepHoldAfterGameplay())
@@ -53,7 +53,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                 if (reserveStep.RefillSoundRequested)
                     session.audio.QueueSound(Library3Sound.IncrementalEnergy, SoundRequestPriority.Low,
                         soundSuppressed: session.GameplayRuntime.PowerBombExplosionSuppressesSounds);
-                // // The reserve-refill state clears the freeze and restores main gameplay
+                // The reserve-refill state clears the freeze and restores main gameplay
                 // BEFORE calling gameplay. Unfreezing after StepFrame lets
                 // Samus resume while projectiles/enemies remain a frame behind.
                 if (reserveStep.Completed)
@@ -63,7 +63,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                 }
             } });
         session.display.PublishGameplay(session.GameplayRuntime);
-        // // The reserve-refill state invokes the external low-health check even while the
+        // The reserve-refill state invokes the external low-health check even while the
         // locked Samus beta handler omits it. Publish prior gameplay sounds
         // first; the queue occupancy they leave decides whether this final
         // normal-priority request joins.
@@ -150,12 +150,12 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.Unpausing"/>.</summary>
     internal void DispatchUnpausing(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
-        // // The fade-in state runs the whole main-gameplay routine behind the screen fade, so
+        // The fade-in state runs the whole main-gameplay routine behind the screen fade, so
         // its out-of-health, pause, door and other publications all apply here.
         RunMainGameplayState(controllerInput, gameplayAudio);
         if (session.StepScreenFadeIn() == PauseFadeTiming.FullyLit)
         {
-            // // The fade-in state explicitly restores main gameplay on the terminal frame.
+            // The fade-in state explicitly restores main gameplay on the terminal frame.
             session.screenFade.Clear();
             session.GameState = SuperMetroidGameState.MainGameplay;
         }
@@ -177,7 +177,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.RaiseSaveRamChanged();
             session.GameplayRuntime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
             session.GameplayRuntime.EscapeTimer.Clear();
-            // // Stop music and silence all three sound libraries.
+            // Stop music and silence all three sound libraries.
             session.audio.QueueMusic(MusicRequest.Stop);
             session.audio.QueueSound(Library1Sound.Silence, priority: SoundRequestPriority.Essential);
             session.audio.QueueSound(Library2Sound.Silence, priority: SoundRequestPriority.Essential);
@@ -193,7 +193,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.TimeUp"/>.</summary>
     internal void DispatchTimeUp(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
-        // // The time-up state runs the whole main-gameplay routine, then advances every palette
+        // The time-up state runs the whole main-gameplay routine, then advances every palette
         // toward the white target with denominator eight.
         RunMainGameplayState(controllerInput, gameplayAudio);
         if ((session.TimeUpPaletteFade ?? throw new InvalidOperationException(
@@ -213,14 +213,14 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // therefore continue behind every darkening frame.
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
-        // // HandleFadingOut reloads the counter from ScreenFadeDelay, which
-        // // the gunship zeroed, so the brightness falls one step on every call.
+        // HandleFadingOut reloads the counter from ScreenFadeDelay, which
+        // the gunship zeroed, so the brightness falls one step on every call.
         session.SetDisplayBrightness(session.EscapeFade.Darken());
         if (session.EscapeFade.Brightness == 0)
         {
-            // // The liftoff state resets display ownership, stops the escape timer/music,
+            // The liftoff state resets display ownership, stops the escape timer/music,
             // cancels all three SFX libraries, and publishes state $27. The new
-            // // state performs its own setup on the following call.
+            // state performs its own setup on the following call.
             session.audio.QueueMusic(MusicRequest.Stop);
             session.audio.QueueSound(Library1Sound.Silence, priority: SoundRequestPriority.Essential);
             session.audio.QueueSound(Library2Sound.Silence, priority: SoundRequestPriority.Essential);
@@ -258,11 +258,11 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         if (session.Runtime?.Player.Samus is not SamusState samus || session.Runtime.Room.ActiveRoom is null)
             return false;
 
-        // // The pause check only runs from Samus's normal new-state handler. Station command six
-        // // replaces that handler with an inert one, so its entire insertion,
+        // The pause check only runs from Samus's normal new-state handler. Station command six
+        // replaces that handler with an inert one, so its entire insertion,
         // message/data-load, and retraction sequence bypasses pause-check even though game
         // state remains eight. The locked alpha installed with it stands for that handler
-        // // replacement; the remaining clauses are the pause check's own predicate.
+        // replacement; the remaining clauses are the pause check's own predicate.
         return session.GameState == SuperMetroidGameState.MainGameplay &&
                !messageBoxOwnedFrame &&
                !session.Runtime.MessageBox.IsActive &&
@@ -292,7 +292,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.GameplayRuntime.MessageBox.MessageId == GameplayMessageIds.MapDataAccessCompleted;
         // Station command six installs an inert new-state handler before this
         // frame. Retraction can restore normal input later in StepFrame, after the
-        // // game's Samus-handler call site has already passed pause-check.
+        // game's Samus-handler call site has already passed pause-check.
         bool samusInputLockedAtFrameStart = session.GameplayRuntime.Player.Samus?.Control.AlphaLocked == true;
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         bool timeUp = session.GameplayRuntime.ConsumeTimeUpRequest();
@@ -301,13 +301,13 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.HandleGunshipLandingSave();
         if (RouteOutOfHealth())
         {
-            // // The death trigger publishes the next outer state at the end of this already-
+            // The death trigger publishes the next outer state at the end of this already-
             // completed gameplay call. Nothing else may replace it on the trigger
             // frame—not pause, an elevator handoff, or a pending ordinary door.
         }
         else if (timeUp)
         {
-            // // The escape countdown wrote the time-up state inside Samus's handler, after her movement's
+            // The escape countdown wrote the time-up state inside Samus's handler, after her movement's
             // door hits and before pause-check, which then sees a state other than eight.
             BeginTimeUp();
         }
@@ -317,7 +317,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         }
         else if (mapStationMessageOwnedFrame && !session.GameplayRuntime.MessageBox.IsActive)
         {
-            // // The message box's close explicitly selects the pause state
+            // The message box's close explicitly selects the pause state
             // for map acquisition, independently of Start or station input lock.
             // Keep this separate from admission of a manual pause request.
             session.Close<PauseMenuState>();
@@ -325,28 +325,28 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         }
         else if (CanEnterPause(messageBoxOwnedFrame, samusInputLockedAtFrameStart))
         {
-            // // Samus_PauseCheck executes during the already-completed
-            // // main-gameplay frame. It initializes both fade counters and publishes
-            // // the pause state; the following dispatcher call consumes the first delay.
+            // Samus_PauseCheck executes during the already-completed
+            // main-gameplay frame. It initializes both fade counters and publishes
+            // the pause state; the following dispatcher call consumes the first delay.
             session.screenFade.Reload();
             session.Close<PauseMenuState>();
             session.GameState = SuperMetroidGameState.PausingDarkening;
         }
         else if (session.GameplayRuntime.RoomMains.LastCeresElevatorShaftRoomMain.DepartureRequestedThisFrame)
         {
-            // // The elevator has already selected standing pose, locked Samus, and
-            // // published its game state. The following dispatcher call owns the
+            // The elevator has already selected standing pose, locked Samus, and
+            // published its game state. The following dispatcher call owns the
             // 60-frame hold; do not decrement it on this trigger frame.
             session.ceresDeparture.Begin();
             session.GameState = SuperMetroidGameState.MadeItToCeresElevator;
         }
         else if (session.GameplayRuntime.RoomLoader.HasPendingDoorTransition && !session.GameplayRuntime.MessageBox.IsActive)
         {
-            // // A door hit changes the game state during the gameplay call.
+            // A door hit changes the game state during the gameplay call.
             // The already-produced gameplay image remains this frame's image; the
-            // // following dispatcher call begins the door state from that publication.
+            // following dispatcher call begins the door state from that publication.
             // A message box opened later in the same call (a station's completion
-            // // notice in the PLM handler) suspends that call until it
+            // notice in the PLM handler) suspends that call until it
             // closes, so the door's state waits for the box's final frame.
             session.GameState = SuperMetroidGameState.HitDoorBlock;
         }

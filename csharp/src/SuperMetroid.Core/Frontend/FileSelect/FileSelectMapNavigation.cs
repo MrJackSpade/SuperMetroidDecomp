@@ -46,7 +46,7 @@ public sealed class FileSelectMapNavigation
     /// </summary>
     public void Step(ControllerButton heldInput)
     {
-        // // Same edge rule as ControllerInputState.NewlyPressedButtons, over the controller word.
+        // Same edge rule as ControllerInputState.NewlyPressedButtons, over the controller word.
         ControllerButton pressed = heldInput & ~previousInput;
         previousInput = heldInput;
         bool cancel = (pressed & ControllerButton.B) != ControllerButton.None;
@@ -54,7 +54,7 @@ public sealed class FileSelectMapNavigation
         switch (Phase)
         {
             case FileSelectMapNavigationPhase.Area:
-                // // The game's direction handling changes areas only with debug enabled.
+                // The game's direction handling changes areas only with debug enabled.
                 // Its non-debug branch replaces the working input word with zero when
                 // a direction/Select edge exists, also suppressing a simultaneous confirm.
                 if ((pressed & (ControllerButton.Up | ControllerButton.Down | ControllerButton.Left |
@@ -71,7 +71,7 @@ public sealed class FileSelectMapNavigation
                 if (ActiveWindow.Step()) Phase = FileSelectMapNavigationPhase.InitializingRoom;
                 break;
             case FileSelectMapNavigationPhase.InitializingRoom:
-                // // The room map is installed after the expanding-window endpoint;
+                // The room map is installed after the expanding-window endpoint;
                 // the endpoint itself still shows only the frame, not room-map cells.
                 Phase = FileSelectMapNavigationPhase.Room;
                 break;

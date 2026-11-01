@@ -133,7 +133,7 @@ public sealed class HudState
             ammoCounts[2] = snapshot.PowerBombs;
 
         ToggleItemHighlight(snapshot.SelectedItem, HudIconShade.Selected);
-        // // HUD setup initializes the previous selected item to zero. The HUD update
+        // HUD setup initializes the previous selected item to zero. The HUD update
         // performs the first live comparison on the next gameplay pass.
         PreviousSelectedItem = HudItem.Beam;
         SelectionSoundRequestedThisFrame = false;
@@ -162,7 +162,7 @@ public sealed class HudState
         SelectionSoundSuppressedThisFrame = soundSuppressed;
 
         // Permanent pickups can introduce an inventory family after HUD initialization.
-        // // The game's item pickups add those icons immediately; replay the same
+        // The game's item pickups add those icons immediately; replay the same
         // guarded additions here before updating their counters. Each addition is
         // idempotent and preserves an already-shown icon and the live minimap.
         if ((samus.EquippedItems & SamusEquipmentFlags.XrayScope) != SamusEquipmentFlags.None)
@@ -186,9 +186,9 @@ public sealed class HudState
         if (samus.ReserveTankMode == ReserveTankMode.Auto)
             DrawAutoReserve(samus.ReserveEnergy != 0);
 
-        // // Selecting an item gives the newly selected icon the selected shade, returns the
+        // Selecting an item gives the newly selected icon the selected shade, returns the
         // old icon to the deselected shade, then publishes sound $39. This belongs in the
-        // // live HUD update rather than the input handler: the game suppresses the sound (but
+        // live HUD update rather than the input handler: the game suppresses the sound (but
         // not the visual change) while spinning, wall-jumping, grappling, or time is frozen.
         if (samus.SelectedHudItem != PreviousSelectedItem)
         {
@@ -223,12 +223,12 @@ public sealed class HudState
         if (frame.RoomMap.X > byte.MaxValue || frame.RoomMap.Y > byte.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(frame.RoomMap));
 
-        // // The minimap update returns rather than indexing unrelated map memory if Samus is outside
+        // The minimap update returns rather than indexing unrelated map memory if Samus is outside
         // the active room. The 16-pixel comparison consumes the same positions as collision.
         if (MinimapDisabled || !frame.RoomSize.Contains(frame.Samus.ToRoomBlock()))
             return;
 
-        // // One area-map tile represents one 256x256 room screen. The Y formula has
+        // One area-map tile represents one 256x256 room screen. The Y formula has
         // an intentional +1 because the HUD map convention places the room header's Y one
         // row above the screen containing Samus.
         int centerX = (frame.RoomMap.X + RoomGridConversions.PixelToScreen(frame.Samus.X)) & 63;
@@ -273,7 +273,7 @@ public sealed class HudState
                 MapCell mapCell = frame.PresentationMap.Cell(cell);
                 Minimap[destination] = new MinimapMapCell(mapCell.Shape, mapCell.Mirroring,
                     explored ? MinimapShade.Explored : MinimapShade.Unexplored);
-                // // The center slope also explores the corner above it. The top
+                // The center slope also explores the corner above it. The top
                 // row has already been rendered and its explored bits latched, so that
                 // cell acquires the explored shade on the next minimap update.
                 if (outputX == 2 && outputY == 1 && explored && centerY > 0 &&

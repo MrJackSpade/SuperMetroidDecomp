@@ -19,7 +19,7 @@ internal sealed class IntroEggSlimeDrop
 
         CinematicActorDefinition definition = IntroEggEffectDefinitions.SlimeDrop;
 
-        // // The slime spawn copies the confused baby's slot coordinates rather than using a separate
+        // The slime spawn copies the confused baby's slot coordinates rather than using a separate
         // literal position table. Its low timer byte remains the horizontal trajectory ID.
         sprite = new IntroDiscoverySprite(
             babyPosition,
@@ -66,8 +66,8 @@ internal sealed class IntroEggSlimeDrop
 
             if (CoordinateAxis.Difference(sprite.WholePosition.Y, 168) >= 0)
             {
-                // // Landing changes both animation and frame behaviour, freezing the impact point
-                // // while the puddle animation plays four ten-frame frames and deletes the actor.
+                // Landing changes both animation and frame behaviour, freezing the impact point
+                // while the puddle animation plays four ten-frame frames and deletes the actor.
                 sprite.Start(CinematicSpriteProgram.MetroidEggParticleHitGround);
                 sprite.InstallFrameBehavior(
                     CinematicSpriteFrameBehavior.NoOp);

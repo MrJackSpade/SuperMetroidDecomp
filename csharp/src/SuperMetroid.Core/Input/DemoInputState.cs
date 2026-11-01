@@ -116,7 +116,7 @@ public sealed class DemoInputState
 
         // DEC is a 16-bit 65C816 operation. In particular, a zero duration wraps and lasts
         // 65,536 handler calls; using an int countdown would quietly change malformed or
-        // // intentionally unusual recorded input data.
+        // intentionally unusual recorded input data.
         CountdownStep frameHold = FrameHold.Decrement();
         FrameHold = frameHold.Remaining;
         if (frameHold.IsZero)
@@ -147,7 +147,7 @@ public sealed class DemoInputState
             }
         }
 
-        // // Publishing hands the old demo words to the drawing-input history before it
+        // Publishing hands the old demo words to the drawing-input history before it
         // replaces the live joypad words and remembers the newly produced pair.
         PublishedPreviousHeld = PreviousHeld;
         PublishedPreviousNewlyPressed = PreviousNewlyPressed;

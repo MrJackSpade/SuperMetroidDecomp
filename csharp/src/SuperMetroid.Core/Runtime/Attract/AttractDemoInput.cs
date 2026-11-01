@@ -39,8 +39,8 @@ public sealed class AttractDemoInput
                     Script.Redirect(frameBehavior, DemoInputProgram.AttractDelete);
                 break;
             case DemoInputFrameBehavior.AttractShinespark:
-                // // The routine's name does not match its Draygon-grab comparison. Retain
-                // // the actual branch rather than correcting that oddity.
+                // The routine's name does not match its Draygon-grab comparison. Retain
+                // the actual branch rather than correcting that oddity.
                 if (movementType != SamusMovementType.DraygonHeld)
                     Script.Redirect(DemoInputFrameBehavior.AttractCheckLeave,
                         DemoInputProgram.AttractDiagonalShinesparkContinuation);

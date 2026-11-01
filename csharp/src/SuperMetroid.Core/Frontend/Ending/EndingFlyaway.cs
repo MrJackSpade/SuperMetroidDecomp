@@ -98,7 +98,7 @@ internal sealed class EndingFlyaway
                     EndingSpriteRole.AnimalEscape);
                 IntroDiscoverySprite pod = sprites[^1].Sprite;
                 pod.GeneralTimer = EndingAnimalEscapeDefinitions.GeneralTimer;
-                // // Cinematic dispatch precedes actors, so a newly spawned pod
+                // Cinematic dispatch precedes actors, so a newly spawned pod
                 // moves and selects its first animation frame on this same call.
                 _stage.StepEndingSpriteFrameBehavior(sprites[^1]);
                 pod.Step();
@@ -177,7 +177,7 @@ internal sealed class EndingFlyaway
     /// <summary>Restores the explosion's BG palette half before the flyaway's floor loads; the floor is an installed picture (#1467).</summary>
     internal void PrepareFlyawayUploads()
     {
-        // // Func117 restores the BG half before disabling BG1. Sprite artwork and palettes
+        // Func117 restores the BG half before disabling BG1. Sprite artwork and palettes
         // remain live while the two floor lanes are replaced over sixteen updates.
         _stage.StaticScreen(EndingPaletteId.Explosion).LoadBackgroundsTo(screen.Palette);
     }

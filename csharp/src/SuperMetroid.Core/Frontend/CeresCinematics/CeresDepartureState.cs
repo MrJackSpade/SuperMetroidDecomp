@@ -48,7 +48,7 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.HoldingOnElevator)
             throw new InvalidOperationException("Ceres departure hold is not active.");
 
-        // // The game decrements after GameState_8 returns, then accepts both zero
+        // The game decrements after GameState_8 returns, then accepts both zero
         // and signed underflow. Begin() always seeds 60, so zero is the reachable result;
         // preserving the signed check documents and tests the actual 16-bit contract.
         HoldFramesRemaining = HoldFramesRemaining.Decrement().Remaining;

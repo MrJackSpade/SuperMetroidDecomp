@@ -3653,6 +3653,110 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Bosses.BossAndIntroOverreadDecoding",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/BossAndIntroOverreadDecoding.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.BossAndIntroOverreadDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/BossAndIntroOverreadDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.BossAndIntroOverreadDocument.ContourRecord",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/BossAndIntroOverreadDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.BossAndIntroOverreadDocument.FallStep",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/BossAndIntroOverreadDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.BossAndIntroOverreadFiles",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/BossAndIntroOverreadFiles.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.BossAndIntroOverreadFiles.Manifest",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/BossAndIntroOverreadFiles.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.BossAndIntroOverreadFormat",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/BossAndIntroOverreadFormat.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Bosses.BossAndIntroOverreadSourceDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/BossAndIntroOverreadSourceDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Bosses.BossBg2FrameCatalogAccess",
       "kind": "static class",
       "scope": "test",
@@ -8736,6 +8840,97 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyOverreadDecoding",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyOverreadDecoding.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyOverreadDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyOverreadDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyOverreadDocument.Drift",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyOverreadDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyOverreadFiles",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyOverreadFiles.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyOverreadFiles.Manifest",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyOverreadFiles.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyOverreadFormat",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyOverreadFormat.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyOverreadSourceDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyOverreadSourceDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemyPaletteSheetDocument",
@@ -25449,7 +25644,33 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusOverreadDocument.CrashDepartures",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusOverreadDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusOverreadDocument.Cursor",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusOverreadDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusOverreadDocument.LaunchSpeeds",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -50943,6 +51164,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/BossAndIntroOverreadServices.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.ChainsawBeamColours\u003CTColour\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/ChainsawBeamColours.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.ChainsawFuseAnimationShift\u003CTCursor\u003E",
       "kind": "class",
       "scope": "product",
@@ -51040,6 +51287,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.CrocomireTenthShotGradient",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/CrocomireTenthShotGradient.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.DoorTransitionFrameCounting",
       "kind": "class",
       "scope": "product",
@@ -51048,6 +51308,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Compatibility/DoorTransitionFrameCounting.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.DrainedCrashEchoDepartures\u003CTPose, TAngles\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/DrainedCrashEchoDepartures.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -51079,6 +51352,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.FallingSparkUnauthoredLaunch",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/FallingSparkUnauthoredLaunch.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.FirstSlotFallAcceleration",
       "kind": "static class",
       "scope": "product",
@@ -51087,6 +51373,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Compatibility/FirstSlotFallAcceleration.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.FollowUpAfterStruckPart",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/FollowUpAfterStruckPart.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -51196,6 +51495,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.KraidNailPastLedges",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/KraidNailPastLedges.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.KraidPassBounds",
       "kind": "struct",
       "scope": "product",
@@ -51291,6 +51603,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.MagdolliteApexGrowth",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/MagdolliteApexGrowth.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.PostureAdmissionBeyondTransitions\u003CTPose\u003E",
@@ -51460,6 +51785,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.ShellFragmentFallPastCurve",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/ShellFragmentFallPastCurve.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.SlotInheritance\u003CTOccupant\u003E",
@@ -51657,6 +51995,32 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.StoredExploredMaps\u003CTArea\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/StoredExploredMaps.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.StoredExploredMaps\u003CTArea\u003E.RunReading",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/StoredExploredMaps.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.StraddledBlock",
       "kind": "record struct",
       "scope": "product",
@@ -51756,6 +52120,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Compatibility/TrailStartPastPlacements.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.UnauthoredBeamLaunchSpeeds\u003CTBeams\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/UnauthoredBeamLaunchSpeeds.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -61627,6 +62004,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.EnemyOverreadServices",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyOverreadServices.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyParameterMasks",
@@ -83063,19 +83453,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.GameplaySessionCarryover",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/GameplaySessionCarryover.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.GameplaySnapshot",
       "kind": "class",
       "scope": "product",
@@ -84158,6 +84535,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicOverreads",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroCinematicOverreads.cs"
+      ],
+      "partial": "none",
+      "disposition": "constructor-parameters"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicPhase",
@@ -99310,6 +99700,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Progression.StoredExploredMapLoads",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/StoredExploredMapLoads.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Progression.SuperMetroidGameState",
       "kind": "enum",
       "scope": "product",
@@ -102573,6 +102976,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.ExploredMapExchangeDoorDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/ExploredMapExchangeDoorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Doors.EyeDoorComponent",
@@ -112067,6 +112483,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Runtime.GameplaySessionCarryover",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/GameplaySessionCarryover.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Runtime.IGameplayArtwork",
       "kind": "interface",
       "scope": "product",
@@ -113824,7 +114253,7 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementDefinitions.StandingTurnDirection",
+      "type": "SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementDefinitions.TurningAim",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
@@ -121676,6 +122105,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileOverreads",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileOverreads.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileProgram",
@@ -140271,6 +140713,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Bosses.Crocomire.CrocomireTenthShotGradientVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireTenthShotGradientVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Bosses.Crocomire.CrocomireTongueCollisionDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -148586,6 +149041,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Flies/FlyOwnedStateVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.FollowUpAfterStruckPartVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/FollowUpAfterStruckPartVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -163419,6 +163887,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Rooms/Scrolling/ScrollPlmsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Rooms.Scrolling.StoredExploredMapsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Rooms/Scrolling/StoredExploredMapsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

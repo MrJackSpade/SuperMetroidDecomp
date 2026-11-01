@@ -54,7 +54,7 @@ internal static class ProjectileTrailCoordinatesVerification
 
         // Every frame a trail can read past a list's run: each record's animation frame and the word before each list, which a
         // trail spawned at a list's start reads. The installed service must yield what the cartridge holds there.
-        var trailStarts = InstalledFixtures.SamusOverreads.TrailStarts;
+        var trailStarts = InstalledFixtures.SamusOverreads.Projectiles.TrailStarts;
         int[] frameDomain = [.. SamusProjectileRecordDefinitions.Records.Select(record => record.AnimationFrame)
             .Concat(Enum.GetValues<SamusProjectileProgram>().Select(program => (int)SamusProjectileProgramAddresses.Prefix(program)))
             .Distinct()

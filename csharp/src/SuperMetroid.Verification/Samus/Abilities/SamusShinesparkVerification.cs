@@ -528,7 +528,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     internal static void VerifyCrashEchoDepartures()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> drained = InstalledFixtures.SamusOverreads.DrainedCrashDepartures;
+        DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> drained = InstalledFixtures.SamusOverreads.Projectiles.DrainedCrashDepartures;
         int checkedPoses = 0;
         for (int number = 0; number <= byte.MaxValue; number++)
         {

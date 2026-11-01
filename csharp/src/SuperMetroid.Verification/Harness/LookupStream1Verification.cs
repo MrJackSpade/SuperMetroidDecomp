@@ -1268,15 +1268,15 @@ internal static class LookupStream1Verification
             // the cartridge's flags and the code stored around them for every pose.
             if (pose < 0xDB)
                 AssertEqual(LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35) == 0,
-                    SamusHudObservations.PostureAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), InstalledFixtures.SamusOverreads.PostureAdmission),
+                    SamusHudObservations.PostureAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
                     $"HUD exact bounded posture admission {pose:X2}");
             else
-                AssertThrows<ArgumentOutOfRangeException>(() => SamusHudObservations.PostureAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), InstalledFixtures.SamusOverreads.PostureAdmission),
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusHudObservations.PostureAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
                     "HUD rejects prefiltered posture observation");
             foreach (bool grapple in new[] { false, true })
             {
                 bool expected = pose >= 0xF1 || (pose < 0xDB && (LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35) == 0 || grapple));
-                AssertEqual(expected, SamusHudInput.PostureTransitionAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), grapple, InstalledFixtures.SamusOverreads.PostureAdmission),
+                AssertEqual(expected, SamusHudInput.PostureTransitionAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), grapple, InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
                     $"HUD actual admission {pose:X2}, Grapple={grapple}");
             }
         }
@@ -1592,7 +1592,7 @@ internal static class LookupStream1Verification
 
         // A frame wrapping below the programs reads the table naming them: the three program words, which hold each
         // program's place in the bank. The installed delays must be those bytes, read through the production lookup.
-        var below = InstalledFixtures.SamusOverreads.ChargeFlareDelays;
+        var below = InstalledFixtures.SamusOverreads.Projectiles.ChargeFlareDelays;
         int[] programStarts = [ChargeFlareAnimationDefinitions.MainFlare, ChargeFlareAnimationDefinitions.SlowSparks, ChargeFlareAnimationDefinitions.FastSparks];
         for (int distance = 1; distance <= ChargeFlareAnimationDefinitions.ProgramTableByteCount; distance++)
         {
@@ -1619,7 +1619,7 @@ internal static class LookupStream1Verification
         foreach (int invalid in new[] { int.MinValue, 0x90c2d0, 0x90c2d1, 0x90c2d2, 0x90c37b, int.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusProjectileAccelerations.ReadWord(invalid - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 exact projectile motion address domain");
         var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>((records, launched) =>
-            BeamFiring.InitializePowerBeamVelocity(records, launched, InstalledFixtures.SamusOverreads.UnauthoredBeamSpeeds));
+            BeamFiring.InitializePowerBeamVelocity(records, launched, InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamSpeeds));
         var stationary = new ProjectileInheritanceRecords();
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)
@@ -2646,7 +2646,7 @@ internal static class LookupStream1Verification
                     new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.FrameHold.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y),
                     "Every scheduled bomb exposure/physical envelope matches native");
                 slot.AnimationFrame = 0xbeef;
-                AssertEqual(trail, ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.TrailStarts), "Actual trail consumer reads prior record, not next phase or cached frame");
+                AssertEqual(trail, ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.Projectiles.TrailStarts), "Actual trail consumer reads prior record, not next phase or cached frame");
                 slot.AnimationFrame = trail;
                 if (looped) { loops++; finished = true; break; }
             }

@@ -67,12 +67,12 @@ internal static class PowerBombFuseVerification
                 int landing = unchecked((ushort)(places[position] + SamusOverreadSourceDefinitions.FastAnimationOffset));
                 if (landing != 0 && SamusProjectileProgramAddresses.Layout.TryCursorAt(landing, out AnimationProgramCursor<SamusProjectileProgram> native))
                 {
-                    AssertEqual(native, InstalledFixtures.SamusOverreads.ChainsawFuseShift.Shift(cursor), $"Chainsaw fuse landing from {cursor}");
+                    AssertEqual(native, InstalledFixtures.SamusOverreads.Projectiles.ChainsawFuseShift.Shift(cursor), $"Chainsaw fuse landing from {cursor}");
                     landings++;
                 }
                 else
                 {
-                    AssertThrows<InvalidDataException>(() => InstalledFixtures.SamusOverreads.ChainsawFuseShift.Shift(cursor),
+                    AssertThrows<InvalidDataException>(() => InstalledFixtures.SamusOverreads.Projectiles.ChainsawFuseShift.Shift(cursor),
                         $"Chainsaw fuse from {cursor} lands on no list position");
                 }
             }

@@ -48,7 +48,7 @@ internal static class ProjectileInheritanceProbeVerification
     internal static void ProbeProjectileVelocityInheritance()
     {
         var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>((launchRecords, launched) =>
-            BeamFiring.InitializePowerBeamVelocity(launchRecords, launched, InstalledFixtures.SamusOverreads.UnauthoredBeamSpeeds));
+            BeamFiring.InitializePowerBeamVelocity(launchRecords, launched, InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamSpeeds));
         var inheritance = new ProjectileInheritanceRecords();
         var records = new ProjectileInheritanceRecordsAccess(inheritance);
         int failures = 0;

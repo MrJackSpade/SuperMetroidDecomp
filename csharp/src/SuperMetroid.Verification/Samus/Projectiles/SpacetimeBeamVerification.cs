@@ -141,7 +141,7 @@ internal static class SpacetimeBeamVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        var service = InstalledFixtures.SamusOverreads.SpaceTimeOverwrite;
+        var service = InstalledFixtures.SamusOverreads.Projectiles.SpaceTimeOverwrite;
         int reaching = 0;
         int situations = 0;
         foreach (SamusProjectileProgram program in SamusOverreadDecoding.SpaceTimeShotPrograms())

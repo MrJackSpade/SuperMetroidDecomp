@@ -506,8 +506,8 @@ public sealed class SamusProjectileSystem
                 // port cannot execute arbitrary mutable data as code; fail at the
                 // same callback-dispatch seam instead of silently substituting Wave motion.
                 throw new NotSupportedException(
-                    "Charged Chainsaw callback enters Samus's mutable state " +
-                    "as code; executing arbitrary data is not translated.");
+                    "Charged Chainsaw callback enters Samus's mutable state as code; reproducing it needs full " +
+                    "memory and processor emulation, which is outside the port's scope.");
             }
             else if (slot.FrameBehavior ==
                 SamusProjectileFrameBehavior.MurderBeamMisalignedExecution)
@@ -518,8 +518,9 @@ public sealed class SamusProjectileSystem
                 // game stops making forward progress. Keep that unsafe execution
                 // explicit instead of silently substituting ordinary beam motion.
                 throw new NotSupportedException(
-                    "Unsafe Murder Beam callback enters unrelated game code; " +
-                    "only the safe left-facing zero-list shot is translated.");
+                    "Unsafe Murder Beam callback enters the middle of unrelated game code; reproducing it needs full " +
+                    "memory and processor emulation, which is outside the port's scope. Only the safe left-facing " +
+                    "zero-list shot is translated.");
             }
 
             // Kill_Projectile replaces rather than clears a live beam. Consequently the

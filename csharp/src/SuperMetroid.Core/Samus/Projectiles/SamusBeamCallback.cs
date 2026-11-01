@@ -10,8 +10,9 @@ internal enum SamusBeamCallback
     /// <summary>ProjPreInstr_WavePlasmaEtc: Wave movement with a four-frame trail reload.</summary>
     WaveFourFrameTrail,
     /// <summary>
-    /// The non-routine word observed when uncharged combination twelve
-    /// indexes beyond the retail callback table. It remains untranslated and fails loudly.
+    /// Uncharged combination twelve reads the charged-shot routine's first instruction bytes past the callback table;
+    /// they name an unconnected region, so the game executes open bus. That is outside the emulation scope limit
+    /// (#1500): the shot is rejected loudly.
     /// </summary>
     UnchargedCombinationTwelveAdjacentWord,
     /// <summary>
@@ -36,13 +37,15 @@ internal enum SamusBeamCallback
     /// </summary>
     ChargedChainsawOverrun,
     /// <summary>
-    /// The non-routine word observed when uncharged combination fifteen
-    /// indexes beyond the retail callback table. It remains untranslated and fails loudly.
+    /// Uncharged combination fifteen reads an operand of the charged-shot routine past the callback table; it names a
+    /// word of work memory, so the game executes Samus's state as code. That is outside the emulation scope limit
+    /// (#1500): the shot is rejected loudly.
     /// </summary>
     UnchargedCombinationFifteenAdjacentWord,
     /// <summary>
-    /// The non-routine word observed when charged combination twelve
-    /// indexes beyond the retail callback table. It remains untranslated and fails loudly.
+    /// Charged combination twelve reads the first instruction of the projectile placement routine past the charged
+    /// callback table; it names a word of work memory, so the game executes that memory as code. That is outside the
+    /// emulation scope limit (#1500): the shot is rejected loudly.
     /// </summary>
     ChargedCombinationTwelveAdjacentWord,
     /// <summary>

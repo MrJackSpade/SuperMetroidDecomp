@@ -48,8 +48,14 @@ internal sealed class BeamCombos
         sound = null;
         if (samus.SelectedHudItem != HudItem.PowerBomb) return false;
         SamusBeamCombination beam = SamusBeamCombinations.Of(samus.EquippedBeams);
+        // A Spazer and Plasma combination indexes the special-attack dispatch past its twelve entries, into the angles
+        // the Ice and Plasma attacks start their slots at. Read as routine places those angles name work memory, so the
+        // game executes that memory as code, which only full memory and processor emulation could reproduce: the
+        // attack is rejected under the emulation scope limit (#1500).
         if (!beam.IsRetail)
-            throw new NotSupportedException("An out-of-table Spazer/Plasma combo runs whatever follows the combo dispatch table; that is not reproduced.");
+            throw new NotSupportedException(
+                "A Spazer and Plasma special attack dispatches into work memory as code; reproducing it needs full memory " +
+                "and processor emulation, which is outside the port's scope.");
         int remaining = samus.PowerBombs - SamusComboMechanics.GetPowerBombCost(beam);
         samus.PowerBombs = remaining < 0 ? 0 : remaining;
         SamusComboKind? combo = SamusComboMechanics.ComboKind(beam);

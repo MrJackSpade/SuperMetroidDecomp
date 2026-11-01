@@ -45,6 +45,31 @@ internal static class SuperMetroidRuntimeAccess
             return enemies;
         }
 
+        /// <summary>
+        /// Rebuilds the loaded room's enemy system as the room load built it, from the room state's population and
+        /// graphics set, the room's appearance, level, camera and artwork, and Samus, but with the services
+        /// <paramref name="layer"/> puts over the room's own, and returns it. A case uses it to drive a service a retail
+        /// room's enemies read, such as the random word.
+        /// </summary>
+        internal RoomEnemySystem ReloadRoomEnemiesForVerification(Func<IRoomEnemyServices, IRoomEnemyServices> layer)
+        {
+            RoomScope scope = self.Room.LoadedScope;
+            RoomEnemySystem loaded = scope.Enemies;
+            var enemies = new RoomEnemySystem(self.EnemySession, loaded.Room.Definitions, layer(loaded.Room.Services),
+                loaded.BossArtworkBinding, loaded.AreaArtworkBinding);
+            // The room load hands the scope its enemy system before loading the population, as here.
+            self.Room.Adopt(scope with { Enemies = enemies });
+            enemies.Load(new RoomEnemyLoadRequest(scope.Room.State.EnemyPopulation, scope.Room.State.EnemyGraphicsSet,
+                scope.Appearance, self.Colours)
+            {
+                Level = scope.LevelData,
+                Samus = self.Player.Samus,
+                Camera = scope.Camera.PixelPosition,
+                ArtworkFrames = scope.ArtworkFrames,
+            });
+            return enemies;
+        }
+
         /// <summary>The loaded room's layer-3 FX.</summary>
         internal RoomLayer3FxState RoomLayer3Fx => self.Room.LoadedScope.Layer3Fx;
 

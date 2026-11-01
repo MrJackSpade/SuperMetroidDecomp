@@ -52,7 +52,8 @@ internal static class RidleyPlayerOpeningVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley, camera: new Position16<RoomPixels>(0, 0));
-        var enemies = runtime.Enemies;
+        // The recorded random word drives Ridley's room, so its enemies are rebuilt with case services over the room's own.
+        var enemies = runtime.ReloadRoomEnemiesForVerification(loaded => new VerificationRoomEnemyServices(loaded));
         var body = enemies.SlotTable.Slots[0]; var state = enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         var seed = Read(375);
         // Ridley's body runs typed programs (#1287); the recording's native pointer selects the matching cursor.

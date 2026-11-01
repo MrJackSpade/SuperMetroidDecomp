@@ -22,6 +22,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Hud;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -35,7 +36,7 @@ internal static class RoomBlockUploads
 {
     /// <summary>The tilesets some retail room state loads, each once in room order: those a block sheet is composed for.</summary>
     internal static IReadOnlyList<TilesetDefinition> Tilesets() =>
-        [.. RoomHeaderDefinitions.All.SelectMany(RoomStateSelection.GetStates)
+        [.. RoomHeaderDefinitions.All.SelectMany(RoomStateLists.GetStates)
             .Select(state => RoomTilesets.Get(state.GraphicsSet)).Distinct()];
 
     /// <summary>The rooms of each tileset and what they show over their characters, in room order.</summary>
@@ -47,7 +48,7 @@ internal static class RoomBlockUploads
         foreach (RoomHeaderDefinition room in RoomHeaderDefinitions.All)
         {
             bool ceres = room.AreaIndex == AreaId.Ceres;
-            foreach (RoomStateSettings state in RoomStateSelection.GetStates(room))
+            foreach (RoomStateSettings state in RoomStateLists.GetStates(room))
             {
                 TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);
                 if (!tilesets.TryGetValue(tileset, out TilesetUploads? uploads))

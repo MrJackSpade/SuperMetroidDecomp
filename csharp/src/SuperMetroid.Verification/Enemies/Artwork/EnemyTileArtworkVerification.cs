@@ -103,7 +103,7 @@ internal static class EnemyTileArtworkVerification
         private readonly CartridgeImportAddressSpace bus =
             CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         /// <summary>Private installation copy deleted on disposal.</summary>
-        private readonly PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        private readonly PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.EnemyTileDirectory);
         /// <summary>The copy's stock enemy-tile directory.</summary>
         private readonly string directory;
         /// <summary>Stock catalog loaded from the copy.</summary>
@@ -196,7 +196,7 @@ internal static class EnemyTileArtworkVerification
         }
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         // The live override and invalid-resource checks edit stock files, so they run on a private installation copy.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.EnemyTileDirectory);
         string directory = copy.Installation.EnemyTileDirectory;
         {
             InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory, null);

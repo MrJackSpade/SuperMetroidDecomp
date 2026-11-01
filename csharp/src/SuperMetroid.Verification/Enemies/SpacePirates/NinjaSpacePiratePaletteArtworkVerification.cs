@@ -12,7 +12,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Verification.Enemies.Artwork;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 
 /// <summary>Checks Ninja Space Pirate target colors sourced from shared Gold Pirate artwork.</summary>
@@ -69,8 +69,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             "Edited ninja palette does not change physical post placement");
 
         byte[] savedOverride = File.ReadAllBytes(overridePath);
-        // The shared installation's stock artwork stands for stock artwork the installer extracted again.
-        string reextracted = RepositoryInstallation.Installation.EnemyTileDirectory;
+        string reextracted = EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory, "ninja-reextracted-enemy-tiles");
         AssertTrue(savedOverride.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Enemy stock re-extraction preserves the shared ninja color override");
         (RoomEnemySlot restoredSlot, SamusColourRig restoredColors, _) = Initialize(

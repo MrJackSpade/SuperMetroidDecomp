@@ -82,7 +82,7 @@ internal static class ElevatorPlatformVisualsVerification
     private static void VerifyElevatorPlatformVisualInstallation()
     {
         // A private installation copy, whose override is written and whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmElevatorPlatformVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
             SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -110,10 +110,9 @@ internal static class ElevatorPlatformVisualsVerification
                     PlmDraw.Of(ElevatorPlatformDraw.First), 0, 0),
                 "elevator override selects edited frame art");
 
-            // The shared installation's stock directory stands for a stock directory the installer replaced.
-            string refreshed = RepositoryInstallation.Installation.RoomPlmElevatorPlatformVisualDirectory;
+            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
             AssertEqual(RoomBlockAppearance.Of(0x53),
-                RoomPlmElevatorPlatformVisualFiles.Load(refreshed,
+                ReExtractElevatorPlatformStock(rom, refreshed,
                     installation.RoomPlmElevatorPlatformVisualOverrideDirectory).GetAppearance(
                         PlmDraw.Of(ElevatorPlatformDraw.First), 0, 0),
                 "elevator override survives stock replacement");
@@ -127,4 +126,12 @@ internal static class ElevatorPlatformVisualsVerification
 
     /// <summary>The installed JSON of the edited cell: block $53, unmirrored.</summary>
     private static JsonObject EditedCell() => new() { ["block"] = 0x53, ["mirroring"] = nameof(BlockMirroring.None) };
+
+    /// <summary>Extracts stock elevator platform visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmElevatorPlatformVisualFiles.Extract into a fresh stock directory beside the copy's elevator platform override, to check that a stock replacement keeps the edited first-frame block (appearance 53) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static RoomPlmElevatorPlatformVisualCatalog ReExtractElevatorPlatformStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmElevatorPlatformVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmElevatorPlatformVisualFiles.Load(refreshed, overrides);
+    }
 }

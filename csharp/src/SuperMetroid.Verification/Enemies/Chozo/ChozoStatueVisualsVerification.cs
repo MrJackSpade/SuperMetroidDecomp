@@ -25,7 +25,7 @@ internal static class ChozoStatueVisualsVerification
         SuperMetroidAddressSpace rom)
     {
         // A private installation copy, whose override is written and whose stock file is tampered below.
-        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy())
+        using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmChozoStatueVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
             RoomPlmChozoStatueVisualFiles.ValidateStock(
@@ -114,10 +114,9 @@ internal static class ChozoStatueVisualsVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "shared delete list did not reread its bank-$84 bytes");
 
-            // The shared installation's stock directory stands for a stock directory the installer replaced.
-            string refreshed = RepositoryInstallation.Installation.RoomPlmChozoStatueVisualDirectory;
+            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
             AssertEqual(RoomBlockAppearance.Of(0x53),
-                RoomPlmChozoStatueVisualFiles.Load(refreshed,
+                ReExtractChozoStatueStock(rom, refreshed,
                     installation.RoomPlmChozoStatueVisualOverrideDirectory)
                     .GetAppearance(PlmDraw.Of(ChozoStatueDraw.ClearSlopeAccess), 0, 0),
                 "Chozo override survives stock replacement");
@@ -152,4 +151,12 @@ internal static class ChozoStatueVisualsVerification
                         return address >= first && address < first + length;
                     }),
                 address => $"Chozo PLM reread compiled program or draw byte ${address:X6}.");
+
+    /// <summary>Extracts stock Chozo statue visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmChozoStatueVisualFiles.Extract into a fresh stock directory beside the copy's Chozo statue override, to check that a stock replacement keeps the edited slope-access clear block (appearance 53) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static RoomPlmChozoStatueVisualCatalog ReExtractChozoStatueStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmChozoStatueVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmChozoStatueVisualFiles.Load(refreshed, overrides);
+    }
 }

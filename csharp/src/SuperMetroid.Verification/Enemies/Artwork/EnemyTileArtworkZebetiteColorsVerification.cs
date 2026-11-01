@@ -14,7 +14,6 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks Zebetite's eight-frame two-color pulse against native
@@ -93,8 +92,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         AssertEqual(counterBeforeGate, Counter(selected),
             "Zebetite secondary-half gate remains an engine-owned condition");
 
-        // The shared installation's stock artwork stands for stock artwork the installer extracted again.
-        string reextracted = RepositoryInstallation.Installation.EnemyTileDirectory;
+        string reextracted = EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory, "zebetite-reextracted-enemy-tiles");
         AssertTrue(selectedBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Stock re-extraction preserves the Zebetite color override");
         var reloaded = EnemyTileArtworkFiles.Load(reextracted, overrides);

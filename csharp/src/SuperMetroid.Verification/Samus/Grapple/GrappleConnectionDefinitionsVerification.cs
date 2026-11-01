@@ -193,10 +193,7 @@ internal static class GrappleConnectionDefinitionsVerification
         var guard = NewGrappleConnectionReadGuard(rom);
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
-        using var artworkDirectory = new TestScratchDirectory("map-catalog");
-        SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Extract(rom, artworkDirectory.Root,
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc")))));
-        samus.Presentation.BodyFrames.BindBodyFixture(SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Load(artworkDirectory.Root, null));
+        samus.Presentation.BodyFrames.BindBodyFixture(InstalledFixtures.SamusBody);
         samus.Grapple.FlarePlacement = SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));
         for (byte movement = 0; movement < 28; movement++)

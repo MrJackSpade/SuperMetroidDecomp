@@ -528,9 +528,8 @@ internal static class SamusFullBodyCycleColorsVerification
             Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
             "cycle-color-reextract");
         byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
-        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
-        AreaMapPresentation afterRepair = MapPresentationFiles.Load(
-            replacementStock, overrideDirectory);
+        AreaMapPresentation afterRepair = SuperMetroid.Verification.Frontend.Map.MapStockReExtraction.ReExtractStock(
+            rom, replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity,
             "stock re-extraction preserves selected full-body cycle override");
         AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),

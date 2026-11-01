@@ -120,32 +120,24 @@ internal static class ProjectileFrameBindingsVerification
             !editedOam.HighTable.SequenceEqual(stockOam.HighTable),
             "edited visual binding changes emitted OAM, not merely a cached pointer");
 
-        string root = Path.Combine(Path.GetFullPath("csharp/test-temp"),
-            "projectile-frame-bindings-" + Guid.NewGuid().ToString("N"));
-        try
-        {
-            ProjectilePresentationFiles.Extract(rom, root);
-            InstalledProjectilePresentation baseline = ProjectilePresentationFiles.Load(root, null);
-            AssertEqual(originalSprite, baseline.FrameBindings.Resolve(editedPointer),
-                "installed stock frame binding selects native sprite");
-            string overrides = Path.Combine(root, "overrides");
-            Directory.CreateDirectory(overrides);
-            File.WriteAllBytes(Path.Combine(overrides, ProjectileFrameBindingFormat.FileName), editedJson);
-            InstalledProjectilePresentation selected = ProjectilePresentationFiles.Load(root, overrides);
-            AssertEqual(replacement, selected.FrameBindings.Resolve(editedPointer),
-                "installed visual override selects alternate sprite");
-            AssertTrue(baseline.SelectedSha256 != selected.SelectedSha256,
-                "visual frame override changes diagnostic content identity");
-            AssertEqual(replacement, ProjectilePresentationFiles.Load(root, overrides)
-                .FrameBindings.Resolve(editedPointer), "visual override persists across catalog reload");
-            File.WriteAllBytes(Path.Combine(overrides, ProjectileFrameBindingFormat.FileName), new byte[] { 0 });
-            AssertThrows<InvalidDataException>(() => ProjectilePresentationFiles.Load(root, overrides),
-                "invalid frame-binding override fails loudly");
-        }
-        finally
-        {
-            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
-        }
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.ProjectileDirectory);
+        string stockDirectory = copy.Installation.ProjectileDirectory;
+        InstalledProjectilePresentation baseline = ProjectilePresentationFiles.Load(stockDirectory, null);
+        AssertEqual(originalSprite, baseline.FrameBindings.Resolve(editedPointer),
+            "installed stock frame binding selects native sprite");
+        string overrides = copy.Installation.ProjectileOverrideDirectory;
+        Directory.CreateDirectory(overrides);
+        File.WriteAllBytes(Path.Combine(overrides, ProjectileFrameBindingFormat.FileName), editedJson);
+        InstalledProjectilePresentation selected = ProjectilePresentationFiles.Load(stockDirectory, overrides);
+        AssertEqual(replacement, selected.FrameBindings.Resolve(editedPointer),
+            "installed visual override selects alternate sprite");
+        AssertTrue(baseline.SelectedSha256 != selected.SelectedSha256,
+            "visual frame override changes diagnostic content identity");
+        AssertEqual(replacement, ProjectilePresentationFiles.Load(stockDirectory, overrides)
+            .FrameBindings.Resolve(editedPointer), "visual override persists across catalog reload");
+        File.WriteAllBytes(Path.Combine(overrides, ProjectileFrameBindingFormat.FileName), new byte[] { 0 });
+        AssertThrows<InvalidDataException>(() => ProjectilePresentationFiles.Load(stockDirectory, overrides),
+            "invalid frame-binding override fails loudly");
         document.Frames.Remove(frameName);
         AssertThrows<InvalidDataException>(() => InstalledProjectileFrameBindings.Write(document),
             "missing timed frame fails before gameplay");

@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
@@ -58,89 +59,83 @@ internal static class SpeedBoosterVisualsVerification
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifySpeedBoosterStockVisualMapping), () => VerifySpeedBoosterStockVisualMapping(rom));
-        using var testRootScratch = new TestScratchDirectory("speed-booster-visual");
-        string testRoot = testRootScratch.Root;
-        try
-        {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmSpeedBoosterVisualFiles.Extract(rom,
-                installation.RoomPlmSpeedBoosterVisualDirectory,
-                SupportedCartridge.Sha256);
-            RoomPlmSpeedBoosterVisualFiles.ValidateStock(
-                installation.RoomPlmSpeedBoosterVisualDirectory);
-            PlmDraw drawPointer = SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw;
-            AssertEqual(RoomBlockAppearance.Of(0x0b6),
-                installation.LoadRoomPlmSpeedBoosterVisuals()
-                    .GetAppearance(drawPointer, 0, 0),
-                "stock bomb-reveal visual matches the cartridge");
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmSpeedBoosterVisualDirectory);
+        GameInstallation installation = copy.Installation;
+        RoomPlmSpeedBoosterVisualFiles.ValidateStock(
+            installation.RoomPlmSpeedBoosterVisualDirectory);
+        PlmDraw drawPointer = SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw;
+        AssertEqual(RoomBlockAppearance.Of(0x0b6),
+            installation.LoadRoomPlmSpeedBoosterVisuals()
+                .GetAppearance(drawPointer, 0, 0),
+            "stock bomb-reveal visual matches the cartridge");
 
-            string stockPath = Path.Combine(
-                installation.RoomPlmSpeedBoosterVisualDirectory,
-                RoomPlmSpeedBoosterVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted Speed Booster JSON is empty.");
-            document.Required("entries").Required(0).Required("blocks")[0] = PlmVisualJson.Appearance(0x058);
-            Directory.CreateDirectory(
-                installation.RoomPlmSpeedBoosterVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmSpeedBoosterVisualOverrideDirectory,
-                RoomPlmSpeedBoosterVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            InstalledRoomPlmSpeedBoosterVisuals edited =
-                installation.LoadRoomPlmSpeedBoosterVisuals();
-            AssertEqual(RoomBlockAppearance.Of(0x058), edited.GetAppearance(drawPointer, 0, 0),
-                "Speed Booster visual override is loaded");
+        string stockPath = Path.Combine(
+            installation.RoomPlmSpeedBoosterVisualDirectory,
+            RoomPlmSpeedBoosterVisualFiles.VisualFileName);
+        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
+            ?? throw new InvalidDataException("Extracted Speed Booster JSON is empty.");
+        document.Required("entries").Required(0).Required("blocks")[0] = PlmVisualJson.Appearance(0x058);
+        Directory.CreateDirectory(
+            installation.RoomPlmSpeedBoosterVisualOverrideDirectory);
+        string overridePath = Path.Combine(
+            installation.RoomPlmSpeedBoosterVisualOverrideDirectory,
+            RoomPlmSpeedBoosterVisualFiles.VisualFileName);
+        File.WriteAllText(overridePath, document.ToJsonString());
+        InstalledRoomPlmSpeedBoosterVisuals edited =
+            installation.LoadRoomPlmSpeedBoosterVisuals();
+        AssertEqual(RoomBlockAppearance.Of(0x058), edited.GetAppearance(drawPointer, 0, 0),
+            "Speed Booster visual override is loaded");
 
-            (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms,
-                int blockIndex) = CreateSpeedBoosterBlockFixture(
-                    new RoomBlockBehavior(0x82), AreaId.Brinstar);
-            PlmFixtures.VisualsOf(plms).RoomPlmSpeedBoosterVisuals = edited;
-            var guard = NewSpeedBoosterPlmReadGuard(bus);
-            AssertTrue(plms.BlockReactions.TrySpawnBombedSpecialBlock(level, blockIndex,
-                    new RoomBlockBehavior(0x82), AreaId.Brinstar, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
-                "bomb triggers the production Speed Booster reveal PLM");
-            plms.Step(level);
-            AssertEqual(RoomTerrainBlock.Of(0x0b6, BlockMirroring.None, RoomCollisionType.SpecialBlock),
-                level.GetCollisionBlockByIndex(blockIndex).Terrain,
-                "edited reveal retains compiled type-B physical level word");
-            // A PLM redraw identifies its block by the BG1 ring destination of that block.
-            AssertEqual(RoomBlockAppearance.Of(0x058), level.DisplayedAppearance(blockIndex),
-                "edited reveal reaches the immediate tilemap update");
-            AssertEqual(RoomBlockAppearance.Of(0x058),
-                level.DisplayedAppearance(blockIndex),
-                "edited reveal survives later camera streaming");
-            plms.Step(level);
-            AssertEqual(0, plms.SlotTable.ActiveCount,
-                "edited reveal retains native one-frame deletion");
-            AssertEqual(0, guard.ForbiddenReadAttempts,
-                "edited Speed Booster reveal reads no compiled ROM source bytes");
+        (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms,
+            int blockIndex) = CreateSpeedBoosterBlockFixture(
+                new RoomBlockBehavior(0x82), AreaId.Brinstar);
+        PlmFixtures.VisualsOf(plms).RoomPlmSpeedBoosterVisuals = edited;
+        var guard = NewSpeedBoosterPlmReadGuard(bus);
+        AssertTrue(plms.BlockReactions.TrySpawnBombedSpecialBlock(level, blockIndex,
+                new RoomBlockBehavior(0x82), AreaId.Brinstar, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
+            "bomb triggers the production Speed Booster reveal PLM");
+        plms.Step(level);
+        AssertEqual(RoomTerrainBlock.Of(0x0b6, BlockMirroring.None, RoomCollisionType.SpecialBlock),
+            level.GetCollisionBlockByIndex(blockIndex).Terrain,
+            "edited reveal retains compiled type-B physical level word");
+        // A PLM redraw identifies its block by the BG1 ring destination of that block.
+        AssertEqual(RoomBlockAppearance.Of(0x058), level.DisplayedAppearance(blockIndex),
+            "edited reveal reaches the immediate tilemap update");
+        AssertEqual(RoomBlockAppearance.Of(0x058),
+            level.DisplayedAppearance(blockIndex),
+            "edited reveal survives later camera streaming");
+        plms.Step(level);
+        AssertEqual(0, plms.SlotTable.ActiveCount,
+            "edited reveal retains native one-frame deletion");
+        AssertEqual(0, guard.ForbiddenReadAttempts,
+            "edited Speed Booster reveal reads no compiled ROM source bytes");
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmSpeedBoosterVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
-            AssertEqual(RoomBlockAppearance.Of(0x058),
-                RoomPlmSpeedBoosterVisualFiles.Load(refreshed,
-                    installation.RoomPlmSpeedBoosterVisualOverrideDirectory)
-                    .GetAppearance(drawPointer, 0, 0),
-                "override survives stock replacement");
-            document.Required("entries").Required(0).Required("blocks")[0] = 0xf058;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmSpeedBoosterVisuals(),
-                "override cannot change collision bits");
-            File.WriteAllText(stockPath, "{}");
-            AssertThrows<InvalidDataException>(
-                () => RoomPlmSpeedBoosterVisualFiles.ValidateStock(
-                    installation.RoomPlmSpeedBoosterVisualDirectory),
-                "stock tampering fails validation");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
-        }
+        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
+        AssertEqual(RoomBlockAppearance.Of(0x058),
+            ReExtractSpeedBoosterStock(rom, refreshed,
+                installation.RoomPlmSpeedBoosterVisualOverrideDirectory)
+                .GetAppearance(drawPointer, 0, 0),
+            "override survives stock replacement");
+        document.Required("entries").Required(0).Required("blocks")[0] = 0xf058;
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomPlmSpeedBoosterVisuals(),
+            "override cannot change collision bits");
+        File.WriteAllText(stockPath, "{}");
+        AssertThrows<InvalidDataException>(
+            () => RoomPlmSpeedBoosterVisualFiles.ValidateStock(
+                installation.RoomPlmSpeedBoosterVisualDirectory),
+            "stock tampering fails validation");
         Console.WriteLine(
             "Speed Booster visuals: native reveal parity, live edit, physical isolation, stock repair and strict failures pass.");
+    }
+
+    /// <summary>Extracts stock Speed Booster block visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmSpeedBoosterVisualFiles.Extract into a fresh stock directory beside the copy's Speed Booster override, to check that a stock replacement keeps the edited bomb-reveal frame (appearance 058) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static InstalledRoomPlmSpeedBoosterVisuals ReExtractSpeedBoosterStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmSpeedBoosterVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmSpeedBoosterVisualFiles.Load(refreshed, overrides);
     }
 
     /// <summary>Runs the focused Speed Booster reveal artwork check against the retail ROM.</summary>

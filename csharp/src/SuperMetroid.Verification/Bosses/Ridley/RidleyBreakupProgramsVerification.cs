@@ -13,7 +13,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -21,7 +20,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 /// <summary>Checks Ridley's death breakup fragments, instruction programs, installed OAM, and expiry.</summary>

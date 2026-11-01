@@ -48,7 +48,6 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Pause;

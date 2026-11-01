@@ -34,7 +34,6 @@ using SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
@@ -45,7 +44,7 @@ using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.SaveStation.Artwork;
-using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 /// <summary>Checks native PLM population order, resident doors, stations and escape-room controllers.</summary>

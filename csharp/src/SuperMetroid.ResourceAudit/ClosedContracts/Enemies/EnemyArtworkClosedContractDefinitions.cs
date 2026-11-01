@@ -1,5 +1,3 @@
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
-
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
 /// <summary>Complete ordinary sheet/palette admission.</summary>

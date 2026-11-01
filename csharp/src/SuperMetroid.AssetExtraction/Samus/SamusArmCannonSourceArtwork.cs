@@ -2,12 +2,11 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;

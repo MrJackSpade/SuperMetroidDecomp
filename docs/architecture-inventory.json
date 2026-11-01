@@ -20046,6 +20046,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/Artwork/RoomCharacterAtlas.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlasFormat",
       "kind": "static class",
       "scope": "product",
@@ -100800,19 +100813,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Artwork.RoomCharacterAtlas",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomCharacterAtlas.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.Artwork.RoomCharacterAtlasAccess",
       "kind": "static class",
       "scope": "test",
@@ -100829,7 +100829,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Artwork.RoomCharacterAtlasAccess.extension(SuperMetroid.Core.Rooms.Artwork.RoomCharacterAtlas)",
+      "type": "SuperMetroid.Core.Rooms.Artwork.RoomCharacterAtlasAccess.extension(SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas)",
       "kind": "class",
       "scope": "test",
       "assemblies": [

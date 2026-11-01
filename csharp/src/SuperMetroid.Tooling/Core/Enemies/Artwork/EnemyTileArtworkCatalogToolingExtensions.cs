@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Artwork;

@@ -4,7 +4,6 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -12,7 +11,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 /// <summary>Checks Crocomire's wall-rumble cursor records and death-sequence timing against retail data.</summary>

@@ -1,5 +1,3 @@
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
-
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 
 /// <summary>Complete source and page-size admission for fixed Mother Brain transfer sheets.</summary>

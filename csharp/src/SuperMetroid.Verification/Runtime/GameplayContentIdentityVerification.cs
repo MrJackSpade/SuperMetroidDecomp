@@ -4,7 +4,6 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Video;

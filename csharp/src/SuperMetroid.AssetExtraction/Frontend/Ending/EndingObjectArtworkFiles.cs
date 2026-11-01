@@ -5,13 +5,12 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;

@@ -9,7 +9,6 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -17,7 +16,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 

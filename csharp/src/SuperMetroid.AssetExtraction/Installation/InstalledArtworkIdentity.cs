@@ -1,9 +1,8 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
-using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Installation;

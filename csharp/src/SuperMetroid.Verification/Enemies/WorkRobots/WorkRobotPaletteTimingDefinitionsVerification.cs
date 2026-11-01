@@ -4,7 +4,6 @@ using System.Text.Json;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -12,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.WorkRobots;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 /// <summary>Checks the Work Robot's palette record timing and installed colors against bank A3.</summary>

@@ -8,11 +8,10 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Kzan;
 using SuperMetroid.Core.Enemies.Polyp;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationOracles;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;

@@ -10,7 +10,6 @@ using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Areas.Ceres;
@@ -20,7 +19,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 /// <summary>Checks Ceres escape VRAM descriptors and installed timer and Japanese overlay transfers.</summary>

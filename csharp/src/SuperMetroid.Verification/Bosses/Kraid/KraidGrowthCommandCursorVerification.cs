@@ -5,14 +5,13 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidHeadInstructionsVerific
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 /// <summary>Checks Kraid's growth transition when a head command is interrupted by a foot lunge.</summary>

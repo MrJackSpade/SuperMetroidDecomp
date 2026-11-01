@@ -8,7 +8,6 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.Drawing;

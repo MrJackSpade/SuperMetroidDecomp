@@ -1,5 +1,3 @@
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
-
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 
 /// <summary>Complete placement/composition domains, separate from editable DMA frame-selector closure.</summary>

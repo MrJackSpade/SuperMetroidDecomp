@@ -157,7 +157,7 @@ public static class SpriteSheetFiles
             SpriteSheetId.ProjectilesPlasmaWave or SpriteSheetId.ProjectilesPlasmaIce or
             SpriteSheetId.ProjectilesPlasmaIceWave or SpriteSheetId.ProjectilesSpazerPlasmaWave or
             SpriteSheetId.ProjectilesSpazerPlasmaIce =>
-            ProjectileSheetFrames.Frames,
+            ProjectileSheetComposer.Frames,
         _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
     };
 

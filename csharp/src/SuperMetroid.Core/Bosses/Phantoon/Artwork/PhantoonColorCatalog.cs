@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 /// </summary>
 public sealed class PhantoonColorCatalog
 {
-    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    /// <summary>Canonical selected RGB5 colors and ordered fade, power-on and health-band colours, independent of JSON encoding.</summary>
     public string ContentIdentity => PhantoonColors.ContentIdentity(this);
 
     /// <summary>The selected health, fade-out and ship-power deviations.</summary>

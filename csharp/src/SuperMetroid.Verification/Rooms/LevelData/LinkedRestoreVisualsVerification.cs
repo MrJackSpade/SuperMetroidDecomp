@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Rooms.LevelData;
@@ -86,75 +87,69 @@ internal static class LinkedRestoreVisualsVerification
         SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyLinkedRestoreStockMapping), () => VerifyLinkedRestoreStockMapping(rom));
-        using var testRootScratch = new TestScratchDirectory("linked-restore-visual");
-        string testRoot = testRootScratch.Root;
-        try
-        {
-            var installation = new GameInstallation(testRoot);
-            // Extraction checks all six compiled row shapes, full physical words,
-            // and signed offsets against this pinned retail cartridge.
-            RoomPlmLinkedRestoreVisualFiles.Extract(rom,
-                installation.RoomPlmLinkedRestoreVisualDirectory,
-                SupportedCartridge.Sha256);
-            RoomPlmLinkedRestoreVisualFiles.ValidateStock(
-                installation.RoomPlmLinkedRestoreVisualDirectory);
-            AssertEqual(RoomBlockAppearance.Of(0x058),
-                installation.LoadRoomPlmLinkedRestoreVisuals().GetAppearance(
-                    PlmDraw.Of(BombBlockRestoreDraw.Horizontal), 0, 0),
-                "stock bomb restore selects cartridge block 058");
-            AssertEqual(RoomBlockAppearance.Of(0x0bc),
-                installation.LoadRoomPlmLinkedRestoreVisuals().GetAppearance(
-                    PlmDraw.Of(ContactCrumbleRestoreDraw.Horizontal), 0, 0),
-                "stock crumble restore selects cartridge block 0BC");
-            AssertThrows<InvalidDataException>(
-                () => new InstalledRoomPlmLinkedRestoreVisuals(
-                    [new RoomPlmVisualEntry("bomb-horizontal",
-                        new RoomBlockAppearance[2])]),
-                "restore catalog rejects missing linked layouts");
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmLinkedRestoreVisualDirectory);
+        GameInstallation installation = copy.Installation;
+        // The installer's extraction checked all six compiled row shapes, full physical
+        // words, and signed offsets against the pinned retail cartridge.
+        RoomPlmLinkedRestoreVisualFiles.ValidateStock(
+            installation.RoomPlmLinkedRestoreVisualDirectory);
+        AssertEqual(RoomBlockAppearance.Of(0x058),
+            installation.LoadRoomPlmLinkedRestoreVisuals().GetAppearance(
+                PlmDraw.Of(BombBlockRestoreDraw.Horizontal), 0, 0),
+            "stock bomb restore selects cartridge block 058");
+        AssertEqual(RoomBlockAppearance.Of(0x0bc),
+            installation.LoadRoomPlmLinkedRestoreVisuals().GetAppearance(
+                PlmDraw.Of(ContactCrumbleRestoreDraw.Horizontal), 0, 0),
+            "stock crumble restore selects cartridge block 0BC");
+        AssertThrows<InvalidDataException>(
+            () => new InstalledRoomPlmLinkedRestoreVisuals(
+                [new RoomPlmVisualEntry("bomb-horizontal",
+                    new RoomBlockAppearance[2])]),
+            "restore catalog rejects missing linked layouts");
 
-            string stockPath = Path.Combine(
-                installation.RoomPlmLinkedRestoreVisualDirectory,
-                RoomPlmLinkedRestoreVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted restore JSON is empty.");
-            JsonNode bomb = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "bomb-horizontal");
-            bomb.Required("blocks")[0] = PlmVisualJson.Appearance(0x053);
-            Directory.CreateDirectory(
-                installation.RoomPlmLinkedRestoreVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmLinkedRestoreVisualOverrideDirectory,
-                RoomPlmLinkedRestoreVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual(RoomBlockAppearance.Of(0x053),
-                installation.LoadRoomPlmLinkedRestoreVisuals().GetAppearance(
-                    PlmDraw.Of(BombBlockRestoreDraw.Horizontal), 0, 0),
-                "installed restore override selects edited block");
+        string stockPath = Path.Combine(
+            installation.RoomPlmLinkedRestoreVisualDirectory,
+            RoomPlmLinkedRestoreVisualFiles.VisualFileName);
+        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
+            ?? throw new InvalidDataException("Extracted restore JSON is empty.");
+        JsonNode bomb = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+            entry.Required("id").GetValue<string>() == "bomb-horizontal");
+        bomb.Required("blocks")[0] = PlmVisualJson.Appearance(0x053);
+        Directory.CreateDirectory(
+            installation.RoomPlmLinkedRestoreVisualOverrideDirectory);
+        string overridePath = Path.Combine(
+            installation.RoomPlmLinkedRestoreVisualOverrideDirectory,
+            RoomPlmLinkedRestoreVisualFiles.VisualFileName);
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertEqual(RoomBlockAppearance.Of(0x053),
+            installation.LoadRoomPlmLinkedRestoreVisuals().GetAppearance(
+                PlmDraw.Of(BombBlockRestoreDraw.Horizontal), 0, 0),
+            "installed restore override selects edited block");
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmLinkedRestoreVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
-            AssertEqual(RoomBlockAppearance.Of(0x053),
-                RoomPlmLinkedRestoreVisualFiles.Load(refreshed,
-                    installation.RoomPlmLinkedRestoreVisualOverrideDirectory)
-                    .GetAppearance(PlmDraw.Of(BombBlockRestoreDraw.Horizontal), 0, 0),
-                "restore override survives stock replacement");
-            bomb.Required("blocks")[0] = 0xf053;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmLinkedRestoreVisuals(),
-                "restore override rejects physical collision bits");
-            File.WriteAllText(stockPath, "{}");
-            AssertThrows<InvalidDataException>(
-                () => RoomPlmLinkedRestoreVisualFiles.ValidateStock(
-                    installation.RoomPlmLinkedRestoreVisualDirectory),
-                "tampered restore stock fails manifest validation");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
-        }
+        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
+        AssertEqual(RoomBlockAppearance.Of(0x053),
+            ReExtractLinkedRestoreStock(rom, refreshed,
+                installation.RoomPlmLinkedRestoreVisualOverrideDirectory)
+                .GetAppearance(PlmDraw.Of(BombBlockRestoreDraw.Horizontal), 0, 0),
+            "restore override survives stock replacement");
+        bomb.Required("blocks")[0] = 0xf053;
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomPlmLinkedRestoreVisuals(),
+            "restore override rejects physical collision bits");
+        File.WriteAllText(stockPath, "{}");
+        AssertThrows<InvalidDataException>(
+            () => RoomPlmLinkedRestoreVisualFiles.ValidateStock(
+                installation.RoomPlmLinkedRestoreVisualDirectory),
+            "tampered restore stock fails manifest validation");
+    }
+
+    /// <summary>Extracts stock linked block-restore visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmLinkedRestoreVisualFiles.Extract into a fresh stock directory beside the copy's restore override, to check that a stock replacement keeps the edited horizontal bomb-block restore (appearance 053) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static InstalledRoomPlmLinkedRestoreVisuals ReExtractLinkedRestoreStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmLinkedRestoreVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmLinkedRestoreVisualFiles.Load(refreshed, overrides);
     }
 
     /// <summary>Runs a real linked bomb or crumble PLM with edited appearance, ensuring its physical parent word stays native.</summary>

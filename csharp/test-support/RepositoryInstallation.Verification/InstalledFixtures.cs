@@ -239,6 +239,15 @@ internal static class InstalledFixtures
     /// </summary>
     internal static PrivateInstallationCopy CreatePrivateCopy() => new(RepositoryInstallation.Installation.Root);
 
+    /// <summary>
+    /// A private installation holding copies of only the installation's <paramref name="directories"/>, for a check that
+    /// writes overrides into or corrupts the stock files of those content families alone; copying a family or two costs
+    /// a sliver of copying the whole installation. Disposal deletes it.
+    /// </summary>
+    /// <param name="directories">Selects each directory to copy, such as <c>installation =&gt; installation.MapDirectory</c>.</param>
+    internal static PrivateInstallationCopy CreatePrivateCopyOf(params Func<GameInstallation, string>[] directories) =>
+        new(RepositoryInstallation.Installation, directories);
+
     /// <summary>Binds the host catalogs to a game restored from a save or debugger state.</summary>
     internal static void BindGame(SuperMetroidGame game) => gameBindings.Value(game);
 

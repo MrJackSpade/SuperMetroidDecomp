@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
@@ -117,57 +118,52 @@ internal static class CollectibleVisualsVerification
     /// <summary>Checks extracted stock, selected tank-frame overrides, replacement stock, and invalid visual bits.</summary>
     private static void VerifyCollectibleVisualInstallation(SuperMetroidAddressSpace rom)
     {
-        using var testRootScratch = new TestScratchDirectory("collectible-visual");
-        string testRoot = testRootScratch.Root;
-        try
-        {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmCollectibleVisualFiles.Extract(rom,
-                installation.RoomPlmCollectibleVisualDirectory,
-                SupportedCartridge.Sha256);
-            RoomPlmCollectibleVisualFiles.ValidateStock(
-                installation.RoomPlmCollectibleVisualDirectory);
-            ushort pointer = PlmDrawSourceDefinitions.CollectibleTankFirst.Offset;
-            VerifyCollectibleStockMapping(rom, installation.LoadRoomPlmCollectibleVisuals());
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmCollectibleVisualDirectory);
+        GameInstallation installation = copy.Installation;
+        RoomPlmCollectibleVisualFiles.ValidateStock(
+            installation.RoomPlmCollectibleVisualDirectory);
+        ushort pointer = PlmDrawSourceDefinitions.CollectibleTankFirst.Offset;
+        VerifyCollectibleStockMapping(rom, installation.LoadRoomPlmCollectibleVisuals());
 
-            string stockPath = Path.Combine(installation.RoomPlmCollectibleVisualDirectory,
-                RoomPlmCollectibleVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted collectible JSON is empty.");
-            JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "energy-tank-0");
-            frame["appearance"] = PlmVisualJson.Appearance(0x053);
-            Directory.CreateDirectory(installation.RoomPlmCollectibleVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmCollectibleVisualOverrideDirectory,
-                RoomPlmCollectibleVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual(RoomBlockAppearance.Of(0x053),
-                installation.LoadRoomPlmCollectibleVisuals().GetAppearance(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(pointer)),
-                "collectible visual override selects edited tank frame");
+        string stockPath = Path.Combine(installation.RoomPlmCollectibleVisualDirectory,
+            RoomPlmCollectibleVisualFiles.VisualFileName);
+        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
+            ?? throw new InvalidDataException("Extracted collectible JSON is empty.");
+        JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+            entry.Required("id").GetValue<string>() == "energy-tank-0");
+        frame["appearance"] = PlmVisualJson.Appearance(0x053);
+        Directory.CreateDirectory(installation.RoomPlmCollectibleVisualOverrideDirectory);
+        string overridePath = Path.Combine(
+            installation.RoomPlmCollectibleVisualOverrideDirectory,
+            RoomPlmCollectibleVisualFiles.VisualFileName);
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertEqual(RoomBlockAppearance.Of(0x053),
+            installation.LoadRoomPlmCollectibleVisuals().GetAppearance(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(pointer)),
+            "collectible visual override selects edited tank frame");
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmCollectibleVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-            AssertEqual(RoomBlockAppearance.Of(0x053),
-                RoomPlmCollectibleVisualFiles.Load(refreshed,
-                    installation.RoomPlmCollectibleVisualOverrideDirectory).GetAppearance(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(pointer)),
-                "collectible override survives stock replacement");
+        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
+        AssertEqual(RoomBlockAppearance.Of(0x053),
+            ReExtractCollectibleStock(rom, refreshed,
+                installation.RoomPlmCollectibleVisualOverrideDirectory).GetAppearance(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(pointer)),
+            "collectible override survives stock replacement");
 
-            frame["appearance"] = 0xf053;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmCollectibleVisuals(),
-                "collectible override rejects collision-bit edits");
-            File.WriteAllText(stockPath, "{}");
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmCollectibleVisuals(),
-                "collectible stock manifest rejects corruption");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
-        }
+        frame["appearance"] = 0xf053;
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomPlmCollectibleVisuals(),
+            "collectible override rejects collision-bit edits");
+        File.WriteAllText(stockPath, "{}");
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomPlmCollectibleVisuals(),
+            "collectible stock manifest rejects corruption");
+    }
+
+    /// <summary>Extracts stock collectible visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmCollectibleVisualFiles.Extract into a fresh stock directory beside the copy's collectible override, to check that a stock replacement keeps the edited first tank frame (appearance 053) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static InstalledRoomPlmCollectibleVisuals ReExtractCollectibleStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmCollectibleVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmCollectibleVisualFiles.Load(refreshed, overrides);
     }
 
     /// <summary>Reads one collectible draw word from bank 84 for the native comparison.</summary>

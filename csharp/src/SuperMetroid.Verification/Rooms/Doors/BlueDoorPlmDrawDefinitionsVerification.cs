@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
@@ -120,62 +121,58 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
     private static ushort BlueEntry(BlueDoorProgram program) =>
         DoorPlmNativeListAddresses.BlueEntries.Single(entry => entry.Program == program).Entry;
 
-    /// <summary>Checks stock extraction and persistent visual override loading, including invalid artwork and stock tampering.</summary>
+    /// <summary>Checks installed stock and persistent visual override loading, including invalid artwork and stock tampering.</summary>
     private static void VerifyBlueDoorVisualInstallation(
         SuperMetroidAddressSpace rom, ushort firstDraw)
     {
-        using var testRootScratch = new TestScratchDirectory("blue-door-visual");
-        string testRoot = testRootScratch.Root;
-        try
-        {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmBlueDoorVisualFiles.Extract(rom,
-                installation.RoomPlmBlueDoorVisualDirectory, SupportedCartridge.Sha256);
-            RoomPlmBlueDoorVisualFiles.ValidateStock(
-                installation.RoomPlmBlueDoorVisualDirectory);
-            var installed = installation.LoadRoomPlmBlueDoorVisuals();
-            VerifyBlueDoorStockMapping(rom, installed);
-            RoomBlockAppearance stock = installed.GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), 0);
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmBlueDoorVisualDirectory);
+        GameInstallation installation = copy.Installation;
+        RoomPlmBlueDoorVisualFiles.ValidateStock(
+            installation.RoomPlmBlueDoorVisualDirectory);
+        var installed = installation.LoadRoomPlmBlueDoorVisuals();
+        VerifyBlueDoorStockMapping(rom, installed);
+        RoomBlockAppearance stock = installed.GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), 0);
 
-            string stockPath = Path.Combine(installation.RoomPlmBlueDoorVisualDirectory,
-                RoomPlmBlueDoorVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted blue-door JSON is empty.");
-            JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "left-frame-1");
-            frame.Required("blocks")[0] = PlmVisualJson.Appearance(0x053);
-            Directory.CreateDirectory(installation.RoomPlmBlueDoorVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmBlueDoorVisualOverrideDirectory,
-                RoomPlmBlueDoorVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual(RoomBlockAppearance.Of(0x053),
-                installation.LoadRoomPlmBlueDoorVisuals().GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), 0),
-                "installed blue-door override changes the selected frame");
+        string stockPath = Path.Combine(installation.RoomPlmBlueDoorVisualDirectory,
+            RoomPlmBlueDoorVisualFiles.VisualFileName);
+        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
+            ?? throw new InvalidDataException("Extracted blue-door JSON is empty.");
+        JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+            entry.Required("id").GetValue<string>() == "left-frame-1");
+        frame.Required("blocks")[0] = PlmVisualJson.Appearance(0x053);
+        Directory.CreateDirectory(installation.RoomPlmBlueDoorVisualOverrideDirectory);
+        string overridePath = Path.Combine(
+            installation.RoomPlmBlueDoorVisualOverrideDirectory,
+            RoomPlmBlueDoorVisualFiles.VisualFileName);
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertEqual(RoomBlockAppearance.Of(0x053),
+            installation.LoadRoomPlmBlueDoorVisuals().GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), 0),
+            "installed blue-door override changes the selected frame");
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmBlueDoorVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-            AssertEqual(RoomBlockAppearance.Of(0x053),
-                RoomPlmBlueDoorVisualFiles.Load(refreshed,
-                    installation.RoomPlmBlueDoorVisualOverrideDirectory).GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), 0),
-                "blue-door override survives stock replacement");
+        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
+        AssertEqual(RoomBlockAppearance.Of(0x053),
+            ReExtractBlueDoorStock(rom, refreshed,
+                installation.RoomPlmBlueDoorVisualOverrideDirectory).GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), 0),
+            "blue-door override survives stock replacement");
 
-            frame.Required("blocks")[0] = 0xf053;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmBlueDoorVisuals(),
-                "invalid blue-door override fails loudly");
-            frame.Required("blocks")[0] = PlmVisualJson.Appearance(stock);
-            File.WriteAllText(stockPath, "{}");
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmBlueDoorVisuals(),
-                "tampered blue-door stock fails manifest validation");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
-        }
+        frame.Required("blocks")[0] = 0xf053;
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomPlmBlueDoorVisuals(),
+            "invalid blue-door override fails loudly");
+        frame.Required("blocks")[0] = PlmVisualJson.Appearance(stock);
+        File.WriteAllText(stockPath, "{}");
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomPlmBlueDoorVisuals(),
+            "tampered blue-door stock fails manifest validation");
+    }
+
+    /// <summary>Extracts stock blue-door cap visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmBlueDoorVisualFiles.Extract into a fresh stock directory beside the copy's blue-door override, to check that a stock replacement keeps the edited left-frame-1 block (appearance 053) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static InstalledRoomPlmBlueDoorVisuals ReExtractBlueDoorStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmBlueDoorVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmBlueDoorVisualFiles.Load(refreshed, overrides);
     }
 
     /// <summary>Forbids production reads from compiled blue-door instructions and all selected draw-list payloads.</summary>

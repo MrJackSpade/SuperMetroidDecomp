@@ -22,6 +22,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusOverreadDecoding
 {
+    /// <summary>
+    /// The drained poses a Shinespark crash can finish in: Mother Brain's drain replaces the crash pose with a drained
+    /// crouch while the crash keeps running.
+    /// </summary>
+    internal static readonly SamusPoseId[] DrainedCrashPoses = [SamusPoseId.DrainedCrouchingRightPose, SamusPoseId.DrainedCrouchingLeftPose];
+
     /// <summary>Decodes every glitch read into the installed document.</summary>
     internal static SamusOverreadDocument Decode(IImportCartridgeSource cartridge)
     {
@@ -40,12 +46,6 @@ internal static class SamusOverreadDecoding
             DrainedCrashDepartures(cartridge),
             ChainsawPaletteColours(cartridge));
     }
-
-    /// <summary>
-    /// The drained poses a Shinespark crash can finish in: Mother Brain's drain replaces the crash pose with a drained
-    /// crouch while the crash keeps running.
-    /// </summary>
-    internal static readonly SamusPoseId[] DrainedCrashPoses = [SamusPoseId.DrainedCrouchingRightPose, SamusPoseId.DrainedCrouchingLeftPose];
 
     /// <summary>
     /// Each pose's program's successor in the cartridge's layout of the animation programs: the program whose first

@@ -527,9 +527,8 @@ internal sealed class BeamFiring
         int direction = slot.Direction.ToAimIndex();
         bool diagonal = direction is 1 or 3 or 6 or 8;
         SamusBeamCombination beams = slot.Type.BeamCombination;
-        int speed = beams.IsRetail
-            ? diagonal ? SamusProjectileMotionDefinitions.DiagonalSpeed : SamusProjectileMotionDefinitions.CardinalSpeed
-            : unauthoredSpeeds.Speed(beams, diagonal);
+        int authoredSpeed = diagonal ? SamusProjectileMotionDefinitions.DiagonalSpeed : SamusProjectileMotionDefinitions.CardinalSpeed;
+        int speed = beams.IsRetail ? authoredSpeed : unauthoredSpeeds.Speed(beams, diagonal);
 
         InitializeDirectionalVelocity(inheritance, slot, speed);
     }

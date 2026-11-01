@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Skultera.SkulteraNativeListAddresses;
 using SuperMetroid.Core.Enemies.Skultera;
 using SuperMetroid.Core.Enemies.Skultera.Artwork;

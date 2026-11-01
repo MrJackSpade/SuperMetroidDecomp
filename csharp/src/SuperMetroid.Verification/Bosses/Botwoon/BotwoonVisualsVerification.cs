@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -8,7 +9,6 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.TestSupport.VerificationOracles;
 
 namespace SuperMetroid.Verification.Bosses.Botwoon;
 

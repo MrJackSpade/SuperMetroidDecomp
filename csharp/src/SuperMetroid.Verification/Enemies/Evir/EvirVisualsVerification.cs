@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.Core.Hardware;
@@ -8,7 +9,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Evir;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Evir;

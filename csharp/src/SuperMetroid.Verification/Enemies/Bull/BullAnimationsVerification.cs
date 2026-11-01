@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Bull.BullNativeListAddresses;
 using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Enemies.Bull.Artwork;

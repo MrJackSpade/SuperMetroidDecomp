@@ -1,6 +1,5 @@
-using SuperMetroid.Verification.Bosses.MotherBrain;
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 

@@ -1,10 +1,10 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Metroids;

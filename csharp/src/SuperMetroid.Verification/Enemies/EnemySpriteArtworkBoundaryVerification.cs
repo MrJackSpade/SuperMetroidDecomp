@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using System.Reflection;

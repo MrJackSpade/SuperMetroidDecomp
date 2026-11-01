@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;

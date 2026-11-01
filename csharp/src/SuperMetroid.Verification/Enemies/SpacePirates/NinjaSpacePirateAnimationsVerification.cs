@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.SpacePirates.NinjaSpacePirateNativeListAddresses;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;

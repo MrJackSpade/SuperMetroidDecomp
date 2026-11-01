@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Zoa.ZoaNativeListAddresses;
 using SuperMetroid.Core.Enemies.Zoa;
 using SuperMetroid.Core.Enemies.Zoa.Artwork;

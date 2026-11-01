@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Diagnostics.Saves;
@@ -26,7 +27,6 @@ using static SuperMetroid.Verification.Frontend.Ending.Artwork.EndingTextPresent
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkBotwoonColorsVerification;
 using static SuperMetroid.Verification.Fx.PaletteFx.PaletteFxInstructionCodesVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
-using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Botwoon;

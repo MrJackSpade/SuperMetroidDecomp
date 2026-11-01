@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoNativeListAddresses;
 using SuperMetroid.Core.Enemies.Puyo;
 using SuperMetroid.Core.Enemies.Puyo.Artwork;

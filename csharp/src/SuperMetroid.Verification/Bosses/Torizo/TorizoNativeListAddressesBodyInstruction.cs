@@ -1,5 +1,5 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;
 

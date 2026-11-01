@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Boulder.BoulderNativeListAddresses;
 using SuperMetroid.Core.Enemies.Boulder;
 using SuperMetroid.Core.Enemies.Boulder.Artwork;

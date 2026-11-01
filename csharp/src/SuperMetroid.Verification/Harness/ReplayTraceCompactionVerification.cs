@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Security.Cryptography;

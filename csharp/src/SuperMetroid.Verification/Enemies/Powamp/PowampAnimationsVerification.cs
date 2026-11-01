@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Powamp.PowampNativeListAddresses;
 using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.Core.Enemies.Powamp.Artwork;

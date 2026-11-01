@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockNativeListAddresses;
 using SuperMetroid.Core.Enemies.FaceBlocks;
 using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;

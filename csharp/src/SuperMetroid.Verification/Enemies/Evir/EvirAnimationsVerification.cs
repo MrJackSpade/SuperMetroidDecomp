@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Evir.EvirNativeListAddresses;
 using SuperMetroid.Core.Enemies.Evir;
 using SuperMetroid.Core.Enemies.Evir.Artwork;

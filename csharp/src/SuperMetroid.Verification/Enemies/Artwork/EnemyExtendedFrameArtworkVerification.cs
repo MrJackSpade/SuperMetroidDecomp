@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -27,7 +28,6 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Bosses.Artwork;

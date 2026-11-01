@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Elevator.ElevatorNativeListAddresses;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;

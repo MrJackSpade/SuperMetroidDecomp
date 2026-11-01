@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -7,11 +8,8 @@ using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Frontend.Options;
-using SuperMetroid.Verification.Enemies.Projectiles;
-using SuperMetroid.Verification.Enemies.Deaths;
 using SuperMetroid.Verification.Enemies.Shaktool;
 using SuperMetroid.Verification.Enemies.Sparks;
-using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -65,7 +63,6 @@ using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Core.Progression;
-using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.World;

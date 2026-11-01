@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Owtch;
 namespace SuperMetroid.Verification.Enemies.Owtch;

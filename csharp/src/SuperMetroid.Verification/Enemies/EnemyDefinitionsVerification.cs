@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -10,7 +11,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies;
-using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;

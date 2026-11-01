@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Fireflea.FirefleaNativeListAddresses;
 using SuperMetroid.Core.Enemies.Fireflea;
 using SuperMetroid.Core.Enemies.Fireflea.Artwork;

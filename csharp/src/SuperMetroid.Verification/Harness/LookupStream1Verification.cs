@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -7,7 +8,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Areas.Escape.Artwork;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Verification.Enemies.Cacatac;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Verification.Enemies.Dragon;

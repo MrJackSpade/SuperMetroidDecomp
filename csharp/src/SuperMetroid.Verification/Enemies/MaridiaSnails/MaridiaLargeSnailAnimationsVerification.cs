@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.MaridiaSnails.MaridiaLargeSnailNativeListAddresses;
 using SuperMetroid.Core.Enemies.MaridiaSnails;
 using SuperMetroid.Core.Enemies.MaridiaSnails.Artwork;

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireNativeListAddresses;
@@ -11,7 +12,6 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
-using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 

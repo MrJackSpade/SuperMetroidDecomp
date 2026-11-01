@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
@@ -43,7 +44,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         var executedOperands = new HashSet<ushort>();
         var guard = NewTourianStatueProjectileInstructionReadGuard(rom);
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
-            TourianStatueProjectileAnimationsVerification.Family.NativePointers(CartridgeImportSource.Require(rom));
+            TourianStatueProjectileNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
         enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         enemies.VerificationServices().NextRandom = () => 4;

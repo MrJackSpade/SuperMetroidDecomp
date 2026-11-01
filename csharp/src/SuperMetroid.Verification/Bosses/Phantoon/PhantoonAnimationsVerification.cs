@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonNativeListAddresses;
@@ -12,7 +13,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 
-using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core;
 using SuperMetroid.Core.World;

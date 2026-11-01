@@ -11,7 +11,7 @@ using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Plms.BossRoomPlmNativeListAddresses;
-using static SuperMetroid.Verification.Rooms.Plms.NativePlmListDefinitions;
+using static SuperMetroid.TestSupport.MovieReplay.NativePlmListDefinitions;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
 

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using System.Text;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 

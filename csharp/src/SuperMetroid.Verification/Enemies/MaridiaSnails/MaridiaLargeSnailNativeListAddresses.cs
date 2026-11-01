@@ -1,4 +1,4 @@
-using SuperMetroid.Verification.Bosses.MotherBrain;
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Enemies.MaridiaSnails;
 
 namespace SuperMetroid.Verification.Enemies.MaridiaSnails;

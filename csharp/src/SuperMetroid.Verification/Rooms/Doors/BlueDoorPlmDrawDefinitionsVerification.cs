@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;

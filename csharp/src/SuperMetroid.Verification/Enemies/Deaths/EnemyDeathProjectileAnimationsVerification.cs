@@ -1,7 +1,4 @@
-using SuperMetroid.AssetExtraction.Enemies;
-using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectileNativeListAddresses;
-using SuperMetroid.Core.Enemies.Deaths;
-using SuperMetroid.Core.Enemies.Deaths.Artwork;
+using static SuperMetroid.TestSupport.MovieReplay.EnemyDeathProjectileNativeListAddresses;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Deaths;
@@ -9,9 +6,6 @@ namespace SuperMetroid.Verification.Enemies.Deaths;
 /// <summary>#641: an enemy's death explosion and drop typed programs, each matched step by step to its native bank-$86 list.</summary>
 internal static class EnemyDeathProjectileAnimationsVerification
 {
-    /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EnemyDeathProjectileAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[frame])), EnemyDeathProjectileCueRules.Rules);
-
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyEnemyDeathProjectileAnimations(SuperMetroidAddressSpace rom)
     {

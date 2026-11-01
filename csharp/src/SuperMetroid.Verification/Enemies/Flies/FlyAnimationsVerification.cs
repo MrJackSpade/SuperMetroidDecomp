@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Flies.FlyNativeListAddresses;
 using SuperMetroid.Core.Enemies.Flies;
 using SuperMetroid.Core.Enemies.Flies.Artwork;

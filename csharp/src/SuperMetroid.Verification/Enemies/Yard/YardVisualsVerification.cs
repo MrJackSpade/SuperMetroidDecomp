@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -7,7 +8,6 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Yard;

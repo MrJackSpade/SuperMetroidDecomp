@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheNativeListAddresses;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;

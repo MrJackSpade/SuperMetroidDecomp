@@ -953,7 +953,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         Path.GetFullPath("Super Metroid.smc"));
     ushort initialRidleyMap = CartridgeImportSource.Require(nativeRidleyRom).ReadCartridgeWord(0xa6e53e);
     AssertEqual(initialRidleyMap, ridley.SpritemapPointer, "Ceres Ridley left-facing initial map");
-    AssertEqual(0xe540, new SuperMetroid.Verification.Bosses.Ridley.RidleyNativeInstructionPointers(
+    AssertEqual(0xe540, new SuperMetroid.TestSupport.MovieReplay.RidleyNativeInstructionPointers(
         CartridgeImportSource.Require(nativeRidleyRom)).Body(state), "Ceres Ridley initial list sleeps");
 
     for (int frame = 0; frame < 512; frame++)

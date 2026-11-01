@@ -1,8 +1,8 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Bosses.MotherBrain.RinkaNativeListAddresses;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 

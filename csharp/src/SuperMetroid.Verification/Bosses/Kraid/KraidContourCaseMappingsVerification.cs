@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidBodyContourVerification;
 using SuperMetroid.Core.Bosses.Kraid;

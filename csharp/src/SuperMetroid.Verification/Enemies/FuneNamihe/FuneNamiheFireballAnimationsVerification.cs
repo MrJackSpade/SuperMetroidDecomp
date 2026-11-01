@@ -1,5 +1,6 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Enemies;
-using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheFireballNativeListAddresses;
+using static SuperMetroid.TestSupport.MovieReplay.FuneNamiheFireballNativeListAddresses;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -9,9 +10,6 @@ namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 /// <summary>#641: Fune and Namihe's fireball typed programs, each matched step by step to its native bank-$86 list.</summary>
 internal static class FuneNamiheFireballAnimationsVerification
 {
-    /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, FuneNamiheFireballAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
-
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyFuneNamiheFireballAnimations(SuperMetroidAddressSpace rom)
     {

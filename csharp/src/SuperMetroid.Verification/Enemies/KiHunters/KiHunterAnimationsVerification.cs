@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.KiHunters.KiHunterNativeListAddresses;
 using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Enemies.KiHunters.Artwork;

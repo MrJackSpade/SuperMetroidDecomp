@@ -1,0 +1,6 @@
+<Project>
+  <!-- The supplied SMV replays as step-driven sessions, with the native checkpoints, snapshot import and ROM oracles they compare against; shared by the headless and Direct3D 11 hosts. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)MovieReplay/**/*.cs" LinkBase="TestSupport/MovieReplay" />
+  </ItemGroup>
+</Project>

@@ -26,4 +26,6 @@
   <Import Project="../../test-support/SaveMapFixtures.projitems" />
   <Import Project="../../test-support/ScenarioFixtures.projitems" />
   <Import Project="../../test-support/CatalogInventories.projitems" />
+  <Import Project="../../test-support/Assertions.projitems" />
+  <Import Project="../../test-support/MovieReplay.projitems" />
 </Project>

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Animals.DachoraNativeListAddresses;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Animals.Artwork;

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleNativeListAddresses;
 using SuperMetroid.Core.Enemies.MamaTurtles;
 using SuperMetroid.Core.Enemies.MamaTurtles.Artwork;

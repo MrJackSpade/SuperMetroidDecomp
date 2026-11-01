@@ -1,8 +1,9 @@
+using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -59,71 +60,71 @@ internal static class RoomScopeVerification
         runtime.RoomLoader.LoadRoom(door, parlor, camera, RoomViewportLoadMode.StreamThroughDoor);
 
         RoomScope destination = runtime.Room.Scope;
-        VerificationAssert.AssertTrue(!ReferenceEquals(source, destination) && !ReferenceEquals(previous, destination.Camera),
+        VerificationAssertions.AssertTrue(!ReferenceEquals(source, destination) && !ReferenceEquals(previous, destination.Camera),
             "the door load builds a new scope and camera");
-        VerificationAssert.AssertTrue(ReferenceEquals(parlor, destination.Room) && ReferenceEquals(door, destination.Door),
+        VerificationAssertions.AssertTrue(ReferenceEquals(parlor, destination.Room) && ReferenceEquals(door, destination.Door),
             "the scope holds the destination room and door");
-        VerificationAssert.AssertTrue(ReferenceEquals(destination.Camera, runtime.Room.Camera) &&
+        VerificationAssertions.AssertTrue(ReferenceEquals(destination.Camera, runtime.Room.Camera) &&
             ReferenceEquals(destination.LevelData, runtime.Room.LevelData),
             "the room views read the adopted scope");
-        VerificationAssert.AssertTrue(!ReferenceEquals(source.Plms, destination.Plms) &&
+        VerificationAssertions.AssertTrue(!ReferenceEquals(source.Plms, destination.Plms) &&
             !destination.Plms.SlotTable.Slots.Intersect(source.Plms.SlotTable.Slots).Any(),
             "no PLM slot survives the load: the destination builds its own PLM system");
-        VerificationAssert.AssertTrue(ReferenceEquals(destination.Plms, runtime.Plms),
+        VerificationAssertions.AssertTrue(ReferenceEquals(destination.Plms, runtime.Plms),
             "the runtime's PLM system is the loaded room's");
-        VerificationAssert.AssertTrue(!ReferenceEquals(source.Projectiles, destination.Projectiles) &&
+        VerificationAssertions.AssertTrue(!ReferenceEquals(source.Projectiles, destination.Projectiles) &&
             !ReferenceEquals(source.BombProjectiles, destination.BombProjectiles) &&
             !ReferenceEquals(source.BombProjectiles.PowerBombExplosion, destination.BombProjectiles.PowerBombExplosion),
             "the destination builds its own projectile and bomb systems");
-        VerificationAssert.AssertTrue(destination.Projectiles.Slots.All(slot => !slot.IsActive) &&
+        VerificationAssertions.AssertTrue(destination.Projectiles.Slots.All(slot => !slot.IsActive) &&
             destination.BombProjectiles.Slots.All(slot => !slot.IsActive) && destination.Projectiles.SlotTable.ProjectileCounter == 0 &&
             destination.BombProjectiles.BombCounter == 0,
             "the destination's projectile pools are empty");
-        VerificationAssert.AssertTrue(ReferenceEquals(source.Projectiles.Charge, destination.Projectiles.Charge) &&
+        VerificationAssertions.AssertTrue(ReferenceEquals(source.Projectiles.Charge, destination.Projectiles.Charge) &&
             ReferenceEquals(runtime.BeamCharge, destination.Projectiles.Charge),
             "the held beam charge is the session's, shared by both rooms");
-        VerificationAssert.AssertEqual(30, destination.Projectiles.Charge.FlareCounter, "the flare counter survives the load");
-        VerificationAssert.AssertTrue(!ReferenceEquals(source.Layer3Fx, destination.Layer3Fx) &&
+        VerificationAssertions.AssertEqual(30, destination.Projectiles.Charge.FlareCounter, "the flare counter survives the load");
+        VerificationAssertions.AssertTrue(!ReferenceEquals(source.Layer3Fx, destination.Layer3Fx) &&
             !ReferenceEquals(source.PaletteFx, destination.PaletteFx) && !ReferenceEquals(source.CeresHaze, destination.CeresHaze) &&
             !ReferenceEquals(source.SandTiles, destination.SandTiles) && !ReferenceEquals(source.SpikeTiles, destination.SpikeTiles) &&
             !ReferenceEquals(source.TreadmillTiles, destination.TreadmillTiles) &&
             !ReferenceEquals(source.WreckedShipTreadmill, destination.WreckedShipTreadmill) &&
             !ReferenceEquals(source.TourianStatues, destination.TourianStatues),
             "the destination builds its own FX, animated tiles, haze and statue sequence");
-        VerificationAssert.AssertTrue(!ReferenceEquals(source.MaridiaElevatube, destination.MaridiaElevatube) &&
+        VerificationAssertions.AssertTrue(!ReferenceEquals(source.MaridiaElevatube, destination.MaridiaElevatube) &&
             !ReferenceEquals(source.CeresElevatorShaft, destination.CeresElevatorShaft) &&
             !destination.MaridiaElevatube.IsActive && !destination.CeresElevatorShaft.IsActive,
             "the destination builds its own room mains, inactive in a room that does not select them");
-        VerificationAssert.AssertTrue(ReferenceEquals(source.Layer3Fx.FixedColors, destination.Layer3Fx.FixedColors) &&
+        VerificationAssertions.AssertTrue(ReferenceEquals(source.Layer3Fx.FixedColors, destination.Layer3Fx.FixedColors) &&
             ReferenceEquals(source.Layer3Fx.Fireflea, destination.Layer3Fx.Fireflea) &&
             ReferenceEquals(runtime.RoomFx.FixedColors, destination.Layer3Fx.FixedColors),
             "the COLDATA shadows and Fireflea state are the session's, shared by both rooms");
-        VerificationAssert.AssertEqual(heatPhase, runtime.PaletteFxSession.SamusInHeatPaletteIndex,
+        VerificationAssertions.AssertEqual(heatPhase, runtime.PaletteFxSession.SamusInHeatPaletteIndex,
             "the palette-FX heat phase survives the load on the session");
-        VerificationAssert.AssertTrue(!ReferenceEquals(source.Enemies, destination.Enemies) &&
+        VerificationAssertions.AssertTrue(!ReferenceEquals(source.Enemies, destination.Enemies) &&
             !ReferenceEquals(source.Enemies.SlotTable, destination.Enemies.SlotTable),
             "the destination builds its own enemy system and slots");
-        VerificationAssert.AssertEqual(0, destination.Enemies.Earthquake.EarthquakeType, "no enemy earthquake survives the load");
-        VerificationAssert.AssertTrue(destination.Enemies.RoomStatus.EnemyDoorTransitionActive &&
+        VerificationAssertions.AssertEqual(0, destination.Enemies.Earthquake.EarthquakeType, "no enemy earthquake survives the load");
+        VerificationAssertions.AssertTrue(destination.Enemies.RoomStatus.EnemyDoorTransitionActive &&
             destination.Enemies.Elevator.ElevatorDoorTransitionActive,
             "the door-transition gates carry into the destination's enemies");
-        VerificationAssert.AssertEqual(CeresEscapeStatus.RidleyEscaped, destination.Enemies.Ceres.CeresStatus,
+        VerificationAssertions.AssertEqual(CeresEscapeStatus.RidleyEscaped, destination.Enemies.Ceres.CeresStatus,
             "Ceres's escape progress survives the load on the enemy session");
         RoomEnemyProjectileSlot destinationProjectile = destination.Enemies.Projectiles.EnemyProjectiles[3];
-        VerificationAssert.AssertEqual(FixedPosition<RoomPixels>.FromWords(0x0140, 0, 0x0090, 0), destinationProjectile.Position,
+        VerificationAssertions.AssertEqual(FixedPosition<RoomPixels>.FromWords(0x0140, 0, 0x0090, 0), destinationProjectile.Position,
             "an enemy projectile slot's whole coordinates survive the load; its fractions clear");
-        VerificationAssert.AssertEqual(sourceProjectile.Velocity, destinationProjectile.Velocity,
+        VerificationAssertions.AssertEqual(sourceProjectile.Velocity, destinationProjectile.Velocity,
             "an enemy projectile slot's velocity survives the load");
         SamusProjectileSlot destinationShot = destination.Projectiles.SlotTable.Slots[2];
-        VerificationAssert.AssertEqual(FixedPosition<RoomPixels>.FromWords(0, 0x4321, 0, 0), destinationShot.Position,
+        VerificationAssertions.AssertEqual(FixedPosition<RoomPixels>.FromWords(0, 0x4321, 0, 0), destinationShot.Position,
             "a shot slot starts the next room with the horizontal sub-pixel position the outgoing room's left (RoomHandOver), and nothing else of its position");
-        VerificationAssert.AssertEqual(SpazerComboPhase.Circling, destinationShot.AuxiliaryPhase,
+        VerificationAssertions.AssertEqual(SpazerComboPhase.Circling, destinationShot.AuxiliaryPhase,
             "no Spazer phase is handed over: every Spazer special attack sets it before reading it");
-        VerificationAssert.AssertEqual(previous.Position.X.Fraction, destination.Camera.Position.X.Fraction, "X fraction word carried");
-        VerificationAssert.AssertEqual(previous.Position.Y.Fraction, destination.Camera.Position.Y.Fraction, "Y fraction word carried");
-        VerificationAssert.AssertEqual(previous.IdealPosition, destination.Camera.IdealPosition, "ideal position carried");
-        VerificationAssert.AssertEqual(previous.Speed, destination.Camera.Speed, "camera speed carried");
-        VerificationAssert.AssertEqual(previous.PreviousSamusPoint, destination.Camera.PreviousSamusPoint, "previous Samus point carried");
+        VerificationAssertions.AssertEqual(previous.Position.X.Fraction, destination.Camera.Position.X.Fraction, "X fraction word carried");
+        VerificationAssertions.AssertEqual(previous.Position.Y.Fraction, destination.Camera.Position.Y.Fraction, "Y fraction word carried");
+        VerificationAssertions.AssertEqual(previous.IdealPosition, destination.Camera.IdealPosition, "ideal position carried");
+        VerificationAssertions.AssertEqual(previous.Speed, destination.Camera.Speed, "camera speed carried");
+        VerificationAssertions.AssertEqual(previous.PreviousSamusPoint, destination.Camera.PreviousSamusPoint, "previous Samus point carried");
         Console.WriteLine("Room scope: a streamed door load builds a new scope, PLM system, projectile pools, FX and animated tiles, enemies, keeps the held beam charge, door gates and session FX and enemy state; its camera carries the fractions, ideal position, speed and previous Samus point.");
     }
 

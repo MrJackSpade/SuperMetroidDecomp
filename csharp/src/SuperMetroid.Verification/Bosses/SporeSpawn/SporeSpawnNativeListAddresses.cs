@@ -1,4 +1,4 @@
-using SuperMetroid.Verification.Enemies;
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 
 namespace SuperMetroid.Verification.Bosses.SporeSpawn;

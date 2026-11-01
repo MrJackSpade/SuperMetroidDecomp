@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.AssetExtraction.Cartridge;

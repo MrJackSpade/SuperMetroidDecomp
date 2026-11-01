@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Corpses.DeadTorizoNativeListAddresses;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;

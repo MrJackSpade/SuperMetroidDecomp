@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Skree.SkreeMetareeNativeListAddresses;
 using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Enemies.Skree.Artwork;

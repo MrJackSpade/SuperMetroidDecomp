@@ -1,18 +1,11 @@
-using SuperMetroid.AssetExtraction.Enemies;
-using static SuperMetroid.Verification.Rooms.Plms.DownwardGateProjectileNativeListAddresses;
+using static SuperMetroid.TestSupport.MovieReplay.DownwardGateProjectileNativeListAddresses;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Verification.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.Projectiles.Artwork;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
 
 /// <summary>#641: the downward shot gate's typed programs, each matched step by step to its native bank-$86 list.</summary>
 internal static class DownwardGateProjectileAnimationsVerification
 {
-    /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, DownwardGateProjectileAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(DownwardGateProjectileFrameDefinitions.ShownProjectileFrames[frame])), DownwardGateProjectileCueRules.Rules);
-
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyDownwardGateProjectileAnimations(SuperMetroidAddressSpace rom)
     {

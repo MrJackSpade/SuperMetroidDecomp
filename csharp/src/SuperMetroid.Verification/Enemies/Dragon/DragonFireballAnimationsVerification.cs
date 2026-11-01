@@ -1,7 +1,4 @@
-using SuperMetroid.AssetExtraction.Enemies;
-using static SuperMetroid.Verification.Enemies.Dragon.DragonFireballNativeListAddresses;
-using SuperMetroid.Core.Enemies.Dragon;
-using SuperMetroid.Core.Enemies.Dragon.Artwork;
+using static SuperMetroid.TestSupport.MovieReplay.DragonFireballNativeListAddresses;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Dragon;
@@ -9,9 +6,6 @@ namespace SuperMetroid.Verification.Enemies.Dragon;
 /// <summary>#641: Dragon's fireball typed programs, each matched step by step to its native bank-$86 list.</summary>
 internal static class DragonFireballAnimationsVerification
 {
-    /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, DragonFireballAnimations.Programs, (frame => EnemyProjectileProgramFrameSources.Operand(DragonFireballFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
-
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyDragonFireballAnimations(SuperMetroidAddressSpace rom)
     {

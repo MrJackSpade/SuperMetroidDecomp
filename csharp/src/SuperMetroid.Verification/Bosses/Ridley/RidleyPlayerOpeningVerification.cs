@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Input;
 using System.Globalization;
 using SuperMetroid.Core.Runtime;

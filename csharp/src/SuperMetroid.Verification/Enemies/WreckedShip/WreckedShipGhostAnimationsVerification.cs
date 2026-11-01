@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.WreckedShip.WreckedShipGhostNativeListAddresses;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Enemies.WreckedShip.Artwork;

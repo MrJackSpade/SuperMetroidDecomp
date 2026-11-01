@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
@@ -11,7 +12,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Draygon;
-using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 

@@ -1,0 +1,6 @@
+<Project>
+  <!-- Dependency-free assertions shared by verification projects and the shared verification source they compile. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Assertions/**/*.cs" LinkBase="TestSupport/Assertions" />
+  </ItemGroup>
+</Project>

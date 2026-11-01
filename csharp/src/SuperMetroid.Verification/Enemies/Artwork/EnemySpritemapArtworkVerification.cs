@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Input;
@@ -77,7 +78,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Samus.Projectiles;

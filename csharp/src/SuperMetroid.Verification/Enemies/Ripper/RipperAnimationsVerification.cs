@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Ripper.RipperNativeListAddresses;
 using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.Core.Enemies.Ripper.Artwork;

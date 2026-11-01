@@ -20,6 +20,10 @@ Each group is one module: `X.projitems` compiles exactly the `X/` directory besi
 - `ScenarioFixtures`, `CatalogInventories`: gameplay scenarios and retail catalog inventories that
   DebugRunner records or prints and the verifier checks.
 - `VerificationOracles`: reference oracles and audits only the main verifier uses.
+- `MovieReplay`: the supplied SMV replays as step-driven sessions (`ConvertedMovieSession`) that both the headless
+  verifier and the Direct3D 11 host drive, with the native checkpoints, the one initial-state snapshot import and the
+  ROM oracles their comparisons read.
+- `Assertions`: the dependency-free assertions every verifier and the shared verification source use.
 - `CpuBusTestDoubles`: exact CPU-bus test doubles (#629).
 - `VerificationImporters`, `RoomHeaderImport`: cartridge importers that only verification fixtures read.
 - `WindowsConsole`: non-interactive native error handling for Windows verification runners and the

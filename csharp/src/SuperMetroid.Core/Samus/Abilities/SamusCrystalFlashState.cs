@@ -8,22 +8,22 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Literal, debugger-visible translation of Crystal Flash's three installed movement
-/// handlers.
+/// Crystal Flash's three movement handlers: raising, the main bubble phase, and the
+/// ending.
 /// </summary>
 /// <remarks>
 /// Crystal Flash is unusual even among Samus's scripted movement states. The game
 /// attempts it only when the power-bomb explosion centred on Samus finishes; successful
 /// initiation then replaces both the normal pose-input handler and the normal movement
-/// handler. Keeping that handler pointer as <see cref="Phase"/> prevents pose `$D3/$D4`
-/// from accidentally inheriting invented type-$1B physics.
+/// handler. Keeping that handler as <see cref="Phase"/> prevents <see cref="SamusPoseId.CrystalFlashRightPose"/> and <see cref="SamusPoseId.CrystalFlashLeftPose"/>
+/// from accidentally inheriting invented special-movement physics.
 /// </remarks>
 public sealed class SamusCrystalFlashState
 {
     /// <summary>The exact normal-game controller chord: Down + L + R + the Shot binding.</summary>
     public const ControllerButton RequiredInputWithoutShot = ControllerButtons.CrystalFlashWithoutShot;
 
-    /// <summary>Debugger-readable equivalent of the active movement-handler pointer.</summary>
+    /// <summary>The Crystal Flash movement handler currently installed.</summary>
     public CrystalFlashPhase Phase { get; private set; }
 
     /// <summary>Initialized to nine for the ten two-pixel raise frames.</summary>
@@ -94,7 +94,7 @@ public sealed class SamusCrystalFlashState
 
     /// <summary>
     /// Consumes the one essential-priority sound request made when the raising phase
-    /// becomes the main Crystal Flash phase. The flag is debugger-visible, while this
+    /// becomes the main Crystal Flash phase. The flag stays set until consumed; this
     /// method gives the frontend the one-shot semantics.
     /// </summary>
     public bool ConsumeActivationSoundRequest()
@@ -111,12 +111,12 @@ public sealed class SamusCrystalFlashState
     /// <param name="controllerInput">Raw held-button word; ordinary admission requires exact equality to Down, L, R, and the Shot binding.</param>
     /// <param name="shotBinding">Raw controller mask for Shot, defaulting to X; non-controller bits are rejected.</param>
     /// <param name="inputCheck">
-    /// True only for the title-demo route where game state is at least <c>$28</c>. Ordinary
+    /// True only while a title demo is ending and the game is returning from it. Ordinary
     /// gameplay must supply the exact chord; extra held buttons make initiation fail.
     /// </param>
     /// <returns>True after installing the raising handler; false when the chord or the speed, health, reserve, or ammunition preconditions reject activation.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> is null.</exception>
-    /// <exception cref="InvalidDataException">A controller word contains non-controller bits or the Crystal Flash pose no longer has movement type $1B.</exception>
+    /// <exception cref="InvalidDataException">A controller word contains non-controller bits or the Crystal Flash pose no longer has special movement.</exception>
     public bool TryBegin(
         SamusState samus,
         ControllerButton controllerInput,
@@ -159,8 +159,8 @@ public sealed class SamusCrystalFlashState
         // installing its movement handler. Rejected activation must not shift it.
         samus.CommitPoseHistory();
 
-        // The routine reuses shinespark words but installs a distinct pointer. The
-        // C# states stay separate so a debugger cannot mistake Crystal Flash for a spark.
+        // The routine reuses shinespark state but installs a distinct movement handler. The
+        // states stay separate so Crystal Flash is never mistaken for a spark.
         samus.Shinespark.RelinquishToCrystalFlash();
         // Reserve Mode leaves X-Ray's cone effect alive but Crystal Flash still replaces
         // the shared special-palette handler. Keep the greyout object; release only its
@@ -327,7 +327,7 @@ public sealed class SamusCrystalFlashState
         if ((samus.Position.Whole - RaisedPosition).Y != 0)
             samus.Position += new Offset16<RoomPixels>(0, 1);
 
-        // The pose's delay list ends in `$FD,$01/$02`; pose transition occurs after movement.
+        // The pose's animation ends in a transition to the facing standing pose, which occurs after movement.
         // Therefore cleanup naturally happens on the following beta pass, once type zero is
         // observable here, and that frame performs no ordinary standing movement.
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Standing)
@@ -382,7 +382,7 @@ public sealed class SamusCrystalFlashState
             return true;
         }
 
-        // DEC followed by BEQ/BPL treats both zero and a signed underflow as expiry.
+        // The countdown treats both reaching zero and wrapping negative as expiry.
         CountdownStep specialPaletteTimer =
             SpecialPaletteTimer.Decrement();
         SpecialPaletteTimer = specialPaletteTimer.Remaining;
@@ -427,7 +427,7 @@ public sealed class SamusCrystalFlashState
                         : 0;
         }
 
-        // Carry is set for every active call, including frames on which neither timer
+        // Every active call reports the palette handled, including frames on which neither timer
         // expires. The outer palette dispatcher must therefore suppress its normal copy.
         PublishSharedPaletteWords(samus);
         return true;

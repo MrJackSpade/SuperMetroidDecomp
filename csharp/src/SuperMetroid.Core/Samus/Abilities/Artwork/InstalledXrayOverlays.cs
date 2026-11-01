@@ -27,7 +27,7 @@ public sealed class InstalledXrayOverlays
     /// <remarks>
     /// Issue #1039: among 323 pinned NTSC J/U v1.0 room states, only
     /// Bomb Torizo selects a special X-ray overlay. Its three
-    /// four-byte records are (X=$0F,Y=$0A..$0C,block 82), followed
+    /// records are block 82 at column fifteen, rows ten through twelve, followed
     /// by zero coordinates. The loop stops there;
     /// adjacent bytes are not a fourth record. The independent installation
     /// verifier compared all three stock records with the game.

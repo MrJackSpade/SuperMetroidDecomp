@@ -17,17 +17,17 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <remarks>
 /// Mother Brain and the Baby Metroid own when controller functions zero through four are
 /// called. This class deliberately does not invent that enemy AI. It owns only the state
-/// mutations made by those calls and the movement pointer installed later by animation
-/// command <c>$F7</c>, giving the debugger an exact seam for the future actor producer.
+/// mutations made by those calls and the movement handler installed later by the
+/// drained-fall animation instruction.
 /// </remarks>
 public sealed class SamusDrainedState
 {
-    /// <summary>Host-owned Hyper Beam palette artwork, excluded from debugger-state serialization.</summary>
+    /// <summary>Installed Hyper Beam palette artwork: installed content, not game state, bound again when a game is restored.</summary>
     [field: NonSerialized]
     public SamusHyperBeamColours? PresentationColors { get; set; }
 
     /// <summary>
-    /// Latches the immediate suit-palette restore from controller zero or command $17
+    /// Latches the immediate suit-palette restore from controller zero or the rainbow-stop command
     /// until the same frame's palette pass runs.
     /// </summary>
     private bool _suitPaletteRestoreRequested;
@@ -42,19 +42,19 @@ public sealed class SamusDrainedState
     public HyperBeamPaletteFxState HyperBeamPaletteFx { get; } = new();
 
     /// <summary>
-    /// Host-readable form of the super-special-palette flag, written by Samus command
-    /// `$16` and cleared by command `$17` during the Baby Metroid death sequence.
+    /// The super-special-palette flag, set by the rainbow-start Samus command and cleared
+    /// by the rainbow-stop command during the Baby Metroid death sequence.
     /// </summary>
     public bool RainbowPaletteEnabled { get; private set; }
 
     /// <summary>
     /// Calls each Hyper Beam palette is held for during the cutscene rainbow cycle, 0 through the Baby's maximum of
-    /// ten: command <c>$16</c> starts it at one, the Baby raises it one at a time and never past its maximum, and
-    /// command <c>$17</c> clears it. Each palette advance reloads the common palette timer from it.
+    /// ten: the rainbow-start command starts it at one, the Baby raises it one at a time and never past its maximum,
+    /// and the rainbow-stop command clears it. Each palette advance reloads the common palette timer from it.
     /// </summary>
     public int SpecialPaletteFrame { get; private set; }
 
-    /// <summary>Common palette timer initialized to one by command `$16`.</summary>
+    /// <summary>Common palette timer initialized to one by the rainbow-start command.</summary>
     public WrappingCountdown CommonPaletteTimer { get; private set; }
 
     /// <summary>
@@ -64,22 +64,21 @@ public sealed class SamusDrainedState
     public int ChargePaletteIndex { get; private set; }
 
     /// <summary>
-    /// Host-readable identity of the timer/hack function installed by Samus command five
-    /// or <c>$18</c>. It deliberately survives the later drained pose changes, just as
-    /// the game's function pointer does.
+    /// The get-up handler installed by either drain setup, able or unable to stand. It
+    /// deliberately survives the later drained pose changes, just as the game's handler does.
     /// </summary>
     public DrainedGetUpHandler GetUpHandler { get; internal set; }
 
     /// <summary>
-    /// Another owner replaced the physical movement pointer and pose before drained art
+    /// Another owner replaced the movement handler and pose before drained art
     /// installed its falling callback. The actor may continue its own AI, but this Samus
     /// handler marker must not shadow the replacement after that owner completes.
     /// </summary>
     internal void RelinquishMovementHandler() => Phase = DrainedSamusPhase.Inactive;
 
     /// <summary>
-    /// Samus command $0F replaces the shared hack-handler word with timer
-    /// processing. The runtime owns that timer; the old drained callback must stop.
+    /// The Samus command that starts the countdown timer replaces the shared timer/hack
+    /// handler with timer processing. The runtime owns that timer; the old drained callback must stop.
     /// </summary>
     internal void RelinquishTimerHackHandler() => GetUpHandler = DrainedGetUpHandler.Inactive;
 
@@ -94,7 +93,7 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Ports Samus command <c>$18</c>: install the failed-stand timer
+    /// Ports the unable-to-stand drain setup: install the failed-stand timer
     /// handler, then enter the same locked left-knockback pose as command five.
     /// </summary>
     public void SetupForRainbowBeamUnableToStand(SamusState samus)
@@ -140,8 +139,8 @@ public sealed class SamusDrainedState
         return false;
     }
 
-    /// <summary>Ports Samus command <c>$19</c>.</summary>
-    /// <remarks>The command returns carry set, which cancels the pending pose transition.</remarks>
+    /// <summary>Ports the Samus command that freezes the drained animation while the Hyper Beam is acquired.</summary>
+    /// <remarks>The command reports itself handled, which cancels the pending pose transition.</remarks>
     public static void FreezeForHyperBeamAcquisition(SamusState samus)
     {
         Ensure.NotNull(samus);
@@ -149,7 +148,7 @@ public sealed class SamusDrainedState
         samus.CancelPendingPoseTransition();
     }
 
-    /// <summary>Ports Samus command <c>$16</c>.</summary>
+    /// <summary>Ports the rainbow-start Samus command.</summary>
     public void EnableRainbow(SamusState samus)
     {
         Ensure.NotNull(samus);
@@ -162,7 +161,7 @@ public sealed class SamusDrainedState
 
     /// <summary>
     /// Applies the Baby's frame increment after the Baby's fractional 768
-    /// accumulator carries. The comparison clamps at ten rather than wrapping.
+    /// accumulator overflows a whole unit. The comparison clamps at ten rather than wrapping.
     /// </summary>
     /// <param name="maximumFrame">The largest hold the cycle may reach; the Baby passes ten.</param>
     public void IncrementRainbowPaletteFrame(int maximumFrame)
@@ -173,8 +172,8 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Ports Samus command <c>$17</c>: clear every rainbow/charge palette
-    /// word and begin the standing portion of the drained animation at frame thirteen.
+    /// Ports the rainbow-stop Samus command: clear every rainbow/charge palette
+    /// value and begin the standing portion of the drained animation at frame thirteen.
     /// </summary>
     public void DisableRainbowAndStartStandingAnimation(SamusState samus)
     {
@@ -191,7 +190,7 @@ public sealed class SamusDrainedState
     /// Runs the negative-super-special branch of Samus's palette handler.
     /// </summary>
     /// <remarks>
-    /// While command `$16`'s flag is set, this handler has absolute priority over
+    /// While the rainbow-start command's flag is set, this handler has absolute priority over
     /// charge, Speed Booster, shinespark, Crystal Flash, and X-ray palettes. It loads one
     /// complete 16-color Hyper Beam palette before touching either timer. Installed
     /// artwork supplies those colors; a missing catalog is an error, not a fallback to the original data.
@@ -207,7 +206,7 @@ public sealed class SamusDrainedState
 
         if (_suitPaletteRestoreRequested)
         {
-            // The drained palette and command `$17` choose Gravity before Varia, then Power. The table
+            // The drained palette and the rainbow-stop command choose Gravity before Varia, then Power. The table
             // stores byte offsets 0/2/4 rather than a host enum, matching every other Samus
             // palette restoration path.
             SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
@@ -264,19 +263,20 @@ public sealed class SamusDrainedState
             throw new InvalidDataException("Drained pose $E8/$E9 metadata changed unexpectedly.");
 
         // NewPoseSamusAnimationFrame is literally two. The animation is initialized here,
-        // but movement remains the normal empty type-$1B handler until command `$F7` appears.
+        // but movement remains the normal empty special-movement handler until the drained-fall
+        // animation instruction appears.
         SamusPresentation.InitializeAnimation(samus, initialFrame: 2);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         _suitPaletteRestoreRequested = true;
         Phase = DrainedSamusPhase.WaitingForFallingCommand;
-        // Controller commands 0/1/2/4 return carry set; their dispatcher
+        // Controller commands 0/1/2/4 report themselves handled; their dispatcher
         // then shifts history even for a same-pose command. Hyper (3) does not.
         samus.CommitPoseHistory();
     }
 
     /// <summary>
-    /// Called only by animation command <c>$F7</c>; the generic delay
+    /// Called only by the drained-fall animation instruction; the generic delay
     /// interpreter performs the command's separate frame increment.
     /// </summary>
     internal void InstallFallingMovementHandler(SamusState samus)
@@ -289,7 +289,7 @@ public sealed class SamusDrainedState
                 $"Drained falling command requires pose $E8/$E9, not {samus.Pose}.");
         }
 
-        // Command `$F7` writes the drained falling handler into the single physical movement-handler word.
+        // The instruction installs the drained falling handler as Samus's one movement handler.
         // It therefore replaces either kind of special owner: an ordinary uncrashed spark
         // retains its boost words as Blue Suit, while Crystal Flash retains its independent
         // palette/input state as Shinespark Suit. Neither old movement routine may resume.
@@ -367,7 +367,8 @@ public sealed class SamusDrainedState
         Ensure.NotNull(samus);
 
         // These are literal byte indices into the asymmetrical delay programs, not visual
-        // frame counts. In particular, left `$E9` index 13 names an operand byte; the game
+        // frame counts. In particular, the left-facing drained crouch's index 13 lands inside an
+        // instruction's argument rather than on a frame; the game
         // intentionally draws that index until the next animation decrement advances it.
         if (samus.Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 13, timer: 1);
@@ -395,7 +396,7 @@ public sealed class SamusDrainedState
         HyperBeamPaletteFx.Spawn();
     }
 
-    /// <summary>Ends the Samus-side drain lock after release art reaches `$FD,$01/$02`.</summary>
+    /// <summary>Ends the Samus-side drain lock after release art reaches its transition to the facing standing pose.</summary>
     internal void CompleteRelease() => Phase = DrainedSamusPhase.Inactive;
 
     /// <summary>Starts the shared left-knockback rainbow setup and locks Samus input.</summary>
@@ -403,8 +404,8 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
 
-        // Both commands unconditionally choose left-facing knockback pose `$54`, even when
-        // Samus had faced right. This is why controller zero later selects drained pose `$E9`.
+        // Both commands unconditionally choose left-facing knockback KnockbackLeftPose, even when
+        // Samus had faced right. This is why controller zero later selects drained DrainedCrouchingLeftPose.
         samus.Pose = SamusPoseId.KnockbackLeftPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);

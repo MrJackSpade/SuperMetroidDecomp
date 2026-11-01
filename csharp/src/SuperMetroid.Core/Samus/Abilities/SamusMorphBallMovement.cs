@@ -59,7 +59,7 @@ public static class SamusMorphBallMovement
         }
         else
         {
-            // Moving `$1E/$1F`, plus either stable pose carrying reversal mode one, enters
+            // The rolling morph-ball poses, plus either stable pose carrying reversal mode one, enter
             // the full deceleration-allowed `Samus_X_Movement` route. Its run-momentum
             // call retains established run momentum and republishes boost contact damage.
             speed.HandleExtraRunSpeed(
@@ -214,7 +214,7 @@ public static class SamusMorphBallMovement
         return new MorphBallMovementResult(vertical, landed, hitCeiling);
     }
 
-    /// <summary>Executes Spring Ball movement type $12.</summary>
+    /// <summary>Executes <see cref="SamusMovementType.SpringBallInAir"/> movement.</summary>
     internal static MorphBallMovementResult StepSpringBallInAir(
 
         RoomLevelData level,
@@ -295,7 +295,7 @@ level, samus, controllerInput, frameCounter, plms, SamusMovementType.SpringBallI
     }
 
     /// <summary>
-    /// Executes the `$37/$38/$3D/$3E` subset of transition movement type $0F in
+    /// Executes the morphing and unmorphing subset of <see cref="SamusMovementType.PostureTransition"/> in
     /// the transition movement handler, including its airborne gravity branch.
     /// </summary>
     internal static MorphBallMovementResult StepTransition(
@@ -347,7 +347,7 @@ level, samus, controllerInput, frameCounter, plms, SamusMovementType.SpringBallI
             if (landed)
             {
                 // The transition handler recognizes the ordinary landed result and cancels every word
-                // which could make command $F9 choose the airborne endpoint afterward.
+                // which could make the item-and-airborne transition instruction choose the airborne endpoint afterward.
                 samus.Kinematics.YSpeed = default;
                 samus.Kinematics.YDirection = SamusVerticalDirection.None;
                 samus.MorphBallBounceState = SamusBallBounceState.None;

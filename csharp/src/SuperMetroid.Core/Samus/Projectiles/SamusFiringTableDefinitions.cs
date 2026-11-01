@@ -15,8 +15,6 @@ internal static class SamusFiringTableDefinitions
     internal const int ChargedRowOffset = 16;
     /// <summary>Offset from the uncharged rows to the echo rows of the beam-row-indexed tables.</summary>
     internal const int EchoRowOffset = 32;
-    /// <summary>The speed table holds two speed words per beam combination.</summary>
-    internal const int InitialSpeedRowBytes = 2 * sizeof(ushort);
 
     /// <summary>Ten direction-indexed X origins for non-running poses.</summary>
     internal const int DefaultXOrigins = 0;
@@ -37,10 +35,6 @@ internal static class SamusFiringTableDefinitions
     /// beyond the ordinary cooldown table, the low byte <c>$0D</c> of the adjacent instruction operand.
     /// </summary>
     internal const int SpacetimeBeamCooldown = 141;
-    /// <summary>Speed word for horizontal and vertical power-beam travel.</summary>
-    internal const int HorizontalVerticalSpeeds = 205;
-    /// <summary>Speed word for diagonal power-beam travel.</summary>
-    internal const int DiagonalSpeeds = 207;
     /// <summary>Direction-indexed missile acceleration records.</summary>
     internal const int MissileAccelerations = 255;
     /// <summary>Direction-indexed Super Missile acceleration records.</summary>

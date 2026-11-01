@@ -1,26 +1,18 @@
-using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileMotionDefinitions;
-
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The acceleration each projectile reads from its motion table.</summary>
 internal static class SamusProjectileAccelerations
 {
-    /// <summary>Resolves aligned speed and acceleration words, including beam-selector overreads into missile data.</summary>
+    /// <summary>Resolves an aligned word of the missile, Super Missile and beam acceleration tables.</summary>
     /// <param name="offset">The word's offset from the start of <see cref="SamusFiringTableDefinitions"/>.</param>
     internal static int ReadWord(int offset)
     {
-        int speedOffset = offset - SamusFiringTableDefinitions.HorizontalVerticalSpeeds;
-        // The stored data starts at an odd offset. Only aligned words in that layout
-        // belong to this catalog; preserve all other reads through the offset space.
-        if (speedOffset >= 0 && (speedOffset & 1) == 0)
+        // The stored data starts at an odd offset. Only aligned words in that layout belong to this catalog.
+        int tableOffset = offset - SamusFiringTableDefinitions.MissileAccelerations;
+        if (tableOffset >= 0 && (tableOffset & 1) == 0)
         {
-            // BeamSpeeds: twelve identical cardinal/diagonal pairs.
-            // Resolve physical offset before row ownership: combinations C..F
-            // deliberately overread into ignition and missile acceleration data.
-            if (speedOffset < 12 * 4) return (speedOffset & 2) == 0 ? CardinalSpeed : DiagonalSpeed;
-            if (offset == SamusFiringTableDefinitions.MissileAccelerations - 2) return MissileInitialized;
-            int index = (offset - SamusFiringTableDefinitions.MissileAccelerations) / 2;
-            if (offset >= SamusFiringTableDefinitions.MissileAccelerations && index < 20)
+            int index = tableOffset / 2;
+            if (index < 20)
                 return Acceleration(index / 2, (index & 1) != 0, 64, 54);
             index = (offset - SamusFiringTableDefinitions.SuperMissileAccelerations) / 2;
             if (offset >= SamusFiringTableDefinitions.SuperMissileAccelerations && index < 20)

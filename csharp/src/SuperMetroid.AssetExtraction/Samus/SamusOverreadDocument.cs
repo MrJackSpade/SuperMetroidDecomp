@@ -26,6 +26,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="ChargeFlareDelaysBelowPrograms">The delays a charge-flare frame reads below the flare's programs, nearest first.</param>
 /// <param name="PostureAdmissions">Whether the posture-transition admission admits weapons, by the name of each pose outside its table.</param>
 /// <param name="SpeedBoosterOverrunColours">The colours Gravity copies on each Speed Booster step past its cycle, by step name.</param>
+/// <param name="UnauthoredBeamLaunchSpeeds">The speeds each Spazer and Plasma beam combination launches at, by combination name.</param>
 internal sealed record SamusOverreadDocument(
     int Version,
     IReadOnlyDictionary<string, SamusOverreadDocument.Continuation?> AnimationContinuations,
@@ -35,7 +36,8 @@ internal sealed record SamusOverreadDocument(
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor>> ChainsawFuseLandings,
     IReadOnlyList<int> ChargeFlareDelaysBelowPrograms,
     IReadOnlyDictionary<string, bool> PostureAdmissions,
-    IReadOnlyDictionary<string, IReadOnlyList<PaletteRgb5>> SpeedBoosterOverrunColours)
+    IReadOnlyDictionary<string, IReadOnlyList<PaletteRgb5>> SpeedBoosterOverrunColours,
+    IReadOnlyDictionary<string, SamusOverreadDocument.LaunchSpeeds> UnauthoredBeamLaunchSpeeds)
 {
     /// <summary>The program laid out after another, named by a pose that animates by it.</summary>
     /// <param name="Pose">The name of a pose that animates by the later program.</param>
@@ -70,4 +72,9 @@ internal sealed record SamusOverreadDocument(
     /// <param name="Program">The program's name.</param>
     /// <param name="Position">The step's position in the program.</param>
     internal sealed record Cursor(string Program, int Position);
+
+    /// <summary>The speeds a beam launches at, each a signed count of 256ths of a pixel per update.</summary>
+    /// <param name="Cardinal">The horizontal and vertical speed.</param>
+    /// <param name="Diagonal">The diagonal speed.</param>
+    internal sealed record LaunchSpeeds(int Cardinal, int Diagonal);
 }

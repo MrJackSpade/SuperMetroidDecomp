@@ -1609,11 +1609,12 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1ProjectileMotion(ISnesAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1ProjectileMotionRomByte(rom, address), LookupStream1ProjectileMotionRomByte(rom, address + 1));
-        for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
-            AssertEqual(Word(address), SamusProjectileAccelerations.ReadWord(address - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 all native projectile motion words");
-        foreach (int invalid in new[] { int.MinValue, 0x90c2d0, 0x90c2d2, 0x90c37b, int.MaxValue })
+        for (int address = 0x90c303; address < 0x90c37b; address += 2)
+            AssertEqual(Word(address), SamusProjectileAccelerations.ReadWord(address - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 all native projectile acceleration words");
+        foreach (int invalid in new[] { int.MinValue, 0x90c2d0, 0x90c2d1, 0x90c2d2, 0x90c37b, int.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusProjectileAccelerations.ReadWord(invalid - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 exact projectile motion address domain");
-        var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
+        var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>((records, launched) =>
+            BeamFiring.InitializePowerBeamVelocity(records, launched, InstalledFixtures.SamusOverreads.UnauthoredBeamSpeeds));
         var stationary = new ProjectileInheritanceRecords();
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)

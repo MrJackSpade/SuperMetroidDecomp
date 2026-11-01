@@ -15,14 +15,18 @@ internal sealed class ProjectileEnemyImpacts
     private readonly ProjectileSlotTable _slotTable;
     /// <summary>Converts missile hits to the same impact state as terrain collision.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
+    /// <summary>The speeds a reflected Spazer and Plasma beam relaunches at.</summary>
+    private readonly UnauthoredBeamLaunchSpeeds<SamusBeamCombination> _unauthoredSpeeds;
 
     /// <summary>Binds enemy-impact handling to the projectile slots and their animation, quake, and terrain services.</summary>
-    internal ProjectileEnemyImpacts(ProjectileAnimation animation, ProjectileEarthquakes earthquakes, ProjectileSlotTable slotTable, ProjectileTerrainCollision terrainCollision)
+    internal ProjectileEnemyImpacts(ProjectileAnimation animation, ProjectileEarthquakes earthquakes, ProjectileSlotTable slotTable,
+        ProjectileTerrainCollision terrainCollision, UnauthoredBeamLaunchSpeeds<SamusBeamCombination> unauthoredSpeeds)
     {
         _animation = animation;
         _earthquakes = earthquakes;
         _slotTable = slotTable;
         _terrainCollision = terrainCollision;
+        _unauthoredSpeeds = Ensure.NotNull(unauthoredSpeeds);
     }
     /// <summary>
     /// Applies the projectile-owned side effects that enemy collision performs before any
@@ -87,7 +91,7 @@ internal sealed class ProjectileEnemyImpacts
             // Beam reflection alone reinitializes velocity immediately. Missile families
             // retain their old velocity until they re-ignite on their next update, at
             // which point the new direction takes effect.
-            BeamFiring.InitializePowerBeamVelocity(samus.ProjectileInheritance, slot);
+            BeamFiring.InitializePowerBeamVelocity(samus.ProjectileInheritance, slot, _unauthoredSpeeds);
         }
 
         SamusProjectileSelectorTable selectorTable;

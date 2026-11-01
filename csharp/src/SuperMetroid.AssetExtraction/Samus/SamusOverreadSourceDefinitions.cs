@@ -37,6 +37,9 @@ internal static class SamusOverreadSourceDefinitions
     /// <summary>$90:DD75, the byte the HUD's posture-transition admission reads for pose zero; the real flags start at $90:DDAA.</summary>
     internal const int HudPostureFlagsForPoseZero = 0x90dd75;
 
+    /// <summary>$90:C2D1: the beam speed table, a cardinal then a diagonal speed word per beam combination.</summary>
+    internal const int BeamSpeedTable = 0x90c2d1;
+
     /// <summary>$91:B010: the table of each pose's animation program, a bank-$91 word per pose number.</summary>
     internal const int SamusAnimationProgramTable = 0x91b010;
 

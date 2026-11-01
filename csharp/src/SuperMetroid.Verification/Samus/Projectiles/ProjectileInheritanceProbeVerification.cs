@@ -47,7 +47,8 @@ internal static class ProjectileInheritanceProbeVerification
     /// <summary>Replays initialized WRAM snapshots through power-beam velocity setup and confirms live movement and weapon launches.</summary>
     internal static void ProbeProjectileVelocityInheritance()
     {
-        var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
+        var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>((launchRecords, launched) =>
+            BeamFiring.InitializePowerBeamVelocity(launchRecords, launched, InstalledFixtures.SamusOverreads.UnauthoredBeamSpeeds));
         var inheritance = new ProjectileInheritanceRecords();
         var records = new ProjectileInheritanceRecordsAccess(inheritance);
         int failures = 0;

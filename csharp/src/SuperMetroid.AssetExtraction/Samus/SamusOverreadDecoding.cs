@@ -34,7 +34,8 @@ internal static class SamusOverreadDecoding
             ChainsawFuseLandings(lists),
             ChargeFlareDelaysBelowPrograms(cartridge),
             PostureAdmissions(cartridge),
-            SpeedBoosterOverrunColours(cartridge));
+            SpeedBoosterOverrunColours(cartridge),
+            UnauthoredBeamLaunchSpeeds(cartridge));
     }
 
     /// <summary>
@@ -300,4 +301,20 @@ internal static class SamusOverreadDecoding
             .Select(index => PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(cartridge.ReadCartridgeWord(
                 SamusOverreadSourceDefinitions.SpeedBoosterGrappleCode + index * RgbColor.ByteCount))))],
     };
+
+    /// <summary>
+    /// The speeds each Spazer and Plasma combination launches at: the beam initializer reads a cardinal then a diagonal
+    /// word at four bytes per combination from the speed table's start, so these combinations read the words after the
+    /// table's twelve rows.
+    /// </summary>
+    private static Dictionary<string, SamusOverreadDocument.LaunchSpeeds> UnauthoredBeamLaunchSpeeds(IImportCartridgeSource cartridge) =>
+        Enum.GetValues<SamusBeamCombination>()
+            .Where(beams => !beams.IsRetail)
+            .ToDictionary(beams => beams.ToString(), beams =>
+            {
+                int row = SamusOverreadSourceDefinitions.BeamSpeedTable + beams.TableIndex * 2 * sizeof(ushort);
+                return new SamusOverreadDocument.LaunchSpeeds(
+                    unchecked((short)cartridge.ReadCartridgeWord(row)),
+                    unchecked((short)cartridge.ReadCartridgeWord(row + sizeof(ushort))));
+            });
 }

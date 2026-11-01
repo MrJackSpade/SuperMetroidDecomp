@@ -88,12 +88,12 @@ public sealed class SamusProjectileSystem
         ImpactAudio = new ProjectileImpactAudio();
         Animation = new ProjectileAnimation(Charge, SlotTable, overreads.ChargeFlareDelays);
         TerrainCollision = new ProjectileTerrainCollision(Animation, Earthquakes, ImpactAudio);
-        EnemyImpacts = new ProjectileEnemyImpacts(Animation, Earthquakes, SlotTable, TerrainCollision);
+        EnemyImpacts = new ProjectileEnemyImpacts(Animation, Earthquakes, SlotTable, TerrainCollision, overreads.UnauthoredBeamSpeeds);
         Trails = new ProjectileTrails(SlotTable, overreads.TrailStarts);
         Chainsaw = new ChainsawPowerBombCallback(Animation, overreads.ChainsawFuseShift);
         Shinespark = new ShinesparkEchoProjectile(Animation, SlotTable);
         Combos = new BeamCombos(Animation, Charge, SlotTable, Trails, overreads.SpaceTimeOverwrite);
-        Firing = new BeamFiring(Animation, Charge, Combos, SlotTable, TerrainCollision);
+        Firing = new BeamFiring(Animation, Charge, Combos, SlotTable, TerrainCollision, overreads.UnauthoredBeamSpeeds);
         Motion = new ProjectileMotion(Animation, SlotTable, TerrainCollision, Trails);
     }
 

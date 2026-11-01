@@ -23,6 +23,7 @@ public sealed class SamusOverreadServices
     /// <param name="chargeFlareDelays">The delays a charge-flare frame reads below the flare's programs.</param>
     /// <param name="postureAdmission">Whether the posture-transition admission admits weapons for a pose outside its table.</param>
     /// <param name="speedBoosterColours">The suit colours Gravity Speed Booster copies from past its cycle.</param>
+    /// <param name="unauthoredBeamSpeeds">The speeds a Spazer and Plasma beam launches at.</param>
     internal SamusOverreadServices(
         LaidOutProgramContinuation<SamusPoseId> animationContinuation,
         TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> trailStarts,
@@ -30,7 +31,8 @@ public sealed class SamusOverreadServices
         ChainsawFuseAnimationShift<AnimationProgramCursor<SamusProjectileProgram>> chainsawFuseShift,
         ChargeFlareDelaysBelowPrograms chargeFlareDelays,
         PostureAdmissionBeyondTransitions<SamusPoseId> postureAdmission,
-        SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> speedBoosterColours)
+        SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> speedBoosterColours,
+        UnauthoredBeamLaunchSpeeds<SamusBeamCombination> unauthoredBeamSpeeds)
     {
         AnimationContinuation = Ensure.NotNull(animationContinuation);
         TrailStarts = Ensure.NotNull(trailStarts);
@@ -39,6 +41,7 @@ public sealed class SamusOverreadServices
         ChargeFlareDelays = Ensure.NotNull(chargeFlareDelays);
         PostureAdmission = Ensure.NotNull(postureAdmission);
         SpeedBoosterColours = Ensure.NotNull(speedBoosterColours);
+        UnauthoredBeamSpeeds = Ensure.NotNull(unauthoredBeamSpeeds);
     }
 
     /// <summary>What a Samus animation frame past its pose's program reads, by a pose that animates by each program.</summary>
@@ -61,4 +64,7 @@ public sealed class SamusOverreadServices
 
     /// <summary>The suit colours Gravity Speed Booster copies from past its cycle.</summary>
     internal SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> SpeedBoosterColours { get; }
+
+    /// <summary>The speeds a Spazer and Plasma beam launches at, read past the beam speed table.</summary>
+    internal UnauthoredBeamLaunchSpeeds<SamusBeamCombination> UnauthoredBeamSpeeds { get; }
 }

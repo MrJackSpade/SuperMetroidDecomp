@@ -35,6 +35,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -680,6 +681,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
 }
 
 /// <summary>Extracts fixture Ceres-door tiles and colors into an installed Ceres-door visual catalog.</summary>
+[PrivateInstallation("Extracts the Ceres-door tiles and colours with CeresDoorVisualFiles from the seeded TestAddressSpace of the Ceres door fixtures, whose palette words are fixture values distinct from the cartridge's; the installed Ceres-door artwork holds the retail colours, so neither the shared installation nor a copy of it serves these fixtures.")]
 private static SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorSourceArtwork CreateCeresDoorFixtureVisuals(TestAddressSpace bus)
 {
     using var directoryScratch = new TestScratchDirectory("ceres-door-fixture");

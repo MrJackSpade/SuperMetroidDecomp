@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
@@ -95,59 +96,55 @@ internal static class DownwardGateVisualsVerification
     /// <summary>Checks extracted stock, override survival, and rejection of corrupt or physical-bit edits.</summary>
     private static void VerifyDownwardGateVisualInstallation()
     {
-        using var testRootScratch = new TestScratchDirectory("downward-gate-visual");
-        string testRoot = testRootScratch.Root;
-        try
-        {
-            var installation = new GameInstallation(testRoot);
-            var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
-                Path.GetFullPath("Super Metroid.smc"));
-            RoomPlmDownwardGateVisualFiles.Extract(rom,
-                installation.RoomPlmDownwardGateVisualDirectory, SupportedCartridge.Sha256);
-            RoomPlmDownwardGateVisualFiles.ValidateStock(
-                installation.RoomPlmDownwardGateVisualDirectory);
-            AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-                Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate stock oracle revision");
-            VerifyDownwardGateStockMapping(rom, installation.LoadRoomPlmDownwardGateVisuals());
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmDownwardGateVisualDirectory);
+        GameInstallation installation = copy.Installation;
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        RoomPlmDownwardGateVisualFiles.ValidateStock(
+            installation.RoomPlmDownwardGateVisualDirectory);
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate stock oracle revision");
+        VerifyDownwardGateStockMapping(rom, installation.LoadRoomPlmDownwardGateVisuals());
 
-            string stockPath = Path.Combine(installation.RoomPlmDownwardGateVisualDirectory,
-                RoomPlmDownwardGateVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted gate JSON is empty.");
-            JsonNode column = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "column-frame-5");
-            column.Required("runs").Required(0)[1] = PlmVisualJson.Appearance(0x053);
-            Directory.CreateDirectory(installation.RoomPlmDownwardGateVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmDownwardGateVisualOverrideDirectory,
-                RoomPlmDownwardGateVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual(RoomBlockAppearance.Of(0x053),
-                installation.LoadRoomPlmDownwardGateVisuals().GetAppearance(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
-                "gate visual override selects edited column art");
+        string stockPath = Path.Combine(installation.RoomPlmDownwardGateVisualDirectory,
+            RoomPlmDownwardGateVisualFiles.VisualFileName);
+        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
+            ?? throw new InvalidDataException("Extracted gate JSON is empty.");
+        JsonNode column = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+            entry.Required("id").GetValue<string>() == "column-frame-5");
+        column.Required("runs").Required(0)[1] = PlmVisualJson.Appearance(0x053);
+        Directory.CreateDirectory(installation.RoomPlmDownwardGateVisualOverrideDirectory);
+        string overridePath = Path.Combine(
+            installation.RoomPlmDownwardGateVisualOverrideDirectory,
+            RoomPlmDownwardGateVisualFiles.VisualFileName);
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertEqual(RoomBlockAppearance.Of(0x053),
+            installation.LoadRoomPlmDownwardGateVisuals().GetAppearance(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
+            "gate visual override selects edited column art");
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmDownwardGateVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-            AssertEqual(RoomBlockAppearance.Of(0x053),
-                RoomPlmDownwardGateVisualFiles.Load(refreshed,
-                    installation.RoomPlmDownwardGateVisualOverrideDirectory).GetAppearance(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
-                "gate visual override survives stock replacement");
+        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
+        AssertEqual(RoomBlockAppearance.Of(0x053),
+            ReExtractDownwardGateStock(rom, refreshed,
+                installation.RoomPlmDownwardGateVisualOverrideDirectory).GetAppearance(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
+            "gate visual override survives stock replacement");
 
-            column.Required("runs").Required(0)[1] = 0xf053;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmDownwardGateVisuals(),
-                "gate override rejects collision bits instead of silently restoring stock");
+        column.Required("runs").Required(0)[1] = 0xf053;
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomPlmDownwardGateVisuals(),
+            "gate override rejects collision bits instead of silently restoring stock");
 
-            File.WriteAllText(stockPath, "{}");
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmDownwardGateVisuals(),
-                "gate stock manifest hash rejects corruption");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
-        }
+        File.WriteAllText(stockPath, "{}");
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomPlmDownwardGateVisuals(),
+            "gate stock manifest hash rejects corruption");
+    }
+
+    /// <summary>Extracts stock downward-gate visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmDownwardGateVisualFiles.Extract into a fresh stock directory beside the copy's gate override, to check that a stock replacement keeps the edited gate column art (appearance 053) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static InstalledRoomPlmDownwardGateVisuals ReExtractDownwardGateStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmDownwardGateVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmDownwardGateVisualFiles.Load(refreshed, overrides);
     }
 }

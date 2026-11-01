@@ -87,8 +87,7 @@ internal static class MapStaticPalettesVerification
             AssertEqual(color is 14 or 30 ? RgbColor.Black : editedFileSelect[color], entryColours[color], "ongoing fade reaches newly bound palette target");
 
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
-        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
-        AssertEqual(edited.ContentIdentity, MapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "static palette override survives stock replacement");
+        AssertEqual(edited.ContentIdentity, MapStockReExtraction.ReExtractStock(bus, rebuilt, overrides).ContentIdentity, "static palette override survives stock replacement");
         AssertTrue(replacementBytes.SequenceEqual(File.ReadAllBytes(path)), "static palette overrides are not rewritten");
         var badColor = document.Pause.ToArray(); badColor[0] = badColor[0] with { Blue = -1 };
         foreach (var invalid in new[] { document with { Version = 0 }, document with { Pause = [] }, document with { Pause = badColor },

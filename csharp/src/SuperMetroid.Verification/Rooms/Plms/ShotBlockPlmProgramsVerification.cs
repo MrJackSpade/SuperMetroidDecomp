@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
@@ -413,64 +414,60 @@ internal static class ShotBlockPlmProgramsVerification
     /// <summary>Checks installed stock art, user overrides, stock replacement, and corruption rejection.</summary>
     private static void VerifyShotBlockVisualInstallation(ISnesAddressSpace rom)
     {
-        using var testRootScratch = new TestScratchDirectory("shot-block-visual");
-        string testRoot = testRootScratch.Root;
-        try
-        {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmShotBlockVisualFiles.Extract(rom,
-                installation.RoomPlmShotBlockVisualDirectory, SupportedCartridge.Sha256);
-            RoomPlmShotBlockVisualFiles.ValidateStock(
-                installation.RoomPlmShotBlockVisualDirectory);
-            AssertEqual(RoomBlockAppearance.Of(0x053),
-                installation.LoadRoomPlmShotBlockVisuals().GetAppearance(
-                    ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0), 0, 0),
-                "installed stock shot-block frame matches native visual block");
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmShotBlockVisualDirectory);
+        GameInstallation installation = copy.Installation;
+        RoomPlmShotBlockVisualFiles.ValidateStock(
+            installation.RoomPlmShotBlockVisualDirectory);
+        AssertEqual(RoomBlockAppearance.Of(0x053),
+            installation.LoadRoomPlmShotBlockVisuals().GetAppearance(
+                ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0), 0, 0),
+            "installed stock shot-block frame matches native visual block");
 
-            string stockPath = Path.Combine(installation.RoomPlmShotBlockVisualDirectory,
-                RoomPlmShotBlockVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted shot-block JSON is empty.");
-            JsonNode first = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "single-breakup-0");
-            first.Required("runs").Required(0)[0] = PlmVisualJson.Appearance(0x054);
-            Directory.CreateDirectory(installation.RoomPlmShotBlockVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmShotBlockVisualOverrideDirectory,
-                RoomPlmShotBlockVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual(RoomBlockAppearance.Of(0x054),
-                installation.LoadRoomPlmShotBlockVisuals().GetAppearance(
-                    ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0), 0, 0),
-                "installed shot-block override replaces only the selected visual word");
+        string stockPath = Path.Combine(installation.RoomPlmShotBlockVisualDirectory,
+            RoomPlmShotBlockVisualFiles.VisualFileName);
+        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
+            ?? throw new InvalidDataException("Extracted shot-block JSON is empty.");
+        JsonNode first = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+            entry.Required("id").GetValue<string>() == "single-breakup-0");
+        first.Required("runs").Required(0)[0] = PlmVisualJson.Appearance(0x054);
+        Directory.CreateDirectory(installation.RoomPlmShotBlockVisualOverrideDirectory);
+        string overridePath = Path.Combine(
+            installation.RoomPlmShotBlockVisualOverrideDirectory,
+            RoomPlmShotBlockVisualFiles.VisualFileName);
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertEqual(RoomBlockAppearance.Of(0x054),
+            installation.LoadRoomPlmShotBlockVisuals().GetAppearance(
+                ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0), 0, 0),
+            "installed shot-block override replaces only the selected visual word");
 
-            // Stock repair/upgrade replaces files under game/, not overrides/. Extract
-            // into a new stock directory and prove the same user edit remains selected.
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmShotBlockVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-            AssertEqual(RoomBlockAppearance.Of(0x054),
-                RoomPlmShotBlockVisualFiles.Load(refreshed,
-                    installation.RoomPlmShotBlockVisualOverrideDirectory).GetAppearance(
-                    ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0), 0, 0),
-                "shot-block override survives replacement of stock content");
+        // Stock repair/upgrade replaces files under game/, not overrides/. Extract
+        // into a new stock directory and prove the same user edit remains selected.
+        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
+        AssertEqual(RoomBlockAppearance.Of(0x054),
+            ReExtractShotBlockStock(rom, refreshed,
+                installation.RoomPlmShotBlockVisualOverrideDirectory).GetAppearance(
+                ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0), 0, 0),
+            "shot-block override survives replacement of stock content");
 
-            first.Required("runs").Required(0)[0] = 0xf054;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmShotBlockVisuals(),
-                "shot-block visual override rejects collision/type bits");
-            first.Required("runs").Required(0)[0] = PlmVisualJson.Appearance(0x054);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            File.WriteAllText(stockPath, "corrupt stock");
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmShotBlockVisuals(),
-                "shot-block stock manifest hash rejects corrupted content");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
-        }
+        first.Required("runs").Required(0)[0] = 0xf054;
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomPlmShotBlockVisuals(),
+            "shot-block visual override rejects collision/type bits");
+        first.Required("runs").Required(0)[0] = PlmVisualJson.Appearance(0x054);
+        File.WriteAllText(overridePath, document.ToJsonString());
+        File.WriteAllText(stockPath, "corrupt stock");
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomPlmShotBlockVisuals(),
+            "shot-block stock manifest hash rejects corrupted content");
+    }
+
+    /// <summary>Extracts stock shot-block visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmShotBlockVisualFiles.Extract into a fresh stock directory beside the copy's shot-block override, to check that a stock replacement keeps the edited single-block breakup word (appearance 054) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static InstalledRoomPlmShotBlockVisuals ReExtractShotBlockStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmShotBlockVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmShotBlockVisualFiles.Load(refreshed, overrides);
     }
 
     /// <summary>Minimal room, and PLM owners for stepping a shot-block program.</summary>

@@ -133,8 +133,7 @@ internal static class SamusChargeColorsVerification
             Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
             "charge-color-reextract");
         byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
-        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
-        AreaMapPresentation repaired = MapPresentationFiles.Load(replacementStock, overrideDirectory);
+        AreaMapPresentation repaired = SuperMetroid.Verification.Frontend.Map.MapStockReExtraction.ReExtractStock(rom, replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, repaired.ContentIdentity,
             "stock re-extraction preserves charge color override");
         AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),

@@ -15,6 +15,20 @@ internal sealed class PrivateInstallationCopy : IDisposable
         CopyInstallation(sourceRoot, Root);
     }
 
+    /// <summary>
+    /// Copies only the <paramref name="directories"/> of <paramref name="source"/> into isolated scratch storage, each to
+    /// the same place under the copy's root, so a check that edits a few content families does not copy the rest.
+    /// </summary>
+    /// <param name="source">Installation the directories are copied from.</param>
+    /// <param name="directories">Selects one directory of an installation; applied to the source and to the copy.</param>
+    internal PrivateInstallationCopy(GameInstallation source, IReadOnlyList<Func<GameInstallation, string>> directories)
+    {
+        Root = scratch.Root;
+        GameInstallation destination = Installation;
+        foreach (Func<GameInstallation, string> directory in directories)
+            CopyInstallation(directory(source), directory(destination));
+    }
+
     /// <summary>Copies every directory and file of an installation root into a new root.</summary>
     internal static void CopyInstallation(string sourceRoot, string destinationRoot)
     {

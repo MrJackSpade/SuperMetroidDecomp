@@ -82,8 +82,7 @@ internal static class MapStationLayoutVerification
         AssertTrue(nativePixels.SequenceEqual(graphics.Render(new(0, 0), marker)), "station rebind restores stock pixels");
         AssertTrue(before.SequenceEqual(state.Progress.ExploredCells(AreaId.Brinstar)), "layout render/rebind preserves exploration");
         string rebuilt = Path.Combine(overrides, "rebuilt");
-        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
-        AssertEqual(edited.ContentIdentity, MapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "station override survives stock replacement");
+        AssertEqual(edited.ContentIdentity, MapStockReExtraction.ReExtractStock(bus, rebuilt, overrides).ContentIdentity, "station override survives stock replacement");
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(replacement)), "station override bytes preserved");
         string rebuiltStations = Path.Combine(rebuilt, MapStationLayoutFormat.FileName);
         byte[] rebuiltBytes = File.ReadAllBytes(rebuiltStations);

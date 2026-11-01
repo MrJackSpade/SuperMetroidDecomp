@@ -90,8 +90,7 @@ internal static class MapLandmarksVerification
             AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause boss layout rebind restores pixels");
         }
         string rebuilt = Path.Combine(overrides, "rebuilt");
-        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
-        AssertEqual(edited.ContentIdentity, MapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "landmarks survive stock replacement");
+        AssertEqual(edited.ContentIdentity, MapStockReExtraction.ReExtractStock(bus, rebuilt, overrides).ContentIdentity, "landmarks survive stock replacement");
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(path)), "landmark override bytes preserved");
         foreach (var bad in new[] { document with { Version = 0 }, document with { Markers = new() },
             document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { Y = ushort.MaxValue }) } })

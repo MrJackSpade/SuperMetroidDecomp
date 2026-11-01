@@ -15,6 +15,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
@@ -460,60 +461,55 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
     /// <summary>Checks extracted stock, an edited green-cap override, survival across stock refresh, and rejection of malformed override or stock files.</summary>
     private static void VerifyColoredDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
-        using var testRootScratch = new TestScratchDirectory("colored-door-visual");
-        string testRoot = testRootScratch.Root;
-        try
-        {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmColoredDoorVisualFiles.Extract(rom,
-                installation.RoomPlmColoredDoorVisualDirectory, SupportedCartridge.Sha256);
-            RoomPlmColoredDoorVisualFiles.ValidateStock(
-                installation.RoomPlmColoredDoorVisualDirectory);
-            var installed = installation.LoadRoomPlmColoredDoorVisuals();
-            VerifyColoredDoorStockMapping(rom, installed);
-            RoomBlockAppearance stock = installed.GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0);
-            string stockPath = Path.Combine(installation.RoomPlmColoredDoorVisualDirectory,
-                RoomPlmColoredDoorVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted colored-door JSON is empty.");
-            JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "green-left-frame-0");
-            frame.Required("blocks")[0] = PlmVisualJson.Appearance(0x053);
-            Directory.CreateDirectory(
-                installation.RoomPlmColoredDoorVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmColoredDoorVisualOverrideDirectory,
-                RoomPlmColoredDoorVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual(RoomBlockAppearance.Of(0x053),
-                installation.LoadRoomPlmColoredDoorVisuals().GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
-                "installed colored-door override changes selected frame");
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmColoredDoorVisualDirectory);
+        GameInstallation installation = copy.Installation;
+        RoomPlmColoredDoorVisualFiles.ValidateStock(
+            installation.RoomPlmColoredDoorVisualDirectory);
+        var installed = installation.LoadRoomPlmColoredDoorVisuals();
+        VerifyColoredDoorStockMapping(rom, installed);
+        RoomBlockAppearance stock = installed.GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0);
+        string stockPath = Path.Combine(installation.RoomPlmColoredDoorVisualDirectory,
+            RoomPlmColoredDoorVisualFiles.VisualFileName);
+        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
+            ?? throw new InvalidDataException("Extracted colored-door JSON is empty.");
+        JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+            entry.Required("id").GetValue<string>() == "green-left-frame-0");
+        frame.Required("blocks")[0] = PlmVisualJson.Appearance(0x053);
+        Directory.CreateDirectory(
+            installation.RoomPlmColoredDoorVisualOverrideDirectory);
+        string overridePath = Path.Combine(
+            installation.RoomPlmColoredDoorVisualOverrideDirectory,
+            RoomPlmColoredDoorVisualFiles.VisualFileName);
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertEqual(RoomBlockAppearance.Of(0x053),
+            installation.LoadRoomPlmColoredDoorVisuals().GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
+            "installed colored-door override changes selected frame");
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmColoredDoorVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
-            AssertEqual(RoomBlockAppearance.Of(0x053),
-                RoomPlmColoredDoorVisualFiles.Load(refreshed,
-                    installation.RoomPlmColoredDoorVisualOverrideDirectory)
-                    .GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
-                "colored-door override survives stock replacement");
+        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
+        AssertEqual(RoomBlockAppearance.Of(0x053),
+            ReExtractColoredDoorStock(rom, refreshed,
+                installation.RoomPlmColoredDoorVisualOverrideDirectory)
+                .GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
+            "colored-door override survives stock replacement");
 
-            frame.Required("blocks")[0] = 0xf053;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmColoredDoorVisuals(),
-                "invalid colored-door override fails loudly");
-            frame.Required("blocks")[0] = PlmVisualJson.Appearance(stock);
-            File.WriteAllText(stockPath, "{}");
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmColoredDoorVisuals(),
-                "tampered colored-door stock fails manifest validation");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
-        }
+        frame.Required("blocks")[0] = 0xf053;
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomPlmColoredDoorVisuals(),
+            "invalid colored-door override fails loudly");
+        frame.Required("blocks")[0] = PlmVisualJson.Appearance(stock);
+        File.WriteAllText(stockPath, "{}");
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomPlmColoredDoorVisuals(),
+            "tampered colored-door stock fails manifest validation");
+    }
+
+    /// <summary>Extracts stock coloured-door cap visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmColoredDoorVisualFiles.Extract into a fresh stock directory beside the copy's coloured-door override, to check that a stock replacement keeps the edited green-left-frame-0 block (appearance 053) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static InstalledRoomPlmColoredDoorVisuals ReExtractColoredDoorStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmColoredDoorVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmColoredDoorVisualFiles.Load(refreshed, overrides);
     }
 
     /// <summary>Forbids runtime reads of the compiled bank-$84 colored-door instruction range and every owned draw payload.</summary>

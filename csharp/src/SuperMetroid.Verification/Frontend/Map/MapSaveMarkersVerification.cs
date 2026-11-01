@@ -160,8 +160,7 @@ internal static class MapSaveMarkersVerification
         AssertEqual((ushort)AreaId.Maridia, slot.Area, "layout does not alter selected save area");
         AssertEqual(0, slot.SaveStation, "layout does not alter selected load station");
         string rebuilt = Path.Combine(overrides, "rebuilt");
-        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
-        AssertEqual(edited.ContentIdentity, MapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "save marker override survives stock replacement");
+        AssertEqual(edited.ContentIdentity, MapStockReExtraction.ReExtractStock(bus, rebuilt, overrides).ContentIdentity, "save marker override survives stock replacement");
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(path)), "save marker override bytes preserved");
         foreach (var bad in new[] { document with { Version = 2 }, document with { Markers = new() },
             document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { X = ushort.MaxValue }) } })

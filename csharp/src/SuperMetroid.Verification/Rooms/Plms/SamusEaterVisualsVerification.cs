@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
@@ -31,68 +32,62 @@ internal static class SamusEaterVisualsVerification
             "Samus Eater native oracle revision");
         Suite(nameof(VerifySamusEaterDrawGeometry), () => VerifySamusEaterDrawGeometry(rom));
         Suite(nameof(VerifySamusEaterDrawWords), () => VerifySamusEaterDrawWords(rom));
-        using var testRootScratch = new TestScratchDirectory("samus-eater-visual");
-        string testRoot = testRootScratch.Root;
-        try
-        {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmSamusEaterVisualFiles.Extract(rom,
-                installation.RoomPlmSamusEaterVisualDirectory,
-                SupportedCartridge.Sha256);
-            RoomPlmSamusEaterVisualFiles.ValidateStock(
-                installation.RoomPlmSamusEaterVisualDirectory);
-            VerifySamusEaterStockVisualMapping(rom, installation.LoadRoomPlmSamusEaterVisuals());
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmSamusEaterVisualDirectory);
+        GameInstallation installation = copy.Installation;
+        RoomPlmSamusEaterVisualFiles.ValidateStock(
+            installation.RoomPlmSamusEaterVisualDirectory);
+        VerifySamusEaterStockVisualMapping(rom, installation.LoadRoomPlmSamusEaterVisuals());
 
-            string stockPath = Path.Combine(
-                installation.RoomPlmSamusEaterVisualDirectory,
-                RoomPlmSamusEaterVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted Samus Eater JSON is empty.");
-            JsonArray entries = document.Required("entries").AsArray();
-            JsonNode floor = entries.RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "floor-chew-2");
-            JsonNode ceiling = entries.RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "ceiling-chew-2");
-            floor.Required("blocks")[0] = PlmVisualJson.Appearance(0x058);
-            ceiling.Required("blocks")[0] = PlmVisualJson.Appearance(0x059);
-            Directory.CreateDirectory(
-                installation.RoomPlmSamusEaterVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmSamusEaterVisualOverrideDirectory,
-                RoomPlmSamusEaterVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            InstalledRoomPlmSamusEaterVisuals edited =
-                installation.LoadRoomPlmSamusEaterVisuals();
-            VerifySamusEaterLiveDraw(rom, edited,
-                PlmDrawAddressCodec.Of(PlmDraw.Of(SamusEaterDraw.FloorChew2)), RoomTerrainBlock.Of(0x1a5, BlockMirroring.Horizontal, RoomCollisionType.Air), RoomBlockAppearance.Of(0x058));
-            VerifySamusEaterLiveDraw(rom, edited,
-                PlmDrawAddressCodec.Of(PlmDraw.Of(SamusEaterDraw.CeilingChew2)), RoomTerrainBlock.Of(0x1a5, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.Air), RoomBlockAppearance.Of(0x059));
+        string stockPath = Path.Combine(
+            installation.RoomPlmSamusEaterVisualDirectory,
+            RoomPlmSamusEaterVisualFiles.VisualFileName);
+        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
+            ?? throw new InvalidDataException("Extracted Samus Eater JSON is empty.");
+        JsonArray entries = document.Required("entries").AsArray();
+        JsonNode floor = entries.RequiredElements().Single(entry =>
+            entry.Required("id").GetValue<string>() == "floor-chew-2");
+        JsonNode ceiling = entries.RequiredElements().Single(entry =>
+            entry.Required("id").GetValue<string>() == "ceiling-chew-2");
+        floor.Required("blocks")[0] = PlmVisualJson.Appearance(0x058);
+        ceiling.Required("blocks")[0] = PlmVisualJson.Appearance(0x059);
+        Directory.CreateDirectory(
+            installation.RoomPlmSamusEaterVisualOverrideDirectory);
+        string overridePath = Path.Combine(
+            installation.RoomPlmSamusEaterVisualOverrideDirectory,
+            RoomPlmSamusEaterVisualFiles.VisualFileName);
+        File.WriteAllText(overridePath, document.ToJsonString());
+        InstalledRoomPlmSamusEaterVisuals edited =
+            installation.LoadRoomPlmSamusEaterVisuals();
+        VerifySamusEaterLiveDraw(rom, edited,
+            PlmDrawAddressCodec.Of(PlmDraw.Of(SamusEaterDraw.FloorChew2)), RoomTerrainBlock.Of(0x1a5, BlockMirroring.Horizontal, RoomCollisionType.Air), RoomBlockAppearance.Of(0x058));
+        VerifySamusEaterLiveDraw(rom, edited,
+            PlmDrawAddressCodec.Of(PlmDraw.Of(SamusEaterDraw.CeilingChew2)), RoomTerrainBlock.Of(0x1a5, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.Air), RoomBlockAppearance.Of(0x059));
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmSamusEaterVisualFiles.Extract(rom, refreshed,
-                SupportedCartridge.Sha256);
-            AssertEqual(RoomBlockAppearance.Of(0x058),
-                RoomPlmSamusEaterVisualFiles.Load(refreshed,
-                    installation.RoomPlmSamusEaterVisualOverrideDirectory)
-                    .GetAppearance(PlmDraw.Of(SamusEaterDraw.FloorChew2), 0, 0),
-                "Samus Eater override survives stock refresh");
-            floor.Required("blocks")[0] = 0xf058;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmSamusEaterVisuals(),
-                "Samus Eater override cannot change collision nibble");
-            File.WriteAllText(stockPath, "{}");
-            AssertThrows<InvalidDataException>(
-                () => RoomPlmSamusEaterVisualFiles.ValidateStock(
-                    installation.RoomPlmSamusEaterVisualDirectory),
-                "tampered Samus Eater stock fails manifest validation");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
-        }
+        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
+        AssertEqual(RoomBlockAppearance.Of(0x058),
+            ReExtractSamusEaterStock(rom, refreshed,
+                installation.RoomPlmSamusEaterVisualOverrideDirectory)
+                .GetAppearance(PlmDraw.Of(SamusEaterDraw.FloorChew2), 0, 0),
+            "Samus Eater override survives stock refresh");
+        floor.Required("blocks")[0] = 0xf058;
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomPlmSamusEaterVisuals(),
+            "Samus Eater override cannot change collision nibble");
+        File.WriteAllText(stockPath, "{}");
+        AssertThrows<InvalidDataException>(
+            () => RoomPlmSamusEaterVisualFiles.ValidateStock(
+                installation.RoomPlmSamusEaterVisualDirectory),
+            "tampered Samus Eater stock fails manifest validation");
         Console.WriteLine("Samus Eater visuals: eight exact native draw lists, editable live floor/ceiling art, physical isolation, stock integrity and repair pass.");
+    }
+
+    /// <summary>Extracts stock Samus Eater visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmSamusEaterVisualFiles.Extract into a fresh stock directory beside the copy's Samus Eater override, to check that a stock refresh keeps the edited floor-chew frame (appearance 058) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static InstalledRoomPlmSamusEaterVisuals ReExtractSamusEaterStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmSamusEaterVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmSamusEaterVisualFiles.Load(refreshed, overrides);
     }
 
     /// <summary>Matches each installed visual frame to its native draw-list words while checking clone and ID validation rules.</summary>

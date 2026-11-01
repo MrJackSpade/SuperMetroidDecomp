@@ -35,10 +35,7 @@ internal static class InvalidBeamGraphicsVerification
             AssertEqual(native, ChainsawBeamGraphicsDefinitions.Colours[color],
                 $"Chainsaw palette colour {color} is the open-bus byte and Samus_Animate's instruction bytes as CGRAM keeps them");
         }
-        using var scratch = new TestScratchDirectory("projectile-artwork");
-        string installedDirectory = scratch.Root;
-        SuperMetroid.AssetExtraction.Samus.ProjectilePresentationFiles.Extract(bus, installedDirectory);
-        var artwork = SuperMetroid.AssetExtraction.Samus.ProjectilePresentationFiles.Load(installedDirectory, null).BeamTiles;
+        var artwork = InstalledFixtures.Projectiles.BeamTiles;
         AssertTrue(artwork.TryResolve(ChainsawBeamGraphicsDefinitionsConstants.TileSource, 256, out var legacyTiles),
             "restored native Chainsaw DMA resolves through installed artwork");
         AssertTrue(legacyTiles.Span.SequenceEqual(artwork.Resolve(InstalledArtworkId.BeamChainsawTiles).Span),

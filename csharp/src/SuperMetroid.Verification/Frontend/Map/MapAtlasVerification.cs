@@ -66,8 +66,7 @@ internal static class MapAtlasVerification
         AssertTrue(menuBefore.SequenceEqual(menu.RenderBackgrounds(new(0, 0))), "restored menu replaces stale modified atlas pixels");
         AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause rebind restores exact stock atlas pixels");
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
-        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
-        AssertEqual(edited.ContentIdentity, MapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "PNG override survives stock re-extraction");
+        AssertEqual(edited.ContentIdentity, MapStockReExtraction.ReExtractStock(bus, rebuilt, overrides).ContentIdentity, "PNG override survives stock re-extraction");
         AssertTrue(replacementBytes.SequenceEqual(File.ReadAllBytes(replacement)), "PNG override bytes never rewritten");
         File.WriteAllText(replacement, "invalid PNG");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad PNG override fails without stock fallback");

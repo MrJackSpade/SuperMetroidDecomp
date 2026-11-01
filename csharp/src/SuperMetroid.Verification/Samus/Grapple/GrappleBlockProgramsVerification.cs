@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
@@ -245,59 +246,55 @@ internal static class GrappleBlockProgramsVerification
     /// <summary>Checks extracted stock, edited override, stock refresh, and rejection of invalid art or corrupt stock manifest.</summary>
     private static void VerifyGrappleBlockVisualInstallation(SuperMetroidAddressSpace rom)
     {
-        using var testRootScratch = new TestScratchDirectory("grapple-block-visual");
-        string testRoot = testRootScratch.Root;
-        try
-        {
-            var installation = new GameInstallation(testRoot);
-            RoomPlmGrappleBlockVisualFiles.Extract(rom,
-                installation.RoomPlmGrappleBlockVisualDirectory, SupportedCartridge.Sha256);
-            RoomPlmGrappleBlockVisualFiles.ValidateStock(
-                installation.RoomPlmGrappleBlockVisualDirectory);
-            AssertEqual(RoomBlockAppearance.Of(0x0b7),
-                installation.LoadRoomPlmGrappleBlockVisuals().GetAppearance(PlmDraw.Of(GrappleBlockDraw.Intact)),
-                "installed Grapple frame matches native stock art");
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmGrappleBlockVisualDirectory);
+        GameInstallation installation = copy.Installation;
+        RoomPlmGrappleBlockVisualFiles.ValidateStock(
+            installation.RoomPlmGrappleBlockVisualDirectory);
+        AssertEqual(RoomBlockAppearance.Of(0x0b7),
+            installation.LoadRoomPlmGrappleBlockVisuals().GetAppearance(PlmDraw.Of(GrappleBlockDraw.Intact)),
+            "installed Grapple frame matches native stock art");
 
-            string stockPath = Path.Combine(
-                installation.RoomPlmGrappleBlockVisualDirectory,
-                RoomPlmGrappleBlockVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted Grapple-block JSON is empty.");
-            JsonNode first = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "intact");
-            first["appearance"] = PlmVisualJson.Appearance(0x0b8);
-            Directory.CreateDirectory(installation.RoomPlmGrappleBlockVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmGrappleBlockVisualOverrideDirectory,
-                RoomPlmGrappleBlockVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual(RoomBlockAppearance.Of(0x0b8),
-                installation.LoadRoomPlmGrappleBlockVisuals().GetAppearance(PlmDraw.Of(GrappleBlockDraw.Intact)),
-                "Grapple-block override selects the edited art");
+        string stockPath = Path.Combine(
+            installation.RoomPlmGrappleBlockVisualDirectory,
+            RoomPlmGrappleBlockVisualFiles.VisualFileName);
+        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
+            ?? throw new InvalidDataException("Extracted Grapple-block JSON is empty.");
+        JsonNode first = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+            entry.Required("id").GetValue<string>() == "intact");
+        first["appearance"] = PlmVisualJson.Appearance(0x0b8);
+        Directory.CreateDirectory(installation.RoomPlmGrappleBlockVisualOverrideDirectory);
+        string overridePath = Path.Combine(
+            installation.RoomPlmGrappleBlockVisualOverrideDirectory,
+            RoomPlmGrappleBlockVisualFiles.VisualFileName);
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertEqual(RoomBlockAppearance.Of(0x0b8),
+            installation.LoadRoomPlmGrappleBlockVisuals().GetAppearance(PlmDraw.Of(GrappleBlockDraw.Intact)),
+            "Grapple-block override selects the edited art");
 
-            string refreshed = Path.Combine(testRoot, "refreshed-stock");
-            RoomPlmGrappleBlockVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-            AssertEqual(RoomBlockAppearance.Of(0x0b8),
-                RoomPlmGrappleBlockVisualFiles.Load(refreshed,
-                    installation.RoomPlmGrappleBlockVisualOverrideDirectory).GetAppearance(PlmDraw.Of(GrappleBlockDraw.Intact)),
-                "Grapple edit survives stock-content replacement");
-            first["appearance"] = 0xf0b8;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmGrappleBlockVisuals(),
-                "Grapple override rejects collision-bit edits");
-            first["appearance"] = PlmVisualJson.Appearance(0x0b8);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            File.WriteAllText(stockPath, "corrupt stock");
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmGrappleBlockVisuals(),
-                "Grapple stock manifest hash rejects corruption");
-        }
-        finally
-        {
-            if (Directory.Exists(testRoot))
-                Directory.Delete(testRoot, recursive: true);
-        }
+        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
+        AssertEqual(RoomBlockAppearance.Of(0x0b8),
+            ReExtractGrappleBlockStock(rom, refreshed,
+                installation.RoomPlmGrappleBlockVisualOverrideDirectory).GetAppearance(PlmDraw.Of(GrappleBlockDraw.Intact)),
+            "Grapple edit survives stock-content replacement");
+        first["appearance"] = 0xf0b8;
+        File.WriteAllText(overridePath, document.ToJsonString());
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomPlmGrappleBlockVisuals(),
+            "Grapple override rejects collision-bit edits");
+        first["appearance"] = PlmVisualJson.Appearance(0x0b8);
+        File.WriteAllText(overridePath, document.ToJsonString());
+        File.WriteAllText(stockPath, "corrupt stock");
+        AssertThrows<InvalidDataException>(
+            () => installation.LoadRoomPlmGrappleBlockVisuals(),
+            "Grapple stock manifest hash rejects corruption");
+    }
+
+    /// <summary>Extracts stock Grapple-block visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
+    [PrivateInstallation("Runs RoomPlmGrappleBlockVisualFiles.Extract into a fresh stock directory beside the copy's Grapple-block override, to check that a stock replacement keeps the edited intact frame (appearance 0B8) selected; the copied stock is the installer's output and never re-runs the extractor.")]
+    private static InstalledRoomPlmGrappleBlockVisuals ReExtractGrappleBlockStock(ISnesAddressSpace rom, string refreshed, string overrides)
+    {
+        RoomPlmGrappleBlockVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+        return RoomPlmGrappleBlockVisualFiles.Load(refreshed, overrides);
     }
 
     /// <summary>Constructed room collision and PLM system for one grapple BTS program.</summary>

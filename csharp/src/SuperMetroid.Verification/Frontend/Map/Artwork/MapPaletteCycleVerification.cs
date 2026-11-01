@@ -152,8 +152,7 @@ internal static class MapPaletteCycleVerification
         AssertTrue(!installed.Step(installedColors) && installed.Step(installedColors), "authored duration controls subsequent cycle ticks");
 
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
-        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
-        AssertEqual(edited.ContentIdentity, MapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "palette override survives re-extraction and reload");
+        AssertEqual(edited.ContentIdentity, MapStockReExtraction.ReExtractStock(bus, rebuilt, overrides).ContentIdentity, "palette override survives re-extraction and reload");
         AssertTrue(editedBytes.SequenceEqual(File.ReadAllBytes(replacement)), "palette override never rewritten");
         foreach (string invalid in new[] { "null", "{}", "{\"version\":1,\"frames\":[]}", "{\"version\":1,\"frames\":null}" })
         {

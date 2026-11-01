@@ -20,7 +20,7 @@ internal static class SpaceColonyCaptionVerification
             AssertEqual((byte)SpaceColonyCaptionDefinitions.Row, rom.ReadCartridgeByte(instruction + 3), "native caption row unchanged");
             int drawing = 0x8c0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((instruction + 4));
             AssertEqual(0x0101, CartridgeImportSource.Require(rom).ReadCartridgeWord((drawing + 2)), "one-cell character drawing");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((drawing + 4)), BackgroundTileWords.ToWord(SpaceColonyCaptionTileDefinitions.Glyphs[SpaceColonyCaption.Character(index)]), "the import pictures the native caption tile and attributes");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((drawing + 4)), BackgroundTileWords.ToWord(SpaceColonyCaptionTileDefinitions.Glyphs[CeresCinematicPictureSheetComposer.CaptionCharacter(index)]), "the import pictures the native caption tile and attributes");
         }
         foreach (int invalid in new[] { -1, 11, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SpaceColonyCaption.Column(invalid), "caption domain");

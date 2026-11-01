@@ -166,19 +166,19 @@ internal static class IntroContentIdentityVerification
         // Build a Mode 7 flight view with an optional final-cell edit.
         int[] FlightMap(string name)
         {
-            var cells = new int[CeresFlightArtworkFormat.MapCellsPerView];
+            var cells = new int[CeresFlightArtworkFileFormat.MapCellsPerView];
             if (edit == name) cells[^1] = 1;
             return cells;
         }
         var flight = CeresFlightCharacters.Read(
-            Png("flight-mode7", CeresFlightArtworkFormat.FloorWidth, CeresFlightArtworkFormat.FloorHeight, 256),
+            Png("flight-mode7", CeresFlightArtworkFileFormat.FloorWidth, CeresFlightArtworkFileFormat.FloorHeight, 256),
             Json(new CeresFlightMapDocument
             {
-                Version = CeresFlightArtworkFormat.Version, Width = CeresFlightArtworkFormat.MapWidth,
-                Height = CeresFlightArtworkFormat.MapHeight,
+                Version = CeresFlightArtworkFileFormat.Version, Width = CeresFlightArtworkFileFormat.MapWidth,
+                Height = CeresFlightArtworkFileFormat.MapHeight,
                 FrontTiles = FlightMap("flight-front-map"), RearTiles = FlightMap("flight-rear-map"),
             }),
-            Png("flight-objects", CeresFlightArtworkFormat.ObjectWidth, CeresFlightArtworkFormat.ObjectHeight, 16),
+            Png("flight-objects", CeresFlightArtworkFileFormat.ObjectWidth, CeresFlightArtworkFileFormat.ObjectHeight, 16),
             CeresFlightPaletteFile.Read(PaletteJson("flight-palette")),
             Sprites("flight", CeresFlightSpriteDefinitions.Frames.Select(frame => frame.Name)),
             Json(new CeresFlightActorLayoutDocument { Version = CeresFlightActorLayoutFormat.Version, Actors = flightActors }));
@@ -208,7 +208,7 @@ internal static class IntroContentIdentityVerification
             Version = CeresDestructionMapFormat.Version, Width = CeresDestructionMapFormat.MapWidth,
             Height = CeresDestructionMapFormat.MapHeight, Views = views,
         }));
-        var destruction = CeresDestructionArtwork.Load(
+        var destruction = CeresDestructionArtworkFile.Read(
             Json(new CeresRevealActorLayoutDocument { Version = CeresRevealActorLayoutFormat.Version, Actors = revealActors }),
             Json(new CeresDestructionActorLayoutDocument { Version = CeresDestructionActorLayoutFormat.Version, Actors = destructionActors }));
         var zebesReveal = ZebesRevealArtwork.Load(MapJson("zebes-map"),

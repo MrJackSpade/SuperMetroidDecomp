@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
@@ -110,7 +111,7 @@ public static class SpriteSheetFiles
     {
         SpriteSheetId.IntroScenePictures => IntroScenePictureSheetComposer.FrameNames,
         SpriteSheetId.IntroNarrationPictures => IntroNarrationPictureSheetComposer.FrameNames,
-        SpriteSheetId.CeresCinematicPictures => CeresCinematicPictures.FrameNames,
+        SpriteSheetId.CeresCinematicPictures => CeresCinematicPictureSheetComposer.FrameNames,
         SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
             SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures =>
             EndingPictureSheetComposer.FrameNames(sheet),

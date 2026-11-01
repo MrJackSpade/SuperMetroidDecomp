@@ -8,7 +8,7 @@ public sealed record CeresRevealActorPlacement
     [System.Text.Json.Serialization.JsonIgnore]
     public Position16<ScreenPixels> Position => new(X, Y);
 
-    /// <summary>Case-sensitive presentation role, required to match its fixed index in <see cref="CeresRevealActorLayoutDocument.Actors"/>.</summary>
+    /// <summary>Case-sensitive presentation role, required to match its fixed index among the installed reveal layout's actors.</summary>
     public required string Id { get; init; }
     /// <summary>Initial horizontal screen-pixel coordinate encoded as an unsigned 16-bit position word, 0..65535; not a room-world or tile coordinate.</summary>
     public required int X { get; init; }

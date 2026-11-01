@@ -23,10 +23,6 @@ public static class CeresCinematicPictures
     /// <summary>The name of the Zebes planet's picture.</summary>
     public const string ZebesPlanet = "zebes";
 
-    /// <summary>The name of every picture the sheet holds.</summary>
-    public static IEnumerable<string> FrameNames =>
-        [.. Enumerable.Range(0, SpaceColonyCaptionDefinitions.LetterCount).Select(CaptionLetter), JapaneseCaption, ZebesPlanet];
-
     /// <summary>The caption plane with its first <paramref name="letters"/> letters shown, and the katakana caption when <paramref name="japanese"/>.</summary>
     internal static PicturedPlane Caption(InstalledSpriteSheets sheets, int letters, bool japanese)
     {

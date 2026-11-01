@@ -60,12 +60,12 @@ internal static void VerifyCeresDestructionCinematic()
     using var overrideRootScratch = new TestScratchDirectory("ceres-timeline");
     string overrideRoot = overrideRootScratch.Root;
     Directory.CreateDirectory(overrideRoot);
-    using (var stream = File.Create(Path.Combine(overrideRoot, CeresFlightArtworkFormat.MapFileName)))
+    using (var stream = File.Create(Path.Combine(overrideRoot, CeresFlightArtworkFileFormat.MapFileName)))
         CeresFlightCharacters.WriteMap(stream, new CeresFlightMapDocument
         {
-            Version = CeresFlightArtworkFormat.Version,
-            Width = CeresFlightArtworkFormat.MapWidth,
-            Height = CeresFlightArtworkFormat.MapHeight,
+            Version = CeresFlightArtworkFileFormat.Version,
+            Width = CeresFlightArtworkFileFormat.MapWidth,
+            Height = CeresFlightArtworkFileFormat.MapHeight,
             FrontTiles = maps.AsSpan(0, 0x300).SelectToArray(value => (int)value),
             RearTiles = maps.AsSpan(0x300, 0x300).SelectToArray(value => (int)value),
         });

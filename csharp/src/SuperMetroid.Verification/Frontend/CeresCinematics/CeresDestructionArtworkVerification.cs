@@ -35,7 +35,7 @@ internal static class CeresDestructionArtworkVerification
             CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
         AssertTrue(IntroCinematicSourceArtwork.Of(stock).CeresDestructionMaps.Views.Span.SequenceEqual(nativeMaps.AsSpan(
-                2 * CeresFlightArtworkFormat.MapCellsPerView,
+                2 * CeresFlightArtworkFileFormat.MapCellsPerView,
                 CeresDestructionMapFormat.MapByteCount)),
             "installed destruction JSON preserves the three remaining Ceres map slices");
         byte[] nativeZebesMap = RomDataReader.Decompress(bus,
@@ -135,7 +135,7 @@ internal static class CeresDestructionArtworkVerification
         int stockPlanetX = actorsDocument.Actors[0].X;
         actorsDocument.Actors[0] = actorsDocument.Actors[0] with { X = stockPlanetX + 16 };
         using (var output = File.Create(actorsOverride))
-            CeresRevealActorPlacements.Write(output, actorsDocument);
+            CeresRevealActorLayoutFile.Write(output, actorsDocument);
         IntroCinematicArtwork movedPlanet = installation.LoadIntroCinematicArt();
         var stockReveal = CreateRetailDestructionFixture(artwork: stock);
         var movedReveal = CreateRetailDestructionFixture(artwork: movedPlanet);
@@ -175,7 +175,7 @@ internal static class CeresDestructionArtworkVerification
         AssertThrows<InvalidDataException>(() =>
         {
             using var invalid = new MemoryStream();
-            CeresRevealActorPlacements.Write(invalid, actorsDocument);
+            CeresRevealActorLayoutFile.Write(invalid, actorsDocument);
         }, "Zebes reveal layout rejects missing or reordered actor identities");
         File.Delete(actorsOverride);
 
@@ -205,7 +205,7 @@ internal static class CeresDestructionArtworkVerification
             X = stockAsteroidX + 16,
         };
         using (var output = File.Create(destructionActorsOverride))
-            CeresDestructionActorPlacements.Write(output, destructionActorsDocument);
+            CeresDestructionActorLayoutFile.Write(output, destructionActorsDocument);
         IntroCinematicArtwork movedAsteroid = installation.LoadIntroCinematicArt();
         var stockDestruction = CreateRetailDestructionFixture(artwork: stock);
         var movedDestruction = CreateRetailDestructionFixture(artwork: movedAsteroid);
@@ -243,7 +243,7 @@ internal static class CeresDestructionArtworkVerification
         AssertThrows<InvalidDataException>(() =>
         {
             using var invalid = new MemoryStream();
-            CeresDestructionActorPlacements.Write(invalid, destructionActorsDocument);
+            CeresDestructionActorLayoutFile.Write(invalid, destructionActorsDocument);
         }, "Ceres destruction layout rejects missing or reordered actor identities");
         File.Delete(destructionActorsOverride);
 

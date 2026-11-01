@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Installed resource identity and supported schema version for rear-view Ceres actor placement.</summary>
 public static class CeresFlightActorLayoutFormat

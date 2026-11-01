@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 [SpatialComponents("External format: the flight-maps JSON stores its declared grid dimensions as width/height integers.")]
 public sealed record CeresFlightMapDocument
 {
-    /// <summary>Schema revision; loading requires <see cref="CeresFlightArtworkFormat.Version"/>.</summary>
+    /// <summary>Schema revision; loading requires <see cref="CeresFlightArtworkFileFormat.Version"/>.</summary>
     public required int Version { get; init; }
     /// <summary>Host editing-array width in tile cells; must be 32 for each view.</summary>
     public required int Width { get; init; }

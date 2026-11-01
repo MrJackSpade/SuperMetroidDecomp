@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Resource identity and schema for the Ceres approach palette.</summary>
 public static class CeresFlightPaletteFormat

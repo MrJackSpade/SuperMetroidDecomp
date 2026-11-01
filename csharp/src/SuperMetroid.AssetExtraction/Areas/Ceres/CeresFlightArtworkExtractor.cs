@@ -22,21 +22,21 @@ internal static class CeresFlightArtworkExtractor
     {
         Ensure.NotNull(bus);
         byte[] characters = Read(CeresCinematicSourceDefinitions.FlightFloorCharacters,
-            CeresFlightArtworkFormat.FloorByteCount, "Mode-7 characters");
+            CeresFlightArtworkFileFormat.FloorByteCount, "Mode-7 characters");
         byte[] objectCharacters = Read(CeresCinematicSourceDefinitions.FlightObjectCharacters,
             CeresFlightArtworkFormat.ObjectByteCount, "OBJ characters");
         byte[] decompressedMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: 4096);
-        if (decompressedMap.Length < CeresFlightArtworkFormat.MapCellCount)
+        if (decompressedMap.Length < CeresFlightArtworkFileFormat.MapCellCount)
             throw new InvalidDataException("Ceres flight lacks its front and rear Mode-7 map slices.");
-        byte[] map = decompressedMap.AsSpan(0, CeresFlightArtworkFormat.MapCellCount).ToArray();
+        byte[] map = decompressedMap.AsSpan(0, CeresFlightArtworkFileFormat.MapCellCount).ToArray();
 
         byte[] mode7Pixels = SnesGraphics.DecodeMode7Tiles(characters, 16,
             out Extent16<ImagePixels> mode7Size);
         byte[] objPixels = SnesGraphics.DecodePlanarTiles(objectCharacters, 4, 32,
             out Extent16<ImagePixels> objectSize);
-        if (mode7Size != new Extent16<ImagePixels>(CeresFlightArtworkFormat.FloorWidth, CeresFlightArtworkFormat.FloorHeight) ||
-            objectSize != new Extent16<ImagePixels>(CeresFlightArtworkFormat.ObjectWidth, CeresFlightArtworkFormat.ObjectHeight))
+        if (mode7Size != new Extent16<ImagePixels>(CeresFlightArtworkFileFormat.FloorWidth, CeresFlightArtworkFileFormat.FloorHeight) ||
+            objectSize != new Extent16<ImagePixels>(CeresFlightArtworkFileFormat.ObjectWidth, CeresFlightArtworkFileFormat.ObjectHeight))
             throw new InvalidDataException("Ceres flight character streams have unexpected dimensions.");
 
         byte[] floorPng = Png(mode7Size, mode7Pixels, 256);
@@ -44,13 +44,13 @@ internal static class CeresFlightArtworkExtractor
         using var mapJson = new MemoryStream();
         CeresFlightCharacters.WriteMap(mapJson, new CeresFlightMapDocument
         {
-            Version = CeresFlightArtworkFormat.Version,
-            Width = CeresFlightArtworkFormat.MapWidth,
-            Height = CeresFlightArtworkFormat.MapHeight,
-            FrontTiles = map.AsSpan(0, CeresFlightArtworkFormat.MapCellsPerView)
+            Version = CeresFlightArtworkFileFormat.Version,
+            Width = CeresFlightArtworkFileFormat.MapWidth,
+            Height = CeresFlightArtworkFileFormat.MapHeight,
+            FrontTiles = map.AsSpan(0, CeresFlightArtworkFileFormat.MapCellsPerView)
                 .SelectToArray(value => (int)value),
-            RearTiles = map.AsSpan(CeresFlightArtworkFormat.MapCellsPerView,
-                CeresFlightArtworkFormat.MapCellsPerView)
+            RearTiles = map.AsSpan(CeresFlightArtworkFileFormat.MapCellsPerView,
+                CeresFlightArtworkFileFormat.MapCellsPerView)
                 .SelectToArray(value => (int)value),
         });
         byte[] mapFile = mapJson.ToArray();
@@ -111,7 +111,7 @@ internal static class CeresFlightArtworkExtractor
             };
         }
         using var actorsJson = new MemoryStream();
-        CeresFlightActorPlacements.Write(actorsJson, new CeresFlightActorLayoutDocument
+        CeresFlightActorLayoutFile.Write(actorsJson, new CeresFlightActorLayoutDocument
         {
             Version = CeresFlightActorLayoutFormat.Version,
             Actors = placements,
@@ -134,9 +134,9 @@ internal static class CeresFlightArtworkExtractor
                 throw new InvalidDataException("Ceres flight palette export did not round-trip cartridge colors.");
         return new Dictionary<string, byte[]>(StringComparer.Ordinal)
         {
-            [CeresFlightArtworkFormat.FloorFileName] = floorPng,
-            [CeresFlightArtworkFormat.MapFileName] = mapFile,
-            [CeresFlightArtworkFormat.ObjectFileName] = objectPng,
+            [CeresFlightArtworkFileFormat.FloorFileName] = floorPng,
+            [CeresFlightArtworkFileFormat.MapFileName] = mapFile,
+            [CeresFlightArtworkFileFormat.ObjectFileName] = objectPng,
             [CeresFlightPaletteFormat.FileName] = paletteFile,
             [CeresFlightSpriteFormat.FileName] = spritesFile,
             [CeresFlightActorLayoutFormat.FileName] = actorsFile,

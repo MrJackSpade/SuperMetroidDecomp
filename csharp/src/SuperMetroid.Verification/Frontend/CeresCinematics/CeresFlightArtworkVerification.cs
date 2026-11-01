@@ -40,7 +40,7 @@ internal static class CeresFlightArtworkVerification
         CeresFlightArtwork stock = installation.LoadIntroCinematicArt().CeresFlight;
         AssertTrue(stock.FloorCharacters.Span.SequenceEqual(RomDataReader.Decompress(bus,
                 CeresCinematicSourceDefinitions.FlightFloorCharacters,
-                maximumOutputBytes: CeresFlightArtworkFormat.FloorByteCount)),
+                maximumOutputBytes: CeresFlightArtworkFileFormat.FloorByteCount)),
             "installed Ceres Mode-7 PNG preserves every native character byte");
         AssertTrue(stock.ObjectCharacters.Span.SequenceEqual(RomDataReader.Decompress(bus,
                 CeresCinematicSourceDefinitions.FlightObjectCharacters,
@@ -49,7 +49,7 @@ internal static class CeresFlightArtworkVerification
         byte[] nativeMaps = RomDataReader.Decompress(bus, CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: 0x1000);
         AssertTrue(CeresFlightCharacters.Of(stock).FloorMaps.Span.SequenceEqual(nativeMaps.AsSpan(0,
-                CeresFlightArtworkFormat.MapCellCount)),
+                CeresFlightArtworkFileFormat.MapCellCount)),
             "installed front/rear Ceres maps preserve every consumed native byte");
         byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CeresCinematicSourceDefinitions.FlightPalette, CgramPalettes.ByteCount);
@@ -62,9 +62,9 @@ internal static class CeresFlightArtworkVerification
 
         var guard = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.CeresFlightSprites);
         var referenceFiles = CeresFlightArtworkExtractor.Extract(bus);
-        using var referenceCharacters = new MemoryStream(referenceFiles[CeresFlightArtworkFormat.FloorFileName]);
-        using var referenceMaps = new MemoryStream(referenceFiles[CeresFlightArtworkFormat.MapFileName]);
-        using var referenceObjects = new MemoryStream(referenceFiles[CeresFlightArtworkFormat.ObjectFileName]);
+        using var referenceCharacters = new MemoryStream(referenceFiles[CeresFlightArtworkFileFormat.FloorFileName]);
+        using var referenceMaps = new MemoryStream(referenceFiles[CeresFlightArtworkFileFormat.MapFileName]);
+        using var referenceObjects = new MemoryStream(referenceFiles[CeresFlightArtworkFileFormat.ObjectFileName]);
         using var referencePalette = new MemoryStream(referenceFiles[CeresFlightPaletteFormat.FileName]);
         using var referenceSprites = new MemoryStream(referenceFiles[CeresFlightSpriteFormat.FileName]);
         using var referenceActors = new MemoryStream(referenceFiles[CeresFlightActorLayoutFormat.FileName]);
@@ -108,15 +108,15 @@ internal static class CeresFlightArtworkVerification
         Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
         string[] names =
         [
-            CeresFlightArtworkFormat.FloorFileName,
-            CeresFlightArtworkFormat.MapFileName,
-            CeresFlightArtworkFormat.ObjectFileName,
+            CeresFlightArtworkFileFormat.FloorFileName,
+            CeresFlightArtworkFileFormat.MapFileName,
+            CeresFlightArtworkFileFormat.ObjectFileName,
         ];
         foreach (string name in names)
         {
             string stockPath = Path.Combine(installation.IntroCinematicDirectory, name);
             string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
-            if (name == CeresFlightArtworkFormat.MapFileName)
+            if (name == CeresFlightArtworkFileFormat.MapFileName)
             {
                 CeresFlightMapDocument map;
                 using (var input = File.OpenRead(stockPath))
@@ -130,18 +130,18 @@ internal static class CeresFlightArtworkVerification
             }
             else
             {
-                bool mode7 = name == CeresFlightArtworkFormat.FloorFileName;
+                bool mode7 = name == CeresFlightArtworkFileFormat.FloorFileName;
                 IndexedPngImage image;
                 using (var input = File.OpenRead(stockPath))
                     image = IndexedPng.Read(input,
-                        new(checked((ushort)(mode7 ? CeresFlightArtworkFormat.FloorWidth : CeresFlightArtworkFormat.ObjectWidth)), checked((ushort)(mode7 ? CeresFlightArtworkFormat.FloorHeight : CeresFlightArtworkFormat.ObjectHeight))));
+                        new(checked((ushort)(mode7 ? CeresFlightArtworkFileFormat.FloorWidth : CeresFlightArtworkFileFormat.ObjectWidth)), checked((ushort)(mode7 ? CeresFlightArtworkFileFormat.FloorHeight : CeresFlightArtworkFileFormat.ObjectHeight))));
                 image.Pixels[0] = (byte)((image.Pixels[0] + 1) & (mode7 ? 255 : 15));
                 using var output = File.Create(overridePath);
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             }
 
             CeresFlightArtwork edited = installation.LoadIntroCinematicArt().CeresFlight;
-            bool isRearMap = name == CeresFlightArtworkFormat.MapFileName;
+            bool isRearMap = name == CeresFlightArtworkFileFormat.MapFileName;
             var fresh = new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
             var shownFresh = fresh.ShownVram();
             AssertTrue(shownFresh.SequenceEqual(
@@ -173,14 +173,14 @@ internal static class CeresFlightArtworkVerification
         Suite(nameof(VerifyCeresFlightPaletteOverride), () => VerifyCeresFlightPaletteOverride(installation, stock));
 
         string invalidMap = Path.Combine(installation.IntroCinematicOverrideDirectory,
-            CeresFlightArtworkFormat.MapFileName);
+            CeresFlightArtworkFileFormat.MapFileName);
         File.WriteAllBytes(invalidMap, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
             "malformed Ceres front/rear map fails instead of silently falling back");
         File.Delete(invalidMap);
         CeresFlightMapDocument persistentMap;
         using (var input = File.OpenRead(Path.Combine(installation.IntroCinematicDirectory,
-                   CeresFlightArtworkFormat.MapFileName)))
+                   CeresFlightArtworkFileFormat.MapFileName)))
             persistentMap = JsonSerializer.Deserialize<CeresFlightMapDocument>(input,
                 ArtworkJson.Options)
                 ?? throw new InvalidDataException("Ceres Mode-7 map is empty.");
@@ -189,7 +189,7 @@ internal static class CeresFlightArtworkVerification
             CeresFlightCharacters.WriteMap(output, persistentMap);
         CeresFlightArtwork selected = installation.LoadIntroCinematicArt().CeresFlight;
         string stockMode7 = Path.Combine(installation.IntroCinematicDirectory,
-            CeresFlightArtworkFormat.FloorFileName);
+            CeresFlightArtworkFileFormat.FloorFileName);
         File.WriteAllBytes(stockMode7, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
             "a Ceres map override cannot hide a corrupt stock PNG");
@@ -231,7 +231,7 @@ internal static class CeresFlightArtworkVerification
         int stockAsteroidX = document.Actors[0].X;
         document.Actors[0] = document.Actors[0] with { X = stockAsteroidX + 16 };
         using (var output = File.Create(overridePath))
-            CeresFlightActorPlacements.Write(output, document);
+            CeresFlightActorLayoutFile.Write(output, document);
         CeresFlightArtwork edited = installation.LoadIntroCinematicArt().CeresFlight;
         var original = new IntroCeresFlightState(new AudioQueues(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
         var changed = new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
@@ -273,7 +273,7 @@ internal static class CeresFlightArtworkVerification
         AssertThrows<InvalidDataException>(() =>
         {
             using var invalid = new MemoryStream();
-            CeresFlightActorPlacements.Write(invalid, document);
+            CeresFlightActorLayoutFile.Write(invalid, document);
         }, "Ceres flight layout rejects missing or reordered actor identities");
         File.Delete(overridePath);
     }
@@ -355,17 +355,17 @@ internal static class CeresFlightArtworkVerification
     {
         foreach (string name in new[]
             {
-                CeresFlightArtworkFormat.FloorFileName,
-                CeresFlightArtworkFormat.ObjectFileName,
+                CeresFlightArtworkFileFormat.FloorFileName,
+                CeresFlightArtworkFileFormat.ObjectFileName,
             })
         {
-            bool mode7 = name == CeresFlightArtworkFormat.FloorFileName;
+            bool mode7 = name == CeresFlightArtworkFileFormat.FloorFileName;
             string stockPath = Path.Combine(installation.IntroCinematicDirectory, name);
             string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
             IndexedPngImage image;
             using (var input = File.OpenRead(stockPath))
                 image = IndexedPng.Read(input,
-                    new(checked((ushort)(mode7 ? CeresFlightArtworkFormat.FloorWidth : CeresFlightArtworkFormat.ObjectWidth)), checked((ushort)(mode7 ? CeresFlightArtworkFormat.FloorHeight : CeresFlightArtworkFormat.ObjectHeight))));
+                    new(checked((ushort)(mode7 ? CeresFlightArtworkFileFormat.FloorWidth : CeresFlightArtworkFileFormat.ObjectWidth)), checked((ushort)(mode7 ? CeresFlightArtworkFileFormat.FloorHeight : CeresFlightArtworkFileFormat.ObjectHeight))));
             Array.Fill(image.Pixels, (byte)0);
             using (var output = File.Create(overridePath))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
@@ -389,9 +389,9 @@ internal static class CeresFlightArtworkVerification
         }
 
         string mapStock = Path.Combine(installation.IntroCinematicDirectory,
-            CeresFlightArtworkFormat.MapFileName);
+            CeresFlightArtworkFileFormat.MapFileName);
         string mapOverride = Path.Combine(installation.IntroCinematicOverrideDirectory,
-            CeresFlightArtworkFormat.MapFileName);
+            CeresFlightArtworkFileFormat.MapFileName);
         CeresFlightMapDocument map;
         using (var input = File.OpenRead(mapStock))
             map = JsonSerializer.Deserialize<CeresFlightMapDocument>(input,
@@ -447,8 +447,8 @@ internal static class CeresFlightArtworkVerification
             expected[word * 2] = CeresFloorShotDefinitions.BlankTile;
             expected[word * 2 + 1] = artwork.FloorCharacters.Span[word];
         }
-        int mapOffset = rear ? CeresFlightArtworkFormat.MapCellsPerView : 0;
-        for (int word = 0; word < CeresFlightArtworkFormat.MapCellsPerView; word++)
+        int mapOffset = rear ? CeresFlightArtworkFileFormat.MapCellsPerView : 0;
+        for (int word = 0; word < CeresFlightArtworkFileFormat.MapCellsPerView; word++)
             expected[word * 2] = CeresFlightCharacters.Of(artwork).FloorMaps.Span[mapOffset + word];
         artwork.ObjectCharacters.Span.CopyTo(expected.AsSpan(
             (CeresVramLayout.ObjectCharacters.Offset * 2)));

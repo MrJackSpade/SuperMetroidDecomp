@@ -459,9 +459,9 @@ public static class IntroCinematicArtworkFiles
 
         CeresFlightArtwork LoadCeresFlight()
         {
-            (string mode7Path, byte[] mode7) = ReadSelected(CeresFlightArtworkFormat.FloorFileName);
-            (string mapPath, byte[] map) = ReadSelected(CeresFlightArtworkFormat.MapFileName);
-            (string objectPath, byte[] objects) = ReadSelected(CeresFlightArtworkFormat.ObjectFileName);
+            (string mode7Path, byte[] mode7) = ReadSelected(CeresFlightArtworkFileFormat.FloorFileName);
+            (string mapPath, byte[] map) = ReadSelected(CeresFlightArtworkFileFormat.MapFileName);
+            (string objectPath, byte[] objects) = ReadSelected(CeresFlightArtworkFileFormat.ObjectFileName);
             (string palettePath, byte[] palette) = ReadSelected(CeresFlightPaletteFormat.FileName);
             (string spritesPath, byte[] sprites) = ReadSelected(CeresFlightSpriteFormat.FileName);
             (string actorsPath, byte[] actors) = ReadSelected(CeresFlightActorLayoutFormat.FileName);
@@ -633,7 +633,7 @@ public static class IntroCinematicArtworkFiles
                 ReadSelected(CeresDestructionActorLayoutFormat.FileName);
             try
             {
-                return CeresDestructionArtwork.Load(
+                return CeresDestructionArtworkFile.Read(
                     new MemoryStream(actors, writable: false),
                     new MemoryStream(destructionActors, writable: false));
             }
@@ -720,9 +720,9 @@ public static class IntroCinematicArtworkFiles
         .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
             .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
         IntroCinematicPaletteFile.FileName,
-        CeresFlightArtworkFormat.FloorFileName,
-        CeresFlightArtworkFormat.MapFileName,
-        CeresFlightArtworkFormat.ObjectFileName,
+        CeresFlightArtworkFileFormat.FloorFileName,
+        CeresFlightArtworkFileFormat.MapFileName,
+        CeresFlightArtworkFileFormat.ObjectFileName,
         CeresFlightPaletteFormat.FileName,
         CeresFlightSpriteFormat.FileName,
         CeresFlightActorLayoutFormat.FileName,

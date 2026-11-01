@@ -93,7 +93,7 @@ internal static class FrontendFloorSheetComposer
         Ensure.NotNull(flight);
         Ensure.NotNull(destruction);
         ReadOnlySpan<byte> characters = CeresFlightCharacters.Of(flight).FloorCharacters.Span;
-        if (characters.Length < CeresFlightArtworkFormat.FloorByteCount)
+        if (characters.Length < CeresFlightArtworkFileFormat.FloorByteCount)
             throw new InvalidDataException("The Ceres flight's Mode 7 characters are shorter than the scenes load.");
         if (CeresFlightCharacters.Of(flight).FloorMaps.Length + destruction.Views.Length < CeresFloorShotDefinitions.MapCells)
             throw new InvalidDataException("The Ceres cinematics' floor views are shorter than the scenes load.");
@@ -101,7 +101,7 @@ internal static class FrontendFloorSheetComposer
         CeresFlightCharacters.Of(flight).FloorMaps.Span.CopyTo(views);
         destruction.Views.Span[..(CeresFloorShotDefinitions.MapCells - CeresFlightCharacters.Of(flight).FloorMaps.Length)]
             .CopyTo(views.AsSpan(CeresFlightCharacters.Of(flight).FloorMaps.Length));
-        byte[] pixels = characters[..CeresFlightArtworkFormat.FloorByteCount].ToArray();
+        byte[] pixels = characters[..CeresFlightArtworkFileFormat.FloorByteCount].ToArray();
         byte[] station = Blank();
         views.AsSpan(CeresFloorShotDefinitions.StationStart, CeresFloorShotDefinitions.StationCells).CopyTo(station);
         // The final explosion shows the front gunship in the upper view, or a blank view with Samus still aboard, over a

@@ -18,7 +18,7 @@ public static class SpaceColonyCaptionDefinitions
 
     /// <summary>
     /// With Japanese text the caption list draws the katakana caption
-    /// below SPACE COLONY, as an eight-by-two block at column $0C, row $1A.
+    /// below SPACE COLONY, at column $0C, row $1A.
     /// </summary>
-    public const int JapaneseColumn = 12, JapaneseRow = 26, JapaneseWidth = 8;
+    public const int JapaneseColumn = 12, JapaneseRow = 26;
 }

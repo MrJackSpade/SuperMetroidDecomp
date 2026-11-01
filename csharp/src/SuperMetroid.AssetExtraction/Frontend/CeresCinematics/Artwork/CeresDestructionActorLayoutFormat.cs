@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Installed resource identity and supported JSON schema version for Ceres's three persistent destruction actors.</summary>
 public static class CeresDestructionActorLayoutFormat

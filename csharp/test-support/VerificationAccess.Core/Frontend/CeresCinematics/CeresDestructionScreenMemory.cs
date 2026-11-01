@@ -30,7 +30,7 @@ internal static class CeresDestructionScreenMemory
         IntroCinematicSourceArtwork.Of(artwork).CeresDestructionMaps.Views.Span[..(views.Length - CeresFlightCharacters.Of(artwork.CeresFlight).FloorMaps.Length)].CopyTo(views.AsSpan(CeresFlightCharacters.Of(artwork.CeresFlight).FloorMaps.Length));
         if (floor is { } shot)
         {
-            mode7.LoadCharacters(artwork.CeresFlight.FloorCharacters.Span[..CeresFlightArtworkFormat.FloorByteCount]);
+            mode7.LoadCharacters(artwork.CeresFlight.FloorCharacters.Span[..CeresFlightArtworkFileFormat.FloorByteCount]);
             mode7.FillMap(CeresFloorShotDefinitions.BlankTile, FloorSheetComposer.CellCount);
             mode7.LoadMap(views.AsSpan(CeresFloorShotDefinitions.StationStart, CeresFloorShotDefinitions.StationCells));
             if (shot is CeresFloorShot.Explosion or CeresFloorShot.ExplosionWithoutGunship or CeresFloorShot.ZebesApproach)

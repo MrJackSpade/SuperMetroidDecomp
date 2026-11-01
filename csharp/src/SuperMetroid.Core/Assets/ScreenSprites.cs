@@ -125,7 +125,7 @@ public sealed class ScreenSprites
 
     /// <summary>
     /// One placed frame at its position (nine-bit X as stored in sixteen bits, eight-bit Y), standing for the objects of
-    /// its parts, with the row its palette-inheriting parts take and the loader that reads its origin.
+    /// its parts, with the colour set its palette-inheriting parts take and the loader that reads its origin.
     /// </summary>
     private readonly record struct ScreenObject(Position16<SpritePixels> Position, SpriteSheetFrame Image, int Objects, DrawnColouring? PaletteOverride,
         SpriteOrigin Side);

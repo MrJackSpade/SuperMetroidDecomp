@@ -191,8 +191,8 @@ internal static class MotherBrainBodyPresentationVerification
         Console.WriteLine($"PASS stock import: 17 Mother Brain roots, {limbs} OAM limbs/{sprites} sprites, " +
             $"16 BG2 frames/{runs} ordered runs/{tiles} tile words. Production runtime receives no cartridge source.");
         using var temporary = new TestScratchDirectory("map-catalog");
-        string stockPath = Path.Combine(temporary.Root, "stock"), overridePath = Path.Combine(temporary.Root, "overrides");
-        EnemyTileArtworkFiles.Extract(source, stockPath, SupportedCartridge.Sha256);
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        string stockPath = copy.Installation.EnemyTileDirectory, overridePath = Path.Combine(temporary.Root, "overrides");
         EnemyTileArtworkFiles.ValidateStock(stockPath);
         InstalledEnemyArtwork installed = EnemyTileArtworkFiles.Load(stockPath, null);
         AssertEqual(bg2.ContentIdentity, (installed.Bosses.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires installed.MotherBrainBodyBg2Frames.")).ContentIdentity,

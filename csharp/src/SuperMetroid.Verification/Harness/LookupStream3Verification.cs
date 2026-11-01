@@ -1443,10 +1443,11 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.ExplodedDoor, invalid), "stream 3 door page bounds");
-        using var temporary = new TestScratchDirectory("map-catalog");
-        SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Extract(rom, temporary.Root, SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256);
-        Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(temporary.Root,
-            SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(temporary.Root, null)));
+        // The escape-text suite edits stock enemy-tile files, so it runs on a private installation copy.
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        string stock = copy.Installation.EnemyTileDirectory;
+        Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(stock,
+            SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(stock, null)));
     }
 
     /// <summary>Checks corpse row offsets and rot/page transfer geometry against native source and destination words.</summary>

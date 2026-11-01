@@ -18,9 +18,9 @@ internal static class KraidInstalledPresentationVerification
     {
         Suite(nameof(VerifyKraidWorkingMapTail), () => VerifyKraidWorkingMapTail());
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        using var temporary = new TestScratchDirectory("map-catalog");
-        string stockPath = Path.Combine(temporary.Root, "stock");
-        EnemyTileArtworkFiles.Extract(source, stockPath, SupportedCartridge.Sha256);
+        // The Kraid suites edit and remove stock enemy-tile files, so they run on a private installation copy.
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        string stockPath = copy.Installation.EnemyTileDirectory;
         EnemyTileArtworkFiles.ValidateStock(stockPath);
         InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(stockPath, null);
         Suite(nameof(VerifyInstalledKraidBackground), () => VerifyInstalledKraidBackground(source, stockPath, stock));

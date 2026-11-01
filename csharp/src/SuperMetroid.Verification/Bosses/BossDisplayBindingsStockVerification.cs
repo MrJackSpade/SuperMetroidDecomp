@@ -36,8 +36,9 @@ internal static class BossDisplayBindingsStockVerification
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         using var temporary = new TestScratchDirectory("map-catalog");
-        string path = Path.Combine(temporary.Root, "stock"), overrides = Path.Combine(temporary.Root, "overrides");
-        EnemyTileArtworkFiles.Extract(source, path, SupportedCartridge.Sha256);
+        // The stock enemy-tile files of a private installation copy, which the binding edits below write beside.
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        string path = copy.Installation.EnemyTileDirectory, overrides = Path.Combine(temporary.Root, "overrides");
         EnemyTileArtworkFiles.ValidateStock(path);
         InstalledEnemyArtwork installed = EnemyTileArtworkFiles.Load(path, null);
         int frames = 0, parts = 0, runs = 0, tiles = 0;

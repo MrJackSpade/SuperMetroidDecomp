@@ -35,7 +35,6 @@ internal static class GenericSpriteArtworkVerification
     {
         GameInstallation installation = RepositoryInstallation.Installation;
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-        var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         AreaMapPresentation maps = installation.LoadMaps();
         IntroCinematicArtwork introArtwork = installation.LoadIntroCinematicArt();
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
@@ -48,7 +47,7 @@ internal static class GenericSpriteArtworkVerification
         var document = RequiredJson.Deserialize<TitleFloorMapDocument>(File.ReadAllBytes(
             Path.Combine(installation.MapDirectory, TitleGraphicsFormat.FloorMapFile)),
             ArtworkJson.Options);
-        var expected = new OamBuffer();
+        OamBuffer expected;
         int titleCases = 0;
         IReadOnlyDictionary<TitleSprite, int> spritemaps =
             SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(reference);
@@ -97,7 +96,6 @@ internal static class GenericSpriteArtworkVerification
         var caret = intro.CurrentObjects;
         (caret ?? throw new InvalidOperationException("Verification requires caret.")).Step(0);
         PlacedSpritePart[] actualParts = PlacedSpritePart.Of(intro.PrepareIllustratedPageSprites().Draws);
-        expected = new OamBuffer();
         expected = new OamBuffer(); expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(caret.CaretPose)),

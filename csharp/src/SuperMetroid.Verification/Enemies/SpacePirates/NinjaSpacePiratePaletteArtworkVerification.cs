@@ -69,11 +69,11 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             "Edited ninja palette does not change physical post placement");
 
         byte[] savedOverride = File.ReadAllBytes(overridePath);
-        string reextracted = EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory, "ninja-reextracted-enemy-tiles");
+        EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory);
         AssertTrue(savedOverride.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Enemy stock re-extraction preserves the shared ninja color override");
         (RoomEnemySlot restoredSlot, SamusColourRig restoredColors, _) = Initialize(
-            EnemyTileArtworkFiles.Load(reextracted, overrideDirectory));
+            EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory));
         AssertTrue(new CgramPalettes(restoredColors).ImageEquals(new CgramPalettes(editedColors)),
             "Reload after stock repair retains the selected ninja target colors");
         AssertEqual(editedSlot.Position.X.Whole, restoredSlot.Position.X.Whole,

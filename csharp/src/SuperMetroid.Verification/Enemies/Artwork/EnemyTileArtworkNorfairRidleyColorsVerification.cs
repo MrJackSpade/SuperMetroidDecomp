@@ -115,10 +115,10 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             "Norfair Ridley reveal advances after three calls");
         CheckEditedCgram("Norfair Ridley next row replaces edit", revealRowVisible: false);
 
-        string reextracted = EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory, "norfair-ridley-reextracted-enemy-tiles");
+        EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory);
         AssertTrue(editedBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Stock re-extraction leaves Norfair Ridley override untouched");
-        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(reextracted, overrides);
+        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         AssertEqual((edited.Bosses.NorfairRidleyColors ?? throw new InvalidOperationException("Verification requires edited.NorfairRidleyColors.")).ResolveReveal(7, 3),
             (reloaded.Bosses.NorfairRidleyColors ?? throw new InvalidOperationException("Verification requires reloaded.NorfairRidleyColors.")).ResolveReveal(7, 3),
             "Norfair Ridley reveal edit survives restart/re-extraction");

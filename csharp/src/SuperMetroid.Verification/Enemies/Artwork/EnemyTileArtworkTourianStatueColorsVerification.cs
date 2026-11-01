@@ -154,10 +154,10 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Tourian statue installed paths avoid migrated ROM colors");
 
-        string reextracted = EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory, "tourian-statue-reextracted-enemy-tiles");
+        EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory);
         AssertTrue(greyBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Stock re-extraction preserves Tourian statue override");
-        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(reextracted, overrides);
+        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         AssertEqual((editedGrey.Areas.TourianStatueColors ?? throw new InvalidOperationException("Verification requires editedGrey.TourianStatueColors.")).ResolveGrey(1),
             (reloaded.Areas.TourianStatueColors ?? throw new InvalidOperationException("Verification requires reloaded.TourianStatueColors.")).ResolveGrey(1),
             "Tourian statue grey edit survives reload");

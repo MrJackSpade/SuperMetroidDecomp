@@ -92,10 +92,10 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         AssertEqual(counterBeforeGate, Counter(selected),
             "Zebetite secondary-half gate remains an engine-owned condition");
 
-        string reextracted = EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory, "zebetite-reextracted-enemy-tiles");
+        EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory);
         AssertTrue(selectedBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Stock re-extraction preserves the Zebetite color override");
-        var reloaded = EnemyTileArtworkFiles.Load(reextracted, overrides);
+        var reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         var persistedCgram = new SamusColourRig();
         (reloaded.Bosses.ZebetiteColors ?? throw new InvalidOperationException("Verification requires reloaded.ZebetiteColors.")).Apply(ZebetiteDefinitions.PulseColours.In(persistedCgram.Gameplay), 3);
         AssertEqual(selectedCgram.Colors[ColourSetRunPositions.First(ZebetiteDefinitions.PulseColours) + 1],

@@ -59,7 +59,7 @@ internal sealed class ConvertedMovieSession : IDisposable
     /// Comparison and failure are unchanged. The Ridley showcase replay has no such trace.
     /// </param>
     /// <param name="video">When supplied, the host records every update's picture and sound with it; power-on movies only.</param>
-    internal static ConvertedMovieSession Open(ReplayMovieId movie, string traceDirectory, int? traceFromUpdate = null, MovieReplayVideo? video = null)
+    internal static ConvertedMovieSession Open(ReplayMovieId movie, string traceDirectory, int? traceFromUpdate = null, IMovieRecorder? video = null)
     {
         if (movie == ReplayMovieId.Ridley)
         {

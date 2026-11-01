@@ -16,6 +16,7 @@ namespace SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 /// <summary>
 /// #1286: Phantoon's typed body, eye, tentacle, mouth and flame programs against the retail cartridge. The part
@@ -200,7 +201,7 @@ internal static class PhantoonAnimationsVerification
             RoomEnemySystem enemies = NewFlameSystem();
             RoomEnemyProjectileSlot flame = SpawnDestroyable(enemies, PhantoonFlameSpawnType.Enraged);
             flame.StartAnimation(new PhantoonFlameAnimation(program));
-            var native = new NativeEnemyProjectileListDefinitions.Reader(entry, flame.FrameHold.RawValue);
+            var native = new NativeEnemyProjectileListReader(entry, flame.FrameHold.RawValue);
             int drops = 0;
             for (int update = 0; update < 64 && !native.Deleted; update++)
             {
@@ -270,7 +271,7 @@ internal static class PhantoonAnimationsVerification
         enemies.PrePhantoonRoomBehavior.SpawnPrePhantoonRoomProjectile(scroll);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PrePhantoonRoom);
         AssertTrue(projectile.Animation is PrePhantoonRoomAnimation, "the room setup starts the typed room animation");
-        var native = new NativeEnemyProjectileListDefinitions.Reader(PrePhantoonRoomEntry, projectile.FrameHold.RawValue);
+        var native = new NativeEnemyProjectileListReader(PrePhantoonRoomEntry, projectile.FrameHold.RawValue);
         for (int update = 0; update < 40 && !native.Deleted; update++)
         {
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);

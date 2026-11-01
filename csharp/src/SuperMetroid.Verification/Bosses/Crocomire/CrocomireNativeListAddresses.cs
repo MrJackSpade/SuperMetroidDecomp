@@ -2,6 +2,7 @@ using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.MovieReplay.Verification;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 
 /// <summary>
@@ -122,7 +123,7 @@ internal static class CrocomireNativeListAddresses
     internal static bool BodyEntriesAscend => BodyEntries.Zip(BodyEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends);
 
     /// <summary>Whether a native reader's cursor has reached <paramref name="program"/>'s list or a later one.</summary>
-    internal static bool HasReached(NativeEnemyListDefinitions.Reader reader, CrocomireBodyProgram program) => reader.Cursor >= BodyEntry(program);
+    internal static bool HasReached(NativeEnemyListReader reader, CrocomireBodyProgram program) => reader.Cursor >= BodyEntry(program);
 
     /// <summary>The sound a native body callback queues, if it is a sound callback.</summary>
     internal static SoundEffectId? BodySound(ushort callback) => BodySoundCallbacks.TryGetValue(callback, out SoundEffectId sound) ? sound : null;

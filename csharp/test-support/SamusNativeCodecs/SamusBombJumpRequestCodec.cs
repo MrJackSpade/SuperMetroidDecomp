@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 
-namespace SuperMetroid.TestSupport.ScenarioFixtures;
+namespace SuperMetroid.TestSupport.SamusNativeCodecs;
 
 /// <summary>
 /// Converts Samus's bomb-jump request to and from the native WRAM <c>$0A56</c> word for native traces and comparisons:

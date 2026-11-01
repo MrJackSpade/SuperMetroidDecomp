@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 /// <summary>
 /// #1283: Draygon's typed body, eye, tail, arms and projectile programs against the retail cartridge. The typed
@@ -195,7 +196,7 @@ internal static class DraygonAnimationsVerification
         RoomEnemySlot arms = state.Arms;
         state.SetCursor(arms, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingLeftDying));
         arms.FrameHold = WrappingCountdown.Start(1);
-        var native = new NativeEnemyListDefinitions.Reader(BodyBankNumber, Entry(DraygonProgram.ArmsFacingLeftDying), 1, OperandWords);
+        var native = new NativeEnemyListReader(BodyBankNumber, Entry(DraygonProgram.ArmsFacingLeftDying), 1, OperandWords);
         bool paralysed = false;
         for (int update = 0; update < 400; update++)
         {

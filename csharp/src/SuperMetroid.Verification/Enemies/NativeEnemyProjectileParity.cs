@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 namespace SuperMetroid.Verification.Enemies;
 
@@ -21,7 +22,7 @@ internal static class NativeEnemyProjectileParity
     internal static CompareResult Compare(IImportCartridgeSource cartridge, RoomEnemySystem enemies,
         RoomEnemyProjectileSlot projectile, ushort entry, int updates, string label)
     {
-        var native = new NativeEnemyProjectileListDefinitions.Reader(entry, projectile.FrameHold.RawValue);
+        var native = new NativeEnemyProjectileListReader(entry, projectile.FrameHold.RawValue);
         int update = 0;
         for (; update < updates; update++)
         {

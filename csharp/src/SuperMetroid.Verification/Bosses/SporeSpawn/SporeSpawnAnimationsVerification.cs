@@ -19,6 +19,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.SporeSpawn;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 /// <summary>
 /// #1288: Spore Spawn's typed body and projectile programs against the retail cartridge. Each body program must
@@ -179,7 +180,7 @@ internal static class SporeSpawnAnimationsVerification
                 started.Cursor == AnimationProgramCursor<SporeSpawnProjectileProgram>.Start(SporeSpawnProjectileProgram.Spore),
                 "the real spore producer starts the falling-spore program");
             projectile.StartAnimation(new SporeSpawnProjectileAnimation(program));
-            var native = new NativeEnemyProjectileListDefinitions.Reader(entry, projectile.FrameHold.RawValue);
+            var native = new NativeEnemyProjectileListReader(entry, projectile.FrameHold.RawValue);
             int drops = 0;
             for (int update = 0; update < 48 && !native.Deleted; update++, updates++)
             {

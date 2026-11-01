@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
+using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 namespace SuperMetroid.Verification.Harness;
 

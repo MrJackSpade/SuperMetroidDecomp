@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Samus.Movement;
 
-namespace SuperMetroid.TestSupport.ScenarioFixtures;
+namespace SuperMetroid.TestSupport.SamusNativeCodecs;
 
 /// <summary>Converts Samus's acceleration mode to the native WRAM <c>$0B4A</c> word for native traces and comparisons.</summary>
 internal static class SamusAccelerationModeCodec

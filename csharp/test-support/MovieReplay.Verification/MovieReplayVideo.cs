@@ -5,8 +5,9 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.TestSupport.MovieReplay;
 
-namespace SuperMetroid.TestSupport.MovieReplay;
+namespace SuperMetroid.TestSupport.MovieReplay.Verification;
 
 /// <summary>
 /// Records a movie replay's port output: every production update is captured, rasterized and
@@ -17,7 +18,7 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// 60 frames per second to stay aligned with the audio. Pixels are upscaled 4x with
 /// nearest-neighbour sampling; the native image is never reduced.
 /// </remarks>
-internal sealed class MovieReplayVideo : IDisposable
+internal sealed class MovieReplayVideo : IMovieRecorder, IDisposable
 {
     private const int Scale = 4;
     private readonly string outputPath;

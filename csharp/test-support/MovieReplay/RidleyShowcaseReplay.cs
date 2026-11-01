@@ -36,8 +36,9 @@ using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.TestSupport.ScenarioFixtures;
+using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.TestSupport.SamusNativeCodecs;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 
@@ -51,9 +52,6 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
     /// <summary>The committed compact trace of the movie.</summary>
     private readonly string directory;
 
-    /// <summary>The imported game; the movie never resets the console.</summary>
-    private SuperMetroidGame? game;
-
     /// <summary>The final report, once every update matched.</summary>
     private string? report;
 
@@ -61,7 +59,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
     internal RidleyShowcaseReplay(string directory) => this.directory = directory;
 
     /// <inheritdoc/>
-    public SuperMetroidGame Game => game ?? throw new InvalidOperationException("The Ridley replay has not imported its snapshot.");
+    public SuperMetroidGame Game
+    {
+        get => field ?? throw new InvalidOperationException("The Ridley replay has not imported its snapshot.");
+        private set;
+    }
 
     /// <inheritdoc/>
     public IEnumerable<ControllerButton?> Frames()
@@ -98,7 +100,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
         NativeCheckpointMemory memory = ReadFrame(0);
         ushort W(int address) => memory.Word(address);
         var (bus, runtime, samus, game) = NativeSnapshotImport.ImportNativeSnapshot(memory.ToWorkRam(), ridleyMovie.InitialSaveRam);
-        this.game = game;
+        Game = game;
         // Ridley's body, fragments and fireballs run typed programs (#1287); compare their cursors as native pointers.
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
         PlmSlot[] initialPlms = [.. runtime.Plms.SlotTable.Slots];

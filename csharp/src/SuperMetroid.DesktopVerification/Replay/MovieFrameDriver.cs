@@ -20,9 +20,6 @@ internal sealed class MovieFrameDriver : IHostFrameDriver
     private readonly TaskCompletionSource<string> outcome = new(TaskCreationOptions.RunContinuationsAsynchronously);
     /// <summary>Whether the host already started the session's game.</summary>
     private bool started;
-    /// <summary>Inputs the session supplied to the host.</summary>
-    private int inputsSupplied;
-
     /// <summary>Drives the host from <paramref name="session"/>.</summary>
     internal MovieFrameDriver(ConvertedMovieSession session) => this.session = Ensure.NotNull(session);
 
@@ -33,10 +30,10 @@ internal sealed class MovieFrameDriver : IHostFrameDriver
     public SuperMetroidGame Game => session.Game;
 
     /// <inheritdoc/>
-    public int InputsSupplied => inputsSupplied;
+    public int InputsSupplied { get; private set; }
 
     /// <inheritdoc/>
-    public string Progress => $"movie update {inputsSupplied}";
+    public string Progress => $"movie update {InputsSupplied}";
 
     /// <summary>Hands the host the session's game, which the session created by the movie's one initial-state import.</summary>
     /// <remarks>The host's installed content is not used: the session imports the movie's initial state itself. A
@@ -61,7 +58,7 @@ internal sealed class MovieFrameDriver : IHostFrameDriver
             CompleteWithReport();
             return null;
         }
-        inputsSupplied++;
+        InputsSupplied++;
         return input;
     }
 

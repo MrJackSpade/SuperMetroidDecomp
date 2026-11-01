@@ -9,6 +9,7 @@ namespace SuperMetroid.DebugRunner.Tools;
 
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.ScenarioFixtures;
+using SuperMetroid.TestSupport.SamusNativeCodecs;
 
 /// <summary>Development commands for exporting and tracing the reproduced
 /// shutter bomb arc against native WRAM and trajectory evidence.</summary>

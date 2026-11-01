@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.ScenarioFixtures;
+using SuperMetroid.TestSupport.SamusNativeCodecs;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 

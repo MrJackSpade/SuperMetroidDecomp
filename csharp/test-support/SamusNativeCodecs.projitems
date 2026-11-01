@@ -1,0 +1,6 @@
+<Project>
+  <!-- Samus native-word codecs the scenarios, the importers and the movie replay share. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)SamusNativeCodecs/**/*.cs" LinkBase="TestSupport/SamusNativeCodecs" />
+  </ItemGroup>
+</Project>

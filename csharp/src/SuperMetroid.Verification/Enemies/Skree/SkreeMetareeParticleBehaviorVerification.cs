@@ -9,6 +9,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 namespace SuperMetroid.Verification.Enemies.Skree;
 
@@ -48,7 +49,7 @@ internal static class SkreeMetareeParticleBehaviorVerification
                 // SpawnEprojInner copies the definition's properties: four contact damage.
                 AssertTrue(particle.CanDamageSamus && particle.Damage == 4 && particle.InvincibilityFrames == 96,
                     $"the {particle.Kind} particle keeps its definition's contact damage");
-                var native = new NativeEnemyProjectileListDefinitions.Reader(SkreeMetareeParticleNativeListAddresses.Entry(program), particle.FrameHold.RawValue);
+                var native = new NativeEnemyProjectileListReader(SkreeMetareeParticleNativeListAddresses.Entry(program), particle.FrameHold.RawValue);
                 for (int update = 0; update < 40; update++)
                 {
                     enemies.Projectiles.ProcessEnemyProjectileInstructions(particle, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), Position16<RoomPixels>.Zero);

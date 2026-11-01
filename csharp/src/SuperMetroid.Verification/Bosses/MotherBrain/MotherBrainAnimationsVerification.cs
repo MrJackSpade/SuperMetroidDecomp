@@ -16,6 +16,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 /// <summary>
 /// #1285: Mother Brain's typed body, brain, Baby, Shitroid, Zebetite, falling-tube and projectile programs against
@@ -191,7 +192,7 @@ internal static class MotherBrainAnimationsVerification
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
         FamilyProjectileStarts.Initialize(projectile, kind, MotherBrainTurretDefinitions.Graphics);
         projectile.StartAnimation(animation);
-        var native = new NativeEnemyProjectileListDefinitions.Reader(entry, projectile.FrameHold.RawValue);
+        var native = new NativeEnemyProjectileListReader(entry, projectile.FrameHold.RawValue);
         int update = 0;
         for (; update < updates && !native.Deleted; update++)
         {
@@ -226,7 +227,7 @@ internal static class MotherBrainAnimationsVerification
         RoomEnemyProjectileSlot beam = enemies.Projectiles.EnemyProjectiles[^1];
         FamilyProjectileStarts.Initialize(beam, RoomEnemyProjectileKind.MotherBrainHandBeamCharging, default);
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
-        var native = new NativeEnemyProjectileListDefinitions.Reader(HandBeamProgram, beam.FrameHold.RawValue);
+        var native = new NativeEnemyProjectileListReader(HandBeamProgram, beam.FrameHold.RawValue);
         int spawns = 0;
         int update = 0;
         for (; update < 64 && !native.Deleted; update++)

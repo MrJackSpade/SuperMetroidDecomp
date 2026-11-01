@@ -36,10 +36,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
     private readonly IConvertedMovieChecks? movieChecks;
 
     /// <summary>When supplied, the host records every update's picture and sound with it.</summary>
-    private readonly MovieReplayVideo? video;
-
-    /// <summary>The game being replayed; a console reset replaces it.</summary>
-    private SuperMetroidGame? game;
+    private readonly IMovieRecorder? video;
 
     /// <summary>The update whose input frame the host is running, or <see langword="null"/> between frames and during message-box frames.</summary>
     private int? pendingUpdate;
@@ -55,7 +52,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
     /// <param name="movieChecks">This movie's own checks, or <see langword="null"/>.</param>
     /// <param name="video">When supplied, the host records every update's picture and sound with it.</param>
     internal ConvertedTimelineReplay(ReplayMovie movie, NativeMovieCheckpoints checkpoints, int? traceFromUpdate, int lastUpdate,
-        IConvertedMovieChecks? movieChecks, MovieReplayVideo? video)
+        IConvertedMovieChecks? movieChecks, IMovieRecorder? video)
     {
         if (video is not null && movie.Snapshot is not null)
             throw new NotSupportedException("Video export covers power-on movies only.");
@@ -70,7 +67,11 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
     }
 
     /// <inheritdoc/>
-    public SuperMetroidGame Game => game ?? throw new InvalidOperationException("The replay has not imported its initial state.");
+    public SuperMetroidGame Game
+    {
+        get => field ?? throw new InvalidOperationException("The replay has not imported its initial state.");
+        private set;
+    }
 
     /// <summary>The native WRAM after the last checkpointed update completed so far.</summary>
     internal NativeCheckpointMemory Memory { get; private set; }
@@ -101,12 +102,12 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
         {
             // The first input boundary completes the snapshot's frame. Its WRAM is the movie's
             // one initial-state import, alongside the snapshot's own cartridge SRAM.
-            game = NativeSnapshotImport.ImportNativeSnapshot(memory.ToWorkRam(), movie.InitialSaveRam, hostServices).Game;
+            Game = NativeSnapshotImport.ImportNativeSnapshot(memory.ToWorkRam(), movie.InitialSaveRam, hostServices).Game;
         }
         else
         {
             var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            game = InstalledFixtures.CreateGame(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(movie.InitialSaveRam, InstalledFixtures.Maps),
+            Game = InstalledFixtures.CreateGame(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(movie.InitialSaveRam, InstalledFixtures.Maps),
                 renderGameplayFrames: video is not null, hostServices: hostServices);
             video?.Attach(Game);
         }
@@ -227,7 +228,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
         bool consoleReset = update < updates.Count && updates[update].ConsoleReset;
         if (consoleReset)
         {
-            game = InstalledFixtures.CreateGame(Game.Saves, renderGameplayFrames: video is not null, hostServices: hostServices);
+            Game = InstalledFixtures.CreateGame(Game.Saves, renderGameplayFrames: video is not null, hostServices: hostServices);
             video?.Attach(Game);
             Console.WriteLine($"{movie.Name} movie: console reset before update {update + 1} " +
                 $"(source frame {updates[update].SourceFrame}); the port reboots on the same cartridge.");

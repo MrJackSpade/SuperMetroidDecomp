@@ -22,9 +22,6 @@ internal sealed class RecordingFrameDriver : IHostFrameDriver
     private readonly ControllerInputRecording recording;
     /// <summary>The game created by the latest start.</summary>
     private SuperMetroidGame? game;
-    /// <summary>Index of the next recorded controller word.</summary>
-    private int nextFrame;
-
     /// <summary>Drives the host from <paramref name="recording"/>.</summary>
     internal RecordingFrameDriver(ControllerInputRecording recording) => this.recording = Ensure.NotNull(recording);
 
@@ -32,16 +29,16 @@ internal sealed class RecordingFrameDriver : IHostFrameDriver
     public SuperMetroidGame Game => game ?? throw new InvalidOperationException("The recording replay has not started.");
 
     /// <inheritdoc/>
-    public int InputsSupplied => nextFrame;
+    public int InputsSupplied { get; private set; }
 
     /// <inheritdoc/>
-    public string Progress => $"replay {nextFrame}/{recording.ControllerInputs.Length}";
+    public string Progress => $"replay {InputsSupplied}/{recording.ControllerInputs.Length}";
 
     /// <summary>Rejects a different ROM revision, reports content differences, then creates the game from the recording's saves.</summary>
     public SuperMetroidGame Start(HostSessionStart start)
     {
         Ensure.NotNull(start);
-        nextFrame = 0;
+        InputsSupplied = 0;
         SaveSlotStore saves = DecodeSaves(start.Maps);
         ReportContentCompatibility(start.ContentIdentity);
         game = GameSessionComposer.Create(saves, start.Assists, start.Content, storage: null);
@@ -50,7 +47,7 @@ internal sealed class RecordingFrameDriver : IHostFrameDriver
 
     /// <inheritdoc/>
     public ControllerButton? NextInput() =>
-        nextFrame < recording.ControllerInputs.Length ? recording.InputAt(nextFrame++) : null;
+        InputsSupplied < recording.ControllerInputs.Length ? recording.InputAt(InputsSupplied++) : null;
 
     /// <summary>A recording has nothing to compare; the frame needs no further work.</summary>
     public void FrameCompleted(FrontendFrame frame)

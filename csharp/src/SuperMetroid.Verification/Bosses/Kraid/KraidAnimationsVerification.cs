@@ -14,6 +14,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 /// <summary>
 /// #1284: Kraid's typed foot, arm, lint, fingernail and rock programs against the retail cartridge. The typed part
@@ -169,7 +170,7 @@ internal static class KraidAnimationsVerification
             AssertTrue(enemies.KraidBehavior.Head.SpawnKraidSpitRock(NewRockSource()), "the real spit producer allocates a rock");
             RoomEnemyProjectileSlot rock = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.KraidSpitRock);
             rock.StartAnimation(new KraidRockAnimation(program));
-            var native = new NativeEnemyProjectileListDefinitions.Reader(entry, rock.FrameHold.RawValue);
+            var native = new NativeEnemyProjectileListReader(entry, rock.FrameHold.RawValue);
             for (int update = 0; update < 40 && !native.Deleted; update++)
             {
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(rock, null, Position16<RoomPixels>.Zero);

@@ -14,6 +14,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 /// <summary>
 /// #1282: Crocomire's typed body, tongue and projectile programs against the retail cartridge. Minimal readers walk
@@ -145,7 +146,7 @@ internal static class CrocomireAnimationsVerification
     {
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         Start(state, CrocomireBodyProgram.SkeletonFallsApart);
-        var native = new NativeEnemyListDefinitions.Reader(BodyBankNumber, BodyEntry(CrocomireBodyProgram.SkeletonFallsApart), 1, _ => 0);
+        var native = new NativeEnemyListReader(BodyBankNumber, BodyEntry(CrocomireBodyProgram.SkeletonFallsApart), 1, _ => 0);
         for (int update = 0; update < 200; update++)
         {
             Pass(enemies, state);
@@ -222,7 +223,7 @@ internal static class CrocomireAnimationsVerification
             state.TongueProgram = program;
             state.TonguePosition = 0;
             tongue.FrameHold = WrappingCountdown.Start(1);
-            var native = new NativeEnemyListDefinitions.Reader(BodyBankNumber, entry, 1, _ => 0);
+            var native = new NativeEnemyListReader(BodyBankNumber, entry, 1, _ => 0);
             for (int update = 0; update < 60; update++)
             {
                 EnemyInstructionInterpreter.RunsAnimationScript(tongue, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);

@@ -16,6 +16,6 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// <param name="UpdatesSha256">SHA-256 of <c>updates.json.gz</c>.</param>
 /// <param name="InitialSha256">SHA-256 of <c>initial.wram.gz</c>.</param>
 /// <param name="ExpectedSha256">SHA-256 of <c>expected.bin.gz</c>.</param>
-internal sealed record CompactReplayTraceManifest(
+public sealed record CompactReplayTraceManifest(
     string Format, string Layout, string LayoutSha256, int PayloadBytes, int RecordCount, int InitialRecord,
     string MovieSha256, string SourceCheckpointsSha256, string UpdatesSha256, string InitialSha256, string ExpectedSha256);

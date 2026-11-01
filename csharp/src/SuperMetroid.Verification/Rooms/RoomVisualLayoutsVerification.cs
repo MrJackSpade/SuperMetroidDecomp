@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
@@ -26,6 +27,7 @@ internal static class RoomVisualLayoutsVerification
     /// appearance, against the cartridge's level words decoded by the import's codec; then proves an installed override
     /// changes both rendered planes without changing terrain or behaviours.
     /// </summary>
+    [PrivateInstallation("Checks that installer repair restores the room visual layout stock files on a private copy while their overrides survive.")]
     internal static void VerifyRoomVisualLayouts(GameInstallation installed,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, SelectedRoom landing)
     {

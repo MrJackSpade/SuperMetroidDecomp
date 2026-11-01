@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
@@ -23,6 +24,7 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 internal static class CeresFlightSpriteArtworkVerification
 {
     /// <summary>Compares six retail frames, tests a visible star offset edit, and verifies rebind, validation, and stock repair.</summary>
+    [PrivateInstallation("Checks that installer repair restores corrupted Ceres flight sprite stock files on a private copy.")]
     internal static void VerifyCeresFlightSpriteArtwork(GameInstallation installation,
         SuperMetroidAddressSpace bus, CeresFlightArtwork stock)
     {

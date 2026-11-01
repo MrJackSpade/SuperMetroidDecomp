@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -24,6 +25,7 @@ internal static class XrayRevealVisualInstallationVerification
     /// Checks every installed visual rule against the compiled cartridge dispatcher,
     /// then changes a tall reveal without changing its two-block copy behavior.
     /// </summary>
+    [PrivateInstallation("Checks that installer repair restores the X-ray reveal visual stock files on a private copy while their overrides survive.")]
     internal static void VerifyXrayRevealVisualInstallation(GameInstallation installed)
     {
         static RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);

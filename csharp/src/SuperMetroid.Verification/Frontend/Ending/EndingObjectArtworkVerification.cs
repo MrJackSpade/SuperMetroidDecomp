@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
@@ -120,6 +121,7 @@ internal static class EndingObjectArtworkVerification
     }
 
     /// <summary>Checks ending OBJ sheets, sprite actors, backgrounds, edits, and guarded runtime reads.</summary>
+    [PrivateInstallation("Checks that installer repair restores corrupted ending object stock files on a private copy.")]
     internal static void VerifyEndingObjectArtwork(GameInstallation installation)
     {
         EndingObjectSourceArtwork stock = installation.LoadEndingObjectArt();

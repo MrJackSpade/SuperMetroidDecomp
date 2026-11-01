@@ -56,6 +56,7 @@ internal static class IntroCinematicArtworkVerification
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>Exercises installed opening-scene art and tilemaps through the real VRAM loader.</summary>
+    [PrivateInstallation("Checks that installer repair restores corrupted and missing opening-scene stock files and BG pages on a private copy while their overrides survive.")]
     internal static void VerifyIntroCinematicArtwork(string sourceRom)
     {
         // Edits, corruption and repairs run on a private copy of the repository installation;

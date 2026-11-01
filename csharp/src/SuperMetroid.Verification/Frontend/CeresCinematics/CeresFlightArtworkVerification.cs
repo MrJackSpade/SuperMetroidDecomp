@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -34,6 +35,7 @@ internal static class CeresFlightArtworkVerification
     internal const int CeresFrontApproachTicks = 30;
 
     /// <summary>Checks native front and rear transfers, visible edits, restored bindings, and stock repair.</summary>
+    [PrivateInstallation("Checks that installer repair restores corrupted Ceres flight stock files on a private copy while their overrides survive, against CeresFlightArtworkExtractor output from the cartridge as the reference.")]
     internal static void VerifyCeresFlightArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
@@ -203,6 +205,7 @@ internal static class CeresFlightArtworkVerification
     }
 
     /// <summary>Checks five native rear-view actor positions and an edited asteroid's live OAM result.</summary>
+    [PrivateInstallation("Checks that installer repair restores the Ceres flight actor layout stock file on a private copy while its override survives.")]
     private static void VerifyCeresFlightActorLayout(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, CeresFlightArtwork stock)
     {

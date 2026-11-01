@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -227,6 +228,7 @@ internal static class EndingPaletteArtworkVerification
     }
 
     /// <summary>Checks installed ending colors and visible scene overrides with cartridge reads guarded.</summary>
+    [PrivateInstallation("Checks that installer repair restores corrupted ending palette stock files on a private copy.")]
     internal static void VerifyEndingPaletteArtwork(GameInstallation installation)
     {
         Suite(nameof(VerifyEndingPaletteRoleSelection), () => VerifyEndingPaletteRoleSelection());

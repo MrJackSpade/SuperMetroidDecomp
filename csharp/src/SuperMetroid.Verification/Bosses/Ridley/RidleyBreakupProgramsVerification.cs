@@ -81,7 +81,7 @@ internal static class RidleyBreakupProgramsVerification
         // VerifyRidleyAnimations matches each typed breakup program to its native list; this draws every pose.
         foreach (RidleyBreakupFrame frame in Enum.GetValues<RidleyBreakupFrame>())
         {
-            ushort operand = (ushort)(RidleyAnimationsVerification.BreakupList(frame) + 2);
+            ushort operand = (ushort)(RidleyNativeProgramOracle.BreakupList(frame) + 2);
             ushort expectedPointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(RidleyNativeListAddresses.BodyBankNumber << 16 | operand);
             var fragment = fragments[0];
             state.BreakupPrograms[fragment.SlotIndex] = AnimationProgramCursor<RidleyBreakupFrame>.Start(frame);

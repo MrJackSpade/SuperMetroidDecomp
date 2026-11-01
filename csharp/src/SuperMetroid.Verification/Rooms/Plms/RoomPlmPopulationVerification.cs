@@ -404,7 +404,7 @@ internal static class RoomPlmPopulationVerification
             plms.Step(level, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
         AssertEqual(GreyDoorPhase.Locked, plms.GreyDoorSnapshots.Single().Phase,
             "closing Goto hands the resident actor back to its grey-door family");
-        AssertEqual(initialList, RoomPlmProgramsVerification.GreyDoorNativeEntry(new GreyDoorVariant(ColoredDoorOrientation.Right, BombTorizo: true),
+        AssertEqual(initialList, DoorPlmNativeProgramOracle.GreyDoorNativeEntry(new GreyDoorVariant(ColoredDoorOrientation.Right, BombTorizo: true),
                 GreyDoorProgram.Waiting),
             "rejoined actor's waiting program stands for the cartridge first list");
         AssertEqual(RoomTerrainBlock.Of(0x0ae, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock), level.GetCollisionBlock(new(doorX, doorY)).Terrain,
@@ -506,7 +506,7 @@ internal static class RoomPlmPopulationVerification
 
         AssertEqual(GreyDoorPhase.Locked, plms.GreyDoorSnapshots.Single().Phase,
             "fall-through at $BE70 returns to the resident grey-door owner");
-        AssertEqual(initialList, RoomPlmProgramsVerification.GreyDoorNativeEntry(new GreyDoorVariant(ColoredDoorOrientation.Left, BombTorizo: false),
+        AssertEqual(initialList, DoorPlmNativeProgramOracle.GreyDoorNativeEntry(new GreyDoorVariant(ColoredDoorOrientation.Left, BombTorizo: false),
                 GreyDoorProgram.Waiting),
             "the grey door's waiting program stands for the cartridge first list");
         AssertTrue(plms.PopulationSlots.Single().Animation is GreyDoorPlmAnimation { Program: GreyDoorProgram.Waiting or GreyDoorProgram.Sleep },

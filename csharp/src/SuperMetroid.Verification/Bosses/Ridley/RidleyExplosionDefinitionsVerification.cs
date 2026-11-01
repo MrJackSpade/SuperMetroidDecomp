@@ -6,6 +6,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.MovieReplay;
 
 /// <summary>Checks Ridley breakup fragments and death explosions against native tables and production spawns.</summary>
 internal static class RidleyExplosionDefinitionsVerification
@@ -49,14 +50,14 @@ internal static class RidleyExplosionDefinitionsVerification
             ushort parameter = unchecked((ushort)(tailIndex * 2));
             AssertEqual(
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(fixedTailOperands[tailIndex]),
-                RidleyAnimationsVerification.BreakupList(RidleyBreakup.SelectTailFrame(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(parameter), 0)),
+                RidleyNativeProgramOracle.BreakupList(RidleyBreakup.SelectTailFrame(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(parameter), 0)),
                 $"Ridley tail fragment instruction ${parameter:X2}");
         }
         for (int orientation = 0; orientation < 16; orientation++)
         {
             AssertEqual(
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + orientation * 2)),
-                RidleyAnimationsVerification.BreakupList(RidleyBreakup.SelectTailFrame(
+                RidleyNativeProgramOracle.BreakupList(RidleyBreakup.SelectTailFrame(
                     RidleyExplosionPart.TailTip,
                     orientation)),
                 $"Ridley tail-tip orientation {orientation}");
@@ -90,7 +91,7 @@ internal static class RidleyExplosionDefinitionsVerification
                 $"Ridley body fragment {partIndex} Y offset");
             AssertEqual(
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTables[partIndex] + facingIndex * 2)),
-                RidleyAnimationsVerification.BreakupList(definition.Frame),
+                RidleyNativeProgramOracle.BreakupList(definition.Frame),
                 $"Ridley body fragment {partIndex} facing {facingIndex} instruction");
         }
 
@@ -228,7 +229,7 @@ internal static class RidleyExplosionDefinitionsVerification
                         ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + orientation * 2))
                         : CartridgeImportSource.Require(rom).ReadCartridgeWord(TailBreakupInstructionAddresses
                                 [tailIndex]);
-                    AssertEqual(expectedInstruction, RidleyAnimationsVerification.BreakupList(state.BreakupPrograms[fragment.SlotIndex].Program),
+                    AssertEqual(expectedInstruction, RidleyNativeProgramOracle.BreakupList(state.BreakupPrograms[fragment.SlotIndex].Program),
                         $"Ridley breakup production tail instruction ${parameter:X2}/{orientation}");
                 }
                 else
@@ -245,7 +246,7 @@ internal static class RidleyExplosionDefinitionsVerification
                         $"Ridley breakup production body Y ${parameter:X2}/{facingIndex}");
                     AssertEqual(
                         CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTables[bodyIndex] + facingIndex * 2)),
-                        RidleyAnimationsVerification.BreakupList(state.BreakupPrograms[fragment.SlotIndex].Program),
+                        RidleyNativeProgramOracle.BreakupList(state.BreakupPrograms[fragment.SlotIndex].Program),
                         $"Ridley breakup production body instruction ${parameter:X2}/{facingIndex}");
                 }
                 cases++;

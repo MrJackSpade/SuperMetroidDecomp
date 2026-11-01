@@ -23,15 +23,15 @@ internal sealed class FrontendSession
 {
     /// <summary>Creates a reset-state session, reading the selected save slot and the earthquake rumble delay power-on gives.</summary>
     /// <param name="saves">The battery-backed saves the session reads and writes for its whole lifetime.</param>
-    /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
+    /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="hostServices">The hardware-timing policies the session runs against for its whole lifetime.</param>
     /// <param name="random">The session's random-number word, which the frontend and every gameplay runtime share.</param>
-    internal FrontendSession(SaveSlotStore saves, SuperMetroidGameOptions? gameOptions,
+    internal FrontendSession(SaveSlotStore saves, GameplayAssists? assists,
         SuperMetroidGameHostServices hostServices, SharedRandom random)
     {
         HostServices = Ensure.NotNull(hostServices);
         Random = Ensure.NotNull(random);
-        ConfiguredOptions = gameOptions ?? new SuperMetroidGameOptions();
+        Assists = assists ?? GameplayAssists.None;
         display = new FrontendDisplay(hostServices.GameplayFrames);
         audioSession = new AudioSession(soundClock);
         this.saves = Ensure.NotNull(saves);
@@ -55,8 +55,8 @@ internal sealed class FrontendSession
     internal readonly UnauthoredBoostCadence unauthoredBoostCadence = new();
     /// <summary>When an open save confirmation reads the controller; every runtime's message box consults it.</summary>
     internal readonly SaveChoiceInputCadence saveChoiceInput = new();
-    /// <summary>Current host options; interactive state restoration rebinds these to the active session.</summary>
-    public SuperMetroidGameOptions ConfiguredOptions { get; internal set; }
+    /// <summary>The assists a selected game plays under; attract demos always play unassisted.</summary>
+    public GameplayAssists Assists { get; internal set; }
     /// <summary>Owns scene capture and raster publication for the current frontend frame.</summary>
     internal readonly FrontendDisplay display;
     /// <summary>Battery-backed save slots and the menu selection; the host persists them.</summary>
@@ -388,7 +388,7 @@ internal sealed class FrontendSession
         screenFade.Reload();
     }
     /// <summary>Allocates and binds the gameplay owner without selecting a room.</summary>
-    /// <param name="purpose">Whether the runtime plays a selected game, which takes the host and menu options, or an attract demo.</param>
+    /// <param name="purpose">Whether the runtime plays a selected game, which takes the assists and menu options, or an attract demo.</param>
     [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(runtime))]
     internal void CreateGameplayRuntime(GameplayRuntimePurpose purpose)
     {
@@ -398,7 +398,7 @@ internal sealed class FrontendSession
         runtime = GameplayRuntimeFactory.Create(new GameplayRuntimeStart
         {
             Purpose = purpose,
-            Overrides = ConfiguredOptions.RuntimeOverrides(attract),
+            Assists = attract ? GameplayAssists.None : Assists,
             Carryover = new GameplaySessionCarryover
             {
                 Clock = frameClock,
@@ -472,7 +472,7 @@ internal sealed class FrontendSession
                 ?? throw new InvalidOperationException(
                     "SpaceTime restart did not create the Ceres Samus state.");
             RestoreSpacetimeRestartInventory(restartedSamus, restartSlot);
-            runtime.Tester.ApplyTesterInventory(target: TesterInventoryTarget.RestoredInventory);
+            runtime.Assists.GrantLoadoutToRestoredSamus();
             restartedSamus.SelectedHudItem = HudItem.Beam;
             restartedSamus.AutoCancelHudItemIndex = HudItem.Beam;
             AutomaticCheckpointSaver.SaveCeresArrival(saves, runtime, SelectedSaveSlot);
@@ -498,19 +498,19 @@ internal sealed class FrontendSession
             {
                 // Room selection and actors must see the restored mirror, not a
                 // fresh runtime followed by an after-the-fact progression overwrite.
-                runtime.RoomLoader.RestoreSavedPlayerState(slot, ConfiguredOptions.ResetBossesOnLoad);
+                runtime.RoomLoader.RestoreSavedPlayerState(slot);
                 runtime.RoomLoader.InitializeStartingCeresRoom();
                 runtime.RoomLoader.InitializeCeresStartSamus();
                 slot.ApplyTo(runtime.Player.Samus ?? throw new InvalidOperationException(
                     "Ceres initialization did not create Samus."));
-                runtime.Tester.ApplyTesterInventory(target: TesterInventoryTarget.RestoredInventory);
+                runtime.Assists.GrantLoadoutToRestoredSamus();
                 runtime.Player.Samus.SelectedHudItem = HudItem.Beam;
                 runtime.Player.Samus.AutoCancelHudItemIndex = HudItem.Beam;
                 ApplySelectedGameOptions();
                 return true;
             }
 
-            runtime.RoomLoader.InitializeSavedGame(slot, ConfiguredOptions.ResetBossesOnLoad);
+            runtime.RoomLoader.InitializeSavedGame(slot);
             // File selection loaded the saved options before the options menu ran.
             // InitializeSavedGame also serves direct diagnostic loads, so it restores
             // those fields itself. At this frontend boundary, the player's live edits

@@ -9,8 +9,8 @@ internal sealed record GameplayRuntimeStart
     /// <summary>Why the runtime is created; a selected game carries <see cref="Selected"/>, an attract demo does not.</summary>
     public required GameplayRuntimePurpose Purpose { get; init; }
 
-    /// <summary>The host's tester conveniences; an attract demo's are <see cref="HostGameplayOverrides.None"/>.</summary>
-    public required HostGameplayOverrides Overrides { get; init; }
+    /// <summary>The assists the runtime plays under; an attract demo's are <see cref="GameplayAssists.None"/>.</summary>
+    public required GameplayAssists Assists { get; init; }
 
     /// <summary>What the session keeps across runtimes: its clock, random word, floor residue and power-on rumble delay.</summary>
     public required GameplaySessionCarryover Carryover { get; init; }

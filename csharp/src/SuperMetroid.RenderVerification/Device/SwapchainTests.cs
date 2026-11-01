@@ -297,7 +297,7 @@ internal static partial class SwapchainTests
     private static void RunSlowConsumerAudioRoom(D3D11RenderDevice selection, RoomHeaderDefinition room, bool blockConsumer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
-        var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
+        var options = new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true };
         var legacy = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
         var captured = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
         var headless = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);

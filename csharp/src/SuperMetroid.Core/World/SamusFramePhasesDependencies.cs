@@ -35,6 +35,9 @@ internal sealed record SamusFramePhasesDependencies
     /// <summary>Options.</summary>
     public required GameplayOptions Options { get; init; }
 
+    /// <summary>The runtime's assists; a shinespark reads whether Samus cannot die.</summary>
+    public required ActiveAssists Assists { get; init; }
+
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }
 

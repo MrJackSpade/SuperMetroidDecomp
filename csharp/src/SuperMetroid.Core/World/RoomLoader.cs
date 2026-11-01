@@ -94,8 +94,8 @@ internal sealed class RoomLoader
     private readonly TourianStatueSequenceDependencies _tourianStatueDependencies;
     /// <summary>Provides persistent event and boss bits used by room-state selectors.</summary>
     private readonly SharedGameState _system;
-    /// <summary>Applies tester inventory overrides after saved state is restored.</summary>
-    private readonly TesterTools _tester;
+    /// <summary>Grants the assisted loadout and resets saved encounters after a save is restored.</summary>
+    private readonly ActiveAssists _assists;
 
 
     /// <summary>Captures the owners of room, player, graphics, and door state used by the loader.</summary>
@@ -127,7 +127,7 @@ internal sealed class RoomLoader
         _paletteFxSession = dependencies.PaletteFxSession;
         _tourianStatueDependencies = dependencies.TourianStatueDependencies;
         _system = dependencies.System;
-        _tester = dependencies.Tester;
+        _assists = dependencies.Assists;
 
     }
     /// <summary>The door's four-pixel scroll trajectory, retained across atomic room construction.</summary>
@@ -186,7 +186,7 @@ internal sealed class RoomLoader
     /// replaying guessed timing. Room selection, coordinates, inventory, progression bits,
     /// enemies, PLMs, graphics, beam upload, and camera all remain driven.
     /// </remarks>
-    public InitialViewportResult InitializeSavedGame(SuperMetroidSaveSlot slot, bool resetBossesOnLoad = false)
+    public InitialViewportResult InitializeSavedGame(SuperMetroidSaveSlot slot)
     {
         Ensure.NotNull(slot);
         if (slot.Area > byte.MaxValue || slot.SaveStation > byte.MaxValue)
@@ -217,7 +217,7 @@ internal sealed class RoomLoader
         // boss/event/item bytes synchronously, while room-state selection and beam graphics
         // depend on those same words. In particular, loading a post-Morph-Ball save must not
         // accidentally construct the untouched new-game version of Blue Brinstar.
-        RestoreSavedPlayerState(slot, resetBossesOnLoad);
+        RestoreSavedPlayerState(slot);
         _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeX(station.SamusPosition.X);
         _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeY(station.SamusPosition.Y);
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
@@ -268,7 +268,7 @@ internal sealed class RoomLoader
     /// cinematic. A Ceres-destruction checkpoint has no playable Ceres room to load;
     /// its inventory must nevertheless survive into the Zebes landing sequence.
     /// </summary>
-    internal void RestoreSavedPlayerState(SuperMetroidSaveSlot slot, bool resetBossesOnLoad = false)
+    internal void RestoreSavedPlayerState(SuperMetroidSaveSlot slot)
     {
         Ensure.NotNull(slot);
         _player.Samus = new SamusState(_samusOverreads.AnimationContinuation, _enemySession.UnauthoredBoostCadence)
@@ -278,8 +278,8 @@ internal sealed class RoomLoader
         };
         _artwork.BindSamusPalettePresentation();
         slot.ApplyTo(_player.Samus, _system);
-        if (resetBossesOnLoad) _tester.ResetSavedEncounters();
-        _tester.ApplyTesterInventory();
+        _assists.ResetSavedEncounters();
+        _assists.GrantLoadoutToNewSamus();
         // Loading clears both persisted HUD selection values after the save restore.
         // Otherwise the arm-cannon cover can leak into the front-facing load pose.
         _player.Samus.SelectedHudItem = HudItem.Beam;
@@ -303,12 +303,12 @@ internal sealed class RoomLoader
 
         // InitializeSamus clears all of Samus's state, including the speeds and pose
         // state the escape left behind; only the inventory below it survives. The player is
-        // the same one, so a tester grant already applied to her is not repeated.
+        // the same one, so a loadout already granted to her is not granted again.
         // Initialization clears Pose; the port's constructor defaults to the right-facing pose.
         var samus = new SamusState(_samusOverreads.AnimationContinuation, _enemySession.UnauthoredBoostCadence) { Pose = 0, AnimationFrame = 0 };
         samus.CopyInventoryFrom(carried);
         _player.Samus = samus;
-        _tester.CarryInventoryGrant(carried, samus);
+        _assists.CarryLoadoutGrant(carried, samus);
         _artwork.BindSamusPalettePresentation();
 
         // These indexes are assigned immediately before LoadFromLoadStation.
@@ -1165,7 +1165,7 @@ internal sealed class RoomLoader
         };
         _artwork.BindSamusPalettePresentation();
         SamusPresentation.LoadPowerSuitPalette(_player.Colours.Suit, _artwork.MapPresentation?.SamusSuitColors);
-        _tester.ApplyTesterInventory();
+        _assists.GrantLoadoutToNewSamus();
 
         // Fresh-game loading has one deliberately non-general palette write after copying
         // every target color into the live palette: the fresh-game setup clears colour 223
@@ -1196,7 +1196,7 @@ internal sealed class RoomLoader
         // the HUD template's unrelated map glyphs visible for the entire descent. Seed
         // the real area-six room coordinate now; subsequent normal frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
-        _hud.UpdateMinimap(_system, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _options.MapRevealMode, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
+        _hud.UpdateMinimap(_system, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
 
         // `SamusCode_08_SetupForCeresStart` installs a locked frame handler. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the

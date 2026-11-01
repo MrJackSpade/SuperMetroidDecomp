@@ -26,8 +26,8 @@ internal sealed record TourianStatueSequenceDependencies
     /// <summary>System.</summary>
     public required SharedGameState System { get; init; }
 
-    /// <summary>Tester.</summary>
-    public required TesterTools Tester { get; init; }
+    /// <summary>The runtime's assists, which can stand the statues open.</summary>
+    public required ActiveAssists Assists { get; init; }
 
     /// <summary>Freeze.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }

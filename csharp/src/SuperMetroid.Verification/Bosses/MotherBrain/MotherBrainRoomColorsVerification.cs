@@ -102,7 +102,7 @@ internal static class MotherBrainRoomColorsVerification
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Mother Brain room-color override changes selected-content identity");
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), InstalledFixtures.SamusOverreads, initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.SamusOverreads, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
         AssertTrue(ReferenceEquals(runtime.BossArtwork.MotherBrainRoomColors,
             edited.MotherBrainRoomColors),

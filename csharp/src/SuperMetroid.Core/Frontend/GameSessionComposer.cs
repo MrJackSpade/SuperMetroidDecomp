@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.Core.Frontend;
@@ -12,18 +13,18 @@ public static class GameSessionComposer
 {
     /// <summary>Creates a game running on its own timing, with its installed content bound before the first frame.</summary>
     /// <param name="saves">The battery-backed saves the session owns.</param>
-    /// <param name="gameOptions">The options the game reads.</param>
+    /// <param name="assists">The assists the game plays under; <see cref="GameplayAssists.None"/> for the unassisted game.</param>
     /// <param name="content">The installed content.</param>
     /// <param name="storage">Where the saves are kept after the game changes them; null when a session's saves are not kept, as a replay's are not.</param>
     /// <returns>A reset-state game ready to step.</returns>
     public static SuperMetroidGame Create(
         SaveSlotStore saves,
-        SuperMetroidGameOptions gameOptions,
+        GameplayAssists assists,
         IInstalledSessionContent content,
         ISessionSaveStorage? storage)
     {
         Ensure.NotNull(content);
-        var game = new SuperMetroidGame(saves, gameOptions);
+        var game = new SuperMetroidGame(saves, assists);
         Bind(game, content, storage);
         return game;
     }

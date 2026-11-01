@@ -32,7 +32,7 @@ public static class DebuggerSaveStateSmokeTest
                 Path.Combine(temporaryDirectory, "installed"));
             var maps = installation.LoadMaps();
             var content = new InstalledSessionContent(installation.LoadGameArtwork(maps, installation.LoadProjectiles()), installation.LoadAudioClips());
-            var game = GameSessionComposer.Create(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions(), content, storage: null);
+            var game = GameSessionComposer.Create(new SuperMetroid.Core.Saves.SaveSlotStore(), SuperMetroid.Core.Gameplay.GameplayAssists.None, content, storage: null);
             for (int frame = 0; frame < 90; frame++)
                 game.Step(0);
             GameContentIdentity contentIdentity = GameContentIdentity.Create(
@@ -197,7 +197,7 @@ public static class DebuggerSaveStateSmokeTest
         using (ControllerInputRecorder recorder = ControllerInputRecorder.StartInstalled(
                    recorderRoot,
                    saveRam,
-                   new SuperMetroidGameOptions(),
+                   new SuperMetroid.Diagnostics.Configuration.SuperMetroidGameOptions(),
                    contentIdentity))
         {
             recordingPath = recorder.Path;

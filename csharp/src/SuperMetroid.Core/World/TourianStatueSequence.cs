@@ -34,8 +34,8 @@ public sealed class TourianStatueSequence
     private readonly RoomPaletteFxSystem _roomPaletteFx;
     /// <summary>Tracks boss and statue events, area boss bits, RNG, and the final Tourian unlock event.</summary>
     private readonly SharedGameState _system;
-    /// <summary>The unlock option skips tile playback and starts the statue at its completed offset.</summary>
-    private readonly TesterTools _tester;
+    /// <summary>The open-statues assist skips tile playback and starts the statue at its completed offset.</summary>
+    private readonly ActiveAssists _assists;
     /// <summary>Pauses quarter-pixel descent while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
 
@@ -56,7 +56,7 @@ public sealed class TourianStatueSequence
         _roomLayer3Fx = Ensure.NotNull(roomLayer3Fx);
         _roomPaletteFx = Ensure.NotNull(roomPaletteFx);
         _system = dependencies.System;
-        _tester = dependencies.Tester;
+        _assists = dependencies.Assists;
         _freeze = dependencies.Freeze;
         Begin(Ensure.NotNull(plms));
     }
@@ -115,11 +115,11 @@ public sealed class TourianStatueSequence
     internal void LatchDisplay() => DisplayedVerticalOffset = VerticalOffset;
 
     /// <summary>
-    /// Restarts the room's statue sequence when the host tester opens Tourian in the room: the statues return to their
-    /// starting delay and descent, then begin as a room load would.
+    /// Restarts the room's statue sequence when the statues newly stand open while Samus is in the room: the statues
+    /// return to their starting delay and descent, then begin as a room load would.
     /// </summary>
     /// <param name="plms">The room's PLM system.</param>
-    internal void RestartForTesterUnlock(RoomPlmSystem plms)
+    internal void RestartWithStatuesOpen(RoomPlmSystem plms)
     {
         objects.Clear();
         delay = -2;
@@ -130,7 +130,7 @@ public sealed class TourianStatueSequence
 
     /// <summary>Begins the room's statue sequence, enabling the four statue tile programs only for the statue-unlocking room setup.</summary>
     /// <remarks>
-    /// A prior unlock event or host unlock option starts at the fully descended offset, clears the access obstruction through its PLM, and enables vertical scrolling.
+    /// A prior unlock event or the open-statues assist starts at the fully descended offset, clears the access obstruction through its PLM, and enables vertical scrolling.
     /// Otherwise the sequence starts raised and constrains scrolling until the authored release and descent finish. Disabled rooms retain no tile objects.
     /// </remarks>
     private void Begin(RoomPlmSystem plms)
@@ -138,7 +138,7 @@ public sealed class TourianStatueSequence
         Enabled = _room.ActiveRoom?.State.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations;
         if (!Enabled) return;
         SpawnAnimatedObjects();
-        if (_tester.UnlockTourianEnabled || _system.HasEvent(EventNumber.TourianUnlocked))
+        if (_assists.Current.TourianStatuesOpen || _system.HasEvent(EventNumber.TourianUnlocked))
         {
             Descent = SixteenSixteen.FromWhole(TourianStatueSequenceDefinitions.DescentDistance);
             _enemies.TourianStatue.VerticalOffset = VerticalOffset;
@@ -183,7 +183,7 @@ public sealed class TourianStatueSequence
     public void StepTiles()
     {
         if (!Enabled) return;
-        if (_tester.UnlockTourianEnabled) return;
+        if (_assists.Current.TourianStatuesOpen) return;
         foreach (TileObject tile in objects)
         {
             if (!tile.CountDown() || tile.Cursor is not { } cursor) continue;
@@ -265,7 +265,7 @@ public sealed class TourianStatueSequence
     {
         if (!Enabled) return;
         _enemies.TourianStatue.WaterSurface = new(0, _roomLayer3Fx.Surface.Y);
-        if (_tester.UnlockTourianEnabled || _system.HasEvent(EventNumber.TourianUnlocked)) { EnableScrolling(); return; }
+        if (_assists.Current.TourianStatuesOpen || _system.HasEvent(EventNumber.TourianUnlocked)) { EnableScrolling(); return; }
         if (delay == -2)
         {
             if (!_system.HasEvent(EventNumber.PhantoonStatueGrey) || !_system.HasEvent(EventNumber.RidleyStatueGrey)

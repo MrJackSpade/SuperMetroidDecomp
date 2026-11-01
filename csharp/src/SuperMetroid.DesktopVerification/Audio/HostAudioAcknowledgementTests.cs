@@ -38,7 +38,7 @@ internal static class HostAudioAcknowledgementTests
             // The host has run its reset frame from the same saves; replay that frame in Core over a copy of them.
             var bus = DesktopAccess.InstallationFor(rom).OpenRuntimeAddressSpace();
             var savesCopy = SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(control.game.Saves, InstalledFixtures.Maps), InstalledFixtures.Maps);
-            SuperMetroidGame reference = InstalledFixtures.CreateGame(savesCopy, options.Game);
+            SuperMetroidGame reference = InstalledFixtures.CreateGame(savesCopy, options.Game.ToAssists());
             reference.Step(0);
             AssertSameAudio(control.game, reference, "reset frame");
 

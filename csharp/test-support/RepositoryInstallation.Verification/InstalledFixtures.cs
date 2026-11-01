@@ -244,19 +244,19 @@ internal static class InstalledFixtures
 
     /// <summary>A frontend game over <paramref name="saves"/>, bound to the installation's presentation catalogs.</summary>
     /// <param name="saves">The saves the game owns.</param>
-    /// <param name="gameOptions">The host options, or <see langword="null"/> for defaults.</param>
+    /// <param name="assists">The assists the game plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="renderGameplayFrames">Whether gameplay frames are composited.</param>
     /// <param name="hostServices">The hardware-timing policies, or <see langword="null"/> for the lag-free defaults.</param>
     /// <param name="random">The session's random-number word, or <see langword="null"/> for a game that owns its own.</param>
     internal static SuperMetroidGame CreateGame(SuperMetroid.Core.Saves.SaveSlotStore saves,
-        SuperMetroidGameOptions? gameOptions = null, bool renderGameplayFrames = true,
+        SuperMetroid.Core.Gameplay.GameplayAssists? assists = null, bool renderGameplayFrames = true,
         SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null)
     {
         // A fixture game without a supplied word is a session of its own.
         SuperMetroidGameHostServices services = hostServices ?? SuperMetroidGameHostServices.Default;
         if (!renderGameplayFrames)
             services = services with { GameplayFrames = RetainedGameplayFrames.Instance };
-        var game = new SuperMetroidGame(saves, gameOptions, services, random ?? new SharedRandom());
+        var game = new SuperMetroidGame(saves, assists, services, random ?? new SharedRandom());
         gameBindings.Value(game);
         return game;
     }

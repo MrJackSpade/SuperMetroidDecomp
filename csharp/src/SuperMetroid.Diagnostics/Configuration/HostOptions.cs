@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Frontend;
-
 namespace SuperMetroid.Diagnostics.Configuration;
 
 /// <summary>
@@ -7,12 +5,12 @@ namespace SuperMetroid.Diagnostics.Configuration;
 /// presentation, audio output, recovery autosaves and error reporting.
 /// </summary>
 /// <remarks>
-/// The game receives only <see cref="Game"/>. The other members configure the host around it and never reach the
+/// The game receives only <see cref="Game"/>, as its assists. The other members configure the host around it and never reach the
 /// simulation, recordings or debugger states.
 /// </remarks>
 public sealed record HostOptions
 {
-    /// <summary>The option values the game reads.</summary>
+    /// <summary>The tester's game options, which the game receives as its assists (<see cref="SuperMetroidGameOptions.ToAssists"/>).</summary>
     public SuperMetroidGameOptions Game { get; init; } = new();
 
     /// <summary>Whether the host creates its audio output device and plays the game's audio frames.</summary>

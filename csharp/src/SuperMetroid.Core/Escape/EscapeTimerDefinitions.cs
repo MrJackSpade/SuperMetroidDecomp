@@ -18,7 +18,7 @@ internal static class EscapeTimerDefinitions
     /// <summary>The longest time the timer's two minute digits show: 99:59.99.</summary>
     internal const int LongestTime = 100 * CentisecondsPerMinute - 1;
 
-    /// <summary>The time the escape-timeout floor holds the countdown at: one second.</summary>
+    /// <summary>The time the hold-at-one-second assist holds the countdown at: one second.</summary>
     internal const int TimeoutFloor = EscapeTimerCadenceDefinitions.CentisecondsPerSecond;
 
     /// <summary>The updates from the start the timer waits at the centre before it counts down.</summary>

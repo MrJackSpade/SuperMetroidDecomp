@@ -18,16 +18,16 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// session's random-number word or, without one, a word of its own; only the initial
         /// palette is bound, and the caller binds whatever catalogs it exercises.
         /// </summary>
-        /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime (#633).</param>
+        /// <param name="assists">The assists the runtime plays under; <see cref="SuperMetroid.Core.Gameplay.GameplayAssists.None"/> for the unassisted game.</param>
         /// <param name="samusOverreads">The installed services reproducing Samus's glitch reads, which every runtime requires.</param>
         /// <param name="initialPaletteArt">Required installed palette image loaded into CGRAM during construction.</param>
         /// <param name="random">The session's random-number word, or null for a runtime that is a session of its own.</param>
         internal static SuperMetroidRuntime Create(
-            SuperMetroid.Core.Gameplay.HostGameplayOverrides overrides,
+            SuperMetroid.Core.Gameplay.GameplayAssists assists,
             SuperMetroid.Core.Samus.SamusOverreadServices samusOverreads,
             SuperMetroid.Core.Assets.GameplayBasePalette? initialPaletteArt = null,
             SuperMetroid.Core.Compatibility.SharedRandom? random = null) =>
-            new(overrides, new SuperMetroid.Core.Frontend.GameArtwork { GameplayBasePalettes = initialPaletteArt, SamusOverreads = samusOverreads },
+            new(assists, new SuperMetroid.Core.Frontend.GameArtwork { GameplayBasePalettes = initialPaletteArt, SamusOverreads = samusOverreads },
                 new SuperMetroid.Core.Compatibility.FrameClock(), new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
                 random ?? new SuperMetroid.Core.Compatibility.SharedRandom(),
                 // A tooling runtime powers on as the game does with an empty save store.

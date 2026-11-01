@@ -186,7 +186,7 @@ internal static class SamusVisorColorsVerification
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "visor color override changes installed content identity");
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), InstalledFixtures.SamusOverreads, initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.SamusOverreads, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

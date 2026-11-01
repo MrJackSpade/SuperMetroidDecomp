@@ -44,7 +44,7 @@ internal static class SimulationProfile
     private static object Measure(RoomHeaderDefinition room, bool paused)
     {
         var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(),
-            new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
+            new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true, SamusCannotDie = true });
         game.BindAudio(DesktopAccess.LoadAudioClips());
         var pcm = new short[AudioSession.PcmSamplesPerFrame];
         long sequence = 0;

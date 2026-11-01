@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Diagnostics.Configuration;
 
 namespace SuperMetroid.Diagnostics.Recording;
 

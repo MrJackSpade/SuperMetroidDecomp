@@ -2,7 +2,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
@@ -15,7 +15,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.Grapple;
 namespace SuperMetroid.Verification.Harness;
@@ -87,10 +86,9 @@ internal static class OperationContractsVerification
         AssertTrue(ordinary.Policy.AllowCeresElevatorDeparture && ordinary.Policy.AdvanceGameTime &&
             ReferenceEquals(ordinary.Audio, RuntimeFrameAudio.Deferred), "a default frame request is state-eight gameplay with deferred audio");
         var tester = new SuperMetroidGameOptions { Invincibility = true, InfiniteAmmo = true, GrantAllEquipment = true };
-        AssertTrue(ReferenceEquals(HostGameplayOverrides.None, tester.RuntimeOverrides(forAttractDemo: true)),
-            "attract playback runs retail behaviour whatever the host configured");
-        AssertTrue(tester.RuntimeOverrides(forAttractDemo: false) is { PlayerInvincibilityEnabled: true, InfiniteAmmoEnabled: true, GrantAllEquipment: true },
-            "a session receives the host's configured overrides");
+        AssertTrue(tester.ToAssists() is { SamusCannotDie: true, AmmoNeverRunsOut: true, EncounterResetOnLoad: null } assists &&
+            ReferenceEquals(assists.GrantedLoadout, TesterAssistDefinitions.Loadout),
+            "a session receives the tester's configured assists");
         Console.WriteLine("#633 operation contracts: narrow child contracts, the masked grapple frame and construction-time validation pass.");
     }
 

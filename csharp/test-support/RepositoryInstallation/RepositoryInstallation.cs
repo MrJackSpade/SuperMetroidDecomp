@@ -60,13 +60,14 @@ internal static class RepositoryInstallation
     /// <summary>The installation's presentation catalogs, shared by every fixture in the process.</summary>
     internal static GameArtwork Artwork => artwork.Value;
 
-    /// <summary>A gameplay runtime bound to the installation's presentation catalogs.</summary>
+    /// <summary>A gameplay runtime bound to the installation's presentation catalogs, playing under the requested assists.</summary>
     internal static SuperMetroidRuntime CreateRuntime(
         bool playerInvincibilityEnabled = false, bool infiniteAmmoEnabled = false,
         MapRevealMode mapRevealMode = MapRevealMode.None, bool preventEscapeTimeout = false,
-        SuperMetroid.Core.Compatibility.SharedRandom? random = null)
+        SuperMetroid.Core.Compatibility.SharedRandom? random = null, SavedEncounterReset? encounterResetOnLoad = null)
     {
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new HostGameplayOverrides { PlayerInvincibilityEnabled = playerInvincibilityEnabled, InfiniteAmmoEnabled = infiniteAmmoEnabled, MapRevealMode = mapRevealMode, PreventEscapeTimeout = preventEscapeTimeout }, Artwork.SamusOverreads ?? throw new InvalidOperationException(
+        var assists = new GameplayAssists { SamusCannotDie = playerInvincibilityEnabled, AmmoNeverRunsOut = infiniteAmmoEnabled, MapReveal = mapRevealMode, EscapeTimerHoldsAtOneSecond = preventEscapeTimeout, EncounterResetOnLoad = encounterResetOnLoad };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(assists, Artwork.SamusOverreads ?? throw new InvalidOperationException(
             "The installation's artwork carries no Samus overread services."), Installation.LoadGameplayBasePalettes(), random);
         BindRuntime(runtime);
         return runtime;

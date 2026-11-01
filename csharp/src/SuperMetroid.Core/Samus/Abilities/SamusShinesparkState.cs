@@ -709,18 +709,18 @@ false);
         // spark to slide upward. Combining both results would terminate a retail spark
         // early; use the last executed axis, including when its result is clear.
         bool collided = vertical?.Collided ?? horizontal?.Collided ?? false;
-        // The host cheat bypasses only the energy exit. Terrain/enemy collision still
+        // The cannot-die assist bypasses only the energy exit. Terrain/enemy collision still
         // terminates all three launch directions through the ordinary crash handler.
         bool hasSustainingEnergy = samus.Health >= ShinesparkDefinitions.MinimumSustainingEnergy;
-        bool lowEnergy = !frame.PlayerInvincibilityEnabled && !hasSustainingEnergy;
+        bool lowEnergy = !frame.SamusCannotDie && !hasSustainingEnergy;
         if (collided || lowEnergy)
             BeginCrash(samus);
 
         // At exactly 30 energy, this frame still moves and drains to 29. The following
         // frame moves once more before EndSuperJump observes that 29 is below the threshold.
-        // Invincible playtesting retains energy loss without requiring refills: below
+        // With the cannot-die assist, energy loss continues without requiring refills: below
         // the cutoff, continue draining to one, never decrementing zero or one.
-        bool drained = frame.PlayerInvincibilityEnabled
+        bool drained = frame.SamusCannotDie
             ? samus.Health > 1
             : hasSustainingEnergy;
         if (drained)

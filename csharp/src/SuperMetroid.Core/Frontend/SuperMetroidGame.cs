@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Core.Frontend;
@@ -77,11 +78,11 @@ public sealed class SuperMetroidGame
 
     /// <summary>Creates a reset-state session, reading the selected save slot and capturing the boot carry before any dispatcher frame runs.</summary>
     /// <param name="saves">The battery-backed saves the session owns; the host loads them and persists them on <see cref="SaveRamChanged"/>.</param>
-    /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
+    /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
     public SuperMetroidGame(
         SaveSlotStore saves,
-        SuperMetroidGameOptions? gameOptions = null)
-        : this(saves, gameOptions, SuperMetroidGameHostServices.Default, new SharedRandom())
+        GameplayAssists? assists = null)
+        : this(saves, assists, SuperMetroidGameHostServices.Default, new SharedRandom())
     {
     }
 
@@ -94,16 +95,16 @@ public sealed class SuperMetroidGame
     /// gameplay updates publish through <see cref="SuperMetroidGameHostServices.GameplayFrames"/>.
     /// </remarks>
     /// <param name="saves">The battery-backed saves the session owns.</param>
-    /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
+    /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="hostServices">The compatibility services and display policy; replay verification supplies recorded evidence here.</param>
     /// <param name="random">The session's random-number word, which the frontend and every gameplay runtime share.</param>
     internal SuperMetroidGame(
         SaveSlotStore saves,
-        SuperMetroidGameOptions? gameOptions,
+        GameplayAssists? assists,
         SuperMetroidGameHostServices hostServices,
         SharedRandom random)
     {
-        Session = new FrontendSession(saves, gameOptions, hostServices, random);
+        Session = new FrontendSession(saves, assists, hostServices, random);
     }
 
     /// <summary>The session's battery-backed saves, which the host persists after <see cref="SaveRamChanged"/>.</summary>
@@ -499,15 +500,16 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>
-    /// Rebinds host policy after an interactive debugger-state load. Game state,
-    /// resource totals, and the retained frame remain intact unless a tester grant is newly enabled. Exact replay must omit
-    /// this override unless the recording explicitly supplies different host options.
+    /// Changes the assists the session plays under, as after an interactive debugger-state load. Game state, resource
+    /// totals and the retained frame stay intact unless a granted loadout is newly enabled. An exact replay keeps the
+    /// assists it was recorded with.
     /// </summary>
-    public void ApplyHostOptions(SuperMetroidGameOptions hostOptions)
+    /// <param name="assists">The assists to play under from now on.</param>
+    public void ApplyAssists(GameplayAssists assists)
     {
-        Ensure.NotNull(hostOptions);
-        Session.Runtime?.ApplyHostOptions(hostOptions.RuntimeOverrides(forAttractDemo: false));
-        Session.ConfiguredOptions = hostOptions;
+        Ensure.NotNull(assists);
+        Session.Runtime?.ApplyAssists(assists);
+        Session.Assists = assists;
     }
 
     /// <summary>

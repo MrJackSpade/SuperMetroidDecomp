@@ -101,8 +101,8 @@ internal sealed record RoomLoaderDependencies
     /// <summary>System.</summary>
     public required SharedGameState System { get; init; }
 
-    /// <summary>Tester.</summary>
-    public required TesterTools Tester { get; init; }
+    /// <summary>The runtime's assists, which grant the loadout and reset saved encounters on a load.</summary>
+    public required ActiveAssists Assists { get; init; }
 
     /// <summary>The installed services reproducing Samus's glitch reads, handed to every Samus and projectile system a load builds.</summary>
     public required SamusOverreadServices SamusOverreads { get; init; }

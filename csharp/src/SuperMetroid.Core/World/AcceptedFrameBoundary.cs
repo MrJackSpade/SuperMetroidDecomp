@@ -55,6 +55,7 @@ internal sealed class AcceptedFrameBoundary
     /// <summary>The HUD whose images each frame boundary latches.</summary>
     private readonly HudState _hud;
     /// <summary>The pictures of the HUD's images in the room's BG3 sheet, looked up once per sheet (#1466).</summary>
+    [NonSerialized]
     private HudPictures? _hudPictures;
     /// <summary>Supplies the loaded room, door, and scrolling sky whose register shadows are latched.</summary>
     private readonly ActiveRoomState _room;

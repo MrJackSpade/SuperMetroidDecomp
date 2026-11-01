@@ -12,30 +12,39 @@ namespace SuperMetroid.Core.Bosses.Artwork;
 public sealed class BossArtworkBinding
 {
     /// <summary>The installed boss artwork, or null before any is installed.</summary>
+    [field: NonSerialized]
     public BossArtworkCatalog? Artwork { get; set; }
 
     /// <summary>Mother Brain's installed health colors, bound with the map presentation.</summary>
+    [field: NonSerialized]
     public MotherBrainHealthPalettePresentation? MotherBrainHealthColors { get; set; }
 
     /// <summary>Mother Brain's installed rainbow-beam colors, bound with the map presentation.</summary>
+    [field: NonSerialized]
     public MotherBrainRainbowPalettePresentation? MotherBrainRainbowColors { get; set; }
 
     /// <summary>Mother Brain's installed room colors, bound with the map presentation.</summary>
+    [field: NonSerialized]
     public MotherBrainRoomColorPresentation? MotherBrainRoomColors { get; set; }
 
     /// <summary>Ceres Ridley's installed colors, bound with the map presentation.</summary>
+    [field: NonSerialized]
     public CeresRidleyColorCatalog? CeresRidleyColors { get; set; }
 
     /// <summary>Ceres Ridley's installed Mode 7 colors, bound with the map presentation.</summary>
+    [field: NonSerialized]
     public CeresRidleyFloorColorCatalog? CeresRidleyFloorColors { get; set; }
 
     /// <summary>The Speed Booster delays Ceres Ridley's getaway wing frames leave behind, bound with the map presentation.</summary>
+    [field: NonSerialized]
     public CeresRidleyGetawayBoostDelays? CeresRidleyGetawayBoostDelays { get; set; }
 
     /// <summary>The escape typewriters' installed text, bound with the map presentation.</summary>
+    [field: NonSerialized]
     public EscapeTypewriterPresentation? EscapeTypewriterPresentation { get; set; }
 
     /// <summary>Every boss's installed body sheet, or null before any is installed (#1466).</summary>
+    [field: NonSerialized]
     public BossBodySheets? BodySheets { get; set; }
 
     /// <summary><paramref name="owner"/>'s installed body sheet; a boss that draws its body fails when none is installed.</summary>

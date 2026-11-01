@@ -199,6 +199,7 @@ internal sealed class RuntimeArtwork
 
 
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
+    [field: NonSerialized]
     public InstalledRoomArtwork? RoomBlockSheets { get; set; }
     /// <summary>Host-selected base room palettes, rebound after debugger-state restore.</summary>
     [field: NonSerialized]

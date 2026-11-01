@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
@@ -26,7 +27,7 @@ public static class MotherBrainHealthPaletteFile
             json, ArtworkJson.Options, "Mother Brain health palette");
         if (document.Version != Version)
             throw new InvalidDataException("Unsupported Mother Brain health palette version.");
-        return new(Convert(document.Body, nameof(document.Body)),
+        return MotherBrainHealthPaletteRecognition.Create(Convert(document.Body, nameof(document.Body)),
             Convert(document.BackLegs, nameof(document.BackLegs)));
 
         static RgbColor[][] Convert(PaletteRgb5[][]? frames, string name)

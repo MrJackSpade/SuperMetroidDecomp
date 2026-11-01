@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 using SuperMetroid.Diagnostics;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Diagnostics.SaveStates;
@@ -16,9 +17,9 @@ namespace SuperMetroid.DesktopVerification.Diagnostics;
 /// <summary>Headless save/advance/load deterministic-continuation audit.</summary>
 public static class DebuggerSaveStateSmokeTest
 {
-    /// <summary>Uses a temporary installation to check content/build warnings, exact saved continuation, and wrong-ROM/schema rejection.</summary>
+    /// <summary>Uses the repository installation to check content/build warnings, exact saved continuation, and wrong-ROM/schema rejection.</summary>
     /// <param name="romPath">Retail cartridge path.</param>
-    /// <remarks>Deletes the temporary installation and state slots afterward; mismatches throw rather than returning a failed result.</remarks>
+    /// <remarks>Deletes the temporary state slots afterward; mismatches throw rather than returning a failed result.</remarks>
     public static DebuggerSaveStateSmokeTestResult Run(string romPath)
     {
         string fullRomPath = Path.GetFullPath(romPath);
@@ -28,8 +29,7 @@ public static class DebuggerSaveStateSmokeTest
         Directory.CreateDirectory(temporaryDirectory);
         try
         {
-            GameInstallation installation = GameAssetInstaller.Install(fullRomPath,
-                Path.Combine(temporaryDirectory, "installed"));
+            GameInstallation installation = RepositoryInstallation.Installation;
             var maps = installation.LoadMaps();
             var content = new InstalledSessionContent(installation.LoadGameArtwork(maps, installation.LoadProjectiles()), installation.LoadAudioClips());
             var game = GameSessionComposer.Create(new SuperMetroid.Core.Saves.SaveSlotStore(), SuperMetroid.Core.Gameplay.GameplayAssists.None, content, storage: null);

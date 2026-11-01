@@ -17,20 +17,17 @@ internal static class RetailLoadAppearanceTests
     /// <summary>Runs two independent in-memory save sessions and compares game state, audio, timing, and pixels through load.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        byte[] rom = File.ReadAllBytes("Super Metroid.smc");
-        var left = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-        var right = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         // In-memory saves only, matching the portable saved-file fixture.
-        SuperMetroid.Core.Saves.SaveSlotStore Saves(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
+        SuperMetroid.Core.Saves.SaveSlotStore Saves()
         {
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
-            var saves = new SuperMetroid.Core.Saves.SaveSlotStore(SaveMapPresentationFixture.Create(bus));
+            var saves = new SuperMetroid.Core.Saves.SaveSlotStore(SaveMapPresentationFixture.Create());
             saves.SaveSlot(0, save);
             return saves;
         }
-        var legacy = InstalledFixtures.CreateGame(Saves(left));
-        var captured = InstalledFixtures.CreateGame(Saves(right));
+        var legacy = InstalledFixtures.CreateGame(Saves());
+        var captured = InstalledFixtures.CreateGame(Saves());
         bool sawMap = false, sawAppearance = false, completed = false;
         int samples = 0;
         for (int tick = 0; tick < 2400; tick++)

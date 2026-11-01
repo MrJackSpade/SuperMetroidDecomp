@@ -18,17 +18,11 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 /// <summary>Checks a host's binding of installed projectile art at startup and with edited overrides.</summary>
 internal static class ProjectileHostBindingVerification
 {
-    /// <summary>Installs the repository ROM into a disposable root, verifies host binding, then removes it.</summary>
+    /// <summary>Verifies host binding on a private copy of the repository installation, which the override checks edit.</summary>
     public static int Run()
     {
-        using var rootScratch = new TestScratchDirectory("projectile-host");
-        string root = rootScratch.Root;
-        Directory.CreateDirectory(root);
-        try
-        {
-            return Verify(GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), Path.Combine(root, "installation")));
-        }
-        finally { Directory.Delete(root, recursive: true); }
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        return Verify(copy.Installation);
     }
 
     /// <summary>Compares host catalogs with installed files at startup, after a restart with overrides, and with an invalid override.</summary>

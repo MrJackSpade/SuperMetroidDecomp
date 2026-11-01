@@ -26,6 +26,14 @@ internal static class EndingPostCreditsScrollVerification
         EndingCreditsState ending = CreateRetailEndingFixture(new AudioQueues(), gameTimeHours: 2, gameTimeMinutes: 0);
         var installation = RepositoryInstallation.Installation;
 
+        // The post-shot is reached only after the reward has shown the producer panel and replaced it with the
+        // copyright, which the white flash then clears; the production steps write that page before the shot begins.
+        ending.Stage.Phase = EndingCreditsPhase.PostCreditsWaitingBackdrop;
+        ending.Stage.PhaseTimer = 1;
+        ending.Step();
+        AssertEqual(EndingCreditsPhase.PostCreditsWaitingSamus, ending.Stage.Phase, "the waiting backdrop shows the producer panel");
+        ending.CreditsRoll.ShowRewardCopyright();
+
         // A leftover scroll from an earlier scroll-down must not survive the white flash.
         var leftover = new Position16<TilePlanePixels>(0, ScrollWordRange - ScrollDownCalls * PixelsPerCall);
         ending.Stage.PostCreditsScroll = leftover;

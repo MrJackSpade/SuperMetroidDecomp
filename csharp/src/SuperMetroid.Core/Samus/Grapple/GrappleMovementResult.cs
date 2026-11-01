@@ -2,12 +2,12 @@ using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Grapple;
 
-/// <summary>One observable bank-$9B grapple-function result.</summary>
+/// <summary>One observable grapple-function result.</summary>
 /// <param name="Phase">The phase selected after the grapple update.</param>
 /// <param name="Fired">Whether the update created a newly firing beam.</param>
 /// <param name="OwnsMovement">Whether grapple continues to own Samus movement.</param>
 /// <param name="TerrainCollided">Whether the body sweep collided with terrain.</param>
-/// <param name="CollisionDistanceFromFeet">Native body-sweep countdown at the collision point.</param>
+/// <param name="CollisionDistanceFromFeet">Body-sweep countdown at the collision point.</param>
 /// <param name="RopeLengthBlocked">Whether collision prevented the requested rope-length change.</param>
 /// <param name="WallJumpStarted">Whether release began the independent wall-jump handler.</param>
 /// <param name="CameraPrevious">Optional clamped previous Samus position published to camera tracking by the update.</param>

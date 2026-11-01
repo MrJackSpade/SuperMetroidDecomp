@@ -1,296 +1,296 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The Samus projectiles' bank-$93 programs (#1301), one per list a header or loop enters.</summary>
+/// <summary>The Samus projectiles' programs (#1301), one per list a header or loop enters.</summary>
 public enum SamusProjectileProgram
 {
-    /// <summary>The list at <c>$93:86DB</c>.</summary>
+    /// <summary>The Power up facing right animation.</summary>
     PowerUpFacingRight,
-    /// <summary>The list at <c>$93:86E7</c>.</summary>
+    /// <summary>The Power up right animation.</summary>
     PowerUpRight,
-    /// <summary>The list at <c>$93:86F3</c>.</summary>
+    /// <summary>The Power right animation.</summary>
     PowerRight,
-    /// <summary>The list at <c>$93:86FF</c>.</summary>
+    /// <summary>The Power down right animation.</summary>
     PowerDownRight,
-    /// <summary>The list at <c>$93:870B</c>.</summary>
+    /// <summary>The Power down facing right animation.</summary>
     PowerDownFacingRight,
-    /// <summary>The list at <c>$93:8717</c>.</summary>
+    /// <summary>The Power down left animation.</summary>
     PowerDownLeft,
-    /// <summary>The list at <c>$93:8723</c>.</summary>
+    /// <summary>The Power left animation.</summary>
     PowerLeft,
-    /// <summary>The list at <c>$93:872F</c>.</summary>
+    /// <summary>The Power up left animation.</summary>
     PowerUpLeft,
-    /// <summary>The list at <c>$93:873B</c>.</summary>
+    /// <summary>The Wave up facing right animation.</summary>
     WaveUpFacingRight,
-    /// <summary>The list at <c>$93:8743</c>.</summary>
+    /// <summary>The Wave down facing right animation.</summary>
     WaveDownFacingRight,
-    /// <summary>The list at <c>$93:87C7</c>.</summary>
+    /// <summary>The Wave up right animation.</summary>
     WaveUpRight,
-    /// <summary>The list at <c>$93:884B</c>.</summary>
+    /// <summary>The Wave right animation.</summary>
     WaveRight,
-    /// <summary>The list at <c>$93:88CF</c>.</summary>
+    /// <summary>The Wave down right animation.</summary>
     WaveDownRight,
-    /// <summary>The list at <c>$93:8953</c>.</summary>
+    /// <summary>The Ice up facing right animation.</summary>
     IceUpFacingRight,
-    /// <summary>The list at <c>$93:8977</c>.</summary>
+    /// <summary>The Spazer up facing right animation.</summary>
     SpazerUpFacingRight,
-    /// <summary>The list at <c>$93:8987</c>.</summary>
+    /// <summary>The Spazer up facing right animation's repeating part.</summary>
     SpazerUpFacingRightLoop,
-    /// <summary>The list at <c>$93:8993</c>.</summary>
+    /// <summary>The Spazer up right animation.</summary>
     SpazerUpRight,
-    /// <summary>The list at <c>$93:89A3</c>.</summary>
+    /// <summary>The Spazer up right animation's repeating part.</summary>
     SpazerUpRightLoop,
-    /// <summary>The list at <c>$93:89AF</c>.</summary>
+    /// <summary>The Spazer right animation.</summary>
     SpazerRight,
-    /// <summary>The list at <c>$93:89BF</c>.</summary>
+    /// <summary>The Spazer right animation's repeating part.</summary>
     SpazerRightLoop,
-    /// <summary>The list at <c>$93:89CB</c>.</summary>
+    /// <summary>The Spazer down right animation.</summary>
     SpazerDownRight,
-    /// <summary>The list at <c>$93:89DB</c>.</summary>
+    /// <summary>The Spazer down right animation's repeating part.</summary>
     SpazerDownRightLoop,
-    /// <summary>The list at <c>$93:89E7</c>.</summary>
+    /// <summary>The Spazer down facing right animation.</summary>
     SpazerDownFacingRight,
-    /// <summary>The list at <c>$93:89F7</c>.</summary>
+    /// <summary>The Spazer down facing right animation's repeating part.</summary>
     SpazerDownFacingRightLoop,
-    /// <summary>The list at <c>$93:8A03</c>.</summary>
+    /// <summary>The Spazer down left animation.</summary>
     SpazerDownLeft,
-    /// <summary>The list at <c>$93:8A13</c>.</summary>
+    /// <summary>The Spazer down left animation's repeating part.</summary>
     SpazerDownLeftLoop,
-    /// <summary>The list at <c>$93:8A1F</c>.</summary>
+    /// <summary>The Spazer left animation.</summary>
     SpazerLeft,
-    /// <summary>The list at <c>$93:8A2F</c>.</summary>
+    /// <summary>The Spazer left animation's repeating part.</summary>
     SpazerLeftLoop,
-    /// <summary>The list at <c>$93:8A3B</c>.</summary>
+    /// <summary>The Spazer up left animation.</summary>
     SpazerUpLeft,
-    /// <summary>The list at <c>$93:8A4B</c>.</summary>
+    /// <summary>The Spazer up left animation's repeating part.</summary>
     SpazerUpLeftLoop,
-    /// <summary>The list at <c>$93:8A57</c>.</summary>
+    /// <summary>The Spazer Wave up facing right animation.</summary>
     SpazerWaveUpFacingRight,
-    /// <summary>The list at <c>$93:8AAB</c>.</summary>
+    /// <summary>The Spazer Wave up right animation.</summary>
     SpazerWaveUpRight,
-    /// <summary>The list at <c>$93:8AFF</c>.</summary>
+    /// <summary>The Spazer Wave right animation.</summary>
     SpazerWaveRight,
-    /// <summary>The list at <c>$93:8B53</c>.</summary>
+    /// <summary>The Spazer Wave down right animation.</summary>
     SpazerWaveDownRight,
-    /// <summary>The list at <c>$93:8BA7</c>.</summary>
+    /// <summary>The Spazer Wave down facing right animation.</summary>
     SpazerWaveDownFacingRight,
-    /// <summary>The list at <c>$93:8BFB</c>.</summary>
+    /// <summary>The Spazer Wave down left animation.</summary>
     SpazerWaveDownLeft,
-    /// <summary>The list at <c>$93:8C4F</c>.</summary>
+    /// <summary>The Spazer Wave left animation.</summary>
     SpazerWaveLeft,
-    /// <summary>The list at <c>$93:8CA3</c>.</summary>
+    /// <summary>The Spazer Wave up left animation.</summary>
     SpazerWaveUpLeft,
-    /// <summary>The list at <c>$93:8CF7</c>.</summary>
+    /// <summary>The Plasma up facing right animation.</summary>
     PlasmaUpFacingRight,
-    /// <summary>The list at <c>$93:8CFF</c>.</summary>
+    /// <summary>The Plasma up facing right animation's repeating part.</summary>
     PlasmaUpFacingRightLoop,
-    /// <summary>The list at <c>$93:8D0B</c>.</summary>
+    /// <summary>The Plasma up right animation.</summary>
     PlasmaUpRight,
-    /// <summary>The list at <c>$93:8D13</c>.</summary>
+    /// <summary>The Plasma up right animation's repeating part.</summary>
     PlasmaUpRightLoop,
-    /// <summary>The list at <c>$93:8D1F</c>.</summary>
+    /// <summary>The Plasma right animation.</summary>
     PlasmaRight,
-    /// <summary>The list at <c>$93:8D27</c>.</summary>
+    /// <summary>The Plasma right animation's repeating part.</summary>
     PlasmaRightLoop,
-    /// <summary>The list at <c>$93:8D33</c>.</summary>
+    /// <summary>The Plasma down right animation.</summary>
     PlasmaDownRight,
-    /// <summary>The list at <c>$93:8D3B</c>.</summary>
+    /// <summary>The Plasma down right animation's repeating part.</summary>
     PlasmaDownRightLoop,
-    /// <summary>The list at <c>$93:8D47</c>.</summary>
+    /// <summary>The Plasma Ice Wave up facing right animation.</summary>
     PlasmaIceWaveUpFacingRight,
-    /// <summary>The list at <c>$93:8D4F</c>.</summary>
+    /// <summary>The Plasma Wave up facing right animation.</summary>
     PlasmaWaveUpFacingRight,
-    /// <summary>The list at <c>$93:8D93</c>.</summary>
+    /// <summary>The Plasma Ice Wave up right animation.</summary>
     PlasmaIceWaveUpRight,
-    /// <summary>The list at <c>$93:8D9B</c>.</summary>
+    /// <summary>The Plasma Wave up right animation.</summary>
     PlasmaWaveUpRight,
-    /// <summary>The list at <c>$93:8DDF</c>.</summary>
+    /// <summary>The Plasma Wave right animation.</summary>
     PlasmaWaveRight,
-    /// <summary>The list at <c>$93:8DE7</c>.</summary>
+    /// <summary>The Plasma Wave right animation's repeating part.</summary>
     PlasmaWaveRightLoop,
-    /// <summary>The list at <c>$93:8E2B</c>.</summary>
+    /// <summary>The Plasma Ice Wave down right animation.</summary>
     PlasmaIceWaveDownRight,
-    /// <summary>The list at <c>$93:8E33</c>.</summary>
+    /// <summary>The Plasma Wave down right animation.</summary>
     PlasmaWaveDownRight,
-    /// <summary>The list at <c>$93:8E77</c>.</summary>
+    /// <summary>The charged Power up facing right animation.</summary>
     ChargedPowerUpFacingRight,
-    /// <summary>The list at <c>$93:8E8B</c>.</summary>
+    /// <summary>The charged Power up right animation.</summary>
     ChargedPowerUpRight,
-    /// <summary>The list at <c>$93:8E9F</c>.</summary>
+    /// <summary>The charged Power right animation.</summary>
     ChargedPowerRight,
-    /// <summary>The list at <c>$93:8EB3</c>.</summary>
+    /// <summary>The charged Power down right animation.</summary>
     ChargedPowerDownRight,
-    /// <summary>The list at <c>$93:8EC7</c>.</summary>
+    /// <summary>The charged Power down facing right animation.</summary>
     ChargedPowerDownFacingRight,
-    /// <summary>The list at <c>$93:8EDB</c>.</summary>
+    /// <summary>The charged Power down left animation.</summary>
     ChargedPowerDownLeft,
-    /// <summary>The list at <c>$93:8EEF</c>.</summary>
+    /// <summary>The charged Power left animation.</summary>
     ChargedPowerLeft,
-    /// <summary>The list at <c>$93:8F03</c>.</summary>
+    /// <summary>The charged Power up left animation.</summary>
     ChargedPowerUpLeft,
-    /// <summary>The list at <c>$93:8F17</c>.</summary>
+    /// <summary>The charged Wave up facing right animation.</summary>
     ChargedWaveUpFacingRight,
-    /// <summary>The list at <c>$93:8F1F</c>.</summary>
+    /// <summary>The charged Wave down facing right animation.</summary>
     ChargedWaveDownFacingRight,
-    /// <summary>The list at <c>$93:8FA3</c>.</summary>
+    /// <summary>The charged Wave up right animation.</summary>
     ChargedWaveUpRight,
-    /// <summary>The list at <c>$93:9027</c>.</summary>
+    /// <summary>The charged Wave right animation.</summary>
     ChargedWaveRight,
-    /// <summary>The list at <c>$93:90AB</c>.</summary>
+    /// <summary>The charged Wave down right animation.</summary>
     ChargedWaveDownRight,
-    /// <summary>The list at <c>$93:912F</c>.</summary>
+    /// <summary>The charged Ice up facing right animation.</summary>
     ChargedIceUpFacingRight,
-    /// <summary>The list at <c>$93:9153</c>.</summary>
+    /// <summary>The charged Ice Wave up facing right animation.</summary>
     ChargedIceWaveUpFacingRight,
-    /// <summary>The list at <c>$93:915B</c>.</summary>
+    /// <summary>The charged Ice Wave down facing right animation.</summary>
     ChargedIceWaveDownFacingRight,
-    /// <summary>The list at <c>$93:91DF</c>.</summary>
+    /// <summary>The charged Ice Wave up right animation.</summary>
     ChargedIceWaveUpRight,
-    /// <summary>The list at <c>$93:9263</c>.</summary>
+    /// <summary>The charged Ice Wave right animation.</summary>
     ChargedIceWaveRight,
-    /// <summary>The list at <c>$93:92E7</c>.</summary>
+    /// <summary>The charged Ice Wave down right animation.</summary>
     ChargedIceWaveDownRight,
-    /// <summary>The list at <c>$93:936B</c>.</summary>
+    /// <summary>The charged Spazer up facing right animation.</summary>
     ChargedSpazerUpFacingRight,
-    /// <summary>The list at <c>$93:93AB</c>.</summary>
+    /// <summary>The charged Spazer up facing right animation's repeating part.</summary>
     ChargedSpazerUpFacingRightLoop,
-    /// <summary>The list at <c>$93:93BF</c>.</summary>
+    /// <summary>The charged Spazer up right animation.</summary>
     ChargedSpazerUpRight,
-    /// <summary>The list at <c>$93:93FF</c>.</summary>
+    /// <summary>The charged Spazer up right animation's repeating part.</summary>
     ChargedSpazerUpRightLoop,
-    /// <summary>The list at <c>$93:9413</c>.</summary>
+    /// <summary>The charged Spazer right animation.</summary>
     ChargedSpazerRight,
-    /// <summary>The list at <c>$93:9453</c>.</summary>
+    /// <summary>The charged Spazer right animation's repeating part.</summary>
     ChargedSpazerRightLoop,
-    /// <summary>The list at <c>$93:9467</c>.</summary>
+    /// <summary>The charged Spazer down right animation.</summary>
     ChargedSpazerDownRight,
-    /// <summary>The list at <c>$93:94A7</c>.</summary>
+    /// <summary>The charged Spazer down right animation's repeating part.</summary>
     ChargedSpazerDownRightLoop,
-    /// <summary>The list at <c>$93:94BB</c>.</summary>
+    /// <summary>The charged Spazer Wave up facing right animation.</summary>
     ChargedSpazerWaveUpFacingRight,
-    /// <summary>The list at <c>$93:94DB</c>.</summary>
+    /// <summary>The charged Spazer Wave up facing right animation's repeating part.</summary>
     ChargedSpazerWaveUpFacingRightLoop,
-    /// <summary>The list at <c>$93:957F</c>.</summary>
+    /// <summary>The charged Spazer Wave up right animation.</summary>
     ChargedSpazerWaveUpRight,
-    /// <summary>The list at <c>$93:959F</c>.</summary>
+    /// <summary>The charged Spazer Wave up right animation's repeating part.</summary>
     ChargedSpazerWaveUpRightLoop,
-    /// <summary>The list at <c>$93:9643</c>.</summary>
+    /// <summary>The charged Spazer Wave right animation.</summary>
     ChargedSpazerWaveRight,
-    /// <summary>The list at <c>$93:9663</c>.</summary>
+    /// <summary>The charged Spazer Wave right animation's repeating part.</summary>
     ChargedSpazerWaveRightLoop,
-    /// <summary>The list at <c>$93:9707</c>.</summary>
+    /// <summary>The charged Spazer Wave down right animation.</summary>
     ChargedSpazerWaveDownRight,
-    /// <summary>The list at <c>$93:9727</c>.</summary>
+    /// <summary>The charged Spazer Wave down right animation's repeating part.</summary>
     ChargedSpazerWaveDownRightLoop,
-    /// <summary>The list at <c>$93:97CB</c>.</summary>
+    /// <summary>The charged Spazer Wave down facing right animation.</summary>
     ChargedSpazerWaveDownFacingRight,
-    /// <summary>The list at <c>$93:97EB</c>.</summary>
+    /// <summary>The charged Spazer Wave down facing right animation's repeating part.</summary>
     ChargedSpazerWaveDownFacingRightLoop,
-    /// <summary>The list at <c>$93:988F</c>.</summary>
+    /// <summary>The charged Spazer Wave down left animation.</summary>
     ChargedSpazerWaveDownLeft,
-    /// <summary>The list at <c>$93:98AF</c>.</summary>
+    /// <summary>The charged Spazer Wave down left animation's repeating part.</summary>
     ChargedSpazerWaveDownLeftLoop,
-    /// <summary>The list at <c>$93:9953</c>.</summary>
+    /// <summary>The charged Spazer Wave left animation.</summary>
     ChargedSpazerWaveLeft,
-    /// <summary>The list at <c>$93:9973</c>.</summary>
+    /// <summary>The charged Spazer Wave left animation's repeating part.</summary>
     ChargedSpazerWaveLeftLoop,
-    /// <summary>The list at <c>$93:9A17</c>.</summary>
+    /// <summary>The charged Spazer Wave up left animation.</summary>
     ChargedSpazerWaveUpLeft,
-    /// <summary>The list at <c>$93:9A37</c>.</summary>
+    /// <summary>The charged Spazer Wave up left animation's repeating part.</summary>
     ChargedSpazerWaveUpLeftLoop,
-    /// <summary>The list at <c>$93:9ADB</c>.</summary>
+    /// <summary>The charged Plasma up facing right animation.</summary>
     ChargedPlasmaUpFacingRight,
-    /// <summary>The list at <c>$93:9B0B</c>.</summary>
+    /// <summary>The charged Plasma up facing right animation's repeating part.</summary>
     ChargedPlasmaUpFacingRightLoop,
-    /// <summary>The list at <c>$93:9B1F</c>.</summary>
+    /// <summary>The charged Plasma up right animation.</summary>
     ChargedPlasmaUpRight,
-    /// <summary>The list at <c>$93:9B4F</c>.</summary>
+    /// <summary>The charged Plasma up right animation's repeating part.</summary>
     ChargedPlasmaUpRightLoop,
-    /// <summary>The list at <c>$93:9B63</c>.</summary>
+    /// <summary>The charged Plasma right animation.</summary>
     ChargedPlasmaRight,
-    /// <summary>The list at <c>$93:9B93</c>.</summary>
+    /// <summary>The charged Plasma right animation's repeating part.</summary>
     ChargedPlasmaRightLoop,
-    /// <summary>The list at <c>$93:9BA7</c>.</summary>
+    /// <summary>The charged Plasma down right animation.</summary>
     ChargedPlasmaDownRight,
-    /// <summary>The list at <c>$93:9BD7</c>.</summary>
+    /// <summary>The charged Plasma down right animation's repeating part.</summary>
     ChargedPlasmaDownRightLoop,
-    /// <summary>The list at <c>$93:9BEB</c>.</summary>
+    /// <summary>The charged Plasma Wave up facing right animation.</summary>
     ChargedPlasmaWaveUpFacingRight,
-    /// <summary>The list at <c>$93:9C1B</c>.</summary>
+    /// <summary>The charged Plasma Wave up facing right animation's repeating part.</summary>
     ChargedPlasmaWaveUpFacingRightLoop,
-    /// <summary>The list at <c>$93:9C9F</c>.</summary>
+    /// <summary>The charged Plasma Wave up right animation.</summary>
     ChargedPlasmaWaveUpRight,
-    /// <summary>The list at <c>$93:9CCF</c>.</summary>
+    /// <summary>The charged Plasma Wave up right animation's repeating part.</summary>
     ChargedPlasmaWaveUpRightLoop,
-    /// <summary>The list at <c>$93:9D53</c>.</summary>
+    /// <summary>The charged Plasma Wave right animation.</summary>
     ChargedPlasmaWaveRight,
-    /// <summary>The list at <c>$93:9D83</c>.</summary>
+    /// <summary>The charged Plasma Wave right animation's repeating part.</summary>
     ChargedPlasmaWaveRightLoop,
-    /// <summary>The list at <c>$93:9E07</c>.</summary>
+    /// <summary>The charged Plasma Wave down right animation.</summary>
     ChargedPlasmaWaveDownRight,
-    /// <summary>The list at <c>$93:9E37</c>.</summary>
+    /// <summary>The charged Plasma Wave down right animation's repeating part.</summary>
     ChargedPlasmaWaveDownRightLoop,
-    /// <summary>The list at <c>$93:9EBB</c>.</summary>
+    /// <summary>The Missile up facing right animation.</summary>
     MissileUpFacingRight,
-    /// <summary>The list at <c>$93:9EC7</c>.</summary>
+    /// <summary>The Missile up right animation.</summary>
     MissileUpRight,
-    /// <summary>The list at <c>$93:9ED3</c>.</summary>
+    /// <summary>The Missile right animation.</summary>
     MissileRight,
-    /// <summary>The list at <c>$93:9EDF</c>.</summary>
+    /// <summary>The Missile down right animation.</summary>
     MissileDownRight,
-    /// <summary>The list at <c>$93:9EEB</c>.</summary>
+    /// <summary>The Missile down facing right animation.</summary>
     MissileDownFacingRight,
-    /// <summary>The list at <c>$93:9EF7</c>.</summary>
+    /// <summary>The Missile down left animation.</summary>
     MissileDownLeft,
-    /// <summary>The list at <c>$93:9F03</c>.</summary>
+    /// <summary>The Missile left animation.</summary>
     MissileLeft,
-    /// <summary>The list at <c>$93:9F0F</c>.</summary>
+    /// <summary>The Missile up left animation.</summary>
     MissileUpLeft,
-    /// <summary>The list at <c>$93:9F1B</c>.</summary>
+    /// <summary>The Super Missile up facing right animation.</summary>
     SuperMissileUpFacingRight,
-    /// <summary>The list at <c>$93:9F27</c>.</summary>
+    /// <summary>The Super Missile up right animation.</summary>
     SuperMissileUpRight,
-    /// <summary>The list at <c>$93:9F33</c>.</summary>
+    /// <summary>The Super Missile right animation.</summary>
     SuperMissileRight,
-    /// <summary>The list at <c>$93:9F3F</c>.</summary>
+    /// <summary>The Super Missile down right animation.</summary>
     SuperMissileDownRight,
-    /// <summary>The list at <c>$93:9F4B</c>.</summary>
+    /// <summary>The Super Missile down facing right animation.</summary>
     SuperMissileDownFacingRight,
-    /// <summary>The list at <c>$93:9F57</c>.</summary>
+    /// <summary>The Super Missile down left animation.</summary>
     SuperMissileDownLeft,
-    /// <summary>The list at <c>$93:9F63</c>.</summary>
+    /// <summary>The Super Missile left animation.</summary>
     SuperMissileLeft,
-    /// <summary>The list at <c>$93:9F6F</c>.</summary>
+    /// <summary>The Super Missile up left animation.</summary>
     SuperMissileUpLeft,
-    /// <summary>The list at <c>$93:9F7B</c>.</summary>
+    /// <summary>The Super Missile link animation.</summary>
     SuperMissileLink,
-    /// <summary>The list at <c>$93:9F87</c>.</summary>
+    /// <summary>The Power Bomb animation.</summary>
     PowerBomb,
-    /// <summary>The list at <c>$93:9FA3</c>.</summary>
+    /// <summary>The fast Power Bomb animation.</summary>
     FastPowerBomb,
-    /// <summary>The list at <c>$93:9FBF</c>.</summary>
+    /// <summary>The Bomb animation.</summary>
     Bomb,
-    /// <summary>The list at <c>$93:9FE3</c>.</summary>
+    /// <summary>The fast Bomb animation.</summary>
     FastBomb,
-    /// <summary>The list at <c>$93:A007</c>.</summary>
+    /// <summary>The beam explosion animation.</summary>
     BeamExplosion,
-    /// <summary>The list at <c>$93:A039</c>.</summary>
+    /// <summary>The Missile explosion animation.</summary>
     MissileExplosion,
-    /// <summary>The list at <c>$93:A06B</c>.</summary>
+    /// <summary>The Bomb explosion animation.</summary>
     BombExplosion,
-    /// <summary>The list at <c>$93:A095</c>.</summary>
+    /// <summary>The Plasma SBA animation.</summary>
     PlasmaSBA,
-    /// <summary>The list at <c>$93:A0C1</c>.</summary>
+    /// <summary>The Super Missile explosion animation.</summary>
     SuperMissileExplosion,
-    /// <summary>The list at <c>$93:A0F3</c>.</summary>
+    /// <summary>The projectile 25 up facing right animation.</summary>
     Projectile25UpFacingRight,
-    /// <summary>The list at <c>$93:A119</c>.</summary>
+    /// <summary>The Shinespark echo up facing right animation.</summary>
     ShinesparkEchoUpFacingRight,
-    /// <summary>The list at <c>$93:A13D</c>.</summary>
+    /// <summary>The Spazer SBA trail up facing right animation.</summary>
     SpazerSBATrailUpFacingRight,
-    /// <summary>The list at <c>$93:A14D</c>.</summary>
+    /// <summary>The Spazer SBA trail up facing right animation's repeating part.</summary>
     SpazerSBATrailUpFacingRightLoop,
-    /// <summary>The list at <c>$93:A159</c>.</summary>
+    /// <summary>The Wave SBA animation.</summary>
     WaveSBA,
-    /// <summary>The list at <c>$93:A16D</c>.</summary>
+    /// <summary>The projectile 27 animation.</summary>
     Projectile27,
 }

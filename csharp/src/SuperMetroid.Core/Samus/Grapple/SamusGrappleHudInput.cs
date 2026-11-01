@@ -4,10 +4,10 @@ using SuperMetroid.Core.Samus.Hud;
 
 namespace SuperMetroid.Core.Samus.Grapple;
 
-/// <summary>Bank-$90 movement-type admission to the inactive Grapple HUD handler.</summary>
+/// <summary>Movement-type admission to the inactive Grapple HUD handler.</summary>
 internal static class SamusGrappleHudInput
 {
-    /// <summary>Admits a selected Grapple input only for native movement handlers that can fire it in the current pose transition.</summary>
+    /// <summary>Admits a selected Grapple input only for movement handlers that can fire it in the current pose transition.</summary>
     public static bool IsSelectedAndAdmitted(SamusState samus, PostureAdmissionBeyondTransitions<SamusPoseId> postureAdmission)
     {
         if (samus.Control.AlphaLocked || SamusPoseMetadata.IsForwardFacingPose(samus.Pose) ||

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// <summary>How the grapple connects at each special angle: the stop or its reflection, firing cancellation and the pose a release drops into.</summary>
 internal static class GrappleConnections
 {
-    /// <summary>The native record at <paramref name="index"/>: an authored stop or the reflection that follows it.</summary>
+    /// <summary>The record at <paramref name="index"/>: an authored stop or the reflection that follows it.</summary>
     internal static SpecialConnection SpecialAngle(int index)
     {
         if ((uint)index >= SpecialAngleCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -18,7 +18,7 @@ internal static class GrappleConnections
             stop.SamusOffset.MirroredX(), stop.Function);
     }
 
-    /// <summary>$9B:B8B8 cancellation policy for the 28 movement dispatch identities.</summary>
+    /// <summary>Grapple cancellation policy for the 28 movement dispatch identities.</summary>
     internal static bool CancelsFiring(SamusMovementType movement) => movement switch
     {
         SamusMovementType.Standing or SamusMovementType.Running or SamusMovementType.NormalJumping
@@ -56,7 +56,7 @@ internal static class GrappleConnections
         _ => throw new ArgumentOutOfRangeException(nameof(movement)),
     };
 
-    /// <summary>$9B:C9BA/$C9C4 directional standing/crouching poses after the rope drops.</summary>
+    /// <summary>Directional standing/crouching poses after the rope drops.</summary>
     internal static SamusPoseId DroppedPose(int direction, bool compact) => direction switch
     {
         0 => compact ? CrouchingAimUpRightPose : StandingAimUpRightPose,
@@ -80,7 +80,7 @@ internal static class GrappleConnections
     };
 
     /// <summary>
-    /// The default, vertical and crouching directional connection policies ($9B:C3C6/$C3EE/$C416): the record
+    /// The default, vertical and crouching directional connection policies: the record
     /// <paramref name="table"/>'s policy names for <paramref name="fireDirection"/>, the records lying one table after another.
     /// </summary>
     /// <exception cref="InvalidDataException">The direction reaches past the last compiled record.</exception>

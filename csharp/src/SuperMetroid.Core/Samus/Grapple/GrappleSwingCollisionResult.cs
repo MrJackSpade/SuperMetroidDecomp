@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>
-/// Result of the six-point angular body sweep. DistanceFromFeet retains the native countdown:
+/// Result of the six-point angular body sweep. DistanceFromFeet retains the countdown:
 /// six is the point nearest the hand and one is the point furthest beyond Samus.
 /// </summary>
 [IndependentFlag("whether the swing probe collided, a fact of the probe")]

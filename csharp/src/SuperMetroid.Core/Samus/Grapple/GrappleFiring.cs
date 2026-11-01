@@ -39,9 +39,9 @@ internal static class GrappleFiring
         return new(new EightEightVector<RoomPixels>(x, y), RotationAngle.FromRaw(WordWrap.Unsigned(RotationAngle.HalfTurn.RawValue + RotationAngle.QuarterTurn.RawValue / 2 * octant)));
     }
 
-    /// <summary>$9B:C122/$C172 X and $C136/$C186 Y hand anchors selected by firing pose.
+    /// <summary>X and Y hand anchors selected by firing pose.
     /// Up/down facings remain distinct; down-left X is -4 versus down-right +3.
-    /// Running raises only horizontal anchors by four pixels. All native words
+    /// Running raises only horizontal anchors by four pixels. All original words
     /// independently match; subsequent graphics/pose corrections stay with callers.</summary>
     internal static Offset16<RoomPixels> Origin(int direction, bool running)
     {

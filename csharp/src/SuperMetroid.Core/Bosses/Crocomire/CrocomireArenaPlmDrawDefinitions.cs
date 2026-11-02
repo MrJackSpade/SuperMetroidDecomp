@@ -65,16 +65,6 @@ internal static class CrocomireArenaPlmDrawDefinitions
         ],
     };
 
-    /// <summary>Each arena draw's editable artwork key.</summary>
-    internal static readonly Dictionary<CrocomireArenaDraw, string> VisualIds = new()
-    {
-        [CrocomireArenaDraw.ClearBridge] = "clear-bridge",
-        [CrocomireArenaDraw.CrumbleBridgeBlock] = "crumble-bridge-block",
-        [CrocomireArenaDraw.ClearBridgeBlock] = "clear-bridge-block",
-        [CrocomireArenaDraw.ClearInvisibleWall] = "clear-invisible-wall",
-        [CrocomireArenaDraw.CreateInvisibleWall] = "create-invisible-wall",
-    };
-
     /// <summary>
     /// One wall column: an empty cell, the top block, the middle block (the block one tileset row below the top), the
     /// two again, the base block (two tileset rows below the top), then two empty cells.

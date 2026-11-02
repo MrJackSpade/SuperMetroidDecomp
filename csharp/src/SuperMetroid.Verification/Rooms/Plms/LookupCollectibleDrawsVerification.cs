@@ -25,7 +25,7 @@ internal static class LookupCollectibleDrawsVerification
     {
         // Original exported pointer/name contract; physical values come from the ROM.
         LookupEscapeGateStockFrame[] expected = [new LookupEscapeGateStockFrame(0xa2b5,"empty"),new LookupEscapeGateStockFrame(0xa2c7,"chozo-orb-0"),new LookupEscapeGateStockFrame(0xa2cd,"chozo-orb-1"),new LookupEscapeGateStockFrame(0xa2d3,"chozo-orb-2"),new LookupEscapeGateStockFrame(0xa2d9,"chozo-orb-burst"),new LookupEscapeGateStockFrame(0xa2df,"energy-tank-0"),new LookupEscapeGateStockFrame(0xa2e5,"energy-tank-1"),new LookupEscapeGateStockFrame(0xa2eb,"missile-tank-0"),new LookupEscapeGateStockFrame(0xa2f1,"missile-tank-1"),new LookupEscapeGateStockFrame(0xa2f7,"super-missile-tank-0"),new LookupEscapeGateStockFrame(0xa2fd,"super-missile-tank-1"),new LookupEscapeGateStockFrame(0xa303,"power-bomb-tank-0"),new LookupEscapeGateStockFrame(0xa309,"power-bomb-tank-1"),new LookupEscapeGateStockFrame(0xa30f,"dynamic-slot-0-frame-0"),new LookupEscapeGateStockFrame(0xa315,"dynamic-slot-0-frame-1"),new LookupEscapeGateStockFrame(0xa31b,"dynamic-slot-1-frame-0"),new LookupEscapeGateStockFrame(0xa321,"dynamic-slot-1-frame-1"),new LookupEscapeGateStockFrame(0xa327,"dynamic-slot-2-frame-0"),new LookupEscapeGateStockFrame(0xa32d,"dynamic-slot-2-frame-1"),new LookupEscapeGateStockFrame(0xa333,"dynamic-slot-3-frame-0"),new LookupEscapeGateStockFrame(0xa339,"dynamic-slot-3-frame-1"),new LookupEscapeGateStockFrame(0xa3dd,"shot-reveal-0"),new LookupEscapeGateStockFrame(0xa3e3,"shot-reveal-1"),new LookupEscapeGateStockFrame(0xa3e9,"shot-reveal-2")];
-        var exported = CollectiblePlmDraws.All.ToArray();
+        var exported = RoomPlmCollectibleVisualFiles.All.ToArray();
         AssertEqual(24, exported.Length, "Collectible original export count");
         if (field == 0)
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -43,7 +43,7 @@ internal static class LookupCollectibleDrawsVerification
         {
             var entry = expected[index];
             AssertTrue(RoomPlmCollectibleDrawDefinitionsTooling.TryGet(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(entry.Pointer), out var direct), "Collectible direct identity");
-            AssertTrue(CollectiblePlmDraws.TryGetById(entry.Id, out var named), "Collectible reverse identity");
+            AssertTrue(RoomPlmCollectibleVisualFiles.TryGetById(entry.Id, out var named), "Collectible reverse identity");
             foreach (var value in new[] {direct,named,exported[index]})
             {
                 AssertEqual(entry.Pointer, PlmDrawAddressCodec.Of(PlmDraw.Of(value.Draw)), "Collectible original pointer and export order");
@@ -64,12 +64,12 @@ internal static class LookupCollectibleDrawsVerification
             if (field == 3)
                 foreach (string bad in new[] {entry.Id.ToUpperInvariant(), " " + entry.Id, entry.Id + " "})
                 {
-                    AssertTrue(!CollectiblePlmDraws.TryGetById(bad, out var missing), "Collectible ordinal identity");
+                    AssertTrue(!RoomPlmCollectibleVisualFiles.TryGetById(bad, out var missing), "Collectible ordinal identity");
                     AssertEqual(default(RoomPlmCollectibleDrawFrame), missing, "Collectible rejected identity output");
                 }
         }
         if (field == 3)
             foreach (string bad in new[] {"","energy-tank-2","dynamic-slot-4-frame-0","chozo-orb-3","shot-reveal-3"})
-                AssertTrue(!CollectiblePlmDraws.TryGetById(bad, out _), "Collectible unsupported ID");
+                AssertTrue(!RoomPlmCollectibleVisualFiles.TryGetById(bad, out _), "Collectible unsupported ID");
     }
 }

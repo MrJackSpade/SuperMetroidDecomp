@@ -1,9 +1,10 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Installed, replaceable Maridia elevatube PLM visual block.</summary>
+/// <summary>Installed, replaceable Maridia elevatube PLM visual block, and the editable identity that names it.</summary>
 public static class RoomPlmMaridiaElevatubeVisualFiles
 {
     /// <summary>Family-relative stock/override JSON filename for the Maridia elevatube's single visual block, separate from Kraid's use of the same native draw.</summary>
@@ -22,8 +23,7 @@ public static class RoomPlmMaridiaElevatubeVisualFiles
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Maridia elevatube",
-            MaridiaElevatubePlmDefinitions.AllDraws,
-            MaridiaElevatubeDraws.DrawVisualId);
+            AllDraws, DrawVisualId);
 
     /// <summary>Validates the installed elevatube stock image and selects an optional one-block visual replacement.</summary>
     /// <param name="stockDirectory">Family directory containing stock JSON and its required version-one manifest.</param>
@@ -35,11 +35,47 @@ public static class RoomPlmMaridiaElevatubeVisualFiles
     public static InstalledRoomPlmMaridiaElevatubeVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<InstalledRoomPlmMaridiaElevatubeVisuals>(VisualFileName, "Maridia elevatube", MaridiaElevatubePlmDefinitions.AllDraws, MaridiaElevatubeDraws.DrawVisualId, entries => new InstalledRoomPlmMaridiaElevatubeVisuals(entries.Select(entry =>
+            new RoomPlmVisualFamily<InstalledRoomPlmMaridiaElevatubeVisuals>(VisualFileName, "Maridia elevatube", AllDraws, DrawVisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
     /// <summary>Runs the elevatube stock checks from <see cref="Load"/> with no override, cartridge reads, or writes.</summary>
     /// <param name="directory">Family directory containing elevatube stock JSON and manifest.</param>
     /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
+
+    /// <summary>Stable asset identity assigned to the elevatube's one-block artwork.</summary>
+    internal const string VisualId = "elevatube-block";
+
+    /// <summary>Validates the elevatube's single visual block and builds the visuals without changing its terrain, sixteen-update hold, sound, or deletion.</summary>
+    /// <param name="entries">Exactly one entry with the compiled elevatube identity and one appearance.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">The sequence does not contain exactly one valid single-block elevatube entry.</exception>
+    internal static InstalledRoomPlmMaridiaElevatubeVisuals Create(IEnumerable<RoomPlmVisualEntry> entries)
+    {
+        Ensure.NotNull(entries);
+        RoomPlmVisualEntry[] selected = entries.ToArray();
+        if (selected.Length != 1 || selected[0] is null ||
+            !TryGetDrawByVisualId(selected[0].Id, out _) ||
+            selected[0].Blocks is not { Length: 1 } blocks)
+            throw new InvalidDataException(
+                "Maridia elevatube visuals require exactly one visual block.");
+        return new(blocks[0]);
+    }
+
+    /// <summary>The elevatube's one-block draw list, built from the block the game writes.</summary>
+    internal static RoomPlmShotBlockDrawDefinitions.DrawList BlockDrawList =>
+        RoomPlmDrawListExport.SingleRun(MaridiaElevatubePlmDefinitions.BlockDraw, PlmRunDirection.Horizontal,
+            [MaridiaElevatubePlmDefinitions.Terrain]);
+
+    /// <summary>The sole elevatube draw list.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> AllDraws => [BlockDrawList];
+
+    /// <summary>Maps the elevatube draw to its asset identity and rejects unrelated draws.</summary>
+    internal static string DrawVisualId(PlmDraw request) => request == MaridiaElevatubePlmDefinitions.BlockDraw
+        ? VisualId
+        : throw new InvalidDataException($"Maridia elevatube draw {request} has no visual ID.");
+
+    /// <summary>Resolves the extracted elevatube artwork by its stable asset identity.</summary>
+    internal static bool TryGetDrawByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
+        RoomPlmDrawListExport.FindByVisualId([BlockDrawList], _ => VisualId, id, out draw);
 }

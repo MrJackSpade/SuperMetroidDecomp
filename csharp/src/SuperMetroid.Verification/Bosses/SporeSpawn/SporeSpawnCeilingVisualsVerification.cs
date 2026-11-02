@@ -103,10 +103,10 @@ internal static class SporeSpawnCeilingVisualsVerification
         }
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmSporeSpawnCeilingVisualCatalog.Stock();
-        var imported = new RoomPlmSporeSpawnCeilingVisualCatalog(entries.Reverse());
+        var imported = RoomPlmSporeSpawnCeilingVisualFiles.Create(entries.Reverse());
         // Hash flattened visual frames by native draw pointer for catalog identity comparison.
         string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(RoomPlmSporeSpawnCeilingVisualCatalog), appearances.ToDictionary(pair => SporeSpawnCeilingDraws.VisualId(NativePlmDraws.At<SporeSpawnCeilingDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmSporeSpawnCeilingVisualCatalog), appearances.ToDictionary(pair => RoomPlmSporeSpawnCeilingVisualFiles.VisualId(NativePlmDraws.At<SporeSpawnCeilingDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Spore ceiling original flattened hash");
@@ -127,7 +127,7 @@ internal static class SporeSpawnCeilingVisualsVerification
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<SporeSpawnCeilingDraw>((ushort)pointer),0,0), "Spore ceiling unknown pointer");
         entries[0].Blocks[3] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
         entries[2].Blocks[0] = RoomBlockAppearance.Of(0x59);
-        var mixed = new RoomPlmSporeSpawnCeilingVisualCatalog(entries);
+        var mixed = RoomPlmSporeSpawnCeilingVisualFiles.Create(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Spore ceiling mixed custom stock hash");
         entries[0].Blocks[3] = RoomBlockAppearance.Of(0x5a);
@@ -135,13 +135,13 @@ internal static class SporeSpawnCeilingVisualsVerification
         foreach (var frame in frames)
         for (int index = 0; index < 4; index++)
             AssertEqual(expected[frame.Pointer][index], mixed.GetAppearance(NativePlmDraws.At<SporeSpawnCeilingDraw>(frame.Pointer),index / 2,index % 2), "Spore ceiling clone isolation and stock fallback");
-        AssertThrows<InvalidDataException>(() => new RoomPlmSporeSpawnCeilingVisualCatalog(entries[..3]), "Spore ceiling missing frame");
-        AssertThrows<InvalidDataException>(() => new RoomPlmSporeSpawnCeilingVisualCatalog(entries.Append(entries[0])), "Spore ceiling duplicate frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmSporeSpawnCeilingVisualFiles.Create(entries[..3]), "Spore ceiling missing frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmSporeSpawnCeilingVisualFiles.Create(entries.Append(entries[0])), "Spore ceiling duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("CLEAR-CEILING", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => new RoomPlmSporeSpawnCeilingVisualCatalog(invalid), "Spore ceiling ordinal identity");
+        AssertThrows<InvalidDataException>(() => RoomPlmSporeSpawnCeilingVisualFiles.Create(invalid), "Spore ceiling ordinal identity");
         invalid[0] = new(entries[0].Id, new RoomBlockAppearance[3]);
-        AssertThrows<InvalidDataException>(() => new RoomPlmSporeSpawnCeilingVisualCatalog(invalid), "Spore ceiling exact frame shape");
+        AssertThrows<InvalidDataException>(() => RoomPlmSporeSpawnCeilingVisualFiles.Create(invalid), "Spore ceiling exact frame shape");
     }
 
     /// <summary>Runs a clear or crumble ceiling PLM and checks edited redraws without changing collision or deletion timing.</summary>

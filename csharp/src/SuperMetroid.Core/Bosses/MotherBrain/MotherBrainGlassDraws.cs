@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Mother Brain's glass block draws: which PLM draws are the glass's, their run geometry and cells from
-/// <see cref="MotherBrainGlassPlmDrawDefinitions"/>, and their editable artwork identities.
+/// <see cref="MotherBrainGlassPlmDrawDefinitions"/>.
 /// </summary>
 internal static class MotherBrainGlassDraws
 {
@@ -69,45 +69,4 @@ internal static class MotherBrainGlassDraws
         draw = owned ? new(PlmDraw.FrameOf<MotherBrainGlassDraw>(request, "MotherBrainGlassDraw")) : default;
         return owned;
     }
-    /// <summary>Materializes the eleven glass layouts in pointer order.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get
-        {
-            foreach (MotherBrainGlassDraw frame in Enum.GetValues<MotherBrainGlassDraw>())
-            {
-                TryGet(PlmDraw.Of(frame), out var list);
-                yield return list;
-            }
-        }
-    }
-    /// <summary>Materializes a temporary draw-list DTO; gameplay reads individual cells directly.</summary>
-    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        list = default;
-        if (!TryDescribe(request, out var draw)) return false;
-        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
-        for (int run = 0; run < runs.Length; run++)
-        {
-            var blocks = new RoomTerrainBlock[draw.BlockCount(run)];
-            for (int cell = 0; cell < blocks.Length; cell++) blocks[cell] = draw.BlockAt(run, cell);
-            runs[run] = new(draw.Vertical(run) ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, blocks, new(draw.NextX(run), draw.NextY(run)));
-        }
-        list = new(request, runs);
-        return true;
-    }
-    /// <summary>Finds a glass layout by its stable artwork identifier.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        foreach (MotherBrainGlassDraw frame in Enum.GetValues<MotherBrainGlassDraw>())
-            if (string.Equals(id, VisualId(PlmDraw.Of(frame)), StringComparison.Ordinal)) return TryGet(PlmDraw.Of(frame), out list);
-        list = default;
-        return false;
-    }
-    /// <summary>Maps a glass draw pointer to its editable presentation frame name.</summary>
-    internal static string VisualId(PlmDraw request) =>
-        MotherBrainGlassPlmDrawDefinitions.VisualIds.TryGetValue(
-            PlmDraw.FrameOf<MotherBrainGlassDraw>(request, "Mother Brain glass draw"), out string? id)
-            ? id
-            : throw new InvalidOperationException($"Undefined Mother Brain glass draw {request}.");
 }

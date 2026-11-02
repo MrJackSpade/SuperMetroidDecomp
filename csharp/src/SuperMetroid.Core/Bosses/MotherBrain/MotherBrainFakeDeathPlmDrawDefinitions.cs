@@ -5,33 +5,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Mother Brain fake-death room physical PLM draws.</summary>
 internal static class MotherBrainFakeDeathPlmDrawDefinitions
 {
-    /// <summary>The stable visual document name of each draw in the closed draw domain.</summary>
-    internal static readonly Dictionary<MotherBrainFakeDeathDraw, string> VisualIds = new()
-    {
-        [MotherBrainFakeDeathDraw.FillWall] = "fill-wall",
-        [MotherBrainFakeDeathDraw.EscapeDoor] = "escape-door",
-        [MotherBrainFakeDeathDraw.BackgroundRow2] = "background-row-2",
-        [MotherBrainFakeDeathDraw.BackgroundRow3] = "background-row-3",
-        [MotherBrainFakeDeathDraw.BackgroundRow4] = "background-row-4",
-        [MotherBrainFakeDeathDraw.BackgroundRow5] = "background-row-5",
-        [MotherBrainFakeDeathDraw.BackgroundRow6] = "background-row-6",
-        [MotherBrainFakeDeathDraw.BackgroundRow7] = "background-row-7",
-        [MotherBrainFakeDeathDraw.BackgroundRow8] = "background-row-8",
-        [MotherBrainFakeDeathDraw.BackgroundRow9] = "background-row-9",
-        [MotherBrainFakeDeathDraw.BackgroundRowA] = "background-row-a",
-        [MotherBrainFakeDeathDraw.BackgroundRowB] = "background-row-b",
-        [MotherBrainFakeDeathDraw.BackgroundRowC] = "background-row-c",
-        [MotherBrainFakeDeathDraw.BackgroundRowD] = "background-row-d",
-        [MotherBrainFakeDeathDraw.BackgroundRowEUnused] = "background-row-e-unused",
-        [MotherBrainFakeDeathDraw.BackgroundRowFUnused] = "background-row-f-unused",
-        [MotherBrainFakeDeathDraw.ClearCeilingBlock] = "clear-ceiling-block",
-        [MotherBrainFakeDeathDraw.ClearCeilingTube] = "clear-ceiling-tube",
-        [MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube] = "clear-bottom-middle-side-tube",
-        [MotherBrainFakeDeathDraw.ClearBottomMiddleTubes] = "clear-bottom-middle-tubes",
-        [MotherBrainFakeDeathDraw.ClearBottomLeftTube] = "clear-bottom-left-tube",
-        [MotherBrainFakeDeathDraw.ClearBottomRightTube] = "clear-bottom-right-tube",
-    };
-
     /// <summary>
     /// 84:966D..9716: the shapes of the two thirteen-cell solid fill rows and six tube clears. The middle pair
     /// duplicates a seven-cell column; side tubes clear one extra cell toward the center using signed origin-relative X.

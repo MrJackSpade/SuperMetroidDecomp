@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Mother Brain's escape-gate block draws: which PLM draws are the gate's, their cells from
-/// <see cref="MotherBrainEscapeGatePlmDrawDefinitions"/>, and their editable artwork identities.
+/// <see cref="MotherBrainEscapeGatePlmDrawDefinitions"/>.
 /// </summary>
 internal static class MotherBrainEscapeGateDraws
 {
@@ -28,40 +28,4 @@ internal static class MotherBrainEscapeGateDraws
         draw = owned ? new(PlmDraw.FrameOf<MotherBrainEscapeGateDraw>(request, "MotherBrainEscapeGateDraw")) : default;
         return owned;
     }
-
-    /// <summary>Materializes the open, half-closed, and closed gate images in pointer order.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get
-        {
-            foreach (MotherBrainEscapeGateDraw frame in Enum.GetValues<MotherBrainEscapeGateDraw>())
-            {
-                TryGet(PlmDraw.Of(frame), out var draw);
-                yield return draw;
-            }
-        }
-    }
-
-    /// <summary>Builds a four-cell artwork draw list for a known gate pointer; gameplay reads the cells directly.</summary>
-    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        list = default;
-        if (!TryDescribe(request, out var draw)) return false;
-        var blocks = new RoomTerrainBlock[4];
-        for (int row = 0; row < blocks.Length; row++) blocks[row] = draw.BlockAt(row);
-        list = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Vertical, blocks, new(0, 0)) });
-        return true;
-    }
-
-    /// <summary>Maps a gate draw pointer to its stable authored visual identifier.</summary>
-    internal static string VisualId(PlmDraw request) =>
-        MotherBrainEscapeGatePlmDrawDefinitions.VisualIds.TryGetValue(
-            PlmDraw.FrameOf<MotherBrainEscapeGateDraw>(request, "Mother Brain escape-gate draw"), out string? id)
-            ? id
-            : throw new InvalidOperationException($"Undefined Mother Brain escape-gate draw {request}.");
-
-    /// <summary>Finds a gate artwork draw list by its exact, case-sensitive visual identifier.</summary>
-    internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        ShotBlockPlmDraws.FindByVisualId(All, VisualId, id, out list);
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -40,9 +41,9 @@ internal static class LookupBombTorizoHandStockVerification
             native[frame.Pointer].SelectMany(run => run).ToArray())).ToArray();
         var flat = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].SelectMany(run => run).ToArray());
         var stock = RoomPlmBombTorizoHandVisualCatalog.Stock();
-        var imported = new RoomPlmBombTorizoHandVisualCatalog(entries.Reverse());
+        var imported = RoomPlmBombTorizoHandVisualFiles.Create(entries.Reverse());
         string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(RoomPlmBombTorizoHandVisualCatalog), appearances.ToDictionary(pair => BombTorizoHandDraws.VisualId(NativePlmDraws.At<BombTorizoHandDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmBombTorizoHandVisualCatalog), appearances.ToDictionary(pair => RoomPlmBombTorizoHandVisualFiles.VisualId(NativePlmDraws.At<BombTorizoHandDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(flat), catalog.ContentIdentity, "Hand original flattened identity");
@@ -64,7 +65,7 @@ internal static class LookupBombTorizoHandStockVerification
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<BombTorizoHandDraw>((ushort)pointer),0,0), "Hand stock unknown pointer");
         entries[0].Blocks[7] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var mixed = new RoomPlmBombTorizoHandVisualCatalog(entries);
+        var mixed = RoomPlmBombTorizoHandVisualFiles.Create(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Hand mixed custom/stock identity");
         entries[0].Blocks[7] = RoomBlockAppearance.Of(0x5a);
@@ -76,13 +77,13 @@ internal static class LookupBombTorizoHandStockVerification
             for (int word = 0; word < native[frame.Pointer][run].Length; word++)
                 AssertEqual(expected[frame.Pointer][index++], mixed.GetAppearance(NativePlmDraws.At<BombTorizoHandDraw>(frame.Pointer),run,word), "Hand cloned custom and unchanged stock isolation");
         }
-        AssertThrows<InvalidDataException>(() => new RoomPlmBombTorizoHandVisualCatalog(entries[..1]), "Hand missing frame");
-        AssertThrows<InvalidDataException>(() => new RoomPlmBombTorizoHandVisualCatalog(entries.Append(entries[0])), "Hand duplicate frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmBombTorizoHandVisualFiles.Create(entries[..1]), "Hand missing frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmBombTorizoHandVisualFiles.Create(entries.Append(entries[0])), "Hand duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("INTACT", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => new RoomPlmBombTorizoHandVisualCatalog(invalid), "Hand ordinal identity");
+        AssertThrows<InvalidDataException>(() => RoomPlmBombTorizoHandVisualFiles.Create(invalid), "Hand ordinal identity");
         invalid[0] = new(entries[0].Id, new RoomBlockAppearance[7]);
-        AssertThrows<InvalidDataException>(() => new RoomPlmBombTorizoHandVisualCatalog(invalid), "Hand exact flattened shape");
+        AssertThrows<InvalidDataException>(() => RoomPlmBombTorizoHandVisualFiles.Create(invalid), "Hand exact flattened shape");
     }
 
     /// <summary>Reads a native hand draw-list byte for the stock oracle.</summary>

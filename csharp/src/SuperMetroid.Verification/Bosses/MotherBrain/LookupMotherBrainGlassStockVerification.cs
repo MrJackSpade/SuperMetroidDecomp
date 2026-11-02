@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -40,9 +41,9 @@ internal static class LookupMotherBrainGlassStockVerification
             native[frame.Pointer].SelectMany(run => run).ToArray())).ToArray();
         var flat = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].SelectMany(run => run).ToArray());
         var stock = RoomPlmMotherBrainGlassVisualCatalog.Stock();
-        var imported = new RoomPlmMotherBrainGlassVisualCatalog(entries.Reverse());
+        var imported = RoomPlmMotherBrainGlassVisualFiles.Create(entries.Reverse());
         string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(RoomPlmMotherBrainGlassVisualCatalog), appearances.ToDictionary(pair => MotherBrainGlassDraws.VisualId(NativePlmDraws.At<MotherBrainGlassDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmMotherBrainGlassVisualCatalog), appearances.ToDictionary(pair => RoomPlmMotherBrainGlassVisualFiles.VisualId(NativePlmDraws.At<MotherBrainGlassDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(flat), catalog.ContentIdentity, "Glass original flattened identity");
@@ -64,7 +65,7 @@ internal static class LookupMotherBrainGlassStockVerification
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>((ushort)pointer),0,0), "Glass stock unknown pointer");
         entries[8].Blocks[12] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var mixed = new RoomPlmMotherBrainGlassVisualCatalog(entries);
+        var mixed = RoomPlmMotherBrainGlassVisualFiles.Create(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Glass mixed custom/stock identity");
         entries[8].Blocks[12] = RoomBlockAppearance.Of(0x5a);
@@ -76,13 +77,13 @@ internal static class LookupMotherBrainGlassStockVerification
             for (int word = 0; word < native[frame.Pointer][run].Length; word++)
                 AssertEqual(expected[frame.Pointer][index++], mixed.GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(frame.Pointer),run,word), "Glass cloned custom and unchanged stock isolation");
         }
-        AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainGlassVisualCatalog(entries[..1]), "Glass missing frame");
-        AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainGlassVisualCatalog(entries.Append(entries[0])), "Glass duplicate frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmMotherBrainGlassVisualFiles.Create(entries[..1]), "Glass missing frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmMotherBrainGlassVisualFiles.Create(entries.Append(entries[0])), "Glass duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("INITIAL", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainGlassVisualCatalog(invalid), "Glass ordinal identity");
+        AssertThrows<InvalidDataException>(() => RoomPlmMotherBrainGlassVisualFiles.Create(invalid), "Glass ordinal identity");
         invalid[0] = new(entries[0].Id, new RoomBlockAppearance[7]);
-        AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainGlassVisualCatalog(invalid), "Glass exact flattened shape");
+        AssertThrows<InvalidDataException>(() => RoomPlmMotherBrainGlassVisualFiles.Create(invalid), "Glass exact flattened shape");
     }
 
     /// <summary>Reads native bank $84 glass draw-stream bytes as the stock reference.</summary>

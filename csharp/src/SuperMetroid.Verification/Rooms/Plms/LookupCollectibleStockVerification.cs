@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Verification.Areas.Escape;
@@ -20,9 +21,9 @@ internal static class LookupCollectibleStockVerification
             frame => RoomLevelWordCodec.DecodeAppearance(ReadCollectibleDrawWord(rom, (ushort)(frame.Pointer + 2))));
         var entries = frames.Select(frame => new RoomPlmVisualBlockEntry(frame.Id, native[frame.Pointer])).ToArray();
         var stock = InstalledRoomPlmCollectibleVisuals.Stock();
-        var imported = new InstalledRoomPlmCollectibleVisuals(entries.Reverse());
+        var imported = RoomPlmCollectibleVisualFiles.Create(entries.Reverse());
         string Hash(Dictionary<ushort, RoomBlockAppearance> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(InstalledRoomPlmCollectibleVisuals), words.ToDictionary(pair => CollectiblePlmDraws.VisualId(PlmDraw.FrameOf<RoomPlmCollectibleDrawDefinitions.Draw>(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(pair.Key), "collectible")), pair => pair.Value));
+            nameof(InstalledRoomPlmCollectibleVisuals), words.ToDictionary(pair => RoomPlmCollectibleVisualFiles.VisualId(PlmDraw.FrameOf<RoomPlmCollectibleDrawDefinitions.Draw>(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(pair.Key), "collectible")), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Collectible original single-word framed identity");
@@ -33,7 +34,7 @@ internal static class LookupCollectibleStockVerification
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>((ushort)pointer)), "Collectible stock unknown pointer");
         entries[5] = entries[5] with { Appearance = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical) };
-        var mixed = new InstalledRoomPlmCollectibleVisuals(entries);
+        var mixed = RoomPlmCollectibleVisualFiles.Create(entries);
         var expected = frames.Select((frame, index) => new LookupCollectibleStockExpected(frame.Pointer, entries[index].Appearance))
             .ToDictionary(pair => pair.Pointer, pair => pair.Appearance);
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Collectible mixed custom/stock identity");
@@ -41,14 +42,14 @@ internal static class LookupCollectibleStockVerification
         entries[6] = entries[6] with { Appearance = RoomBlockAppearance.Of(0x05b) };
         foreach (var frame in frames)
             AssertEqual(expected[frame.Pointer], mixed.GetAppearance(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(frame.Pointer)), "Collectible changed and unchanged input isolation");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmCollectibleVisuals(entries[..1]), "Collectible missing frame");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmCollectibleVisuals(entries.Append(entries[0])), "Collectible duplicate frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmCollectibleVisualFiles.Create(entries[..1]), "Collectible missing frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmCollectibleVisualFiles.Create(entries.Append(entries[0])), "Collectible duplicate frame");
         foreach (RoomPlmVisualBlockEntry bad in new RoomPlmVisualBlockEntry[]
             { new("EMPTY", RoomTerrainBlocks.BlankAir.Appearance), new("unknown", RoomTerrainBlocks.BlankAir.Appearance) })
         {
             var invalid = entries.ToArray();
             invalid[0] = bad;
-            AssertThrows<InvalidDataException>(() => new InstalledRoomPlmCollectibleVisuals(invalid), "Collectible invalid import");
+            AssertThrows<InvalidDataException>(() => RoomPlmCollectibleVisualFiles.Create(invalid), "Collectible invalid import");
         }
     }
 }

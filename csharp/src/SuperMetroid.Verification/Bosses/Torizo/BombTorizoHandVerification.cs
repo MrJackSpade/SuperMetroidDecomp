@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Hardware;
@@ -18,7 +19,6 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.World;
 
 /// <summary>Checks Bomb Torizo's hand PLM from inventory gating through debris, VRAM transfer, and deletion.</summary>
@@ -46,7 +46,7 @@ internal static class BombTorizoHandVerification
         var level = CreateEmptyRoom(new(width, height));
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         var plms = PlmFixtures.Unbound();
-        var editedVisuals = new RoomPlmBombTorizoHandVisualCatalog(
+        var editedVisuals = RoomPlmBombTorizoHandVisualFiles.Create(
         [
             new("intact", [RoomBlockAppearance.Of(0x53), RoomBlockAppearance.Of(0x66), RoomBlockAppearance.Of(0x64), RoomBlockAppearance.Of(0x45),
                 RoomBlockAppearance.Of(0x46), RoomBlockAppearance.Of(0x47), RoomBlockAppearance.Of(0x48), RoomBlockAppearance.Of(0x49)]),

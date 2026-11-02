@@ -30,16 +30,10 @@ public sealed class InstalledRoomPlmSamusEaterVisuals
     /// <summary>Owned appearance overrides keyed by plant pose; null uses every stock appearance.</summary>
     private readonly PlmVisualOverrides customBlocks;
 
-    /// <summary>Validates all eight three-run plant poses and copies authored visual differences without changing collision, run geometry, chewing timing, or Samus interaction.</summary>
-    /// <param name="entries">Exactly one eight-block visual-only entry for each compiled floor and ceiling pose.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves coverage incomplete.</exception>
-    public InstalledRoomPlmSamusEaterVisuals(
-        IEnumerable<RoomPlmVisualEntry> entries)
-    {
-        customBlocks = new PlmVisualOverrides(entries, "Samus Eater", SamusEaterPlmDraws.TryGetByVisualId,
-            SamusEaterPlmDraws.All.Count());
-    }
+    /// <summary>Holds the import-validated appearances of the poses that differ from the compiled poses.</summary>
+    /// <param name="customBlocks">The changed poses' flattened appearances, keyed by draw.</param>
+    internal InstalledRoomPlmSamusEaterVisuals(PlmVisualOverrides customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Resolves one selected plant block, translating run-local indices into the flattened authored payload.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

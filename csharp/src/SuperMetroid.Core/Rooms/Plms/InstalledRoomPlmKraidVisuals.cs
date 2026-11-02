@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -37,45 +35,18 @@ public sealed class InstalledRoomPlmKraidVisuals
         KraidRoomDraw.SpikeFirst, KraidRoomDraw.SpikeSecond, KraidRoomDraw.ClearCeiling, KraidRoomDraw.ClearSpikes,
     ];
 
-    /// <summary>Each draw role's installed block appearances; empty until its entry is copied.</summary>
-    private readonly Dictionary<KraidRoomDraw, RoomBlockAppearance[]> frames = ContentOrder.ToDictionary(draw => draw, _ => Array.Empty<RoomBlockAppearance>());
+    /// <summary>Each draw role's installed block appearances.</summary>
+    private readonly IReadOnlyDictionary<KraidRoomDraw, RoomBlockAppearance[]> frames;
 
-    /// <summary>Selects one of the ten named Kraid draw roles; installed block values stay editable.</summary>
-    private ref RoomBlockAppearance[] Frame(KraidRoomDraw draw)
-    {
-        ref RoomBlockAppearance[] frame = ref CollectionsMarshal.GetValueRefOrNullRef(frames, draw);
-        if (Unsafe.IsNullRef(ref frame))
-            throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {draw}.");
-        return ref frame;
-    }
+    /// <summary>The installed block appearances of one of the ten named Kraid draw roles.</summary>
+    private RoomBlockAppearance[] Frame(KraidRoomDraw draw) =>
+        frames.TryGetValue(draw, out RoomBlockAppearance[]? frame)
+            ? frame : throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {draw}.");
 
-    /// <summary>Validates and copies all ten Kraid ceiling and spike layouts without changing collision appearances, crumble timing, or movement callbacks.</summary>
-    /// <param name="entries">Exactly one visual-only entry per compiled role, with one block for individual stages or fifteen/twenty-two for the clearing layouts.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats a role, changes a draw shape, or leaves compiled coverage incomplete.</exception>
-    public InstalledRoomPlmKraidVisuals(IEnumerable<RoomPlmVisualEntry> entries)
-    {
-        Ensure.NotNull(entries);
-        int count = 0;
-        foreach (RoomPlmVisualEntry entry in entries)
-        {
-            if (entry is null || entry.Blocks is null ||
-                !KraidRoomPlmDraws.TryGetByVisualId(
-                    entry.Id, out var draw) ||
-                entry.Blocks.Length != draw.BlockCount)
-                throw new InvalidDataException(
-                    "Kraid room visuals changed a frame identity or draw shape.");
-            ref RoomBlockAppearance[] frame = ref Frame(draw.Frame);
-            if (frame.Length != 0)
-                throw new InvalidDataException(
-                    $"Kraid room visuals repeat frame {entry.Id}.");
-            frame = entry.Blocks.ToArray();
-            count++;
-        }
-        if (count != KraidRoomPlmDrawDefinitions.DrawCount)
-            throw new InvalidDataException(
-                "Kraid room visuals do not cover all ten compiled draws.");
-    }
+    /// <summary>Holds the import-validated block appearances of all ten Kraid ceiling and spike layouts.</summary>
+    /// <param name="frames">Each draw role's owned block appearances.</param>
+    internal InstalledRoomPlmKraidVisuals(IReadOnlyDictionary<KraidRoomDraw, RoomBlockAppearance[]> frames) =>
+        this.frames = Ensure.NotNull(frames);
 
     /// <summary>Resolves the installed appearance of one Kraid-layout block while its terrain remains compiled.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

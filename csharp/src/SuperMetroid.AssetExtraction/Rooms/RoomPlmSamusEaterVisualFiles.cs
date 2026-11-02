@@ -17,8 +17,8 @@ public static class RoomPlmSamusEaterVisualFiles
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Samus Eater plant",
-            SamusEaterPlmDraws.All,
-            SamusEaterPlmDraws.VisualId);
+            All,
+            VisualId);
 
     /// <summary>Validates stock provenance and compiled parity, then selects an optional editable Samus Eater override without cartridge access.</summary>
     /// <param name="stockDirectory">Installed stock directory containing the shared manifest and Samus Eater JSON.</param>
@@ -27,10 +27,63 @@ public static class RoomPlmSamusEaterVisualFiles
     public static InstalledRoomPlmSamusEaterVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<InstalledRoomPlmSamusEaterVisuals>(VisualFileName, "Samus Eater plant", SamusEaterPlmDraws.All, SamusEaterPlmDraws.VisualId, entries => new InstalledRoomPlmSamusEaterVisuals(entries.Select(entry =>
+            new RoomPlmVisualFamily<InstalledRoomPlmSamusEaterVisuals>(VisualFileName, "Samus Eater plant", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Samus Eater visuals.</summary>
     /// <param name="directory">Stock Samus Eater directory; overrides are ignored.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
+
+    /// <summary>Validates all eight three-run plant poses and builds the visuals from the authored appearances that differ from the compiled poses, without changing collision, run geometry, chewing timing, or Samus interaction.</summary>
+    /// <param name="entries">Exactly one eight-block visual-only entry for each compiled floor and ceiling pose.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves coverage incomplete.</exception>
+    internal static InstalledRoomPlmSamusEaterVisuals Create(IEnumerable<RoomPlmVisualEntry> entries) =>
+        new(RoomPlmVisualOverrideReader.Flattened(entries, "Samus Eater", TryGetByVisualId, All.Count()));
+
+    /// <summary>Maps a validated draw to the artwork catalog's orientation and phase ID.</summary>
+    internal static string VisualId(PlmDraw request) =>
+        VisualId(PlmDraw.FrameOf<SamusEaterDraw>(request, "Samus Eater draw with a visual ID"));
+
+    /// <summary>Names a typed draw list by its floor or ceiling orientation and idle or chew phase.</summary>
+    internal static string VisualId(SamusEaterDraw frame) => frame switch
+    {
+        SamusEaterDraw.FloorIdle => "floor-idle",
+        SamusEaterDraw.FloorChew1 => "floor-chew-1",
+        SamusEaterDraw.FloorChew2 => "floor-chew-2",
+        SamusEaterDraw.FloorChew3 => "floor-chew-3",
+        SamusEaterDraw.CeilingIdle => "ceiling-idle",
+        SamusEaterDraw.CeilingChew1 => "ceiling-chew-1",
+        SamusEaterDraw.CeilingChew2 => "ceiling-chew-2",
+        SamusEaterDraw.CeilingChew3 => "ceiling-chew-3",
+        _ => throw new InvalidOperationException($"Undefined SamusEaterDraw {frame}."),
+    };
+
+    /// <summary>Finds the layout matching an artwork catalog ID by searching the eight supported lists.</summary>
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmDrawListExport.FindByVisualId(All, VisualId, id, out list);
+
+    /// <summary>Builds the three runs of a supported plant draw from its phase and orientation.</summary>
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        bool found = SamusEaterPlmDraws.TryDescribe(request, out SamusEaterPlmDraws.Draw draw);
+        list = found
+            ? RoomPlmDrawListExport.Runs(request, 3, SamusEaterPlmDraws.Draw.Count, draw.BlockAt,
+                RoomPlmDrawListExport.Horizontal, SamusEaterPlmDraws.Draw.NextX, draw.NextY)
+            : default;
+        return found;
+    }
+
+    /// <summary>Builds the eight plant layouts' draw lists.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            foreach (SamusEaterDraw frame in Enum.GetValues<SamusEaterDraw>())
+            {
+                TryGet(PlmDraw.Of(frame), out var list);
+                yield return list;
+            }
+        }
+    }
 }

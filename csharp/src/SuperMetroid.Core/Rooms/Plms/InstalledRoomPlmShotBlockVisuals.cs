@@ -23,46 +23,13 @@ public sealed class InstalledRoomPlmShotBlockVisuals
         }
     });
 
-    /// <summary>Deep-copied edited run appearances; stock-identical draw lists stay calculated.</summary>
-    private readonly Dictionary<ShotBlockPlmDraws.Draw, RoomBlockAppearance[][]>? customBlocks;
+    /// <summary>Deep-copied edited run appearances keyed by draw; stock-identical draw lists stay calculated.</summary>
+    private readonly IReadOnlyDictionary<PlmDraw, RoomBlockAppearance[][]> customBlocks;
 
-    /// <summary>Validates visual references for all nineteen compiled breakup/restoration draw lists, deep-copying edited runs while retaining calculated stock visuals where supplied appearances match; compiled collision and run placement are never replaced.</summary>
-    /// <param name="entries">Complete, duplicate-free draw identity set with unchanged run counts and lengths.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
-    /// <exception cref="InvalidDataException">An entry/run is null, a draw identity is unknown/duplicated/missing, the run shape differs, or a block count differs.</exception>
-    public InstalledRoomPlmShotBlockVisuals(IEnumerable<RoomPlmVisualRunEntry> entries)
-    {
-        Ensure.NotNull(entries);
-        var selected = new Dictionary<ShotBlockPlmDraws.Draw, RoomBlockAppearance[][]>();
-        var seen = new HashSet<ShotBlockPlmDraws.Draw>();
-        foreach (RoomPlmVisualRunEntry entry in entries)
-        {
-            if (entry is null || entry.Runs is null ||
-                !ShotBlockPlmDraws.TryGetByVisualId(entry.Id, out var definition) ||
-                entry.Runs.Length != definition.RunCount)
-                throw new InvalidDataException("Shot-block visuals changed a compiled draw-list identity or shape.");
-            for (int run = 0; run < entry.Runs.Length; run++)
-            {
-                RoomBlockAppearance[] appearances = entry.Runs[run];
-                if (appearances is null ||
-                    appearances.Length != definition.BlocksPerRun)
-                    throw new InvalidDataException(
-                        $"Shot-block visuals {entry.Id} change a draw shape.");
-            }
-
-            if (!seen.Add(definition))
-                throw new InvalidDataException($"Shot-block visuals repeat draw {entry.Id}.");
-            bool stock = true;
-            for (int run = 0; run < definition.RunCount; run++)
-                for (int block = 0; block < definition.BlocksPerRun; block++)
-                    stock &= entry.Runs[run][block] == definition.BlockAt(run, block).Appearance;
-            if (!stock) selected.Add(definition, entry.Runs.Select(run => run.ToArray()).ToArray());
-        }
-
-        if (seen.Count != RoomPlmShotBlockDrawDefinitions.DrawCount)
-            throw new InvalidDataException("Shot-block visuals do not cover all compiled draw lists.");
-        if (selected.Count != 0) customBlocks = selected;
-    }
+    /// <summary>Holds the import-validated run appearances of the draw lists that differ from the calculated draws.</summary>
+    /// <param name="customBlocks">The changed draw lists' appearances run by run, keyed by draw.</param>
+    internal InstalledRoomPlmShotBlockVisuals(IReadOnlyDictionary<PlmDraw, RoomBlockAppearance[][]> customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Returns one visual reference without exposing the catalog's mutable backing arrays.</summary>
     /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a shot-block draw.</exception>
@@ -73,7 +40,7 @@ public sealed class InstalledRoomPlmShotBlockVisuals
         if ((uint)runIndex >= (uint)shape.RunCount ||
             (uint)blockIndex >= (uint)shape.BlocksPerRun)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks is not null && customBlocks.TryGetValue(shape, out var runs)
+        return customBlocks.TryGetValue(draw, out var runs)
             ? runs[runIndex][blockIndex] : shape.BlockAt(runIndex, blockIndex).Appearance;
     }
 }

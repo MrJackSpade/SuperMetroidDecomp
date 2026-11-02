@@ -23,7 +23,7 @@ internal static class SpeedBoosterPlmProgramsVerification
     private static void VerifySpeedBlockRevealDrawMapping(SuperMetroidAddressSpace rom)
     {
         const ushort pointer = 0xa4f3;
-        var exported = SpeedBoosterBlockPlmDrawDefinitions.All.ToArray();
+        var exported = RoomPlmSpeedBoosterVisualFiles.All.ToArray();
         AssertEqual(1,exported.Length,"speed reveal export count");
         AssertEqual(pointer,PlmDrawAddressCodec.Of(exported[0].Draw),"speed reveal export identity");
         for (int address = 0; address <= ushort.MaxValue; address++)
@@ -33,19 +33,19 @@ internal static class SpeedBoosterPlmProgramsVerification
             if (!found)
             {
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList),draw,"speed reveal missing draw cleared");
-                AssertThrows<InvalidDataException>(() => SpeedBoosterBlockPlmDraws.VisualId(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>((ushort)address)),"speed reveal rejects unknown visual identity");
+                AssertThrows<InvalidDataException>(() => RoomPlmSpeedBoosterVisualFiles.VisualId(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>((ushort)address)),"speed reveal rejects unknown visual identity");
             }
         }
-        AssertEqual("bomb-reveal",SpeedBoosterBlockPlmDraws.VisualId(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer)),"speed reveal stable semantic ID");
-        AssertTrue(SpeedBoosterBlockPlmDraws.TryGetByVisualId("bomb-reveal",out var byId),"speed reveal exact ID admitted");
+        AssertEqual("bomb-reveal",RoomPlmSpeedBoosterVisualFiles.VisualId(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer)),"speed reveal stable semantic ID");
+        AssertTrue(RoomPlmSpeedBoosterVisualFiles.TryGetByVisualId("bomb-reveal",out var byId),"speed reveal exact ID admitted");
         foreach (string id in new[] {"", "Bomb-reveal", "bomb-reveal ", "unknown"})
         {
-            AssertTrue(!SpeedBoosterBlockPlmDraws.TryGetByVisualId(id,out var missing),"speed reveal ordinal ID rejection");
+            AssertTrue(!RoomPlmSpeedBoosterVisualFiles.TryGetByVisualId(id,out var missing),"speed reveal ordinal ID rejection");
             AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList),missing,"speed reveal missing ID clears output");
         }
         RoomTerrainBlock nativeTerrain = RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2)));
         AssertEqual(nativeTerrain,SpeedBoosterBlockPlmDrawDefinitions.BombRevealTerrain,"speed reveal calculated physical terrain");
-        foreach (var draw in new[] {exported[0],byId,SpeedBoosterBlockPlmDrawDefinitions.BombReveal})
+        foreach (var draw in new[] {exported[0],byId,RoomPlmSpeedBoosterVisualFiles.BombReveal})
         {
             AssertEqual(pointer,PlmDrawAddressCodec.Of(draw.Draw),"speed reveal DTO identity");
             AssertEqual(1,draw.Runs.Length,"speed reveal single run");

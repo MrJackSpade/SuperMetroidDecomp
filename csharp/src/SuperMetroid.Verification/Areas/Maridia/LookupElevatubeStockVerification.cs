@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -16,7 +17,7 @@ internal static class LookupElevatubeStockVerification
         RoomBlockAppearance original = RoomLevelWordCodec.DecodeAppearance(ReadSamusEaterPlmWord(rom, 0x849369));
         var entry = new RoomPlmVisualEntry("elevatube-block", [original]);
         var stock = InstalledRoomPlmMaridiaElevatubeVisuals.Stock();
-        var imported = new InstalledRoomPlmMaridiaElevatubeVisuals([entry]);
+        var imported = RoomPlmMaridiaElevatubeVisualFiles.Create([entry]);
         string Hash(RoomBlockAppearance appearance) => SuperMetroid.Core.Assets.SelectedPresentationHash.Create(
             nameof(InstalledRoomPlmMaridiaElevatubeVisuals), content => content.AppendAppearances("block", [appearance]));
         foreach (var catalog in new[] {stock, imported, installed})
@@ -33,16 +34,16 @@ internal static class LookupElevatubeStockVerification
             if (pointer != 0x9367)
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<MaridiaElevatubePlmDefinitions.Draw>((ushort)pointer),0,0), "Elevatube full pointer domain");
         entry.Blocks[0] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var custom = new InstalledRoomPlmMaridiaElevatubeVisuals([entry]);
+        var custom = RoomPlmMaridiaElevatubeVisualFiles.Create([entry]);
         entry.Blocks[0] = RoomBlockAppearance.Of(0x059);
         AssertEqual(original, imported.GetAppearance(NativePlmDraws.At<MaridiaElevatubePlmDefinitions.Draw>(0x9367),0,0), "Elevatube imported scalar detached from input");
         AssertEqual(RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical), custom.GetAppearance(NativePlmDraws.At<MaridiaElevatubePlmDefinitions.Draw>(0x9367),0,0), "Elevatube custom scalar detached from input");
         AssertEqual(Hash(RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical)), custom.ContentIdentity, "Elevatube custom scalar hash");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmMaridiaElevatubeVisuals([]), "Elevatube missing entry");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmMaridiaElevatubeVisuals([entry,entry]), "Elevatube duplicate entry");
+        AssertThrows<InvalidDataException>(() => RoomPlmMaridiaElevatubeVisualFiles.Create([]), "Elevatube missing entry");
+        AssertThrows<InvalidDataException>(() => RoomPlmMaridiaElevatubeVisualFiles.Create([entry,entry]), "Elevatube duplicate entry");
         foreach (string invalid in new[] {"", "ELEVATUBE-BLOCK", "elevatube-block "})
-            AssertThrows<InvalidDataException>(() => new InstalledRoomPlmMaridiaElevatubeVisuals([new(invalid,[original])]), "Elevatube ordinal identity");
+            AssertThrows<InvalidDataException>(() => RoomPlmMaridiaElevatubeVisualFiles.Create([new(invalid,[original])]), "Elevatube ordinal identity");
         foreach (RoomBlockAppearance[] invalid in new RoomBlockAppearance[][] {[], [original,original]})
-            AssertThrows<InvalidDataException>(() => new InstalledRoomPlmMaridiaElevatubeVisuals([new("elevatube-block",invalid)]), "Elevatube shape");
+            AssertThrows<InvalidDataException>(() => RoomPlmMaridiaElevatubeVisualFiles.Create([new("elevatube-block",invalid)]), "Elevatube shape");
     }
 }

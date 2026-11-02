@@ -23,8 +23,8 @@ public static class RoomPlmMotherBrainGlassVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Mother Brain glass", MotherBrainGlassDraws.All,
-            MotherBrainGlassDraws.VisualId);
+            VisualFileName, "Mother Brain glass", All,
+            VisualId);
 
     /// <summary>Validates installed stock glass appearance and selects an optional complete visual replacement while preserving glass mechanics.</summary>
     /// <param name="stockDirectory">Family directory containing the required stock JSON and version-one manifest.</param>
@@ -36,11 +36,58 @@ public static class RoomPlmMotherBrainGlassVisualFiles
     public static RoomPlmMotherBrainGlassVisualCatalog Load(string stockDirectory,
         string? overrideDirectory = null) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmMotherBrainGlassVisualCatalog>(VisualFileName, "Mother Brain glass", MotherBrainGlassDraws.All, MotherBrainGlassDraws.VisualId, entries => new RoomPlmMotherBrainGlassVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<RoomPlmMotherBrainGlassVisualCatalog>(VisualFileName, "Mother Brain glass", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
     /// <summary>Runs stock glass manifest, integrity, schema, and compiled-appearance checks without overrides, cartridge reads, or file writes.</summary>
     /// <param name="stockDirectory">Glass family directory containing both required stock files.</param>
     /// <exception cref="InvalidDataException">The stock installation fails the checks performed by <see cref="Load"/>.</exception>
     public static void ValidateStock(string stockDirectory) => Load(stockDirectory);
+
+    /// <summary>Validates all eleven glass layouts and builds the visuals from the appearances that differ from the compiled layouts, without changing damage thresholds, shards, event timing, terrain blocks, or signed draw offsets.</summary>
+    /// <param name="entries">Exactly one visual-only entry per compiled glass identity, with the full flattened count of its run cells.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
+    internal static RoomPlmMotherBrainGlassVisualCatalog Create(IEnumerable<RoomPlmVisualEntry> entries) =>
+        new(RoomPlmVisualOverrideReader.Flattened(entries, "Mother Brain glass", TryGetByVisualId, All.Count()));
+
+    /// <summary>Builds the eleven glass layouts' draw lists in order.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            foreach (MotherBrainGlassDraw frame in Enum.GetValues<MotherBrainGlassDraw>())
+            {
+                TryGet(PlmDraw.Of(frame), out var list);
+                yield return list;
+            }
+        }
+    }
+
+    /// <summary>Builds the draw list of a glass layout from its cells.</summary>
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        bool found = MotherBrainGlassDraws.TryDescribe(request, out MotherBrainGlassDraws.Draw draw);
+        list = found
+            ? RoomPlmDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.BlockAt,
+                run => draw.Vertical(run) ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, draw.NextX, draw.NextY)
+            : default;
+        return found;
+    }
+
+    /// <summary>Finds a glass layout by its stable artwork identifier.</summary>
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        foreach (MotherBrainGlassDraw frame in Enum.GetValues<MotherBrainGlassDraw>())
+            if (string.Equals(id, VisualId(PlmDraw.Of(frame)), StringComparison.Ordinal)) return TryGet(PlmDraw.Of(frame), out list);
+        list = default;
+        return false;
+    }
+
+    /// <summary>Maps a glass draw to its editable presentation frame name.</summary>
+    internal static string VisualId(PlmDraw request) =>
+        RoomPlmVisualIdDefinitions.MotherBrainGlass.TryGetValue(
+            PlmDraw.FrameOf<MotherBrainGlassDraw>(request, "Mother Brain glass draw"), out string? id)
+            ? id
+            : throw new InvalidOperationException($"Undefined Mother Brain glass draw {request}.");
 }

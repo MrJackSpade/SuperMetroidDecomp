@@ -65,7 +65,7 @@ internal static class StationAccessPlmDefinitionsVerification
                 AssertEqual(expected, PlmDrawAddressCodec.Of(PlmDraw.Of(extended ? selected.Extended : selected.Retracted)),
                     "Station native access draw operand");
                 AssertEqual(expected, PlmDrawAddressCodec.Of(PlmDraw.Of(extended ? selected.Extended : selected.Retracted)), "Station public phase selection");
-                AssertTrue(StationPlmDraws.TryGet(NativePlmDraws.At<StationDraw>(expected), out _), "Station selected physical draw is owned");
+                AssertTrue(RoomPlmStationVisualFiles.TryGet(NativePlmDraws.At<StationDraw>(expected), out _), "Station selected physical draw is owned");
             }
         }
     }

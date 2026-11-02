@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Rooms.Plms;
+﻿using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
@@ -10,10 +11,10 @@ internal static class BlueDoorPlmDrawDefinitionsTooling
     {
         get
         {
-            foreach (var frame in BlueDoorCaps.Editable) yield return frame;
+            foreach (var frame in RoomPlmBlueDoorVisualFiles.Editable) yield return frame;
             for (int orientation = 0; orientation < 4; orientation++)
             {
-                BlueDoorCaps.TryGet(PlmDraw.Of(new BlueDoorCaps.Draw(
+                RoomPlmBlueDoorVisualFiles.TryGet(PlmDraw.Of(new BlueDoorCaps.Draw(
                     DoorCapOrientations.FromTableIndex(orientation), BlueDoorPlmDrawDefinitions.AliasFrame)), out var draw);
                 yield return draw;
             }

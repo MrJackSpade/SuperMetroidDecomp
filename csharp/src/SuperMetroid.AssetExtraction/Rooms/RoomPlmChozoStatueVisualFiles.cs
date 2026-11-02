@@ -19,8 +19,8 @@ public static class RoomPlmChozoStatueVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Chozo statue", ChozoStatueDraws.All,
-            ChozoStatueDraws.VisualId);
+            VisualFileName, "Chozo statue", All,
+            VisualId);
 
     /// <summary>Validates stock Chozo art against its manifest and compiled layouts, then selects a complete optional visual-only override without cartridge access.</summary>
     /// <param name="stockDirectory">Stock directory containing the Chozo JSON and its provenance/digest manifest.</param>
@@ -30,10 +30,60 @@ public static class RoomPlmChozoStatueVisualFiles
     public static RoomPlmChozoStatueVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmChozoStatueVisualCatalog>(VisualFileName, "Chozo statue", ChozoStatueDraws.All, ChozoStatueDraws.VisualId, entries => new RoomPlmChozoStatueVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<RoomPlmChozoStatueVisualCatalog>(VisualFileName, "Chozo statue", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
     /// <summary>Checks stock Chozo provenance, digest, schema, complete layout coverage, and equality with compiled appearances; ignores overrides.</summary>
     /// <param name="directory">Installed stock Chozo directory.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
+
+    /// <summary>Validates complete Chozo-layout coverage and builds the visuals from the authored appearances that differ from the compiled layouts, without replacing terrain blocks or calculated run geometry.</summary>
+    /// <param name="entries">One entry per compiled layout with its exact flattened block count and appearance payload.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, duplicates an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
+    internal static RoomPlmChozoStatueVisualCatalog Create(IEnumerable<RoomPlmVisualEntry> entries) =>
+        new(RoomPlmVisualOverrideReader.Flattened(entries, "Chozo statue", TryGetByVisualId, All.Count()));
+
+    /// <summary>Enumerates the three supported physical draw identities for artwork export.</summary>
+    private static IEnumerable<PlmDraw> Draws()
+    {
+        yield return PlmDraw.Of(ChozoStatueDraw.LowerNorfairClearedHand);
+        yield return PlmDraw.Of(ChozoStatueDraw.ClearSlopeAccess);
+        yield return PlmDraw.Of(ChozoStatueDraw.BlockSlopeAccess);
+    }
+
+    /// <summary>The draw lists of the three statue draws.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            foreach (PlmDraw draw in Draws())
+            {
+                TryGet(draw, out var list);
+                yield return list;
+            }
+        }
+    }
+
+    /// <summary>Builds the draw list of a statue draw from its cells.</summary>
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        bool found = ChozoStatueDraws.TryDescribe(request, out ChozoStatueDraws.Draw draw);
+        list = found
+            ? RoomPlmDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.BlockAt,
+                RoomPlmDrawListExport.Horizontal, draw.NextX, draw.NextY)
+            : default;
+        return found;
+    }
+
+    /// <summary>Finds a compiled statue draw by its published visual resource identity.</summary>
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmDrawListExport.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
+
+    /// <summary>Names the cleared hand or blocked/clear slope layout without changing collision ownership.</summary>
+    internal static string VisualId(PlmDraw request) =>
+        RoomPlmVisualIdDefinitions.ChozoStatue.TryGetValue(
+            PlmDraw.FrameOf<ChozoStatueDraw>(request, "Chozo statue draw with a visual ID"), out string? id)
+            ? id
+            : throw new InvalidOperationException($"Undefined {nameof(ChozoStatueDraw)} {request}.");
 }

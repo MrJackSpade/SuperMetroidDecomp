@@ -25,7 +25,7 @@ internal static class LookupBombTorizoHandDrawVerification
     {
         ushort[] pointers = [0x9877,0x989d];
         string[] ids = ["intact","cleared"];
-        var exported = BombTorizoHandDraws.All.ToArray();
+        var exported = RoomPlmBombTorizoHandVisualFiles.All.ToArray();
         AssertEqual(2, exported.Length, "Torizo hand export count");
         if (field == 0)
         {
@@ -34,17 +34,17 @@ internal static class LookupBombTorizoHandDrawVerification
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
                 AssertEqual(owned, BombTorizoHandDraws.TryDescribe(NativePlmDraws.At<BombTorizoHandDraw>(pointer), out var shape), "Torizo hand descriptor domain");
-                AssertEqual(owned, BombTorizoHandDraws.TryGet(NativePlmDraws.At<BombTorizoHandDraw>(pointer), out var dto), "Torizo hand DTO domain");
+                AssertEqual(owned, RoomPlmBombTorizoHandVisualFiles.TryGet(NativePlmDraws.At<BombTorizoHandDraw>(pointer), out var dto), "Torizo hand DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(BombTorizoHandDraws.Draw), shape, "Torizo hand missing descriptor");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Torizo hand missing DTO");
-                    AssertThrows<InvalidDataException>(() => BombTorizoHandDraws.VisualId(NativePlmDraws.At<BombTorizoHandDraw>(pointer)), "Torizo hand missing ID");
+                    AssertThrows<InvalidDataException>(() => RoomPlmBombTorizoHandVisualFiles.VisualId(NativePlmDraws.At<BombTorizoHandDraw>(pointer)), "Torizo hand missing ID");
                 }
             }
             foreach (string bad in new[] {"Intact","cleared ","","unknown"})
             {
-                AssertTrue(!BombTorizoHandDraws.TryGetByVisualId(bad, out var missing), "Torizo hand ordinal ID domain");
+                AssertTrue(!RoomPlmBombTorizoHandVisualFiles.TryGetByVisualId(bad, out var missing), "Torizo hand ordinal ID domain");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Torizo hand missing ID output");
             }
         }
@@ -53,10 +53,10 @@ internal static class LookupBombTorizoHandDrawVerification
         {
             ushort pointer = pointers[index];
             BombTorizoHandDraws.TryDescribe(NativePlmDraws.At<BombTorizoHandDraw>(pointer), out var shape);
-            BombTorizoHandDraws.TryGet(NativePlmDraws.At<BombTorizoHandDraw>(pointer), out var dto);
+            RoomPlmBombTorizoHandVisualFiles.TryGet(NativePlmDraws.At<BombTorizoHandDraw>(pointer), out var dto);
             AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Torizo hand original export order");
-            AssertEqual(ids[index], BombTorizoHandDraws.VisualId(NativePlmDraws.At<BombTorizoHandDraw>(pointer)), "Torizo hand published identity");
-            AssertTrue(BombTorizoHandDraws.TryGetByVisualId(ids[index], out var byId), "Torizo hand reverse identity");
+            AssertEqual(ids[index], RoomPlmBombTorizoHandVisualFiles.VisualId(NativePlmDraws.At<BombTorizoHandDraw>(pointer)), "Torizo hand published identity");
+            AssertTrue(RoomPlmBombTorizoHandVisualFiles.TryGetByVisualId(ids[index], out var byId), "Torizo hand reverse identity");
             AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Torizo hand reverse pointer");
             int cursor = pointer, run = 0;
             sbyte x = 0, y = 0;

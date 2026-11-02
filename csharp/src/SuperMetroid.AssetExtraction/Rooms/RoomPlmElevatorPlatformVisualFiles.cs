@@ -101,12 +101,56 @@ public static class RoomPlmElevatorPlatformVisualFiles
     /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Validates all three elevator-platform draw layouts and builds the visuals from the run appearances that differ from the compiled frames, retaining run geometry, terrain blocks, and animation cadence.</summary>
+    /// <remarks>The four-step instruction loop selects first, second, third, then second layout; the repeated second layout has only one entry.</remarks>
+    /// <param name="entries">One visual-only entry per compiled frame, with its exact run and cell counts.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
+    internal static RoomPlmElevatorPlatformVisualCatalog Create(IEnumerable<RoomPlmVisualRunEntry> entries) =>
+        new(RoomPlmVisualOverrideReader.RunByRun(entries, "Elevator-platform", TryGetByVisualId, DrawLists.Count()));
+
+    /// <summary>The draw lists of the three platform frames in order.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> DrawLists
+    {
+        get
+        {
+            foreach (ElevatorPlatformDraw platform in Enum.GetValues<ElevatorPlatformDraw>())
+            {
+                TryGetDraw(PlmDraw.Of(platform), out var list);
+                yield return list;
+            }
+        }
+    }
+
+    /// <summary>Maps a platform draw to its stable artwork identifier.</summary>
+    internal static string VisualId(PlmDraw request) =>
+        RoomPlmVisualIdDefinitions.ElevatorPlatform.TryGetValue(
+            PlmDraw.FrameOf<ElevatorPlatformDraw>(request, "elevator-platform draw list"), out string? id)
+            ? id
+            : throw new InvalidOperationException($"Undefined elevator-platform draw list {request}.");
+
+    /// <summary>Resolves a stable frame identifier to its draw list.</summary>
+    internal static bool TryGetByVisualId(string? id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmDrawListExport.FindByVisualId(Enum.GetValues<ElevatorPlatformDraw>().Select(draw => (PlmDraw)PlmDraw.Of(draw)),
+            VisualId, TryGetDraw, id, out list);
+
+    /// <summary>Builds the draw list of a platform frame from its strips.</summary>
+    internal static bool TryGetDraw(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        bool found = ElevatorPlatformDraws.TryDescribe(request, out ElevatorPlatformDraws.Draw draw);
+        list = found
+            ? RoomPlmDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.BlockAt,
+                RoomPlmDrawListExport.Horizontal, draw.NextX, draw.NextY)
+            : default;
+        return found;
+    }
+
     /// <summary>Checks bank 84 run headers, decoded terrain blocks, and offsets before extracting editable appearances.</summary>
     private static RoomPlmVisualRunEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var entries = new List<RoomPlmVisualRunEntry>();
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 ElevatorPlatformDraws.DrawLists.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
+                 DrawLists.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
             var visuals = new List<RoomBlockAppearance[]>();
@@ -138,7 +182,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
             }
 
             entries.Add(new RoomPlmVisualRunEntry(
-                ElevatorPlatformDraws.VisualId(list.Draw), visuals.ToArray()));
+                VisualId(list.Draw), visuals.ToArray()));
         }
 
         return entries.ToArray();
@@ -149,7 +193,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
         string path)
     {
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 ElevatorPlatformDraws.DrawLists)
+                 DrawLists)
         for (int run = 0; run < list.Runs.Length; run++)
         for (int cell = 0; cell < list.Runs.Span[run].Blocks.Length; cell++)
         {
@@ -157,7 +201,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
             if (catalog.GetAppearance(list.Draw, run, cell) != expected)
                 throw new InvalidDataException(
                     $"Stock elevator-platform visuals {path} differ from compiled frame " +
-                    ElevatorPlatformDraws.VisualId(list.Draw) + ".");
+                    VisualId(list.Draw) + ".");
         }
     }
 
@@ -167,7 +211,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
     {
         if (document.Version != FormatVersion || document.Entries is null)
             throw new InvalidDataException($"Elevator-platform visuals {path} have an incompatible format.");
-        try { return new RoomPlmElevatorPlatformVisualCatalog(document.Entries); }
+        try { return Create(document.Entries); }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(

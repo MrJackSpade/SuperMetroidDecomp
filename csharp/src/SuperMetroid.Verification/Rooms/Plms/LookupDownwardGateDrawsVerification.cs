@@ -31,7 +31,7 @@ internal static class LookupDownwardGateDrawsVerification
             "column-frame-4","column-frame-5","blue-left-trigger","blue-right-trigger",
             "green-left-trigger","green-right-trigger","red-left-trigger","red-right-trigger",
             "yellow-left-trigger","yellow-right-trigger"];
-        var exported = DownwardGatePlmDraws.All.ToArray();
+        var exported = RoomPlmDownwardGateVisualFiles.All.ToArray();
         AssertEqual(14, exported.Length, "Gate draw export count");
         if (field == 0)
         {
@@ -40,17 +40,17 @@ internal static class LookupDownwardGateDrawsVerification
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
                 AssertEqual(owned, DownwardGatePlmDraws.TryDescribe(NativePlmDraws.At<DownwardGateDraw>(pointer), out var shape), "Gate descriptor ownership");
-                AssertEqual(owned, DownwardGatePlmDraws.TryGet(NativePlmDraws.At<DownwardGateDraw>(pointer), out var dto), "Gate DTO ownership");
+                AssertEqual(owned, RoomPlmDownwardGateVisualFiles.TryGet(NativePlmDraws.At<DownwardGateDraw>(pointer), out var dto), "Gate DTO ownership");
                 if (!owned)
                 {
                     AssertEqual(default(DownwardGatePlmDraws.Draw), shape, "Gate missing descriptor");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Gate missing DTO");
-                    AssertThrows<InvalidDataException>(() => DownwardGatePlmDraws.VisualId(NativePlmDraws.At<DownwardGateDraw>(pointer)), "Gate missing ID");
+                    AssertThrows<InvalidDataException>(() => RoomPlmDownwardGateVisualFiles.VisualId(NativePlmDraws.At<DownwardGateDraw>(pointer)), "Gate missing ID");
                 }
             }
             foreach (string invalid in new[] { "column-frame-6", "column-frame-00", "Blue-left-trigger", "", "unknown" })
             {
-                AssertTrue(!DownwardGatePlmDraws.TryGetByVisualId(invalid, out var missing), "Gate ID domain");
+                AssertTrue(!RoomPlmDownwardGateVisualFiles.TryGetByVisualId(invalid, out var missing), "Gate ID domain");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Gate missing ID output");
             }
         }
@@ -59,10 +59,10 @@ internal static class LookupDownwardGateDrawsVerification
         {
             ushort pointer = pointers[index];
             DownwardGatePlmDraws.TryDescribe(NativePlmDraws.At<DownwardGateDraw>(pointer), out var shape);
-            DownwardGatePlmDraws.TryGet(NativePlmDraws.At<DownwardGateDraw>(pointer), out var dto);
+            RoomPlmDownwardGateVisualFiles.TryGet(NativePlmDraws.At<DownwardGateDraw>(pointer), out var dto);
             AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Gate export order");
-            AssertEqual(ids[index], DownwardGatePlmDraws.VisualId(NativePlmDraws.At<DownwardGateDraw>(pointer)), "Gate published ID mapping");
-            AssertTrue(DownwardGatePlmDraws.TryGetByVisualId(ids[index], out var byId), "Gate ID ownership");
+            AssertEqual(ids[index], RoomPlmDownwardGateVisualFiles.VisualId(NativePlmDraws.At<DownwardGateDraw>(pointer)), "Gate published ID mapping");
+            AssertTrue(RoomPlmDownwardGateVisualFiles.TryGetByVisualId(ids[index], out var byId), "Gate ID ownership");
             AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Gate reverse ID mapping");
             int cursor = pointer, run = 0;
             while (true)
@@ -72,7 +72,7 @@ internal static class LookupDownwardGateDrawsVerification
                 int length = count & 0x7fff;
                 if (field == 0)
                 {
-                    AssertRunHeader(count, shape.Direction, shape.BlockCount(run), "Gate native count/direction");
+                    AssertRunHeader(count, dto.Runs.Span[run].Direction, shape.BlockCount(run), "Gate native count/direction");
                     AssertEqual(length, shape.BlockCount(run), "Gate native run width");
                     AssertEqual((count & 0x8000) != 0, shape.Column, "Gate runtime direction");
                     AssertRunHeader(count, dto.Runs.Span[run], "Gate DTO count/direction");
@@ -85,7 +85,7 @@ internal static class LookupDownwardGateDrawsVerification
                 for (int word = 0; word < length; word++, cursor += 2)
                 {
                     if (field != 0)
-                    {
+                    {
                         RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | cursor));
                         AssertEqual(expected, shape.BlockAt(run, word), "Gate original calculated field");
                         AssertEqual(expected, dto.Runs.Span[run].Blocks.Span[word], "Gate original DTO field");

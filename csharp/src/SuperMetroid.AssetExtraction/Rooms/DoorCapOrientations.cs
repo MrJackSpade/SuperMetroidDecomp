@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Doors;
+
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Decodes and names the orientation of a door-cap draw list.</summary>
 internal static class DoorCapOrientations

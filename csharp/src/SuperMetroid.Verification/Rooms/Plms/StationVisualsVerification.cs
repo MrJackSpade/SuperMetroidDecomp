@@ -27,9 +27,9 @@ internal static class StationVisualsVerification
     internal static void VerifyStationVisuals(SuperMetroidAddressSpace rom)
     {
         InstalledRoomPlmStationVisuals stock = InstalledRoomPlmStationVisuals.Stock();
-        RoomPlmVisualRunEntry[] entries = StationPlmDraws.All
+        RoomPlmVisualRunEntry[] entries = RoomPlmStationVisualFiles.All
             .Select(list => new RoomPlmVisualRunEntry(
-                StationPlmDraws.VisualId(NativePlmDraws.At<StationDraw>(PlmDrawAddressCodec.Of(list.Draw))),
+                RoomPlmStationVisualFiles.VisualId(NativePlmDraws.At<StationDraw>(PlmDrawAddressCodec.Of(list.Draw))),
                 list.Runs.Span
                     .SelectToArray(run => run.Blocks.Span
                         .SelectToArray(block => block.Appearance))
@@ -37,7 +37,7 @@ internal static class StationVisualsVerification
             .ToArray();
         RoomPlmVisualRunEntry first = entries.Single(entry => entry.Id == "map-frame-0");
         first.Runs[0][0] = RoomBlockAppearance.Of(0x053);
-        var edited = new InstalledRoomPlmStationVisuals(entries);
+        var edited = RoomPlmStationVisualFiles.Create(entries);
         first.Runs[0][0] = RoomBlockAppearance.Of(0x054);
         ushort pointer = PlmDrawAddressCodec.Of(StationAnimationPrograms.Resolve(
             StationAnimationList.MapIdle, 0).Draw);

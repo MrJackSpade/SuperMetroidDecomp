@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rooms.LevelData;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Editable block appearances for one compiled PLM draw layout, run by run.</summary>
 /// <param name="Id">Compiled identity of the draw layout.</param>

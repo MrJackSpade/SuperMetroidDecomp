@@ -15,14 +15,10 @@ public sealed class RoomPlmBombTorizoHandVisualCatalog
     /// <summary>Copied visual-only edits keyed by draw; stock frames use their compiled blocks.</summary>
     private readonly PlmVisualOverrides customBlocks;
 
-    /// <summary>Validates complete hand-frame coverage and copies only authored visual differences, leaving Bombs gating, collision, draw geometry and debris/music choreography fixed.</summary>
-    /// <param name="entries">One entry for every compiled hand frame, with exactly the flattened block count and no physical collision bits.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats a frame, changes a compiled identity/shape, or leaves coverage incomplete.</exception>
-    public RoomPlmBombTorizoHandVisualCatalog(
-        IEnumerable<RoomPlmVisualEntry> entries) =>
-        customBlocks = new PlmVisualOverrides(entries, "Bomb Torizo hand", BombTorizoHandDraws.TryGetByVisualId,
-            BombTorizoHandDraws.All.Count());
+    /// <summary>Holds the import-validated appearances of the frames that differ from the compiled frames.</summary>
+    /// <param name="customBlocks">The changed frames' flattened appearances, keyed by draw.</param>
+    internal RoomPlmBombTorizoHandVisualCatalog(PlmVisualOverrides customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Resolves one selected appearance in a hand draw run, using compiled stock art when no independent edit was supplied.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

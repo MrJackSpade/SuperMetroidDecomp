@@ -1,10 +1,10 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction;
 
@@ -40,9 +40,9 @@ internal static class LookupChozoStockVerification
             native[frame.Pointer].SelectMany(run => run).ToArray())).ToArray();
         var flat = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].SelectMany(run => run).ToArray());
         var stock = RoomPlmChozoStatueVisualCatalog.Stock();
-        var imported = new RoomPlmChozoStatueVisualCatalog(entries.Reverse());
+        var imported = RoomPlmChozoStatueVisualFiles.Create(entries.Reverse());
         string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(RoomPlmChozoStatueVisualCatalog), appearances.ToDictionary(pair => ChozoStatueDraws.VisualId(NativePlmDraws.At<ChozoStatueDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmChozoStatueVisualCatalog), appearances.ToDictionary(pair => RoomPlmChozoStatueVisualFiles.VisualId(NativePlmDraws.At<ChozoStatueDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(flat), catalog.ContentIdentity, "Chozo original flattened identity");
@@ -64,7 +64,7 @@ internal static class LookupChozoStockVerification
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<ChozoStatueDraw>((ushort)pointer),0,0), "Chozo stock unknown pointer");
         entries[1].Blocks[20] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var mixed = new RoomPlmChozoStatueVisualCatalog(entries);
+        var mixed = RoomPlmChozoStatueVisualFiles.Create(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Chozo mixed custom/stock identity");
         entries[1].Blocks[20] = RoomBlockAppearance.Of(0x5a);
@@ -76,13 +76,13 @@ internal static class LookupChozoStockVerification
             for (int cell = 0; cell < native[frame.Pointer][run].Length; cell++)
                 AssertEqual(expected[frame.Pointer][index++], mixed.GetAppearance(NativePlmDraws.At<ChozoStatueDraw>(frame.Pointer),run,cell), "Chozo cloned custom and unchanged stock isolation");
         }
-        AssertThrows<InvalidDataException>(() => new RoomPlmChozoStatueVisualCatalog(entries[..1]), "Chozo missing frame");
-        AssertThrows<InvalidDataException>(() => new RoomPlmChozoStatueVisualCatalog(entries.Append(entries[0])), "Chozo duplicate frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmChozoStatueVisualFiles.Create(entries[..1]), "Chozo missing frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmChozoStatueVisualFiles.Create(entries.Append(entries[0])), "Chozo duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("LOWER-NORFAIR-CLEARED-HAND", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => new RoomPlmChozoStatueVisualCatalog(invalid), "Chozo ordinal identity");
+        AssertThrows<InvalidDataException>(() => RoomPlmChozoStatueVisualFiles.Create(invalid), "Chozo ordinal identity");
         invalid[0] = new(entries[0].Id, new RoomBlockAppearance[7]);
-        AssertThrows<InvalidDataException>(() => new RoomPlmChozoStatueVisualCatalog(invalid), "Chozo exact flattened shape");
+        AssertThrows<InvalidDataException>(() => RoomPlmChozoStatueVisualFiles.Create(invalid), "Chozo exact flattened shape");
     }
 
     /// <summary>Reads a native draw-record byte to determine each statue run's displacement and terminator.</summary>

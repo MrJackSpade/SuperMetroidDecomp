@@ -6,7 +6,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonCannonVisualsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.LookupCannonLayoutsVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -17,7 +16,6 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>Checks Draygon cannon PLM controls, visual layouts, and compiled damage programs.</summary>
 internal static class DraygonCannonPlmProgramVerification
@@ -53,13 +51,13 @@ internal static class DraygonCannonPlmProgramVerification
         var level = CreateEmptyRoom(new(width, 32));
         var disabled = new List<DraygonWallCannon>();
         var plms = PlmFixtures.Unbound();
-        var entries = DraygonCannonDraws.All.Select(draw =>
+        var entries = RoomPlmDraygonCannonVisualFiles.All.Select(draw =>
             new RoomPlmVisualEntry(
-                DraygonCannonDraws.VisualId(draw.Draw),
+                RoomPlmDraygonCannonVisualFiles.VisualId(draw.Draw),
                 draw.Appearances())).ToArray();
         entries.Single(entry => entry.Id == "right-shield-a").Blocks[0] = RoomBlockAppearance.Of(0x53);
         entries.Single(entry => entry.Id == "left-shield-a").Blocks[0] = RoomBlockAppearance.Of(0x54);
-        PlmFixtures.VisualsOf(plms).RoomPlmDraygonCannonVisuals = new RoomPlmDraygonCannonVisualCatalog(entries);
+        PlmFixtures.VisualsOf(plms).RoomPlmDraygonCannonVisuals = RoomPlmDraygonCannonVisualFiles.Create(entries);
         AssertEqual(4, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabled.Add } }),
             "four retail cannon headers load with cartridge program lists");
 
@@ -127,7 +125,7 @@ internal static class DraygonCannonPlmProgramVerification
             .Forbid(address =>
                     (address >= 0x84dcde && address <= 0x84dd26) ||
                     (address >= 0x84ddb9 && address <= 0x84de01) ||
-                    DraygonCannonDraws.All.Any(draw =>
+                    RoomPlmDraygonCannonVisualFiles.All.Any(draw =>
                     {
                         int start = 0x840000 | PlmDrawAddressCodec.Of(draw.Draw);
                         int size = draw.Runs.Span.Sum(run =>

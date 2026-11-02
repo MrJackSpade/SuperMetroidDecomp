@@ -26,15 +26,10 @@ public sealed class InstalledRoomPlmColoredDoorVisuals
     /// <summary>Copied artwork overrides keyed by draw; omitted frames use stock visual appearances.</summary>
     private readonly PlmVisualOverrides customBlocks;
 
-    /// <summary>Validates complete coverage of the forty-eight colored-door frames and copies visual differences while preserving compiled cap geometry and opening mechanics.</summary>
-    /// <param name="entries">Exactly one four-block, visual-only entry for each compiled color, orientation, and frame identity.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
-    public InstalledRoomPlmColoredDoorVisuals(IEnumerable<RoomPlmVisualEntry> entries)
-    {
-        customBlocks = new PlmVisualOverrides(entries, "Colored-door", ColoredDoorCaps.TryGetByVisualId,
-            ColoredDoorCaps.All.Count());
-    }
+    /// <summary>Holds the import-validated appearances of the frames that differ from the compiled caps.</summary>
+    /// <param name="customBlocks">The changed frames' four appearances, keyed by frame.</param>
+    internal InstalledRoomPlmColoredDoorVisuals(PlmVisualOverrides customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Resolves one selected cap block without changing the collision or door-opening rules.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// The draws of both mirrored, three-component eye doors: the draw each typed eye-door frame shows, their physical
-/// cells from <see cref="EyeDoorPlmDrawDefinitions"/>, and their editable artwork identities.
+/// cells from <see cref="EyeDoorPlmDrawDefinitions"/>, and the editable source of each alias.
 /// </summary>
 internal static class EyeDoorDraws
 {
@@ -74,29 +74,6 @@ internal static class EyeDoorDraws
         }
     }
 
-    /// <summary>Enumerates both sides' clear, eye, middle, and bottom draws, left side first.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get
-        {
-            foreach (bool left in new[] { true, false })
-            {
-                TryGet(PlmDraw.Of(new Draw(Component.Clear, 0, left)), out var clear);
-                yield return clear;
-                foreach (Component part in new[] { Component.Eye, Component.Middle, Component.Bottom })
-                    for (int frame = 0; frame < EyeDoorPlmDrawDefinitions.FrameCounts[part]; frame++)
-                    {
-                        TryGet(PlmDraw.Of(new Draw(part, frame, left)), out var value);
-                        yield return value;
-                    }
-            }
-        }
-    }
-
-    /// <summary>The mirrored clear shares one visual identity, preserving existing 23-frame overrides.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> Editable =>
-        All.Where(draw => draw.Draw != EyeDoorPlmDrawDefinitions.MirroredOpeningClear);
-
     /// <summary>Maps the mirrored opening clear to its shared editable visual source.</summary>
     internal static PlmDraw VisualSource(PlmDraw request) =>
         request == EyeDoorPlmDrawDefinitions.MirroredOpeningClear ? EyeDoorPlmDrawDefinitions.SharedClear : request;
@@ -104,38 +81,4 @@ internal static class EyeDoorDraws
     /// <summary>Accepts an eye-door draw whose frame lies within its component's animation.</summary>
     internal static bool TryDescribe(PlmDraw request, out Draw draw) =>
         PlmDraw.TryFrame(request, static (Draw frame) => (uint)frame.Frame < (uint)EyeDoorPlmDrawDefinitions.FrameCounts[frame.Part], out draw);
-
-    /// <summary>Materializes an authored-shape run for artwork tooling from the physical draw.</summary>
-    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        if (!TryDescribe(request, out var draw)) { list = default; return false; }
-        var blocks = new RoomTerrainBlock[draw.BlockCount];
-        for (int cell = 0; cell < blocks.Length; cell++) blocks[cell] = draw.BlockAt(cell);
-        list = new(request, new RoomPlmShotBlockDrawDefinitions.Run[]
-        {
-            new(draw.Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, blocks, new(0, 0)),
-        });
-        return true;
-    }
-
-    /// <summary>Gets a stable side, component, and frame identifier for an editable draw.</summary>
-    internal static string VisualId(PlmDraw request)
-    {
-        if (!TryDescribe(request, out var draw) || request == EyeDoorPlmDrawDefinitions.MirroredOpeningClear)
-            throw new InvalidDataException($"Eye-door draw {request} has no visual ID.");
-        string component = draw.Part switch
-        {
-            Component.Clear => "clear",
-            Component.Eye => "eye",
-            Component.Middle => "middle",
-            Component.Bottom => "bottom",
-            _ => throw new InvalidOperationException($"Undefined {nameof(Component)} {draw.Part}."),
-        };
-        return draw.Part == Component.Clear ? "left-eye-clear" : $"{(draw.Left ? "left" : "right")}-{component}-frame-{draw.Frame}";
-    }
-
-    /// <summary>Resolves an exact editable visual identifier to its draw.</summary>
-    internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        ShotBlockPlmDraws.FindByVisualId(Editable, VisualId, id, out list);
 }

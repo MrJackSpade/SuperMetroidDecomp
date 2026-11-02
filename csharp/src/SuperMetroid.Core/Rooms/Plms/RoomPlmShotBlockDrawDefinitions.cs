@@ -26,8 +26,6 @@ internal static class RoomPlmShotBlockDrawDefinitions
     {
     }
 
-    /// <summary>Sixteen breakup frames and three parent/child restoration draws.</summary>
-    internal const int DrawCount = 19;
     /// <summary>Physical block arrangement affected by a shot-block draw list.</summary>
     internal enum Shape
     {

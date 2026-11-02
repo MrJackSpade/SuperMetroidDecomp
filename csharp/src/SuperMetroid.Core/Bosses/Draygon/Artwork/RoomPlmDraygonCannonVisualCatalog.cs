@@ -15,14 +15,10 @@ public sealed class RoomPlmDraygonCannonVisualCatalog
     /// <summary>Owned edited appearances by canonical frame pointer; null retains compiled stock appearance.</summary>
     private readonly PlmVisualOverrides customBlocks;
 
-    /// <summary>Validates complete reachable cannon-frame coverage and copies visual differences without changing shield damage, hit thresholds, control writes, or draw geometry.</summary>
-    /// <param name="entries">One visual-only entry per compiled frame with the exact flattened count of all its run cells.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves reachable frame coverage incomplete.</exception>
-    public RoomPlmDraygonCannonVisualCatalog(
-        IEnumerable<RoomPlmVisualEntry> entries) =>
-        customBlocks = new PlmVisualOverrides(entries, "Draygon cannon", DraygonCannonDraws.TryGetByVisualId,
-            DraygonCannonDraws.All.Count());
+    /// <summary>Holds the import-validated appearances of the frames that differ from the compiled frames.</summary>
+    /// <param name="customBlocks">The changed frames' flattened appearances, keyed by draw.</param>
+    internal RoomPlmDraygonCannonVisualCatalog(PlmVisualOverrides customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Resolves a cannon block's selected appearance by projecting run-local indices into the flattened authored frame.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

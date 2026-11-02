@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
 /// Crocomire's bridge and invisible-wall block draws: which PLM draws are the arena's, their run geometry and cells
-/// from <see cref="CrocomireArenaPlmDrawDefinitions"/>, and their editable artwork identities.
+/// from <see cref="CrocomireArenaPlmDrawDefinitions"/>.
 /// </summary>
 internal static class CrocomireArenaDraws
 {
@@ -49,42 +49,4 @@ internal static class CrocomireArenaDraws
         shape = new(frame, CrocomireArenaPlmDrawDefinitions.Shapes[frame], CrocomireArenaPlmDrawDefinitions.Cells[frame][0].Length);
         return true;
     }
-
-    /// <summary>Projects the physical cells into temporary artwork records; gameplay evaluates cells directly.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get
-        {
-            foreach (CrocomireArenaDraw frame in Enum.GetValues<CrocomireArenaDraw>())
-            {
-                TryGet(PlmDraw.Of(frame), out var list);
-                yield return list;
-            }
-        }
-    }
-
-    /// <summary>Reconstructs one supported bridge or wall draw with its run offsets.</summary>
-    internal static bool TryGet(PlmDraw draw, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        list = default;
-        if (!TryDescribe(draw, out var shape)) return false;
-        var runs = new RoomPlmShotBlockDrawDefinitions.Run[shape.RunCount];
-        for (int run = 0; run < runs.Length; run++)
-        {
-            var blocks = new RoomTerrainBlock[shape.BlocksPerRun];
-            for (int block = 0; block < blocks.Length; block++) blocks[block] = shape.BlockAt(run, block);
-            runs[run] = new(shape.Direction, blocks, new(shape.NextX(run), 0));
-        }
-        list = new(draw, runs);
-        return true;
-    }
-
-    /// <summary>Maps an arena draw to the published bridge or wall artwork key.</summary>
-    internal static string VisualId(PlmDraw draw) =>
-        CrocomireArenaPlmDrawDefinitions.VisualIds[PlmDraw.FrameOf<CrocomireArenaDraw>(draw, "Crocomire arena")];
-
-    /// <summary>Finds the physical bridge or wall layout for one editable visual identity.</summary>
-    internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
-        ShotBlockPlmDraws.FindByVisualId(All, VisualId, id, out draw);
 }

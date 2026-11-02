@@ -48,11 +48,10 @@ internal sealed class LinkedRestorePlmFamily
         _draws = draws;
     }
 
-    /// <summary>One restoration draw with the geometry needed to reconstruct its parent and linked children.</summary>
-    /// <param name="Id">The restoration draw.</param>
+    /// <summary>One restoration draw's geometry, from which its parent and linked children are reconstructed.</summary>
     /// <param name="Shape">Whether the blocks lie in a row, a column or a two-by-two square.</param>
     /// <param name="Family">The family whose parent collision kind and appearance the blocks carry.</param>
-    internal readonly record struct Draw(PlmDraw Id, PlmRestoreShape Shape, LinkedRestorePlmFamily Family)
+    internal readonly record struct Draw(PlmRestoreShape Shape, LinkedRestorePlmFamily Family)
     {
         /// <summary>Whether the restored blocks stack in one column.</summary>
         internal bool Vertical => Shape == PlmRestoreShape.Vertical;
@@ -87,7 +86,7 @@ internal sealed class LinkedRestorePlmFamily
         {
             if (shape.Value == request)
             {
-                draw = new(request, shape.Key, this);
+                draw = new(shape.Key, this);
                 return true;
             }
         }
@@ -105,26 +104,5 @@ internal sealed class LinkedRestorePlmFamily
         }
         draw = default;
         return false;
-    }
-
-    /// <summary>Exports temporary draw descriptions for artwork import and export; runtime uses calculated descriptors directly.</summary>
-    internal IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get
-        {
-            foreach (PlmRestoreShape shape in Enum.GetValues<PlmRestoreShape>())
-                yield return Export(new(_draws[shape], shape, this));
-        }
-    }
-
-    /// <summary>Converts a calculated restoration shape into the importer-facing linked draw-list format.</summary>
-    internal static RoomPlmShotBlockDrawDefinitions.DrawList Export(Draw draw)
-    {
-        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
-        for (int run = 0; run < runs.Length; run++)
-            runs[run] = new(draw.Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal,
-                new[] { draw.BlockAt(run, 0), draw.BlockAt(run, 1) },
-                new(0, run + 1 < runs.Length ? 1 : 0));
-        return new(draw.Id, runs);
     }
 }

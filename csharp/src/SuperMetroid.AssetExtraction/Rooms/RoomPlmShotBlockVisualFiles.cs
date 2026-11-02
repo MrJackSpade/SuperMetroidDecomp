@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -102,12 +103,76 @@ public static class RoomPlmShotBlockVisualFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Validates visual references for all nineteen compiled breakup/restoration draw lists and builds the visuals from the run appearances that differ from the calculated draws; compiled collision and run placement are never replaced.</summary>
+    /// <param name="entries">Complete, duplicate-free draw identity set with unchanged run counts and lengths.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
+    /// <exception cref="InvalidDataException">An entry/run is null, a draw identity is unknown/duplicated/missing, the run shape differs, or a block count differs.</exception>
+    internal static InstalledRoomPlmShotBlockVisuals Create(IEnumerable<RoomPlmVisualRunEntry> entries) =>
+        new(RoomPlmVisualOverrideReader.RunByRun(entries, "Shot-block", TryGetDrawListByVisualId, Calculated.Count()));
+
+    /// <summary>The published artwork identity of a shot-block draw: its shape and breakup frame, or its restoration.</summary>
+    internal static string VisualId(ShotBlockPlmDraws.Draw draw)
+    {
+        string shape = draw.Layout switch
+        {
+            RoomPlmShotBlockDrawDefinitions.Shape.Single => "single",
+            RoomPlmShotBlockDrawDefinitions.Shape.Horizontal => "horizontal",
+            RoomPlmShotBlockDrawDefinitions.Shape.Vertical => "vertical",
+            RoomPlmShotBlockDrawDefinitions.Shape.Square => "square",
+            _ => throw new InvalidOperationException($"Undefined shot-block shape {draw.Layout}."),
+        };
+        return draw.Restore ? $"{shape}-restore" : $"{shape}-breakup-{draw.Frame}";
+    }
+
+    /// <summary>The published artwork identity of a shot-block <paramref name="draw"/>.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a shot-block draw.</exception>
+    internal static string VisualId(PlmDraw draw) => VisualId(PlmDraw.FrameOf<ShotBlockPlmDraws.Draw>(draw, "shot-block"));
+
+    /// <summary>Finds the shot-block draw whose artwork identity is <paramref name="id"/>.</summary>
+    internal static bool TryGetByVisualId(string? id, out ShotBlockPlmDraws.Draw draw) =>
+        RoomPlmDrawListExport.TryFindByVisualId(Calculated, VisualId, id, out draw);
+
+    /// <summary>Finds the draw list of the shot-block draw whose artwork identity is <paramref name="id"/>.</summary>
+    private static bool TryGetDrawListByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        bool found = TryGetByVisualId(id, out ShotBlockPlmDraws.Draw draw);
+        list = found ? Export(draw) : default;
+        return found;
+    }
+
+    /// <summary>The draw lists of every breakup and restoration draw, built from the calculated draws.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Calculated.Select(Export);
+
+    /// <summary>Expands a calculated shot-block draw into ordered terrain runs and offsets.</summary>
+    private static RoomPlmShotBlockDrawDefinitions.DrawList Export(ShotBlockPlmDraws.Draw draw) =>
+        RoomPlmDrawListExport.Runs(PlmDraw.Of(draw), draw.RunCount, _ => draw.BlocksPerRun, draw.BlockAt,
+            _ => draw.Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal,
+            static _ => 0, run => WordWrap.SignedLowByte(run + 1 < draw.RunCount ? 1 : 0));
+
+    /// <summary>Yields breakup frames interleaved by shape, followed by the three restoration draws.</summary>
+    internal static IEnumerable<ShotBlockPlmDraws.Draw> Calculated
+    {
+        get
+        {
+            for (int frame = 0; frame < RoomPlmShotBlockDrawDefinitions.BreakupFrameCount; frame++)
+            {
+                yield return new(RoomPlmShotBlockDrawDefinitions.Shape.Single, frame, Restore: false);
+                yield return new(RoomPlmShotBlockDrawDefinitions.Shape.Horizontal, frame, Restore: false);
+                yield return new(RoomPlmShotBlockDrawDefinitions.Shape.Vertical, frame, Restore: false);
+                yield return new(RoomPlmShotBlockDrawDefinitions.Shape.Square, frame, Restore: false);
+            }
+            yield return new(RoomPlmShotBlockDrawDefinitions.Shape.Horizontal, 0, Restore: true);
+            yield return new(RoomPlmShotBlockDrawDefinitions.Shape.Vertical, 0, Restore: true);
+            yield return new(RoomPlmShotBlockDrawDefinitions.Shape.Square, 0, Restore: true);
+        }
+    }
+
     /// <summary>Checks all bank 84 run headers, terrain, and offsets before exporting editable appearance.</summary>
     private static RoomPlmVisualRunEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var result = new List<RoomPlmVisualRunEntry>();
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 ShotBlockPlmDraws.All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
+                 All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
             var visuals = new List<RoomBlockAppearance[]>();
@@ -137,7 +202,7 @@ public static class RoomPlmShotBlockVisualFiles
                 visuals.Add(appearances);
             }
 
-            result.Add(new RoomPlmVisualRunEntry(ShotBlockPlmDraws.VisualId(list.Draw), visuals.ToArray()));
+            result.Add(new RoomPlmVisualRunEntry(VisualId(list.Draw), visuals.ToArray()));
         }
 
         return result.ToArray();
@@ -147,7 +212,7 @@ public static class RoomPlmShotBlockVisualFiles
     private static void VerifyStockMatchesCompiled(
         InstalledRoomPlmShotBlockVisuals catalog, string path)
     {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in ShotBlockPlmDraws.All)
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in All)
         for (int run = 0; run < list.Runs.Length; run++)
         for (int word = 0; word < list.Runs.Span[run].Count; word++)
         {
@@ -171,7 +236,7 @@ public static class RoomPlmShotBlockVisualFiles
     {
         try
         {
-            return new InstalledRoomPlmShotBlockVisuals(document.Entries);
+            return Create(document.Entries);
         }
         catch (InvalidDataException error)
         {

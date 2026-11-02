@@ -30,16 +30,10 @@ public sealed class InstalledRoomPlmNoobTubeVisuals
     /// <summary>Copied appearance edits for N00b-tube draw layouts that differ from stock appearance.</summary>
     private readonly PlmVisualOverrides customBlocks;
 
-    /// <summary>Validates all seven N00b-tube layouts and copies visual differences without changing power-bomb gating, debris, event timing, water physics, or physical draw geometry.</summary>
-    /// <param name="entries">One visual-only entry per compiled layout, retaining the full flattened count of its single-block or twelve-block runs.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
-    public InstalledRoomPlmNoobTubeVisuals(
-        IEnumerable<RoomPlmVisualEntry> entries)
-    {
-        customBlocks = new PlmVisualOverrides(entries, "N00b tube", NoobTubePlmDraws.TryGetByVisualId,
-            NoobTubePlmDraws.All.Count());
-    }
+    /// <summary>Holds the import-validated appearances of the layouts that differ from the compiled layouts.</summary>
+    /// <param name="customBlocks">The changed layouts' flattened appearances, keyed by draw.</param>
+    internal InstalledRoomPlmNoobTubeVisuals(PlmVisualOverrides customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Resolves one N00b-tube visual block by projecting run-local indices into the flattened authored layout.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

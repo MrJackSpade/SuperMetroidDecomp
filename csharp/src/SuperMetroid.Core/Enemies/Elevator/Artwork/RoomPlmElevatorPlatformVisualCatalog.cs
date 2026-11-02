@@ -13,16 +13,12 @@ public sealed class RoomPlmElevatorPlatformVisualCatalog
     public string ContentIdentity => ElevatorPlatformArtwork.ContentIdentity(this);
 
     /// <summary>Only frames whose appearances differ from the compiled source are stored here.</summary>
-    private readonly Dictionary<PlmDraw, RoomBlockAppearance[][]>? customAppearances;
+    private readonly IReadOnlyDictionary<PlmDraw, RoomBlockAppearance[][]> customAppearances;
 
-    /// <summary>Validates all three elevator-platform draw layouts and copies visual differences while retaining run geometry, terrain blocks, and animation cadence.</summary>
-    /// <remarks>The four-step instruction loop selects first, second, third, then second layout; the repeated second layout has only one entry.</remarks>
-    /// <param name="entries">One visual-only entry per compiled frame, with its exact run and cell counts.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
-    public RoomPlmElevatorPlatformVisualCatalog(
-        IEnumerable<RoomPlmVisualRunEntry> entries) =>
-        customAppearances = ElevatorPlatformArtwork.Overrides(entries);
+    /// <summary>Holds the import-validated run appearances of the frames that differ from the compiled frames.</summary>
+    /// <param name="customAppearances">The changed frames' appearances run by run, keyed by draw.</param>
+    internal RoomPlmElevatorPlatformVisualCatalog(IReadOnlyDictionary<PlmDraw, RoomBlockAppearance[][]> customAppearances) =>
+        this.customAppearances = Ensure.NotNull(customAppearances);
 
     /// <summary>Resolves one elevator-platform block appearance without replacing its compiled terrain block or draw offset.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

@@ -26,15 +26,10 @@ public sealed class InstalledRoomPlmGreyDoorVisuals
     /// <summary>Copied visual overrides keyed by draw; unchanged frames use calculated stock appearances.</summary>
     private readonly PlmVisualOverrides customBlocks;
 
-    /// <summary>Validates all twenty clear/grey-door frames and copies visual differences while retaining compiled collision, run direction, animation timing, and handoff behavior.</summary>
-    /// <param name="entries">Exactly one four-block visual-only entry for each compiled orientation and frame identity.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves coverage incomplete.</exception>
-    public InstalledRoomPlmGreyDoorVisuals(IEnumerable<RoomPlmVisualEntry> entries)
-    {
-        customBlocks = new PlmVisualOverrides(entries, "Grey-door", GreyDoorCaps.TryGetByVisualId,
-            GreyDoorCaps.All.Count());
-    }
+    /// <summary>Holds the import-validated appearances of the frames that differ from the compiled caps.</summary>
+    /// <param name="customBlocks">The changed frames' four appearances, keyed by frame.</param>
+    internal InstalledRoomPlmGreyDoorVisuals(PlmVisualOverrides customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Resolves one selected cap block without changing its collision or door mechanics.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

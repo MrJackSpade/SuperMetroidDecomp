@@ -15,15 +15,10 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
     /// <summary>Owned visual-only edits keyed by draw; stock draws use their compiled blocks.</summary>
     private readonly PlmVisualOverrides customAppearances;
 
-    /// <summary>Validates complete coverage of the clear and three crumble frames, capturing edited ceiling appearance without changing compiled geometry or collision.</summary>
-    /// <param name="entries">Each of the four compiled visual identities exactly once, with four appearances per frame.</param>
-    /// <remarks>Edited arrays are copied; stock-identical frames use compiled appearances, so later edits to caller arrays cannot change this catalog.</remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
-    /// <exception cref="InvalidDataException">A frame is missing, duplicated, null, unknown, or incorrectly shaped.</exception>
-    public RoomPlmSporeSpawnCeilingVisualCatalog(
-        IEnumerable<RoomPlmVisualEntry> entries) =>
-        customAppearances = new PlmVisualOverrides(entries, "Spore Spawn ceiling", SporeSpawnCeilingDraws.TryGetByVisualId,
-            SporeSpawnCeilingDraws.All.Count());
+    /// <summary>Holds the import-validated appearances of the frames that differ from the compiled frames.</summary>
+    /// <param name="customAppearances">The changed frames' four appearances, keyed by draw.</param>
+    internal RoomPlmSporeSpawnCeilingVisualCatalog(PlmVisualOverrides customAppearances) =>
+        this.customAppearances = Ensure.NotNull(customAppearances);
 
     /// <summary>Resolves one visual-only cell from an edited or compiled Spore Spawn ceiling frame.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

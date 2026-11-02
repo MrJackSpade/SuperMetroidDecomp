@@ -31,7 +31,7 @@ internal static class TourianAccessPlmDrawDefinitionsConstants
     internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         bool found = PlmDraw.TryFrame(request, out TourianAccessDraw frame);
-        list = found ? TourianAccessDraws.Compile(frame) : default;
+        list = found ? RoomPlmTourianAccessVisualFiles.Compile(frame) : default;
         return found;
     }
 }

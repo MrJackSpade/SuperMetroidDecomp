@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Verification.Areas.Escape;
@@ -43,9 +44,9 @@ internal static class LookupStationStockVerification
             native[frame.Pointer].Select(run => run.ToArray()).ToArray())).ToArray();
         var original = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].Select(run => run.ToArray()).ToArray());
         var stock = InstalledRoomPlmStationVisuals.Stock();
-        var imported = new InstalledRoomPlmStationVisuals(entries.Reverse());
+        var imported = RoomPlmStationVisualFiles.Create(entries.Reverse());
         string Hash(Dictionary<ushort, RoomBlockAppearance[][]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(InstalledRoomPlmStationVisuals), words.ToDictionary(pair => StationPlmDraws.VisualId(NativePlmDraws.At<StationDraw>(pair.Key)), pair => pair.Value));
+            nameof(InstalledRoomPlmStationVisuals), words.ToDictionary(pair => RoomPlmStationVisualFiles.VisualId(NativePlmDraws.At<StationDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(original), catalog.ContentIdentity, "Station original run-framed identity");
@@ -67,7 +68,7 @@ internal static class LookupStationStockVerification
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<StationDraw>((ushort)pointer),0,0), "Station stock unknown pointer");
         entries[10].Runs[3][1] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var mixed = new InstalledRoomPlmStationVisuals(entries);
+        var mixed = RoomPlmStationVisualFiles.Create(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Runs.Select(run => run.ToArray()).ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Station mixed custom/stock identity");
         entries[10].Runs[3][1] = RoomBlockAppearance.Of(0x05a);
@@ -78,13 +79,13 @@ internal static class LookupStationStockVerification
             for (int word = 0; word < native[frame.Pointer][run].Length; word++)
                 AssertEqual(expected[frame.Pointer][run][word], mixed.GetAppearance(NativePlmDraws.At<StationDraw>(frame.Pointer),run,word), "Station cloned custom and unchanged stock isolation");
         }
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmStationVisuals(entries[..1]), "Station missing frame");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmStationVisuals(entries.Append(entries[0])), "Station duplicate frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmStationVisualFiles.Create(entries[..1]), "Station missing frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmStationVisualFiles.Create(entries.Append(entries[0])), "Station duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("MAP-FRAME-0", entries[0].Runs);
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmStationVisuals(invalid), "Station ordinal identity");
+        AssertThrows<InvalidDataException>(() => RoomPlmStationVisualFiles.Create(invalid), "Station ordinal identity");
         invalid[0] = new(entries[0].Id, new RoomBlockAppearance[][] { new RoomBlockAppearance[7] });
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmStationVisuals(invalid), "Station exact run shape");
+        AssertThrows<InvalidDataException>(() => RoomPlmStationVisualFiles.Create(invalid), "Station exact run shape");
     }
 
     /// <summary>Reads native run-displacement bytes as the stock station draw oracle.</summary>

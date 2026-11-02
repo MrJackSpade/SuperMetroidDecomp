@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Rooms.Plms.DownwardGatePlmDrawDefinitions;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>How each downward gate draw is described, found and named.</summary>
+/// <summary>How each downward gate draw is described.</summary>
 internal static class DownwardGatePlmDraws
 {
     /// <summary>The shape of one of the six column stages or eight trigger draws; a trigger's frame is its color's tile step.</summary>
@@ -35,57 +35,6 @@ internal static class DownwardGatePlmDraws
         return true;
     }
 
-    /// <summary>Enumerates six column stages followed by four left/right trigger color pairs.</summary>
-    private static IEnumerable<PlmDraw> Draws()
-    {
-        foreach (DownwardGateDraw gate in Enum.GetValues<DownwardGateDraw>())
-            yield return PlmDraw.Of(gate);
-    }
-
-    /// <summary>Reconstructs one supported draw list from its column or trigger geometry.</summary>
-    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        list = default;
-        if (!TryDescribe(request, out var draw)) return false;
-        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
-        for (int run = 0; run < runs.Length; run++)
-        {
-            var blocks = new RoomTerrainBlock[draw.BlockCount(run)];
-            for (int block = 0; block < blocks.Length; block++) blocks[block] = draw.BlockAt(run, block);
-            runs[run] = new(draw.Direction, blocks, new(draw.NextX(run), 0));
-        }
-        list = new(request, runs);
-        return true;
-    }
-
-    /// <summary>Maps a draw to its published artwork identity, preserving historic green/red labels.</summary>
-    internal static string VisualId(PlmDraw request)
-    {
-        if (!TryDescribe(request, out var draw))
-            throw new InvalidDataException($"Downward gate draw list {request} has no visual ID.");
-        if (draw.Column) return $"column-frame-{draw.Frame}";
-        // Keep published artwork IDs: the historic green/red names differ from order.
-        string color = draw.Frame switch { 0 => "blue", 1 => "green", 2 => "red", _ => "yellow" };
-        return $"{color}-{(draw.Right ? "right" : "left")}-trigger";
-    }
-
-    /// <summary>Looks up a published visual name against supported column and trigger draws.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        ShotBlockPlmDraws.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
-
-    /// <summary>Projects calculated physical shapes into temporary draw records for the artwork interface.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get
-        {
-            foreach (PlmDraw draw in Draws())
-            {
-                TryGet(draw, out var list);
-                yield return list;
-            }
-        }
-    }
-
     /// <summary>Decoded column step or colored trigger shape; physical block words are calculated from this draw identity.</summary>
     internal readonly record struct Draw(DownwardGatePart Part, [property: IntegerQuantity("gate animation frame index")] int Frame)
     {
@@ -103,8 +52,7 @@ internal static class DownwardGatePlmDraws
             if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
             return Column ? 5 : Right ? 2 : 1;
         }
-        /// <summary>The gate column writes down its column; trigger runs write along their row.</summary>
-        internal PlmRunDirection Direction => Column ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal;
+
         /// <summary>Moves left between the two left-trigger runs; other runs stay in their column.</summary>
         internal int NextX(int run)
         {

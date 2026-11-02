@@ -70,7 +70,7 @@ internal static class GrappleBlockProgramsVerification
     private static void VerifyGrappleBlockPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
-        var exported = GrappleBlockPlmDraws.All.ToArray();
+        var exported = RoomPlmGrappleBlockVisualFiles.All.ToArray();
         AssertTrue(pointers.SequenceEqual(exported.Select(draw => NativePlmDraws.AddressOf(PlmDraw.Of(draw.Frame)))), "Grapple native draw export order");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
@@ -95,11 +95,11 @@ internal static class GrappleBlockProgramsVerification
 
     /// <summary>The artwork identity of the Grapple-block draw the cartridge stores at <paramref name="pointer"/>.</summary>
     private static string GrappleId(int pointer) =>
-        GrappleBlockPlmDraws.VisualId(PlmDraw.FrameOf<GrappleBlockDraw>(GrappleAt(pointer), "Grapple-block"));
+        RoomPlmGrappleBlockVisualFiles.VisualId(PlmDraw.FrameOf<GrappleBlockDraw>(GrappleAt(pointer), "Grapple-block"));
 
     /// <summary>The Grapple-block draw whose artwork identity is <paramref name="id"/>.</summary>
     private static PlmFrameDraw<GrappleBlockDraw> GrappleById(string id) =>
-        GrappleBlockPlmDraws.TryGetByVisualId(id, out var list) ? PlmDraw.Of(list.Frame)
+        RoomPlmGrappleBlockVisualFiles.TryGetByVisualId(id, out var list) ? PlmDraw.Of(list.Frame)
             : throw new InvalidOperationException($"No Grapple-block draw has artwork identity {id}.");
 
     /// <summary>Reads native draw-list terminal offsets as the physical-geometry oracle.</summary>
@@ -113,7 +113,7 @@ internal static class GrappleBlockProgramsVerification
             RoomLevelWordCodec.DecodeAppearance(ReadRomWord(rom,0x840000 | (pointer + 2))));
         var entries = native.Select(pair => new RoomPlmVisualBlockEntry(GrappleId(pair.Key),pair.Value)).ToArray();
         var stock = InstalledRoomPlmGrappleBlockVisuals.Stock();
-        var imported = new InstalledRoomPlmGrappleBlockVisuals(entries);
+        var imported = RoomPlmGrappleBlockVisualFiles.Create(entries);
         string expectedHash = SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmGrappleBlockVisuals),native.ToDictionary(pair => GrappleId(pair.Key), pair => pair.Value));
         AssertEqual(expectedHash,stock.ContentIdentity,"Grapple calculated stock original hash");
         AssertEqual(expectedHash,imported.ContentIdentity,"Grapple imported stock original hash");
@@ -129,15 +129,15 @@ internal static class GrappleBlockProgramsVerification
         }
         entries[0] = new(GrappleId(pointers[0]),RoomBlockAppearance.Of(0x058));
         entries[4] = new(GrappleId(pointers[4]),RoomBlockAppearance.Of(0x053, BlockMirroring.Horizontal));
-        var mixed = new InstalledRoomPlmGrappleBlockVisuals(entries);
+        var mixed = RoomPlmGrappleBlockVisualFiles.Create(entries);
         var expected = entries.ToDictionary(entry => entry.Id,entry => entry.Appearance);
         AssertEqual(SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmGrappleBlockVisuals),expected),
             mixed.ContentIdentity,"Grapple mixed stock/override identity");
         entries[0] = new(GrappleId(pointers[0]),RoomBlockAppearance.Of(0x054));
         foreach (var pair in expected)
             AssertEqual(pair.Value,mixed.GetAppearance(GrappleById(pair.Key)),"Grapple selected artwork isolated from entry-array mutation");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmGrappleBlockVisuals(entries[..4]),"Grapple rejects incomplete selection");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmGrappleBlockVisuals(entries.Append(entries[0])),"Grapple rejects duplicate selection");
+        AssertThrows<InvalidDataException>(() => RoomPlmGrappleBlockVisualFiles.Create(entries[..4]),"Grapple rejects incomplete selection");
+        AssertThrows<InvalidDataException>(() => RoomPlmGrappleBlockVisualFiles.Create(entries.Append(entries[0])),"Grapple rejects duplicate selection");
     }
 
     /// <summary>Runs both BTS programs under read guards for 300 frames and checks edited art remains separate from physical collision.</summary>
@@ -200,13 +200,13 @@ internal static class GrappleBlockProgramsVerification
 )
     {
         RoomPlmVisualBlockEntry[] entries =
-            GrappleBlockPlmDraws.All.Select(draw =>
-                new RoomPlmVisualBlockEntry(GrappleBlockPlmDraws.VisualId(draw.Frame),
+            RoomPlmGrappleBlockVisualFiles.All.Select(draw =>
+                new RoomPlmVisualBlockEntry(RoomPlmGrappleBlockVisualFiles.VisualId(draw.Frame),
                     draw.Terrain.Appearance)).ToArray();
         int first = Array.FindIndex(entries, entry =>
             entry.Id == "intact");
         entries[first] = entries[first] with { Appearance = RoomBlockAppearance.Of(0x0b8) };
-        var edited = new InstalledRoomPlmGrappleBlockVisuals(entries);
+        var edited = RoomPlmGrappleBlockVisualFiles.Create(entries);
 
         // Run the first PLM draw and capture collision, immediate tile upload, and later camera-streamed tile output.
         GrappleBlockProgramsRenderResult Render(
@@ -239,7 +239,7 @@ internal static class GrappleBlockProgramsVerification
         AssertEqual(RoomBlockAppearance.Of(0x0b8), changed.Streamed,
             "edited visual block persists through later camera streaming");
         AssertThrows<InvalidDataException>(
-            () => new InstalledRoomPlmGrappleBlockVisuals(entries.Skip(1)),
+            () => RoomPlmGrappleBlockVisualFiles.Create(entries.Skip(1)),
             "Grapple catalog rejects incomplete draw-list coverage");
     }
 

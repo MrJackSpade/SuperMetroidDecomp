@@ -31,16 +31,16 @@ internal static class ElevatorPlatformVisualsVerification
         RoomPlmElevatorPlatformVisualCatalog stock =
             RoomPlmElevatorPlatformVisualCatalog.Stock();
         RoomPlmVisualRunEntry[] entries =
-            ElevatorPlatformDraws.DrawLists.Select(list =>
+            RoomPlmElevatorPlatformVisualFiles.DrawLists.Select(list =>
                 new RoomPlmVisualRunEntry(
-                    ElevatorPlatformDraws.VisualId(list.Draw),
+                    RoomPlmElevatorPlatformVisualFiles.VisualId(list.Draw),
                     list.Runs.Span.SelectToArray(run =>
                         run.Blocks.Span.SelectToArray(block => block.Appearance))))
                 .ToArray();
         RoomPlmVisualRunEntry first = entries.Single(entry =>
             entry.Id == "first-frame");
         first.Runs[0][0] = RoomBlockAppearance.Of(0x53);
-        var edited = new RoomPlmElevatorPlatformVisualCatalog(entries);
+        var edited = RoomPlmElevatorPlatformVisualFiles.Create(entries);
         first.Runs[0][0] = RoomBlockAppearance.Of(0x54);
         AssertEqual(RoomBlockAppearance.Of(0x53),
             edited.GetAppearance(PlmDraw.Of(ElevatorPlatformDraw.First), 0, 0),

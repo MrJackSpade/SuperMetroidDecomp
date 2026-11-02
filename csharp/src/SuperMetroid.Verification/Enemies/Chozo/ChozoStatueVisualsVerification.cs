@@ -144,7 +144,7 @@ internal static class ChozoStatueVisualsVerification
                      address <= (0x840000 | ChozoStatuePlmProgramDefinitions.BlockSlopeEnd)) ||
                     (address >= (0x840000 | PlmProgramStartOracle.SharedDeleteEntry) &&
                      address <= (0x840000 | (PlmProgramStartOracle.SharedDeleteEntry + 1))) ||
-                    ChozoStatueDraws.All.Any(draw =>
+                    RoomPlmChozoStatueVisualFiles.All.Any(draw =>
                     {
                         int first = 0x840000 | PlmDrawAddressCodec.Of(draw.Draw);
                         int length = draw.Runs.Span.Sum(run =>

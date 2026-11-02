@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// Bomb Torizo's hand block draws: which PLM draws are the hand's, the strips each lays from
-/// <see cref="BombTorizoHandPlmDrawDefinitions"/>, and their artwork identities.
+/// <see cref="BombTorizoHandPlmDrawDefinitions"/>.
 /// </summary>
 internal static class BombTorizoHandDraws
 {
@@ -55,47 +55,4 @@ internal static class BombTorizoHandDraws
         draw = owned ? new(PlmDraw.FrameOf<BombTorizoHandDraw>(request, "BombTorizoHandDraw")) : default;
         return owned;
     }
-
-    /// <summary>Enumerates temporary draw DTOs for intact and cleared hand artwork in authored order.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get
-        {
-            TryGet(PlmDraw.Of(BombTorizoHandDraw.Intact), out var intact);
-            yield return intact;
-            TryGet(PlmDraw.Of(BombTorizoHandDraw.Cleared), out var cleared);
-            yield return cleared;
-        }
-    }
-
-    /// <summary>Expands a calculated hand draw into an import/export DTO; gameplay computes its strips directly.</summary>
-    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        list = default;
-        if (!TryDescribe(request, out var draw)) return false;
-        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
-        for (int run = 0; run < runs.Length; run++)
-        {
-            var blocks = new RoomTerrainBlock[draw.BlockCount(run)];
-            for (int cell = 0; cell < blocks.Length; cell++) blocks[cell] = draw.BlockAt(run, cell);
-            runs[run] = new(PlmRunDirection.Horizontal, blocks, new(draw.NextX(run), draw.NextY(run)));
-        }
-        list = new(request, runs);
-        return true;
-    }
-
-    /// <summary>Gets the stable artwork ID for a supported hand draw pointer.</summary>
-    internal static string VisualId(PlmDraw request) =>
-        VisualId(PlmDraw.FrameOf<BombTorizoHandDraw>(request, "Bomb Torizo hand draw with a visual ID"));
-
-    /// <summary>Maps an intact or cleared hand draw to its stable artwork ID.</summary>
-    internal static string VisualId(BombTorizoHandDraw frame) =>
-        BombTorizoHandPlmDrawDefinitions.VisualIds.TryGetValue(frame, out string? id)
-            ? id
-            : throw new InvalidOperationException($"Undefined BombTorizoHandDraw {frame}.");
-
-    /// <summary>Resolves an ordinal artwork ID to the corresponding temporary hand draw DTO.</summary>
-    internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        ShotBlockPlmDraws.FindByVisualId(All, VisualId, id, out list);
 }

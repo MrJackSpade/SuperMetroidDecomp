@@ -4,14 +4,9 @@ using static SuperMetroid.Core.Rooms.Plms.RoomPlmStationDrawDefinitions;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>How each station draw's cells are described, found and named.</summary>
+/// <summary>How each station draw's cells are described.</summary>
 internal static class StationPlmDraws
 {
-    /// <summary>The layout of <paramref name="request"/>, which must be one of the twenty station draw lists.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="request"/> is not a station draw list.</exception>
-    internal static Draw Describe(PlmDraw request) =>
-        TryDescribe(request, out Draw? draw) ? draw : throw new InvalidOperationException($"{request} is not a station draw list.");
-
     /// <summary>
     /// Describes a draw handed over by the shared PLM drawing; draws of other families are not the stations'.
     /// </summary>
@@ -48,104 +43,40 @@ internal static class StationPlmDraws
         return true;
     }
 
-    /// <summary>Constructs a temporary artwork draw-list DTO for a station pointer; runtime drawing calculates cells directly.</summary>
-    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        ShotBlockPlmDraws.TryCompile<Draw>(request, TryDescribe, out list);
-
-    /// <summary>
-    /// Published ordinal artwork IDs: three numbered frames per map/resource
-    /// station, and named save/access states. These are identity selections,
-    /// independent of the terrain. Only complete lists have IDs.
-    /// </summary>
-    internal static string VisualId(PlmDraw request) =>
-        PlmDraw.FrameOf<StationDraw>(request, "station draw list") switch
-        {
-            StationDraw.MapFrame0 => "map-frame-0",
-            StationDraw.MapFrame1 => "map-frame-1",
-            StationDraw.MapFrame2 => "map-frame-2",
-            StationDraw.EnergyFrame0 => "energy-frame-0",
-            StationDraw.EnergyFrame1 => "energy-frame-1",
-            StationDraw.EnergyFrame2 => "energy-frame-2",
-            StationDraw.MissileFrame0 => "missile-frame-0",
-            StationDraw.MissileFrame1 => "missile-frame-1",
-            StationDraw.MissileFrame2 => "missile-frame-2",
-            StationDraw.SaveIdle => "save-idle",
-            StationDraw.SaveActive => "save-active-a",
-            StationDraw.SaveAlternate => "save-active-b",
-            StationDraw.MapRightRetracted => "map-right-retracted",
-            StationDraw.MapRightExtended => "map-right-extended",
-            StationDraw.MapLeftRetracted => "map-left-retracted",
-            StationDraw.MapLeftExtended => "map-left-extended",
-            StationDraw.ResourceRightRetracted => "resource-right-retracted",
-            StationDraw.ResourceRightExtended => "resource-right-extended",
-            StationDraw.ResourceLeftRetracted => "resource-left-retracted",
-            StationDraw.ResourceLeftExtended => "resource-left-extended",
-            _ => throw new InvalidOperationException($"Undefined station draw list {request}."),
-        };
-
-    /// <summary>Finds a station draw list by its stable artwork identity rather than pointer.</summary>
-    internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        foreach (var candidate in All)
-        {
-            if (string.Equals(id, VisualId(candidate.Draw), StringComparison.Ordinal))
-            {
-                list = candidate;
-                return true;
-            }
-        }
-        list = default;
-        return false;
-    }
-
-    /// <summary>Calculates the twenty complete station lists in published enumeration order.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get
-        {
-            foreach (StationDraw frame in PublishedOrder)
-            {
-                TryGet(PlmDraw.Of(frame), out var list);
-                yield return list;
-            }
-        }
-    }
-
     /// <summary>
     /// One station draw list's geometry. Station runs are horizontal and every continuation is an absolute
     /// origin-relative offset, not accumulated. Each layout is its own sealed record holding only what it needs; these
     /// rules cover only the twenty owned draw pointers.
     /// </summary>
     /// <param name="Id">The draw list.</param>
-    internal abstract record Draw(StationDraw Id) : IPlmRunDrawShape
+    internal abstract record Draw(StationDraw Id)
     {
-        /// <inheritdoc/>
-        public abstract int RunCount { get; }
+        /// <summary>The number of runs the draw writes.</summary>
+        internal abstract int RunCount { get; }
 
-        /// <inheritdoc/>
-        public int BlockCount(int run)
+        /// <summary>The number of blocks in run <paramref name="run"/>.</summary>
+        internal int BlockCount(int run)
         {
             CheckRun(run);
             return BlocksPerRun;
         }
 
-        /// <inheritdoc/>
-        public int NextX(int run)
+        /// <summary>The horizontal block offset from the draw's origin after run <paramref name="run"/>.</summary>
+        internal int NextX(int run)
         {
             CheckRun(run);
             return run == 0 ? Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, FirstRunX) : 0;
         }
 
-        /// <inheritdoc/>
-        public int NextY(int run)
+        /// <summary>The vertical block offset from the draw's origin after run <paramref name="run"/>.</summary>
+        internal int NextY(int run)
         {
             CheckRun(run);
             return RunY(run);
         }
 
-        /// <inheritdoc/>
-        public RoomTerrainBlock BlockAt(int run, int cell)
+        /// <summary>The terrain at <paramref name="cell"/> of run <paramref name="run"/>.</summary>
+        internal RoomTerrainBlock BlockAt(int run, int cell)
         {
             if ((uint)cell >= (uint)BlockCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
             return Block(run, cell);
@@ -180,7 +111,7 @@ internal static class StationPlmDraws
     internal sealed record MapDisplay(StationDraw Id, int Frame) : Draw(Id)
     {
         /// <inheritdoc/>
-        public override int RunCount => 2;
+        internal override int RunCount => 2;
 
         /// <inheritdoc/>
         private protected override int FirstRunX => -1;
@@ -202,7 +133,7 @@ internal static class StationPlmDraws
 
 
         /// <inheritdoc/>
-        public override int RunCount => 2;
+        internal override int RunCount => 2;
 
         /// <inheritdoc/>
         private protected override int RunY(int run) => run == 0 ? -1 : 0;
@@ -220,7 +151,7 @@ internal static class StationPlmDraws
     internal sealed record SavePod(StationDraw Id) : Draw(Id)
     {
         /// <inheritdoc/>
-        public override int RunCount => 6;
+        internal override int RunCount => 6;
 
         /// <inheritdoc/>
         private protected override int BlocksPerRun => 2;
@@ -248,7 +179,7 @@ internal static class StationPlmDraws
     internal sealed record MapAccess(StationDraw Id, HorizontalDirection Side, StationAccessPose Pose) : Draw(Id)
     {
         /// <inheritdoc/>
-        public override int RunCount => Pose == StationAccessPose.Extended ? 1 : 2;
+        internal override int RunCount => Pose == StationAccessPose.Extended ? 1 : 2;
 
         /// <inheritdoc/>
         private protected override int FirstRunX => Pose == StationAccessPose.Extended ? 0
@@ -268,7 +199,7 @@ internal static class StationPlmDraws
     internal sealed record ResourceAccess(StationDraw Id, HorizontalDirection Side, StationAccessPose Pose) : Draw(Id)
     {
         /// <inheritdoc/>
-        public override int RunCount => 1;
+        internal override int RunCount => 1;
 
         /// <inheritdoc/>
         [SuppressMessage("Design", "SME6426",

@@ -33,16 +33,16 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         Suite(nameof(VerifyTubeVisuals), () => VerifyTubeVisuals(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
-            NoobTubePlmDraws.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
+            RoomPlmNoobTubeVisualFiles.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
         RoomPlmVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmVisualEntry(
-                NoobTubePlmDraws.VisualId(draw.Draw),
+                RoomPlmNoobTubeVisualFiles.VisualId(draw.Draw),
                 draw.Appearances())).ToArray();
         RoomPlmVisualEntry cleared = entries.Single(entry =>
             entry.Id == "cleared");
         RoomBlockAppearance originalWord = cleared.Blocks[24];
         cleared.Blocks[24] = RoomBlockAppearance.Of(0x059);
-        var edited = new InstalledRoomPlmNoobTubeVisuals(entries);
+        var edited = RoomPlmNoobTubeVisualFiles.Create(entries);
         cleared.Blocks[24] = RoomBlockAppearance.Of(0x05a);
         AssertEqual(RoomBlockAppearance.Of(0x059), edited.GetAppearance(NativePlmDraws.At<NoobTubeDraw>(0x98e3), 2, 0),
             "n00b-tube catalog copies author data");

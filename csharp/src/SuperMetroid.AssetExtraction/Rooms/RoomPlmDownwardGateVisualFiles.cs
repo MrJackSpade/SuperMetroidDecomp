@@ -99,12 +99,65 @@ public static class RoomPlmDownwardGateVisualFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Validates complete downward-gate and shot-trigger coverage and builds the visuals from the run appearances that differ from the compiled layouts.</summary>
+    /// <param name="entries">One entry per compiled layout, retaining its exact run count and block counts with visual-only payloads.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
+    internal static InstalledRoomPlmDownwardGateVisuals Create(IEnumerable<RoomPlmVisualRunEntry> entries) =>
+        new(RoomPlmVisualOverrideReader.RunByRun(entries, "Downward gate", TryGetByVisualId, All.Count()));
+
+    /// <summary>Enumerates six column stages followed by four left/right trigger color pairs.</summary>
+    private static IEnumerable<PlmDraw> Draws()
+    {
+        foreach (DownwardGateDraw gate in Enum.GetValues<DownwardGateDraw>())
+            yield return PlmDraw.Of(gate);
+    }
+
+    /// <summary>Builds the draw list of a recognized column or trigger draw from its geometry.</summary>
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        bool found = DownwardGatePlmDraws.TryDescribe(request, out DownwardGatePlmDraws.Draw draw);
+        list = found
+            ? RoomPlmDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.BlockAt,
+                _ => draw.Column ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, draw.NextX, static _ => 0)
+            : default;
+        return found;
+    }
+
+    /// <summary>Maps a draw to its published artwork identity, preserving historic green/red labels.</summary>
+    internal static string VisualId(PlmDraw request)
+    {
+        if (!DownwardGatePlmDraws.TryDescribe(request, out var draw))
+            throw new InvalidDataException($"Downward gate draw list {request} has no visual ID.");
+        if (draw.Column) return $"column-frame-{draw.Frame}";
+        // Keep published artwork IDs: the historic green/red names differ from order.
+        string color = draw.Frame switch { 0 => "blue", 1 => "green", 2 => "red", _ => "yellow" };
+        return $"{color}-{(draw.Right ? "right" : "left")}-trigger";
+    }
+
+    /// <summary>Looks up a published visual name against supported column and trigger draws.</summary>
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmDrawListExport.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
+
+    /// <summary>Builds every column and trigger draw list from its calculated shape.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            foreach (PlmDraw draw in Draws())
+            {
+                TryGet(draw, out var list);
+                yield return list;
+            }
+        }
+    }
+
     /// <summary>Reads each downward-gate draw list, verifying native shape and block before retaining only appearance.</summary>
     private static RoomPlmVisualRunEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var entries = new List<RoomPlmVisualRunEntry>();
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 DownwardGatePlmDraws.All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
+                 All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
             var visuals = new List<RoomBlockAppearance[]>();
@@ -135,7 +188,7 @@ public static class RoomPlmDownwardGateVisualFiles
             }
 
             entries.Add(new RoomPlmVisualRunEntry(
-                DownwardGatePlmDraws.VisualId(list.Draw), visuals.ToArray()));
+                VisualId(list.Draw), visuals.ToArray()));
         }
 
         return entries.ToArray();
@@ -146,7 +199,7 @@ public static class RoomPlmDownwardGateVisualFiles
         string path)
     {
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 DownwardGatePlmDraws.All)
+                 All)
         for (int run = 0; run < list.Runs.Length; run++)
         for (int word = 0; word < list.Runs.Span[run].Count; word++)
         {
@@ -154,7 +207,7 @@ public static class RoomPlmDownwardGateVisualFiles
             if (catalog.GetAppearance(list.Draw, run, word) != expected)
                 throw new InvalidDataException(
                     $"Stock downward gate visuals {path} differ from compiled frame " +
-                    DownwardGatePlmDraws.VisualId(list.Draw) + ".");
+                    VisualId(list.Draw) + ".");
         }
     }
 
@@ -164,7 +217,7 @@ public static class RoomPlmDownwardGateVisualFiles
     {
         if (document.Version != FormatVersion || document.Entries is null)
             throw new InvalidDataException($"Downward gate visuals {path} have an incompatible format.");
-        try { return new InstalledRoomPlmDownwardGateVisuals(document.Entries); }
+        try { return Create(document.Entries); }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(

@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Rooms;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Verification access to <see cref="LinkedRestorePlmFamily"/> members production does not use.</summary>
@@ -11,7 +13,7 @@ internal static class LinkedRestorePlmFamilyAccess
         {
             if (family.TryDescribe(request, out LinkedRestorePlmFamily.Draw draw))
             {
-                list = LinkedRestorePlmFamily.Export(draw);
+                list = RoomPlmLinkedRestoreVisualFiles.Export(request, draw);
                 return true;
             }
             list = default;

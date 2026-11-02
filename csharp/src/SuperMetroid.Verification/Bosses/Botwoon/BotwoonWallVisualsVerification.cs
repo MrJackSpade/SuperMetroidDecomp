@@ -27,13 +27,13 @@ internal static class BotwoonWallVisualsVerification
         for (int index = 0; index < native.Length; index++)
             native[index] = RoomLevelWordCodec.DecodeAppearance(ReadRomWord(rom, 0x849311 + 2 * index));
         var stock = InstalledRoomPlmBotwoonWallVisuals.Stock();
-        var loaded = new InstalledRoomPlmBotwoonWallVisuals([new("clear-wall", native)]);
+        var loaded = RoomPlmBotwoonWallVisualFiles.Create([new("clear-wall", native)]);
         string expectedIdentity = SuperMetroid.Core.Assets.SelectedPresentationHash.Create(
             nameof(InstalledRoomPlmBotwoonWallVisuals), content => content.AppendAppearances("blocks", native));
         AssertEqual(expectedIdentity, stock.ContentIdentity, "Botwoon calculated stock preserves prior content identity");
         AssertEqual(expectedIdentity, loaded.ContentIdentity, "Botwoon loaded stock identity");
         RoomBlockAppearance[] customWords = [.. new[] {0x10,0x20,0x30,0x58,0x50,0x60,0x70,0x80,0x90}.Select(block => RoomBlockAppearance.Of(block))];
-        var custom = new InstalledRoomPlmBotwoonWallVisuals([new("clear-wall", customWords)]);
+        var custom = RoomPlmBotwoonWallVisualFiles.Create([new("clear-wall", customWords)]);
         string customIdentity = custom.ContentIdentity;
         for (int index = 0; index < native.Length; index++)
         {
@@ -61,9 +61,9 @@ internal static class BotwoonWallVisualsVerification
     {
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (pointer == 0x930f)
-                AssertEqual("clear-wall", BotwoonWallPlmDraws.VisualId(NativePlmDraws.At<BotwoonWallDraw>((ushort)pointer)), "Botwoon stable export identity");
+                AssertEqual("clear-wall", RoomPlmBotwoonWallVisualFiles.VisualId(NativePlmDraws.At<BotwoonWallDraw>((ushort)pointer)), "Botwoon stable export identity");
             else
-                AssertThrows<InvalidDataException>(() => BotwoonWallPlmDraws.VisualId(NativePlmDraws.At<BotwoonWallDraw>((ushort)pointer)), "Botwoon visual ID accepts only the clear draw");
+                AssertThrows<InvalidDataException>(() => RoomPlmBotwoonWallVisualFiles.VisualId(NativePlmDraws.At<BotwoonWallDraw>((ushort)pointer)), "Botwoon visual ID accepts only the clear draw");
     }
 
     /// <summary>Checks extraction, installed overrides, stock repair, and rejection of physical-bit edits.</summary>
@@ -85,7 +85,7 @@ internal static class BotwoonWallVisualsVerification
                         0, block),
                     $"stock Botwoon wall clear block {block} matches ROM");
             AssertThrows<InvalidDataException>(
-                () => new InstalledRoomPlmBotwoonWallVisuals([]),
+                () => RoomPlmBotwoonWallVisualFiles.Create([]),
                 "Botwoon wall visual catalog rejects missing clear frame");
 
             string stockPath = Path.Combine(

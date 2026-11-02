@@ -26,15 +26,10 @@ public sealed class InstalledRoomPlmBlueDoorVisuals
     /// <summary>Owned appearance overrides keyed by draw; null means every frame uses stock art.</summary>
     private readonly PlmVisualOverrides customBlocks;
 
-    /// <summary>Validates complete canonical blue-door frame coverage and retains owned copies only for visual appearances differing from the compiled draw shapes.</summary>
-    /// <param name="entries">Exactly one entry for every editable frame, each retaining the four-block run geometry.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is null, changes an identity/shape, has invalid visual appearances, repeats a frame, or leaves coverage incomplete.</exception>
-    public InstalledRoomPlmBlueDoorVisuals(IEnumerable<RoomPlmVisualEntry> entries)
-    {
-        customBlocks = new PlmVisualOverrides(entries, "Blue-door", BlueDoorCaps.TryGetByVisualId,
-            BlueDoorCaps.Editable.Count());
-    }
+    /// <summary>Holds the import-validated appearances of the editable frames that differ from the compiled caps.</summary>
+    /// <param name="customBlocks">The changed frames' four appearances, keyed by editable frame.</param>
+    internal InstalledRoomPlmBlueDoorVisuals(PlmVisualOverrides customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Resolves a selected blue-door appearance, normalizing physical alias pointers to their shared editable frame without changing collision or door timing.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

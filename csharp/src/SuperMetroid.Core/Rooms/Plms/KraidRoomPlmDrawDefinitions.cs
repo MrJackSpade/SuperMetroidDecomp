@@ -19,7 +19,4 @@ internal static class KraidRoomPlmDrawDefinitions
         [KraidRoomDraw.SpikeFirst] = RoomTerrainBlock.Of(273, BlockMirroring.None, RoomCollisionType.Air),
         [KraidRoomDraw.SpikeSecond] = RoomTerrainBlock.Of(272, BlockMirroring.None, RoomCollisionType.Air),
     };
-
-    /// <summary>Number of reachable Kraid ceiling and spike draw lists.</summary>
-    internal const int DrawCount = 10;
 }

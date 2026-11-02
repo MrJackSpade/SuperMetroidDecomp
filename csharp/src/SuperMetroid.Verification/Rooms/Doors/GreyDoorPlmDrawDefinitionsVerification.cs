@@ -36,10 +36,10 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             LittleEndianBytes.Word(GreyDoorPlmDrawDefinitionsRomByte(bus, address), GreyDoorPlmDrawDefinitionsRomByte(bus, address + 1));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
-            GreyDoorCaps.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
+            RoomPlmGreyDoorVisualFiles.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
         RoomPlmVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmVisualEntry(
-                GreyDoorCaps.VisualId(draw.Draw),
+                RoomPlmGreyDoorVisualFiles.VisualId(draw.Draw),
                 draw.Runs.Span[0].Blocks.Span
                     .SelectToArray(block => block.Appearance))).ToArray();
         InstalledRoomPlmGreyDoorVisuals stock = InstalledRoomPlmGreyDoorVisuals.Stock();
@@ -47,7 +47,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             entry.Id == "grey-right-frame-0");
         RoomBlockAppearance originalVisual = editedFrame.Blocks[0];
         editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x053);
-        var edited = new InstalledRoomPlmGreyDoorVisuals(entries);
+        var edited = RoomPlmGreyDoorVisualFiles.Create(entries);
         editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x054);
         AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
             "grey-door visual catalog copies author data");
@@ -91,7 +91,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 $"resident grey-door header {header} loads");
             ushort initial = ReadWord(rom, 0x840000 | (PlmNativeWords.Word(header) + 2));
             ushort firstDraw = ReadWord(rom, 0x840000 | (initial + 12));
-            AssertTrue(GreyDoorCaps.TryGet(NativePlmDraws.At<GreyDoorCaps.Draw>(firstDraw), out var selected),
+            AssertTrue(RoomPlmGreyDoorVisualFiles.TryGet(NativePlmDraws.At<GreyDoorCaps.Draw>(firstDraw), out var selected),
                 $"resident grey-door header {header} selects compiled art");
             plms.Step(level);
             bool vertical = selected.Runs.Span[0].Direction == PlmRunDirection.Vertical;
@@ -259,7 +259,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             entry.Id == "clear-right");
         RoomBlockAppearance original = clear.Blocks[0];
         clear.Blocks[0] = RoomBlockAppearance.Of(0x054);
-        var edited = new InstalledRoomPlmGreyDoorVisuals(entries);
+        var edited = RoomPlmGreyDoorVisualFiles.Create(entries);
         clear.Blocks[0] = original;
 
         const int width = 16;

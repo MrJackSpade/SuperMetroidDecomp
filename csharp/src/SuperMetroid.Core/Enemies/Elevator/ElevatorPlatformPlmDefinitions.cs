@@ -55,12 +55,4 @@ internal static class ElevatorPlatformPlmDefinitions
             ]),
         ],
     };
-
-    /// <summary>The three platform frames' stable artwork identifiers.</summary>
-    internal static readonly Dictionary<ElevatorPlatformDraw, string> VisualIds = new()
-    {
-        [ElevatorPlatformDraw.First] = "first-frame",
-        [ElevatorPlatformDraw.Second] = "second-frame",
-        [ElevatorPlatformDraw.Third] = "third-frame",
-    };
 }

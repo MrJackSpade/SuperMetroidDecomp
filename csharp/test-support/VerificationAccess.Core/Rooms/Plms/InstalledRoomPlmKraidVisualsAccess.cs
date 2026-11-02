@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Rooms;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>Verification access to <see cref="InstalledRoomPlmKraidVisuals"/> members production does not use.</summary>
 internal static class InstalledRoomPlmKraidVisualsAccess
@@ -6,10 +8,10 @@ internal static class InstalledRoomPlmKraidVisualsAccess
     extension(InstalledRoomPlmKraidVisuals)
     {
         /// <summary>Builds stock Kraid PLM art from the appearances of its draws.</summary>
-        internal static InstalledRoomPlmKraidVisuals Stock() => new(
-            KraidRoomPlmDraws.All.Select(draw =>
+        internal static InstalledRoomPlmKraidVisuals Stock() => RoomPlmKraidVisualFiles.Create(
+            RoomPlmKraidVisualFiles.All.Select(draw =>
                 new RoomPlmVisualEntry(
-                    KraidRoomPlmDraws.VisualId(draw.Draw),
+                    RoomPlmKraidVisualFiles.VisualId(draw.Draw),
                     draw.Appearances())));
     }
 }

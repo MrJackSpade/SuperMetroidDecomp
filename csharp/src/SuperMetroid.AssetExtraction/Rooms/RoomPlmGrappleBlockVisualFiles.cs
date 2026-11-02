@@ -88,7 +88,7 @@ public static class RoomPlmGrappleBlockVisualFiles
         InstalledRoomPlmGrappleBlockVisuals stock = CreateCatalog(
             ReadJson<VisualDocument>(stockBytes, stockPath), stockPath);
         foreach (RoomPlmGrappleBlockDrawDefinitions.DrawList draw in
-                 GrappleBlockPlmDraws.All)
+                 All)
         {
             RoomBlockAppearance expected = draw.Terrain.Appearance;
             if (stock.GetAppearance(PlmDraw.Of(draw.Frame)) != expected)
@@ -108,25 +108,88 @@ public static class RoomPlmGrappleBlockVisualFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Each one-block Grapple-block run writes along its row.</summary>
+    private const PlmRunDirection RunDirection = PlmRunDirection.Horizontal;
+    /// <summary>Each Grapple-block run writes its one block.</summary>
+    private const int RunLength = 1;
+    /// <summary>The run ends with a zero horizontal offset, leaving the next draw in its column.</summary>
+    private const int RunNextX = 0;
+    /// <summary>The run ends with a zero vertical offset, leaving the next draw in its row.</summary>
+    private const int RunNextY = 0;
+
+    /// <summary>Validates all five compiled one-block frames and builds the visuals from the authored appearances that differ from the compiled frames.</summary>
+    /// <param name="entries">Exactly one visual-only entry for each compiled initial, breakup, and blank draw identity.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry changes an identity, repeats a frame, or leaves coverage incomplete.</exception>
+    internal static InstalledRoomPlmGrappleBlockVisuals Create(IEnumerable<RoomPlmVisualBlockEntry> entries)
+    {
+        Ensure.NotNull(entries);
+        var selected = new Dictionary<GrappleBlockDraw, RoomBlockAppearance>();
+        var seen = new HashSet<GrappleBlockDraw>();
+        foreach (RoomPlmVisualBlockEntry entry in entries)
+        {
+            if (entry is null || !TryGetByVisualId(entry.Id, out var draw))
+                throw new InvalidDataException(
+                    "Grapple-block visuals changed a compiled draw identity.");
+            if (!seen.Add(draw.Frame))
+                throw new InvalidDataException($"Grapple-block visuals repeat draw {entry.Id}.");
+            if (entry.Appearance != draw.Terrain.Appearance)
+                selected.Add(draw.Frame, entry.Appearance);
+        }
+
+        if (seen.Count != All.Count())
+            throw new InvalidDataException(
+                "Grapple-block visuals do not cover all compiled draw lists.");
+        return new(selected);
+    }
+
+    /// <summary>The published artwork identity of a Grapple-block draw.</summary>
+    internal static string VisualId(GrappleBlockDraw frame) => frame switch
+    {
+        GrappleBlockDraw.Intact => "intact",
+        GrappleBlockDraw.Break0 => "break-0",
+        GrappleBlockDraw.Break1 => "break-1",
+        GrappleBlockDraw.Break2 => "break-2",
+        GrappleBlockDraw.Blank => "blank",
+        _ => throw new InvalidOperationException($"Undefined {nameof(GrappleBlockDraw)} {frame}."),
+    };
+
+    /// <summary>Finds the Grapple-block draw whose artwork identity is <paramref name="id"/>.</summary>
+    internal static bool TryGetByVisualId(string? id, out RoomPlmGrappleBlockDrawDefinitions.DrawList draw) =>
+        RoomPlmDrawListExport.TryFindByVisualId(All, candidate => VisualId(candidate.Frame), id, out draw);
+
+    /// <summary>Enumerates the initial Grapple block, three breakup frames, and blank air in authored order.</summary>
+    internal static IEnumerable<RoomPlmGrappleBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            foreach (GrappleBlockDraw frame in Enum.GetValues<GrappleBlockDraw>())
+            {
+                GrappleBlockPlmDraws.TryGet(PlmDraw.Of(frame), out var draw);
+                yield return draw;
+            }
+        }
+    }
+
     /// <summary>Checks every native one-cell draw's direction, block, and terminal offsets before exporting visuals.</summary>
     private static RoomPlmVisualBlockEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var entries = new List<RoomPlmVisualBlockEntry>();
         foreach (RoomPlmGrappleBlockDrawDefinitions.DrawList draw in
-                 GrappleBlockPlmDraws.All.OrderBy(item => PlmDrawAddressCodec.Of(PlmDraw.Of(item.Frame))))
+                 All.OrderBy(item => PlmDrawAddressCodec.Of(PlmDraw.Of(item.Frame))))
         {
             int pointer = PlmDrawAddressCodec.Of(PlmDraw.Of(draw.Frame));
             if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, pointer)) !=
-                    PlmRunHeaderCodec.Encode(RoomPlmGrappleBlockDrawDefinitions.DrawList.Direction,
-                        RoomPlmGrappleBlockDrawDefinitions.DrawList.Count) ||
+                    PlmRunHeaderCodec.Encode(RunDirection,
+                        RunLength) ||
                 RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, (unchecked((ushort)(pointer + 2)))))) != draw.Terrain ||
                 bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, unchecked((ushort)(pointer + 4)))) !=
-                    RoomPlmGrappleBlockDrawDefinitions.DrawList.NextX ||
+                    RunNextX ||
                 bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, unchecked((ushort)(pointer + 5)))) !=
-                    RoomPlmGrappleBlockDrawDefinitions.DrawList.NextY)
+                    RunNextY)
                 throw new InvalidDataException(
                     $"Grapple-block draw list ${pointer:X4} differs from compiled cartridge data.");
-            entries.Add(new RoomPlmVisualBlockEntry(GrappleBlockPlmDraws.VisualId(draw.Frame),
+            entries.Add(new RoomPlmVisualBlockEntry(VisualId(draw.Frame),
                 draw.Terrain.Appearance));
         }
 
@@ -140,7 +203,7 @@ public static class RoomPlmGrappleBlockVisualFiles
         if (document.Version != FormatVersion || document.Entries is null)
             throw new InvalidDataException(
                 $"Grapple-block visuals {path} have an incompatible format.");
-        try { return new InstalledRoomPlmGrappleBlockVisuals(document.Entries); }
+        try { return Create(document.Entries); }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Plms;
@@ -19,8 +20,8 @@ public static class RoomPlmEscapeGateVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Escape-gate", MotherBrainEscapeGateDraws.All,
-            MotherBrainEscapeGateDraws.VisualId);
+            VisualFileName, "Escape-gate", All,
+            VisualId);
 
     /// <summary>Validates stock escape-gate art against its manifest and compiled frames, then selects a complete optional visual-only override without cartridge access.</summary>
     /// <param name="stockDirectory">Stock directory containing the escape-gate JSON and its provenance/digest manifest.</param>
@@ -30,10 +31,56 @@ public static class RoomPlmEscapeGateVisualFiles
     public static RoomPlmEscapeGateVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmEscapeGateVisualCatalog>(VisualFileName, "Escape-gate", MotherBrainEscapeGateDraws.All, MotherBrainEscapeGateDraws.VisualId, entries => new RoomPlmEscapeGateVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<RoomPlmEscapeGateVisualCatalog>(VisualFileName, "Escape-gate", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetAppearance(draw, block)));
 
     /// <summary>Checks stock escape-gate provenance, digest, schema, three-frame coverage, and equality with compiled appearances; ignores overrides.</summary>
     /// <param name="directory">Installed stock escape-gate directory.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
+
+    /// <summary>Validates all three escape-gate frames and builds the visuals from the appearances that differ from the compiled frames, without replacing terrain blocks, animation timing, or door handoff.</summary>
+    /// <remarks>Even the visually open frame retains compiled solid collision; an artwork override cannot change that behavior.</remarks>
+    /// <param name="entries">Exactly one four-block, visual-only entry for each compiled gate frame.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
+    internal static RoomPlmEscapeGateVisualCatalog Create(IEnumerable<RoomPlmVisualEntry> entries) =>
+        new(RoomPlmVisualOverrideReader.Flattened(entries, "Escape-gate", TryGetByVisualId, All.Count()));
+
+    /// <summary>Builds the open, half-closed, and closed gate images' draw lists in order.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            foreach (MotherBrainEscapeGateDraw frame in Enum.GetValues<MotherBrainEscapeGateDraw>())
+            {
+                TryGet(PlmDraw.Of(frame), out var draw);
+                yield return draw;
+            }
+        }
+    }
+
+    /// <summary>Builds the four-cell draw list of a known gate draw from its cells.</summary>
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        if (!MotherBrainEscapeGateDraws.TryDescribe(request, out var draw))
+        {
+            list = default;
+            return false;
+        }
+        var blocks = new RoomTerrainBlock[4];
+        for (int row = 0; row < blocks.Length; row++) blocks[row] = draw.BlockAt(row);
+        list = RoomPlmDrawListExport.SingleRun(request, PlmRunDirection.Vertical, blocks);
+        return true;
+    }
+
+    /// <summary>Maps a gate draw to its stable authored visual identifier.</summary>
+    internal static string VisualId(PlmDraw request) =>
+        RoomPlmVisualIdDefinitions.MotherBrainEscapeGate.TryGetValue(
+            PlmDraw.FrameOf<MotherBrainEscapeGateDraw>(request, "Mother Brain escape-gate draw"), out string? id)
+            ? id
+            : throw new InvalidOperationException($"Undefined Mother Brain escape-gate draw {request}.");
+
+    /// <summary>Finds a gate artwork draw list by its exact, case-sensitive visual identifier.</summary>
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmDrawListExport.FindByVisualId(All, VisualId, id, out list);
 }

@@ -35,7 +35,7 @@ internal static class KraidRoomVisualsVerification
             InstalledRoomPlmKraidVisuals stock =
                 installation.LoadRoomPlmKraidVisuals();
             foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in
-                     KraidRoomPlmDraws.All)
+                     RoomPlmKraidVisualFiles.All)
             {
                 for (int block = 0; block < draw.Runs.Span[0].Count;
                      block++)
@@ -44,7 +44,7 @@ internal static class KraidRoomVisualsVerification
                         $"Kraid stock draw ${PlmDrawAddressCodec.Of(draw.Draw):X4}, block {block}");
             }
             AssertThrows<InvalidDataException>(
-                () => new InstalledRoomPlmKraidVisuals([]),
+                () => RoomPlmKraidVisualFiles.Create([]),
                 "Kraid visual catalog rejects missing frames");
 
             string stockPath = Path.Combine(
@@ -106,9 +106,9 @@ internal static class KraidRoomVisualsVerification
     private static void VerifyKraidVisualOwnerIsolation(
         InstalledRoomPlmKraidVisuals edited)
     {
-        var tube = new InstalledRoomPlmMaridiaElevatubeVisuals(
+        var tube = RoomPlmMaridiaElevatubeVisualFiles.Create(
             [new RoomPlmVisualEntry(
-                MaridiaElevatubePlmDefinitions.VisualId, [RoomBlockAppearance.Of(0x05b)])]);
+                RoomPlmMaridiaElevatubeVisualFiles.VisualId, [RoomBlockAppearance.Of(0x05b)])]);
         Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1, PlmDrawAddressCodec.Of(PlmDraw.Of(KraidRoomDraw.CrumbleFirst)), 0, RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomBlockAppearance.Of(0x058), new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));
         Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidCeiling, PlmDrawAddressCodec.Of(PlmDraw.Of(KraidRoomDraw.ClearCeiling)), 14, RoomTerrainBlock.Of(0x130, BlockMirroring.None, RoomCollisionType.Air), RoomBlockAppearance.Of(0x059), new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));
         Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidSpikes, PlmDrawAddressCodec.Of(PlmDraw.Of(KraidRoomDraw.ClearSpikes)), 21, RoomTerrainBlock.Of(0x110, BlockMirroring.None, RoomCollisionType.Air), RoomBlockAppearance.Of(0x05a), new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));

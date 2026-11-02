@@ -1,9 +1,10 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Installed, replaceable bomb and contact-crumble restore visuals.</summary>
+/// <summary>Installed, replaceable bomb and contact-crumble restore visuals, and the editable identities that name them.</summary>
 public static class RoomPlmLinkedRestoreVisualFiles
 {
     /// <summary>Family-relative JSON filename for the six bomb/contact-crumble horizontal, vertical, and square restoration layouts.</summary>
@@ -21,8 +22,7 @@ public static class RoomPlmLinkedRestoreVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Linked restore", RoomPlmLinkedRestoreDrawDefinitions.All,
-            LinkedRestorePlmDraws.VisualId);
+            VisualFileName, "Linked restore", All, VisualId);
 
     /// <summary>Validates the shared stock restoration artwork and selects an optional complete six-layout visual replacement.</summary>
     /// <param name="stockDirectory">Family directory with required stock JSON and version-one manifest.</param>
@@ -34,11 +34,59 @@ public static class RoomPlmLinkedRestoreVisualFiles
     public static InstalledRoomPlmLinkedRestoreVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<InstalledRoomPlmLinkedRestoreVisuals>(VisualFileName, "Linked restore", RoomPlmLinkedRestoreDrawDefinitions.All, LinkedRestorePlmDraws.VisualId, entries => new InstalledRoomPlmLinkedRestoreVisuals(entries.Select(entry =>
+            new RoomPlmVisualFamily<InstalledRoomPlmLinkedRestoreVisuals>(VisualFileName, "Linked restore", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
     /// <summary>Checks only installed stock restoration visuals through <see cref="Load"/>, without overrides, cartridge access, or writes.</summary>
     /// <param name="directory">Linked-restoration family directory with stock JSON and manifest.</param>
     /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
+
+    /// <summary>Validates all six linked restoration layouts and builds the visuals from the appearances that differ from the compiled layouts, without changing linked parent/child collision or restoration programs.</summary>
+    /// <param name="entries">One visual-only entry per compiled layout with two appearances per run and complete identity coverage.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
+    internal static InstalledRoomPlmLinkedRestoreVisuals Create(IEnumerable<RoomPlmVisualEntry> entries) =>
+        new(RoomPlmVisualOverrideReader.Flattened(entries, "Linked restoration", TryGetByVisualId, All.Count()));
+
+    /// <summary>The three bomb-block and three contact-crumble restoration layouts, bomb blocks first.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
+        LinkedRestorePlmFamily.Families.SelectMany(AllOf);
+
+    /// <summary>The horizontal, vertical and square restoration layouts of <paramref name="family"/>, in that order.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> AllOf(LinkedRestorePlmFamily family)
+    {
+        foreach (PlmDraw candidate in RestorationDraws())
+        {
+            if (family.TryDescribe(candidate, out LinkedRestorePlmFamily.Draw draw))
+                yield return Export(candidate, draw);
+        }
+    }
+
+    /// <summary>Builds the draw list of the restoration <paramref name="request"/>, whose shape is <paramref name="draw"/>.</summary>
+    internal static RoomPlmShotBlockDrawDefinitions.DrawList Export(PlmDraw request, LinkedRestorePlmFamily.Draw draw) =>
+        RoomPlmDrawListExport.Runs(request, draw.RunCount, static _ => 2, draw.BlockAt,
+            _ => draw.Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal,
+            static _ => 0, run => run + 1 < draw.RunCount ? 1 : 0);
+
+    /// <summary>Maps a restoration draw to its bomb or crumble artwork key and rejects other draws.</summary>
+    internal static string VisualId(PlmDraw draw) => draw switch
+    {
+        PlmFrameDraw<BombBlockRestoreDraw> { Frame: BombBlockRestoreDraw.Horizontal } => "bomb-horizontal",
+        PlmFrameDraw<BombBlockRestoreDraw> { Frame: BombBlockRestoreDraw.Vertical } => "bomb-vertical",
+        PlmFrameDraw<BombBlockRestoreDraw> { Frame: BombBlockRestoreDraw.Square } => "bomb-square",
+        PlmFrameDraw<ContactCrumbleRestoreDraw> { Frame: ContactCrumbleRestoreDraw.Horizontal } => "crumble-horizontal",
+        PlmFrameDraw<ContactCrumbleRestoreDraw> { Frame: ContactCrumbleRestoreDraw.Vertical } => "crumble-vertical",
+        PlmFrameDraw<ContactCrumbleRestoreDraw> { Frame: ContactCrumbleRestoreDraw.Square } => "crumble-square",
+        _ => throw new InvalidDataException($"{draw} is not a linked restoration draw."),
+    };
+
+    /// <summary>Finds the compiled restoration draw whose stable visual key equals the supplied identifier.</summary>
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmDrawListExport.FindByVisualId(All, VisualId, id, out list);
+
+    /// <summary>Every bomb-block and contact-crumble restoration draw, each family's in horizontal, vertical, square order.</summary>
+    private static IEnumerable<PlmDraw> RestorationDraws() =>
+        Enum.GetValues<BombBlockRestoreDraw>().Select(draw => (PlmDraw)PlmDraw.Of(draw))
+            .Concat(Enum.GetValues<ContactCrumbleRestoreDraw>().Select(draw => (PlmDraw)PlmDraw.Of(draw)));
 }

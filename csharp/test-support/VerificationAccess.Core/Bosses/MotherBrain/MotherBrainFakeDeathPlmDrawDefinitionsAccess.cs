@@ -1,4 +1,5 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Verification access to <see cref="MotherBrainFakeDeathDraws"/> members production does not use.</summary>
@@ -11,9 +12,9 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitionsAccess
         internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
         {
             // Native order: background, regular, then boundary draw families.
-            if (MotherBrainFakeDeathDraws.TryGetBackground(request, out draw)
-                || MotherBrainFakeDeathDraws.TryGetRegular(request, out draw)
-                || MotherBrainFakeDeathDraws.TryGetBoundary(request, out draw))
+            if (RoomPlmMotherBrainFakeDeathVisualFiles.TryGetBackground(request, out draw)
+                || RoomPlmMotherBrainFakeDeathVisualFiles.TryGetRegular(request, out draw)
+                || RoomPlmMotherBrainFakeDeathVisualFiles.TryGetBoundary(request, out draw))
                 return true;
             draw = default;
             return false;

@@ -78,7 +78,7 @@ public static class GameOptionsPageCells
         if ((uint)index >= GameOptionsDefinitions.LanguagePaletteRegionCount) throw new ArgumentOutOfRangeException(nameof(index));
         int language = index / 2;
         int row = index % 2;
-        int rowBytes = GameOptionsDefinitions.MenuTilemapWidth * sizeof(ushort);
+        int rowBytes = GameOptionsPageDefinitions.MenuTilemapWidth * sizeof(ushort);
         return new(LanguageRegions.FirstByteOffset + rowBytes * (row + LanguageRegions.LanguageRowSpacing * language),
             language == 0 ? LanguageRegions.EnglishByteCount : LanguageRegions.JapaneseByteCount,
             HighlightWhenJapanese: language != 0);
@@ -109,7 +109,7 @@ public static class GameOptionsPageCells
     public static GameOptionsToggleLayout ToggleLayout(int setting)
     {
         if ((uint)setting >= (uint)SpecialRowIndex(GameOptionsSpecialRow.Exit)) throw new ArgumentOutOfRangeException(nameof(setting));
-        int rowStride = GameOptionsDefinitions.MenuTilemapWidth * sizeof(ushort);
+        int rowStride = GameOptionsPageDefinitions.MenuTilemapWidth * sizeof(ushort);
         int origin = SpecialToggles.FirstByteOffset + SpecialToggles.SettingRowSpacing * rowStride * setting;
         int choiceStride = SpecialToggles.ChoiceCellSpacing * sizeof(ushort);
         return new(origin, origin + rowStride, origin + choiceStride, origin + rowStride + choiceStride);

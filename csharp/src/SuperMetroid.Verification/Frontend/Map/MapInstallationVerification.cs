@@ -9,7 +9,6 @@ using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Security.Cryptography;
-using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Samus.Artwork;
@@ -248,7 +247,7 @@ internal static class MapInstallationVerification
         File.WriteAllText(gameOverOverride, gameOver.ToJsonString());
         string gameOptionsOverride = Path.Combine(installation.MapOverrideDirectory, GameOptionsPresentationFormat.FileName);
         var gameOptions = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameOptionsPresentationFormat.FileName)));
-        gameOptions.Required("cursorAnchors").Required(GameOptionsNames.MenuName(GameOptionsPage.Primary)).Required(0)["x"] = 32;
+        gameOptions.Required("cursorAnchors").Required(GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)).Required(0)["x"] = 32;
         File.WriteAllText(gameOptionsOverride, gameOptions.ToJsonString());
         string fileSelectOverride = Path.Combine(installation.MapOverrideDirectory, FileSelectPresentationFormat.FileName);
         var fileSelect = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, FileSelectPresentationFormat.FileName)));

@@ -48,10 +48,10 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
         GameOptionsSprites sprites, string contentIdentity)
         : base(new GameOptionsPlacements
         {
-            HeadingAnchors = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(
-                page => page, page => document.HeadingAnchors[GameOptionsNames.MenuName(page)]),
-            CursorAnchors = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(
-                page => page, page => document.CursorAnchors[GameOptionsNames.MenuName(page)]),
+            HeadingAnchors = GameOptionsPresentationFormat.MenuPages.ToDictionary(
+                page => page, page => document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(page)]),
+            CursorAnchors = GameOptionsPresentationFormat.MenuPages.ToDictionary(
+                page => page, page => document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)]),
             HiddenCursor = document.HiddenCursor,
             CursorFrameDuration = document.CursorFrameDuration,
         })
@@ -121,7 +121,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
         Position16<TilemapCells> anchor = controllerLabelAnchors?[action] ?? GameOptionsPageCells.ControllerAnchor(action);
         for (int row = 0; row < GameOptionsPageDefinitions.ControllerLabelHeight; row++)
         for (int column = 0; column < GameOptionsPageDefinitions.ControllerLabelWidth; column++)
-            yield return new GameOptionsLabelCell((anchor.Y + row) * GameOptionsDefinitions.MenuTilemapWidth + anchor.X + column,
+            yield return new GameOptionsLabelCell((anchor.Y + row) * GameOptionsPageDefinitions.MenuTilemapWidth + anchor.X + column,
                 row * GameOptionsPageDefinitions.ControllerLabelWidth + column);
     }
 
@@ -151,7 +151,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     /// </summary>
     internal IEnumerable<ScreenPictureSubject> Subjects()
     {
-        int width = GameOptionsDefinitions.MenuTilemapWidth;
+        int width = GameOptionsPageDefinitions.MenuTilemapWidth;
         yield return ScreenPictureSubject.Page(GameOptionsNames.BackgroundFrame, background, width);
         foreach (GameOptionsScreen tilemap in GameOptionsPresentationFormat.Tilemaps)
             yield return ScreenPictureSubject.Page(GameOptionsNames.PageFrame(tilemap), pages[tilemap], width, DynamicCells(tilemap));
@@ -233,10 +233,10 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
             [.. GameOptionsPresentationFormat.Toggles.Select(GameOptionsNames.ToggleName)],
             "options special toggles");
         ValidateExactKeys(document.Sprites,
-            [.. GameOptionsPresentationDefinitions.MenuPages.Select(GameOptionsNames.HeadingSpriteName),
+            [.. GameOptionsPresentationFormat.MenuPages.Select(GameOptionsNames.HeadingSpriteName),
                 .. Enumerable.Range(0, GameOptionsPresentationFormat.CursorFrameCount).Select(GameOptionsNames.CursorSpriteName)],
             "options sprites");
-        string[] menuNames = [.. GameOptionsPresentationDefinitions.MenuPages.Select(GameOptionsNames.MenuName)];
+        string[] menuNames = [.. GameOptionsPresentationFormat.MenuPages.Select(GameOptionsPresentationFormat.MenuName)];
         ValidateExactKeys(document.HeadingAnchors, menuNames, "options heading anchors");
         ValidateExactKeys(document.CursorAnchors, menuNames, "options cursor anchors");
         if (document.ControllerLabelAnchors is null ||
@@ -288,15 +288,15 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
             ValidateCellSet(toggle.DisabledCells, claimed, $"{name} disabled");
         }
 
-        var headingSprites = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(page => page,
+        var headingSprites = GameOptionsPresentationFormat.MenuPages.ToDictionary(page => page,
             page => MenuHeadingBorder.CalculateIfMatching(Ensure.Listed(GameOptionsSpriteDefinitions.Headings, page),
                 MenuBorderParts.CalculateIfMatching(CompileSprite(document, GameOptionsNames.HeadingSpriteName(page)))));
         SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, GameOptionsPresentationFormat.CursorFrameCount)
             .Select(frame => MenuCursorParts.CalculateIfMatching(frame,
                 CompileSprite(document, GameOptionsNames.CursorSpriteName(frame))))];
-        foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
+        foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
         {
-            string name = GameOptionsNames.MenuName(page);
+            string name = GameOptionsPresentationFormat.MenuName(page);
             ValidatePoint(document.HeadingAnchors[name], $"{name} heading", offscreenX: OffscreenX.Rejected);
             int expected = GameOptionsNames.CursorCount(page);
             Position16<SpritePixels>[]? points = document.CursorAnchors[name];
@@ -390,8 +390,8 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     private static void ValidateTilePoint(Position16<TilemapCells> point, string owner, Extent16<TilemapCells> size)
     {
         if (point.X < 0 || point.Y < 0 ||
-            point.X + size.X > GameOptionsDefinitions.MenuTilemapWidth ||
-            point.Y + size.Y > GameOptionsDefinitions.MenuTilemapHeight)
+            point.X + size.X > GameOptionsPageDefinitions.MenuTilemapWidth ||
+            point.Y + size.Y > GameOptionsPageDefinitions.MenuTilemapHeight)
             throw new InvalidDataException($"Options {owner} escapes the 32x32 page.");
     }
 

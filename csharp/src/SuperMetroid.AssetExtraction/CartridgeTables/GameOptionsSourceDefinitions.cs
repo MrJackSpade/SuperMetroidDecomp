@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -14,7 +15,7 @@ internal static class GameOptionsSourceDefinitions
 {
     /// <summary>Bytes of one stored options page: its tilemap of two-byte cells.</summary>
     internal const int TilemapByteCount =
-        GameOptionsDefinitions.MenuTilemapWidth * GameOptionsDefinitions.MenuTilemapHeight * sizeof(ushort);
+        GameOptionsPageDefinitions.MenuTilemapWidth * GameOptionsPageDefinitions.MenuTilemapHeight * sizeof(ushort);
 
     /// <summary>Bank $82, in which the options screen's sixteen-bit label pointers resolve.</summary>
     internal const int MenuBank = 0x820000;

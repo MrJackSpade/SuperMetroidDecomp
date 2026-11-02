@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Frontend.Options;
 
@@ -16,11 +17,25 @@ public static class GameOptionsPresentationFormat
     public static IReadOnlyList<GameOptionsScreen> Tilemaps { get; } = Enum.GetValues<GameOptionsScreen>();
     /// <summary>The two special settings, icon cancel then moonwalk.</summary>
     public static IReadOnlyList<GameOptionsToggle> Toggles { get; } = Enum.GetValues<GameOptionsToggle>();
+    /// <summary>The three menu layouts headings and cursors are anchored by, in primary, controller and special order.</summary>
+    public static IReadOnlyList<GameOptionsPage> MenuPages { get; } = Enum.GetValues<GameOptionsPage>();
     /// <summary>The missile cursor's looping animation frames.</summary>
     public const int CursorFrameCount = 4;
 
+    /// <summary>The JSON name of each menu layout, which keys its heading and cursor anchors.</summary>
+    private static readonly IReadOnlyDictionary<GameOptionsPage, string> MenuNames =
+        new Dictionary<GameOptionsPage, string>
+        {
+            [GameOptionsPage.Primary] = "Primary",
+            [GameOptionsPage.Controller] = "Controller",
+            [GameOptionsPage.Special] = "Special",
+        };
+
+    /// <summary>The JSON name of a menu layout, which keys its heading and cursor anchors.</summary>
+    public static string MenuName(GameOptionsPage page) => Ensure.Listed(MenuNames, page);
+
     /// <summary>Every frame of the options sheet: each page's heading, then each cursor frame.</summary>
     public static IEnumerable<string> SheetFrames =>
-        GameOptionsPresentationDefinitions.MenuPages.Select(GameOptionsNames.HeadingSpriteName)
+        MenuPages.Select(GameOptionsNames.HeadingSpriteName)
             .Concat(Enumerable.Range(0, CursorFrameCount).Select(GameOptionsNames.CursorSpriteName));
 }

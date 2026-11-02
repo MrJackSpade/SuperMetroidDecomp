@@ -75,12 +75,12 @@ internal static class GameOptionsPresentationVerification
 
         var document = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
             extracted, ArtworkJson.Options);
-        document.HeadingAnchors[GameOptionsNames.MenuName(GameOptionsPage.Primary)] =
-            document.HeadingAnchors[GameOptionsNames.MenuName(GameOptionsPage.Primary)] with
-            { X = (ushort)(document.HeadingAnchors[GameOptionsNames.MenuName(GameOptionsPage.Primary)].X + 8) };
-        document.CursorAnchors[GameOptionsNames.MenuName(GameOptionsPage.Primary)][0] =
-            document.CursorAnchors[GameOptionsNames.MenuName(GameOptionsPage.Primary)][0] with
-            { X = (ushort)(document.CursorAnchors[GameOptionsNames.MenuName(GameOptionsPage.Primary)][0].X + 8) };
+        document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] =
+            document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] with
+            { X = (ushort)(document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)].X + 8) };
+        document.CursorAnchors[GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)][0] =
+            document.CursorAnchors[GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)][0] with
+            { X = (ushort)(document.CursorAnchors[GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)][0].X + 8) };
         MapPresentationCell pageCell = document.Pages[
             GameOptionsNames.TilemapName(GameOptionsScreen.Primary)][0x144];
         document.Pages[GameOptionsNames.TilemapName(GameOptionsScreen.Primary)][0x144] =

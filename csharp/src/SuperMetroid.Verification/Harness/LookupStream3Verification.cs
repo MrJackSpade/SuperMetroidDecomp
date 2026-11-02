@@ -277,7 +277,7 @@ internal static class LookupStream3Verification
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = GameOptionsSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
-            string anchorKey = GameOptionsNames.MenuName(page);
+            string anchorKey = GameOptionsPresentationFormat.MenuName(page);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             presentation.DrawHeading(actualOam, MenuSheetFixtures.GameOptions(presentation), page, 3);
@@ -863,15 +863,15 @@ internal static class LookupStream3Verification
                 presentation.ApplyControllerLabel(actual, action, button);
                 AssertTrue(actual.SequenceEqual(expected), "options controller boxes preserve exact stock/edited placement");
             }
-            foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
+            foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
-                Position16<SpritePixels>[] cursors = document.CursorAnchors[GameOptionsNames.MenuName(page)];
+                Position16<SpritePixels>[] cursors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
                 for (int row = 0; row < cursors.Length; row++)
                     AssertEqual(cursors[row], presentation.CursorPosition(page, row), "options stock/edited cursor");
             }
-            foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
+            foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
-                Position16<SpritePixels> heading = document.HeadingAnchors[GameOptionsNames.MenuName(page)];
+                Position16<SpritePixels> heading = document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(page)];
                 var actual = ScreenSpritesFixtures.Blank();
                 var expected = new OamBuffer();
                 presentation.DrawHeading(actual, MenuSheetFixtures.GameOptions(presentation), page, 3);

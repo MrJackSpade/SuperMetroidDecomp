@@ -24,12 +24,6 @@ public readonly record struct PartColourGroup
     internal static ImmutableArray<PartColourGroup> Every { get; } =
         [.. Enumerable.Range(0, Codes).Select(code => new PartColourGroup(code))];
 
-    /// <summary>A part of colour group <paramref name="group"/> that follows its draw's colouring.</summary>
-    internal static PartColourGroup Following(ImageColourGroup group) => Every[group.Number];
-
-    /// <summary>A part of colour group <paramref name="group"/> that keeps its own colours under any drawn colouring.</summary>
-    internal static PartColourGroup Keeping(ImageColourGroup group) => Every[group.Number + ImageColourGroup.Count];
-
     /// <summary>Whether the installed image may store <paramref name="code"/> for a pixel's part group.</summary>
     internal static bool IsCode(int code) => code is >= 0 and < Codes;
 

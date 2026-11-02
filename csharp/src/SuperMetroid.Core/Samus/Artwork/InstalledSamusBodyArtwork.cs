@@ -83,18 +83,6 @@ public abstract class InstalledSamusBodyArtwork
         ArmCannon = content.ArmCannon;
     }
 
-    /// <summary>Gets the resolved signed art-origin offset for every pose.</summary>
-    public ReadOnlySpan<int> GraphicsYOffsets => graphicsYOffsetsTable ??= Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset(SamusPoseNumbering.FromNumber(index))).ToArray();
-    /// <summary>The materialized <see cref="GraphicsYOffsets"/>; the installed tables never change after construction.</summary>
-    private int[]? graphicsYOffsetsTable;
-    /// <summary>The landing table: four bytes for each landing pose.</summary>
-    public ReadOnlySpan<int> LandingYOffsets => landingYOffsetsTable ??= Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount).Select(LandingByte).ToArray();
-    /// <summary>The materialized <see cref="LandingYOffsets"/>; the installed tables never change after construction.</summary>
-    private int[]? landingYOffsetsTable;
-    /// <summary>Gets the installed posture-transition vertical-offset table.</summary>
-    public ReadOnlySpan<sbyte> PostureYOffsets => postureYOffsets;
-    /// <summary>Gets the installed drained-state vertical-offset table.</summary>
-    public ReadOnlySpan<sbyte> DrainedYOffsets => drainedYOffsets;
     /// <summary>Resolves an edited landing byte or its shared-source alias.</summary>
     private int LandingByte(int index) => landingYOffsets.ContainsKey(index)
         ? landingYOffsets[index] : SamusBodyPlacements.LandingSourceIndex(index) == index

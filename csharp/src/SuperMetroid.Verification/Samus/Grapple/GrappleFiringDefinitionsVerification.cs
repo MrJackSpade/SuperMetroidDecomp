@@ -42,10 +42,10 @@ internal static class GrappleFiringDefinitionsVerification
         var editedFlare = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(
             ChargeFlarePlacementFile.WriteGrapple(new()
             {
-                Version = ChargeFlarePlacementDefinitions.Version,
+                Version = ChargeFlarePlacementFile.Version,
                 Offsets = RunningStates.SelectMany(running => Enumerable.Range(0, ChargeFlarePlacementDefinitions.DirectionCount)
                     .Select(direction => new EditedFlare(running, direction))).ToDictionary(
-                        entry => ChargeFlarePlacementOffsets.Key(entry.Running, entry.Direction),
+                        entry => ChargeFlarePlacementFile.Key(entry.Running, entry.Direction),
                         _ => new ChargeFlareOffset { X = 0x55aa, Y = 0x55aa }),
             })));
         // Exercise each compiled movement family with a real pose instead of rewriting

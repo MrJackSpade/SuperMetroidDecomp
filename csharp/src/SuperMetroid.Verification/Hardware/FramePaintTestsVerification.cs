@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;

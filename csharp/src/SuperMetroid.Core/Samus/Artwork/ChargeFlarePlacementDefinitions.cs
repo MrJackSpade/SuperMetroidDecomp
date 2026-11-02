@@ -8,13 +8,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </summary>
 public static class ChargeFlarePlacementDefinitions
 {
-    /// <summary>
-    /// Required revision of the beam and Grapple placement schemas. Revision two holds the ten named directions of each
-    /// movement mode and the beam flare's three turning placements; revision one also held the selections past them,
-    /// which no pose produces (#1500).
-    /// </summary>
-    public const int Version = 2;
-
     /// <summary>The ten named aiming directions each movement mode places the flare for.</summary>
     public const int DirectionCount = SamusFiringTableDefinitions.DirectionCount;
 

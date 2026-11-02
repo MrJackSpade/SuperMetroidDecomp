@@ -315,7 +315,7 @@ internal static class ProjectileCompositionsVerification
         string paletteStock = Path.Combine(installation.ProjectileDirectory, BeamPaletteFile.FileName);
         string paletteOverride = Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteFile.FileName);
         var paletteDocument = RequiredJson.Parse(File.ReadAllText(paletteStock));
-        var red = paletteDocument.Required("palettes").Required(BeamPaletteSources.Key(0)).Required(0);
+        var red = paletteDocument.Required("palettes").Required(BeamPaletteFile.Key(0)).Required(0);
         red["red"] = red.Required("red").GetValue<int>() ^ 1;
         File.WriteAllText(paletteOverride, paletteDocument.ToJsonString());
         var paletteEdited = installation.LoadProjectiles();
@@ -391,7 +391,7 @@ internal static class ProjectileCompositionsVerification
         string flareStock = Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementExtractor.FileName);
         string flareOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementExtractor.FileName);
         var flareDocument = RequiredJson.Parse(File.ReadAllText(flareStock));
-        flareDocument.Required("offsets").Required(ChargeFlarePlacementOffsets.Key(false, 0))["x"] = 17;
+        flareDocument.Required("offsets").Required(ChargeFlarePlacementFile.Key(false, 0))["x"] = 17;
         File.WriteAllText(flareOverride, flareDocument.ToJsonString());
         var flareEdited = installation.LoadProjectiles();
         AssertTrue(flareEdited.SelectedSha256 != pngEdited.SelectedSha256, "Flare-only edit changes content identity");
@@ -467,7 +467,7 @@ internal static class ProjectileCompositionsVerification
         string grappleFlareStock = Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName);
         string grappleFlareOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleFlarePlacementDefinitions.FileName);
         var grappleFlare = RequiredJson.Parse(File.ReadAllText(grappleFlareStock));
-        grappleFlare.Required("offsets").Required(ChargeFlarePlacementOffsets.Key(false, 0))["x"] = 17;
+        grappleFlare.Required("offsets").Required(ChargeFlarePlacementFile.Key(false, 0))["x"] = 17;
         File.WriteAllText(grappleFlareOverride, grappleFlare.ToJsonString());
         var grappleFlareEdited = installation.LoadProjectiles();
         AssertTrue(grappleFlareEdited.SelectedSha256 != styleEdited.SelectedSha256, "Grapple flare-only edit changes content identity");

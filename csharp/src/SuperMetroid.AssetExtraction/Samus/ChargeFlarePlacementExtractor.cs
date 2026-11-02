@@ -21,12 +21,12 @@ public static class ChargeFlarePlacementExtractor
         {
             int x = running ? SamusSourceDefinitions.ChargeFlareRunningXOffsets.Value : SamusSourceDefinitions.ChargeFlareDefaultXOffsets.Value;
             int y = running ? SamusSourceDefinitions.ChargeFlareRunningYOffsets.Value : SamusSourceDefinitions.ChargeFlareDefaultYOffsets.Value;
-            offsets.Add(ChargeFlarePlacementOffsets.Key(running, direction), new()
+            offsets.Add(ChargeFlarePlacementFile.Key(running, direction), new()
             {
                 X = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), x + direction * 2)),
                 Y = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), y + direction * 2)),
             });
         }
-        return ChargeFlarePlacementFile.Write(new() { Version = ChargeFlarePlacementDefinitions.Version, Offsets = offsets });
+        return ChargeFlarePlacementFile.Write(new() { Version = ChargeFlarePlacementFile.Version, Offsets = offsets });
     }
 }

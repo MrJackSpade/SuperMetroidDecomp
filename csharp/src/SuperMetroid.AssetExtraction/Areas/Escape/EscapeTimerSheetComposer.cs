@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -21,7 +20,7 @@ internal static class EscapeTimerSheetComposer
     internal static ComposedSpriteSheet Compose(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        EscapeTimerTileAtlas tiles = EscapeTimerCharacters.Read(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(bus), writable: false));
+        EscapeTimerCharacters tiles = EscapeTimerCharacters.Read(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(bus), writable: false));
         var frames = new List<SheetFrameSource>();
         foreach (EscapeTimerGlyph glyph in EscapeTimerPresentationDefinitions.Glyphs)
         {
@@ -32,7 +31,7 @@ internal static class EscapeTimerSheetComposer
                     EscapeTimerComposition.DigitValue(glyph) * EscapeSourceDefinitions.TimerDigitSpritemapStride);
             frames.Add(new(name, new SpriteFrame(name, ReadSpritemap(bus, spritemap)), tiles.Artwork));
         }
-        return SpriteSheetComposer.Compose(new SpriteSheetSources(frames, GameplayBasePaletteFiles.RoomLoadSpriteColours(bus), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection)), PaletteRow, 0);
+        return SpriteSheetComposer.Compose(new SpriteSheetSources(frames, GameplayBasePaletteFiles.RoomLoadSpriteColours(bus), ObjectSelectionCodec.GameplaySizes), PaletteRow, 0);
     }
 
     /// <summary>Reads one timer spritemap's parts, with characters counted from the timer artwork's first.</summary>

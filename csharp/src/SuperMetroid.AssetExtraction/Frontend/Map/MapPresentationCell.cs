@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Editable artwork and display attributes for one map cell; these fields compile to a packed tile word but do not define exploration or map-station rules.</summary>
 public sealed record MapPresentationCell

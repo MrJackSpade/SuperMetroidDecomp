@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;

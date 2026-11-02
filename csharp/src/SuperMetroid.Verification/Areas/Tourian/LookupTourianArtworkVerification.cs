@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Areas.Tourian;
@@ -65,7 +65,7 @@ internal static class LookupTourianArtworkVerification
                 throw new InvalidOperationException("Verification requires definition.");
             int[] native = [.. OriginalTourianFrames(rom, header).Select(frame => frame.Source)];
             AssertEqual(9, native.Length, "Nine original timed statue frames");
-            int[] produced = [.. TourianStatueTileStripDefinitions.Pictures.Select(picture =>
+            int[] produced = [.. RoomFxAnimatedTilePictures.TourianStatuePictures.Select(picture =>
                 AnimatedTileImageSources.TourianStatue(resolved.AnimatedObject, picture))];
             AssertEqual(produced.Length, produced.Distinct().Count(), "Each statue picture is its own artwork window");
             AssertTrue(native.ToHashSet().SetEquals(produced),

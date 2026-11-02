@@ -41,7 +41,7 @@ internal static class GrappleFlarePlacementVerification
             int y = running ? SamusSourceDefinitions.GrappleRunningFlareY.Value : SamusSourceDefinitions.GrappleDefaultFlareY.Value;
             AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), x + direction * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");
             AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), y + direction * 2)), offset.Y, "Extracted Grapple flare Y including adjacent rows");
-            var editedOffset = document.Required("offsets").Required(ChargeFlarePlacementOffsets.Key(running, direction));
+            var editedOffset = document.Required("offsets").Required(ChargeFlarePlacementFile.Key(running, direction));
             editedOffset["x"] = unchecked((short)(offset.X + 7));
             editedOffset["y"] = unchecked((short)(offset.Y - 9));
         }

@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Frontend.Options.GameOptionsCursorPhasesV
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;

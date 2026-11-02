@@ -19,13 +19,4 @@ public static class BeamPaletteSources
     /// <summary>Power/Wave/Plasma/Spazer slots9..14 are black; Ice uses independent colored entries.</summary>
     internal static bool IsBlackSlot(SamusBeamCombination selection, int color) =>
         !selection.HasIce && color is >= 9 and <= 14;
-
-    /// <summary>Returns the canonical JSON key for an ordinary beam combination using its uppercase two-digit hexadecimal selection index.</summary>
-    /// <param name="selection">Retail beam combination; simultaneous Spazer/Plasma selections are outside this catalog.</param>
-    /// <returns>A key from <c>beam-00</c> through <c>beam-0B</c>.</returns>
-    public static string Key(SamusBeamCombination selection)
-    {
-        if (!selection.IsRetail) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
-        return $"beam-{selection.TableIndex:X2}";
-    }
 }

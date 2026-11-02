@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// Immutable map content snapshot. Overrides never alter stock provenance or exploration rules. The import reads it with
 /// the characters its screens and the HUD are pictured from, which the game never reads (#1466).
 /// </summary>
-public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentationContent
+public class AreaMapPresentation : IGameplayPresentationContent
 {
     /// <summary>One validated map view per retail area in area-ID order.</summary>
     private readonly IAreaMapView[] areas;

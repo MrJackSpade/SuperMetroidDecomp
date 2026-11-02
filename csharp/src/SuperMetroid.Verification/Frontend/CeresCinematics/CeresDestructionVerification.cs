@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;

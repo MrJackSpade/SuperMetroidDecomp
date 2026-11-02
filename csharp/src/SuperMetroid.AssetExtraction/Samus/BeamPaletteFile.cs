@@ -26,6 +26,16 @@ public static class BeamPaletteFile
     /// <summary>Asset filename for the ordinary beam-combination RGB5 palettes.</summary>
     public const string FileName = "beam-palettes.json";
 
+    /// <summary>Returns the canonical JSON key for an ordinary beam combination using its uppercase two-digit hexadecimal selection index.</summary>
+    /// <param name="selection">Retail beam combination; simultaneous Spazer/Plasma selections are outside this catalog.</param>
+    /// <returns>A key from <c>beam-00</c> through <c>beam-0B</c>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The selection is not a retail combination.</exception>
+    public static string Key(SamusBeamCombination selection)
+    {
+        if (!selection.IsRetail) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
+        return $"beam-{selection.TableIndex:X2}";
+    }
+
     /// <summary>Strict camel-case JSON settings shared by beam palette loading and writing.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -54,7 +64,7 @@ public static class BeamPaletteFile
         var compiled = new RgbColor[BeamTileAtlasDefinitions.SelectionCount][];
         for (int selection = 0; selection < compiled.Length; selection++)
         {
-            if (!document.Palettes.TryGetValue(BeamPaletteSources.Key(SamusBeamCombinations.FromTableIndex(selection)), out var colors) ||
+            if (!document.Palettes.TryGetValue(BeamPaletteFile.Key(SamusBeamCombinations.FromTableIndex(selection)), out var colors) ||
                 colors is null || colors.Length != BeamPaletteDefinitions.ColorCount)
                 throw new InvalidDataException($"Missing or incomplete beam palette {selection}.");
             compiled[selection] = new RgbColor[colors.Length];

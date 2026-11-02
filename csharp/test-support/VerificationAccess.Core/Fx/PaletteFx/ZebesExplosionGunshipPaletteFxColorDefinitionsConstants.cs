@@ -13,7 +13,7 @@ internal static class ZebesExplosionGunshipPaletteFxColorDefinitionsConstants
     extension(ZebesExplosionGunshipPaletteFxColorDefinitions)
     {
         /// <summary>The complete gunship reveal lasts 384 frames.</summary>
-        internal static int CycleFrames => ZebesExplosionGunshipPaletteFxColorDefinitions.FrameCount * ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.FrameDuration;
+        internal static int CycleFrames => ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames.FrameCount * ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.FrameDuration;
         /// <inheritdoc cref="ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.DefinitionPointer"/>
         internal static ushort DefinitionPointer => ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.DefinitionPointer;
     }

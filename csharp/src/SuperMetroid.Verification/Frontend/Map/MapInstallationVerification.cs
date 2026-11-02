@@ -69,7 +69,7 @@ internal static class MapInstallationVerification
             IndexedPng.Write(output, new(beamImage.Size.X, beamImage.Size.Y), beamImage.Pixels, beamImage.Colours);
         string beamPaletteOverride = Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteFile.FileName);
         var beamColors = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, BeamPaletteFile.FileName)));
-        beamColors.Required("palettes").Required(BeamPaletteSources.Key(0)).Required(0)["red"] = 17;
+        beamColors.Required("palettes").Required(BeamPaletteFile.Key(0)).Required(0)["red"] = 17;
         File.WriteAllText(beamPaletteOverride, beamColors.ToJsonString());
         string trailOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailVisualDefinitions.FileName);
         var trailDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName)));
@@ -86,7 +86,7 @@ internal static class MapInstallationVerification
         var projectileEdited = installation.LoadProjectiles();
         string flareOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementExtractor.FileName);
         var flareDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementExtractor.FileName)));
-        flareDocument.Required("offsets").Required(ChargeFlarePlacementOffsets.Key(false, 0))["x"] = 17;
+        flareDocument.Required("offsets").Required(ChargeFlarePlacementFile.Key(false, 0))["x"] = 17;
         File.WriteAllText(flareOverride, flareDocument.ToJsonString());
         string flareCompositionOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteExtractor.FileName);
         var flareComposition = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteExtractor.FileName)));
@@ -105,7 +105,7 @@ internal static class MapInstallationVerification
         grappleStyle.Required("endpoint")["palette"] = 4;
         File.WriteAllText(grappleStyleOverride, grappleStyle.ToJsonString());
         var grappleFlare = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName)));
-        grappleFlare.Required("offsets").Required(ChargeFlarePlacementOffsets.Key(false, 0))["x"] = 17;
+        grappleFlare.Required("offsets").Required(ChargeFlarePlacementFile.Key(false, 0))["x"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleFlarePlacementDefinitions.FileName), grappleFlare.ToJsonString());
         var grappleSwing = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameExtractor.FileName)));
         grappleSwing.Required("frames")[0] = 17;
@@ -119,13 +119,13 @@ internal static class MapInstallationVerification
         colors.Required("pause").Required(0)["red"] = (oldRed + 1) % 32;
         File.WriteAllText(paletteOverride, colors.ToJsonString());
         string roomFxArtworkOverride = Path.Combine(installation.MapOverrideDirectory,
-            RoomFxAnimatedTileAtlasFormat.FileName);
+            RoomFxAnimatedTileAtlasFile.FileName);
         using (var input = File.OpenRead(Path.Combine(installation.MapDirectory,
-                   RoomFxAnimatedTileAtlasFormat.FileName)))
+                   RoomFxAnimatedTileAtlasFile.FileName)))
         {
             IndexedPngImage image = IndexedPng.Read(input,
-                new(RoomFxAnimatedTileAtlasFormat.Width, RoomFxAnimatedTileAtlasFormat.Height));
-            image.Pixels[0] = (byte)((image.Pixels[0] + 1) % RoomFxAnimatedTileAtlasFormat.ColorCount);
+                new(RoomFxAnimatedTileAtlasFile.Width, RoomFxAnimatedTileAtlasFile.Height));
+            image.Pixels[0] = (byte)((image.Pixels[0] + 1) % RoomFxAnimatedTileAtlasFile.ColorCount);
             using var output = File.Create(roomFxArtworkOverride);
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         }

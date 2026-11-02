@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Artwork;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Owned artwork fixtures for draws whose geometry and bindings a test checks, not their pixels.</summary>

@@ -100,21 +100,21 @@ internal static class RoomFxAnimatedTileArtworkVerification
     internal static void VerifyRoomFxAnimatedTileArtworkOverride(ISnesAddressSpace rom,
         string stock, string overrides, AreaMapPresentation baseline)
     {
-        string file = Path.Combine(overrides, RoomFxAnimatedTileAtlasFormat.FileName);
-        byte[] source = File.ReadAllBytes(Path.Combine(stock, RoomFxAnimatedTileAtlasFormat.FileName));
+        string file = Path.Combine(overrides, RoomFxAnimatedTileAtlasFile.FileName);
+        byte[] source = File.ReadAllBytes(Path.Combine(stock, RoomFxAnimatedTileAtlasFile.FileName));
         IndexedPngImage image = IndexedPng.Read(new MemoryStream(source),
-            new(RoomFxAnimatedTileAtlasFormat.Width, RoomFxAnimatedTileAtlasFormat.Height));
+            new(RoomFxAnimatedTileAtlasFile.Width, RoomFxAnimatedTileAtlasFile.Height));
         byte[] editedPixels = image.Pixels.ToArray();
-        editedPixels[0] = (byte)((editedPixels[0] + 1) % RoomFxAnimatedTileAtlasFormat.ColorCount);
-        editedPixels[RoomFxAnimatedTileAtlasFormat.LegacyWidth] = (byte)(
-            (editedPixels[RoomFxAnimatedTileAtlasFormat.LegacyWidth] + 1) %
-            RoomFxAnimatedTileAtlasFormat.ColorCount);
-        editedPixels[RoomFxAnimatedTileAtlasFormat.PreStatueWidth] = (byte)(
-            (editedPixels[RoomFxAnimatedTileAtlasFormat.PreStatueWidth] + 1) %
-            RoomFxAnimatedTileAtlasFormat.ColorCount);
+        editedPixels[0] = (byte)((editedPixels[0] + 1) % RoomFxAnimatedTileAtlasFile.ColorCount);
+        editedPixels[RoomFxAnimatedTileAtlasFile.LegacyWidth] = (byte)(
+            (editedPixels[RoomFxAnimatedTileAtlasFile.LegacyWidth] + 1) %
+            RoomFxAnimatedTileAtlasFile.ColorCount);
+        editedPixels[RoomFxAnimatedTileAtlasFile.PreStatueWidth] = (byte)(
+            (editedPixels[RoomFxAnimatedTileAtlasFile.PreStatueWidth] + 1) %
+            RoomFxAnimatedTileAtlasFile.ColorCount);
         using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), editedPixels,
-                SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
+                SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFile.ColorCount));
         AreaMapPresentation changed = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(changed.ContentIdentity != baseline.ContentIdentity,
             "room-FX PNG edit changes installed content identity");
@@ -171,17 +171,17 @@ internal static class RoomFxAnimatedTileArtworkVerification
         // The immediately preceding 97-character format keeps its edits and
         // inherits only the newly added Tourian statue strip from current stock.
         byte[] preStatuePixels = new byte[
-            RoomFxAnimatedTileAtlasFormat.PreStatueWidth * RoomFxAnimatedTileAtlasFormat.Height];
-        for (int row = 0; row < RoomFxAnimatedTileAtlasFormat.Height; row++)
-            image.Pixels.AsSpan(row * RoomFxAnimatedTileAtlasFormat.Width,
-                    RoomFxAnimatedTileAtlasFormat.PreStatueWidth)
-                .CopyTo(preStatuePixels.AsSpan(row * RoomFxAnimatedTileAtlasFormat.PreStatueWidth,
-                    RoomFxAnimatedTileAtlasFormat.PreStatueWidth));
+            RoomFxAnimatedTileAtlasFile.PreStatueWidth * RoomFxAnimatedTileAtlasFile.Height];
+        for (int row = 0; row < RoomFxAnimatedTileAtlasFile.Height; row++)
+            image.Pixels.AsSpan(row * RoomFxAnimatedTileAtlasFile.Width,
+                    RoomFxAnimatedTileAtlasFile.PreStatueWidth)
+                .CopyTo(preStatuePixels.AsSpan(row * RoomFxAnimatedTileAtlasFile.PreStatueWidth,
+                    RoomFxAnimatedTileAtlasFile.PreStatueWidth));
         preStatuePixels[0] = (byte)((preStatuePixels[0] + 1) %
-            RoomFxAnimatedTileAtlasFormat.ColorCount);
+            RoomFxAnimatedTileAtlasFile.ColorCount);
         using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
-            IndexedPng.Write(output, new(RoomFxAnimatedTileAtlasFormat.PreStatueWidth, RoomFxAnimatedTileAtlasFormat.Height), preStatuePixels,
-                SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
+            IndexedPng.Write(output, new(RoomFxAnimatedTileAtlasFile.PreStatueWidth, RoomFxAnimatedTileAtlasFile.Height), preStatuePixels,
+                SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFile.ColorCount));
         AreaMapPresentation migratedPreStatue =
             MapPresentationFiles.Load(stock, overrides);
         AssertTrue(migratedPreStatue.RoomFxAnimatedTiles.TryResolve(sourceAddress, 0x40,
@@ -197,17 +197,17 @@ internal static class RoomFxAnimatedTileArtworkVerification
         // A pre-treadmill 89-character override must keep its original edits after an
         // update, with only the newly added four frames inherited from checked stock.
         byte[] legacyPixels = new byte[
-            RoomFxAnimatedTileAtlasFormat.LegacyWidth * RoomFxAnimatedTileAtlasFormat.Height];
-        for (int row = 0; row < RoomFxAnimatedTileAtlasFormat.Height; row++)
-            image.Pixels.AsSpan(row * RoomFxAnimatedTileAtlasFormat.Width,
-                    RoomFxAnimatedTileAtlasFormat.LegacyWidth)
-                .CopyTo(legacyPixels.AsSpan(row * RoomFxAnimatedTileAtlasFormat.LegacyWidth,
-                    RoomFxAnimatedTileAtlasFormat.LegacyWidth));
+            RoomFxAnimatedTileAtlasFile.LegacyWidth * RoomFxAnimatedTileAtlasFile.Height];
+        for (int row = 0; row < RoomFxAnimatedTileAtlasFile.Height; row++)
+            image.Pixels.AsSpan(row * RoomFxAnimatedTileAtlasFile.Width,
+                    RoomFxAnimatedTileAtlasFile.LegacyWidth)
+                .CopyTo(legacyPixels.AsSpan(row * RoomFxAnimatedTileAtlasFile.LegacyWidth,
+                    RoomFxAnimatedTileAtlasFile.LegacyWidth));
         legacyPixels[0] = (byte)((legacyPixels[0] + 1) %
-            RoomFxAnimatedTileAtlasFormat.ColorCount);
+            RoomFxAnimatedTileAtlasFile.ColorCount);
         using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
-            IndexedPng.Write(output, new(RoomFxAnimatedTileAtlasFormat.LegacyWidth, RoomFxAnimatedTileAtlasFormat.Height), legacyPixels,
-                SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
+            IndexedPng.Write(output, new(RoomFxAnimatedTileAtlasFile.LegacyWidth, RoomFxAnimatedTileAtlasFile.Height), legacyPixels,
+                SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFile.ColorCount));
         AreaMapPresentation migrated = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(migrated.RoomFxAnimatedTiles.TryResolve(sourceAddress, 0x40,
                 out ReadOnlyMemory<byte> migratedSimple) &&

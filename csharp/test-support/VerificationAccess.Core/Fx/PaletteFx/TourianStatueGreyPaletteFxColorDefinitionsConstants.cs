@@ -9,6 +9,6 @@ internal static class TourianStatueGreyPaletteFxColorDefinitionsConstants
     extension(TourianStatueGreyPaletteFxColorDefinitions)
     {
         /// <summary>Handler frames from initial setup through the terminal delete.</summary>
-        internal static int FramesThroughDeletion => 1 + TourianStatueGreyPaletteFxColorDefinitions.FrameCount * 8 + 1;
+        internal static int FramesThroughDeletion => 1 + TourianStatueGreyPaletteFxColorDefinitions.ColorFrames.FrameCount * 8 + 1;
     }
 }

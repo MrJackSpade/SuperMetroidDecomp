@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Artwork;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Verification access to <see cref="ImageColourGroups"/>: fixture frames name the groups they use directly.</summary>

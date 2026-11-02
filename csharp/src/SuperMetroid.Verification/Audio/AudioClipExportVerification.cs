@@ -91,11 +91,12 @@ internal static class AudioClipExportVerification
     }
 
     /// <summary>Each layer of an effect against the independent render of its voices, including the next pass of a looping layer.</summary>
-    private static void VerifySoundEffect(ExtractedAudioAssetCatalog catalog, ClipAudioLibrary clips, SoundEffectId effect)
+    private static void VerifySoundEffect(ExtractedAudioAssetCatalog catalog, InstalledClipAudioLibrary clips, SoundEffectId effect)
     {
-        SoundEffectClipEntry entry = clips.GetSoundEffect(MusicDataSet.GreenBrinstar, effect);
+        InstalledSoundEffectClip entry = clips.Manifest.SoundEffects.Single(candidate =>
+            candidate.Context == MusicDataSet.GreenBrinstar && candidate.Sound == effect);
         int libraryIndex = SoundEffectLibraries.ToQueueIndex(effect.Library);
-        foreach (SoundEffectClipLayer layer in entry.Layers)
+        foreach (InstalledSoundEffectLayer layer in entry.Layers)
         {
             short[] clip = clips.ReadClip(layer.Clip);
             long frames = layer.Clip.Frames;

@@ -23,7 +23,7 @@ internal static class AnimatedTileImageSources
     /// <summary>The cartridge address <paramref name="picture"/> of <paramref name="statue"/> starts at in the shared statue strip.</summary>
     internal static int TourianStatue(AnimatedTileObject statue, TourianStatueTilePicture picture) =>
         RoomFxAnimatedTileSourceDefinitions.TourianStatueStrip.AddWithinBank(
-            TourianStatueTileStrip.FirstTile(statue, picture) * TourianStatueTileStripDefinitions.BytesPerTile).Value;
+            RoomFxAnimatedTilePictures.TourianStatueFirstTile(statue, picture) * TourianStatueTileStripDefinitions.BytesPerTile).Value;
 
     /// <summary>The cartridge address the shared Tourian statue strip starts at.</summary>
     internal static int TourianStatueStripStart => RoomFxAnimatedTileSourceDefinitions.TourianStatueStrip.Value;
@@ -40,12 +40,12 @@ internal static class AnimatedTileImageSources
         /// </summary>
         internal bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
         {
-            foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFormat.Segments)
+            foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFile.Segments)
                 if (segment is RoomFxAtlasSegment.Image image && Of(image.Picture) == sourceAddress)
                     return atlas.TryResolve(image.Picture, byteCount, out data);
             foreach (AnimatedTileObject statue in (AnimatedTileObject[])[AnimatedTileObject.TourianStatuePhantoon,
                 AnimatedTileObject.TourianStatueRidley, AnimatedTileObject.TourianStatueKraid, AnimatedTileObject.TourianStatueDraygon])
-            foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
+            foreach (TourianStatueTilePicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
             {
                 if (TourianStatue(statue, picture) != sourceAddress)
                     continue;

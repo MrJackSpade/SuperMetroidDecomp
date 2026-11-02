@@ -1,4 +1,3 @@
-
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -6,8 +5,9 @@ namespace SuperMetroid.Core.Assets;
 /// shown colours a plain draw of it resolves.
 /// </summary>
 /// <remarks>
-/// The manifest stores the set as one number with a bit per group's place, which the sheet's frame document holds and
-/// <see cref="FromManifest"/> and <see cref="ManifestMembers"/> convert; nothing else reads the bits.
+/// The manifest stores the set as one number with a bit per group's place, which the sheet's frame document holds; the
+/// import pipeline builds a set from that number and <see cref="ManifestMembers"/> gives it back. Nothing else reads the
+/// bits.
 /// </remarks>
 public readonly record struct ImageColourGroups
 {
@@ -17,28 +17,13 @@ public readonly record struct ImageColourGroups
     /// <summary>One bit per group the set holds, at the group's place.</summary>
     private readonly int members;
 
-    /// <summary>Keeps the groups whose bits <paramref name="members"/> sets.</summary>
-    private ImageColourGroups(int members) => this.members = members;
-
-    /// <summary>No group.</summary>
-    public static ImageColourGroups None => default;
-
     /// <summary>The set the manifest stores as <paramref name="members"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The number names a group past the image's.</exception>
-    internal static ImageColourGroups FromManifest(int members) => new(Ensure.BetweenInclusive(0, EveryMember, members));
+    internal ImageColourGroups(int members) => this.members = Ensure.BetweenInclusive(0, EveryMember, members);
 
     /// <summary>The number the manifest stores the set as.</summary>
     internal int ManifestMembers => members;
 
     /// <summary>Whether the set holds <paramref name="group"/>.</summary>
-    public bool Contains(ImageColourGroup group) => (members & Bit(group)) != 0;
-
-    /// <summary>This set with <paramref name="group"/> added.</summary>
-    internal ImageColourGroups With(ImageColourGroup group) => new(members | Bit(group));
-
-    /// <summary>The groups either this set or <paramref name="other"/> holds.</summary>
-    internal ImageColourGroups Union(ImageColourGroups other) => new(members | other.members);
-
-    /// <summary>The bit standing for <paramref name="group"/>.</summary>
-    private static int Bit(ImageColourGroup group) => 1 << group.Number;
+    public bool Contains(ImageColourGroup group) => (members & (1 << group.Number)) != 0;
 }

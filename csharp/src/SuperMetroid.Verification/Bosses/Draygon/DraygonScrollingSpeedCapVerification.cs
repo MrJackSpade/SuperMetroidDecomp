@@ -21,18 +21,17 @@ internal static class DraygonScrollingSpeedCapVerification
         var checkpoint = FixedPosition<RoomPixels>.FromWords(0x0190, 0, 0x0170, 0);
 
         // Down 33 and right 8: Y is capped twelve beyond Samus, X is under the threshold.
-        (ushort x, ushort y) = PreviousAfterDraygonMove(checkpoint, body: new(0x0190, 0x0169));
-        AssertEqual((ushort)0x0190, x, "an 8-pixel move keeps the previous X");
-        AssertEqual((ushort)(0x0191 + 12), y, "a 33-pixel drop puts the previous Y twelve below Samus");
+        Position16<RoomPixels> previous = PreviousAfterDraygonMove(checkpoint, body: new(0x0190, 0x0169));
+        AssertEqual((ushort)0x0190, previous.X, "an 8-pixel move keeps the previous X");
+        AssertEqual((ushort)(0x0191 + 12), previous.Y, "a 33-pixel drop puts the previous Y twelve below Samus");
 
         // Up 32 and left 24: both axes are capped twelve above and left of Samus.
-        (x, y) = PreviousAfterDraygonMove(checkpoint, body: new(0x0170, 0x0128));
-        AssertEqual((ushort)(0x0178 - 12), x, "a 24-pixel move left puts the previous X twelve left of Samus");
-        AssertEqual((ushort)(0x0150 - 12), y, "a 32-pixel rise puts the previous Y twelve above Samus");
+        previous = PreviousAfterDraygonMove(checkpoint, body: new(0x0170, 0x0128));
+        AssertEqual((ushort)(0x0178 - 12), previous.X, "a 24-pixel move left puts the previous X twelve left of Samus");
+        AssertEqual((ushort)(0x0150 - 12), previous.Y, "a 32-pixel rise puts the previous Y twelve above Samus");
 
         // Down 11: under the threshold, the frame's previous Y stands.
-        (ushort _, y) = PreviousAfterDraygonMove(checkpoint, body: new(0x0190, 0x0153));
-        AssertEqual((ushort)0x0170, y, "an 11-pixel drop keeps the previous Y");
+        AssertEqual((ushort)0x0170, PreviousAfterDraygonMove(checkpoint, body: new(0x0190, 0x0153)).Y, "an 11-pixel drop keeps the previous Y");
         Console.WriteLine("  Draygon scrolling-speed cap: carried Samus's previous position stays within twelve pixels.");
     }
 

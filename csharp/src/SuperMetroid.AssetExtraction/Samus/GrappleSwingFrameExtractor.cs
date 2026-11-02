@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -17,8 +16,8 @@ public static class GrappleSwingFrameExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
         => GrappleSwingFrameFile.Write(new()
         {
-            Version = GrappleSwingFrameDefinitions.Version,
-            Frames = Enumerable.Range(0, GrappleSwingFrameDefinitions.AngleCount)
+            Version = GrappleSwingFrameFile.Version,
+            Frames = Enumerable.Range(0, GrappleSwingFrameFile.AngleCount)
                 .Select(angle => (int)bus.ReadCartridgeByte(SamusSourceDefinitions.GrappleSwingFrameByAngle.Value + angle)).ToArray(),
         });
 }

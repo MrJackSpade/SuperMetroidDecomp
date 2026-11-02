@@ -55,7 +55,7 @@ public static class InstalledAudioClips
         InstalledClipAudioLibrary library = Load(audioDirectory);
         foreach (MusicClipEntry entry in library.Manifest.Music)
             _ = library.ReadClip(entry.Clip);
-        foreach (SoundEffectClipLayer layer in library.Manifest.SoundEffects.SelectMany(entry => entry.Layers))
+        foreach (InstalledSoundEffectLayer layer in library.Manifest.SoundEffects.SelectMany(entry => entry.Layers))
             _ = library.ReadClip(layer.Clip);
     }
 
@@ -83,7 +83,7 @@ public static class InstalledAudioClips
         }
         foreach (MusicClipEntry entry in manifest.Music)
             InstalledClipFiles.ValidateFileSize(root, entry.Clip);
-        foreach (SoundEffectClipLayer layer in manifest.SoundEffects.SelectMany(entry => entry.Layers))
+        foreach (InstalledSoundEffectLayer layer in manifest.SoundEffects.SelectMany(entry => entry.Layers))
             InstalledClipFiles.ValidateFileSize(root, layer.Clip);
         return new StockClips(root, manifest, Convert.ToHexString(SHA256.HashData(manifestBytes)));
     }

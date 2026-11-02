@@ -16,11 +16,7 @@ public class EscapeTimerTileAtlas
     internal EscapeTimerTileAtlas(byte[] characters)
     {
         this.characters = characters;
-        Artwork = new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.EscapeTimerTiles), characters);
     }
-
-    /// <summary>The 25 timer characters as owned sprite artwork, in transfer order: character 0 is OBJ character $1E0.</summary>
-    public SpriteArtwork Artwork { get; }
 
     /// <summary>Resolves one page without combining or retiming its original transfer record.</summary>
     public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset)

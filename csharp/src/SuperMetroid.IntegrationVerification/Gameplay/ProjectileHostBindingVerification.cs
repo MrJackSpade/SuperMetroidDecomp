@@ -51,7 +51,7 @@ internal static class ProjectileHostBindingVerification
         using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, beamName)))
             IndexedPng.Write(output, new(64, 8), image.Pixels, image.Colours);
         var colors = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, BeamPaletteFile.FileName)));
-        colors.Required("palettes").Required(BeamPaletteSources.Key(0)).Required(0)["red"] = 17;
+        colors.Required("palettes").Required(BeamPaletteFile.Key(0)).Required(0)["red"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteFile.FileName), colors.ToJsonString());
         var trails = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName)));
         trails.Required("frames").Required(ProjectileTrailVisualDefinitions.FrameNames[0])["flipX"] = true;
@@ -62,7 +62,7 @@ internal static class ProjectileHostBindingVerification
         using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailAtlasDefinitions.FileName)))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         var flare = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementExtractor.FileName)));
-        flare.Required("offsets").Required(ChargeFlarePlacementOffsets.Key(false, 0))["x"] = 17;
+        flare.Required("offsets").Required(ChargeFlarePlacementFile.Key(false, 0))["x"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementExtractor.FileName), flare.ToJsonString());
         var flareComposition = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteExtractor.FileName)));
         flareComposition.Required("frames").Required(ChargeFlareSpriteSelection.Selectors[0].Name).Required(0)["offsetX"] = 17;
@@ -77,7 +77,7 @@ internal static class ProjectileHostBindingVerification
         foreach (var style in grappleStyles.Required("segments").AsArray().RequiredElements()) style["palette"] = 4;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleSpriteDefinitions.FileName), grappleStyles.ToJsonString());
         var grappleFlare = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName)));
-        grappleFlare.Required("offsets").Required(ChargeFlarePlacementOffsets.Key(false, 0))["x"] = 17;
+        grappleFlare.Required("offsets").Required(ChargeFlarePlacementFile.Key(false, 0))["x"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleFlarePlacementDefinitions.FileName), grappleFlare.ToJsonString());
         var grappleSwing = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameExtractor.FileName)));
         grappleSwing.Required("frames")[0] = 17;

@@ -249,7 +249,7 @@ internal static class EnemySheetComposer
                     rots.Add(framePictures.Name, corpse);
             }
             yield return new EnemySheetSource(enemy, new SpriteSheetSources(frames, colours,
-                ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection), paletteBits), pictures, rots);
+                ObjectSelectionCodec.GameplaySizes, paletteBits), pictures, rots);
         }
     }
 

@@ -26,7 +26,7 @@ public static class BeamPaletteExtractor
                 colors[i] = PaletteRgb5.From(RgbColor.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     SamusSourceDefinitions.MovementBank.Value | (pointer + i * 2))));
             }
-            palettes.Add(BeamPaletteSources.Key(selection), colors);
+            palettes.Add(BeamPaletteFile.Key(selection), colors);
         }
         return BeamPaletteFile.Write(new() { Version = BeamPaletteFile.Version, Palettes = palettes });
     }

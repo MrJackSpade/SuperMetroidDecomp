@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
@@ -59,7 +58,7 @@ internal static class SamusAtmosphereSheetComposer
             frames.Add(Spritemap(inputs, spritemaps, SamusAtmosphereSheetDefinitions.BubblesFrame(frame),
                 SamusAtmosphericArtworkDefinitions.BubblesFirstEntry + frame));
         }
-        return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection));
+        return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes);
     }
 
     /// <summary>A small sprite whose installed attributes name its character, palette, priority and flips.</summary>

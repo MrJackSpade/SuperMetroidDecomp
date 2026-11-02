@@ -133,6 +133,9 @@ public static class SpriteSheetFile
     /// <summary>The frame set the import checks a loaded sheet against.</summary>
     extension(SpriteSheet sheet)
     {
+        /// <summary>The names of the sheet's frames.</summary>
+        internal IEnumerable<string> FrameNames => sheet.frames.Keys;
+
         /// <summary>Whether the sheet holds exactly the frames named <paramref name="names"/>.</summary>
         public bool HoldsExactly(IEnumerable<string> names) => sheet.FrameNames.ToHashSet(StringComparer.Ordinal).SetEquals(names);
     }

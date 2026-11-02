@@ -1,8 +1,11 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// Installed artwork content by name (#1422): the characters, or the tilemap row, an <see cref="InstalledArtworkId"/>
-/// names in the installation. Saved state carries the names, never the content.
+/// names in the installation. The import pipeline composes pictures from it; saved state carries the names, never the
+/// content.
 /// </summary>
 public interface IInstalledArtworkContent
 {

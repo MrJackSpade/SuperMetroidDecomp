@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
@@ -49,6 +48,6 @@ internal static class SamusOverlaySheetComposer
         }
         frames.Add(new(SamusOverlaySheetDefinitions.ChestCoverFrame,
             SpritePartFrames.SmallObject(ChestCoverAppearance, 0), inputs.StandardObjects));
-        return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection));
+        return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes);
     }
 }

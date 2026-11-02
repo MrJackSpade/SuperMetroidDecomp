@@ -23,7 +23,7 @@ public sealed class InstalledClipAudioLibrary : ClipAudioLibrary
     /// The rate, an identity, a clip's length, loop bounds or a tempo timeline is invalid, or the manifest repeats an identity.
     /// </exception>
     internal InstalledClipAudioLibrary(AudioClipManifest manifest, string contentIdentity, IAudioClipSource source)
-        : base(Validated(manifest).Music, manifest.SoundEffects, manifest.Unrenderable, source)
+        : base(Validated(manifest).Music, [.. manifest.SoundEffects.Select(entry => entry.Entry)], manifest.Unrenderable, source)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);
         Manifest = manifest;
@@ -55,11 +55,11 @@ public sealed class InstalledClipAudioLibrary : ClipAudioLibrary
             if (entry.TempoSegments.Count == 0 || entry.TempoSegments[0].Frame != 0)
                 throw new InvalidDataException($"{entry.AudioSet} track {entry.Track} has no tempo at frame zero.");
         }
-        foreach (SoundEffectClipEntry entry in manifest.SoundEffects)
+        foreach (InstalledSoundEffectClip entry in manifest.SoundEffects)
         {
             if (entry.Layers.Count == 0 && entry.ActiveFrames is null)
                 throw new InvalidDataException($"Never-ending {entry.Sound} in {ContextName(entry.Context)} has no layers.");
-            foreach (SoundEffectClipLayer layer in entry.Layers)
+            foreach (InstalledSoundEffectLayer layer in entry.Layers)
             {
                 ValidateClip(layer.Clip);
                 if ((layer.LoopStart is null) != (entry.ActiveFrames is not null) ||

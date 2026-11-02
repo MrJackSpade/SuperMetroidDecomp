@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Tooling;

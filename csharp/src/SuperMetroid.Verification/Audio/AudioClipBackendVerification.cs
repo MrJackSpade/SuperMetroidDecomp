@@ -111,11 +111,11 @@ internal static class AudioClipBackendVerification
     /// <summary>Priority, low-health mode, exempt requests and clip-set switch interruption.</summary>
     private static void VerifySoundCommands(InstalledClipAudioLibrary clips)
     {
-        SoundEffectClipEntry high = clips.Manifest.SoundEffects.First(entry =>
+        InstalledSoundEffectClip high = clips.Manifest.SoundEffects.First(entry =>
             entry.Context == MusicDataSet.GreenBrinstar && entry.Sound.Library == SoundEffectLibrary.Library2 &&
             entry.Policy is { Priority: SoundEffectPriorityEffect.High, IgnoresPriority: false } &&
             entry.ActiveFrames > (SoundStartUpdates + 6) * ManagedSnesDsp.NativeStereoFramesPerVideoFrame);
-        SoundEffectClipEntry low = clips.Manifest.SoundEffects.First(entry =>
+        InstalledSoundEffectClip low = clips.Manifest.SoundEffects.First(entry =>
             entry.Context == MusicDataSet.GreenBrinstar && entry.Sound.Library == SoundEffectLibrary.Library2 &&
             entry.Policy is { Priority: SoundEffectPriorityEffect.Low, IgnoresPriority: false } && entry.Sound != high.Sound);
         var script = new Script(clips);
@@ -124,11 +124,11 @@ internal static class AudioClipBackendVerification
 
         script.Advance([new AudioRequest.RequestSound(high.Sound)]);
         script.AdvanceUntil(() => library2.Sound is not null, SoundStartUpdates);
-        AssertEqual(high, library2.Sound, "the high-priority sound starts");
+        AssertEqual<SoundEffectId?>(high.Sound, library2.Sound?.Sound, "the high-priority sound starts");
         AssertEqual(script.LastStart(SoundEffectLibrary.Library2), library2.Start, "it starts at its accepting poll");
         script.Advance([new AudioRequest.RequestSound(low.Sound)]);
         script.Advance(4);
-        AssertEqual(high, library2.Sound, "a low-priority request is rejected while the high-priority sound holds the library");
+        AssertEqual<SoundEffectId?>(high.Sound, library2.Sound?.Sound, "a low-priority request is rejected while the high-priority sound holds the library");
         script.Advance([new AudioRequest.RequestSound(Library2Sound.Silence)]);
         AssertTrue(library2.Active && library2.HighPriority, "the high-priority sound still holds library 2");
         script.AdvanceUntil(() => library2.Sound?.Sound == Library2Sound.Silence, SoundStartUpdates);

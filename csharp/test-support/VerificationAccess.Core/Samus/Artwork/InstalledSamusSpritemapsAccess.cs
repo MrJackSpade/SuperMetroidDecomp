@@ -27,6 +27,10 @@ internal static class InstalledSamusSpritemapsAccess
 
         /// <summary>The table entry at which <paramref name="pose"/>'s lower half begins.</summary>
         internal ushort BottomBase(SamusPoseId pose) => self.Source.BottomBase(pose);
+
+        /// <summary>Whether <paramref name="frame"/> is an animation frame installed for its pose half.</summary>
+        /// <exception cref="ArgumentOutOfRangeException">The pose has no record.</exception>
+        internal bool Covers(SamusBodyHalfFrame frame) => (uint)frame.AnimationFrame < (uint)self.Frames(frame).Count;
     }
 
     /// <summary>Where the cartridge stores the tables the catalog installs.</summary>

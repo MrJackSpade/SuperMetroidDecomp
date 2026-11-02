@@ -17,11 +17,11 @@ public sealed class ManagedSpcPlayer
     /// <summary>Zeroes the driver work regions the native reset clears.</summary>
     private void ClearDriverWorkRegions()
     {
-        Array.Clear(ram, SpcDriverDefinitions.Ram.FirstWorkRegion, SpcDriverDefinitions.Ram.FirstWorkRegionLength);
-        Array.Clear(ram, SpcDriverDefinitions.Ram.SmallWorkRegion, SpcDriverDefinitions.Ram.SmallWorkRegionLength);
-        Array.Clear(ram, SpcDriverDefinitions.Ram.SoundPointerRegion, SpcDriverDefinitions.Ram.SoundPointerRegionLength);
-        Array.Clear(ram, SpcDriverDefinitions.Ram.SoundStateRegion, SpcDriverDefinitions.Ram.SoundStateRegionLength);
-        Array.Clear(ram, SpcDriverDefinitions.Ram.SecondarySoundStateRegion,
+        ram.Clear(SpcDriverDefinitions.Ram.FirstWorkRegion, SpcDriverDefinitions.Ram.FirstWorkRegionLength);
+        ram.Clear(SpcDriverDefinitions.Ram.SmallWorkRegion, SpcDriverDefinitions.Ram.SmallWorkRegionLength);
+        ram.Clear(SpcDriverDefinitions.Ram.SoundPointerRegion, SpcDriverDefinitions.Ram.SoundPointerRegionLength);
+        ram.Clear(SpcDriverDefinitions.Ram.SoundStateRegion, SpcDriverDefinitions.Ram.SoundStateRegionLength);
+        ram.Clear(SpcDriverDefinitions.Ram.SecondarySoundStateRegion,
             SpcDriverDefinitions.Ram.SecondarySoundStateRegionLength);
     }
 
@@ -29,7 +29,7 @@ public sealed class ManagedSpcPlayer
     private ManagedSnesDsp CreateDsp() => new(ram);
 
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
-    internal readonly byte[] ram = new byte[SpcDriverDefinitions.ApuRamSize];
+    internal readonly SpcRam ram = new();
     /// <summary>Eight music sequencer states that continue advancing under borrowed DSP voices.</summary>
     private readonly ManagedSpcMusicChannel[] channels = Enumerable
         .Range(0, SpcDriverDefinitions.ChannelCount)
@@ -162,6 +162,13 @@ public sealed class ManagedSpcPlayer
             foreach (ManagedSpcSoundChannel channel in libraryChannels)
                 channel.WriteState(state);
         }
+    }
+
+    /// <summary>Starts recording every audio RAM address and PCM source the driver and DSP read from now on (#1503).</summary>
+    internal void RecordReads()
+    {
+        ram.RecordReads();
+        dsp.RecordSampleSources();
     }
 
     /// <summary>The address of the next top-level music record, for offline loop analysis (#1305).</summary>

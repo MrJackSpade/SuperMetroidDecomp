@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal sealed class SpcSoundLibraries
 {
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
-    private readonly byte[] ram;
+    private readonly SpcRam ram;
     /// <summary>Eight music sequencer states that continue advancing under borrowed DSP voices.</summary>
     private readonly ManagedSpcMusicChannel[] channels ;
     /// <summary>Priority, mode and voice-allocation state for the three SFX libraries.</summary>
@@ -20,7 +20,7 @@ internal sealed class SpcSoundLibraries
     private readonly SpcVoices _voices;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal SpcSoundLibraries(byte[] ram, ManagedSpcMusicChannel[] channels, ManagedSpcSoundLibrary[] soundLibraries, ManagedSpcSoundChannel[][] soundChannels, ManagedSnesDsp dsp, SpcVoices voices)
+    internal SpcSoundLibraries(SpcRam ram, ManagedSpcMusicChannel[] channels, ManagedSpcSoundLibrary[] soundLibraries, ManagedSpcSoundChannel[][] soundChannels, ManagedSnesDsp dsp, SpcVoices voices)
     {
         this.ram = ram;
         this.channels = channels;

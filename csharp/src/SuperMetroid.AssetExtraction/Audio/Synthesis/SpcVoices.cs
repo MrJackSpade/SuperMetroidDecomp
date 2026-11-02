@@ -6,12 +6,12 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal sealed class SpcVoices
 {
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
-    private readonly byte[] ram;
+    private readonly SpcRam ram;
     /// <summary>DSP renderer reading BRR and echo data from this driver's APU RAM.</summary>
     private readonly ManagedSnesDsp dsp;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal SpcVoices(byte[] ram, ManagedSnesDsp dsp)
+    internal SpcVoices(SpcRam ram, ManagedSnesDsp dsp)
     {
         this.ram = ram;
         this.dsp = dsp;

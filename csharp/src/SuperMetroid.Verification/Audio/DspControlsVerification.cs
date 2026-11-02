@@ -13,7 +13,7 @@ internal static class DspControlsVerification
     /// </summary>
     internal static void VerifyDspControls()
     {
-        var dsp = new ManagedSnesDsp(new byte[0x10000]);
+        var dsp = new ManagedSnesDsp(new SpcRam());
         var controls = new SnesDspControls(dsp);
         SnesDspGlobalControls global = controls.Global;
 

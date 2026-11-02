@@ -40,7 +40,8 @@ internal static class SoundEffectRendering
     /// Creates a renderer, attached to <paramref name="observer"/>, that has uploaded the common and
     /// <paramref name="context"/> banks on frame 0 (rendered when <paramref name="synthesize"/>,
     /// otherwise only sequenced) and queued <paramref name="library"/>'s request
-    /// <paramref name="command"/> for frame 1, over <paramref name="catalog"/>.
+    /// <paramref name="command"/> for frame 1, over <paramref name="catalog"/>. From there on,
+    /// <paramref name="reads"/>, when given, records what the renderer reads.
     /// </summary>
     internal static SpcAudioClipRenderer Start(
         ExtractedAudioAssetCatalog catalog,
@@ -48,7 +49,8 @@ internal static class SoundEffectRendering
         SoundEffectLibrary library,
         int command,
         SoundEffectObserver observer,
-        bool synthesize)
+        bool synthesize,
+        SoundEffectRenderReads? reads)
     {
         var renderer = new SpcAudioClipRenderer(catalog, observer);
         observer.Attach(renderer);
@@ -59,8 +61,26 @@ internal static class SoundEffectRendering
             renderer.RenderFrame(new short[SpcAudioClipRenderer.NativeSamplesPerFrame]);
         else
             renderer.AdvanceSequencerFrame();
+        reads?.Attach(renderer.Player, synthesize);
         renderer.RequestSound(SoundEffectCommands.Decode(library, command));
         return renderer;
+    }
+
+    /// <summary>
+    /// The starts of the renderers a render of <paramref name="library"/>'s request <paramref name="command"/> in
+    /// <paramref name="context"/> uses (#1503): the synthesizing start, and the sequencing start when the effect
+    /// <paramref name="loops"/>.
+    /// </summary>
+    internal static SoundEffectRenderStarts Starts(
+        ExtractedAudioAssetCatalog catalog,
+        AudioBank? context,
+        SoundEffectLibrary library,
+        int command,
+        bool loops)
+    {
+        SoundEffectRenderStart Probe(bool synthesize) => SoundEffectRenderStart.Capture(Start(catalog, context, library, command,
+            new SoundEffectObserver(SoundEffectLibraries.ToQueueIndex(library), command), synthesize, reads: null));
+        return new SoundEffectRenderStarts(Probe(synthesize: true), loops ? Probe(synthesize: false) : null);
     }
 
     /// <summary>
@@ -83,12 +103,16 @@ internal static class SoundEffectRendering
         while (!done(frame));
     }
 
-    /// <summary>Renders a one-shot effect through its logical end and the silent frame after its release.</summary>
+    /// <summary>
+    /// Renders a one-shot effect through its logical end and the silent frame after its release, recording what it
+    /// reads in <paramref name="reads"/> when given.
+    /// </summary>
     /// <exception cref="InvalidDataException">The effect never ends, or never starts.</exception>
-    internal static OneShot RenderOneShot(ExtractedAudioAssetCatalog catalog, AudioBank? context, SoundEffectLibrary library, int command)
+    internal static OneShot RenderOneShot(
+        ExtractedAudioAssetCatalog catalog, AudioBank? context, SoundEffectLibrary library, int command, SoundEffectRenderReads? reads)
     {
         var observer = new SoundEffectObserver(SoundEffectLibraries.ToQueueIndex(library), command);
-        SpcAudioClipRenderer renderer = Start(catalog, context, library, command, observer, synthesize: true);
+        SpcAudioClipRenderer renderer = Start(catalog, context, library, command, observer, synthesize: true, reads);
         bool silentAfterEnd = false;
         var pcm = new List<short>();
         RenderFromStart(renderer, observer, pcm, frame =>
@@ -113,7 +137,8 @@ internal static class SoundEffectRendering
 
     /// <summary>
     /// Finds each channel's first repeated state with the sequencer alone, then renders each
-    /// channel's voice by itself from the start to its E2.
+    /// channel's voice by itself from the start to its E2, recording what every renderer reads in
+    /// <paramref name="reads"/> when given.
     /// </summary>
     /// <exception cref="InvalidDataException">The effect ends, or a channel the effect allocated ends instead of looping.</exception>
     internal static IReadOnlyList<LoopingLayer> RenderLoopingLayers(
@@ -121,11 +146,12 @@ internal static class SoundEffectRendering
         AudioBank? context,
         SoundEffectLibrary library,
         int command,
-        int allocatedChannels)
+        int allocatedChannels,
+        SoundEffectRenderReads? reads)
     {
         int libraryIndex = SoundEffectLibraries.ToQueueIndex(library);
         var finder = new SoundEffectObserver(libraryIndex, command);
-        SpcAudioClipRenderer sequencer = Start(catalog, context, library, command, finder, synthesize: false);
+        SpcAudioClipRenderer sequencer = Start(catalog, context, library, command, finder, synthesize: false, reads);
         while (!finder.AllChannelLoopsFound)
         {
             if (finder.EndSample is not null)
@@ -143,7 +169,7 @@ internal static class SoundEffectRendering
         foreach ((long first, long second, int voice) in loops)
         {
             var observer = new SoundEffectObserver(libraryIndex, command);
-            SpcAudioClipRenderer renderer = Start(catalog, context, library, command, observer, synthesize: true);
+            SpcAudioClipRenderer renderer = Start(catalog, context, library, command, observer, synthesize: true, reads);
             renderer.Player.dsp.OutputVoices = voice;
             // The last frame overshoots E2 by less than a frame, so the buffer never regrows.
             int length = checked((int)(second * 2));

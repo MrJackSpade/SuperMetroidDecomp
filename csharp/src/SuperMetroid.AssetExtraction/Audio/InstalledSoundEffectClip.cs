@@ -18,6 +18,7 @@ public sealed record InstalledSoundEffectClip(
     long? ActiveFrames,
     IReadOnlyList<InstalledSoundEffectLayer> Layers)
 {
-    /// <summary>The entry the game plays.</summary>
-    public SoundEffectClipEntry Entry => new(Context, Sound, Policy, ActiveFrames, [.. Layers.Select(layer => layer.Layer)]);
+    /// <summary>The entry the game plays; a method, so the manifest does not store it.</summary>
+    public SoundEffectClipEntry PlayedEntry() =>
+        new(Context, Sound, Policy, ActiveFrames, [.. Layers.Select(layer => layer.PlayedLayer())]);
 }

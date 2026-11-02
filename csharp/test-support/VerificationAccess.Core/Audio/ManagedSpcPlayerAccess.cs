@@ -13,7 +13,7 @@ internal static class ManagedSpcPlayerAccess
         /// <summary>Exposes one APU byte only to deterministic friend-assembly verification.</summary>
         internal byte ReadApuByteForVerification(int address)
         {
-            if ((uint)address >= self.ram.Length)
+            if ((uint)address >= SpcDriverDefinitions.ApuRamSize)
                 throw new ArgumentOutOfRangeException(nameof(address), address, "APU address must be 0..65535.");
             return self.ram[address];
         }

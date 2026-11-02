@@ -67,11 +67,11 @@ internal static class AudioClipInventory
             if (effect.ChannelPrograms.Any(program => exportScans[program].RepeatsForever))
             {
                 IReadOnlyList<SoundEffectRendering.LoopingLayer> layers = SoundEffectRendering.RenderLoopingLayers(
-                    catalog, key.Context, key.Library, key.Command, effect.ChannelPrograms.Count);
+                    catalog, key.Context, key.Library, key.Command, effect.ChannelPrograms.Count, reads: null);
                 return new SoundEffectRow(key.Context, key.Library, key.Command, null,
                     [.. layers.Select(layer => layer.Clip.Length / 2L)], [.. layers.Select(layer => Hash(layer.Clip))], []);
             }
-            SoundEffectRendering.OneShot shot = SoundEffectRendering.RenderOneShot(catalog, key.Context, key.Library, key.Command);
+            SoundEffectRendering.OneShot shot = SoundEffectRendering.RenderOneShot(catalog, key.Context, key.Library, key.Command, reads: null);
             return new SoundEffectRow(key.Context, key.Library, key.Command, shot.ActiveFrames,
                 shot.Clip.Length == 0 ? [] : [shot.Clip.Length / 2L], shot.Clip.Length == 0 ? [] : [Hash(shot.Clip)], []);
         });

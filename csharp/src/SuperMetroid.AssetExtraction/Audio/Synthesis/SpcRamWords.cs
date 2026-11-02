@@ -14,11 +14,11 @@ internal static class SpcRamWords
     private const int AddressMask = ushort.MaxValue;
 
     /// <summary>Reads the little-endian word at <paramref name="address"/>, low byte first.</summary>
-    public static ushort Read(ReadOnlySpan<byte> ram, int address) =>
+    internal static ushort Read(SpcRam ram, int address) =>
         LittleEndianBytes.Word(ram[address & AddressMask], ram[(address + 1) & AddressMask]);
 
     /// <summary>Writes <paramref name="value"/> little-endian at <paramref name="address"/>, low byte first.</summary>
-    public static void Write(Span<byte> ram, int address, ushort value)
+    internal static void Write(SpcRam ram, int address, ushort value)
     {
         ram[address & AddressMask] = unchecked((byte)value);
         ram[(address + 1) & AddressMask] = LittleEndianBytes.HighByte(value);

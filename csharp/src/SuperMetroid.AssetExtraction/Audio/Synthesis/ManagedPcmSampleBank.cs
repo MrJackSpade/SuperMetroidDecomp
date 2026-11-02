@@ -47,6 +47,26 @@ public sealed class ManagedPcmSampleBank
                 $"PCM bank '{Name}' ({Bank}) does not map source ${sourceNumber:X2}.");
 
     /// <summary>
+    /// Whether <paramref name="other"/> resolves <paramref name="sourceNumber"/> exactly as this bank does (#1503): both
+    /// leave it unmapped, or both map it to a sample that plays alike and enter its loop the same way.
+    /// </summary>
+    internal bool ResolvesAlike(ManagedPcmSampleBank other, int sourceNumber)
+    {
+        Ensure.NotNull(other);
+        bool mapped = samples.TryGetValue(sourceNumber, out ManagedPcmSample? sample);
+        if (mapped != other.samples.TryGetValue(sourceNumber, out ManagedPcmSample? otherSample))
+            return false;
+        if (sample is null || otherSample is null)
+            return true;
+        if (!sample.PlaysAs(otherSample))
+            return false;
+        bool redirected = loopEntrySources.TryGetValue(sourceNumber, out int target);
+        if (redirected != other.loopEntrySources.TryGetValue(sourceNumber, out int otherTarget))
+            return false;
+        return !redirected || samples[target].PlaysAs(other.samples[otherTarget]);
+    }
+
+    /// <summary>
     /// Resolves DIR's loop entry independently of key-on's start entry. A non-looping
     /// source can still be selected while a different voice sample reaches END/LOOP;
     /// its native loop address can point to the start of another canonical sample.

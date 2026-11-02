@@ -7,14 +7,14 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal sealed class SpcDefinitionUploads
 {
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
-    private readonly byte[] ram;
+    private readonly SpcRam ram;
     /// <summary>The SPC driver's music sequencer: track commands, effects, notes and the pan, sweep, vibrato and tremolo it ticks.</summary>
     private readonly SpcMusicSequencer _music;
     /// <summary>What music and sound effects share on the DSP: instruments, pitch and volume writes, the key-on, key-off, noise and echo flags, and memory reads.</summary>
     private readonly SpcVoices _voices;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal SpcDefinitionUploads(byte[] ram, SpcMusicSequencer music, SpcVoices voices)
+    internal SpcDefinitionUploads(SpcRam ram, SpcMusicSequencer music, SpcVoices voices)
     {
         this.ram = ram;
         _music = music;

@@ -54,4 +54,9 @@ public sealed class ManagedPcmSample
 
     /// <summary>Gets the optional zero-based PCM loop frame, or <see langword="null"/> for no intrinsic loop.</summary>
     public int? LoopSampleIndex { get; }
+
+    /// <summary>Whether <paramref name="other"/> plays exactly as this sample does: the same rate, PCM and loop (#1503).</summary>
+    internal bool PlaysAs(ManagedPcmSample other) =>
+        SampleRate == Ensure.NotNull(other).SampleRate && LoopSampleIndex == other.LoopSampleIndex &&
+        samples.SequenceEqual(other.samples);
 }

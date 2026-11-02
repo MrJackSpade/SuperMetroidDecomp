@@ -15,7 +15,7 @@ internal static class SpcPanInterpolationVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pan interpolation oracle revision");
         byte Instruction(int address) => rom.ReadCartridgeByte(0xcf6c08 + address);
         var player = new ManagedSpcPlayer();
-        byte[] ram = player.ram;
+        SpcRam ram = player.ram;
         Action<ManagedSpcMusicChannel, int> write = player.Voices.WriteVolume;
         var channel = new ManagedSpcMusicChannel { FinalVolume = 255 };
         for (int index = 0; index <= 256; index++)

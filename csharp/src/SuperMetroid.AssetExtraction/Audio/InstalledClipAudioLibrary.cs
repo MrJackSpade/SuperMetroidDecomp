@@ -23,7 +23,7 @@ public sealed class InstalledClipAudioLibrary : ClipAudioLibrary
     /// The rate, an identity, a clip's length, loop bounds or a tempo timeline is invalid, or the manifest repeats an identity.
     /// </exception>
     internal InstalledClipAudioLibrary(AudioClipManifest manifest, string contentIdentity, IAudioClipSource source)
-        : base(Validated(manifest).Music, [.. manifest.SoundEffects.Select(entry => entry.Entry)], manifest.Unrenderable, source)
+        : base(Validated(manifest).Music, [.. manifest.SoundEffects.Select(entry => entry.PlayedEntry())], manifest.Unrenderable, source)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);
         Manifest = manifest;

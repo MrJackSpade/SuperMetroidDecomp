@@ -48,6 +48,7 @@ internal static class AudioClipExportVerification
                 ]);
             InstalledClipAudioLibrary clips = InstalledAudioClips.Load(scratch.FullName);
             AssertEqual(catalog.ContentIdentity, clips.Manifest.SourceContentIdentity, "clips name the catalog they were rendered from");
+            VerifyStoredSoundEffectFields(Path.Combine(scratch.FullName, InstalledAudioClips.ManifestFileName));
 
             VerifyMusic(catalog, clips, GreenBrinstarRoomTrack, loopRepeatsExactly: false);
             VerifyMusic(catalog, clips, GreenBrinstarPhaseExactTrack, loopRepeatsExactly: true);
@@ -209,6 +210,27 @@ internal static class AudioClipExportVerification
         {
             if (StartSample is null && started(player))
                 StartSample = tickSample;
+        }
+    }
+
+    /// <summary>
+    /// Confirms the manifest stores each sound effect and layer as exactly its schema fields: the game's views the
+    /// records convert to are not written beside them (a stored <c>layer</c> copy changed the receipt in #1503).
+    /// </summary>
+    private static void VerifyStoredSoundEffectFields(string manifestPath)
+    {
+        using JsonDocument manifest = JsonDocument.Parse(File.ReadAllBytes(manifestPath));
+        string[] effectFields = ["context", "library", "command", "policy", "activeFrames", "layers"];
+        string[] layerFields = ["clip", "loopStart", "voices", "keyOnFrames"];
+        foreach (JsonElement effect in manifest.RootElement.GetProperty("soundEffects").EnumerateArray())
+        {
+            AssertTrue(effect.EnumerateObject().Select(field => field.Name).SequenceEqual(effectFields),
+                "a stored sound effect holds exactly its schema fields");
+            foreach (JsonElement layer in effect.GetProperty("layers").EnumerateArray())
+            {
+                AssertTrue(layer.EnumerateObject().Select(field => field.Name).SequenceEqual(layerFields),
+                    "a stored sound-effect layer holds exactly its schema fields");
+            }
         }
     }
 

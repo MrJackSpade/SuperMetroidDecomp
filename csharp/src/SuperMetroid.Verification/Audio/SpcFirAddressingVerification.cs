@@ -21,7 +21,7 @@ internal static class SpcFirAddressingVerification
         AssertEqual((byte)0x3d, Read(0x1aa0), "native INC X");
         int nativeBase = LittleEndianBytes.Word(Read(0x1a9b), Read(0x1a9c));
         var player = new ManagedSpcPlayer();
-        byte[] ram = player.ram;
+        SpcRam ram = player.ram;
         Action<ManagedSpcMusicChannel, int> effect = player.Music.HandleEffect;
         // Distinguish low-byte aliases from incorrectly carrying into later RAM pages.
         for (int address = nativeBase; address < nativeBase + 2048; address++)

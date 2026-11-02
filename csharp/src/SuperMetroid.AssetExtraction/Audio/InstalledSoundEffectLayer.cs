@@ -16,6 +16,6 @@ public sealed record InstalledSoundEffectLayer(
     SoundEffectVoices Voices,
     IReadOnlyList<long> KeyOnFrames)
 {
-    /// <summary>The layer the game plays.</summary>
-    public SoundEffectClipLayer Layer => new(Clip, LoopStart, KeyOnFrames);
+    /// <summary>The layer the game plays; a method, so the manifest does not store it.</summary>
+    public SoundEffectClipLayer PlayedLayer() => new(Clip, LoopStart, KeyOnFrames);
 }

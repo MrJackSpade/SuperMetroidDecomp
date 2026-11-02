@@ -41,7 +41,7 @@ internal static class ManagedAudioVerification
     /// <summary>Checks that a source-number write affects the next live loop without restarting a voice.</summary>
     private static void VerifyManagedDspUsesLiveSourceAtLoop()
     {
-        var dsp = new ManagedSnesDsp(new byte[0x10000]);
+        var dsp = new ManagedSnesDsp(new SpcRam());
         dsp.SetSampleBank(new ManagedPcmSampleBank("live-source", 0,
             new Dictionary<int, ManagedPcmSample>
             {
@@ -63,7 +63,7 @@ internal static class ManagedAudioVerification
     /// <summary>Separates a sample's key-on start from its independently mapped loop entry.</summary>
     internal static void VerifyManagedDspUsesIndependentLoopEntry()
     {
-        var dsp = new ManagedSnesDsp(new byte[65536]);
+        var dsp = new ManagedSnesDsp(new SpcRam());
         var sources = new Dictionary<int, ManagedPcmSample>
         {
             [0] = new("initial", 32000, Enumerable.Repeat((short)8000, 16).ToArray(), 0),
@@ -81,7 +81,7 @@ internal static class ManagedAudioVerification
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(SnesDspRegisterLayout.Voice.SampleOutput)) < 0,
             "END/LOOP uses the independent directory loop address, not the selected source start");
 
-        var keyOn = new ManagedSnesDsp(new byte[65536]);
+        var keyOn = new ManagedSnesDsp(new SpcRam());
         keyOn.SetSampleBank(new ManagedPcmSampleBank("independent-key-on", 0, sources,
             new Dictionary<int, int> { [1] = 2 }));
         ConfigureAudibleVoiceZero(keyOn, sourceNumber: 1);
@@ -204,7 +204,7 @@ internal static class ManagedAudioVerification
     /// </summary>
     private static void VerifyManagedDspResetProducesSilence()
     {
-        byte[] apuRam = new byte[0x10000];
+        SpcRam apuRam = new();
         ManagedSnesDsp dsp = new(apuRam);
         for (int index = 0; index < ManagedSnesDsp.NativeStereoFramesPerVideoFrame; index++)
             dsp.Cycle();
@@ -221,7 +221,7 @@ internal static class ManagedAudioVerification
     /// </summary>
     private static void VerifyManagedDspPlaysConstructedPcmSample()
     {
-        byte[] apuRam = new byte[0x10000];
+        SpcRam apuRam = new();
         ManagedSnesDsp dsp = new(apuRam);
         short[] waveform = Enumerable.Range(0, 16)
             .Select(index => unchecked((short)((index & 1) == 0 ? 14_336 : -16_384)))
@@ -283,7 +283,7 @@ internal static class ManagedAudioVerification
     /// </summary>
     private static void VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement()
     {
-        ManagedSnesDsp dsp = new(new byte[0x10000]);
+        ManagedSnesDsp dsp = new(new SpcRam());
         short[] waveform = Enumerable.Range(0, 96)
             .Select(index => unchecked((short)(Math.Sin(index * Math.PI / 12) * 20_000)))
             .ToArray();
@@ -327,11 +327,7 @@ internal static class ManagedAudioVerification
     /// <summary>Checks invalid APU RAM, register, waveform, sample-rate, and WAV boundaries.</summary>
     private static void VerifyManagedDspRejectsInvalidBoundaries()
     {
-        AssertThrows<ArgumentException>(
-            () => _ = new ManagedSnesDsp(new byte[0xffff]),
-            "managed DSP rejects non-64-KiB APU RAM");
-
-        ManagedSnesDsp dsp = new(new byte[0x10000]);
+        ManagedSnesDsp dsp = new(new SpcRam());
         AssertThrows<ArgumentOutOfRangeException>(
             () => dsp.WriteRegister(0x80, 0),
             "managed DSP rejects registers beyond $7F");

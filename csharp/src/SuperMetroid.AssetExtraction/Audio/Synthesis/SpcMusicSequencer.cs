@@ -6,14 +6,14 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal sealed class SpcMusicSequencer
 {
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
-    private readonly byte[] ram;
+    private readonly SpcRam ram;
     /// <summary>Eight music sequencer states that continue advancing under borrowed DSP voices.</summary>
     private readonly ManagedSpcMusicChannel[] channels ;
     /// <summary>What music and sound effects share on the DSP: instruments, pitch and volume writes, the key-on, key-off, noise and echo flags, and memory reads.</summary>
     private readonly SpcVoices _voices;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal SpcMusicSequencer(byte[] ram, ManagedSpcMusicChannel[] channels, SpcVoices voices)
+    internal SpcMusicSequencer(SpcRam ram, ManagedSpcMusicChannel[] channels, SpcVoices voices)
     {
         this.ram = ram;
         this.channels = channels;

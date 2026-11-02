@@ -12,7 +12,7 @@ internal static class AudioBankTransitionVerification
     /// <summary>Confirms a released voice remains silent after its sample disappears while BRR headers still set ENDX and a new key-on plays.</summary>
     internal static void VerifyReleasedVoiceBankSwitch()
     {
-        var ram = new byte[65536];
+        var ram = new SpcRam();
         var dsp = new ManagedSnesDsp(ram);
         var positive = new ManagedPcmSample("positive", 32000, Enumerable.Repeat((short)8000, 16).ToArray(), 0);
         dsp.SetSampleBank(new ManagedPcmSampleBank("before-upload", 0,

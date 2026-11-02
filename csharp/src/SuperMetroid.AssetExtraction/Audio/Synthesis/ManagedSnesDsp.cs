@@ -25,7 +25,7 @@ public sealed class ManagedSnesDsp
     private static readonly int sourceDirectoryAddress = SnesDspRegisterLayout.AddressOf(DspGlobalRegister.SourceDirectory);
 
     /// <summary>Shared 64-KiB audio RAM holding BRR directories and the echo ring.</summary>
-    private readonly byte[] apuRam;
+    private readonly SpcRam apuRam;
     /// <summary>Mirrored DSP registers, including values published by each sample cycle.</summary>
     internal readonly byte[] registers = new byte[SnesDspRegisterLayout.RegisterFileSize];
     /// <summary>Eight independent pitch, envelope, and PCM windows mixed each cycle.</summary>
@@ -76,12 +76,13 @@ public sealed class ManagedSnesDsp
     /// <summary>Current position in the eight-tap FIR history ring.</summary>
     private int firBufferIndex;
 
+    /// <summary>The PCM sources looked up since recording started, or null while lookups are not recorded.</summary>
+    private HashSet<int>? sampleSources;
+
     /// <summary>Creates a reset DSP bound to the supplied complete 64-KiB APU RAM image.</summary>
-    public ManagedSnesDsp(byte[] apuRam)
+    internal ManagedSnesDsp(SpcRam apuRam)
     {
-        Ensure.NotNull(apuRam);
-        Ensure.LengthEqual(apuRam, SpcDriverDefinitions.ApuRamSize);
-        this.apuRam = apuRam;
+        this.apuRam = Ensure.NotNull(apuRam);
         Reset();
     }
 
@@ -323,6 +324,7 @@ public sealed class ManagedSnesDsp
             "S-DSP received key-on before an extracted PCM sample bank was installed.");
         voice.PreviousFlags = 0;
         voice.ReleasedBrrCursor = null;
+        sampleSources?.Add(voice.SourceNumber);
         voice.Sample = bank.Resolve(voice.SourceNumber);
         voice.SampleCursor = 0;
         Array.Clear(voice.DecodeBuffer);
@@ -487,6 +489,7 @@ public sealed class ManagedSnesDsp
             // Preserve the old interpolation window above, then follow the live
             // source for the next window rather than retaining the key-on source.
             ManagedPcmSampleBank bank = sampleBank ?? throw new InvalidOperationException("PCM loop has no installed sample bank.");
+            sampleSources?.Add(voice.SourceNumber);
             if (!bank.Samples.ContainsKey(voice.SourceNumber) &&
                 voice.AdsrState == EnvelopeState.Release && voice.Gain == 0)
             {
@@ -623,6 +626,61 @@ public sealed class ManagedSnesDsp
         {
             echoRemaining = echoDelay;
             echoBufferIndex = 0;
+        }
+    }
+
+    /// <summary>Starts recording every PCM source a key-on or loop looks up from now on (#1503).</summary>
+    internal void RecordSampleSources() => sampleSources = [];
+
+    /// <summary>The PCM sources looked up since <see cref="RecordSampleSources"/>.</summary>
+    /// <exception cref="InvalidOperationException">Lookups are not being recorded.</exception>
+    internal IReadOnlySet<int> RecordedSampleSources() =>
+        sampleSources ?? throw new InvalidOperationException("PCM source lookups are not being recorded.");
+
+    /// <summary>The installed PCM sample bank key-ons resolve sources from.</summary>
+    /// <exception cref="InvalidOperationException">No sample bank is installed.</exception>
+    internal ManagedPcmSampleBank SampleBank =>
+        sampleBank ?? throw new InvalidOperationException("The S-DSP has no installed PCM sample bank.");
+
+    /// <summary>Whether a voice is still playing a PCM source it looked up earlier, which recording cannot see.</summary>
+    internal bool HoldsSamples => voices.Any(voice => voice.Sample is not null);
+
+    /// <summary>
+    /// Writes every value that determines this DSP's future output (#1503): the register file, the global mixer, noise,
+    /// echo and FIR state, the buffered output, and each voice's pitch, decoder window, envelope and routing. The bound
+    /// RAM and sample bank are excluded, as is the PCM a voice holds; <see cref="HoldsSamples"/> reports that.
+    /// </summary>
+    internal void WriteState(List<byte> state)
+    {
+        Ensure.NotNull(state);
+        state.AddRange(registers);
+        SpcDriverSnapshot.AddValues(state,
+        [
+            mute ? 1 : 0, reset ? 1 : 0, masterVolumeLeft, masterVolumeRight, noiseSample, noiseRate, noiseCounter,
+            echoWrites ? 1 : 0, echoVolumeLeft, echoVolumeRight, feedbackVolume, echoBufferAddress, echoDelay, echoRemaining,
+            echoBufferIndex, firBufferIndex, BufferedStereoFrameCount, OutputVoices,
+        ]);
+        foreach (sbyte value in firValues)
+            SpcDriverSnapshot.AddValues(state, [value]);
+        foreach (short value in firBufferLeft)
+            SpcDriverSnapshot.AddValues(state, [value]);
+        foreach (short value in firBufferRight)
+            SpcDriverSnapshot.AddValues(state, [value]);
+        foreach (short value in sampleBuffer)
+            SpcDriverSnapshot.AddValues(state, [value]);
+        foreach (Voice voice in voices)
+        {
+            SpcDriverSnapshot.AddValues(state,
+            [
+                voice.Pitch, voice.PitchCounter, voice.PitchModulation ? 1 : 0, voice.SourceNumber, voice.SampleCursor,
+                voice.PreviousFlags, voice.ReleasedBrrCursor ?? -1, voice.UseNoise ? 1 : 0, voice.RateCounter,
+                (int)voice.AdsrState, voice.SustainLevel, voice.UseGain ? 1 : 0, voice.GainMode, voice.DirectGain ? 1 : 0,
+                voice.GainValue, voice.Gain, voice.SampleOutput, voice.VolumeLeft, voice.VolumeRight, voice.EchoEnable ? 1 : 0,
+            ]);
+            foreach (short value in voice.DecodeBuffer)
+                SpcDriverSnapshot.AddValues(state, [value]);
+            foreach (ushort value in voice.AdsrRates)
+                SpcDriverSnapshot.AddValues(state, [value]);
         }
     }
 

@@ -10,6 +10,8 @@ public static class PauseEquipmentLabelArtworkDefinitions
     public const int Version = 1;
     /// <summary>Installed JSON filename for editable equipment-page label artwork, destinations, and the unequipped-label palette selector.</summary>
     public const string FileName = "pause-equipment-labels.json";
+    /// <summary>The JSON key of the Hyper Beam label; separate from ordinary beam controls and placed at the Wave slot by the game's Hyper label selection.</summary>
+    public const string HyperKey = "Beam.Hyper";
     /// <summary>Equipment-page tilemap height in eight-pixel BG tile rows; complete label application requires all 32 rows.</summary>
     public const int TilemapRows = 32;
     /// <summary>Stock BG palette selector three for collected but unequipped labels, replacing only tile-word palette bits and leaving the artwork, flips, and priority intact.</summary>

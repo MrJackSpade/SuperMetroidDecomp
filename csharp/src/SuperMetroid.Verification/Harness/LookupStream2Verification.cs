@@ -766,7 +766,7 @@ internal static class LookupStream2Verification
         int words = 0;
         foreach (PauseEquipmentLabelId id in Enum.GetValues<PauseEquipmentLabelId>())
         {
-            string key = PauseEquipmentLabelTiles.Name(id);
+            string key = PauseEquipmentLabelKeys.Name(id);
             PauseEquipmentLabel label = document.Labels[key];
             BackgroundTile[] native = PauseTileGrid.Compile(label.Cells, key);
             AssertEqual((label.Row * 32 + label.Column) * 2,
@@ -782,7 +782,7 @@ internal static class LookupStream2Verification
         int changedCells = 0;
         foreach (var identity in PauseEquipmentLabelTiles.Labels())
         {
-            string key = PauseEquipmentLabelTiles.Name(identity.Label);
+            string key = PauseEquipmentLabelKeys.Name(identity.Label);
             PauseEquipmentLabel label = document.Labels[key];
             for (int edit = -1; edit < label.Cells.Length; edit++)
             {
@@ -814,8 +814,8 @@ internal static class LookupStream2Verification
         }
         var overrun = new BackgroundTile[32 * 32];
         stock.ApplyLabel(overrun, PauseEquipmentCategory.Beams, 4, 9, false);
-        PauseEquipmentLabel plasma = document.Labels[PauseEquipmentLabelTiles.Name(PauseEquipmentLabelId.Plasma)];
-        PauseEquipmentLabel varia = document.Labels[PauseEquipmentLabelTiles.Name(PauseEquipmentLabelId.Varia)];
+        PauseEquipmentLabel plasma = document.Labels[PauseEquipmentLabelKeys.Name(PauseEquipmentLabelId.Plasma)];
+        PauseEquipmentLabel varia = document.Labels[PauseEquipmentLabelKeys.Name(PauseEquipmentLabelId.Varia)];
         BackgroundTile[] tail = PauseTileGrid.Compile(varia.Cells, "Native contiguous Varia tail");
         AssertTrue(tail.AsSpan(0, 4).SequenceEqual(overrun.AsSpan(plasma.Row * 32 + plasma.Column + 5, 4)),
             "Nine-cell Plasma patch retains four exact contiguous Varia tiles");
@@ -824,10 +824,10 @@ internal static class LookupStream2Verification
         for (int edit = 0; edit < PauseEquipmentLabelDefinitions.BeamWords; edit++)
         {
             var labels = document.Labels.ToDictionary(pair => pair.Key, pair => pair.Value);
-            PauseEquipmentLabel hyper = labels[PauseEquipmentLabelDefinitions.HyperKey];
+            PauseEquipmentLabel hyper = labels[PauseEquipmentLabelArtworkDefinitions.HyperKey];
             PauseBackdropCell[] cells = hyper.Cells.ToArray();
             cells[edit] = cells[edit] with { FlipX = !cells[edit].FlipX };
-            labels[PauseEquipmentLabelDefinitions.HyperKey] = hyper with { Cells = cells };
+            labels[PauseEquipmentLabelArtworkDefinitions.HyperKey] = hyper with { Cells = cells };
             using var output = new MemoryStream();
             PauseEquipmentLabelPresentation.Write(output, document with { Labels = labels });
             var selected = PauseEquipmentLabelPresentation.Load(new MemoryStream(output.ToArray()));
@@ -890,14 +890,14 @@ internal static class LookupStream2Verification
                 BackgroundTile[] blankTiles = PauseTileGrid.Compile(blank, "Reference blank");
                 foreach (var identity in PauseEquipmentLabelTiles.Labels())
                 {
-                    PauseEquipmentLabel label = selected.Labels[PauseEquipmentLabelTiles.Name(identity.Label)];
+                    PauseEquipmentLabel label = selected.Labels[PauseEquipmentLabelKeys.Name(identity.Label)];
                     int destination = label.Row * 32 + label.Column;
-                    int length = PauseEquipmentLabelTiles.WordCount(identity.Category);
+                    int length = PauseEquipmentLabelKeys.WordCount(identity.Category);
                     blankTiles.AsSpan(0, length).CopyTo(expected.AsSpan(destination, length));
                 }
                 if (hyper)
                 {
-                    PauseEquipmentLabel label = selected.Labels[PauseEquipmentLabelDefinitions.HyperKey];
+                    PauseEquipmentLabel label = selected.Labels[PauseEquipmentLabelArtworkDefinitions.HyperKey];
                     BackgroundTile[] tiles = PauseTileGrid.Compile(label.Cells, "Reference Hyper label");
                     tiles.AsSpan(0, PauseEquipmentLabelDefinitions.BeamWords)
                         .CopyTo(expected.AsSpan(label.Row * 32 + label.Column));

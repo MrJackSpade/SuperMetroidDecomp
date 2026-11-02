@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -16,7 +17,7 @@ public static class PauseReserveTankExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         for (int index = 0; index < PauseMenuSourceDefinitions.ReserveTankPartialFillCount; index++)
-            if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveTankPartialFills + index * 2) != PauseReserveTankVisualWords.Ordinals.Word(PauseReserveTankParts.PartialMap(index)))
+            if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveTankPartialFills + index * 2) != PauseReserveTankVisualWords.Ordinals.Word(PartialMap(index)))
                 throw new InvalidDataException("Unexpected native reserve fill binding.");
         var anchors = new Position16<SpritePixels>[PauseReserveTankDefinitions.AnchorCount];
         int y = unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveTankYPosition) - 1));
@@ -26,7 +27,15 @@ public static class PauseReserveTankExtractor
         foreach (var definition in PauseReserveTankParts.Frames()) frames.Add(definition.Name, MenuSpriteExtractor.Read(bus, PauseReserveTankVisualWords.Ordinals.Word(definition.Id)));
         using var output = new MemoryStream();
         PauseReserveTankSourcePresentation.Write(output, new() { Version = PauseReserveTankFormat.Version,
-            Palette = PauseReserveTankDefinitions.Palette, Anchors = anchors, Frames = frames });
+            Palette = PauseReserveTankFormat.Palette, Anchors = anchors, Frames = frames });
         return output.ToArray();
     }
+
+    /// <summary>Maps each of eight fill-step indices to $20..$27; both tables agree.</summary>
+    /// <param name="index">Entry index, 0..15, covering both identical eight-entry tables.</param>
+    /// <returns>The Empty-through-Fill7 spritemap identity selected by index modulo eight; gameplay computes the index using fourteen energy per step.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the sixteen entries.</exception>
+    private static PauseReserveTankVisual PartialMap(int index) => (uint)index < PauseReserveTankFormat.PartialMapEntries
+        ? PauseReserveTankParts.FillLevel(index % PauseReserveTankDefinitions.FillLevels.Length)
+        : throw new ArgumentOutOfRangeException(nameof(index));
 }

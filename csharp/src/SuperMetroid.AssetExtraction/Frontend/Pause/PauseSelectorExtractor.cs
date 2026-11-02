@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
@@ -11,6 +12,15 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 /// <summary>Separates selector artwork/timing/positions from the fixed low-byte category dispatcher.</summary>
 public static class PauseSelectorExtractor
 {
+    /// <summary>The visual animation role of each equipment category; suit/miscellaneous items and boots share Equipment.</summary>
+    private static readonly IReadOnlyDictionary<PauseEquipmentCategory, string> Groups = new Dictionary<PauseEquipmentCategory, string>
+    {
+        [PauseEquipmentCategory.Reserves] = "Reserve",
+        [PauseEquipmentCategory.Beams] = "Beam",
+        [PauseEquipmentCategory.Suits] = "Equipment",
+        [PauseEquipmentCategory.Boots] = "Equipment",
+    };
+
     /// <summary>Validates native selector category bindings, resolves anchors and sprite frames, and serializes its bounded animation phases and palette.</summary>
     /// <param name="bus">Supported-cartridge address space containing selector pointers, positions, spritemaps, animation bytes, and palette attributes.</param>
     /// <returns>UTF-8 JSON bytes for selector presentation, excluding the fixed category dispatcher.</returns>
@@ -26,13 +36,13 @@ public static class PauseSelectorExtractor
         foreach (var anchor in PauseSelectorAnchors.Anchors())
         {
             var position = new SnesAddress(PauseMenuSourceDefinitions.PauseSelectorBank.Bank, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseSelectorPositionPointers.AddWithinBank((int)anchor.Category * 2)));
-            anchors.Add(anchor.Name, new(unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), position.AddWithinBank(anchor.Item * 4)) - 1)),
+            anchors.Add(PauseSelectorAnchors.Anchor(anchor.Category, anchor.Item), new(unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), position.AddWithinBank(anchor.Item * 4)) - 1)),
                 unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), position.AddWithinBank(anchor.Item * 4 + 2)) - 1))));
         }
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         // Suits and boots share the Equipment frames, so only the first three categories own a group.
         foreach (PauseEquipmentCategory category in new[] { PauseEquipmentCategory.Reserves, PauseEquipmentCategory.Beams, PauseEquipmentCategory.Suits })
-            frames.Add(PauseSelectorAnchors.Group(category), MenuSpriteExtractor.Read(bus, PauseMenuSourceDefinitions.SelectorSpritemaps[category]));
+            frames.Add(Ensure.Listed(Groups, category), MenuSpriteExtractor.Read(bus, PauseMenuSourceDefinitions.SelectorSpritemaps[category]));
         int animation = (int)new SnesAddress(PauseMenuSourceDefinitions.PauseSelectorBank.Bank, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseSelectorAnimation));
         var phases = new List<PauseSelectorPhase>();
         for (int i = 0; ; i++)

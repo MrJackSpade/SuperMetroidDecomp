@@ -28,6 +28,24 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
     /// <summary>Every distinct visual the animation shows, in the order the animation first shows it.</summary>
     internal IEnumerable<PauseSelectorVisual> Visuals => FrameNames.Select(name => visuals[name]);
 
+    /// <summary>The name of every distinct frame the animation shows: each category's base frame, then its authored phase frames.</summary>
+    internal IEnumerable<string> FrameNames =>
+        new[] { reserve, beam, equipment }.SelectMany(PhaseFrameNames).Distinct(StringComparer.Ordinal);
+
+    /// <summary>A category's base frame and each authored phase frame.</summary>
+    private static IEnumerable<string> PhaseFrameNames(PhaseFrames phases) =>
+        phases.Overrides is null ? [phases.basis] : [phases.basis, .. phases.Overrides.Values];
+
+    /// <summary>Retains a phase's frame in <paramref name="overrides"/> only when it differs from the category's base frame.</summary>
+    /// <param name="overrides">The category's authored phase frames, created on the first difference.</param>
+    /// <param name="basis">The category's base frame, shown by the first phase.</param>
+    /// <param name="phase">The animation phase.</param>
+    /// <param name="frame">The frame the phase shows.</param>
+    private static void Capture(ref Dictionary<int, string>? overrides, string basis, int phase, string frame)
+    {
+        if (!string.Equals(basis, frame, StringComparison.Ordinal)) (overrides ??= new()).Add(phase, frame);
+    }
+
     /// <summary>Loads and validates equipment-selector anchors, frames, animation, palette, and timing.</summary>
     public static PauseSelectorSourcePresentation Load(Stream json)
     {
@@ -43,11 +61,12 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
         var anchorOverrides = new Dictionary<string, AnchorOverride>();
         foreach (var definition in PauseSelectorAnchors.Anchors())
         {
-            if (!document.Anchors.TryGetValue(definition.Name, out var point) || point.X is < 0 or > 255 || point.Y is < 0 or > 223)
-                throw new InvalidDataException($"Pause selector {definition.Name} requires screen coordinates X=0..255/Y=0..223.");
+            string name = PauseSelectorAnchors.Anchor(definition.Category, definition.Item);
+            if (!document.Anchors.TryGetValue(name, out var point) || point.X is < 0 or > 255 || point.Y is < 0 or > 223)
+                throw new InvalidDataException($"Pause selector {name} requires screen coordinates X=0..255/Y=0..223.");
             var basis = PauseSelectorAnchors.StockAnchor(definition.Category, definition.Item);
             if (point.X != basis.X || point.Y != basis.Y)
-                anchorOverrides.Add(definition.Name, new AnchorOverride(point.X == basis.X ? null : point.X, point.Y == basis.Y ? null : point.Y));
+                anchorOverrides.Add(name, new AnchorOverride(point.X == basis.X ? null : point.X, point.Y == basis.Y ? null : point.Y));
         }
         var frames = new Dictionary<string, PauseSelectorVisual>();
         foreach (var frame in document.Frames)
@@ -55,7 +74,8 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
             if (string.IsNullOrWhiteSpace(frame.Key) || frame.Value is null) throw new InvalidDataException("Pause selector frame requires a name and parts.");
             frames.Add(frame.Key, PauseSelectorVisual.Compile(frame.Value, frame.Key));
         }
-        PhaseFrames? reservePhases = null, beamPhases = null, equipmentPhases = null;
+        string? reserveBasis = null, beamBasis = null, equipmentBasis = null;
+        Dictionary<int, string>? reserveOverrides = null, beamOverrides = null, equipmentOverrides = null;
         Dictionary<int, int>? durationOverrides = null;
         for (int i = 0; i < document.Animation.Length; i++)
         {
@@ -65,20 +85,23 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
                 phase.Beam is null || !frames.ContainsKey(phase.Beam) ||
                 phase.Equipment is null || !frames.ContainsKey(phase.Equipment))
                 throw new InvalidDataException($"Pause selector phase {i} has invalid timing or an unknown frame.");
-            if (reservePhases is null || beamPhases is null || equipmentPhases is null)
+            if (reserveBasis is null || beamBasis is null || equipmentBasis is null)
             {
-                reservePhases = new(phase.Reserve); beamPhases = new(phase.Beam); equipmentPhases = new(phase.Equipment);
+                reserveBasis = phase.Reserve; beamBasis = phase.Beam; equipmentBasis = phase.Equipment;
             }
             else
             {
-                reservePhases.Capture(i, phase.Reserve); beamPhases.Capture(i, phase.Beam); equipmentPhases.Capture(i, phase.Equipment);
+                Capture(ref reserveOverrides, reserveBasis, i, phase.Reserve);
+                Capture(ref beamOverrides, beamBasis, i, phase.Beam);
+                Capture(ref equipmentOverrides, equipmentBasis, i, phase.Equipment);
             }
             if (phase.DurationTicks != MenuSelectorTiming.Duration(i))
                 (durationOverrides ??= new()).Add(i, phase.DurationTicks);
         }
-        if (reservePhases is null || beamPhases is null || equipmentPhases is null)
+        if (reserveBasis is null || beamBasis is null || equipmentBasis is null)
             throw new InvalidDataException("Pause selector animation requires at least one phase.");
-        return new(new PauseSelectorParts { AnchorOverrides = anchorOverrides, Reserve = reservePhases, Beam = beamPhases, Equipment = equipmentPhases, PhaseCount = document.Animation.Length, DurationOverrides = durationOverrides, InitialDuration = document.InitialDurationTicks },
+        return new(new PauseSelectorParts { AnchorOverrides = anchorOverrides, Reserve = new(reserveBasis, reserveOverrides),
+            Beam = new(beamBasis, beamOverrides), Equipment = new(equipmentBasis, equipmentOverrides), PhaseCount = document.Animation.Length, DurationOverrides = durationOverrides, InitialDuration = document.InitialDurationTicks },
             frames, document.Palette);
     }
 

@@ -54,6 +54,6 @@ internal static class PauseSheetComposer
 
     /// <summary>The frames the pause sheet of <paramref name="maps"/> holds.</summary>
     internal static IEnumerable<string> FrameNames(AreaMapPresentation maps) =>
-        Ensure.NotNull(maps).PauseSelectors.FrameNames.Select(PauseSelectorAnchors.SheetFrameName)
+        PauseSelectorSourcePresentation.Of(Ensure.NotNull(maps).PauseSelectors).FrameNames.Select(PauseSelectorAnchors.SheetFrameName)
             .Concat(PauseReserveTankParts.Frames().Select(frame => PauseReserveTankParts.SheetFrameName(frame.Name)));
 }

@@ -23,12 +23,12 @@ public static class PauseEquipmentLabelExtractor
             {
                 int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), tables.Places + item * 2);
                 int source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), tables.Labels + item * 2);
-                labels.Add(PauseEquipmentLabelTiles.Key(category, item), new()
+                labels.Add(PauseEquipmentLabelKeys.Key(category, item), new()
                 {
                     Column = ((destination - PauseMenuSourceDefinitions.EquipmentTilemapBase) / 2) % PauseEquipmentLabelDefinitions.TilemapColumns,
                     Row = ((destination - PauseMenuSourceDefinitions.EquipmentTilemapBase) / 2) / PauseEquipmentLabelDefinitions.TilemapColumns,
                     Cells = ReadCells(bus, source, definition.LabelWordCount,
-                        PauseEquipmentLabelTiles.Key(category, item)),
+                        PauseEquipmentLabelKeys.Key(category, item)),
                 });
             }
         }
@@ -44,12 +44,12 @@ public static class PauseEquipmentLabelExtractor
             if (pointer != expected)
                 throw new InvalidDataException("Native Hyper Beam pause pointers do not match the compiled one-label layout.");
         }
-        labels.Add(PauseEquipmentLabelDefinitions.HyperKey, new()
+        labels.Add(PauseEquipmentLabelArtworkDefinitions.HyperKey, new()
         {
-            Column = labels[PauseEquipmentLabelTiles.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelDefinitions.HyperBeamItem)].Column,
-            Row = labels[PauseEquipmentLabelTiles.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelDefinitions.HyperBeamItem)].Row,
+            Column = labels[PauseEquipmentLabelKeys.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelDefinitions.HyperBeamItem)].Column,
+            Row = labels[PauseEquipmentLabelKeys.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelDefinitions.HyperBeamItem)].Row,
             Cells = ReadCells(bus, hyper, PauseEquipmentLabelDefinitions.EquipmentWords,
-                PauseEquipmentLabelDefinitions.HyperKey),
+                PauseEquipmentLabelArtworkDefinitions.HyperKey),
         });
 
         using var output = new MemoryStream();

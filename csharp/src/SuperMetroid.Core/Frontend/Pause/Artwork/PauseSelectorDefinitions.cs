@@ -46,13 +46,4 @@ public static class PauseSelectorDefinitions
     internal const int SuitsLowerGroupFirstItem = 2;
     /// <summary>Suit/misc leaves two extra eight-pixel rows between Gravity and Morph Ball.</summary>
     internal const int SuitsLowerGroupGap = 16;
-
-    /// <summary>The visual animation role of each equipment category; suit/miscellaneous items and boots share Equipment.</summary>
-    internal static readonly IReadOnlyDictionary<PauseEquipmentCategory, string> Groups = new Dictionary<PauseEquipmentCategory, string>
-    {
-        [PauseEquipmentCategory.Reserves] = "Reserve",
-        [PauseEquipmentCategory.Beams] = "Beam",
-        [PauseEquipmentCategory.Suits] = "Equipment",
-        [PauseEquipmentCategory.Boots] = "Equipment",
-    };
 }

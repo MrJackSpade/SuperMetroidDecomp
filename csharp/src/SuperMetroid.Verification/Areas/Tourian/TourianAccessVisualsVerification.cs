@@ -108,9 +108,9 @@ internal static class TourianAccessVisualsVerification
         }
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmTourianAccessVisuals.Stock();
-        var imported = new RoomPlmTourianAccessVisuals(entries.Reverse());
+        var imported = RoomPlmTourianAccessVisualFiles.Create(entries.Reverse());
         string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
-            "RoomPlmTourianAccessVisualCatalog", words.ToDictionary(pair => TourianAccessDraws.VisualId(NativePlmDraws.At<TourianAccessDraw>(pair.Key)), pair => pair.Value));
+            "RoomPlmTourianAccessVisualCatalog", words.ToDictionary(pair => RoomPlmTourianAccessVisualFiles.VisualId(NativePlmDraws.At<TourianAccessDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Tourian access original flattened hash");
@@ -130,7 +130,7 @@ internal static class TourianAccessVisualsVerification
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<TourianAccessDraw>((ushort)pointer),0,0), "Tourian access unknown pointer");
         entries[4].Blocks[23] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
         entries[2].Blocks[0] = RoomBlockAppearance.Of(0x059);
-        var mixed = new RoomPlmTourianAccessVisuals(entries);
+        var mixed = RoomPlmTourianAccessVisualFiles.Create(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Tourian access mixed custom stock hash");
         entries[4].Blocks[23] = RoomBlockAppearance.Of(0x05a);
@@ -138,13 +138,13 @@ internal static class TourianAccessVisualsVerification
         foreach (var frame in frames)
         for (int index = 0; index < native[frame.Pointer].Length; index++)
             AssertEqual(expected[frame.Pointer][index], mixed.GetAppearance(NativePlmDraws.At<TourianAccessDraw>(frame.Pointer),index / 4,index % 4), "Tourian access clone isolation and stock fallback");
-        AssertThrows<InvalidDataException>(() => new RoomPlmTourianAccessVisuals(entries[..4]), "Tourian access missing frame");
-        AssertThrows<InvalidDataException>(() => new RoomPlmTourianAccessVisuals(entries.Append(entries[0])), "Tourian access duplicate frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmTourianAccessVisualFiles.Create(entries[..4]), "Tourian access missing frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmTourianAccessVisualFiles.Create(entries.Append(entries[0])), "Tourian access duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("CRUMBLE-EMPTY-ROW", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => new RoomPlmTourianAccessVisuals(invalid), "Tourian access ordinal identity");
+        AssertThrows<InvalidDataException>(() => RoomPlmTourianAccessVisualFiles.Create(invalid), "Tourian access ordinal identity");
         invalid[0] = new(entries[0].Id, new RoomBlockAppearance[3]);
-        AssertThrows<InvalidDataException>(() => new RoomPlmTourianAccessVisuals(invalid), "Tourian access exact frame shape");
+        AssertThrows<InvalidDataException>(() => RoomPlmTourianAccessVisualFiles.Create(invalid), "Tourian access exact frame shape");
     }
 
     /// <summary>Checks edited crumble or clear tiles through immediate redraw and later room streaming.</summary>

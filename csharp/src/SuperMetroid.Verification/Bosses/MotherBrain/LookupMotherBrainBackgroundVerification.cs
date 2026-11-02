@@ -16,7 +16,7 @@ internal static class LookupMotherBrainBackgroundVerification
     internal static void VerifyMotherBrainBackgroundGeometry(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];
-        var exports = MotherBrainFakeDeathDraws.All.Where(draw => pointers.Contains(PlmDrawAddressCodec.Of(draw.Draw))).ToArray();
+        var exports = RoomPlmMotherBrainFakeDeathVisualFiles.All.Where(draw => pointers.Contains(PlmDrawAddressCodec.Of(draw.Draw))).ToArray();
         AssertEqual(12, exports.Length, "Mother Brain background export count");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {

@@ -115,12 +115,4 @@ internal static class ChozoStatuePlmDrawDefinitions
             ]),
         ],
     };
-
-    /// <summary>The cleared hand's and the blocked and clear slope layouts' published visual identities.</summary>
-    internal static readonly Dictionary<ChozoStatueDraw, string> VisualIds = new()
-    {
-        [ChozoStatueDraw.LowerNorfairClearedHand] = "lower-norfair-cleared-hand",
-        [ChozoStatueDraw.ClearSlopeAccess] = "wrecked-ship-clear-slope-access",
-        [ChozoStatueDraw.BlockSlopeAccess] = "wrecked-ship-block-slope-access",
-    };
 }

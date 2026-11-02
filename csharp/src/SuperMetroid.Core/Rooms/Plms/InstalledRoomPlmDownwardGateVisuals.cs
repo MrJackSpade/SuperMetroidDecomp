@@ -28,50 +28,15 @@ public sealed class InstalledRoomPlmDownwardGateVisuals
     });
 
     /// <summary>
-    /// Deep-copied visual overrides keyed by draw; null means every
-    /// gate frame still takes its appearance from the compiled physical appearances.
+    /// Deep-copied visual overrides keyed by draw; a gate frame absent here still takes its appearance from the compiled
+    /// physical appearances.
     /// </summary>
-    private readonly Dictionary<PlmDraw, RoomBlockAppearance[][]>? customBlocks;
+    private readonly IReadOnlyDictionary<PlmDraw, RoomBlockAppearance[][]> customBlocks;
 
-    /// <summary>Validates complete downward-gate and shot-trigger coverage and copies visual differences without changing collision, shot filtering, or animation mechanics.</summary>
-    /// <param name="entries">One entry per compiled layout, retaining its exact run count and block counts with visual-only payloads.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
-    public InstalledRoomPlmDownwardGateVisuals(IEnumerable<RoomPlmVisualRunEntry> entries)
-    {
-        Ensure.NotNull(entries);
-        var selected = new Dictionary<PlmDraw, RoomBlockAppearance[][]>();
-        var seen = new HashSet<PlmDraw>();
-        foreach (RoomPlmVisualRunEntry entry in entries)
-        {
-            if (entry is null || entry.Runs is null ||
-                !DownwardGatePlmDraws.TryGetByVisualId(entry.Id, out var definition) ||
-                entry.Runs.Length != definition.Runs.Length)
-                throw new InvalidDataException(
-                    "Downward gate visuals changed a compiled frame identity or draw shape.");
-            for (int run = 0; run < entry.Runs.Length; run++)
-            {
-                RoomBlockAppearance[] appearances = entry.Runs[run];
-                if (appearances is null ||
-                    appearances.Length != definition.Runs.Span[run].Count)
-                    throw new InvalidDataException(
-                        $"Downward gate visuals {entry.Id} change a draw shape.");
-            }
-
-            if (!seen.Add(definition.Draw))
-                throw new InvalidDataException($"Downward gate visuals repeat frame {entry.Id}.");
-            DownwardGatePlmDraws.TryDescribe(definition.Draw, out var draw);
-            bool changed = false;
-            for (int run = 0; run < entry.Runs.Length; run++)
-                for (int cell = 0; cell < entry.Runs[run].Length; cell++)
-                    changed |= entry.Runs[run][cell] != draw.BlockAt(run, cell).Appearance;
-            if (changed) selected.Add(definition.Draw, entry.Runs.Select(run => run.ToArray()).ToArray());
-        }
-
-        if (seen.Count != DownwardGatePlmDraws.All.Count())
-            throw new InvalidDataException("Downward gate visuals do not cover all compiled frames.");
-        if (selected.Count != 0) customBlocks = selected;
-    }
+    /// <summary>Holds the import-validated run appearances of the layouts that differ from the compiled layouts.</summary>
+    /// <param name="customBlocks">The changed layouts' appearances run by run, keyed by draw.</param>
+    internal InstalledRoomPlmDownwardGateVisuals(IReadOnlyDictionary<PlmDraw, RoomBlockAppearance[][]> customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Resolves one gate or shot-trigger appearance using the compiled layout's run structure.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
@@ -87,7 +52,7 @@ public sealed class InstalledRoomPlmDownwardGateVisuals
         if ((uint)runIndex >= (uint)shape.RunCount ||
             (uint)blockIndex >= (uint)shape.BlockCount(runIndex))
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks is not null && customBlocks.TryGetValue(draw, out var runs)
+        return customBlocks.TryGetValue(draw, out var runs)
             ? runs[runIndex][blockIndex] : shape.BlockAt(runIndex, blockIndex).Appearance;
     }
 }

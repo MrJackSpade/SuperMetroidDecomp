@@ -15,14 +15,10 @@ public sealed class RoomPlmChozoStatueVisualCatalog
     /// <summary>Visual-only overrides keyed by draw; absent when every selected block uses its compiled appearance.</summary>
     private readonly PlmVisualOverrides customBlocks;
 
-    /// <summary>Validates complete Chozo-layout coverage and copies authored visual differences without replacing terrain blocks or calculated run geometry.</summary>
-    /// <param name="entries">One entry per compiled layout with its exact flattened block count and appearance payload.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, duplicates an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
-    public RoomPlmChozoStatueVisualCatalog(
-        IEnumerable<RoomPlmVisualEntry> entries) =>
-        customBlocks = new PlmVisualOverrides(entries, "Chozo statue", ChozoStatueDraws.TryGetByVisualId,
-            ChozoStatueDraws.All.Count());
+    /// <summary>Holds the import-validated appearances of the layouts that differ from the compiled layouts.</summary>
+    /// <param name="customBlocks">The changed layouts' flattened appearances, keyed by draw.</param>
+    internal RoomPlmChozoStatueVisualCatalog(PlmVisualOverrides customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Resolves one selected Chozo-layout appearance, projecting run-local indices into the flattened authored payload while preserving compiled mechanics.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

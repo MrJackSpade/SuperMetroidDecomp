@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rooms.LevelData;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Editable appearance of one single-block PLM draw.</summary>
 /// <param name="Id">Compiled identity of the draw.</param>

@@ -16,14 +16,10 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
     /// <summary>Only changed draw appearances, keyed by draw; unchanged draws use compiled visuals.</summary>
     private readonly PlmVisualOverrides customAppearances;
 
-    /// <summary>Validates all twenty-two fake-death room layouts and copies visual differences while retaining collision kinds, signed draw offsets, and PLM timing.</summary>
-    /// <param name="entries">One visual-only entry per compiled layout, with the exact flattened count of all its run cells.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
-    public RoomPlmMotherBrainFakeDeathVisualCatalog(
-        IEnumerable<RoomPlmVisualEntry> entries) =>
-        customAppearances = new PlmVisualOverrides(entries, "Mother Brain fake-death", MotherBrainFakeDeathDraws.TryGetByVisualId,
-            MotherBrainFakeDeathDraws.All.Count());
+    /// <summary>Holds the import-validated appearances of the layouts that differ from the compiled layouts.</summary>
+    /// <param name="customAppearances">The changed layouts' flattened appearances, keyed by draw.</param>
+    internal RoomPlmMotherBrainFakeDeathVisualCatalog(PlmVisualOverrides customAppearances) =>
+        this.customAppearances = Ensure.NotNull(customAppearances);
 
     /// <summary>Resolves a fake-death room block's selected appearance, projecting run-local indices into its flattened authored layout.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Areas.Escape.LookupEscapeGateStockVerific
 using static SuperMetroid.Verification.Rooms.Plms.RoomPlmPopulationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -33,10 +32,10 @@ internal static class EscapeGateVisualsVerification
     internal static void VerifyEscapeGateVisuals(SuperMetroidAddressSpace rom)
     {
         RoomPlmVisualEntry[] entries =
-            MotherBrainEscapeGateDraws.All
+            RoomPlmEscapeGateVisualFiles.All
                 .OrderBy(draw => PlmDrawAddressCodec.Of(draw.Draw))
                 .Select(draw => new RoomPlmVisualEntry(
-                    MotherBrainEscapeGateDraws.VisualId(draw.Draw),
+                    RoomPlmEscapeGateVisualFiles.VisualId(draw.Draw),
                     draw.Runs.Span[0].Blocks.Span
                         .SelectToArray(block => block.Appearance)))
                 .ToArray();
@@ -48,7 +47,7 @@ internal static class EscapeGateVisualsVerification
         RoomBlockAppearance stockHalfClosed = halfClosed.Blocks[0];
         closed.Blocks[0] = RoomBlockAppearance.Of(0x53);
         halfClosed.Blocks[0] = RoomBlockAppearance.Of(0x54);
-        var edited = new RoomPlmEscapeGateVisualCatalog(entries);
+        var edited = RoomPlmEscapeGateVisualFiles.Create(entries);
         closed.Blocks[0] = RoomBlockAppearance.Of(0x55);
         halfClosed.Blocks[0] = RoomBlockAppearance.Of(0x56);
         AssertEqual(RoomBlockAppearance.Of(0x53),
@@ -65,7 +64,7 @@ internal static class EscapeGateVisualsVerification
         halfClosed.Blocks[0] = stockHalfClosed;
 
         AssertThrows<InvalidDataException>(
-            () => new RoomPlmEscapeGateVisualCatalog(entries.Skip(1)),
+            () => RoomPlmEscapeGateVisualFiles.Create(entries.Skip(1)),
             "escape-gate catalog rejects a missing frame");
         Suite(nameof(VerifyEscapeGateLiveVisual), () => VerifyEscapeGateLiveVisual(edited));
         Suite(nameof(VerifyEscapeGateVisualInstallation), () => VerifyEscapeGateVisualInstallation(rom));

@@ -9,17 +9,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class RoomPlmGrappleBlockDrawDefinitions
 {
     /// <summary>A single Grapple-block draw with the terrain it installs.</summary>
-    internal readonly record struct DrawList(GrappleBlockDraw Frame, RoomTerrainBlock Terrain)
-    {
-        /// <summary>The one-block run writes along its row.</summary>
-        internal const PlmRunDirection Direction = PlmRunDirection.Horizontal;
-        /// <summary>The run writes its one block, followed by signed zero X/Y termination.</summary>
-        internal const int Count = 1;
-        /// <summary>The one-block record leaves the next draw position in its current column.</summary>
-        internal const int NextX = 0;
-        /// <summary>The one-block record leaves the next draw position in its current row.</summary>
-        internal const int NextY = 0;
-    }
+    internal readonly record struct DrawList(GrappleBlockDraw Frame, RoomTerrainBlock Terrain);
 
     /// <summary>The terrain each draw installs.</summary>
     internal static readonly IReadOnlyDictionary<GrappleBlockDraw, RoomTerrainBlock> Blocks = new Dictionary<GrappleBlockDraw, RoomTerrainBlock>

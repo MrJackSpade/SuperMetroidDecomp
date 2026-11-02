@@ -29,15 +29,10 @@ public sealed class InstalledRoomPlmLinkedRestoreVisuals
     /// <summary>Only layouts whose visual appearances differ from the compiled common appearance need stored overrides.</summary>
     private readonly PlmVisualOverrides customBlocks;
 
-    /// <summary>Validates all six linked restoration layouts and copies visual differences without changing linked parent/child collision or restoration programs.</summary>
-    /// <param name="entries">One visual-only entry per compiled layout with two appearances per run and complete identity coverage.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
-    public InstalledRoomPlmLinkedRestoreVisuals(IEnumerable<RoomPlmVisualEntry> entries)
-    {
-        customBlocks = new PlmVisualOverrides(entries, "Linked restoration", LinkedRestorePlmDraws.TryGetByVisualId,
-            RoomPlmLinkedRestoreDrawDefinitions.All.Count());
-    }
+    /// <summary>Holds the import-validated appearances of the layouts that differ from the compiled layouts.</summary>
+    /// <param name="customBlocks">The changed layouts' flattened appearances, keyed by draw.</param>
+    internal InstalledRoomPlmLinkedRestoreVisuals(PlmVisualOverrides customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Resolves one linked restoration block by run and block ordinal, leaving its physical collision link compiled.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

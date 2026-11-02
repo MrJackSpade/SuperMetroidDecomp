@@ -47,8 +47,6 @@ internal static class PlmActorClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmLinkedRestoreVisuals", "plm-linked-restore-complete-draws", ["GetAppearance"],
             [SharedDrawShape, SharedDrawLogic, SharedTerrainBlocks,
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/InstalledRoomPlmLinkedRestoreVisuals.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmLinkedRestoreDrawDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/Plms/LinkedRestorePlmDraws.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/LinkedRestorePlmFamily.cs")]),
     ];
 }

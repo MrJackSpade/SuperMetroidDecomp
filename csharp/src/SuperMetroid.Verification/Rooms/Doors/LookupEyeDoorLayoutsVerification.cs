@@ -31,14 +31,14 @@ internal static class LookupEyeDoorLayoutsVerification
     {
         ushort[] pointers = [0x9bf7,0x9c03,0x9c0b,0x9c13,0x9c1b,0x9c23,0x9c2b,0x9c31,0x9c37,0x9c3d,0x9c43,0x9c49,
             0x9c4f,0x9c5b,0x9c63,0x9c6b,0x9c73,0x9c7b,0x9c83,0x9c89,0x9c8f,0x9c95,0x9c9b,0x9ca1];
-        var exported = EyeDoorDraws.All.ToArray();
+        var exported = RoomPlmEyeDoorVisualFiles.All.ToArray();
         AssertEqual(24,exported.Length,"Eye door original layout count");
         if (field == 0)
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
                 bool owned = pointers.Contains((ushort)raw);
                 AssertEqual(owned,EyeDoorDraws.TryDescribe(NativePlmDraws.At<EyeDoorDraws.Draw>((ushort)raw),out var shape),"Eye door complete shape domain");
-                AssertEqual(owned,EyeDoorDraws.TryGet(NativePlmDraws.At<EyeDoorDraws.Draw>((ushort)raw),out var dto),"Eye door complete DTO domain");
+                AssertEqual(owned,RoomPlmEyeDoorVisualFiles.TryGet(NativePlmDraws.At<EyeDoorDraws.Draw>((ushort)raw),out var dto),"Eye door complete DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(EyeDoorDraws.Draw),shape,"Eye door rejected shape");
@@ -50,11 +50,11 @@ internal static class LookupEyeDoorLayoutsVerification
         {
             ushort pointer = pointers[index];
             EyeDoorDraws.TryDescribe(NativePlmDraws.At<EyeDoorDraws.Draw>(pointer),out var shape);
-            EyeDoorDraws.TryGet(NativePlmDraws.At<EyeDoorDraws.Draw>(pointer),out var direct);
+            RoomPlmEyeDoorVisualFiles.TryGet(NativePlmDraws.At<EyeDoorDraws.Draw>(pointer),out var direct);
             var views = new List<RoomPlmShotBlockDrawDefinitions.DrawList> {direct,exported[index]};
             if (pointer != 0x9bf7)
             {
-                AssertTrue(EyeDoorDraws.TryGetByVisualId(EyeDoorDraws.VisualId(NativePlmDraws.At<EyeDoorDraws.Draw>(pointer)),out var named),"Eye door reverse layout");
+                AssertTrue(RoomPlmEyeDoorVisualFiles.TryGetByVisualId(RoomPlmEyeDoorVisualFiles.VisualId(NativePlmDraws.At<EyeDoorDraws.Draw>(pointer)),out var named),"Eye door reverse layout");
                 views.Add(named);
             }
             ushort header = ReadSamusEaterPlmWord(rom,0x840000 | pointer);

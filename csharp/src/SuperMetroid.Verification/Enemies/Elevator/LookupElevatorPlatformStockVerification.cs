@@ -1,10 +1,10 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Elevator;
 
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction;
@@ -40,9 +40,9 @@ internal static class LookupElevatorPlatformStockVerification
             native[frame.Pointer].Select(run => run.ToArray()).ToArray())).ToArray();
         var original = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].Select(run => run.ToArray()).ToArray());
         var stock = RoomPlmElevatorPlatformVisualCatalog.Stock();
-        var imported = new RoomPlmElevatorPlatformVisualCatalog(entries.Reverse());
+        var imported = RoomPlmElevatorPlatformVisualFiles.Create(entries.Reverse());
         string Hash(Dictionary<ushort, RoomBlockAppearance[][]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(RoomPlmElevatorPlatformVisualCatalog), appearances.ToDictionary(pair => ElevatorPlatformDraws.VisualId(NativePlmDraws.At<ElevatorPlatformDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmElevatorPlatformVisualCatalog), appearances.ToDictionary(pair => RoomPlmElevatorPlatformVisualFiles.VisualId(NativePlmDraws.At<ElevatorPlatformDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(original), catalog.ContentIdentity, "Elevator platform original run-framed identity");
@@ -64,7 +64,7 @@ internal static class LookupElevatorPlatformStockVerification
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<ElevatorPlatformDraw>((ushort)pointer),0,0), "Elevator platform stock unknown pointer");
         entries[1].Runs[2][2] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var mixed = new RoomPlmElevatorPlatformVisualCatalog(entries);
+        var mixed = RoomPlmElevatorPlatformVisualFiles.Create(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Runs.Select(run => run.ToArray()).ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Elevator platform mixed custom/stock identity");
         entries[1].Runs[2][2] = RoomBlockAppearance.Of(0x5a);
@@ -75,13 +75,13 @@ internal static class LookupElevatorPlatformStockVerification
             for (int word = 0; word < native[frame.Pointer][run].Length; word++)
                 AssertEqual(expected[frame.Pointer][run][word], mixed.GetAppearance(NativePlmDraws.At<ElevatorPlatformDraw>(frame.Pointer),run,word), "Elevator platform cloned custom and unchanged stock isolation");
         }
-        AssertThrows<InvalidDataException>(() => new RoomPlmElevatorPlatformVisualCatalog(entries[..1]), "Elevator platform missing frame");
-        AssertThrows<InvalidDataException>(() => new RoomPlmElevatorPlatformVisualCatalog(entries.Append(entries[0])), "Elevator platform duplicate frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmElevatorPlatformVisualFiles.Create(entries[..1]), "Elevator platform missing frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmElevatorPlatformVisualFiles.Create(entries.Append(entries[0])), "Elevator platform duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("FIRST-FRAME", entries[0].Runs);
-        AssertThrows<InvalidDataException>(() => new RoomPlmElevatorPlatformVisualCatalog(invalid), "Elevator platform ordinal identity");
+        AssertThrows<InvalidDataException>(() => RoomPlmElevatorPlatformVisualFiles.Create(invalid), "Elevator platform ordinal identity");
         invalid[0] = new(entries[0].Id, new RoomBlockAppearance[][] { new RoomBlockAppearance[7] });
-        AssertThrows<InvalidDataException>(() => new RoomPlmElevatorPlatformVisualCatalog(invalid), "Elevator platform exact run shape");
+        AssertThrows<InvalidDataException>(() => RoomPlmElevatorPlatformVisualFiles.Create(invalid), "Elevator platform exact run shape");
     }
 
     /// <summary>Reads a native elevator platform draw-list byte for the stock oracle.</summary>

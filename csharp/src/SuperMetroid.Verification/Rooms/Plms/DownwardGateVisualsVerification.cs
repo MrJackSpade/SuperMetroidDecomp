@@ -22,9 +22,9 @@ internal static class DownwardGateVisualsVerification
     internal static void VerifyDownwardGateVisuals()
     {
         InstalledRoomPlmDownwardGateVisuals stock = InstalledRoomPlmDownwardGateVisuals.Stock();
-        RoomPlmVisualRunEntry[] entries = DownwardGatePlmDraws.All
+        RoomPlmVisualRunEntry[] entries = RoomPlmDownwardGateVisualFiles.All
             .Select(list => new RoomPlmVisualRunEntry(
-                DownwardGatePlmDraws.VisualId(list.Draw),
+                RoomPlmDownwardGateVisualFiles.VisualId(list.Draw),
                 list.Runs.Span
                     .SelectToArray(run => run.Blocks.Span
                         .SelectToArray(block => block.Appearance))
@@ -38,7 +38,7 @@ internal static class DownwardGateVisualsVerification
         RoomPlmVisualRunEntry trigger = entries.Single(entry =>
             entry.Id == "blue-left-trigger");
         trigger.Runs[1][0] = RoomBlockAppearance.Of(0x053);
-        var edited = new InstalledRoomPlmDownwardGateVisuals(entries);
+        var edited = RoomPlmDownwardGateVisualFiles.Create(entries);
         column.Runs[0][1] = RoomBlockAppearance.Of(0x054);
         AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
             "gate visual catalog copies author data");
@@ -82,11 +82,11 @@ internal static class DownwardGateVisualsVerification
             "edited trigger art survives camera streaming");
 
         AssertThrows<InvalidDataException>(
-            () => new InstalledRoomPlmDownwardGateVisuals(entries.Skip(1)),
+            () => RoomPlmDownwardGateVisualFiles.Create(entries.Skip(1)),
             "gate visual catalog rejects missing frames");
         column.Runs[0][1] = RoomBlockAppearance.Of(0x053);
         AssertThrows<InvalidDataException>(
-            () => new InstalledRoomPlmDownwardGateVisuals(entries.Select(entry =>
+            () => RoomPlmDownwardGateVisualFiles.Create(entries.Select(entry =>
                 entry.Id == "column-frame-5" ? entry with { Id = "unknown-frame" } : entry)),
             "gate visual catalog rejects unknown frame IDs");
 

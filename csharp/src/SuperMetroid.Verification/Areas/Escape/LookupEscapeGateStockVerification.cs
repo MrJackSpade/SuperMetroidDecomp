@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -27,9 +27,9 @@ internal static class LookupEscapeGateStockVerification
         }
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmEscapeGateVisualCatalog.Stock();
-        var imported = new RoomPlmEscapeGateVisualCatalog(entries.Reverse());
+        var imported = RoomPlmEscapeGateVisualFiles.Create(entries.Reverse());
         string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(RoomPlmEscapeGateVisualCatalog), appearances.ToDictionary(pair => MotherBrainEscapeGateDraws.VisualId(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmEscapeGateVisualCatalog), appearances.ToDictionary(pair => RoomPlmEscapeGateVisualFiles.VisualId(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Escape gate original stock identity");
@@ -46,7 +46,7 @@ internal static class LookupEscapeGateStockVerification
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<MotherBrainEscapeGateDraw>((ushort)raw),0), "Escape gate unknown stock pointer");
         entries[2].Blocks[1] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
         entries[1].Blocks[3] = RoomBlockAppearance.Of(0x59);
-        var mixed = new RoomPlmEscapeGateVisualCatalog(entries);
+        var mixed = RoomPlmEscapeGateVisualFiles.Create(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer,
             frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Escape gate custom/stock hash");
@@ -55,12 +55,12 @@ internal static class LookupEscapeGateStockVerification
         foreach (var frame in frames)
         for (int row = 0; row < 4; row++)
             AssertEqual(expected[frame.Pointer][row], mixed.GetAppearance(NativePlmDraws.At<MotherBrainEscapeGateDraw>(frame.Pointer),row), "Escape gate custom clone and stock isolation");
-        AssertThrows<InvalidDataException>(() => new RoomPlmEscapeGateVisualCatalog(entries[..2]), "Escape gate missing frame");
-        AssertThrows<InvalidDataException>(() => new RoomPlmEscapeGateVisualCatalog(entries.Append(entries[0])), "Escape gate duplicate frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmEscapeGateVisualFiles.Create(entries[..2]), "Escape gate missing frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmEscapeGateVisualFiles.Create(entries.Append(entries[0])), "Escape gate duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("OPEN", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => new RoomPlmEscapeGateVisualCatalog(invalid), "Escape gate ordinal identity");
+        AssertThrows<InvalidDataException>(() => RoomPlmEscapeGateVisualFiles.Create(invalid), "Escape gate ordinal identity");
         invalid[0] = new(entries[0].Id, new RoomBlockAppearance[3]);
-        AssertThrows<InvalidDataException>(() => new RoomPlmEscapeGateVisualCatalog(invalid), "Escape gate exact shape");
+        AssertThrows<InvalidDataException>(() => RoomPlmEscapeGateVisualFiles.Create(invalid), "Escape gate exact shape");
     }
 }

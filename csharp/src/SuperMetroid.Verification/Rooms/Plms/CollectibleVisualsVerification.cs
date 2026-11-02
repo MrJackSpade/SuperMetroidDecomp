@@ -36,13 +36,13 @@ internal static class CollectibleVisualsVerification
         Suite(nameof(VerifyCollectibleDynamicSelector), () => VerifyCollectibleDynamicSelector(rom));
 
         RoomPlmVisualBlockEntry[] entries =
-            CollectiblePlmDraws.All
+            RoomPlmCollectibleVisualFiles.All
                 .Select(frame => new RoomPlmVisualBlockEntry(frame.Id,
                     frame.Terrain.Appearance))
                 .ToArray();
         int energyIndex = Array.FindIndex(entries, entry => entry.Id == "energy-tank-0");
         entries[energyIndex] = entries[energyIndex] with { Appearance = RoomBlockAppearance.Of(0x053) };
-        var edited = new InstalledRoomPlmCollectibleVisuals(entries);
+        var edited = RoomPlmCollectibleVisualFiles.Create(entries);
         entries[energyIndex] = entries[energyIndex] with { Appearance = RoomBlockAppearance.Of(0x054) };
         AssertEqual(RoomBlockAppearance.Of(0x053),
             edited.GetAppearance(CollectiblePlmDraws.VisibleFrame(InWorldCollectibleKind.EnergyTank, 0, 0)),

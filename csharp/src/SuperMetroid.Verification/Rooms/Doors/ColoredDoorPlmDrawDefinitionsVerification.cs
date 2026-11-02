@@ -32,10 +32,10 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
         Suite(nameof(VerifyColoredDoorProgramDefinitions), () => VerifyColoredDoorProgramDefinitions(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
-            ColoredDoorCaps.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
+            RoomPlmColoredDoorVisualFiles.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
         RoomPlmVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmVisualEntry(
-                ColoredDoorCaps.VisualId(draw.Draw),
+                RoomPlmColoredDoorVisualFiles.VisualId(draw.Draw),
                 draw.Runs.Span[0].Blocks.Span
                     .SelectToArray(block => block.Appearance))).ToArray();
         InstalledRoomPlmColoredDoorVisuals stock = InstalledRoomPlmColoredDoorVisuals.Stock();
@@ -43,7 +43,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             entry.Id == "green-left-frame-0");
         RoomBlockAppearance originalVisual = editedFrame.Blocks[0];
         editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x053);
-        var edited = new InstalledRoomPlmColoredDoorVisuals(entries);
+        var edited = RoomPlmColoredDoorVisualFiles.Create(entries);
         editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x054);
         AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
             "colored-door visual catalog copies author data");
@@ -97,7 +97,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                 $"resident colored-door header {header} loads");
             ushort initial = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (PlmNativeWords.Word(header) + 2)));
             ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (initial + 14)));
-            AssertTrue(ColoredDoorCaps.TryGet(NativePlmDraws.At<ColoredDoorCaps.Draw>(firstDraw), out var selected),
+            AssertTrue(RoomPlmColoredDoorVisualFiles.TryGet(NativePlmDraws.At<ColoredDoorCaps.Draw>(firstDraw), out var selected),
                 $"resident colored-door header {header} selects compiled art");
             plms.Step(level);
             bool vertical = selected.Runs.Span[0].Direction == PlmRunDirection.Vertical;

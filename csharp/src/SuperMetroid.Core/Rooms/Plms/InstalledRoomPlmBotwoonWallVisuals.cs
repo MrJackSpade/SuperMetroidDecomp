@@ -23,25 +23,9 @@ public sealed class InstalledRoomPlmBotwoonWallVisuals
     /// <summary>Owned nine-block clear appearance retained only when it differs from compiled stock visuals.</summary>
     private readonly RoomBlockAppearance[]? blocks;
 
-    /// <summary>Validates the single nine-block wall-clear appearance and retains an owned copy only when it differs from compiled stock visuals.</summary>
-    /// <param name="entries">Exactly one known clear-frame entry containing nine visual-only appearances; crumble frames belong to the separate shot-block catalog.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">The entry count, identity, or block count is invalid.</exception>
-    public InstalledRoomPlmBotwoonWallVisuals(
-        IEnumerable<RoomPlmVisualEntry> entries)
-    {
-        Ensure.NotNull(entries);
-        RoomPlmVisualEntry[] selected = entries.ToArray();
-        if (selected.Length != 1 || selected[0] is null ||
-            selected[0].Id != BotwoonWallPlmDraws.VisualId(BotwoonWallPlmDrawDefinitions.Clear) ||
-            selected[0].Blocks is null || selected[0].Blocks.Length != 9)
-            throw new InvalidDataException(
-                "Botwoon wall visuals must contain exactly one nine-block clear frame.");
-        bool stock = true;
-        for (int index = 0; index < BotwoonWallPlmDrawDefinitions.BlockCount; index++)
-            stock &= selected[0].Blocks[index] == StockAppearance(index);
-        if (!stock) blocks = selected[0].Blocks.ToArray();
-    }
+    /// <summary>Holds the import-validated nine wall-clear appearances.</summary>
+    /// <param name="blocks">The owned nine appearances when they differ from the compiled blocks; null for stock.</param>
+    internal InstalledRoomPlmBotwoonWallVisuals(RoomBlockAppearance[]? blocks) => this.blocks = blocks;
 
     /// <summary>The appearance of one compiled wall-clear block.</summary>
     private static RoomBlockAppearance StockAppearance(int index) =>

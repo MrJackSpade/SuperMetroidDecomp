@@ -19,8 +19,8 @@ public static class RoomPlmDraygonCannonVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Draygon cannon", DraygonCannonDraws.All,
-            DraygonCannonDraws.VisualId);
+            VisualFileName, "Draygon cannon", All,
+            VisualId);
 
     /// <summary>Validates stock cannon art against its manifest and compiled frames, then selects a complete optional visual-only override without cartridge access.</summary>
     /// <param name="stockDirectory">Stock directory containing the cannon JSON and its provenance/digest manifest.</param>
@@ -30,10 +30,58 @@ public static class RoomPlmDraygonCannonVisualFiles
     public static RoomPlmDraygonCannonVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmDraygonCannonVisualCatalog>(VisualFileName, "Draygon cannon", DraygonCannonDraws.All, DraygonCannonDraws.VisualId, entries => new RoomPlmDraygonCannonVisualCatalog(entries.Select(entry =>
+            new RoomPlmVisualFamily<RoomPlmDraygonCannonVisualCatalog>(VisualFileName, "Draygon cannon", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
     /// <summary>Checks stock cannon provenance, digest, schema, twelve-frame coverage, and equality with compiled appearances; ignores overrides.</summary>
     /// <param name="directory">Installed stock Draygon cannon directory.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
+
+    /// <summary>Validates complete reachable cannon-frame coverage and builds the visuals from the appearances that differ from the compiled frames, without changing shield damage, hit thresholds, control writes, or draw geometry.</summary>
+    /// <param name="entries">One visual-only entry per compiled frame with the exact flattened count of all its run cells.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves reachable frame coverage incomplete.</exception>
+    internal static RoomPlmDraygonCannonVisualCatalog Create(IEnumerable<RoomPlmVisualEntry> entries) =>
+        new(RoomPlmVisualOverrideReader.Flattened(entries, "Draygon cannon", TryGetByVisualId, All.Count()));
+
+    /// <summary>Enumerates only the right and left cannon lists reached by the PLM programs.</summary>
+    private static IEnumerable<PlmDraw> Draws()
+    {
+        foreach (DraygonCannonDraw draw in Enum.GetValues<DraygonCannonDraw>()) yield return PlmDraw.Of(draw);
+    }
+
+    /// <summary>Builds the draw lists of all reachable cannon frames.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            foreach (PlmDraw draw in Draws())
+            {
+                TryGet(draw, out var list);
+                yield return list;
+            }
+        }
+    }
+
+    /// <summary>Builds the draw list of a cannon frame from its cells.</summary>
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        bool found = DraygonCannonDraws.TryDescribe(request, out DraygonCannonDraws.Draw draw);
+        list = found
+            ? RoomPlmDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.BlockAt,
+                RoomPlmDrawListExport.Horizontal, draw.NextX, draw.NextY)
+            : default;
+        return found;
+    }
+
+    /// <summary>Finds a reachable cannon draw list by its editable visual ID.</summary>
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmDrawListExport.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
+
+    /// <summary>Maps a cannon draw to its facing, condition, and pose ID.</summary>
+    internal static string VisualId(PlmDraw request) =>
+        RoomPlmVisualIdDefinitions.DraygonCannon.TryGetValue(
+            PlmDraw.FrameOf<DraygonCannonDraw>(request, "Draygon cannon draw with a visual ID"), out string? id)
+            ? id
+            : throw new InvalidOperationException($"Undefined {nameof(DraygonCannonDraw)} {request}.");
 }

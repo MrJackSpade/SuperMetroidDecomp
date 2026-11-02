@@ -39,12 +39,4 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
             RoomTerrainBlock.Of(783, BlockMirroring.None, RoomCollisionType.SolidBlock),
         ],
     };
-
-    /// <summary>Each gate image's stable authored visual identifier.</summary>
-    internal static readonly Dictionary<MotherBrainEscapeGateDraw, string> VisualIds = new()
-    {
-        [MotherBrainEscapeGateDraw.Open] = "open",
-        [MotherBrainEscapeGateDraw.HalfClosed] = "half-closed",
-        [MotherBrainEscapeGateDraw.Closed] = "closed",
-    };
 }

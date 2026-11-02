@@ -43,13 +43,13 @@ internal static class NativePlmDraws
             .Concat(Enum.GetValues<StationDraw>().Select(Of))
             .Concat(Enum.GetValues<TourianAccessDraw>().Select(Of))
             .Concat(Enum.GetValues<GrappleBlockDraw>().Select(Of))
-            .Concat(ShotBlockPlmDraws.Calculated.Select(Of))
-            .Concat(CollectiblePlmDraws.All.Select(frame => Of(frame.Draw)))
-            .Concat(BlueDoorCaps.Editable.Select(list => list.Draw))
+            .Concat(RoomPlmShotBlockVisualFiles.Calculated.Select(Of))
+            .Concat(RoomPlmCollectibleVisualFiles.All.Select(frame => Of(frame.Draw)))
+            .Concat(RoomPlmBlueDoorVisualFiles.Editable.Select(list => list.Draw))
             .Concat(Enum.GetValues<ColoredDoorOrientation>().Select(BlueDoorCaps.Alias))
-            .Concat(GreyDoorCaps.All.Select(list => list.Draw))
-            .Concat(ColoredDoorCaps.All.Select(list => list.Draw))
-            .Concat(EyeDoorDraws.All.Select(list => list.Draw))
+            .Concat(RoomPlmGreyDoorVisualFiles.All.Select(list => list.Draw))
+            .Concat(RoomPlmColoredDoorVisualFiles.All.Select(list => list.Draw))
+            .Concat(RoomPlmEyeDoorVisualFiles.All.Select(list => list.Draw))
             .Concat([CrateriaMainstreetEscapePassagePlmDefinitions.ClearPairDraw, OldTourianEscapeShaftWallPlmDefinitions.OpenWallDraw,
                 MaridiaElevatubePlmDefinitions.BlockDraw, SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw]);
 

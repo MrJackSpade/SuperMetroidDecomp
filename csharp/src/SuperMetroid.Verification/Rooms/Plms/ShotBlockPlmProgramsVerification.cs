@@ -78,7 +78,7 @@ internal static class ShotBlockPlmProgramsVerification
         var forbidden = new HashSet<int>();
         ushort[] nativeDraws = [0xa345,0xa35d,0xa37d,0xa39d,0xa34b,0xa365,0xa385,0xa3ad,
             0xa351,0xa36d,0xa38d,0xa3bd,0xa357,0xa375,0xa395,0xa3cd,0xa47b,0xa483,0xa48b];
-        AssertTrue(nativeDraws.SequenceEqual(ShotBlockPlmDraws.All.Select(draw => PlmDrawAddressCodec.Of(draw.Draw))),
+        AssertTrue(nativeDraws.SequenceEqual(RoomPlmShotBlockVisualFiles.All.Select(draw => PlmDrawAddressCodec.Of(draw.Draw))),
             "shot-block independent native draw order");
         var knownDraws = nativeDraws.ToHashSet();
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
@@ -117,7 +117,7 @@ internal static class ShotBlockPlmProgramsVerification
 
         int drawListCount = 0;
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 ShotBlockPlmDraws.All)
+                 RoomPlmShotBlockVisualFiles.All)
         {
             AssertTrue(list.Draw is PlmFrameDraw<ShotBlockPlmDraws.Draw>, "shot-block calculated draw exists");
             var calculated = PlmDraw.FrameOf<ShotBlockPlmDraws.Draw>(list.Draw, "shot-block");
@@ -313,7 +313,7 @@ internal static class ShotBlockPlmProgramsVerification
             native.Add(pointer, runs.ToArray());
         }
         var stock = InstalledRoomPlmShotBlockVisuals.Stock();
-        var loaded = new InstalledRoomPlmShotBlockVisuals(native.Select(pair => new RoomPlmVisualRunEntry(ShotId(pair.Key), pair.Value)));
+        var loaded = RoomPlmShotBlockVisualFiles.Create(native.Select(pair => new RoomPlmVisualRunEntry(ShotId(pair.Key), pair.Value)));
         string identity = SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmShotBlockVisuals), native.ToDictionary(pair => ShotId(pair.Key), pair => pair.Value));
         AssertEqual(identity, stock.ContentIdentity, "shot-block stock preserves original native content identity");
         AssertEqual(identity, loaded.ContentIdentity, "shot-block imported stock preserves identity");
@@ -326,7 +326,7 @@ internal static class ShotBlockPlmProgramsVerification
         }
         native[0xa345][0][0] = RoomBlockAppearance.Of(0x054);
         native[0xa48b][1][1] = RoomBlockAppearance.Of(0x258);
-        var edited = new InstalledRoomPlmShotBlockVisuals(native.Select(pair => new RoomPlmVisualRunEntry(ShotId(pair.Key), pair.Value)));
+        var edited = RoomPlmShotBlockVisualFiles.Create(native.Select(pair => new RoomPlmVisualRunEntry(ShotId(pair.Key), pair.Value)));
         AssertEqual(SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmShotBlockVisuals), native.ToDictionary(pair => ShotId(pair.Key), pair => pair.Value)), edited.ContentIdentity,
             "shot-block mixed stock/custom identity preserves original framing");
         foreach (var pair in native)
@@ -344,20 +344,20 @@ internal static class ShotBlockPlmProgramsVerification
             foreach (int invalid in new[] {int.MinValue,-1,pair.Value[0].Length,int.MaxValue})
                 AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<ShotBlockPlmDraws.Draw>(pair.Key), 0, invalid), "shot-block visual word bounds");
         }
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmShotBlockVisuals(native.Skip(1).Select(pair => new RoomPlmVisualRunEntry(ShotId(pair.Key), pair.Value))), "shot-block imported stock still requires complete coverage");
+        AssertThrows<InvalidDataException>(() => RoomPlmShotBlockVisualFiles.Create(native.Skip(1).Select(pair => new RoomPlmVisualRunEntry(ShotId(pair.Key), pair.Value))), "shot-block imported stock still requires complete coverage");
     }
 
     /// <summary>The artwork identity of the shot-block draw the cartridge stores at <paramref name="pointer"/>.</summary>
     private static string ShotId(ushort pointer) =>
-        ShotBlockPlmDraws.VisualId(NativePlmDraws.At<ShotBlockPlmDraws.Draw>(pointer));
+        RoomPlmShotBlockVisualFiles.VisualId(NativePlmDraws.At<ShotBlockPlmDraws.Draw>(pointer));
 
     /// <summary>Checks that edited shot-block art reaches both immediate and streamed tiles without changing collision bits or compiled mechanics.</summary>
     private static void VerifyShotBlockVisualSeparation(
 )
     {
         InstalledRoomPlmShotBlockVisuals stock = InstalledRoomPlmShotBlockVisuals.Stock();
-        RoomPlmVisualRunEntry[] editedEntries = ShotBlockPlmDraws.All
-            .Select(list => new RoomPlmVisualRunEntry(ShotBlockPlmDraws.VisualId(list.Draw),
+        RoomPlmVisualRunEntry[] editedEntries = RoomPlmShotBlockVisualFiles.All
+            .Select(list => new RoomPlmVisualRunEntry(RoomPlmShotBlockVisualFiles.VisualId(list.Draw),
                 list.Runs.Span
                     .SelectToArray(run => run.Blocks.Span
                         .SelectToArray(terrain => terrain.Appearance))
@@ -366,7 +366,7 @@ internal static class ShotBlockPlmProgramsVerification
         RoomPlmVisualRunEntry first = editedEntries.Single(entry =>
             entry.Id == "single-breakup-0");
         first.Runs[0][0] = RoomBlockAppearance.Of(0x054);
-        var edited = new InstalledRoomPlmShotBlockVisuals(editedEntries);
+        var edited = RoomPlmShotBlockVisualFiles.Create(editedEntries);
         first.Runs[0][0] = RoomBlockAppearance.Of(0x055);
         AssertEqual(RoomBlockAppearance.Of(0x054),
             edited.GetAppearance(ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0), 0, 0),
@@ -407,7 +407,7 @@ internal static class ShotBlockPlmProgramsVerification
             "edited draw persists in later camera streaming");
 
         AssertThrows<InvalidDataException>(
-            () => new InstalledRoomPlmShotBlockVisuals(editedEntries.Skip(1)),
+            () => RoomPlmShotBlockVisualFiles.Create(editedEntries.Skip(1)),
             "visual catalog rejects missing compiled draw lists");
     }
 

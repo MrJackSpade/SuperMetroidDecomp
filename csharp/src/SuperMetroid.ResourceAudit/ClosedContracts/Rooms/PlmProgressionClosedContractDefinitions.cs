@@ -17,9 +17,6 @@ internal static class PlmProgressionClosedContractDefinitions
     /// <summary>Elevatube definition also reviewed for Kraid-room visual membership.</summary>
     private static readonly ReviewedSource ElevatubeDefinition = new(
         "csharp/src/SuperMetroid.Core/Rooms/Plms/MaridiaElevatubePlmDefinitions.cs");
-    /// <summary>The Maridia elevatube draws' artwork names.</summary>
-    private static readonly ReviewedSource ElevatubeDraws = new(
-        "csharp/src/SuperMetroid.Core/Rooms/Plms/MaridiaElevatubeDraws.cs");
 
     /// <summary>Closed visual domains for progression blocks and boss-room PLM draws.</summary>
     internal static readonly ClosedPresentationContract[] All =
@@ -35,7 +32,7 @@ internal static class PlmProgressionClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/SpeedBoosterBlockPlmDrawDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/SpeedBoosterBlockPlmDraws.cs")]),
         new("SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmMaridiaElevatubeVisuals", "plm-maridia-elevatube-complete-draw", ["GetAppearance"],
-            [SharedDrawShape, SharedDrawLogic, SharedTerrainBlocks, ElevatubeDefinition, ElevatubeDraws,
+            [SharedDrawShape, SharedDrawLogic, SharedTerrainBlocks, ElevatubeDefinition,
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/InstalledRoomPlmMaridiaElevatubeVisuals.cs")]),
         new("SuperMetroid.Core.Bosses.SporeSpawn.Artwork.RoomPlmSporeSpawnCeilingVisualCatalog", "plm-spore-ceiling-complete-draws", ["GetAppearance"],
             [SharedDrawShape, SharedDrawLogic, SharedTerrainBlocks,
@@ -54,7 +51,7 @@ internal static class PlmProgressionClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/BotwoonWallPlmDrawDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/BotwoonWallPlmDraws.cs")]),
         new("SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmKraidVisuals", "plm-kraid-room-complete-draws", ["GetAppearance", "Frame", "Append"],
-            [SharedDrawShape, SharedDrawLogic, SharedTerrainBlocks, ElevatubeDefinition, ElevatubeDraws,
+            [SharedDrawShape, SharedDrawLogic, SharedTerrainBlocks, ElevatubeDefinition,
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/InstalledRoomPlmKraidVisuals.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/KraidRoomPlmDrawDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/KraidRoomPlmDraws.cs")]),

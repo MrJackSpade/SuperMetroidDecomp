@@ -5,30 +5,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Mother Brain's fake-death room block draws: the wall fill and escape door, the twelve mural rows and the fill rows
-/// and tube clears, their run geometry and cells from <see cref="MotherBrainFakeDeathPlmDrawDefinitions"/>, and their
-/// editable artwork identities.
+/// and tube clears, and their run geometry and cells from <see cref="MotherBrainFakeDeathPlmDrawDefinitions"/>.
 /// </summary>
 internal static class MotherBrainFakeDeathDraws
 {
-    /// <summary>Enumerates wall, door, mural rows and tube-clear draws in family order.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
-        BoundaryDraws().Concat(BackgroundDraws()).Concat(RegularDraws());
-
-    /// <summary>Validates a draw pointer before assigning its editable artwork ID.</summary>
-    internal static string VisualId(PlmDraw request) => VisualId(
-        PlmDraw.FrameOf<MotherBrainFakeDeathDraw>(request, "Mother Brain fake-death draw with a visual ID"));
-
-    /// <summary>Maps the closed draw domain to stable visual document names.</summary>
-    internal static string VisualId(MotherBrainFakeDeathDraw frame) =>
-        MotherBrainFakeDeathPlmDrawDefinitions.VisualIds.TryGetValue(frame, out string? id)
-            ? id
-            : throw new InvalidOperationException($"Undefined MotherBrainFakeDeathDraw {frame}.");
-
-    /// <summary>Finds a compiled physical draw by its case-sensitive editable visual ID.</summary>
-    internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
-        ShotBlockPlmDraws.FindByVisualId(All, VisualId, id, out draw);
-
     /// <summary>
     /// One of the two thirteen-cell solid fill rows or six tube clears. Tube interiors become blank; ceiling and floor
     /// endpoints are restored. Side tubes clear one extra cell toward the center using signed origin-relative X.
@@ -79,32 +59,6 @@ internal static class MotherBrainFakeDeathDraws
         throw new InvalidOperationException($"Undefined MotherBrainFakeDeathDraw {list}.");
     }
 
-    /// <summary>Expands a regular shape into ordered PLM runs with vertical flags and continuation offsets.</summary>
-    internal static bool TryGetRegular(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
-    {
-        draw = default;
-        if (!TryDescribeRegular(request, out var shape)) return false;
-        var runs = new RoomPlmShotBlockDrawDefinitions.Run[shape.RunCount];
-        for (int run = 0; run < runs.Length; run++)
-        {
-            var blocks = new RoomTerrainBlock[shape.Count(run)];
-            for (int block = 0; block < blocks.Length; block++) blocks[block] = shape.BlockAt(run, block);
-            runs[run] = new(shape.Vertical(run) ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, blocks, new(shape.NextX(run), 0));
-        }
-        draw = new(request, runs);
-        return true;
-    }
-
-    /// <summary>The two unused fill rows and six tube clears, in the order the room's records list them.</summary>
-    private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> RegularDraws()
-    {
-        foreach (MotherBrainFakeDeathDraw frame in Enum.GetValues<MotherBrainFakeDeathDraw>())
-        {
-            if (TryGetRegular(PlmDraw.Of(frame), out var draw))
-                yield return draw;
-        }
-    }
-
     /// <summary>
     /// Twelve horizontal thirteen-cell rows at 84:9505..966C, spaced thirty
     /// bytes apart. Top/bottom rows are slopes; interior rows are air.
@@ -129,27 +83,6 @@ internal static class MotherBrainFakeDeathDraws
             : -1;
         draw = row >= 0 ? new(row) : default;
         return row >= 0;
-    }
-
-    /// <summary>Builds one thirteen-cell horizontal mural run from its selected row and collision boundary.</summary>
-    internal static bool TryGetBackground(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
-    {
-        draw = default;
-        if (!TryDescribeBackground(request, out var row)) return false;
-        var blocks = new RoomTerrainBlock[13];
-        for (int column = 0; column < blocks.Length; column++) blocks[column] = row.BlockAt(column);
-        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, blocks, new(0, 0)) });
-        return true;
-    }
-
-    /// <summary>Enumerates all twelve mural rows, top to bottom.</summary>
-    private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> BackgroundDraws()
-    {
-        foreach (MotherBrainFakeDeathDraw row in MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRows)
-        {
-            TryGetBackground(PlmDraw.Of(row), out var draw);
-            yield return draw;
-        }
     }
 
     /// <summary>
@@ -194,30 +127,5 @@ internal static class MotherBrainFakeDeathDraws
         bool owned = list is MotherBrainFakeDeathDraw.FillWall or MotherBrainFakeDeathDraw.EscapeDoor;
         if (owned) draw = new(list);
         return owned;
-    }
-
-    /// <summary>Expands a validated wall or escape-door shape into two vertical PLM runs.</summary>
-    internal static bool TryGetBoundary(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
-    {
-        draw = default;
-        if (!TryDescribeBoundary(request, out var shape)) return false;
-        var runs = new RoomPlmShotBlockDrawDefinitions.Run[2];
-        for (int run = 0; run < runs.Length; run++)
-        {
-            var blocks = new RoomTerrainBlock[shape.Count(run)];
-            for (int block = 0; block < blocks.Length; block++) blocks[block] = shape.BlockAt(run, block);
-            runs[run] = new(PlmRunDirection.Vertical, blocks, new(shape.NextX(run), shape.NextY(run)));
-        }
-        draw = new(request, runs);
-        return true;
-    }
-
-    /// <summary>Yields the wall-fill then escape-door draws.</summary>
-    private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> BoundaryDraws()
-    {
-        TryGetBoundary(PlmDraw.Of(MotherBrainFakeDeathDraw.FillWall), out var wall);
-        yield return wall;
-        TryGetBoundary(PlmDraw.Of(MotherBrainFakeDeathDraw.EscapeDoor), out var door);
-        yield return door;
     }
 }

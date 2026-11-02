@@ -24,7 +24,7 @@ internal static class BotwoonWallPlmsVerification
         Suite(nameof(BossRoomPlmProgramsVerification.VerifyBotwoonWallPrograms), () => BossRoomPlmProgramsVerification.VerifyBotwoonWallPrograms(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList draw =
-            BotwoonWallPlmDraws.All.Single();
+            RoomPlmBotwoonWallVisualFiles.All.Single();
         AssertEqual((ushort)0x930f, PlmDrawAddressCodec.Of(draw.Draw),
             "Botwoon clear draw pointer");
         AssertEqual(1, draw.Runs.Length, "Botwoon clear has one vertical run");

@@ -25,7 +25,7 @@ internal static class LookupCannonLayoutsVerification
     {
         ushort[] pointers = [0x9fcd,0x9fdd,0xa02d,0xa03d,0xa04d,0xa05d,0xa0ed,0xa101,0xa165,0xa179,0xa18d,0xa1a1];
         string[] ids = ["right-shield-a","right-shield-b","right-damaged-a","right-damaged-b","right-damaged-c","right-damaged-d","left-shield-a","left-shield-b","left-damaged-a","left-damaged-b","left-damaged-c","left-damaged-d"];
-        var exported = DraygonCannonDraws.All.ToArray();
+        var exported = RoomPlmDraygonCannonVisualFiles.All.ToArray();
         AssertEqual(12, exported.Length, "Cannon layout export count");
         if (field == 0)
         {
@@ -34,17 +34,17 @@ internal static class LookupCannonLayoutsVerification
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
                 AssertEqual(owned, DraygonCannonDraws.TryDescribe(NativePlmDraws.At<DraygonCannonDraw>(pointer), out var shape), "Cannon layout shape domain");
-                AssertEqual(owned, DraygonCannonDraws.TryGet(NativePlmDraws.At<DraygonCannonDraw>(pointer), out var dto), "Cannon layout DTO domain");
+                AssertEqual(owned, RoomPlmDraygonCannonVisualFiles.TryGet(NativePlmDraws.At<DraygonCannonDraw>(pointer), out var dto), "Cannon layout DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(DraygonCannonDraws.Draw), shape, "Cannon layout missing shape");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Cannon layout missing DTO");
-                    AssertThrows<InvalidDataException>(() => DraygonCannonDraws.VisualId(NativePlmDraws.At<DraygonCannonDraw>(pointer)), "Cannon layout missing ID");
+                    AssertThrows<InvalidDataException>(() => RoomPlmDraygonCannonVisualFiles.VisualId(NativePlmDraws.At<DraygonCannonDraw>(pointer)), "Cannon layout missing ID");
                 }
             }
             foreach (string id in new[] { "RIGHT-SHIELD-A", "broken", "", "unknown" })
             {
-                AssertTrue(!DraygonCannonDraws.TryGetByVisualId(id, out var missing), "Cannon layout ordinal ID domain");
+                AssertTrue(!RoomPlmDraygonCannonVisualFiles.TryGetByVisualId(id, out var missing), "Cannon layout ordinal ID domain");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Cannon layout rejected ID output");
             }
         }
@@ -53,12 +53,12 @@ internal static class LookupCannonLayoutsVerification
         {
             ushort pointer = pointers[index];
             DraygonCannonDraws.TryDescribe(NativePlmDraws.At<DraygonCannonDraw>(pointer), out var shape);
-            DraygonCannonDraws.TryGet(NativePlmDraws.At<DraygonCannonDraw>(pointer), out var dto);
-            DraygonCannonDraws.TryGetByVisualId(ids[index], out var byId);
+            RoomPlmDraygonCannonVisualFiles.TryGet(NativePlmDraws.At<DraygonCannonDraw>(pointer), out var dto);
+            RoomPlmDraygonCannonVisualFiles.TryGetByVisualId(ids[index], out var byId);
             if (field == 0)
             {
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Cannon layout original export order");
-                AssertEqual(ids[index], DraygonCannonDraws.VisualId(NativePlmDraws.At<DraygonCannonDraw>(pointer)), "Cannon layout published ID");
+                AssertEqual(ids[index], RoomPlmDraygonCannonVisualFiles.VisualId(NativePlmDraws.At<DraygonCannonDraw>(pointer)), "Cannon layout published ID");
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Cannon layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {

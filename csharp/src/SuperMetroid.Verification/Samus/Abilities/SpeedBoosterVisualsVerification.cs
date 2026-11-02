@@ -27,7 +27,7 @@ internal static class SpeedBoosterVisualsVerification
         const ushort pointer = 0xa4f3;
         RoomBlockAppearance native = RoomLevelWordCodec.DecodeAppearance(ReadRomWord(rom,0x84a4f5));
         var stock = InstalledRoomPlmSpeedBoosterVisuals.Stock();
-        var imported = new InstalledRoomPlmSpeedBoosterVisuals([new("bomb-reveal",[native])]);
+        var imported = RoomPlmSpeedBoosterVisualFiles.Create([new("bomb-reveal",[native])]);
         string Hash(RoomBlockAppearance appearance) => SuperMetroid.Core.Assets.SelectedPresentationHash.Create(
             nameof(InstalledRoomPlmSpeedBoosterVisuals), content => content.AppendAppearances("block",[appearance]));
         AssertEqual(native,stock.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed stock visual matches original native draw");
@@ -43,14 +43,14 @@ internal static class SpeedBoosterVisualsVerification
             AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,invalid),"speed visual block bounds");
         }
         RoomBlockAppearance[] custom = [RoomBlockAppearance.Of(0x053, BlockMirroring.Horizontal)];
-        var edited = new InstalledRoomPlmSpeedBoosterVisuals([new("bomb-reveal",custom)]);
+        var edited = RoomPlmSpeedBoosterVisualFiles.Create([new("bomb-reveal",custom)]);
         custom[0] = RoomBlockAppearance.Of(0x054);
         AssertEqual(RoomBlockAppearance.Of(0x053, BlockMirroring.Horizontal),edited.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed visual scalar isolates source-array edits");
         AssertEqual(Hash(RoomBlockAppearance.Of(0x053, BlockMirroring.Horizontal)),edited.ContentIdentity,"speed custom scalar identity including mirroring");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSpeedBoosterVisuals([]),"speed visual requires entry");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSpeedBoosterVisuals([new("bomb-reveal",[native]),new("bomb-reveal",[native])]),"speed visual rejects duplicate entry");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSpeedBoosterVisuals([new("Bomb-reveal",[native])]),"speed visual ID is ordinal");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSpeedBoosterVisuals([new("bomb-reveal",[native,native])]),"speed visual rejects altered shape");
+        AssertThrows<InvalidDataException>(() => RoomPlmSpeedBoosterVisualFiles.Create([]),"speed visual requires entry");
+        AssertThrows<InvalidDataException>(() => RoomPlmSpeedBoosterVisualFiles.Create([new("bomb-reveal",[native]),new("bomb-reveal",[native])]),"speed visual rejects duplicate entry");
+        AssertThrows<InvalidDataException>(() => RoomPlmSpeedBoosterVisualFiles.Create([new("Bomb-reveal",[native])]),"speed visual ID is ordinal");
+        AssertThrows<InvalidDataException>(() => RoomPlmSpeedBoosterVisualFiles.Create([new("bomb-reveal",[native,native])]),"speed visual rejects altered shape");
     }
 
     /// <summary>Checks extraction and a production bomb reveal with immediate and streamed art but unchanged physical block.</summary>

@@ -23,33 +23,12 @@ public sealed class InstalledRoomPlmGrappleBlockVisuals
     });
 
     /// <summary>Only Grapple-block frame appearances that differ from compiled appearance.</summary>
-    private readonly Dictionary<GrappleBlockDraw, RoomBlockAppearance>? customBlocks;
+    private readonly IReadOnlyDictionary<GrappleBlockDraw, RoomBlockAppearance> customBlocks;
 
-    /// <summary>Validates all five compiled one-block frames and retains authored visual differences without changing Grapple collision, breakup timing, or draw shape.</summary>
-    /// <param name="entries">Exactly one visual-only entry for each compiled initial, breakup, and blank draw identity.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry changes an identity/collision bits, repeats a frame, or leaves coverage incomplete.</exception>
-    public InstalledRoomPlmGrappleBlockVisuals(IEnumerable<RoomPlmVisualBlockEntry> entries)
-    {
-        Ensure.NotNull(entries);
-        var selected = new Dictionary<GrappleBlockDraw, RoomBlockAppearance>();
-        var seen = new HashSet<GrappleBlockDraw>();
-        foreach (RoomPlmVisualBlockEntry entry in entries)
-        {
-            if (entry is null || !GrappleBlockPlmDraws.TryGetByVisualId(entry.Id, out var draw))
-                throw new InvalidDataException(
-                    "Grapple-block visuals changed a compiled draw identity.");
-            if (!seen.Add(draw.Frame))
-                throw new InvalidDataException($"Grapple-block visuals repeat draw {entry.Id}.");
-            if (entry.Appearance != draw.Terrain.Appearance)
-                selected.Add(draw.Frame, entry.Appearance);
-        }
-
-        if (seen.Count != GrappleBlockPlmDraws.All.Count())
-            throw new InvalidDataException(
-                "Grapple-block visuals do not cover all compiled draw lists.");
-        if (selected.Count != 0) customBlocks = selected;
-    }
+    /// <summary>Holds the import-validated appearances of the frames that differ from the compiled frames.</summary>
+    /// <param name="customBlocks">The changed frames' appearances, keyed by frame.</param>
+    internal InstalledRoomPlmGrappleBlockVisuals(IReadOnlyDictionary<GrappleBlockDraw, RoomBlockAppearance> customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Resolves the selected appearance for one breakable-Grapple frame while preserving its compiled Grapple or air collision.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
@@ -59,7 +38,7 @@ public sealed class InstalledRoomPlmGrappleBlockVisuals
     {
         if (!GrappleBlockPlmDraws.TryGet(draw, out var definition))
             throw new InvalidDataException($"Grapple-block visuals lack draw {draw}.");
-        return customBlocks is not null && customBlocks.TryGetValue(definition.Frame, out RoomBlockAppearance selected)
+        return customBlocks.TryGetValue(definition.Frame, out RoomBlockAppearance selected)
             ? selected : definition.Terrain.Appearance;
     }
 }

@@ -48,23 +48,6 @@ internal static class DraygonCannonPlmDrawDefinitions
         [new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 3)] = LeftDamaged(3),
     };
 
-    /// <summary>Each reachable cannon draw's editable artwork key: its facing, condition and pose.</summary>
-    internal static readonly Dictionary<DraygonCannonDraw, string> VisualIds = new()
-    {
-        [DraygonCannonDraw.RightShieldA] = "right-shield-a",
-        [DraygonCannonDraw.RightShieldB] = "right-shield-b",
-        [DraygonCannonDraw.RightDamagedA] = "right-damaged-a",
-        [DraygonCannonDraw.RightDamagedB] = "right-damaged-b",
-        [DraygonCannonDraw.RightDamagedC] = "right-damaged-c",
-        [DraygonCannonDraw.RightDamagedD] = "right-damaged-d",
-        [DraygonCannonDraw.LeftShieldA] = "left-shield-a",
-        [DraygonCannonDraw.LeftShieldB] = "left-shield-b",
-        [DraygonCannonDraw.LeftDamagedA] = "left-damaged-a",
-        [DraygonCannonDraw.LeftDamagedB] = "left-damaged-b",
-        [DraygonCannonDraw.LeftDamagedC] = "left-damaged-c",
-        [DraygonCannonDraw.LeftDamagedD] = "left-damaged-d",
-    };
-
     /// <summary>The empty cell a damaged frame leaves beside its core.</summary>
     private static RoomTerrainBlock Empty => RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.Air);
 

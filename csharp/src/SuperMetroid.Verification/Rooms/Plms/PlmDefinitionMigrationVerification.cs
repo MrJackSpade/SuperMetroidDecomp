@@ -69,10 +69,10 @@ internal static class PlmDefinitionMigrationVerification
         AssertEqual(RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock), MaridiaElevatubePlmDefinitions.Terrain, "elevatube block");
         AssertEqual(RoomTerrainBlock.Of(0x046, BlockMirroring.None, RoomCollisionType.ShootableBlock), GatePlms.DownwardGateShotBlock(0).LeftBlock, "blue-left gate trigger block");
         AssertEqual(RoomTerrainBlock.Of(0x04d, BlockMirroring.None, RoomCollisionType.ShootableBlock), GatePlms.DownwardGateShotBlock(7).RightBlock, "yellow-right gate trigger block");
-        var bombHorizontal = new LinkedRestorePlmFamily.Draw(PlmDraw.Of(BombBlockRestoreDraw.Horizontal), PlmRestoreShape.Horizontal, LinkedRestorePlmFamily.BombBlock);
+        var bombHorizontal = new LinkedRestorePlmFamily.Draw(PlmRestoreShape.Horizontal, LinkedRestorePlmFamily.BombBlock);
         AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.BombableBlock), bombHorizontal.BlockAt(0, 0), "bomb block parent");
         AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.HorizontalExtension), bombHorizontal.BlockAt(0, 1), "bomb block horizontal child");
-        var crumbleVertical = new LinkedRestorePlmFamily.Draw(PlmDraw.Of(ContactCrumbleRestoreDraw.Vertical), PlmRestoreShape.Vertical, LinkedRestorePlmFamily.ContactCrumble);
+        var crumbleVertical = new LinkedRestorePlmFamily.Draw(PlmRestoreShape.Vertical, LinkedRestorePlmFamily.ContactCrumble);
         AssertEqual(RoomTerrainBlock.Of(0x0bc, BlockMirroring.None, RoomCollisionType.SpecialBlock), crumbleVertical.BlockAt(0, 0), "contact crumble parent");
         AssertEqual(RoomTerrainBlock.Of(0x0bc, BlockMirroring.None, RoomCollisionType.VerticalExtension), crumbleVertical.BlockAt(0, 1), "contact crumble vertical child");
         Console.WriteLine("PLM definition migration: header words, member identifications, station animations, catalog values and terrain blocks keep their values.");

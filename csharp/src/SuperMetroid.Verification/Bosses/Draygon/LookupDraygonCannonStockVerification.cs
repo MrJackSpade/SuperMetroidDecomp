@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -40,9 +41,9 @@ internal static class LookupDraygonCannonStockVerification
             native[frame.Pointer].SelectMany(run => run).ToArray())).ToArray();
         var flat = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].SelectMany(run => run).ToArray());
         var stock = RoomPlmDraygonCannonVisualCatalog.Stock();
-        var imported = new RoomPlmDraygonCannonVisualCatalog(entries.Reverse());
+        var imported = RoomPlmDraygonCannonVisualFiles.Create(entries.Reverse());
         string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(RoomPlmDraygonCannonVisualCatalog), appearances.ToDictionary(pair => DraygonCannonDraws.VisualId(NativePlmDraws.At<DraygonCannonDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmDraygonCannonVisualCatalog), appearances.ToDictionary(pair => RoomPlmDraygonCannonVisualFiles.VisualId(NativePlmDraws.At<DraygonCannonDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(flat), catalog.ContentIdentity, "Cannon original flattened identity");
@@ -64,7 +65,7 @@ internal static class LookupDraygonCannonStockVerification
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<DraygonCannonDraw>((ushort)pointer),0,0), "Cannon stock unknown pointer");
         entries[8].Blocks[2] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var mixed = new RoomPlmDraygonCannonVisualCatalog(entries);
+        var mixed = RoomPlmDraygonCannonVisualFiles.Create(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Cannon mixed custom/stock identity");
         entries[8].Blocks[2] = RoomBlockAppearance.Of(0x5a);
@@ -76,13 +77,13 @@ internal static class LookupDraygonCannonStockVerification
             for (int word = 0; word < native[frame.Pointer][run].Length; word++)
                 AssertEqual(expected[frame.Pointer][index++], mixed.GetAppearance(NativePlmDraws.At<DraygonCannonDraw>(frame.Pointer),run,word), "Cannon cloned custom and unchanged stock isolation");
         }
-        AssertThrows<InvalidDataException>(() => new RoomPlmDraygonCannonVisualCatalog(entries[..1]), "Cannon missing frame");
-        AssertThrows<InvalidDataException>(() => new RoomPlmDraygonCannonVisualCatalog(entries.Append(entries[0])), "Cannon duplicate frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmDraygonCannonVisualFiles.Create(entries[..1]), "Cannon missing frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmDraygonCannonVisualFiles.Create(entries.Append(entries[0])), "Cannon duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("RIGHT-SHIELD-A", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => new RoomPlmDraygonCannonVisualCatalog(invalid), "Cannon ordinal identity");
+        AssertThrows<InvalidDataException>(() => RoomPlmDraygonCannonVisualFiles.Create(invalid), "Cannon ordinal identity");
         invalid[0] = new(entries[0].Id, new RoomBlockAppearance[7]);
-        AssertThrows<InvalidDataException>(() => new RoomPlmDraygonCannonVisualCatalog(invalid), "Cannon exact flattened shape");
+        AssertThrows<InvalidDataException>(() => RoomPlmDraygonCannonVisualFiles.Create(invalid), "Cannon exact flattened shape");
     }
 
     /// <summary>Reads one native draw-record byte for the cannon run-termination oracle.</summary>

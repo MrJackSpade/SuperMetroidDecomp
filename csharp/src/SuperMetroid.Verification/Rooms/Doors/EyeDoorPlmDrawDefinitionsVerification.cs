@@ -38,17 +38,17 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         Suite(nameof(VerifyEyeDoorLayoutCollision), () => VerifyEyeDoorLayoutCollision(rom));
         Suite(nameof(VerifyEyeDoorLayoutVisuals), () => VerifyEyeDoorLayoutVisuals(rom));
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
-            EyeDoorDraws.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
-        RoomPlmVisualEntry[] entries = EyeDoorDraws.Editable.Select(draw =>
+            RoomPlmEyeDoorVisualFiles.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
+        RoomPlmVisualEntry[] entries = RoomPlmEyeDoorVisualFiles.Editable.Select(draw =>
             new RoomPlmVisualEntry(
-                EyeDoorDraws.VisualId(draw.Draw),
+                RoomPlmEyeDoorVisualFiles.VisualId(draw.Draw),
                 draw.Runs.Span[0].Blocks.Span
                     .SelectToArray(block => block.Appearance))).ToArray();
         RoomPlmVisualEntry rightEye = entries.Single(entry =>
             entry.Id == "right-eye-frame-0");
         RoomBlockAppearance stockWord = rightEye.Blocks[0];
         rightEye.Blocks[0] = RoomBlockAppearance.Of(0x055);
-        var edited = new InstalledRoomPlmEyeDoorVisuals(entries);
+        var edited = RoomPlmEyeDoorVisualFiles.Create(entries);
         rightEye.Blocks[0] = RoomBlockAppearance.Of(0x056);
         AssertEqual(RoomBlockAppearance.Of(0x055), edited.GetAppearance(NativePlmDraws.At<EyeDoorDraws.Draw>(0x9c5b), 0),
             "eye-door catalog copies author data");
@@ -104,7 +104,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         int[] origins = [4 * width + 7, 6 * width + 7, 8 * width + 7];
         for (int component = 0; component < pointers.Length; component++)
         {
-            AssertTrue(EyeDoorDraws.TryGet(NativePlmDraws.At<EyeDoorDraws.Draw>(pointers[component]), out var list),
+            AssertTrue(RoomPlmEyeDoorVisualFiles.TryGet(NativePlmDraws.At<EyeDoorDraws.Draw>(pointers[component]), out var list),
                 $"{orientation} component {component} selects compiled draw data");
             RoomPlmShotBlockDrawDefinitions.Run run = list.Runs.Span[0];
             int stride = run.Direction == PlmRunDirection.Vertical ? width : 1;

@@ -24,14 +24,4 @@ internal static class TourianAccessPlmDrawDefinitions
             [TourianAccessDraw.CrumbleSecond] = new(1, RoomTerrainBlock.Of(84, BlockMirroring.None, RoomCollisionType.Air)),
             [TourianAccessDraw.CrumbleThird] = new(1, RoomTerrainBlock.Of(85, BlockMirroring.None, RoomCollisionType.Air)),
         };
-
-    /// <summary>The artwork identity naming each empty, crumble or six-row clear frame in visual files.</summary>
-    internal static readonly IReadOnlyDictionary<TourianAccessDraw, string> VisualIds = new Dictionary<TourianAccessDraw, string>
-    {
-        [TourianAccessDraw.EmptyRow] = "crumble-empty-row",
-        [TourianAccessDraw.CrumbleFirst] = "crumble-frame-0",
-        [TourianAccessDraw.CrumbleSecond] = "crumble-frame-1",
-        [TourianAccessDraw.CrumbleThird] = "crumble-frame-2",
-        [TourianAccessDraw.Clear] = "clear-six-rows",
-    };
 }

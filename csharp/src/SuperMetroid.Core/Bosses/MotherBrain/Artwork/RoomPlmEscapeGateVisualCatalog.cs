@@ -15,14 +15,10 @@ public sealed class RoomPlmEscapeGateVisualCatalog
     /// <summary>Only escape-gate frames whose appearances differ from compiled stock data.</summary>
     private readonly PlmVisualOverrides customBlocks;
 
-    /// <summary>Validates all three escape-gate frames and copies visual differences without replacing terrain blocks, animation timing, or door handoff.</summary>
-    /// <remarks>Even the visually open frame retains compiled solid collision; an artwork override cannot change that behavior.</remarks>
-    /// <param name="entries">Exactly one four-block, visual-only entry for each compiled gate frame.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
-    public RoomPlmEscapeGateVisualCatalog(IEnumerable<RoomPlmVisualEntry> entries) =>
-        customBlocks = new PlmVisualOverrides(entries, "Escape-gate", MotherBrainEscapeGateDraws.TryGetByVisualId,
-            MotherBrainEscapeGateDraws.All.Count());
+    /// <summary>Holds the import-validated appearances of the frames that differ from the compiled frames.</summary>
+    /// <param name="customBlocks">The changed frames' four appearances, keyed by draw.</param>
+    internal RoomPlmEscapeGateVisualCatalog(PlmVisualOverrides customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Resolves one escape-gate block's selected appearance independently of its compiled solid collision.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

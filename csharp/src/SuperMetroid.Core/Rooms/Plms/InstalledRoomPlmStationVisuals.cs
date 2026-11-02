@@ -28,51 +28,12 @@ public sealed class InstalledRoomPlmStationVisuals
     });
 
     /// <summary>Deep-copied visual overrides keyed by draw; absent frames use stock artwork.</summary>
-    private readonly Dictionary<PlmDraw, RoomBlockAppearance[][]>? customBlocks;
+    private readonly IReadOnlyDictionary<PlmDraw, RoomBlockAppearance[][]> customBlocks;
 
-    /// <summary>Validates and captures the complete twenty-frame station artwork selection while retaining run geometry, collision, activation, and reward behavior.</summary>
-    /// <param name="entries">Every compiled map, energy, missile, save, and access frame exactly once, with its original run/cell counts and valid visual-only appearances.</param>
-    /// <remarks>Changed frames are deep-copied; stock-identical frames resolve from compiled definitions. Later caller-array edits do not affect either path.</remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
-    /// <exception cref="InvalidDataException">Coverage, uniqueness, frame identity, array shape, or appearances are invalid.</exception>
-    public InstalledRoomPlmStationVisuals(
-        IEnumerable<RoomPlmVisualRunEntry> entries)
-    {
-        Ensure.NotNull(entries);
-        var selected = new Dictionary<PlmDraw, RoomBlockAppearance[][]>();
-        var seen = new HashSet<PlmDraw>();
-        foreach (RoomPlmVisualRunEntry entry in entries)
-        {
-            if (entry is null || entry.Runs is null ||
-                !StationPlmDraws.TryGetByVisualId(entry.Id, out var definition) ||
-                entry.Runs.Length != definition.Runs.Length)
-                throw new InvalidDataException(
-                    "Station visuals changed a compiled frame identity or draw shape.");
-            for (int run = 0; run < entry.Runs.Length; run++)
-            {
-                RoomBlockAppearance[] appearances = entry.Runs[run];
-                if (appearances is null ||
-                    appearances.Length != definition.Runs.Span[run].Count)
-                    throw new InvalidDataException(
-                        $"Station visuals {entry.Id} change a draw shape.");
-            }
-
-            if (!seen.Add(definition.Draw))
-                throw new InvalidDataException(
-                    $"Station visuals repeat frame {entry.Id}.");
-            var shape = StationPlmDraws.Describe(definition.Draw);
-            bool changed = false;
-            for (int run = 0; run < shape.RunCount; run++)
-                for (int cell = 0; cell < shape.BlockCount(run); cell++)
-                    changed |= entry.Runs[run][cell] != shape.BlockAt(run, cell).Appearance;
-            if (changed) selected.Add(definition.Draw, entry.Runs.Select(run => run.ToArray()).ToArray());
-        }
-
-        if (seen.Count != StationPlmDraws.All.Count())
-            throw new InvalidDataException(
-                "Station visuals do not cover all compiled frames.");
-        if (selected.Count != 0) customBlocks = selected;
-    }
+    /// <summary>Holds the import-validated run appearances of the frames that differ from the compiled frames.</summary>
+    /// <param name="customBlocks">The changed frames' appearances run by run, keyed by draw.</param>
+    internal InstalledRoomPlmStationVisuals(IReadOnlyDictionary<PlmDraw, RoomBlockAppearance[][]> customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Resolves a station cell's selected appearance, using compiled appearance for an unchanged frame.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
@@ -89,7 +50,7 @@ public sealed class InstalledRoomPlmStationVisuals
         if ((uint)runIndex >= (uint)shape.RunCount ||
             (uint)blockIndex >= (uint)shape.BlockCount(runIndex))
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks is not null && customBlocks.TryGetValue(draw, out var runs)
+        return customBlocks.TryGetValue(draw, out var runs)
             ? runs[runIndex][blockIndex] : shape.BlockAt(runIndex, blockIndex).Appearance;
     }
 }

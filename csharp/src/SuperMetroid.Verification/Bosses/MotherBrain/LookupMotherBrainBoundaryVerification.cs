@@ -17,7 +17,7 @@ internal static class LookupMotherBrainBoundaryVerification
     /// <summary>Checks pointer ownership, two-run geometry, and bounds for the wall and door boundary records.</summary>
     internal static void VerifyMotherBrainBoundaryGeometry(SuperMetroidAddressSpace rom)
     {
-        var exports = MotherBrainFakeDeathDraws.All.Take(2).ToArray();
+        var exports = RoomPlmMotherBrainFakeDeathVisualFiles.All.Take(2).ToArray();
         ushort[] pointers = [0x94a3,0x94b1];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

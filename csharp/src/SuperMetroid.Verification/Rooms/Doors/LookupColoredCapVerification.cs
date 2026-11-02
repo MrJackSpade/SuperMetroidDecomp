@@ -28,7 +28,7 @@ internal static class LookupColoredCapVerification
             new LookupColoredCapFamily(0xa8e7,"red-left"),new LookupColoredCapFamily(0xa917,"red-right"),new LookupColoredCapFamily(0xa947,"red-up"),new LookupColoredCapFamily(0xa977,"red-down")];
         ushort[] pointers = families.SelectMany(family => Enumerable.Range(0,4).Select(frame => (ushort)(family.First+12*frame))).ToArray();
         string[] ids = families.SelectMany(family => Enumerable.Range(0,4).Select(frame => $"{family.Name}-frame-{frame}")).ToArray();
-        var exported = ColoredDoorCaps.All.ToArray();
+        var exported = RoomPlmColoredDoorVisualFiles.All.ToArray();
         AssertEqual(48, exported.Length, "Colored cap export count");
         if (field == 0)
         {
@@ -37,17 +37,17 @@ internal static class LookupColoredCapVerification
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
                 AssertEqual(owned, ColoredDoorCaps.TryDescribe(NativePlmDraws.At<ColoredDoorCaps.Draw>(pointer), out var shape), "Colored cap descriptor domain");
-                AssertEqual(owned, ColoredDoorCaps.TryGet(NativePlmDraws.At<ColoredDoorCaps.Draw>(pointer), out var dto), "Colored cap DTO domain");
+                AssertEqual(owned, RoomPlmColoredDoorVisualFiles.TryGet(NativePlmDraws.At<ColoredDoorCaps.Draw>(pointer), out var dto), "Colored cap DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(ColoredDoorCaps.Draw), shape, "Colored cap missing descriptor");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Colored cap missing DTO");
-                    AssertThrows<InvalidDataException>(() => ColoredDoorCaps.VisualId(NativePlmDraws.At<ColoredDoorCaps.Draw>(pointer)), "Colored cap missing ID");
+                    AssertThrows<InvalidDataException>(() => RoomPlmColoredDoorVisualFiles.VisualId(NativePlmDraws.At<ColoredDoorCaps.Draw>(pointer)), "Colored cap missing ID");
                 }
             }
             foreach (string id in new[] { "YELLOW-LEFT-FRAME-0", "green-left-frame-4", "", "unknown" })
             {
-                AssertTrue(!ColoredDoorCaps.TryGetByVisualId(id, out var missing), "Colored cap ordinal ID domain");
+                AssertTrue(!RoomPlmColoredDoorVisualFiles.TryGetByVisualId(id, out var missing), "Colored cap ordinal ID domain");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Colored cap missing ID output");
             }
         }
@@ -55,14 +55,14 @@ internal static class LookupColoredCapVerification
         {
             ushort pointer = pointers[index];
             ColoredDoorCaps.TryDescribe(NativePlmDraws.At<ColoredDoorCaps.Draw>(pointer), out var shape);
-            ColoredDoorCaps.TryGet(NativePlmDraws.At<ColoredDoorCaps.Draw>(pointer), out var dto);
+            RoomPlmColoredDoorVisualFiles.TryGet(NativePlmDraws.At<ColoredDoorCaps.Draw>(pointer), out var dto);
             if (field == 0)
             {
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Colored cap original order");
-                AssertEqual(ids[index], ColoredDoorCaps.VisualId(NativePlmDraws.At<ColoredDoorCaps.Draw>(pointer)), "Colored cap published ID");
-                AssertTrue(ColoredDoorCaps.TryGetByVisualId(ids[index], out var byId), "Colored cap reverse ID");
+                AssertEqual(ids[index], RoomPlmColoredDoorVisualFiles.VisualId(NativePlmDraws.At<ColoredDoorCaps.Draw>(pointer)), "Colored cap published ID");
+                AssertTrue(RoomPlmColoredDoorVisualFiles.TryGetByVisualId(ids[index], out var byId), "Colored cap reverse ID");
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Colored cap ID identity");
-                AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), shape.Direction, 4, "Colored cap native geometry");
+                AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), dto.Runs.Span[0].Direction, 4, "Colored cap native geometry");
                 AssertEqual((ushort)0, ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 10)), "Colored cap native final offset");
                 foreach (var frame in new[] {dto,exported[index],byId})
                 {
@@ -76,7 +76,7 @@ internal static class LookupColoredCapVerification
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid), "Colored cap calculated row bounds");
             }
             else for (int row = 0; row < 4; row++)
-            {
+            {
                 RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 2 + row * 2)));
                 AssertEqual(expected, shape.BlockAt(row), "Colored cap original calculated field");
                 AssertEqual(expected, dto.Runs.Span[0].Blocks.Span[row], "Colored cap original DTO field");

@@ -19,23 +19,9 @@ public sealed class InstalledRoomPlmSpeedBoosterVisuals
     /// </summary>
     private readonly RoomBlockAppearance appearance;
 
-    /// <summary>Validates and captures the single bomb-reveal appearance while preserving compiled Speed Booster collision and timing.</summary>
-    /// <param name="entries">Exactly one <c>bomb-reveal</c> entry containing one valid appearance; its value is captured, so later input-array edits do not affect the catalog.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
-    /// <exception cref="InvalidDataException">Entry count, identity, block count, or appearances do not match the compiled reveal.</exception>
-    public InstalledRoomPlmSpeedBoosterVisuals(
-        IEnumerable<RoomPlmVisualEntry> entries)
-    {
-        Ensure.NotNull(entries);
-        RoomPlmVisualEntry[] selected = entries.ToArray();
-        if (selected.Length != 1 || selected[0] is null ||
-            !SpeedBoosterBlockPlmDraws.TryGetByVisualId(
-                selected[0].Id, out _) ||
-            selected[0].Blocks is not { Length: 1 } blocks)
-            throw new InvalidDataException(
-                "Speed Booster visuals require exactly one bomb-reveal visual block.");
-        appearance = blocks[0];
-    }
+    /// <summary>Holds the import-validated bomb-reveal appearance.</summary>
+    /// <param name="appearance">The block the reveal's sole cell shows.</param>
+    internal InstalledRoomPlmSpeedBoosterVisuals(RoomBlockAppearance appearance) => this.appearance = appearance;
 
     /// <summary>Resolves the installed appearance for the sole Speed Booster bomb-reveal cell.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

@@ -15,14 +15,10 @@ public sealed class RoomPlmCrocomireVisualCatalog
     /// <summary>Copied visual-only differences for the five compiled Crocomire arena layouts.</summary>
     private readonly PlmVisualOverrides customAppearances;
 
-    /// <summary>Validates all five Crocomire arena layouts and copies visual differences without changing terrain blocks, run geometry, or PLM programs.</summary>
-    /// <param name="entries">Exactly one visual-only entry per compiled draw identity with its full flattened block count.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
-    public RoomPlmCrocomireVisualCatalog(
-        IEnumerable<RoomPlmVisualEntry> entries) =>
-        customAppearances = new PlmVisualOverrides(entries, "Crocomire", CrocomireArenaDraws.TryGetByVisualId,
-            CrocomireArenaDraws.All.Count());
+    /// <summary>Holds the import-validated appearances of the layouts that differ from the compiled layouts.</summary>
+    /// <param name="customAppearances">The changed layouts' flattened appearances, keyed by draw.</param>
+    internal RoomPlmCrocomireVisualCatalog(PlmVisualOverrides customAppearances) =>
+        this.customAppearances = Ensure.NotNull(customAppearances);
 
     /// <summary>Resolves one arena-layout block, translating run-local indices into the flattened visual override.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

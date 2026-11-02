@@ -84,7 +84,7 @@ internal static class ContactCrumbleProgramsVerification
     private static void VerifyContactCrumbleRestorationMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4a1, 0xa4a9, 0xa4b1];
-        AssertTrue(pointers.SequenceEqual(LinkedRestorePlmFamily.ContactCrumble.All.Select(draw => PlmDrawAddressCodec.Of(draw.Draw))),
+        AssertTrue(pointers.SequenceEqual(RoomPlmLinkedRestoreVisualFiles.AllOf(LinkedRestorePlmFamily.ContactCrumble).Select(draw => PlmDrawAddressCodec.Of(draw.Draw))),
             "contact restoration export order matches native layouts");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
@@ -161,7 +161,7 @@ internal static class ContactCrumbleProgramsVerification
         // The four shape-specific breakup animations are shared with shot and bomb
         // blocks. They must remain compiled even when a contact-crumble list selects them.
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 ShotBlockPlmDraws.All)
+                 RoomPlmShotBlockVisualFiles.All)
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
@@ -213,15 +213,15 @@ internal static class ContactCrumbleProgramsVerification
     private static void VerifyContactCrumbleVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden)
     {
-        RoomPlmVisualRunEntry[] entries = ShotBlockPlmDraws.All
-            .Select(list => new RoomPlmVisualRunEntry(ShotBlockPlmDraws.VisualId(list.Draw),
+        RoomPlmVisualRunEntry[] entries = RoomPlmShotBlockVisualFiles.All
+            .Select(list => new RoomPlmVisualRunEntry(RoomPlmShotBlockVisualFiles.VisualId(list.Draw),
                 list.Runs.Span.SelectToArray(run =>
                     run.Blocks.Span.SelectToArray(block => block.Appearance))))
             .ToArray();
         RoomPlmVisualRunEntry first = entries.Single(entry =>
             entry.Id == "single-breakup-0");
         first.Runs[0][0] = RoomBlockAppearance.Of(0x054);
-        var edited = new InstalledRoomPlmShotBlockVisuals(entries);
+        var edited = RoomPlmShotBlockVisualFiles.Create(entries);
 
         RenderBreakResult RenderBreak(
             InstalledRoomPlmShotBlockVisuals visuals)

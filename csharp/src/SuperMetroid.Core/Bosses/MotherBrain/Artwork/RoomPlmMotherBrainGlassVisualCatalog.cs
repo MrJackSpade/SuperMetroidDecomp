@@ -15,14 +15,10 @@ public sealed class RoomPlmMotherBrainGlassVisualCatalog
     /// <summary>Copied visual overrides by compiled glass-layout pointer; unchanged layouts use stock appearances.</summary>
     private readonly PlmVisualOverrides customBlocks;
 
-    /// <summary>Validates all eleven glass layouts and copies visual differences without changing damage thresholds, shards, event timing, terrain blocks, or signed draw offsets.</summary>
-    /// <param name="entries">Exactly one visual-only entry per compiled glass identity, with the full flattened count of its run cells.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
-    public RoomPlmMotherBrainGlassVisualCatalog(
-        IEnumerable<RoomPlmVisualEntry> entries) =>
-        customBlocks = new PlmVisualOverrides(entries, "Mother Brain glass", MotherBrainGlassDraws.TryGetByVisualId,
-            MotherBrainGlassDraws.All.Count());
+    /// <summary>Holds the import-validated appearances of the layouts that differ from the compiled layouts.</summary>
+    /// <param name="customBlocks">The changed layouts' flattened appearances, keyed by draw.</param>
+    internal RoomPlmMotherBrainGlassVisualCatalog(PlmVisualOverrides customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Resolves one glass-layout visual block by translating run-local indices into the flattened authored frame.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

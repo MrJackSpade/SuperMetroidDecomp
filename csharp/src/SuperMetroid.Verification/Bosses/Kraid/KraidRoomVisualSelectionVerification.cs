@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
@@ -30,10 +31,10 @@ internal static class KraidRoomVisualSelectionVerification
             expected.Add(definition.Pointer, words);
             entries.Add(new(definition.Id, words.ToArray()));
         }
-        var catalog = new InstalledRoomPlmKraidVisuals(entries.AsEnumerable().Reverse());
-        string expectedHash = SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmKraidVisuals), expected.ToDictionary(pair => KraidRoomPlmDraws.VisualId(NativePlmDraws.At<KraidRoomDraw>(pair.Key)), pair => pair.Value));
+        var catalog = RoomPlmKraidVisualFiles.Create(entries.AsEnumerable().Reverse());
+        string expectedHash = SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmKraidVisuals), expected.ToDictionary(pair => RoomPlmKraidVisualFiles.VisualId(NativePlmDraws.At<KraidRoomDraw>(pair.Key)), pair => pair.Value));
         AssertEqual(expectedHash, catalog.ContentIdentity, "Kraid visual selection preserves sorted legacy identity");
-        AssertEqual(expectedHash, new InstalledRoomPlmKraidVisuals(entries).ContentIdentity,
+        AssertEqual(expectedHash, RoomPlmKraidVisualFiles.Create(entries).ContentIdentity,
             "Kraid visual selection ignores input ordering");
         foreach (RoomPlmVisualEntry entry in entries)
             Array.Fill(entry.Blocks, RoomBlockAppearance.Of(0));
@@ -60,15 +61,15 @@ internal static class KraidRoomVisualSelectionVerification
         for (int index = 0; index < entries.Count; index++)
         {
             AssertThrows<InvalidDataException>(
-                () => new InstalledRoomPlmKraidVisuals(entries.Where((_, ordinal) => ordinal != index)),
+                () => RoomPlmKraidVisualFiles.Create(entries.Where((_, ordinal) => ordinal != index)),
                 "Kraid visual selection rejects each missing role");
             AssertThrows<InvalidDataException>(
-                () => new InstalledRoomPlmKraidVisuals(entries.Append(entries[index])),
+                () => RoomPlmKraidVisualFiles.Create(entries.Append(entries[index])),
                 "Kraid visual selection rejects each duplicate role");
         }
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmKraidVisuals(
+        AssertThrows<InvalidDataException>(() => RoomPlmKraidVisualFiles.Create(
             entries.Append(new("unknown", [RoomBlockAppearance.Of(0)]))), "Kraid visual selection rejects unknown ID");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmKraidVisuals(
+        AssertThrows<InvalidDataException>(() => RoomPlmKraidVisualFiles.Create(
             entries.Skip(1).Append(new("crumble-first", []))), "Kraid visual selection rejects empty frame");
         Console.WriteLine("Kraid room visual selection: ten roles, all 45 blocks, legacy identity, copied data and validation pass.");
     }

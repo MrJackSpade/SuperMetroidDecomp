@@ -1,9 +1,9 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static SuperMetroid.ResourceAudit.ClosedContracts.Rooms.PlmPresentationContractChecks;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -91,42 +91,42 @@ internal static class PlmDoorPresentationContractChecks
     /// <summary>Checks each PLM catalog constructor and authored alias against the production word lookup.</summary>
     private static void ConfirmConstructorCoverage()
     {
-        ConfirmCoverage(BlueDoorCaps.Editable, frame =>
-            new RoomPlmVisualEntry(BlueDoorCaps.VisualId(frame.Draw), VisualRuns(frame)[0]),
-            entries => _ = new InstalledRoomPlmBlueDoorVisuals(entries));
-        ConfirmCoverage(ColoredDoorCaps.All, frame =>
-            new RoomPlmVisualEntry(ColoredDoorCaps.VisualId(frame.Draw), VisualRuns(frame)[0]),
-            entries => _ = new InstalledRoomPlmColoredDoorVisuals(entries));
-        ConfirmCoverage(GreyDoorCaps.All, frame =>
-            new RoomPlmVisualEntry(GreyDoorCaps.VisualId(frame.Draw), VisualRuns(frame)[0]),
-            entries => _ = new InstalledRoomPlmGreyDoorVisuals(entries));
-        ConfirmCoverage(EyeDoorDraws.Editable, frame =>
-            new RoomPlmVisualEntry(EyeDoorDraws.VisualId(frame.Draw), VisualRuns(frame)[0]),
-            entries => _ = new InstalledRoomPlmEyeDoorVisuals(entries));
-        ConfirmCoverage(MotherBrainEscapeGateDraws.All, frame =>
-            new RoomPlmVisualEntry(MotherBrainEscapeGateDraws.VisualId(frame.Draw), VisualRuns(frame)[0]),
-            entries => _ = new RoomPlmEscapeGateVisualCatalog(entries));
+        ConfirmCoverage(RoomPlmBlueDoorVisualFiles.Editable, frame =>
+            new RoomPlmVisualEntry(RoomPlmBlueDoorVisualFiles.VisualId(frame.Draw), VisualRuns(frame)[0]),
+            entries => _ = RoomPlmBlueDoorVisualFiles.Create(entries));
+        ConfirmCoverage(RoomPlmColoredDoorVisualFiles.All, frame =>
+            new RoomPlmVisualEntry(RoomPlmColoredDoorVisualFiles.VisualId(frame.Draw), VisualRuns(frame)[0]),
+            entries => _ = RoomPlmColoredDoorVisualFiles.Create(entries));
+        ConfirmCoverage(RoomPlmGreyDoorVisualFiles.All, frame =>
+            new RoomPlmVisualEntry(RoomPlmGreyDoorVisualFiles.VisualId(frame.Draw), VisualRuns(frame)[0]),
+            entries => _ = RoomPlmGreyDoorVisualFiles.Create(entries));
+        ConfirmCoverage(RoomPlmEyeDoorVisualFiles.Editable, frame =>
+            new RoomPlmVisualEntry(RoomPlmEyeDoorVisualFiles.VisualId(frame.Draw), VisualRuns(frame)[0]),
+            entries => _ = RoomPlmEyeDoorVisualFiles.Create(entries));
+        ConfirmCoverage(RoomPlmEscapeGateVisualFiles.All, frame =>
+            new RoomPlmVisualEntry(RoomPlmEscapeGateVisualFiles.VisualId(frame.Draw), VisualRuns(frame)[0]),
+            entries => _ = RoomPlmEscapeGateVisualFiles.Create(entries));
         RoomPlmShotBlockDrawDefinitions.DrawList[] itemShapes =
             (PlmVisualDomainDefinitions.Get((typeof(InstalledRoomPlmCollectibleVisuals).FullName ?? throw new InvalidOperationException("Verification requires typeof(InstalledRoomPlmCollectibleVisuals).FullName."))) ?? throw new InvalidOperationException("Verification requires PlmVisualDomainDefinitions.Get((typeof(InstalledRoomPlmCollectibleVisuals).FullName ?? thr...."));
         ConfirmCoverage((itemShapes), frame => {
             Require(RoomPlmCollectibleDrawDefinitionsTooling.TryGet(frame.Draw, out var item), "compiled item shape owns its ID");
             return new RoomPlmVisualBlockEntry(item.Id, VisualRuns(frame)[0][0]);
-        }, entries => _ = new InstalledRoomPlmCollectibleVisuals(entries));
+        }, entries => _ = RoomPlmCollectibleVisualFiles.Create(entries));
         ConfirmCoverage((PlmVisualDomainDefinitions.Get((typeof(InstalledRoomPlmGrappleBlockVisuals).FullName ?? throw new InvalidOperationException("Verification requires typeof(InstalledRoomPlmGrappleBlockVisuals).FullName."))) ?? throw new InvalidOperationException("Verification requires PlmVisualDomainDefinitions.Get((typeof(InstalledRoomPlmGrappleBlockVisuals).FullName ?? th....")), frame =>
-            new RoomPlmVisualBlockEntry(GrappleBlockPlmDraws.VisualId(PlmDraw.FrameOf<GrappleBlockDraw>(frame.Draw, "Grapple-block")),
+            new RoomPlmVisualBlockEntry(RoomPlmGrappleBlockVisualFiles.VisualId(PlmDraw.FrameOf<GrappleBlockDraw>(frame.Draw, "Grapple-block")),
                 VisualRuns(frame)[0][0]),
-            entries => _ = new InstalledRoomPlmGrappleBlockVisuals(entries));
+            entries => _ = RoomPlmGrappleBlockVisualFiles.Create(entries));
 
         // Confirm the reviewed reuse mappings against production GetAppearance, not
         // just the source adapter. The constructed catalog contains no ROM art.
-        var blue = new InstalledRoomPlmBlueDoorVisuals(BlueDoorCaps.Editable.Select(frame =>
-            new RoomPlmVisualEntry(BlueDoorCaps.VisualId(frame.Draw), VisualRuns(frame)[0])));
+        var blue = RoomPlmBlueDoorVisualFiles.Create(RoomPlmBlueDoorVisualFiles.Editable.Select(frame =>
+            new RoomPlmVisualEntry(RoomPlmBlueDoorVisualFiles.VisualId(frame.Draw), VisualRuns(frame)[0])));
         foreach (var frame in BlueDoorPlmDrawDefinitionsTooling.All.Where(frame => BlueDoorCaps.VisualSource(frame.Draw) != frame.Draw))
             Require(Enumerable.Range(0, frame.Runs.Span[0].Count).All(word =>
                 blue.GetAppearance(frame.Draw, word) == blue.GetAppearance(BlueDoorCaps.VisualSource(frame.Draw), word)),
                 "each compiled closed cap resolves to its required opening artwork");
-        var eye = new InstalledRoomPlmEyeDoorVisuals(EyeDoorDraws.Editable.Select(frame =>
-            new RoomPlmVisualEntry(EyeDoorDraws.VisualId(frame.Draw), VisualRuns(frame)[0])));
+        var eye = RoomPlmEyeDoorVisualFiles.Create(RoomPlmEyeDoorVisualFiles.Editable.Select(frame =>
+            new RoomPlmVisualEntry(RoomPlmEyeDoorVisualFiles.VisualId(frame.Draw), VisualRuns(frame)[0])));
         PlmDraw mirrored = EyeDoorPlmDrawDefinitions.MirroredOpeningClear;
         Require(Enumerable.Range(0, 4).All(word => eye.GetAppearance(mirrored, word) ==
             Mirrored(eye.GetAppearance(EyeDoorDraws.VisualSource(mirrored), word))),

@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Rooms.Plms.NoobTubePlmDrawDefinitions;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>How each noob tube draw is described, found and named.</summary>
+/// <summary>How each noob tube draw is described.</summary>
 internal static class NoobTubePlmDraws
 {
     /// <summary>Accepts only the seven known tube draw pointers.</summary>
@@ -12,73 +12,6 @@ internal static class NoobTubePlmDraws
         bool owned = request is PlmFrameDraw<NoobTubeDraw>;
         draw = owned ? new(PlmDraw.FrameOf<NoobTubeDraw>(request, "NoobTubeDraw")) : default;
         return owned;
-    }
-
-    /// <summary>Enumerates tube states in intact-to-cleared and broken presentation order.</summary>
-    private static IEnumerable<NoobTubeDraw> Draws()
-    {
-        yield return NoobTubeDraw.Intact;
-        yield return NoobTubeDraw.Damaged;
-        yield return NoobTubeDraw.Opened;
-        yield return NoobTubeDraw.Cleared;
-        yield return NoobTubeDraw.BrokenLate;
-        yield return NoobTubeDraw.OpenedRows;
-        yield return NoobTubeDraw.BrokenFull;
-    }
-
-    /// <summary>Builds a temporary draw-list DTO from computed tube cells; gameplay reads the computed cells directly.</summary>
-    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        list = default;
-        if (!TryDescribe(request, out var draw)) return false;
-        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
-        for (int run = 0; run < runs.Length; run++)
-        {
-            var blocks = new RoomTerrainBlock[draw.BlockCount(run)];
-            for (int cell = 0; cell < blocks.Length; cell++) blocks[cell] = draw.BlockAt(run, cell);
-            runs[run] = new(PlmRunDirection.Horizontal, blocks, new(0, draw.NextY(run)));
-        }
-        list = new(request, runs);
-        return true;
-    }
-
-    /// <summary>Converts a validated tube pointer to its artwork catalog ID.</summary>
-    internal static string VisualId(PlmDraw request) =>
-        VisualId(PlmDraw.FrameOf<NoobTubeDraw>(request, "n00b-tube draw with a visual ID"));
-
-    /// <summary>Names the typed intact, damaged, opened, cleared, or broken presentation state.</summary>
-    internal static string VisualId(NoobTubeDraw frame) => frame switch
-    {
-        NoobTubeDraw.Intact => "intact",
-        NoobTubeDraw.Damaged => "damaged",
-        NoobTubeDraw.Opened => "opened",
-        NoobTubeDraw.Cleared => "cleared",
-        NoobTubeDraw.BrokenLate => "broken-late",
-        NoobTubeDraw.OpenedRows => "opened-rows",
-        NoobTubeDraw.BrokenFull => "broken-full",
-        _ => throw new InvalidOperationException($"Undefined NoobTubeDraw {frame}."),
-    };
-
-    /// <summary>Finds and materializes the tube layout corresponding to an artwork catalog ID.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        foreach (NoobTubeDraw frame in Draws())
-            if (string.Equals(id, VisualId(frame), StringComparison.Ordinal)) return TryGet(PlmDraw.Of(frame), out list);
-        list = default;
-        return false;
-    }
-
-    /// <summary>Materializes each known tube layout for the artwork import and export interface.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get
-        {
-            foreach (NoobTubeDraw frame in Draws())
-            {
-                TryGet(PlmDraw.Of(frame), out var list);
-                yield return list;
-            }
-        }
     }
 
     /// <summary>

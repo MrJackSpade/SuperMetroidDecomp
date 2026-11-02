@@ -19,23 +19,9 @@ public sealed class InstalledRoomPlmMaridiaElevatubeVisuals
     /// </summary>
     private readonly RoomBlockAppearance appearance;
 
-    /// <summary>Validates and selects the elevatube's single visual block without changing its terrain, sixteen-update hold, sound, or deletion.</summary>
-    /// <param name="entries">Exactly one entry with the compiled elevatube identity and one appearance.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">The sequence does not contain exactly one valid single-block elevatube entry.</exception>
-    public InstalledRoomPlmMaridiaElevatubeVisuals(
-        IEnumerable<RoomPlmVisualEntry> entries)
-    {
-        Ensure.NotNull(entries);
-        RoomPlmVisualEntry[] selected = entries.ToArray();
-        if (selected.Length != 1 || selected[0] is null ||
-            !MaridiaElevatubeDraws.TryGetDrawByVisualId(
-                selected[0].Id, out _) ||
-            selected[0].Blocks is not { Length: 1 } blocks)
-            throw new InvalidDataException(
-                "Maridia elevatube visuals require exactly one visual block.");
-        appearance = blocks[0];
-    }
+    /// <summary>Holds the import-validated appearance of the elevatube's single visual block.</summary>
+    /// <param name="appearance">The block the elevatube's sole cell shows.</param>
+    internal InstalledRoomPlmMaridiaElevatubeVisuals(RoomBlockAppearance appearance) => this.appearance = appearance;
 
     /// <summary>Resolves the installed elevatube appearance for its sole draw cell; the Kraid crumble that shares its draw does not share this catalog's selection.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

@@ -194,20 +194,4 @@ internal static class MotherBrainGlassPlmDrawDefinitions
             ],
         ],
     };
-
-    /// <summary>Each glass state's editable presentation frame name.</summary>
-    internal static readonly Dictionary<MotherBrainGlassDraw, string> VisualIds = new()
-    {
-        [MotherBrainGlassDraw.Initial] = "initial",
-        [MotherBrainGlassDraw.PaneDamage1] = "pane-damage-1",
-        [MotherBrainGlassDraw.PaneDamage2] = "pane-damage-2",
-        [MotherBrainGlassDraw.PaneTransition] = "pane-transition",
-        [MotherBrainGlassDraw.ShiftedPane1] = "shifted-pane-1",
-        [MotherBrainGlassDraw.ShiftedPane2] = "shifted-pane-2",
-        [MotherBrainGlassDraw.ShiftedPane3] = "shifted-pane-3",
-        [MotherBrainGlassDraw.Shatter1] = "shatter-1",
-        [MotherBrainGlassDraw.Shatter2] = "shatter-2",
-        [MotherBrainGlassDraw.Shatter3] = "shatter-3",
-        [MotherBrainGlassDraw.Cleared] = "cleared",
-    };
 }

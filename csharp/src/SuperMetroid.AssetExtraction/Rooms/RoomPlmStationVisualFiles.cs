@@ -99,12 +99,86 @@ public static class RoomPlmStationVisualFiles
     /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Validates and captures the complete twenty-frame station artwork selection, building the visuals from the run appearances that differ from the compiled layouts.</summary>
+    /// <param name="entries">Every compiled map, energy, missile, save, and access frame exactly once, with its original run/cell counts and valid visual-only appearances.</param>
+    /// <remarks>Changed frames are deep-copied; stock-identical frames resolve from compiled definitions. Later caller-array edits do not affect either path.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
+    /// <exception cref="InvalidDataException">Coverage, uniqueness, frame identity, or array shape are invalid.</exception>
+    internal static InstalledRoomPlmStationVisuals Create(IEnumerable<RoomPlmVisualRunEntry> entries) =>
+        new(RoomPlmVisualOverrideReader.RunByRun(entries, "Station", TryGetByVisualId, All.Count()));
+
+    /// <summary>The layout of <paramref name="request"/>, which must be one of the twenty station draw lists.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="request"/> is not a station draw list.</exception>
+    internal static StationPlmDraws.Draw Describe(PlmDraw request) =>
+        StationPlmDraws.TryDescribe(request, out StationPlmDraws.Draw? draw) ? draw : throw new InvalidOperationException($"{request} is not a station draw list.");
+
+    /// <summary>Builds the draw list of a station draw from its calculated cells.</summary>
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        if (!StationPlmDraws.TryDescribe(request, out StationPlmDraws.Draw? draw))
+        {
+            list = default;
+            return false;
+        }
+        list = RoomPlmDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.BlockAt,
+            RoomPlmDrawListExport.Horizontal, draw.NextX, draw.NextY);
+        return true;
+    }
+
+    /// <summary>
+    /// Published ordinal artwork IDs: three numbered frames per map/resource
+    /// station, and named save/access states. These are identity selections,
+    /// independent of the terrain. Only complete lists have IDs.
+    /// </summary>
+    internal static string VisualId(PlmDraw request) =>
+        PlmDraw.FrameOf<StationDraw>(request, "station draw list") switch
+        {
+            StationDraw.MapFrame0 => "map-frame-0",
+            StationDraw.MapFrame1 => "map-frame-1",
+            StationDraw.MapFrame2 => "map-frame-2",
+            StationDraw.EnergyFrame0 => "energy-frame-0",
+            StationDraw.EnergyFrame1 => "energy-frame-1",
+            StationDraw.EnergyFrame2 => "energy-frame-2",
+            StationDraw.MissileFrame0 => "missile-frame-0",
+            StationDraw.MissileFrame1 => "missile-frame-1",
+            StationDraw.MissileFrame2 => "missile-frame-2",
+            StationDraw.SaveIdle => "save-idle",
+            StationDraw.SaveActive => "save-active-a",
+            StationDraw.SaveAlternate => "save-active-b",
+            StationDraw.MapRightRetracted => "map-right-retracted",
+            StationDraw.MapRightExtended => "map-right-extended",
+            StationDraw.MapLeftRetracted => "map-left-retracted",
+            StationDraw.MapLeftExtended => "map-left-extended",
+            StationDraw.ResourceRightRetracted => "resource-right-retracted",
+            StationDraw.ResourceRightExtended => "resource-right-extended",
+            StationDraw.ResourceLeftRetracted => "resource-left-retracted",
+            StationDraw.ResourceLeftExtended => "resource-left-extended",
+            _ => throw new InvalidOperationException($"Undefined station draw list {request}."),
+        };
+
+    /// <summary>Finds a station draw list by its stable artwork identity rather than pointer.</summary>
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmDrawListExport.FindByVisualId(All, VisualId, id, out list);
+
+    /// <summary>Calculates the twenty complete station lists in published enumeration order.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            foreach (StationDraw frame in RoomPlmVisualIdDefinitions.StationPublishedOrder)
+            {
+                TryGet(PlmDraw.Of(frame), out var list);
+                yield return list;
+            }
+        }
+    }
+
     /// <summary>Checks each native station draw run's shape, words, and continuation offset before extracting its twelve-bit visuals.</summary>
     private static RoomPlmVisualRunEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var entries = new List<RoomPlmVisualRunEntry>();
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 StationPlmDraws.All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
+                 All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
             var visuals = new List<RoomBlockAppearance[]>();
@@ -135,7 +209,7 @@ public static class RoomPlmStationVisualFiles
             }
 
             entries.Add(new RoomPlmVisualRunEntry(
-                StationPlmDraws.VisualId(list.Draw), visuals.ToArray()));
+                VisualId(list.Draw), visuals.ToArray()));
         }
 
         return entries.ToArray();
@@ -146,7 +220,7 @@ public static class RoomPlmStationVisualFiles
         string path)
     {
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 StationPlmDraws.All)
+                 All)
         for (int run = 0; run < list.Runs.Length; run++)
         for (int word = 0; word < list.Runs.Span[run].Count; word++)
         {
@@ -154,7 +228,7 @@ public static class RoomPlmStationVisualFiles
             if (catalog.GetAppearance(list.Draw, run, word) != expected)
                 throw new InvalidDataException(
                     $"Stock station visuals {path} differ from compiled frame " +
-                    StationPlmDraws.VisualId(list.Draw) + ".");
+                    VisualId(list.Draw) + ".");
         }
     }
 
@@ -164,7 +238,7 @@ public static class RoomPlmStationVisualFiles
     {
         if (document.Version != FormatVersion || document.Entries is null)
             throw new InvalidDataException($"Station visuals {path} have an incompatible format.");
-        try { return new InstalledRoomPlmStationVisuals(document.Entries); }
+        try { return Create(document.Entries); }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(

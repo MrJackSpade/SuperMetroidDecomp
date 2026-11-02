@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -39,9 +40,9 @@ internal static class LookupCrocomireStockVerification
         }
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmCrocomireVisualCatalog.Stock();
-        var imported = new RoomPlmCrocomireVisualCatalog(entries.Reverse());
+        var imported = RoomPlmCrocomireVisualFiles.Create(entries.Reverse());
         string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(RoomPlmCrocomireVisualCatalog), appearances.ToDictionary(pair => CrocomireArenaDraws.VisualId(NativePlmDraws.At<CrocomireArenaDraw>(pair.Key)), pair => pair.Value));
+            nameof(RoomPlmCrocomireVisualCatalog), appearances.ToDictionary(pair => RoomPlmCrocomireVisualFiles.VisualId(NativePlmDraws.At<CrocomireArenaDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Crocomire original flattened hash");
@@ -61,7 +62,7 @@ internal static class LookupCrocomireStockVerification
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<CrocomireArenaDraw>((ushort)pointer),0,0), "Crocomire unknown pointer");
         entries[4].Blocks[23] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
         entries[2].Blocks[0] = RoomBlockAppearance.Of(0x59);
-        var mixed = new RoomPlmCrocomireVisualCatalog(entries);
+        var mixed = RoomPlmCrocomireVisualFiles.Create(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Crocomire mixed custom stock hash");
         entries[4].Blocks[23] = RoomBlockAppearance.Of(0x5a);
@@ -69,13 +70,13 @@ internal static class LookupCrocomireStockVerification
         foreach (var frame in frames)
         for (int index = 0; index < native[frame.Pointer].Length; index++)
             AssertEqual(expected[frame.Pointer][index], mixed.GetAppearance(NativePlmDraws.At<CrocomireArenaDraw>(frame.Pointer),index / widths[frame.Pointer],index % widths[frame.Pointer]), "Crocomire clone isolation and stock fallback");
-        AssertThrows<InvalidDataException>(() => new RoomPlmCrocomireVisualCatalog(entries[..4]), "Crocomire missing frame");
-        AssertThrows<InvalidDataException>(() => new RoomPlmCrocomireVisualCatalog(entries.Append(entries[0])), "Crocomire duplicate frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmCrocomireVisualFiles.Create(entries[..4]), "Crocomire missing frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmCrocomireVisualFiles.Create(entries.Append(entries[0])), "Crocomire duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("CLEAR-BRIDGE", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => new RoomPlmCrocomireVisualCatalog(invalid), "Crocomire ordinal identity");
+        AssertThrows<InvalidDataException>(() => RoomPlmCrocomireVisualFiles.Create(invalid), "Crocomire ordinal identity");
         invalid[0] = new(entries[0].Id, new RoomBlockAppearance[3]);
-        AssertThrows<InvalidDataException>(() => new RoomPlmCrocomireVisualCatalog(invalid), "Crocomire exact frame shape");
+        AssertThrows<InvalidDataException>(() => RoomPlmCrocomireVisualFiles.Create(invalid), "Crocomire exact frame shape");
     }
 
     /// <summary>Reads native draw-stream bytes for the independent stock catalog oracle.</summary>

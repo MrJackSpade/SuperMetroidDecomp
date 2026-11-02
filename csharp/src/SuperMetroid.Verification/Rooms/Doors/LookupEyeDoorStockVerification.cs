@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Doors;
@@ -34,7 +35,7 @@ internal static class LookupEyeDoorStockVerification
                 RoomLevelWordCodec.DecodeAppearance(ReadSamusEaterPlmWord(rom,0x840000 | (frame.Pointer + 2 + cell * 2)))).ToArray());
         }
         string Hash(Dictionary<ushort,RoomBlockAppearance[]> words) =>
-            SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmEyeDoorVisuals),words.ToDictionary(pair => EyeDoorDraws.VisualId(NativePlmDraws.At<EyeDoorDraws.Draw>(pair.Key)), pair => pair.Value));
+            SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmEyeDoorVisuals),words.ToDictionary(pair => RoomPlmEyeDoorVisualFiles.VisualId(NativePlmDraws.At<EyeDoorDraws.Draw>(pair.Key)), pair => pair.Value));
         void Compare(InstalledRoomPlmEyeDoorVisuals catalog, Dictionary<ushort,RoomBlockAppearance[]> words)
         {
             AssertEqual(Hash(words),catalog.ContentIdentity,"Eye door original stock identity framing");
@@ -46,7 +47,7 @@ internal static class LookupEyeDoorStockVerification
         }
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id,native[frame.Pointer].ToArray())).ToArray();
         var stock = InstalledRoomPlmEyeDoorVisuals.Stock();
-        foreach (var catalog in new[] {stock,installed,new InstalledRoomPlmEyeDoorVisuals(entries.Reverse())})
+        foreach (var catalog in new[] {stock,installed,RoomPlmEyeDoorVisualFiles.Create(entries.Reverse())})
         {
             Compare(catalog,native);
             foreach (var frame in frames)
@@ -62,21 +63,21 @@ internal static class LookupEyeDoorStockVerification
             if (raw != 0x9bf7 && !native.ContainsKey((ushort)raw))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<EyeDoorDraws.Draw>((ushort)raw),0),"Eye door stock full pointer rejection");
         entries[11].Blocks[2] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var mixed = new InstalledRoomPlmEyeDoorVisuals(entries);
+        var mixed = RoomPlmEyeDoorVisualFiles.Create(entries);
         var expected = frames.Select((frame,index) => new LookupEyeDoorStockExpected(frame.Pointer,Words:entries[index].Blocks.ToArray()))
             .ToDictionary(pair => pair.Pointer,pair => pair.Words);
         entries[11].Blocks[2] = RoomBlockAppearance.Of(0x05a);
         entries[12].Blocks[0] = RoomBlockAppearance.Of(0x05b);
         Compare(mixed,expected);
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmEyeDoorVisuals(entries[..1]),"Eye door missing import");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmEyeDoorVisuals(entries.Append(entries[0])),"Eye door duplicate import");
+        AssertThrows<InvalidDataException>(() => RoomPlmEyeDoorVisualFiles.Create(entries[..1]),"Eye door missing import");
+        AssertThrows<InvalidDataException>(() => RoomPlmEyeDoorVisualFiles.Create(entries.Append(entries[0])),"Eye door duplicate import");
         foreach (RoomPlmVisualEntry bad in new RoomPlmVisualEntry[]
             {new("LEFT-EYE-FRAME-0",[default,default]),new("unknown",[default,default]),
              new(entries[0].Id,[default])})
         {
             var invalid = entries.ToArray();
             invalid[0] = bad;
-            AssertThrows<InvalidDataException>(() => new InstalledRoomPlmEyeDoorVisuals(invalid),"Eye door invalid import");
+            AssertThrows<InvalidDataException>(() => RoomPlmEyeDoorVisualFiles.Create(invalid),"Eye door invalid import");
         }
     }
 }

@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Rooms;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>Verification access to <see cref="InstalledRoomPlmMaridiaElevatubeVisuals"/> members production does not use.</summary>
 internal static class InstalledRoomPlmMaridiaElevatubeVisualsAccess
@@ -6,9 +8,9 @@ internal static class InstalledRoomPlmMaridiaElevatubeVisualsAccess
     extension(InstalledRoomPlmMaridiaElevatubeVisuals)
     {
         /// <summary>Builds the stock elevatube appearance from its single block's terrain.</summary>
-        internal static InstalledRoomPlmMaridiaElevatubeVisuals Stock() => new(
+        internal static InstalledRoomPlmMaridiaElevatubeVisuals Stock() => RoomPlmMaridiaElevatubeVisualFiles.Create(
             [new RoomPlmVisualEntry(
-                MaridiaElevatubePlmDefinitions.VisualId,
+                RoomPlmMaridiaElevatubeVisualFiles.VisualId,
                 [MaridiaElevatubePlmDefinitions.Terrain.Appearance])]);
     }
 }

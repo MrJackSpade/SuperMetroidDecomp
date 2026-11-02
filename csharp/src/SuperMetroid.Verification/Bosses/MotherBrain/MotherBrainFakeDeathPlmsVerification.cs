@@ -35,7 +35,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
         Suite(nameof(VerifyMotherBrainDoorVisuals), () => VerifyMotherBrainDoorVisuals(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
-            MotherBrainFakeDeathDraws.All.ToArray();
+            RoomPlmMotherBrainFakeDeathVisualFiles.All.ToArray();
         AssertEqual(22, draws.Length,
             "Mother Brain fake death owns twenty-two physical draws");
         foreach (MotherBrainFakeDeathProgram program in Enum.GetValues<MotherBrainFakeDeathProgram>())
@@ -125,7 +125,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
             int pointer = SnesAddressMath.OffsetInBank(address);
             return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                 (BossRoomPlmNativeListAddresses.IsTypedProgramByte(pointer) ||
-                 MotherBrainFakeDeathDraws.All.Any(draw =>
+                 RoomPlmMotherBrainFakeDeathVisualFiles.All.Any(draw =>
                      pointer >= PlmDrawAddressCodec.Of(draw.Draw) && pointer < PlmDrawAddressCodec.Of(draw.Draw) +
                          draw.Runs.Span.Sum(run =>
                              4 + run.Blocks.Length * 2)));

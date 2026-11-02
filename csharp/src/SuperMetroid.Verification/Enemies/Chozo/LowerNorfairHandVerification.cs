@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.Chozo.Artwork;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -29,14 +29,14 @@ internal static class LowerNorfairHandVerification
             Path.GetFullPath("Super Metroid.smc"));
         var bus = NewChozoProgramAndDrawReadGuard(source);
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-        var handEntries = ChozoStatueDraws.All.Select(draw =>
+        var handEntries = RoomPlmChozoStatueVisualFiles.All.Select(draw =>
             new RoomPlmVisualEntry(
-                ChozoStatueDraws.VisualId(draw.Draw),
+                RoomPlmChozoStatueVisualFiles.VisualId(draw.Draw),
                 draw.Appearances())).ToArray();
         handEntries.Single(entry => entry.Id == "lower-norfair-cleared-hand")
             .Blocks[0] = RoomBlockAppearance.Of(0x53);
         runtime.ShotBlockVisuals.RoomPlmChozoStatueVisuals =
-            new RoomPlmChozoStatueVisualCatalog(handEntries);
+            RoomPlmChozoStatueVisualFiles.Create(handEntries);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();

@@ -15,7 +15,7 @@ internal static class LookupCrocomireDrawsVerification
     internal static void VerifyCrocomirePhysicalDrawMapping(ISnesAddressSpace rom)
     {
         ushort[] pointers = [0x9b5b, 0x9b73, 0x9b79, 0x9b7f, 0x9bbb];
-        var exported = CrocomireArenaDraws.All.ToArray();
+        var exported = RoomPlmCrocomireVisualFiles.All.ToArray();
         AssertEqual(pointers.Length, exported.Length, "Crocomire physical export count");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
@@ -23,7 +23,7 @@ internal static class LookupCrocomireDrawsVerification
             bool owned = Array.IndexOf(pointers, pointer) >= 0;
             AssertEqual(owned, CrocomireArenaDraws.TryDescribe(NativePlmDraws.At<CrocomireArenaDraw>(pointer), out var shape),
                 $"Crocomire descriptor ownership {value:X4}");
-            AssertEqual(owned, CrocomireArenaDraws.TryGet(NativePlmDraws.At<CrocomireArenaDraw>(pointer), out var dto),
+            AssertEqual(owned, RoomPlmCrocomireVisualFiles.TryGet(NativePlmDraws.At<CrocomireArenaDraw>(pointer), out var dto),
                 $"Crocomire DTO ownership {value:X4}");
             if (!owned)
             {
@@ -37,7 +37,7 @@ internal static class LookupCrocomireDrawsVerification
             ushort pointer = pointers[index];
             AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Crocomire export order");
             CrocomireArenaDraws.TryDescribe(NativePlmDraws.At<CrocomireArenaDraw>(pointer), out var shape);
-            CrocomireArenaDraws.TryGet(NativePlmDraws.At<CrocomireArenaDraw>(pointer), out var dto);
+            RoomPlmCrocomireVisualFiles.TryGet(NativePlmDraws.At<CrocomireArenaDraw>(pointer), out var dto);
             int cursor = pointer, run = 0;
             while (true)
             {

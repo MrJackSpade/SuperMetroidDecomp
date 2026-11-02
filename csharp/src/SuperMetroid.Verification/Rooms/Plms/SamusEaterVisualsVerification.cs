@@ -120,9 +120,9 @@ internal static class SamusEaterVisualsVerification
         }
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = InstalledRoomPlmSamusEaterVisuals.Stock();
-        var imported = new InstalledRoomPlmSamusEaterVisuals(entries.Reverse());
+        var imported = RoomPlmSamusEaterVisualFiles.Create(entries.Reverse());
         string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(InstalledRoomPlmSamusEaterVisuals), words.ToDictionary(pair => SamusEaterPlmDraws.VisualId(NativePlmDraws.At<SamusEaterDraw>(pair.Key)), pair => pair.Value));
+            nameof(InstalledRoomPlmSamusEaterVisuals), words.ToDictionary(pair => RoomPlmSamusEaterVisualFiles.VisualId(NativePlmDraws.At<SamusEaterDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "plant native flattened stock hash");
@@ -146,7 +146,7 @@ internal static class SamusEaterVisualsVerification
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<SamusEaterDraw>((ushort)pointer),0,0), "plant stock rejects unknown pointer");
         entries[0].Blocks[7] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
         entries[6].Blocks[0] = RoomBlockAppearance.Of(0x059);
-        var mixed = new InstalledRoomPlmSamusEaterVisuals(entries);
+        var mixed = RoomPlmSamusEaterVisualFiles.Create(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "plant mixed custom and stock hash");
         entries[0].Blocks[7] = RoomBlockAppearance.Of(0x05a);
@@ -158,13 +158,13 @@ internal static class SamusEaterVisualsVerification
             for (int block = 0; block < counts[frame.Pointer][run]; block++)
                 AssertEqual(expected[frame.Pointer][index++], mixed.GetAppearance(NativePlmDraws.At<SamusEaterDraw>(frame.Pointer),run,block), "plant custom cloning and calculated stock isolation");
         }
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSamusEaterVisuals(entries[..7]), "plant missing frame rejected");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSamusEaterVisuals(entries.Append(entries[0])), "plant duplicate frame rejected");
+        AssertThrows<InvalidDataException>(() => RoomPlmSamusEaterVisualFiles.Create(entries[..7]), "plant missing frame rejected");
+        AssertThrows<InvalidDataException>(() => RoomPlmSamusEaterVisualFiles.Create(entries.Append(entries[0])), "plant duplicate frame rejected");
         var badEntries = entries.ToArray();
         badEntries[0] = new("FLOOR-IDLE", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSamusEaterVisuals(badEntries), "plant IDs remain ordinal");
+        AssertThrows<InvalidDataException>(() => RoomPlmSamusEaterVisualFiles.Create(badEntries), "plant IDs remain ordinal");
         badEntries[0] = new(entries[0].Id, new RoomBlockAppearance[7]);
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSamusEaterVisuals(badEntries), "plant wrong shape rejected");
+        AssertThrows<InvalidDataException>(() => RoomPlmSamusEaterVisualFiles.Create(badEntries), "plant wrong shape rejected");
     }
 
     /// <summary>Checks the run sizes and signed offsets of each compiled Samus Eater draw.</summary>
@@ -179,7 +179,7 @@ internal static class SamusEaterVisualsVerification
     private static void VerifySamusEaterDrawField(SuperMetroidAddressSpace rom, bool words)
     {
         ushort[] pointers = [0x9e0d, 0x9e45, 0x9e61, 0x9e7d, 0x9e99, 0x9ed1, 0x9eed, 0x9f09];
-        var exported = SamusEaterPlmDraws.All.ToArray();
+        var exported = RoomPlmSamusEaterVisualFiles.All.ToArray();
         AssertEqual(pointers.Length, exported.Length, "plant draw export coverage");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -187,7 +187,7 @@ internal static class SamusEaterVisualsVerification
             int frame = Array.IndexOf(pointers, pointer);
             AssertEqual(frame >= 0, SamusEaterPlmDraws.TryDescribe(NativePlmDraws.At<SamusEaterDraw>(pointer), out var draw),
                 "plant draw pointer ownership includes only supported records");
-            AssertEqual(frame >= 0, SamusEaterPlmDraws.TryGet(NativePlmDraws.At<SamusEaterDraw>(pointer), out var dto),
+            AssertEqual(frame >= 0, RoomPlmSamusEaterVisualFiles.TryGet(NativePlmDraws.At<SamusEaterDraw>(pointer), out var dto),
                 "plant draw DTO pointer ownership");
             if (frame < 0)
             {

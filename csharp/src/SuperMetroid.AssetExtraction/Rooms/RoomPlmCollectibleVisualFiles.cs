@@ -2,15 +2,17 @@ using System.Text.Json.Serialization;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using static SuperMetroid.Core.Rooms.Plms.RoomPlmCollectibleDrawDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Installs named collectible block art while checking all 24 native draw records
-/// and the eight dynamic-slot selectors against compiled physical definitions.
+/// and the eight dynamic-slot selectors against compiled physical definitions, and names each frame.
 /// </summary>
 public static class RoomPlmCollectibleVisualFiles
 {
@@ -95,6 +97,81 @@ public static class RoomPlmCollectibleVisualFiles
     /// <param name="directory">Stock collectible directory; overrides are intentionally ignored.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Validates all twenty-four compiled one-cell frames and builds the visuals from the authored appearances that differ from the compiled frames.</summary>
+    /// <param name="entries">Exactly one appearance for each compiled collectible frame identity.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, or leaves compiled frame coverage incomplete.</exception>
+    internal static InstalledRoomPlmCollectibleVisuals Create(IEnumerable<RoomPlmVisualBlockEntry> entries)
+    {
+        Ensure.NotNull(entries);
+        var selected = new Dictionary<Draw, RoomBlockAppearance>();
+        var seen = new HashSet<Draw>();
+        foreach (RoomPlmVisualBlockEntry entry in entries)
+        {
+            if (entry is null || !TryGetById(entry.Id, out var frame))
+                throw new InvalidDataException(
+                    "Collectible visuals changed a compiled frame identity.");
+            if (!seen.Add(frame.Draw))
+                throw new InvalidDataException($"Collectible visuals repeat frame {entry.Id}.");
+            if (entry.Appearance != frame.Terrain.Appearance)
+                selected.Add(frame.Draw, entry.Appearance);
+        }
+        if (seen.Count != All.Count())
+            throw new InvalidDataException("Collectible visuals do not cover all compiled frames.");
+        return new(selected);
+    }
+
+    /// <summary>The editable artwork identifier of a draw.</summary>
+    internal static string VisualId(Draw draw) => draw.Group switch
+    {
+        DrawGroup.Empty => "empty",
+        DrawGroup.Orb => $"chozo-orb-{draw.Index}",
+        DrawGroup.OrbBurst => "chozo-orb-burst",
+        DrawGroup.Tank => $"{TankKindName(draw.Index / 2)}-tank-{draw.Index % 2}",
+        DrawGroup.Dynamic => $"dynamic-slot-{draw.Index / 2}-frame-{draw.Index % 2}",
+        DrawGroup.ShotReveal => $"shot-reveal-{draw.Index}",
+        _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {draw.Group}."),
+    };
+
+    /// <summary>Gets the stable visual ID stem for one of the four tank pickup kinds.</summary>
+    private static string TankKindName(int kind) => kind switch
+    {
+        0 => "energy",
+        1 => "missile",
+        2 => "super-missile",
+        _ => "power-bomb",
+    };
+
+    /// <summary>Resolves an exact artwork identifier to its compiled collectible draw frame.</summary>
+    internal static bool TryGetById(string id, out RoomPlmCollectibleDrawFrame frame)
+    {
+        foreach (var candidate in All)
+        {
+            if (!string.Equals(candidate.Id, id, StringComparison.Ordinal)) continue;
+            frame = candidate;
+            return true;
+        }
+        frame = default;
+        return false;
+    }
+
+    /// <summary>Enumerates all 24 collectible one-cell draws in their published order.</summary>
+    internal static IEnumerable<RoomPlmCollectibleDrawFrame> All
+    {
+        get
+        {
+            foreach (DrawGroup group in Enum.GetValues<DrawGroup>())
+            {
+                for (int index = 0; index < CollectiblePlmDraws.CountOf(group); index++)
+                {
+                    var draw = new Draw(group, index);
+                    CollectiblePlmDraws.TryGetBlock(PlmDraw.Of(draw), out RoomTerrainBlock block);
+                    yield return new(draw, block, VisualId(draw));
+                }
+            }
+        }
+    }
+
     /// <summary>Checks eight dynamic selectors and all 24 one-cell native draws before extracting appearance.</summary>
     private static RoomPlmVisualBlockEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
@@ -113,7 +190,7 @@ public static class RoomPlmCollectibleVisualFiles
         }
 
         var entries = new List<RoomPlmVisualBlockEntry>();
-        foreach (RoomPlmCollectibleDrawFrame frame in CollectiblePlmDraws.All)
+        foreach (RoomPlmCollectibleDrawFrame frame in All)
         {
             int address = PlmDrawAddressCodec.Of(PlmDraw.Of(frame.Draw));
             if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, address)) != 1 ||
@@ -131,7 +208,7 @@ public static class RoomPlmCollectibleVisualFiles
     private static void VerifyStockMatchesCompiled(InstalledRoomPlmCollectibleVisuals catalog,
         string path)
     {
-        foreach (RoomPlmCollectibleDrawFrame frame in CollectiblePlmDraws.All)
+        foreach (RoomPlmCollectibleDrawFrame frame in All)
             if (catalog.GetAppearance(PlmDraw.Of(frame.Draw)) !=
                 frame.Terrain.Appearance)
                 throw new InvalidDataException(
@@ -145,7 +222,7 @@ public static class RoomPlmCollectibleVisualFiles
         if (document.Version != FormatVersion || document.Entries is null)
             throw new InvalidDataException(
                 $"Collectible visuals {path} have an incompatible format.");
-        try { return new InstalledRoomPlmCollectibleVisuals(document.Entries); }
+        try { return Create(document.Entries); }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(

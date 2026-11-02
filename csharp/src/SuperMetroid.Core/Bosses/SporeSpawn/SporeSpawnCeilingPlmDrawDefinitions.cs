@@ -20,13 +20,4 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
         [SporeSpawnCeilingDraw.CrumbleSecond] = RoomTerrainBlock.Of(84, BlockMirroring.None, RoomCollisionType.Air),
         [SporeSpawnCeilingDraw.CrumbleThird] = RoomTerrainBlock.Of(85, BlockMirroring.None, RoomCollisionType.Air),
     };
-
-    /// <summary>The clear layout's and the three successive crumble appearances' editable artwork keys.</summary>
-    internal static readonly Dictionary<SporeSpawnCeilingDraw, string> VisualIds = new()
-    {
-        [SporeSpawnCeilingDraw.Clear] = "clear-ceiling",
-        [SporeSpawnCeilingDraw.CrumbleFirst] = "crumble-frame-0",
-        [SporeSpawnCeilingDraw.CrumbleSecond] = "crumble-frame-1",
-        [SporeSpawnCeilingDraw.CrumbleThird] = "crumble-frame-2",
-    };
 }

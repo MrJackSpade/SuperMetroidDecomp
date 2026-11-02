@@ -36,19 +36,4 @@ internal abstract record PlmDraw
     /// <summary>Whether <paramref name="draw"/> is one of <typeparamref name="TFrame"/>'s family, and its frame.</summary>
     internal static bool TryFrame<TFrame>(PlmDraw draw, out TFrame frame) where TFrame : struct =>
         TryFrame(draw, static (TFrame _) => true, out frame);
-
-    /// <summary>The first of <paramref name="candidates"/> whose published artwork identity is <paramref name="id"/>.</summary>
-    internal static bool TryFindByVisualId<T>(IEnumerable<T> candidates, Func<T, string> visualId, string? id, out T found) where T : struct
-    {
-        foreach (T candidate in candidates)
-        {
-            if (string.Equals(visualId(candidate), id, StringComparison.Ordinal))
-            {
-                found = candidate;
-                return true;
-            }
-        }
-        found = default;
-        return false;
-    }
 }

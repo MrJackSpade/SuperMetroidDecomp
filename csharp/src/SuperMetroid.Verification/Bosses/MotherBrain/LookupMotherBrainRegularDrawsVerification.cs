@@ -16,7 +16,7 @@ internal static class LookupMotherBrainRegularDrawsVerification
     {
         ushort[] pointers = [0x966d, 0x968b, 0x96a9, 0x96b1, 0x96bf, 0x96cb, 0x96ef, 0x9703];
         ushort[] otherPointers = [0x94a3,0x94b1,0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];
-        var exported = MotherBrainFakeDeathDraws.All.Where(draw => pointers.Contains(PlmDrawAddressCodec.Of(draw.Draw))).ToArray();
+        var exported = RoomPlmMotherBrainFakeDeathVisualFiles.All.Where(draw => pointers.Contains(PlmDrawAddressCodec.Of(draw.Draw))).ToArray();
         AssertEqual(pointers.Length, exported.Length, "Mother Brain regular physical export count");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {

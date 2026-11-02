@@ -35,11 +35,4 @@ internal static class BombTorizoHandPlmDrawDefinitions
             new(new(-2, -1), [ClearedCell, ClearedCell, ClearedCell, ClearedCell]),
         ],
     };
-
-    /// <summary>The intact and cleared hand draws' stable artwork identities.</summary>
-    internal static readonly Dictionary<BombTorizoHandDraw, string> VisualIds = new()
-    {
-        [BombTorizoHandDraw.Intact] = "intact",
-        [BombTorizoHandDraw.Cleared] = "cleared",
-    };
 }

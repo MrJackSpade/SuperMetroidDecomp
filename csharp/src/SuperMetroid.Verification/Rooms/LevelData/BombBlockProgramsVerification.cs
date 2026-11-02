@@ -21,7 +21,7 @@ internal static class BombBlockProgramsVerification
     private static void VerifyBombBlockRestorationMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4c7, 0xa4cf, 0xa4d7];
-        AssertTrue(pointers.SequenceEqual(LinkedRestorePlmFamily.BombBlock.All.Select(draw => PlmDrawAddressCodec.Of(draw.Draw))),
+        AssertTrue(pointers.SequenceEqual(RoomPlmLinkedRestoreVisualFiles.AllOf(LinkedRestorePlmFamily.BombBlock).Select(draw => PlmDrawAddressCodec.Of(draw.Draw))),
             "bomb restoration export order matches native layouts");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
@@ -165,7 +165,7 @@ internal static class BombBlockProgramsVerification
         // family. Forbid their source bytes as well, so this production check covers
         // the complete bomb-block draw path rather than only its three unique restores.
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 ShotBlockPlmDraws.All)
+                 RoomPlmShotBlockVisualFiles.All)
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
@@ -219,15 +219,15 @@ internal static class BombBlockProgramsVerification
     private static void VerifyBombBlockVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden)
     {
-        RoomPlmVisualRunEntry[] entries = ShotBlockPlmDraws.All
-            .Select(list => new RoomPlmVisualRunEntry(ShotBlockPlmDraws.VisualId(list.Draw),
+        RoomPlmVisualRunEntry[] entries = RoomPlmShotBlockVisualFiles.All
+            .Select(list => new RoomPlmVisualRunEntry(RoomPlmShotBlockVisualFiles.VisualId(list.Draw),
                 list.Runs.Span.SelectToArray(run =>
                     run.Blocks.Span.SelectToArray(block => block.Appearance))))
             .ToArray();
         RoomPlmVisualRunEntry first = entries.Single(entry =>
             entry.Id == "single-breakup-0");
         first.Runs[0][0] = RoomBlockAppearance.Of(0x054);
-        var edited = new InstalledRoomPlmShotBlockVisuals(entries);
+        var edited = RoomPlmShotBlockVisualFiles.Create(entries);
 
         BombBlockProgramsRenderResult Render(
             InstalledRoomPlmShotBlockVisuals visuals)

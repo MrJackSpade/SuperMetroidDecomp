@@ -30,16 +30,10 @@ public sealed class InstalledRoomPlmEyeDoorVisuals
     /// </summary>
     private readonly PlmVisualOverrides customBlocks;
 
-    /// <summary>Validates all twenty-three editable eye-door frames and copies visual differences without changing collision, attacks, hit counters, timing, or persistence.</summary>
-    /// <remarks>The mirrored opening clear shares the clearing frame's artwork rather than requiring a separate authored entry.</remarks>
-    /// <param name="entries">One visual-only entry per compiled editable identity, retaining each eye or component frame's draw shape.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves editable frame coverage incomplete.</exception>
-    public InstalledRoomPlmEyeDoorVisuals(IEnumerable<RoomPlmVisualEntry> entries)
-    {
-        customBlocks = new PlmVisualOverrides(entries, "Eye-door", EyeDoorDraws.TryGetByVisualId,
-            EyeDoorDraws.Editable.Count());
-    }
+    /// <summary>Holds the import-validated appearances of the editable frames that differ from the compiled components.</summary>
+    /// <param name="customBlocks">The changed frames' appearances, keyed by each frame's shared source draw.</param>
+    internal InstalledRoomPlmEyeDoorVisuals(PlmVisualOverrides customBlocks) =>
+        this.customBlocks = Ensure.NotNull(customBlocks);
 
     /// <summary>Resolves an eye-door visual block, sharing and horizontally mirroring the selected clearing artwork for the opening-clear alias.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>

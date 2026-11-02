@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Rooms;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Verification access to <see cref="SpeedBoosterBlockPlmDrawDefinitions"/> members production does not use.</summary>
@@ -12,7 +14,7 @@ internal static class SpeedBoosterBlockPlmDrawDefinitionsAccess
         {
             if (request == SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw)
             {
-                list = SpeedBoosterBlockPlmDrawDefinitions.BombReveal;
+                list = RoomPlmSpeedBoosterVisualFiles.BombReveal;
                 return true;
             }
             list = default;

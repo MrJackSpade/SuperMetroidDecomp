@@ -30,8 +30,8 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             BlueDoorPlmDrawDefinitionsTooling.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
-        RoomPlmVisualEntry[] entries = BlueDoorCaps.Editable.Select(draw =>
-            new RoomPlmVisualEntry(BlueDoorCaps.VisualId(draw.Draw),
+        RoomPlmVisualEntry[] entries = RoomPlmBlueDoorVisualFiles.Editable.Select(draw =>
+            new RoomPlmVisualEntry(RoomPlmBlueDoorVisualFiles.VisualId(draw.Draw),
                 draw.Runs.Span[0].Blocks.Span
                     .SelectToArray(block => block.Appearance))).ToArray();
         InstalledRoomPlmBlueDoorVisuals stock = InstalledRoomPlmBlueDoorVisuals.Stock();
@@ -39,7 +39,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             entry.Id == "left-frame-1");
         RoomBlockAppearance originalVisual = editedFrame.Blocks[0];
         editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x053);
-        var edited = new InstalledRoomPlmBlueDoorVisuals(entries);
+        var edited = RoomPlmBlueDoorVisualFiles.Create(entries);
         editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x054);
         ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (BlueEntry(BlueDoorPlmProgramDefinitions.OpeningPrograms[ColoredDoorOrientation.Left]) + 5)));
         AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(leftFirstDraw), 0),
@@ -54,7 +54,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
         {
             ushort openingList = BlueEntry(BlueDoorPlmProgramDefinitions.OpeningPrograms[orientation]);
             ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (openingList + 5)));
-            AssertTrue(BlueDoorCaps.TryGet(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), out var selected),
+            AssertTrue(RoomPlmBlueDoorVisualFiles.TryGet(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), out var selected),
                 $"{orientation} opening program selects a compiled draw");
 
             const int width = 16;

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Doors;
@@ -31,9 +32,9 @@ internal static class LookupGreyDoorStockVerification
         }
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = InstalledRoomPlmGreyDoorVisuals.Stock();
-        var imported = new InstalledRoomPlmGreyDoorVisuals(entries.Reverse());
+        var imported = RoomPlmGreyDoorVisualFiles.Create(entries.Reverse());
         string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(InstalledRoomPlmGreyDoorVisuals), words.ToDictionary(pair => GreyDoorCaps.VisualId(NativePlmDraws.At<GreyDoorCaps.Draw>(pair.Key)), pair => pair.Value));
+            nameof(InstalledRoomPlmGreyDoorVisuals), words.ToDictionary(pair => RoomPlmGreyDoorVisualFiles.VisualId(NativePlmDraws.At<GreyDoorCaps.Draw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Grey door original stock identity");
@@ -50,7 +51,7 @@ internal static class LookupGreyDoorStockVerification
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>((ushort)raw),0), "Grey door unknown stock pointer");
         entries[19].Blocks[1] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
         entries[8].Blocks[3] = RoomBlockAppearance.Of(0x059);
-        var mixed = new InstalledRoomPlmGreyDoorVisuals(entries);
+        var mixed = RoomPlmGreyDoorVisualFiles.Create(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer,
             frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Grey door custom/stock hash");
@@ -59,12 +60,12 @@ internal static class LookupGreyDoorStockVerification
         foreach (var frame in frames)
         for (int row = 0; row < 4; row++)
             AssertEqual(expected[frame.Pointer][row], mixed.GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(frame.Pointer),row), "Grey door custom clone and stock isolation");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmGreyDoorVisuals(entries[..19]), "Grey door missing frame");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmGreyDoorVisuals(entries.Append(entries[0])), "Grey door duplicate frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmGreyDoorVisualFiles.Create(entries[..19]), "Grey door missing frame");
+        AssertThrows<InvalidDataException>(() => RoomPlmGreyDoorVisualFiles.Create(entries.Append(entries[0])), "Grey door duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("CLEAR-LEFT", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmGreyDoorVisuals(invalid), "Grey door ordinal identity");
+        AssertThrows<InvalidDataException>(() => RoomPlmGreyDoorVisualFiles.Create(invalid), "Grey door ordinal identity");
         invalid[0] = new(entries[0].Id, new RoomBlockAppearance[3]);
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmGreyDoorVisuals(invalid), "Grey door exact shape");
+        AssertThrows<InvalidDataException>(() => RoomPlmGreyDoorVisualFiles.Create(invalid), "Grey door exact shape");
     }
 }

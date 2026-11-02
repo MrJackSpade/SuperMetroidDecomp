@@ -39,16 +39,16 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         Suite(nameof(VerifyGlassLayoutVisuals), () => VerifyGlassLayoutVisuals(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
-            MotherBrainGlassDraws.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
+            RoomPlmMotherBrainGlassVisualFiles.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
         RoomPlmVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmVisualEntry(
-                MotherBrainGlassDraws.VisualId(draw.Draw),
+                RoomPlmMotherBrainGlassVisualFiles.VisualId(draw.Draw),
                 draw.Appearances())).ToArray();
         RoomPlmVisualEntry shatter = entries.Single(entry =>
             entry.Id == "shatter-1");
         RoomBlockAppearance originalAppearance = shatter.Blocks[6];
         shatter.Blocks[6] = RoomBlockAppearance.Of(0x57);
-        var edited = new RoomPlmMotherBrainGlassVisualCatalog(entries);
+        var edited = RoomPlmMotherBrainGlassVisualFiles.Create(entries);
         shatter.Blocks[6] = RoomBlockAppearance.Of(0x58);
         AssertEqual(RoomBlockAppearance.Of(0x57), edited.GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
             "glass visual catalog copies author data");

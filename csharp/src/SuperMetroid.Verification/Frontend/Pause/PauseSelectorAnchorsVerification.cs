@@ -22,7 +22,7 @@ internal static class PauseSelectorAnchorsVerification
             ["Equipment.Varia", "Equipment.Gravity", "Equipment.MorphBall", "Equipment.Bombs", "Equipment.SpringBall", "Equipment.ScrewAttack"],
             ["Boots.HiJump", "Boots.SpaceJump", "Boots.SpeedBooster"] ];
         var expectedNames = names.SelectMany((group, category) => group.Select((name, item) =>
-            (Anchor: new PauseSelectorAnchor((PauseEquipmentCategory)category, item), Name: name))).ToArray();
+            (Anchor: new PauseEquipmentSlot((PauseEquipmentCategory)category, item), Name: name))).ToArray();
         AssertTrue(expectedNames.Select(entry => entry.Anchor).SequenceEqual(PauseSelectorAnchors.Anchors()), "original named identity order");
         foreach (var (anchor, name) in expectedNames)
             AssertEqual(name, PauseSelectorAnchors.Anchor(anchor.Category, anchor.Item), "original named identity case");

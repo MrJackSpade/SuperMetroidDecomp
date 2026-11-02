@@ -8,7 +8,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies.Beetom;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

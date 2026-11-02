@@ -1173,7 +1173,7 @@ internal static class MapPresentationVerification
         stockTitle.Step(0);
         editedTitle.Step(0);
         TitleScreenAmbientPaletteFxColorDefinition tube =
-            TitleScreenAmbientPaletteFxColorDefinitions.All.Single(
+            TitleScreenAmbientPaletteOwners.All.Single(
                 definition => definition.Owner ==
                     TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight);
         AssertTrue(stockTitle.PaletteColors[tube.Colours.CartridgeColour] !=

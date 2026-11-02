@@ -43,7 +43,7 @@ internal static class EnemyContentIdentityVerification
             // The placements gameplay draws by are a view of the extended frames, hashed through them, not a subdomain.
             .Where(property => property.Name != nameof(EnemyTileSourceArtwork.ExtendedFramePlacements))
             .Select(property => property.PropertyType)).ToArray();
-        AssertEqual(35, childTypes.Length, "all enemy bundle subdomains are accounted for");
+        AssertEqual(36, childTypes.Length, "all enemy bundle subdomains are accounted for");
         foreach (Type type in childTypes.Concat(catalogs).Append(typeof(EnemyPaletteSheet)))
         {
             // The game's catalogs carry no identity; the import pipeline identifies them (#1502).

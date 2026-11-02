@@ -45,7 +45,7 @@ public static class TitlePaletteFile
         }
         var animatedColors = new Dictionary<PaletteFxColorKey, RgbColor>();
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
-                 TitleScreenAmbientPaletteFxColorDefinitions.All)
+                 TitleScreenAmbientPaletteOwners.All)
         {
             PaletteRgb5[][]? frames = definition.Owner switch
             {
@@ -103,7 +103,7 @@ public static class TitlePaletteFile
     /// <param name="animatedColors">Every selected ambient-program colour; calculated ones are removed.</param>
     private static void DropCalculatedAmbientColors(ScreenColours colours, Dictionary<PaletteFxColorKey, RgbColor> animatedColors)
     {
-        foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
+        foreach (var program in TitleScreenAmbientPaletteOwners.All)
         for (int frame = 0; frame < program.FrameCount; frame++)
         for (int index = 0; index < program.ColorsPerFrame; index++)
         {

@@ -11,7 +11,7 @@ public static class PauseSelectorAnchors
     public static string SheetFrameName(string frame) => $"Selector.{frame}";
     /// <summary>Enumerates every editable selector anchor in category/item order: two reserve controls, five beams, six suit/miscellaneous items, and three boots; does not alter navigation or eligibility.</summary>
     /// <returns>Sixteen anchors containing the compiled category and item index; <see cref="Anchor"/> names each.</returns>
-    public static IEnumerable<PauseSelectorAnchor> Anchors()
+    internal static IEnumerable<PauseEquipmentSlot> Anchors()
     {
         foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())
         {

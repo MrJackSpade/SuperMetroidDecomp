@@ -309,7 +309,7 @@ internal static class TitleGradientVerification
     {
         var colorAddresses = new HashSet<int>();
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
-                 TitleScreenAmbientPaletteFxColorDefinitions.All)
+                 TitleScreenAmbientPaletteOwners.All)
         {
             for (int frame = 0; frame < definition.FrameCount; frame++)
             {
@@ -340,7 +340,7 @@ internal static class TitleGradientVerification
         var installedSession = new PaletteFxSessionState();
         var installed = new RoomPaletteFxSystem(installedSession);
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
-                 TitleScreenAmbientPaletteFxColorDefinitions.All)
+                 TitleScreenAmbientPaletteOwners.All)
         {
             native.SpawnDefinition(definition.DefinitionPointer, 0);
             installed.SpawnDefinition(definition.DefinitionPointer, 0);
@@ -348,7 +348,7 @@ internal static class TitleGradientVerification
 
         var nativeCgram = new SamusColourRig();
         var installedCgram = new SamusColourRig();
-        int frames = TitleScreenAmbientPaletteFxColorDefinitions.All.Max(
+        int frames = TitleScreenAmbientPaletteOwners.All.Max(
             definition => definition.CycleFrames) * 2;
         for (int frame = 0; frame < frames; frame++)
         {

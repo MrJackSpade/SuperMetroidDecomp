@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 

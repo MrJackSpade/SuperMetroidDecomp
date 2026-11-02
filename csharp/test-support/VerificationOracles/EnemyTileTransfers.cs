@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Escape;
 
 namespace SuperMetroid.TestSupport.VerificationOracles;
 
@@ -33,7 +34,7 @@ internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
         throw new InvalidOperationException("Enemy tile fixtures bind no animated tiles.");
     /// <summary>Resolves an escape-timer page from the supplied atlas; enemy tile fixtures queue no other asset.</summary>
     public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
-        timer?.Resolve(asset) ?? throw new InvalidOperationException($"Enemy tile fixtures queue no asset {asset}.");
+        timer is null ? throw new InvalidOperationException($"Enemy tile fixtures queue no asset {asset}.") : EscapeTimerTilePageTransfers.Resolve(timer, asset);
 
     /// <summary>Resolves a native Ceres or Torizo transfer, in the runtime artwork's order; enemy tiles are named by identity (#1412).</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)

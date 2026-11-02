@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
@@ -169,7 +170,7 @@ internal static class AuditContractChecks
         foreach (BrinstarBlueSporePaletteFxColorDefinition definition in BrinstarBlueSporePaletteFxColorDefinitions.All)
             report.Require(ResourceDomains.PaletteFx, "alias fixture",
                 ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, PaletteFxRecordSources.ColorAddress(definition.Color(0, 0))), "fixture.cs", exports);
-        foreach (TitleScreenAmbientPaletteFxColorDefinition definition in TitleScreenAmbientPaletteFxColorDefinitions.All)
+        foreach (TitleScreenAmbientPaletteFxColorDefinition definition in TitleScreenAmbientPaletteOwners.All)
             report.Require(ResourceDomains.PaletteFx, "title fixture",
                 ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, PaletteFxRecordSources.ColorAddress(definition.Color(0, 0))), "fixture.cs", exports);
         Require(report.Findings.Count == 0, "shared aliases and the independent title provider must be recognized");

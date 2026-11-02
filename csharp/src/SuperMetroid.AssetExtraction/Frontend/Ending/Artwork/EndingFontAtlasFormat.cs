@@ -84,9 +84,9 @@ public static class EndingFontAtlasFormat
         int tile = pixel / Width / TileSize * TilesPerRow + pixel % Width / TileSize;
         int x = pixel % TileSize, y = pixel / Width % TileSize;
         Position16<CharacterPixels> at = new(checked((ushort)x), checked((ushort)y));
-        return tile == EndingTextDefinitions.ResultLetterBase + 'K' - 'A' && at is (3, 0) or (7, 4)
-            || tile == EndingTextDefinitions.ResultLetterBase + 'M' - 'A' && at is (4, 1)
-            || tile == EndingTextDefinitions.ResultLetterBase + 'Z' - 'A' && at is (7, 3);
+        return tile == EndingTextDefinitions.ResultLetterBase + 'K' - 'A' && at is { X: 3, Y: 0 } or { X: 7, Y: 4 }
+            || tile == EndingTextDefinitions.ResultLetterBase + 'M' - 'A' && at is { X: 4, Y: 1 }
+            || tile == EndingTextDefinitions.ResultLetterBase + 'Z' - 'A' && at is { X: 7, Y: 3 };
     }
 
     /// <summary>Native small A–Z plus large A–Z and copyright0–9 glyph cells; other symbols/subtitle pixels remain independently required.</summary>
@@ -121,15 +121,15 @@ public static class EndingFontAtlasFormat
         Position16<CharacterPixels> at = new(checked((ushort)x), checked((ushort)y));
         return LargeLetter(tile) switch
         {
-            'B' => at is (5, 2) or (6, 3) or (7, 4) or (7, 7) or (7, 8) or (7, 13) or (6, 14),
-            'D' => at is (6, 3) or (7, 5) or (7, 11) or (6, 13) or (5, 14),
-            'G' => at is (4, 6) or (4, 10),
-            'J' => at is (0, 13) or (7, 13) or (1, 14) or (6, 14),
-            'K' => at is (5, 2) or (4, 3) or (5, 8) or (6, 9) or (7, 10),
-            'Q' => at is (7, 3),
-            'R' => at is (7, 10) or (7, 11),
-            'S' => at is (7, 13) or (1, 14) or (6, 14),
-            'V' => at is (6, 11) or (2, 14),
+            'B' => at is { X: 5, Y: 2 } or { X: 6, Y: 3 } or { X: 7, Y: 4 } or { X: 7, Y: 7 } or { X: 7, Y: 8 } or { X: 7, Y: 13 } or { X: 6, Y: 14 },
+            'D' => at is { X: 6, Y: 3 } or { X: 7, Y: 5 } or { X: 7, Y: 11 } or { X: 6, Y: 13 } or { X: 5, Y: 14 },
+            'G' => at is { X: 4, Y: 6 } or { X: 4, Y: 10 },
+            'J' => at is { X: 0, Y: 13 } or { X: 7, Y: 13 } or { X: 1, Y: 14 } or { X: 6, Y: 14 },
+            'K' => at is { X: 5, Y: 2 } or { X: 4, Y: 3 } or { X: 5, Y: 8 } or { X: 6, Y: 9 } or { X: 7, Y: 10 },
+            'Q' => at is { X: 7, Y: 3 },
+            'R' => at is { X: 7, Y: 10 } or { X: 7, Y: 11 },
+            'S' => at is { X: 7, Y: 13 } or { X: 1, Y: 14 } or { X: 6, Y: 14 },
+            'V' => at is { X: 6, Y: 11 } or { X: 2, Y: 14 },
             _ => false,
         };
     }

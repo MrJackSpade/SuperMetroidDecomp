@@ -102,16 +102,6 @@ internal static class InstalledArtworkBundleIdentity
     /// <summary>The installed content identity of the Samus body artwork.</summary>
     extension(InstalledSamusBodyArtwork artwork)
     {
-        /// <summary>The identity of the death-explosion characters the import pipeline installed for <paramref name="artwork"/>.</summary>
-        /// <exception cref="InvalidDataException">The Samus body artwork was not read from installed artwork.</exception>
-        public string DeathTilesContentIdentity => artwork is SamusBodySources installed ? installed.DeathTilesContentIdentity
-            : throw new InvalidDataException("The Samus body artwork was not read from installed artwork.");
-
-        /// <summary>The identity of the body characters the import pipeline composed <paramref name="artwork"/>'s sheets from.</summary>
-        /// <exception cref="InvalidDataException">The Samus body artwork was not read from installed artwork.</exception>
-        public string BodyCharactersContentIdentity => artwork is SamusBodySources installed ? installed.BodyCharactersContentIdentity
-            : throw new InvalidDataException("The Samus body artwork was not read from installed artwork.");
-
         /// <summary>The identity the import pipeline computed for <paramref name="artwork"/>, which it read as a <see cref="SamusBodySources"/>.</summary>
         /// <exception cref="InvalidDataException">The Samus body artwork was not read from installed artwork.</exception>
         public string ContentIdentity => artwork is SamusBodySources installed ? installed.ContentIdentity

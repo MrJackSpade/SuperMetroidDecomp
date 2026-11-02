@@ -51,8 +51,4 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
             ColorsPerFrame = DisplayColourCount,
             ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.TitleScreenFlickeringDisplays1, DisplayColourCount),
         };
-
-    /// <summary>The two semantic palette owners in definition order.</summary>
-    public static IReadOnlyList<TitleScreenAmbientPaletteFxColorDefinition> All { get; } = [TubeLight, Displays];
-
 }

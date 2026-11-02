@@ -42,7 +42,7 @@ internal static class PaletteJsonContractsVisibleVerification
         var stockFx = new RoomPaletteFxSystem(stockFxSession);
         var editedFxSession = new PaletteFxSessionState();
         var editedFx = new RoomPaletteFxSystem(editedFxSession);
-        foreach (var definition in TitleScreenAmbientPaletteFxColorDefinitions.All)
+        foreach (var definition in TitleScreenAmbientPaletteOwners.All)
         {
             stockFx.SpawnDefinition(definition.DefinitionPointer, 0);
             editedFx.SpawnDefinition(definition.DefinitionPointer, 0);
@@ -58,7 +58,7 @@ internal static class PaletteJsonContractsVisibleVerification
             editedFx.Step(new ScreenPaletteFxColours(editedCgram), replacement, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertPaletteContractFxState(stockFx, editedFx);
             AssertSameBytes(stockBus.WorkRam, editedBus.WorkRam, "color replacement preserves all live WRAM");
-            foreach (var definition in TitleScreenAmbientPaletteFxColorDefinitions.All)
+            foreach (var definition in TitleScreenAmbientPaletteOwners.All)
             {
                 int destination = definition.Colours.CartridgeColour + 1;
                 AssertEqual((ushort)(stockCgram.Colors[destination].ToWord() ^ 0x7fff), editedCgram.Colors[destination],

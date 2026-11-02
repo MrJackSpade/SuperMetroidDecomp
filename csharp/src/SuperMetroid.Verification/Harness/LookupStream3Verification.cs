@@ -31,7 +31,6 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.Sparks;
-using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Intro;

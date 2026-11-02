@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Samus.Palettes;
@@ -949,7 +950,7 @@ internal static class PaletteFxInstructionCodesVerification
         if (source.Bank == 0x8d)
         {
             foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
-                     TitleScreenAmbientPaletteFxColorDefinitions.All)
+                     TitleScreenAmbientPaletteOwners.All)
             {
                 for (int frame = 0; frame < definition.FrameCount; frame++)
                 {
@@ -1168,7 +1169,7 @@ internal static class PaletteFxInstructionCodesVerification
 
             for (int frame = 0;
                  frame < ZebesExplosionGunshipPaletteFxColorDefinitions
-                     .FrameCount;
+                     .ColorFrames.FrameCount;
                  frame++)
             {
                 int offset = source.Offset - unchecked((ushort)(
@@ -1221,7 +1222,7 @@ internal static class PaletteFxInstructionCodesVerification
 
             for (int frame = 0;
                  frame < PostCreditsIconGlarePaletteFxColorDefinitions
-                     .FrameCount;
+                     .ColorFrames.FrameCount;
                  frame++)
             {
                 int offset = source.Offset - unchecked((ushort)(

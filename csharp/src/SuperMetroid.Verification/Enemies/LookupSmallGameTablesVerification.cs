@@ -60,7 +60,8 @@ internal static class LookupSmallGameTablesVerification
             int call = 0xa48f35 + 20 * puff;
             AssertEqual((byte)0xa9, CrocomireBridgeDustPositionsRomByte(rom, call), $"Dust {puff} X operand opcode");
             AssertEqual((byte)0xa9, CrocomireBridgeDustPositionsRomByte(rom, call + 5), $"Dust {puff} Y operand opcode");
-            (ushort x, ushort y) = CrocomireBridgeCollapse.CrocomireBridgeDustPosition(puff);
+            var dust = CrocomireBridgeCollapse.CrocomireBridgeDustPosition(puff);
+            ushort x = dust.X, y = dust.Y;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((call + 1)), x, $"Crocomire bridge dust {puff} X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((call + 6)), y, $"Crocomire bridge dust {puff} Y");
         }

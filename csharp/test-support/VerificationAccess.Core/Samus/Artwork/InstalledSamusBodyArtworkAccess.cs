@@ -36,6 +36,12 @@ internal static class InstalledSamusBodyArtworkAccess
         /// <summary>The installed drained-state vertical-offset table.</summary>
         internal ReadOnlySpan<sbyte> DrainedYOffsets => self.Source.DrainedYOffsets;
 
+        /// <summary>The identity of the death-explosion characters the import pipeline installed with the body.</summary>
+        internal string DeathTilesContentIdentity => self.Source.DeathTilesContentIdentity;
+
+        /// <summary>The identity of the body characters the import pipeline composed the body's sheets from.</summary>
+        internal string BodyCharactersContentIdentity => self.Source.BodyCharactersContentIdentity;
+
         /// <summary>The frame selector <paramref name="animationFrame"/> places after <paramref name="pose"/>'s first.</summary>
         /// <exception cref="InvalidDataException">The pose has no record, or the selector is outside the table.</exception>
         internal SamusBodyFrameSelection Selection(SamusPoseId pose, int animationFrame)

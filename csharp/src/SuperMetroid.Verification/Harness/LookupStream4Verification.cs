@@ -160,7 +160,7 @@ internal static class LookupStream4Verification
         byte[] json = TitlePaletteExtractor.Extract(rom);
         TitlePalettePresentation stock = TitlePaletteFile.Read(new MemoryStream(json));
         var native = new Dictionary<ushort, ushort>();
-        foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
+        foreach (var program in TitleScreenAmbientPaletteOwners.All)
         for (int frame = 0; frame < program.FrameCount; frame++)
         for (int index = 0; index < program.ColorsPerFrame; index++)
         {
@@ -186,7 +186,7 @@ internal static class LookupStream4Verification
         TitlePaletteFile.Write(changedJson, document);
         changedJson.Position = 0;
         TitlePalettePresentation changed = TitlePaletteFile.Read(changedJson);
-        foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
+        foreach (var program in TitleScreenAmbientPaletteOwners.All)
         for (int frame = 0; frame < program.FrameCount; frame++)
         for (int index = 0; index < program.ColorsPerFrame; index++)
         {
@@ -197,7 +197,7 @@ internal static class LookupStream4Verification
             AssertEqual(Pack(supplied), value, "independent title ambient edit and every unchanged neighbor preserved");
         }
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = TitleScreenAmbientPaletteFxColorDefinitions.All[invalid],
+            AssertThrows<IndexOutOfRangeException>(() => _ = TitleScreenAmbientPaletteOwners.All[invalid],
                 "title ambient owner list domain");
     }
 
@@ -205,7 +205,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4TitleAmbientMechanics(CartridgeImportAddressSpace rom)
     {
         int ticks = 0;
-        foreach (var definition in TitleScreenAmbientPaletteFxColorDefinitions.All)
+        foreach (var definition in TitleScreenAmbientPaletteOwners.All)
         {
             ushort nativeProgram = rom.ReadCartridgeWord((0x8d0000 | definition.DefinitionPointer + 2));
             AssertEqual(nativeProgram, definition.ProgramStart, "Native ambient definition selects calculated program");
@@ -278,7 +278,7 @@ internal static class LookupStream4Verification
         {
             for (int color = 0; color < 256; color++)
                 AssertEqual(Pack(document.Colors[color]), selected.Colors[color], "Independent initial paint remains exact");
-            foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
+            foreach (var program in TitleScreenAmbientPaletteOwners.All)
             {
                 var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
                     ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
@@ -299,7 +299,7 @@ internal static class LookupStream4Verification
             Confirm(document, Load(document));
             edits++;
         }
-        foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
+        foreach (var program in TitleScreenAmbientPaletteOwners.All)
         for (int frame = 0; frame < program.FrameCount; frame++)
         for (int index = 0; index < program.ColorsPerFrame; index++)
         for (int channel = 0; channel < 3; channel++)
@@ -323,13 +323,13 @@ internal static class LookupStream4Verification
             var fx = new RoomPaletteFxSystem(fxSession);
             var cgram = new ScreenPalette();
             selected.Apply(cgram);
-            foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
+            foreach (var program in TitleScreenAmbientPaletteOwners.All)
                 fx.SpawnDefinition(program.DefinitionPointer, 0);
             for (int tick = 0; tick <= 80; tick++)
             {
                 fx.Step(new ScreenPaletteFxColours(cgram), selected, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 ushort[] expected = document.Colors.Select(Pack).ToArray();
-                foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
+                foreach (var program in TitleScreenAmbientPaletteOwners.All)
                 {
                     var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
                         ? document.BabyMetroidTubeLight : document.FlickeringDisplays;

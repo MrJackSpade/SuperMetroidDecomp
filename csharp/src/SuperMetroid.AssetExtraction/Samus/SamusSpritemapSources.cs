@@ -124,7 +124,7 @@ public sealed class SamusSpritemapSources : InstalledSamusSpritemaps
     /// </summary>
     public bool TryGetFrame(SamusBodyHalfFrame halfFrame, [NotNullWhen(true)] out SpriteFrame? frame)
     {
-        if (!Covers(halfFrame))
+        if ((uint)halfFrame.AnimationFrame >= (uint)Frames(halfFrame).Count)
         {
             frame = null;
             return false;

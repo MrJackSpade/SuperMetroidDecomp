@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;

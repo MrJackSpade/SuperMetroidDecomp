@@ -12,6 +12,6 @@ internal static class RgbColorWords
         /// Whether <paramref name="word"/> is a stored colour: the word is unchanged when the bit outside the colour, which
         /// <see cref="RgbColor.FromWordIgnoringTopBit"/> drops, is dropped.
         /// </summary>
-        internal static bool IsColorWord(ushort word) => RgbColor.FromWordIgnoringTopBit(word).ToWord() == word;
+        internal static bool IsColorWord(int word) => RgbColor.FromWordIgnoringTopBit(checked((ushort)word)).ToWord() == word;
     }
 }

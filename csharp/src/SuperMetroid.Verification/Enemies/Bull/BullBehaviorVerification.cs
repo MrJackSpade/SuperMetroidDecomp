@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Enemies.Bull.Artwork;

@@ -1,6 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
@@ -27,7 +28,7 @@ public static class EndingPaletteRecognition
     /// calculated fade when its colours follow it.
     /// </summary>
     /// <param name="colours">The crossfade's colours.</param>
-    public static EndingPalette FromCrossfade(EndingLogoCrossfadeColours colours) =>
+    internal static EndingPalette FromCrossfade(EndingLogoCrossfadeColours colours) =>
         LogoFade(colours) is { } fade ? new EndingPalette(fade) : new EndingPalette(colours);
 
     /// <summary>Recognize the complete supplied progression before replacing its samples.

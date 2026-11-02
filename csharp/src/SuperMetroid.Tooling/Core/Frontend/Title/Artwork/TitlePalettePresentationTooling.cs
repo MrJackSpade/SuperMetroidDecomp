@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Fx.PaletteFx;
+﻿using SuperMetroid.AssetExtraction.Frontend.Title;
 
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
 
@@ -12,12 +12,12 @@ internal static class TitlePalettePresentationTooling
     internal sealed class AmbientPointerSequence : IReadOnlyCollection<ushort>
     {
         /// <summary>The number of color operands across all installed title ambient frames.</summary>
-        public int Count => TitleScreenAmbientPaletteFxColorDefinitions.All.Sum(
+        public int Count => TitleScreenAmbientPaletteOwners.All.Sum(
             program => program.FrameCount * program.ColorsPerFrame);
         /// <summary>Walks program frames in catalog order, reporting each color's bank-$8D address.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
-            foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
+            foreach (var program in TitleScreenAmbientPaletteOwners.All)
             for (int frame = 0; frame < program.FrameCount; frame++)
             for (int index = 0; index < program.ColorsPerFrame; index++)
                 yield return SuperMetroid.AssetExtraction.Fx.PaletteFxRecordSources.ColorAddress(program.Color(frame, index));

@@ -5,7 +5,6 @@ using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;

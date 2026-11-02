@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 

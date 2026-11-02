@@ -5,7 +5,6 @@ using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.GameOver;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;

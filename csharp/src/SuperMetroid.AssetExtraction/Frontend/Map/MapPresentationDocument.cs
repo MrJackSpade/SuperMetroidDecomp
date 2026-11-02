@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;

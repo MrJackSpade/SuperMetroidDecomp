@@ -116,14 +116,14 @@ internal static class MotherBrainRainbowPaletteRecognition
     private static Presentation.BodyColors Body(RgbColor[] colors)
     {
         int length = colors.Length;
-        bool normal = length is MotherBrainFakeDeathPaletteDefinitions.ColorCount or MotherBrainDrainedPaletteDefinitions.RevivalColors
+        bool normal = length is MotherBrainFakeDeathPaletteDefinitions.ColorCount or MotherBrainRainbowPaletteGeometry.RevivalColors
             or MotherBrainRainbowPaletteDefinitions.ColorCount;
         for (int color = 0; normal && color < length; color++)
             normal = colors[color] == MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, color);
         if (normal)
             return new(length, supplied: null, drained: null);
         Presentation.DrainedBodyColors drained = Drained(colors);
-        return drained.Calculated ? new(length, supplied: null, drained) : new(length, colors, drained: null);
+        return drained.supplied is null ? new(length, supplied: null, drained) : new(length, colors, drained: null);
     }
 
     /// <summary>The same phase over different body paint, keeping its rear-leg relationship.</summary>
@@ -250,7 +250,7 @@ internal static class MotherBrainRainbowPaletteRecognition
         for (int color = 0; color < drain.LegCount; color++)
             if (drain.Leg(color) != rainbow.Leg(color + MotherBrainDrainedPaletteDefinitions.RearSourceColor)) return drain;
         return drain.TrailingColor == rainbow.Leg(MotherBrainDrainedPaletteDefinitions.TrailingRearSourceColor)
-            ? new(rainbow.Body, MotherBrainDrainedPaletteDefinitions.BackLegCount, null,
+            ? new(rainbow.Body, MotherBrainRainbowPaletteGeometry.BackLegCount, null,
                 new(null, MotherBrainRearPaintKind.Derived, Source: rainbow))
             : drain;
     }
@@ -262,7 +262,7 @@ internal static class MotherBrainRainbowPaletteRecognition
             if (drain.Leg(color) != Presentation.PaletteFrame.HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(
                     MotherBrainPalettePart.BackLeg, color + MotherBrainDrainedPaletteDefinitions.RearSourceColor))) return drain;
         return drain.TrailingColor == drain.Leg(1)
-            ? new(drain.Body, MotherBrainDrainedPaletteDefinitions.BackLegCount, null,
+            ? new(drain.Body, MotherBrainRainbowPaletteGeometry.BackLegCount, null,
                 new(null, MotherBrainRearPaintKind.Drained, Source: null))
             : drain;
     }
@@ -274,7 +274,7 @@ internal static class MotherBrainRainbowPaletteRecognition
             if (frame.Leg(color) != MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg,
                     color + MotherBrainDrainedPaletteDefinitions.RearSourceColor)) return frame;
         return frame.TrailingColor == frame.Leg(1)
-            ? new(frame.Body, MotherBrainDrainedPaletteDefinitions.BackLegCount, null,
+            ? new(frame.Body, MotherBrainRainbowPaletteGeometry.BackLegCount, null,
                 new(null, MotherBrainRearPaintKind.NormalSubset, Source: null))
             : frame;
     }

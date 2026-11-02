@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 internal static class MotherBrainBodyVisualDefinitions
 {
-    /// <summary>Standing, walking, crouch, dummy, and death-beam body roots selected by compiled programs.</summary>
-    internal const int FrameCount = 17;
-
     /// <summary>The body frames drawn on Mother Brain's body layer: every pose but the sprite-only initial dummy (#1466).</summary>
     internal static IReadOnlySet<EnemyFrameId> BodyLayerFrames { get; } = new HashSet<EnemyFrameId>
     {

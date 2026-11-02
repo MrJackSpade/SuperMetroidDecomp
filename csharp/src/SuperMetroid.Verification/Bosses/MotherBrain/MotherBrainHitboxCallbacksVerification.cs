@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>
 /// ROM oracle for Mother Brain's compiled hitbox rectangles: every frame root's components and every rectangle's
@@ -23,7 +24,7 @@ internal static class MotherBrainHitboxCallbacksVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int rectangles = 0;
-        for (int index = 0; index < MotherBrainBodyVisualDefinitions.FrameCount; index++)
+        for (int index = 0; index < MotherBrainBodyFrameDefinitions.FrameCount; index++)
         {
             NativeEnemySpritemapDefinition frame = MotherBrainBodyVisualDefinitionsConstants.Frame(index);
             int root = (int)new SnesAddress(frame.Bank, frame.Pointer);
@@ -59,7 +60,7 @@ internal static class MotherBrainHitboxCallbacksVerification
         }
 
         Console.WriteLine(
-            $"Mother Brain hitbox callbacks: {MotherBrainBodyVisualDefinitions.FrameCount} frame roots and {rectangles} rectangles match the cartridge's edges and callbacks.");
+            $"Mother Brain hitbox callbacks: {MotherBrainBodyFrameDefinitions.FrameCount} frame roots and {rectangles} rectangles match the cartridge's edges and callbacks.");
     }
 
     /// <summary>Runs the Mother Brain hitbox-callback ROM oracle.</summary>

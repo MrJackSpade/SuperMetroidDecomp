@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.World.Artwork;
 
@@ -127,7 +127,7 @@ internal static class EnemyExtendedFrameDefinitions
         GoldenTorizoRightOrbFrameCount + GoldenTorizoRightSonicFrameCount +
         TorizoFallingLeftFrameCount + GoldenTorizoLeftFootOrbFrameCount +
         TorizoJumpBackLeftNewFrameCount + GoldenTorizoLeftOrbFrameCount +
-        CompleteTorizoAdditionalFrameCount + MotherBrainBodyVisualDefinitions.FrameCount +
+        CompleteTorizoAdditionalFrameCount + MotherBrainBodyFrameDefinitions.FrameCount +
         DraygonBg2FrameCount + PhantoonBg2FrameCount + CrocomireSkeletonVisualDefinitions.FrameCount +
         KraidFootVisualDefinitions.FrameCount;
 

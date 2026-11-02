@@ -1840,7 +1840,7 @@ internal static class LookupStream3Verification
         var drainEnd = drainFade.last;
         var drainBody = drainEnd.Body;
         var drainedPaint = drainBody.drained;
-        AssertTrue((drainedPaint ?? throw new InvalidOperationException("Verification requires drainedPaint.")).Calculated, "stream 3 drained final gray body palette has no stored row");
+        AssertTrue((drainedPaint ?? throw new InvalidOperationException("Verification requires drainedPaint.")).supplied is null, "stream 3 drained final gray body palette has no stored row");
         var normalFrame = stock.normal;
         var normalBody = normalFrame.Body;
         AssertTrue(normalBody.supplied is null,
@@ -2097,7 +2097,7 @@ internal static class LookupStream3Verification
             if (ReferenceEquals(fade, stock.selection.CorpseFade))
             {
                 var endpoint = fade.last ?? throw new InvalidOperationException("stream 3 corpse fade has a final gray endpoint");
-                AssertTrue(endpoint.Calculated, "stream 3 corpse final gray palette has no stored row");
+                AssertTrue(endpoint.supplied is null, "stream 3 corpse final gray palette has no stored row");
                 AssertEqual(0, endpoint[14], "stream 3 corpse neutral black endpoint");
             }
         }

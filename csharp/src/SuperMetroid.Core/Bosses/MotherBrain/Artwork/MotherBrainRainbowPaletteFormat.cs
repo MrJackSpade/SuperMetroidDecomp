@@ -23,8 +23,4 @@ public static class MotherBrainRainbowPaletteFormat
     internal const int HeadRedStep = 6;
     /// <summary>Ten full-palette phases before the terminator in the rainbow palette list.</summary>
     public const int RainbowFrameCount = 10;
-    /// <summary>Eight authored steps in each drain and revival palette pointer sequence; cadence and completion are controlled by boss AI.</summary>
-    public const int GreyFrameCount = 8;
-    /// <summary>38 sampled BGR555 words before the signed loop terminator.</summary>
-    public const int BeamCycleColorCount = 38;
 }

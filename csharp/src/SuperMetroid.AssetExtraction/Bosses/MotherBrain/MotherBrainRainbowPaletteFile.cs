@@ -31,12 +31,12 @@ public static class MotherBrainRainbowPaletteFile
             Rainbow = CompileFrames(document.Rainbow, MotherBrainRainbowPaletteFormat.RainbowFrameCount,
                 MotherBrainRainbowPaletteDefinitions.ColorCount,
                 MotherBrainRainbowPaletteDefinitions.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Rainbow)),
-            ToGrey = CompileFrames(document.ToGrey, MotherBrainRainbowPaletteFormat.GreyFrameCount,
-                MotherBrainDrainedPaletteDefinitions.DrainedColors,
-                MotherBrainDrainedPaletteDefinitions.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.ToGrey)),
-            FromGrey = CompileFrames(document.FromGrey, MotherBrainRainbowPaletteFormat.GreyFrameCount,
-                MotherBrainDrainedPaletteDefinitions.RevivalColors,
-                MotherBrainDrainedPaletteDefinitions.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.FromGrey)),
+            ToGrey = CompileFrames(document.ToGrey, MotherBrainRainbowPaletteGeometry.GreyFrameCount,
+                MotherBrainRainbowPaletteGeometry.DrainedColors,
+                MotherBrainRainbowPaletteGeometry.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.ToGrey)),
+            FromGrey = CompileFrames(document.FromGrey, MotherBrainRainbowPaletteGeometry.GreyFrameCount,
+                MotherBrainRainbowPaletteGeometry.RevivalColors,
+                MotherBrainRainbowPaletteGeometry.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.FromGrey)),
             // A pre-fake-death override inherits that fade from the current stock the version check required.
             FakeDeathToGrey = version == MotherBrainRainbowPaletteVersion.PreFakeDeath
                 ? null
@@ -44,7 +44,7 @@ public static class MotherBrainRainbowPaletteFile
             Normal = CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteDefinitions.ColorCount,
                 MotherBrainRainbowPaletteDefinitions.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Normal))[0],
             BeamInitial = CompileColor(document.BeamInitial, nameof(document.BeamInitial)),
-            BeamCycle = CompileColors(document.BeamCycle, MotherBrainRainbowPaletteFormat.BeamCycleColorCount,
+            BeamCycle = CompileColors(document.BeamCycle, MotherBrainRainbowPaletteGeometry.BeamCycleColorCount,
                 nameof(document.BeamCycle)),
         }, currentStock);
     }

@@ -511,7 +511,7 @@ internal static class MapPresentationVerification
         }
 
         foreach (bool draining in new[] { true, false })
-        for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.GreyFrameCount; frame++)
+        for (int frame = 0; frame < MotherBrainRainbowPaletteGeometry.GreyFrameCount; frame++)
         {
             var native = new SnesCgram();
             var installed = new GameplayColours(new SpriteColourSets());
@@ -527,15 +527,15 @@ internal static class MapPresentationVerification
             installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BrainColor + 14, RgbColor.FromWord(0x2235));
             int table = draining ? MotherBrainSourceDefinitions.Palettes.DrainedToGreyPointerTable :
                 MotherBrainSourceDefinitions.Palettes.RevivalFromGreyPointerTable;
-            int count = draining ? MotherBrainDrainedPaletteDefinitions.DrainedColors :
-                MotherBrainDrainedPaletteDefinitions.RevivalColors;
+            int count = draining ? MotherBrainRainbowPaletteGeometry.DrainedColors :
+                MotherBrainRainbowPaletteGeometry.RevivalColors;
             int pointer = table + frame * sizeof(ushort);
             int palette = MotherBrainSourceDefinitions.Palettes.PaletteBank |
                 LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, pointer), CpuBusRegionRead.Read(bus, pointer + 1));
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainColorDestinations.BodyColor);
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainColorDestinations.BrainColor);
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette + count * sizeof(ushort),
-                MotherBrainDrainedPaletteDefinitions.BackLegCount,
+                MotherBrainRainbowPaletteGeometry.BackLegCount,
                 MotherBrainColorDestinations.DrainedRearLegColor);
             if (draining) original.MotherBrainRainbowPalette.ApplyToGrey(installed, frame);
             else original.MotherBrainRainbowPalette.ApplyFromGrey(installed, frame);
@@ -557,7 +557,7 @@ internal static class MapPresentationVerification
         AssertEqual(MotherBrainBeamDefinitions.InitialColor,
             original.MotherBrainRainbowPalette.BeamInitialColor,
             "installed beam initial fixed color matches the cartridge");
-        for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount; frame++)
+        for (int frame = 0; frame < MotherBrainRainbowPaletteGeometry.BeamCycleColorCount; frame++)
         {
             int address = MotherBrainSourceDefinitions.Beam.ColorTable + frame * MotherBrainSourceDefinitions.Beam.ColorEntryBytes;
             ushort nativeBeamColor = LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
@@ -565,7 +565,7 @@ internal static class MapPresentationVerification
                 beamColor == RgbColor.FromWord(nativeBeamColor), $"installed beam HDMA color {frame} matches bank-$88");
         }
         AssertTrue(!original.MotherBrainRainbowPalette.TryReadBeamColor(
-                MotherBrainRainbowPaletteFormat.BeamCycleColorCount, out _),
+                MotherBrainRainbowPaletteGeometry.BeamCycleColorCount, out _),
             "installed beam color loop retains its native signed terminator");
         var nativeBeamSequence = new MotherBrainRainbowBeamEffect
         {
@@ -577,7 +577,7 @@ internal static class MapPresentationVerification
         {
             PresentationColors = original.MotherBrainRainbowPalette,
         };
-        for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount + 3; frame++)
+        for (int frame = 0; frame < MotherBrainRainbowPaletteGeometry.BeamCycleColorCount + 3; frame++)
         {
             nativeBeamSequence.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000);
             installedBeamSequence.Step(true, new(100, 95),

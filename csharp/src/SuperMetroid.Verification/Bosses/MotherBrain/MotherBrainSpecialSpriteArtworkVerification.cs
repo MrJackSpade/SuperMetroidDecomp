@@ -211,8 +211,8 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         for (int page = 0; page < pages.Length; page++)
         {
             enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.EscapeTimer, page));
-            byte[] native = ReadNativeMotherBrainPageSource(rom, EscapeTimerTilePagesConstants.SourceAddressOf(pages[page]), EscapeTimerTilePages.ByteCountOf(pages[page]));
-            AssertTrue(ObjVram().Bytes.Slice(EscapeNativePageWords.Of(EscapeTimerTilePages.FirstCharacterOf(pages[page])) * 2, native.Length)
+            byte[] native = ReadNativeMotherBrainPageSource(rom, EscapeTimerTilePagesConstants.SourceAddressOf(pages[page]), EscapeTimerTilePageTransfers.ByteCountOf(pages[page]));
+            AssertTrue(ObjVram().Bytes.Slice(EscapeNativePageWords.Of(EscapeTimerTilePageTransfers.FirstCharacterOf(pages[page])) * 2, native.Length)
                 .SequenceEqual(native),
                 "installed Mother Brain timer page matches cartridge without visual ROM reads");
         }

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
@@ -6,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 /// <summary>Authoring schema for the timer's palette, digit placement and eleven named sprite compositions; its dictionary and array contents remain caller-mutable.</summary>
 public sealed record EscapeTimerPresentationDocument
 {
-    /// <summary>Schema revision; loading requires <see cref="EscapeTimerPresentationDefinitions.Version"/>.</summary>
+    /// <summary>Schema revision; loading requires <see cref="EscapeTimerLayoutDefinitions.Version"/>.</summary>
     public required int Version { get; init; }
     /// <summary>Signed horizontal pixel displacement from tens to ones in every digit pair, from -256 through 255; stock value is 8.</summary>
     public required int DigitSpacing { get; init; }

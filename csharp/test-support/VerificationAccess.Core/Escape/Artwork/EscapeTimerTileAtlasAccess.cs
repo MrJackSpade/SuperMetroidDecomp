@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
@@ -17,11 +18,11 @@ internal static class EscapeTimerTileAtlasAccess
         {
             Ensure.NotNull(uploads);
             if (!EscapeTimerTilePagesConstants.TryMatch(sourceAddress, byteCount, out EscapeTimerTilePage page) ||
-                SpriteArtworkPlacements.TableByte(VramDmaDestination.FromNative(destinationWord)) != EscapeTimerTilePages.FirstCharacterOf(page) * 32)
+                SpriteArtworkPlacements.TableByte(VramDmaDestination.FromNative(destinationWord)) != EscapeTimerTilePageTransfers.FirstCharacterOf(page) * 32)
                 return false;
 
             InstalledArtworkId asset = EscapeTimerTilePages.AssetOf(page);
-            if (self.Resolve(asset).Length != byteCount)
+            if (EscapeTimerTilePageTransfers.Resolve(self, asset).Length != byteCount)
                 throw new InvalidDataException($"Escape timer {page} page no longer matches its native transfer record.");
             uploads.RecordUpload(VramDmaDestination.FromNative(destinationWord), byteCount, new InstalledArtworkCharacters(asset));
             return true;
@@ -31,7 +32,7 @@ internal static class EscapeTimerTileAtlasAccess
         {
             if (EscapeTimerTilePagesConstants.TryMatch(sourceAddress, byteCount, out EscapeTimerTilePage page))
             {
-                data = self.Resolve(EscapeTimerTilePages.AssetOf(page));
+                data = EscapeTimerTilePageTransfers.Resolve(self, EscapeTimerTilePages.AssetOf(page));
                 return true;
             }
             data = default;

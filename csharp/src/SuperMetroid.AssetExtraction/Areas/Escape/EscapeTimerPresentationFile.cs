@@ -26,17 +26,17 @@ public static class EscapeTimerPresentationFile
             throw new InvalidDataException("Invalid escape timer presentation JSON.", error);
         }
 
-        if (document.Version != EscapeTimerPresentationDefinitions.Version || document.Anchors is null ||
+        if (document.Version != EscapeTimerLayoutDefinitions.Version || document.Anchors is null ||
             document.DigitSpacing is < -256 or > 255)
-            throw new InvalidDataException($"Escape timer presentation requires version {EscapeTimerPresentationDefinitions.Version}, valid anchors and spacing.");
-        if (document.Anchors.Count != EscapeTimerPresentationDefinitions.Anchors.Count ||
-            EscapeTimerPresentationDefinitions.Anchors.Any(anchor => !document.Anchors.ContainsKey(EscapeTimerComposition.AnchorName(anchor))))
+            throw new InvalidDataException($"Escape timer presentation requires version {EscapeTimerLayoutDefinitions.Version}, valid anchors and spacing.");
+        if (document.Anchors.Count != EscapeTimerLayoutDefinitions.Anchors.Count ||
+            EscapeTimerLayoutDefinitions.Anchors.Any(anchor => !document.Anchors.ContainsKey(EscapeTimerLayoutNames.AnchorName(anchor))))
             throw new InvalidDataException("Escape timer presentation requires Label, Minutes, Seconds and Centiseconds anchors exactly once.");
 
         var anchors = new Dictionary<EscapeTimerAnchor, Offset16<SpritePixels>>();
-        foreach (EscapeTimerAnchor anchor in EscapeTimerPresentationDefinitions.Anchors)
+        foreach (EscapeTimerAnchor anchor in EscapeTimerLayoutDefinitions.Anchors)
         {
-            Offset16<SpritePixels> point = document.Anchors[EscapeTimerComposition.AnchorName(anchor)];
+            Offset16<SpritePixels> point = document.Anchors[EscapeTimerLayoutNames.AnchorName(anchor)];
             if (point.X is < -256 or > 255 || point.Y is < -224 or > 223)
                 throw new InvalidDataException($"Escape timer anchor {anchor} is outside the supported screen-relative range.");
             if (point != EscapeTimerComposition.DefaultAnchor(anchor)) anchors.Add(anchor, point);

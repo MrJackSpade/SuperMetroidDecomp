@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
@@ -11,10 +10,9 @@ namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
 /// The installed presentation content that gameplay reads: area maps, HUD and escape artwork, boss palettes, room-FX
-/// tiles and Samus palette inputs, plus the installed artwork they show. The frontend's complete presentation
-/// catalog supplies it.
+/// tiles and Samus palette inputs. The frontend's complete presentation catalog supplies it.
 /// </summary>
-public interface IGameplayPresentationContent : IAreaMapSource, IInstalledArtworkContent
+public interface IGameplayPresentationContent : IAreaMapSource
 {
     /// <summary>The gameplay HUD's layout, which places its installed images (#1466).</summary>
     GameplayHudPresentation GameplayHud { get; }

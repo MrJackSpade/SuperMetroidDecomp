@@ -23,13 +23,13 @@ internal static class EscapeTimerSheetComposer
         Ensure.NotNull(bus);
         EscapeTimerTileAtlas tiles = EscapeTimerCharacters.Read(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(bus), writable: false));
         var frames = new List<SheetFrameSource>();
-        foreach (EscapeTimerGlyph glyph in EscapeTimerPresentationDefinitions.Glyphs)
+        foreach (EscapeTimerGlyph glyph in EscapeTimerLayoutDefinitions.Glyphs)
         {
             string name = EscapeTimerComposition.FrameName(glyph);
             int spritemap = glyph == EscapeTimerGlyph.Label
                 ? (int)EscapeSourceDefinitions.TimerLabelSpritemap
                 : (int)EscapeSourceDefinitions.TimerSpritemapBank.AddWithinBank(EscapeSourceDefinitions.FirstTimerDigitSpritemap +
-                    EscapeTimerComposition.DigitValue(glyph) * EscapeSourceDefinitions.TimerDigitSpritemapStride);
+                    EscapeTimerLayoutNames.DigitValue(glyph) * EscapeSourceDefinitions.TimerDigitSpritemapStride);
             frames.Add(new(name, new SpriteFrame(name, ReadSpritemap(bus, spritemap)), tiles.Artwork));
         }
         return SpriteSheetComposer.Compose(new SpriteSheetSources(frames, GameplayBasePaletteFiles.RoomLoadSpriteColours(bus), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection)), PaletteRow, 0);
@@ -50,7 +50,7 @@ internal static class EscapeTimerSheetComposer
             Extent16<ScreenPixels> size = x.IsLarge ? new(16, 16) : new(8, 8);
             parts[index] = new SpriteFramePart(
                 new Offset16<ScreenPixels>(checked((short)x.SignedOffset), unchecked((sbyte)bus.ReadCartridgeByte(source + 2))),
-                size, attributes.TileNumber - EscapeTextArtworkDefinitions.TimerFirstCharacter,
+                size, attributes.TileNumber - EscapeTimerTileAtlasFormat.FirstCharacter,
                 (attributes.FlipHorizontally ? TileFlip.Horizontal : TileFlip.None) |
                 (attributes.FlipVertically ? TileFlip.Vertical : TileFlip.None),
                 null, attributes.Priority);

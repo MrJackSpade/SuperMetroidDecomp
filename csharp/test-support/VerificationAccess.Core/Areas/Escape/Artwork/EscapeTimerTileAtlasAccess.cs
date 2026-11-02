@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hardware;
@@ -15,7 +16,7 @@ internal static class EscapeTimerTileAtlasAccess
         internal void QueueTo(VramWriteQueue queue)
         {
             Ensure.NotNull(queue);
-            if (self.Resolve(InstalledArtworkId.EscapeTimerFirstTiles).Length + self.Resolve(InstalledArtworkId.EscapeTimerSecondTiles).Length != EscapeTimerTileAtlasFormat.TotalByteCount)
+            if (EscapeTimerTilePageTransfers.Resolve(self, InstalledArtworkId.EscapeTimerFirstTiles).Length + EscapeTimerTilePageTransfers.Resolve(self, InstalledArtworkId.EscapeTimerSecondTiles).Length != EscapeTimerTileAtlasFormat.TotalByteCount)
                 throw new InvalidDataException("Escape timer artwork no longer matches its native transfer pages.");
             queue.EnqueueAsset(InstalledArtworkId.EscapeTimerFirstTiles,
                 EscapeTimerTileAtlasFormat.FirstByteCount, VramDmaDestination.FromNative(EscapeNativePageWords.TimerFirst));

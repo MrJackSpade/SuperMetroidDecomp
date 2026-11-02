@@ -23,8 +23,8 @@ using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Frontend.Map;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
@@ -222,8 +222,8 @@ internal static class MapInstallationVerification
         var equipmentLabels = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseEquipmentLabelArtworkDefinitions.FileName)));
         equipmentLabels.Required("labels").Required("Beam.Charge").Required("cells").Required(0)["flipX"] = true;
         File.WriteAllText(equipmentLabelOverride, equipmentLabels.ToJsonString());
-        string escapeTimerOverride = Path.Combine(installation.MapOverrideDirectory, EscapeTimerPresentationDefinitions.FileName);
-        var escapeTimer = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, EscapeTimerPresentationDefinitions.FileName)));
+        string escapeTimerOverride = Path.Combine(installation.MapOverrideDirectory, EscapeTimerLayoutDefinitions.FileName);
+        var escapeTimer = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, EscapeTimerLayoutDefinitions.FileName)));
         escapeTimer.Required("anchors").Required("Minutes")["x"] = -27;
         File.WriteAllText(escapeTimerOverride, escapeTimer.ToJsonString());
         string escapeTimerTileOverride = Path.Combine(
@@ -281,8 +281,8 @@ internal static class MapInstallationVerification
             "full installation consumes options-menu override");
         AssertTrue(FileSelectSourcePresentation.Of(stock.FileSelect).ContentIdentity != FileSelectSourcePresentation.Of(edited.FileSelect).ContentIdentity,
             "full installation consumes file-select override");
-        AssertTrue(!stock.EscapeTimerTiles.Resolve(SuperMetroid.Core.Assets.InstalledArtworkId.EscapeTimerFirstTiles).Span.SequenceEqual(
-            edited.EscapeTimerTiles.Resolve(SuperMetroid.Core.Assets.InstalledArtworkId.EscapeTimerFirstTiles).Span),
+        AssertTrue(!EscapeTimerTilePageTransfers.Resolve(stock.EscapeTimerTiles, SuperMetroid.Core.Assets.InstalledArtworkId.EscapeTimerFirstTiles).Span.SequenceEqual(
+            EscapeTimerTilePageTransfers.Resolve(edited.EscapeTimerTiles, SuperMetroid.Core.Assets.InstalledArtworkId.EscapeTimerFirstTiles).Span),
             "full installation consumes escape-timer artwork override");
         AssertTrue(stock.RoomFxAnimatedTiles.TryResolve(
                 AnimatedTileImageSources.Of(new AnimatedTileImage(AnimatedTileObject.MaridiaSandCeiling, 0)), 0x40,

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Escape.Artwork;
 using static SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerGlyphDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Areas.Escape;

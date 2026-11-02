@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Escape.Artwork;
+namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Indexed-PNG and OBJ transfer geometry for editable escape-timer characters.</summary>
 public static class EscapeTimerTileAtlasFormat
@@ -18,12 +18,12 @@ public static class EscapeTimerTileAtlasFormat
 
     /// <summary>First page size, 512 bytes, containing characters 0..15.</summary>
     public const int FirstByteCount = 16 * 32;
-    /// <summary>The first page's first OBJ character, $1E0.</summary>
-    public const int FirstCharacter = EscapeTextArtworkDefinitions.TimerFirstCharacter;
+    /// <summary>The first page's first OBJ character, 480, where the two timer-number pages start before the escape text.</summary>
+    public const int FirstCharacter = 480;
 
     /// <summary>Second page size, 288 bytes, containing the remaining characters 16..24.</summary>
     public const int SecondByteCount = 9 * 32;
-    /// <summary>The second page's first OBJ character, $1F0, after the first page's sixteen.</summary>
+    /// <summary>The second page's first OBJ character, after the first page's sixteen.</summary>
     public const int SecondCharacter = FirstCharacter + FirstByteCount / 32;
 
     /// <summary>Complete planar strip size, 800 bytes, preserving the sixteen-character and nine-character page boundary.</summary>

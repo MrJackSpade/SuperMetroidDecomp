@@ -21,7 +21,6 @@ using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
@@ -177,9 +176,9 @@ public static class MapPresentationExtractor
             file.Write(equipmentLabelBytes);
         hashes.Add(PauseEquipmentLabelArtworkDefinitions.FileName, Convert.ToHexString(SHA256.HashData(equipmentLabelBytes)));
         byte[] escapeTimerBytes = EscapeTimerPresentationExtractor.Extract();
-        using (var file = new FileStream(Path.Combine(directory, EscapeTimerPresentationDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, EscapeTimerLayoutDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(escapeTimerBytes);
-        hashes.Add(EscapeTimerPresentationDefinitions.FileName, Convert.ToHexString(SHA256.HashData(escapeTimerBytes)));
+        hashes.Add(EscapeTimerLayoutDefinitions.FileName, Convert.ToHexString(SHA256.HashData(escapeTimerBytes)));
         byte[] escapeTimerTileBytes = EscapeTimerTileAtlasExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, EscapeTimerTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(escapeTimerTileBytes);
@@ -216,9 +215,9 @@ public static class MapPresentationExtractor
         hashes.Add(GameplayMessageNoticeDefinitions.FileName,
             Convert.ToHexString(SHA256.HashData(gameplayMessageNoticeBytes)));
         byte[] escapeTypewriterBytes = EscapeTypewriterExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, EscapeTypewriterDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, EscapeTypewriterDocumentDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(escapeTypewriterBytes);
-        hashes.Add(EscapeTypewriterDefinitions.FileName,
+        hashes.Add(EscapeTypewriterDocumentDefinitions.FileName,
             Convert.ToHexString(SHA256.HashData(escapeTypewriterBytes)));
         byte[] introNarrationBytes = IntroNarrationExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, IntroNarrationFile.FileName), FileMode.CreateNew, FileAccess.Write))

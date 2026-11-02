@@ -106,14 +106,14 @@ internal static class EscapeTypewriterPresentationVerification
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
-            Path.Combine(stockDirectory, EscapeTypewriterDefinitions.FileName))),
+            Path.Combine(stockDirectory, EscapeTypewriterDocumentDefinitions.FileName))),
             "installed escape typewriter is the deterministic cartridge extraction");
 
         Directory.CreateDirectory(overrideDirectory);
         JsonObject document = RequiredJson.Parse(deterministic).AsObject();
         document.Required("programs").Required(EscapeTypewriterProgramId.Zebes.ToString()).Required("lines").Required(0)["text"] =
             "TEST!";
-        string replacement = Path.Combine(overrideDirectory, EscapeTypewriterDefinitions.FileName);
+        string replacement = Path.Combine(overrideDirectory, EscapeTypewriterDocumentDefinitions.FileName);
         File.WriteAllText(replacement, document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         var state = new EscapeTypewriterState(

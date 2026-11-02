@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -64,7 +65,7 @@ internal static class EncounterCharacterPlacements
 
     /// <summary>Escape timer page <paramref name="page"/>, shown as <paramref name="source"/>.</summary>
     private static SpriteArtworkPlacement Timer(SpriteArtworkSource source, EscapeTimerTilePage page) =>
-        new(source, EscapeTimerTilePages.FirstCharacterOf(page), Characters(EscapeTimerTilePages.ByteCountOf(page)));
+        new(source, EscapeTimerTilePageTransfers.FirstCharacterOf(page), Characters(EscapeTimerTilePageTransfers.ByteCountOf(page)));
 
     /// <summary>The whole sprite characters <paramref name="byteCount"/> bytes of the cartridge's copy hold.</summary>
     /// <exception cref="InvalidDataException">The bytes are not whole characters.</exception>

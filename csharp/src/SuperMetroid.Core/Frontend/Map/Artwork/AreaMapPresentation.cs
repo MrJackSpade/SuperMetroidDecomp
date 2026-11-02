@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -22,7 +21,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// Immutable map content snapshot. Overrides never alter stock provenance or exploration rules. The import reads it with
 /// the characters its screens and the HUD are pictured from, which the game never reads (#1466).
 /// </summary>
-public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentationContent
+public class AreaMapPresentation : IGameplayPresentationContent
 {
     /// <summary>One validated map view per retail area in area-ID order.</summary>
     private readonly IAreaMapView[] areas;
@@ -165,46 +164,6 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     public CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; }
     /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
     public SamusHyperBeamColours SamusHyperBeamColors { get; }
-    /// <summary>Resolves installed escape-timer character bytes for an artwork load.</summary>
-    /// <param name="asset">The transfer identity; this provider supports only the escape-timer identities in its catalog.</param>
-    /// <returns>Read-only planar character bytes for the requested transfer.</returns>
-    /// <exception cref="InvalidDataException">The requested identity is not supported by this provider.</exception>
-    public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) => asset switch
-    {
-        InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles => EscapeTimerTiles.Resolve(asset),
-        InstalledArtworkId.StandardHudTiles or
-            InstalledArtworkId.BeamPowerTiles or
-            InstalledArtworkId.BeamWaveTiles or
-            InstalledArtworkId.BeamIceTiles or
-            InstalledArtworkId.BeamIceWaveTiles or
-            InstalledArtworkId.BeamSpazerTiles or
-            InstalledArtworkId.BeamSpazerWaveTiles or
-            InstalledArtworkId.BeamSpazerIceTiles or
-            InstalledArtworkId.BeamSpazerIceWaveTiles or
-            InstalledArtworkId.BeamPlasmaTiles or
-            InstalledArtworkId.BeamPlasmaWaveTiles or
-            InstalledArtworkId.BeamPlasmaIceTiles or
-            InstalledArtworkId.BeamPlasmaIceWaveTiles or
-            InstalledArtworkId.ProjectileIceWaveTrailTiles or
-            InstalledArtworkId.ProjectileMissileTrailTiles or
-            InstalledArtworkId.GrapplePointFirstTiles or
-            InstalledArtworkId.GrapplePointSecondTiles or
-            InstalledArtworkId.GrapplePointThirdTiles or
-            InstalledArtworkId.GrapplePointFourthTiles or
-            InstalledArtworkId.GrappleHorizontalSegmentTiles or
-            InstalledArtworkId.GrappleDiagonalSegmentTiles or
-            InstalledArtworkId.GrappleVerticalSegmentTiles or
-            InstalledArtworkId.GunshipLiftoffFirstTiles or
-            InstalledArtworkId.GunshipLiftoffSecondTiles or
-            InstalledArtworkId.GunshipLiftoffThirdTiles or
-            InstalledArtworkId.GunshipLiftoffFourthTiles or
-            InstalledArtworkId.GunshipLiftoffFifthTiles or
-            InstalledArtworkId.BeamChainsawTiles or
-            InstalledArtworkId.BeamSpacetimeTiles or
-            InstalledArtworkId.StandardObjectTiles or
-            InstalledArtworkId.HudTopRowTilemap => throw new InvalidDataException($"Map catalog cannot resolve artwork {asset}."),
-        _ => throw new InvalidDataException($"Map catalog cannot resolve artwork {asset}."),
-    };
     /// <summary>Returns an area's selected map presentation with verified stock exploration and station-reveal rules.</summary>
     /// <param name="area">One of the seven retail area identities, including Ceres.</param>
     /// <returns>The immutable view compiled when this catalog was loaded.</returns>

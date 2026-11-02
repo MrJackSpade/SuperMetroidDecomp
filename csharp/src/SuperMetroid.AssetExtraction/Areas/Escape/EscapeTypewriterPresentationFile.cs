@@ -1,6 +1,6 @@
 using System.Text.Json;
-using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
@@ -25,7 +25,7 @@ public static class EscapeTypewriterPresentationFile
             throw new InvalidDataException("Invalid escape typewriter JSON.", error);
         }
 
-        if (document.Version != EscapeTypewriterDefinitions.Version || document.Programs is null)
+        if (document.Version != EscapeTypewriterDocumentDefinitions.Version || document.Programs is null)
             throw new InvalidDataException("Escape typewriter content requires schema version 1.");
 
         EscapeTypewriterProgramId[] expected = Enum.GetValues<EscapeTypewriterProgramId>()
@@ -51,7 +51,7 @@ public static class EscapeTypewriterPresentationFile
                     ?? throw new InvalidDataException($"Escape typewriter program {id} line {index} is null.");
                 if (string.IsNullOrEmpty(line.Text) || line.Text.Length > EscapeTypewriterDefinitions.MaximumLineLength ||
                     line.Text.Any(static character => character is not (' ' or '!' or >= 'A' and <= 'Z')) ||
-                    !EscapeTypewriterState.LineFitsOverlay(line.Cell, line.Text.Length))
+                    !LineFitsOverlay(line.Cell, line.Text.Length))
                 {
                     throw new InvalidDataException(
                         $"Escape typewriter program {id} line {index} has invalid text or placement.");
@@ -65,4 +65,8 @@ public static class EscapeTypewriterPresentationFile
 
         return new(programs);
     }
+
+    /// <summary>Whether a line of <paramref name="length"/> glyphs typed from <paramref name="cell"/> stays inside the overlay.</summary>
+    private static bool LineFitsOverlay(int cell, int length) =>
+        cell >= 0 && cell + length <= RoomWrittenOverlay.CellCount;
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Escape.Artwork;

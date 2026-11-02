@@ -23,6 +23,18 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>The installed content identities of the room objects' visual catalogs, which only the import pipeline and its diagnostics compare (#1502).</summary>
 internal static class RoomPlmContentIdentity
 {
+    /// <summary>
+    /// Kraid's ten draw roles: the three ceiling-crumble stages, the three ceiling background draws of Kraid's room
+    /// sequence, the two floor-spike appearances, and the two room-clearing layouts that replace the ceiling blocks and
+    /// the floor spikes after Kraid is defeated.
+    /// </summary>
+    private static readonly KraidRoomDraw[] KraidDraws =
+    [
+        KraidRoomDraw.CrumbleFirst, KraidRoomDraw.CrumbleSecond, KraidRoomDraw.CrumbleThird,
+        KraidRoomDraw.CeilingBackground1, KraidRoomDraw.CeilingBackground2, KraidRoomDraw.CeilingBackground3,
+        KraidRoomDraw.SpikeFirst, KraidRoomDraw.SpikeSecond, KraidRoomDraw.ClearCeiling, KraidRoomDraw.ClearSpikes,
+    ];
+
     /// <summary>The installed content identity of a <see cref="InstalledRoomPlmBlueDoorVisuals"/>.</summary>
     extension(InstalledRoomPlmBlueDoorVisuals visuals)
     {
@@ -254,7 +266,7 @@ internal static class RoomPlmContentIdentity
         /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmKraidVisuals), content =>
         {
-            foreach (KraidRoomDraw draw in InstalledRoomPlmKraidVisuals.ContentOrder.OrderBy(draw => RoomPlmKraidVisualFiles.VisualId(PlmDraw.Of(draw)), StringComparer.Ordinal))
+            foreach (KraidRoomDraw draw in KraidDraws.OrderBy(draw => RoomPlmKraidVisualFiles.VisualId(PlmDraw.Of(draw)), StringComparer.Ordinal))
                 Append(draw, visuals.frames[draw]);
 
             void Append(KraidRoomDraw draw, RoomBlockAppearance[] appearances)

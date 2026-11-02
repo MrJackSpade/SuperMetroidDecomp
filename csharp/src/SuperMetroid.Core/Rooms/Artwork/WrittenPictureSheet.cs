@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 public sealed class WrittenPictureSheet
 {
     /// <summary>The inputs each picture depends on, by the name its pictures begin with; empty for one that depends on none.</summary>
-    private readonly Dictionary<string, ImmutableArray<AppearanceInput>> inputs;
+    internal readonly Dictionary<string, ImmutableArray<AppearanceInput>> inputs;
 
     /// <summary>Indexes the pictures <paramref name="inputs"/> names in <paramref name="sheet"/>.</summary>
     /// <param name="layer">The backgrounds the pictures are written over.</param>
@@ -55,9 +55,6 @@ public sealed class WrittenPictureSheet
 
     /// <summary>The pictures.</summary>
     public SpriteSheet Sheet { get; }
-
-    /// <summary>The inputs each picture depends on, by the name its pictures begin with.</summary>
-    public IReadOnlyDictionary<string, ImmutableArray<AppearanceInput>> Inputs => inputs;
 
     /// <summary>
     /// The picture of <paramref name="picture"/> while the room's appearance inputs take the values

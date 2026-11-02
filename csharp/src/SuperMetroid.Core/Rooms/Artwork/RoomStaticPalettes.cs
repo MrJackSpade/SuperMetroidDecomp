@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 public sealed class RoomStaticPalettes
 {
     /// <summary>Copied lookup by palette; the RoomStaticPalette instances are shared and immutable.</summary>
-    private readonly Dictionary<RoomPaletteSet, RoomStaticPalette> byRoomPaletteSet;
+    internal readonly Dictionary<RoomPaletteSet, RoomStaticPalette> byRoomPaletteSet;
 
     /// <summary>Copies the lookup and requires an entry for every retail graphics set's palette.</summary>
     /// <exception cref="ArgumentNullException">An argument is null.</exception>
@@ -22,9 +22,6 @@ public sealed class RoomStaticPalettes
         }
         byRoomPaletteSet = new Dictionary<RoomPaletteSet, RoomStaticPalette>(palettes);
     }
-
-    /// <summary>Every installed room palette.</summary>
-    public IReadOnlyDictionary<RoomPaletteSet, RoomStaticPalette> Palettes => byRoomPaletteSet;
 
     /// <summary>The installed RoomStaticPalette for <paramref name="set"/>.</summary>
     /// <exception cref="InvalidDataException">None is installed for <paramref name="set"/>.</exception>

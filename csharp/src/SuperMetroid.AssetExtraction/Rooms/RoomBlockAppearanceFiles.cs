@@ -30,7 +30,7 @@ public static class RoomBlockAppearanceFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Ensure.NotNull(appearances);
         var document = new BlockAppearancesDocument(Version, RoomBlockSheet.NameOf(tileset), Tokens(appearances, RoomBlockArtwork.Tileset),
-            appearances.ShowsSprites ? Tokens(appearances, RoomBlockArtwork.Sprites) : null);
+            appearances.sprites is not null ? Tokens(appearances, RoomBlockArtwork.Sprites) : null);
         using var output = new FileStream(Path.Combine(directory, FileNameOf(tileset)), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(output, document, JsonOptions);
     }

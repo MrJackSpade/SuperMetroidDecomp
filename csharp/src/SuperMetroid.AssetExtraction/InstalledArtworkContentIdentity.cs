@@ -159,7 +159,7 @@ internal static class InstalledArtworkContentIdentity
             {
                 content.AppendName("written", pictures.Name);
                 pictures.Sheet.AppendIdentity(content);
-                foreach ((string picture, ImmutableArray<AppearanceInput> inputs) in pictures.Inputs.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+                foreach ((string picture, ImmutableArray<AppearanceInput> inputs) in pictures.inputs.OrderBy(entry => entry.Key, StringComparer.Ordinal))
                 {
                     content.AppendName("picture", picture);
                     AppendInputs(content, inputs);

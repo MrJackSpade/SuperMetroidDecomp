@@ -214,7 +214,7 @@ internal static class EnemyTileArtworkKraidVerification
     /// <summary>The BG2 tilemap a selected installed head frame shows over blank pages.</summary>
     private static RunKraidHeadFrameResult RunKraidHeadFrame(InstalledEnemyArtwork artwork, ushort pointer)
     {
-        KraidHeadFrame frame = KraidHeadFrame.ByMouthStage.Single(candidate => KraidHeadFrameDefinitions.PresentationKey(candidate) == pointer);
+        KraidHeadFrame frame = KraidHeadTilemapFormat.HeadsByMouthStage.Single(candidate => KraidHeadFrameDefinitions.PresentationKey(candidate) == pointer);
         var state = new KraidEnemyState();
         state.ShowHead(frame);
         return new RunKraidHeadFrameResult(state, KraidBodyFixtures.Shown(artwork.Bosses, state));

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Enemies;
 
@@ -12,7 +11,7 @@ internal static class KraidInstalledPresentationResourcesVerification
     {
         IEnumerable<string> files = new[] { KraidBackgroundArtworkFormat.UpperFileName,
             KraidBackgroundArtworkFormat.LowerFileName, KraidBackgroundArtworkFormat.RoomBackgroundFileName }
-            .Concat(KraidHeadFrame.ByMouthStage.Select(head => KraidBackgroundArtworkFormat.HeadFileName(head.MouthStage)));
+            .Concat(KraidHeadTilemapFormat.HeadsByMouthStage.Select(head => KraidBackgroundArtworkFormat.HeadFileName(head.MouthStage)));
         int count = 0;
         foreach (string file in files)
         {

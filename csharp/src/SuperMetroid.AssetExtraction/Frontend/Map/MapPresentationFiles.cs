@@ -74,7 +74,11 @@ public static class MapPresentationFiles
             string? replacement = OverridePath(AreaMapCatalogFormat.FileName(area));
             ArraySegment<byte> selected = replacement is not null ? File.ReadAllBytes(replacement) : mapBytes[area];
             if (replacement is null)
-                areas[AreaIds.ToIndex(area)] = baseline.WithRules(definition);
+            {
+                // The stock cells, decoded again under the stock exploration rules they were read to derive.
+                using var stockStream = ReadOnlyStream(mapBytes[area]);
+                areas[AreaIds.ToIndex(area)] = AreaMapPresentationFile.Read(stockStream, definition);
+            }
             else
             {
                 try

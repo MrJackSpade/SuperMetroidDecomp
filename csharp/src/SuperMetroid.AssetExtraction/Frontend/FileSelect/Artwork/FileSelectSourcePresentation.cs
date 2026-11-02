@@ -1,10 +1,10 @@
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Map.Artwork;

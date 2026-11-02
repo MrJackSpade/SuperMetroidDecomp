@@ -1,10 +1,10 @@
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
-using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;

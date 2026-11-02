@@ -44,14 +44,6 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         }
     }
 
-    /// <summary>Applies other exploration rules to these already-validated, never-mutated cells.</summary>
-    internal AreaMapPresentationAsset WithRules(IAreaMapView rules)
-    {
-        Ensure.NotNull(rules);
-        if (rules.Area != Area) throw new ArgumentException($"Rules for {rules.Area} cannot apply to the {Area} map.", nameof(rules));
-        return new(cells, rules);
-    }
-
     /// <summary>How the cell at logical map coordinates X 0–63, Y 0–31 looks.</summary>
     public MapCell Cell(Position16<MapTiles> cell) => cells[Index(cell)];
     /// <summary>Gets the supplied rule snapshot for whether logical cell (X 0–63, Y 0–31) can be discovered, independent of the edited character or blank artwork.</summary>

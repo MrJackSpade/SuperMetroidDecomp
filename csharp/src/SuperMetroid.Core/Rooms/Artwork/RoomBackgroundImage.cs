@@ -17,20 +17,11 @@ public sealed class RoomBackgroundImage
     /// <summary>Tiles along a tilemap page's side.</summary>
     public const int PageTiles = 32;
 
-    /// <summary>The tilemap pages the image pictures.</summary>
-    public const int Pages = 2;
-
-    /// <summary>Tiles in a library background's two pages.</summary>
-    public const int Words = Pages * PageTiles * PageTiles;
-
     /// <summary>Pixels along a tilemap page's side.</summary>
     public const int PagePixels = PageTiles * 8;
 
     /// <summary>The frame of an image's sheet that pictures its whole tilemap.</summary>
     public const string FrameName = "pages";
-
-    /// <summary>Tiles in one 16x16 cell of an image.</summary>
-    public const int CellTiles = 4;
 
     /// <summary>Pixels along a cell's side.</summary>
     private const int CellPixels = 16;

@@ -85,10 +85,10 @@ internal static class RoomBlockFixtures
         int characterWord = 0)
     {
         const int tile = 8, characterWords = 16, pageWords = RoomBackgroundImage.PageTiles * RoomBackgroundImage.PageTiles;
-        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels));
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, RoomBackgroundImageGeometry.Pages * RoomBackgroundImage.PagePixels));
         RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
         var character = new byte[characterWords * sizeof(ushort)];
-        var words = new ushort[RoomBackgroundImage.Words];
+        var words = new ushort[RoomBackgroundImageGeometry.Words];
         ImageColourGroups coloured = ImageColourGroups.None;
         for (int index = 0; index < words.Length; index++)
         {
@@ -110,7 +110,7 @@ internal static class RoomBlockFixtures
             [RoomBackgroundImage.FrameName] = new SpriteSheetFrameDocument
             {
                 Corner = default,
-                Size = new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels),
+                Size = new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, RoomBackgroundImageGeometry.Pages * RoomBackgroundImage.PagePixels),
                 Origin = default,
                 ColourGroups = coloured.ManifestMembers,
                 Parts = [],

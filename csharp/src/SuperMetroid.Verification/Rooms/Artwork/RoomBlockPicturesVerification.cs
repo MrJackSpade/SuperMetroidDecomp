@@ -400,7 +400,7 @@ internal static class RoomBlockPicturesVerification
             ?? throw new InvalidOperationException($"{where}: the room selects no library background image.")).Image.Name;
         ImmutableArray<ushort> words = [.. UploadsOf(runtime).Backgrounds.Single(background => background.Name == name).Words];
         // A 32x64 map lays the two pages out one above the other, as the image does.
-        for (int y = 0; y < RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels; y++)
+        for (int y = 0; y < RoomBackgroundImageGeometry.Pages * RoomBackgroundImage.PagePixels; y++)
         for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
         {
             var word = new SnesBgTilemapWord(words[y / CharacterPixels * RoomBackgroundImage.PageTiles + x / CharacterPixels]);
@@ -420,7 +420,7 @@ internal static class RoomBlockPicturesVerification
                 $"{where}: the background paints index {sheet.Inks[pixel].PaletteIndex} at ({x}, {y}) where its tile ${word.Raw:X4} paints {expected}");
         }
         int rebound = 0;
-        for (int cell = 0; cell < RoomBackgroundImage.Words / RoomBackgroundImage.CellTiles; cell++)
+        for (int cell = 0; cell < RoomBackgroundImageGeometry.Words / RoomBackgroundImageGeometry.CellTiles; cell++)
         {
             if (plane.Cell(cell) is not null)
                 rebound++;

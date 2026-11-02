@@ -9,6 +9,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -92,7 +93,7 @@ internal static class RoomBackgroundsFixtures
     /// cell in four drawn from a seeded block picture in its place (#1392).
     /// </summary>
     internal static RoomBackgroundImagePlane SeededBackground(Random random, RgbColor[] scene) =>
-        SeededImage(random, scene, RoomBackgroundImage.Words / RoomBackgroundImage.PageTiles);
+        SeededImage(random, scene, RoomBackgroundImageGeometry.Words / RoomBackgroundImage.PageTiles);
 
     /// <summary>Seeded pictures for <paramref name="words"/> tile words (#1392): each a quarter of a seeded block picture.</summary>
     internal static System.Collections.Immutable.ImmutableArray<BgTilePicture?> SeededBodyPictures(Random random, RgbColor[] scene, int words)

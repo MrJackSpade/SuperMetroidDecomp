@@ -19,9 +19,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class PostCreditsIconGlarePaletteFxColorDefinitions
 {
 
-    /// <summary>The one-shot glare contains fourteen timed records.</summary>
-    public static int FrameCount => ColorFrames.FrameCount;
-
     /// <summary>Each record writes sixteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 16;
 

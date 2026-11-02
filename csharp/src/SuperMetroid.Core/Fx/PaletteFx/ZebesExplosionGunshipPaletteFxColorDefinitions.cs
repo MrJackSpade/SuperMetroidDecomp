@@ -20,9 +20,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class ZebesExplosionGunshipPaletteFxColorDefinitions
 {
 
-    /// <summary>The one-shot reveal contains sixteen timed records.</summary>
-    public static int FrameCount => ColorFrames.FrameCount;
-
     /// <summary>Each record writes sixteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 16;
 

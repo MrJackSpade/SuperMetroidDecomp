@@ -13,7 +13,7 @@ internal static class PostCreditsIconGlarePaletteFxColorDefinitionsConstants
     extension(PostCreditsIconGlarePaletteFxColorDefinitions)
     {
         /// <summary>The complete icon glare lasts fourteen frames.</summary>
-        internal static int CycleFrames => PostCreditsIconGlarePaletteFxColorDefinitions.FrameCount * PostCreditsIconGlarePaletteFxColorDefinitionsConstants.FrameDuration;
+        internal static int CycleFrames => PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames.FrameCount * PostCreditsIconGlarePaletteFxColorDefinitionsConstants.FrameDuration;
         /// <inheritdoc cref="PostCreditsIconGlarePaletteFxColorDefinitionsConstants.DefinitionPointer"/>
         internal static ushort DefinitionPointer => PostCreditsIconGlarePaletteFxColorDefinitionsConstants.DefinitionPointer;
     }

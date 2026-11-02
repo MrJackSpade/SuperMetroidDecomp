@@ -18,9 +18,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class TourianStatueGreyPaletteFxColorDefinitions
 {
 
-    /// <summary>Eight eight-frame records form the statue grey-out sequence.</summary>
-    public static int FrameCount => ColorFrames.FrameCount;
-
     /// <summary>Eight BGR555 colors are presentation-owned by each timed record.</summary>
     public const int ColorsPerFrame = 8;
 

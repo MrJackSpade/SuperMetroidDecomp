@@ -111,7 +111,7 @@ internal static class RoomPaletteFxPresentationVerification
         {
             VerifyInstalledPaletteFxFamily(bus, presentation, $"{definition.Owner} belly", new PaletteFxFamilyShape { FrameCount = TorizoBellyPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = TorizoBellyPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, TorizoBellyPaletteFxColorDefinitions.CycleFrames * 2);
         }
-        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Tourian statue grey-out", new PaletteFxFamilyShape { FrameCount = TourianStatueGreyPaletteFxColorDefinitions.FrameCount, ColorsPerFrame = TourianStatueGreyPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = TourianStatueGreyPaletteFxColorDefinitions.ColorPointer, Definitions = TourianStatueGreyPaletteFxColorToolingDefinitions.All
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Tourian statue grey-out", new PaletteFxFamilyShape { FrameCount = TourianStatueGreyPaletteFxColorDefinitions.ColorFrames.FrameCount, ColorsPerFrame = TourianStatueGreyPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = TourianStatueGreyPaletteFxColorDefinitions.ColorPointer, Definitions = TourianStatueGreyPaletteFxColorToolingDefinitions.All
                 .Select(definition => definition.DefinitionPointer)
                 .ToArray() }, TourianStatueGreyPaletteFxColorDefinitions.FramesThroughDeletion));
         foreach (CrateriaLightningPaletteFxColorDefinition definition in

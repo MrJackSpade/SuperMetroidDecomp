@@ -44,19 +44,19 @@ internal static class RoomPaletteFxColorRecognition
         }
         // Only matching samples are discarded. If the player edits a base color,
         // unchanged intermediate samples that no longer fit remain explicit values.
-        foreach (PaletteFxColorKey key in Keys(PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames, lastFrame: PostCreditsIconGlarePaletteFxColorDefinitions.FrameCount - 1))
+        foreach (PaletteFxColorKey key in Keys(PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames, lastFrame: PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames.FrameCount - 1))
         {
             if (LogoGlarePaletteColors.TryCalculatedColor(key, colors, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
-        foreach (PaletteFxColorKey key in Keys(ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames, lastFrame: ZebesExplosionGunshipPaletteFxColorDefinitions.FrameCount - 1))
+        foreach (PaletteFxColorKey key in Keys(ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames, lastFrame: ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames.FrameCount - 1))
         {
             if (EndingGunshipPaletteColors.TryCalculatedColor(key, colors, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
         // Keep both endpoints and independent sample edits. Only values matching
         // their supplied endpoints can be reconstructed on demand.
-        foreach (PaletteFxColorKey key in Keys(TourianStatueGreyPaletteFxColorDefinitions.ColorFrames, firstFrame: 1, lastFrame: TourianStatueGreyPaletteFxColorDefinitions.FrameCount - 1))
+        foreach (PaletteFxColorKey key in Keys(TourianStatueGreyPaletteFxColorDefinitions.ColorFrames, firstFrame: 1, lastFrame: TourianStatueGreyPaletteFxColorDefinitions.ColorFrames.FrameCount - 1))
         {
             if (TourianStatueGreyPaint.TryCalculatedColor(key, colors, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);

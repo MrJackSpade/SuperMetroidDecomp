@@ -248,7 +248,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "post-credits icon glare avoids mechanics ROM reads");
         AssertEqual(
-            PostCreditsIconGlarePaletteFxColorDefinitions.FrameCount *
+            PostCreditsIconGlarePaletteFxColorDefinitions.ColorFrames.FrameCount *
             PostCreditsIconGlarePaletteFxColorDefinitions.ColorsPerFrame *
             sizeof(ushort),
             guardedPresentationReads.Value,
@@ -340,7 +340,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "ending gunship reveal avoids mechanics ROM reads");
         AssertEqual(
-            ZebesExplosionGunshipPaletteFxColorDefinitions.FrameCount *
+            ZebesExplosionGunshipPaletteFxColorDefinitions.ColorFrames.FrameCount *
             ZebesExplosionGunshipPaletteFxColorDefinitions.ColorsPerFrame *
             sizeof(ushort),
             guardedPresentationReads.Value,
@@ -785,7 +785,7 @@ internal static class PaletteFxInstructionCodesVerification
                 $"palette-FX definition $8D:{definition.DefinitionPointer:X4} avoids statue " +
                 "mechanics ROM reads");
             AssertEqual(
-                TourianStatueGreyPaletteFxColorDefinitions.FrameCount *
+                TourianStatueGreyPaletteFxColorDefinitions.ColorFrames.FrameCount *
                     TourianStatueGreyPaletteFxColorDefinitions.ColorsPerFrame *
                     sizeof(ushort),
                 guardedPresentationReads.Value,
@@ -1269,7 +1269,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < TourianStatueGreyPaletteFxColorDefinitions.FrameCount;
+                 frame < TourianStatueGreyPaletteFxColorDefinitions.ColorFrames.FrameCount;
                  frame++)
             {
                 ushort firstColor = unchecked((ushort)(

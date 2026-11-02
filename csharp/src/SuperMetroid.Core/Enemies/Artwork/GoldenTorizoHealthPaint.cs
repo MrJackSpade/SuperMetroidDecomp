@@ -7,8 +7,9 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class GoldenTorizoHealthPaint
 {
     /// <summary>Interpolates a color between low-health and golden endpoints for one palette band.</summary>
-    internal static RgbColor Color(int frame, int color, bool rear)
+    internal static RgbColor Color(int frame, int color, GoldenTorizoHealthFacing facing)
     {
+        bool rear = facing == GoldenTorizoHealthFacing.Rear;
         if ((uint)frame > Intervals || (uint)color >= 16) throw new ArgumentOutOfRangeException(nameof(frame));
         if (color == 0) return !rear && frame == Intervals ? RgbColor.Black : TransparentPayload;
         RgbColor first = Endpoint(GoldenTorizoHealthEndpoint.Low, color, rear), last = Endpoint(GoldenTorizoHealthEndpoint.Gold, color, rear);

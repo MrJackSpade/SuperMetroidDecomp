@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Bosses.Kraid;

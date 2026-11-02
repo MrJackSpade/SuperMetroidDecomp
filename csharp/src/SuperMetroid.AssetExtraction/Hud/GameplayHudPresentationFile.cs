@@ -3,7 +3,6 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;

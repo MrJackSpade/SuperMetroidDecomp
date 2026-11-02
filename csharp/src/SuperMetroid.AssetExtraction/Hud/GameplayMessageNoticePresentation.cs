@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Artwork;

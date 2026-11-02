@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;

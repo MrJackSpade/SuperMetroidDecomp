@@ -2,7 +2,6 @@ using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
 

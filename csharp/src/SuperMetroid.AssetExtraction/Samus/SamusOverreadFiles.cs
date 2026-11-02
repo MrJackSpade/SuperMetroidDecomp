@@ -2,7 +2,6 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.AssetExtraction.Samus;

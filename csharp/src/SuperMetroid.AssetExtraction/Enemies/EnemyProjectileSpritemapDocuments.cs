@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Spatial;

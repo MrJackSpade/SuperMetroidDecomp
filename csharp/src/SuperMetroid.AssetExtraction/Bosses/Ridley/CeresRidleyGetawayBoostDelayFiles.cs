@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;

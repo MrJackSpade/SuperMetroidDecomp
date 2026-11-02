@@ -7,7 +7,6 @@ using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;

@@ -21,7 +21,7 @@ internal static class DraygonColorEdits
     {
         Ensure.LengthEqual(colors, 25);
         return new(Material(colors[..16]), CeresDoorPaintRecognition.Surface(colors[17..]),
-            colors[16] == DraygonMaterialPaint.ClearTarget ? (RgbColor?)null : colors[16]);
+            colors[16] == DraygonMaterialPaint.ClearTarget ? null : colors[16]);
     }
 
     /// <summary>Keeps the entries of a sixteen-colour material palette that differ from the calculated stock paint.</summary>

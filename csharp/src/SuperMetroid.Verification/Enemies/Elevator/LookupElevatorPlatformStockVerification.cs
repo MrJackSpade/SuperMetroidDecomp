@@ -4,8 +4,6 @@ using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Elevator;
 
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction;

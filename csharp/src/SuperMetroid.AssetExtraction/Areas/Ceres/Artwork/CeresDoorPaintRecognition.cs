@@ -77,14 +77,14 @@ internal static class CeresDoorPaintRecognition
     /// <summary>Derives warm targets from the supplied escape palette when no normal palette is provided.</summary>
     internal static CeresDoorEscapePaint Escape(ReadOnlySpan<RgbColor> colors)
     {
-        if (colors.Length != 15) throw new ArgumentException("Escape door paint requires fifteen colors.", nameof(colors));
+        Ensure.LengthEqual(colors, 15);
         return Escape(colors, WarmTargets(colors.Slice(8, 6)));
     }
 
     /// <summary>Captures the derived material paint and retains every differing supplied ink as an edit.</summary>
     private static CeresDoorEscapePaint Escape(ReadOnlySpan<RgbColor> colors, CeresDoorWarmTargetPaint warm)
     {
-        if (colors.Length != 15) throw new ArgumentException("Escape door paint requires fifteen colors.", nameof(colors));
+        Ensure.LengthEqual(colors, 15);
         var edits = new Dictionary<ColourCell, RgbColor>();
         var paint = new CeresDoorEscapePaint(warm, Surface(colors[..8]), colors[14].Blue, edits);
         for (int index = 0; index < colors.Length; index++)

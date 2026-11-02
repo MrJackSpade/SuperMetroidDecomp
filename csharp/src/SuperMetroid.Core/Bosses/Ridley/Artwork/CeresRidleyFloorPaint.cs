@@ -33,7 +33,7 @@ internal sealed class CeresRidleyFloorPaint
     }
 
     /// <summary>The neutral floor colour (also in the header palette) equals the canonical Golden low contour; no duplicate grey input.</summary>
-    private static RgbColor Neutral => GoldenTorizoHealthPaint.Color(0, 15, rear: false);
+    private static RgbColor Neutral => GoldenTorizoHealthPaint.Color(0, 15, SuperMetroid.Core.Enemies.Artwork.GoldenTorizoHealthFacing.Front);
     /// <summary>The same neutral endpoint at retreat exposure1/15.</summary>
     internal static RgbColor RetreatNeutral => CeresRidleyFade.Scale(Neutral, 1);
 

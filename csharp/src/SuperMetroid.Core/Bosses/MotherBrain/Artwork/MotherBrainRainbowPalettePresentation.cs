@@ -204,12 +204,8 @@ public sealed class MotherBrainRainbowPalettePresentation
     {
         /// <summary>Retained rear inks when they do not match stock or half-intensity body paint.</summary>
         internal readonly RgbColor[]? backLegs;
-        /// <summary>Whether every rear ink equals the full stock rear-leg palette.</summary>
-        internal readonly bool stockRear;
-        /// <summary>Whether the drained rear subset equals half-intensity stock paint.</summary>
-        internal readonly bool drainedRear;
-        /// <summary>Whether the revival endpoint uses the stock rear-leg subset.</summary>
-        internal readonly bool normalRearSubset;
+        /// <summary>Where the rear legs take their colours from.</summary>
+        internal readonly MotherBrainRearPaintKind rearKind;
         /// <summary>Rainbow phase supplying a drain-start rear subset and trailing color.</summary>
         internal readonly PaletteFrame? rearSource;
 
@@ -224,9 +220,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             LegCount = legCount;
             TrailingColor = trailingColor;
             backLegs = rear.BackLegs;
-            stockRear = rear.Stock;
-            drainedRear = rear.Drained;
-            normalRearSubset = rear.NormalSubset;
+            rearKind = rear.Kind;
             rearSource = rear.Source;
         }
 
@@ -237,15 +231,15 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Spill color past the rear legs, drawn from the shared rear source when an endpoint matches.</summary>
         public RgbColor? TrailingColor => rearSource is not null
             ? rearSource.Leg(MotherBrainDrainedPaletteDefinitions.TrailingRearSourceColor)
-            : drainedRear || normalRearSubset ? Leg(1) : field;
+            : rearKind is MotherBrainRearPaintKind.Drained or MotherBrainRearPaintKind.NormalSubset ? Leg(1) : field;
         /// <summary>Selects the appropriate rainbow, drained, stock, or independently edited rear ink.</summary>
         public RgbColor Leg(int color) => rearSource is not null
             ? rearSource.Leg(color + MotherBrainDrainedPaletteDefinitions.RearSourceColor)
-            : drainedRear ? HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg,
+            : rearKind == MotherBrainRearPaintKind.Drained ? HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg,
                 color + MotherBrainDrainedPaletteDefinitions.RearSourceColor))
-            : normalRearSubset ? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg,
+            : rearKind == MotherBrainRearPaintKind.NormalSubset ? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg,
                 color + MotherBrainDrainedPaletteDefinitions.RearSourceColor)
-            : stockRear ? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, color)
+            : rearKind == MotherBrainRearPaintKind.Stock ? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, color)
             : backLegs is null ? HalfIntensity(Body[color]) : backLegs[color];
 
         /// <summary>Rounds each RGB5 body channel upward when deriving rainbow rear-leg paint.</summary>
@@ -257,11 +251,9 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// subset, a rainbow phase's rear subset, or half-intensity body paint when every option is empty.
     /// </summary>
     /// <param name="BackLegs">Retained rear inks, or null.</param>
-    /// <param name="Stock">Whether every rear ink is the full stock rear-leg palette.</param>
-    /// <param name="Drained">Whether the rear subset is half-intensity stock paint.</param>
-    /// <param name="NormalSubset">Whether the rear subset is the stock rear-leg subset.</param>
+    /// <param name="Kind">Where the rear legs take their colours from.</param>
     /// <param name="Source">The rainbow phase whose rear subset and trailing colour the phase shares, or null.</param>
-    internal sealed record RearPaint(RgbColor[]? BackLegs, bool Stock, bool Drained, bool NormalSubset, PaletteFrame? Source);
+    internal sealed record RearPaint(RgbColor[]? BackLegs, MotherBrainRearPaintKind Kind, PaletteFrame? Source);
 
     /// <summary>Exact red-origin shading from the narrowly reviewed temporal material paints; calculated shades are not retained as colours.</summary>
     internal sealed class RedOriginColors

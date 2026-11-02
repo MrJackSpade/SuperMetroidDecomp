@@ -102,14 +102,14 @@ internal static class MotherBrainRainbowPaletteRecognition
         for (int color = 0; matchesRear && color < legs.Length; color++)
             matchesRear = legs[color] == MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, color);
         if (matchesRear)
-            return new(bodyColors, legs.Length, trailingColor, new(null, Stock: true, Drained: false, NormalSubset: false, Source: null));
+            return new(bodyColors, legs.Length, trailingColor, new(null, MotherBrainRearPaintKind.Stock, Source: null));
         // Rainbow legs use half-intensity body colors, rounding RGB5 upward.
         // Select this relationship only when every supplied color agrees.
         bool halfIntensity = body.Length == legs.Length;
         for (int color = 0; halfIntensity && color < legs.Length; color++)
             halfIntensity = Presentation.PaletteFrame.HalfIntensity(body[color]) == legs[color];
         return new(bodyColors, legs.Length, trailingColor,
-            new(halfIntensity ? null : legs, Stock: false, Drained: false, NormalSubset: false, Source: null));
+            new(halfIntensity ? null : legs, MotherBrainRearPaintKind.Derived, Source: null));
     }
 
     /// <summary>Recognizes stock or drained paint, otherwise retains every supplied RGB5 ink.</summary>
@@ -129,7 +129,7 @@ internal static class MotherBrainRainbowPaletteRecognition
     /// <summary>The same phase over different body paint, keeping its rear-leg relationship.</summary>
     private static Presentation.PaletteFrame WithBody(Presentation.PaletteFrame frame, Presentation.BodyColors body) =>
         new(body, frame.LegCount, frame.TrailingColor,
-            new(frame.backLegs, frame.stockRear, frame.drainedRear, frame.normalRearSubset, frame.rearSource));
+            new(frame.backLegs, frame.rearKind, frame.rearSource));
 
     /// <summary>Recognizes the shared phase relationships of the rainbow list without changing independently supplied colors.</summary>
     private static Presentation.PaletteFrame[] ShareRainbow(Presentation.PaletteFrame[] rainbow)
@@ -251,7 +251,7 @@ internal static class MotherBrainRainbowPaletteRecognition
             if (drain.Leg(color) != rainbow.Leg(color + MotherBrainDrainedPaletteDefinitions.RearSourceColor)) return drain;
         return drain.TrailingColor == rainbow.Leg(MotherBrainDrainedPaletteDefinitions.TrailingRearSourceColor)
             ? new(rainbow.Body, MotherBrainDrainedPaletteDefinitions.BackLegCount, null,
-                new(null, Stock: false, Drained: false, NormalSubset: false, Source: rainbow))
+                new(null, MotherBrainRearPaintKind.Derived, Source: rainbow))
             : drain;
     }
 
@@ -263,7 +263,7 @@ internal static class MotherBrainRainbowPaletteRecognition
                     MotherBrainPalettePart.BackLeg, color + MotherBrainDrainedPaletteDefinitions.RearSourceColor))) return drain;
         return drain.TrailingColor == drain.Leg(1)
             ? new(drain.Body, MotherBrainDrainedPaletteDefinitions.BackLegCount, null,
-                new(null, Stock: false, Drained: true, NormalSubset: false, Source: null))
+                new(null, MotherBrainRearPaintKind.Drained, Source: null))
             : drain;
     }
 
@@ -275,7 +275,7 @@ internal static class MotherBrainRainbowPaletteRecognition
                     color + MotherBrainDrainedPaletteDefinitions.RearSourceColor)) return frame;
         return frame.TrailingColor == frame.Leg(1)
             ? new(frame.Body, MotherBrainDrainedPaletteDefinitions.BackLegCount, null,
-                new(null, Stock: false, Drained: false, NormalSubset: true, Source: null))
+                new(null, MotherBrainRearPaintKind.NormalSubset, Source: null))
             : frame;
     }
 

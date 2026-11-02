@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Map.Artwork;

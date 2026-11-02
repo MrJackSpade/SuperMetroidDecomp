@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

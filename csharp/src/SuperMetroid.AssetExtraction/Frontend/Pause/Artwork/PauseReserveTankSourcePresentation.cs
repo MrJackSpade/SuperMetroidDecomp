@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Pause;

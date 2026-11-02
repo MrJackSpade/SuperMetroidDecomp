@@ -1808,7 +1808,7 @@ internal static class LookupStream3Verification
         // take the shared branch, reading its trailing ink from the rainbow rear source or its own drained or normal rear.
         foreach (var endpoint in new[] { revivalFade.first, revivalFade.last })
         {
-            AssertTrue(endpoint.rearSource is not null || endpoint.drainedRear || endpoint.normalRearSubset,
+            AssertTrue(endpoint.rearSource is not null || endpoint.rearKind is SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRearPaintKind.Drained or SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRearPaintKind.NormalSubset,
                 "revival trailing endpoint shares its calculated rear highlight");
         }
         for (int frame = 0; frame < 8; frame++)
@@ -1865,7 +1865,7 @@ internal static class LookupStream3Verification
             "stream 3 drain rear and trailing start share only matching rainbow content");
         AssertTrue(drainEnd.backLegs is null,
             "stream 3 drained rear endpoint calculates from approved normal rear lighting");
-        AssertTrue((drainEnd.drainedRear || drainEnd.normalRearSubset) && drainEnd.TrailingColor == drainEnd.Leg(1),
+        AssertTrue((drainEnd.rearKind is SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRearPaintKind.Drained or SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRearPaintKind.NormalSubset) && drainEnd.TrailingColor == drainEnd.Leg(1),
             "stream 3 drained trailing word reuses its rear highlight without a stored value");
         foreach (var frame in storedRainbow)
             AssertTrue(frame.backLegs is null, "stream 3 rainbow shadow tables discarded");

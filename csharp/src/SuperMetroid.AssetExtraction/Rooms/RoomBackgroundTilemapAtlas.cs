@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
 

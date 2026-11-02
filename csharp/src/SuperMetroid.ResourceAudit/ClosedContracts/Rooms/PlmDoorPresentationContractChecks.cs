@@ -10,7 +10,6 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.ResourceAudit.PlmPrograms;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Rooms;
 

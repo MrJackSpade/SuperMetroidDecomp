@@ -33,25 +33,21 @@ internal sealed class EnemyAuxiliaryColourFrames
     internal int ColorCount { get; }
     /// <summary>Keeps a family's frames as the import recognized them.</summary>
     /// <param name="paint">The calculated paint progression the family follows.</param>
-    /// <param name="stock">Whether the frames are the progression's own stock paint.</param>
     /// <param name="frameCount">Number of authored stages or health bands.</param>
     /// <param name="colorCount">Colors supplied per frame.</param>
-    /// <param name="first">Initial interpolation endpoints; empty for stock paint.</param>
-    /// <param name="last">Final interpolation endpoints; empty for stock paint.</param>
-    /// <param name="corpse">The sidehopper's terminal corpse frame, or null for the other families and for stock paint.</param>
-    /// <param name="glowAccentStart">The face-block accent colour the active glow starts from; black for other families.</param>
+    /// <param name="endpoints">The colours derived frames are calculated from, or null when the frames are the progression's own stock paint.</param>
     /// <param name="supplied">Every supplied frame when they follow no calculated progression, otherwise null.</param>
-    internal EnemyAuxiliaryColourFrames(AuxiliaryPaint paint, bool stock, int frameCount, int colorCount, RgbColor[] first,
-        RgbColor[] last, RgbColor[]? corpse, RgbColor glowAccentStart, RgbColor[][]? supplied)
+    internal EnemyAuxiliaryColourFrames(AuxiliaryPaint paint, int frameCount, int colorCount,
+        EnemyAuxiliaryColourEndpoints? endpoints, RgbColor[][]? supplied)
     {
         this.paint = paint;
-        this.stock = stock;
+        stock = endpoints is null;
         FrameCount = frameCount;
         ColorCount = colorCount;
-        this.first = first;
-        this.last = last;
-        this.corpse = corpse;
-        this.glowAccentStart = glowAccentStart;
+        first = endpoints?.First ?? [];
+        last = endpoints?.Last ?? [];
+        corpse = endpoints?.Corpse;
+        glowAccentStart = endpoints?.GlowAccentStart ?? RgbColor.Black;
         this.supplied = supplied;
     }
     /// <summary>Uses exact edited paint where retained; otherwise derives the color relationship.</summary>
@@ -62,8 +58,8 @@ internal sealed class EnemyAuxiliaryColourFrames
         if (stock)
             return paint switch
             {
-                AuxiliaryPaint.TorizoFront => GoldenTorizoHealthPaint.Color(frame, color, rear: false),
-                AuxiliaryPaint.TorizoRear => GoldenTorizoHealthPaint.Color(frame, color, rear: true),
+                AuxiliaryPaint.TorizoFront => GoldenTorizoHealthPaint.Color(frame, color, GoldenTorizoHealthFacing.Front),
+                AuxiliaryPaint.TorizoRear => GoldenTorizoHealthPaint.Color(frame, color, GoldenTorizoHealthFacing.Rear),
                 AuxiliaryPaint.FaceGlow => FaceBlockGlowPaint.Color(frame, color),
                 AuxiliaryPaint.SidehopperDrain => SidehopperDrainPaint.Color(frame, color),
                 _ => throw new InvalidOperationException($"Auxiliary paint {paint} has no stock progression."),

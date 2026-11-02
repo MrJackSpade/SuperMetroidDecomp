@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using static SuperMetroid.AssetExtraction.Samus.SamusBodySheetDefinitions;

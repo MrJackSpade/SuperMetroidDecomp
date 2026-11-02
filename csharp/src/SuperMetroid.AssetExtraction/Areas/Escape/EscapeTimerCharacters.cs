@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -18,12 +19,23 @@ public sealed class EscapeTimerCharacters : EscapeTimerTileAtlas
 
     /// <summary>Retains the typeface's separated pixels beside the characters they compile to.</summary>
     /// <param name="glyphs">The separated timer pixels.</param>
-    private EscapeTimerCharacters(TimerGlyphs glyphs) : base(glyphs.Characters())
+    private EscapeTimerCharacters(TimerGlyphs glyphs) : this(glyphs, glyphs.Characters())
+    {
+    }
+
+    /// <summary>Retains the typeface's separated pixels beside the characters they compile to.</summary>
+    /// <param name="glyphs">The separated timer pixels.</param>
+    /// <param name="characters">The 25 timer characters the pixels compile to, in transfer order.</param>
+    private EscapeTimerCharacters(TimerGlyphs glyphs, byte[] characters) : base(characters)
     {
         fillPixels = glyphs.fillPixels;
         fillOverrides = glyphs.fillOverrides;
         pixelOverrides = glyphs.pixelOverrides;
+        Artwork = new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.EscapeTimerTiles), characters);
     }
+
+    /// <summary>The 25 timer characters as owned sprite artwork, in transfer order: character 0 is OBJ character $1E0.</summary>
+    public SpriteArtwork Artwork { get; }
 
     /// <summary>Loads the indexed PNG and compiles its pixels to the cartridge's two native DMA pages.</summary>
     /// <exception cref="InvalidDataException">The PNG is malformed, the wrong size, or compiles to the wrong length.</exception>

@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;

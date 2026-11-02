@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -165,7 +166,7 @@ internal sealed class CorpseRotSimulation
             throw new InvalidDataException($"Installed {MotherBrainCorpseSheet.FileName} holds {atlas.Characters.Length} bytes, not {MotherBrainCorpseSheet.ByteCount}.");
         return Batch("MotherBrain", null, [.. MotherBrainCorpseSheet.RotRows.Select(row =>
                 new CorpseRotRow(row.Row, EnemySourceDefinitions.CorpseRottingHeap + row.RottingOffset, row.ByteCount,
-                    MotherBrainCorpseSheet.RotRowFirstCharacter(row) * SuperMetroid.Core.Assets.SpriteArtwork.CharacterByteCount))],
+                    MotherBrainCorpseSheet.RotRowFirstCharacter(row) * SpriteArtwork.CharacterByteCount))],
             new CorpseRotSchedule(MotherBrainCorpseArtworkDefinitions.PixelRowCount),
             new StagedCorpse(CorpseStaging.MotherBrain(atlas.Characters.Span), CorpseRowGeometry.MotherBrain), uploadsLastStep: false);
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using static SuperMetroid.AssetExtraction.Frontend.Map.Artwork.WorldMapCharacterDefinitions;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Compatibility;

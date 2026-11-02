@@ -1,4 +1,8 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// Immutable owned sprite artwork: a sheet of eight-by-eight four-bit characters that whole-frame draw entries

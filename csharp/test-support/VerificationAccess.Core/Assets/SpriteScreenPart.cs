@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Artwork;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Verification oracle (#1392): one part of a composition placed on the screen, as the cartridge's OBJ layer shows it.</summary>

@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
@@ -90,9 +91,26 @@ public static class TitlePaletteFile
             }
         }
 
-        return TitlePalettePresentation.Create(ScreenColourImage.Decode(colors), animatedColors,
+        ScreenColours screen = ScreenColourImage.Decode(colors);
+        DropCalculatedAmbientColors(screen, animatedColors);
+        return new TitlePalettePresentation(screen, animatedColors,
             PackColor(document.SkipCopyrightWhite, "skip copyright white"),
             PackColor(document.SkipCopyrightRed, "skip copyright red"));
+    }
+
+    /// <summary>Drops each selected ambient colour the shared ambient calculation already produces from <paramref name="colours"/>.</summary>
+    /// <param name="colours">The selected screen colours by owner.</param>
+    /// <param name="animatedColors">Every selected ambient-program colour; calculated ones are removed.</param>
+    private static void DropCalculatedAmbientColors(ScreenColours colours, Dictionary<PaletteFxColorKey, RgbColor> animatedColors)
+    {
+        foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
+        for (int frame = 0; frame < program.FrameCount; frame++)
+        for (int index = 0; index < program.ColorsPerFrame; index++)
+        {
+            PaletteFxColorKey key = program.Color(frame, index);
+            if (TitleAmbientColors.TryCalculate(key, colours, animatedColors, out RgbColor calculated) &&
+                animatedColors[key] == calculated) animatedColors.Remove(key);
+        }
     }
 
     /// <summary>Validates one skip-only RGB5 color before packing its CGRAM word.</summary>

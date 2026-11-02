@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -20,10 +20,10 @@ public static class EndingPaletteDefinitions
     internal static readonly IReadOnlyDictionary<EndingPaletteId, int> ColorCounts =
         new Dictionary<EndingPaletteId, int>
         {
-            [EndingPaletteId.Escape] = ScreenColours.ColourCount,
-            [EndingPaletteId.PostCredits] = ScreenColours.ColourCount,
-            [EndingPaletteId.Credits] = ScreenColours.ColourCount,
-            [EndingPaletteId.Explosion] = ScreenColours.ColourCount,
+            [EndingPaletteId.Escape] = ScreenColourImage.ColorCount,
+            [EndingPaletteId.PostCredits] = ScreenColourImage.ColorCount,
+            [EndingPaletteId.Credits] = ScreenColourImage.ColorCount,
+            [EndingPaletteId.Explosion] = ScreenColourImage.ColorCount,
             [EndingPaletteId.FinalGunship] = 16,
             [EndingPaletteId.LogoInitial] = 16,
             [EndingPaletteId.LogoCrossfade] = EndingLogoDefinitions.PaletteSteps * 2 * 16,

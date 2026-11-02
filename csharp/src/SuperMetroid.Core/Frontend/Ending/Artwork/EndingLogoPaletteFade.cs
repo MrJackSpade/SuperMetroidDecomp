@@ -17,9 +17,7 @@ internal sealed class EndingLogoPaletteFade
     /// <summary>Every step's colours of both layers.</summary>
     internal const int ColorCount = EndingLogoDefinitions.PaletteSteps * LayersPerStep * ColoursPerLayer;
     /// <summary>The step whose background colours are the background's endpoint: the last, fully brightened.</summary>
-    private const int BackgroundEndpointStep = EndingLogoDefinitions.PaletteSteps - 1;
-    /// <summary>The step whose sprite colours are the sprites' endpoint: the first, not yet darkened.</summary>
-    private const int SpriteEndpointStep = 0;
+    internal const int BackgroundEndpointStep = EndingLogoDefinitions.PaletteSteps - 1;
     /// <summary>Caller-supplied drawing colors. The stock colours use independent yellow
     /// face, blue/cyan edging, orange-sector shades and a dark outline, as confirmed by
     /// the original logo tiles and final sprite compositions. These selected hues are
@@ -32,35 +30,13 @@ internal sealed class EndingLogoPaletteFade
     private readonly EndingLogoBackgroundPalette? backgroundGradient;
 
     /// <summary>Separates the supplied sprite endpoint from the background gradient or independent background endpoint.</summary>
-    private EndingLogoPaletteFade(RgbColor[] backgroundEndpoint, RgbColor[] spriteEndpoint)
+    /// <param name="backgroundEndpoint">The background's colours at its endpoint step.</param>
+    /// <param name="spriteEndpoint">The sprites' colours at their endpoint step.</param>
+    internal EndingLogoPaletteFade(RgbColor[] backgroundEndpoint, RgbColor[] spriteEndpoint)
     {
         backgroundGradient = EndingLogoBackgroundPalette.TryCreate(backgroundEndpoint);
         if (backgroundGradient is null) this.backgroundEndpoint = backgroundEndpoint;
         this.spriteEndpoint = spriteEndpoint;
-    }
-
-    /// <summary>Recognize the complete supplied progression before replacing its samples.
-    /// An independently edited sequence that does not follow this rule remains ordinary
-    /// caller-owned palette content. Neither path substitutes stock colors for edits.</summary>
-    internal static EndingLogoPaletteFade? TryCreate(EndingLogoCrossfadeColours supplied)
-    {
-        Ensure.NotNull(supplied);
-        var backgroundEndpoint = new RgbColor[ColoursPerLayer];
-        var spriteEndpoint = new RgbColor[ColoursPerLayer];
-        for (int color = 0; color < ColoursPerLayer; color++)
-        {
-            backgroundEndpoint[color] = supplied.Colour(BackgroundEndpointStep, EndingLogoLayer.Background, color);
-            spriteEndpoint[color] = supplied.Colour(SpriteEndpointStep, EndingLogoLayer.Sprites, color);
-        }
-        var fade = new EndingLogoPaletteFade(backgroundEndpoint, spriteEndpoint);
-        for (int step = 0; step < EndingLogoDefinitions.PaletteSteps; step++)
-        for (int color = 0; color < ColoursPerLayer; color++)
-        {
-            if (fade.Color(step, EndingLogoLayer.Background, color) != supplied.Colour(step, EndingLogoLayer.Background, color) ||
-                fade.Color(step, EndingLogoLayer.Sprites, color) != supplied.Colour(step, EndingLogoLayer.Sprites, color))
-                return null;
-        }
-        return fade;
     }
 
     /// <summary>Colour <paramref name="color"/> of <paramref name="layer"/> at crossfade step <paramref name="step"/>: the

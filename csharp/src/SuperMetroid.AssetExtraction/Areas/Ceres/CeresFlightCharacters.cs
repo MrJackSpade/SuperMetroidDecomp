@@ -49,8 +49,8 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
     public SpriteArtwork ObjectPage => field ??= new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.CeresFlightObjects),
         ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount]);
 
-    /// <inheritdoc/>
-    public override string ContentIdentity => SelectedPresentationHash.Create("CeresFlightArtworkCatalog", content =>
+    /// <summary>Identity of all selected approach maps, characters, colors, compositions and placements.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("CeresFlightArtworkCatalog", content =>
     {
         content.Append("mode7-characters", FloorCharacters.Span);
         content.Append("mode7-maps", FloorMaps.Span);

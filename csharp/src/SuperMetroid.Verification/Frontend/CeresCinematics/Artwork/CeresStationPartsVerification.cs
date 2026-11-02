@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics.Artwork;
 

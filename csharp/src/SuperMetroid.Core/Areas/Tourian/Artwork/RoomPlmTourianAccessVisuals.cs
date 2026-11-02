@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -10,25 +9,6 @@ namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 /// </summary>
 public sealed class RoomPlmTourianAccessVisuals
 {
-    /// <summary>
-    /// Canonical identity of the selected visual frames, excluding mechanics. The identity keeps the name it was
-    /// introduced under, so installed content identities do not change.
-    /// </summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("RoomPlmTourianAccessVisualCatalog", content =>
-    {
-        Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[24];
-        foreach (TourianAccessDraw draw in Enum.GetValues<TourianAccessDraw>().OrderBy(TourianAccessDraws.VisualId, StringComparer.Ordinal))
-        {
-            TourianAccessDraws.Describe(draw, out int rows, out _);
-            for (int index = 0; index < rows * 4; index++)
-                appearances[index] = GetAppearance(PlmDraw.Of(draw), index / 4, index % 4);
-            content.AppendName("frame", TourianAccessDraws.VisualId(draw));
-            // Preserve the original flattened-frame hash, including the six-row clear.
-            content.Append("runs", 1);
-            content.AppendAppearances("blocks", appearances[..(rows * 4)]);
-        }
-    });
-
     /// <summary>Copied visual-only appearances for Tourian access layouts that differ from compiled stock.</summary>
     private readonly PlmVisualOverrides customBlocks;
 

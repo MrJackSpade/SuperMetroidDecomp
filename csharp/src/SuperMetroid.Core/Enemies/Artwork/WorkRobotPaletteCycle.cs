@@ -9,19 +9,6 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// </summary>
 public sealed class WorkRobotPaletteCycle
 {
-    /// <summary>Canonical selected RGB5 colors and ordered cycle frames, independent of JSON encoding.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("WorkRobotPaletteCycle-v1", content =>
-        {
-            content.Append("frames", WorkRobotPaletteTimingDefinitions.RecordCount);
-            Span<RgbColor> frameColours = stackalloc RgbColor[WorkRobotPaletteDefinitions.ColorCount];
-            for (int frame = 0; frame < WorkRobotPaletteTimingDefinitions.RecordCount; frame++)
-            {
-                for (int color = 0; color < frameColours.Length; color++)
-                    frameColours[color] = Resolve(frame, color);
-                content.AppendColors("row", frameColours);
-            }
-        });
-
     /// <summary>Edited RGB5 frames, or null when every cell follows the compiled stock color pattern.</summary>
     internal readonly RgbColor[][]? frames;
 

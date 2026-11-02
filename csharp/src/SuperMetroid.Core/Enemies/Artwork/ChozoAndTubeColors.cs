@@ -12,17 +12,6 @@ internal static class ChozoAndTubeColors
     /// <summary>The authored crack seed inks the rest of the tube image is calculated from.</summary>
     private const int TubeSeedCount = 8;
 
-    /// <summary>Hashes the tube cracks, then the Wrecked Ship and Lower Norfair statues.</summary>
-    internal static string ContentIdentity(ChozoAndTubeColorCatalog colors) =>
-        SelectedPresentationHash.Create("ChozoAndTubeColorCatalog-v1", content =>
-        {
-            Span<RgbColor> tube = stackalloc RgbColor[ChozoAndTubeColorDefinitions.ColorCount];
-            for (int color = 0; color < tube.Length; color++) tube[color] = colors.ResolveTubeCracks(color);
-            content.AppendColors("tubeCracks", tube);
-            content.AppendColors("wreckedShip", Statue(colors, ChozoStatuePalette.WreckedShip));
-            content.AppendColors("lowerNorfair", Statue(colors, ChozoStatuePalette.LowerNorfair));
-        });
-
     /// <summary>The eight crack seed colors, which are authored paint.</summary>
     internal static RgbColor[] TubeSeeds(RgbColor[] tubeCracks) => tubeCracks[..TubeSeedCount];
 
@@ -77,10 +66,6 @@ internal static class ChozoAndTubeColors
         Dictionary<ColourCell, RgbColor> edits = palette == ChozoStatuePalette.WreckedShip ? colors.selection.WreckedShipEdits : colors.selection.LowerNorfairEdits;
         return edits.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : ChozoStatuePaint.Color(palette, color);
     }
-
-    /// <summary>Expands a statue variant into its ordered 32-color palette image for identity hashing.</summary>
-    private static RgbColor[] Statue(ChozoAndTubeColorCatalog colors, ChozoStatuePalette palette) =>
-        Enumerable.Range(0, ChozoAndTubeColorDefinitions.ColorCount).Select(color => Statue(colors, palette, color)).ToArray();
 
     /// <summary>Writes the tube-crack image's 32 inks.</summary>
     internal static void ApplyTubeCracks(ChozoAndTubeColorCatalog colors, ColourRunSequence destination)

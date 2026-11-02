@@ -5,9 +5,6 @@ namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 /// <summary>Editable Kraid RGB5 sources; boss phase and fade arithmetic stay engine-owned.</summary>
 public sealed class KraidColorCatalog
 {
-    /// <summary>Identity of the selected colours, computed from them rather than kept with the game state.</summary>
-    public string ContentIdentity => KraidColors.ContentIdentity(this);
-
     /// <summary>
     /// Each named editable source: the room-backdrop fade targets, the rock sprite targets staged during initial setup,
     /// the white hurt flash and eight body health bands, the independently editable sprite flash and health bands, and

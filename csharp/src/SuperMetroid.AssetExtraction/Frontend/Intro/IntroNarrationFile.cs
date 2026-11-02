@@ -1,8 +1,6 @@
-using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
@@ -21,7 +19,7 @@ public static class IntroNarrationFile
 
     /// <summary>Loads and validates the exact six-page opening-narration document.</summary>
     /// <param name="json">Caller-owned stream containing the narration document.</param>
-    /// <returns>The validated narration, identified by the hash of its source bytes.</returns>
+    /// <returns>The validated narration.</returns>
     /// <exception cref="InvalidDataException">The JSON, version, page set, rows, widths or glyphs are invalid.</exception>
     public static IntroNarrationPresentation Read(Stream json)
     {
@@ -86,7 +84,7 @@ public static class IntroNarrationFile
             pages.Add(page, new IntroNarrationPresentation.NarrationPage(value.Lines));
         }
 
-        return new(pages, Convert.ToHexString(SHA256.HashData(source)));
+        return new(pages);
     }
 
     /// <summary>Validates and writes an opening-narration document as JSON.</summary>

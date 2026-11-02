@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Samus.Poses;
 using SuperMetroid.Verification.Harness;
 

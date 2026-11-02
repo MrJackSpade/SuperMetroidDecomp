@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
@@ -32,9 +31,9 @@ public sealed class EndingFloorCharacters : EndingFloorArtwork
     public static EndingRewardIconArtwork RewardIconOf(EndingFloorArtwork floor) => (Ensure.NotNull(floor) as EndingFloorCharacters)?.RewardIcon
         ?? throw new InvalidDataException("The ending floor artwork was not read from an installation, so it has no reward icon.");
 
-    /// <inheritdoc/>
+    /// <summary>Identity of each decoded scene's two transfer lanes and the import's reward-icon transfer.</summary>
     /// <exception cref="InvalidDataException">A scene or the reward icon was not read from installed artwork.</exception>
-    public override string ContentIdentity => SelectedPresentationHash.Create("EndingFloorArtworkCatalog", content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("EndingFloorArtworkCatalog", content =>
     {
         content.Append("scene-count", 3);
         AppendScene(this[EndingFloorSceneId.EscapeA]);

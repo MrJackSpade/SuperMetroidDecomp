@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 

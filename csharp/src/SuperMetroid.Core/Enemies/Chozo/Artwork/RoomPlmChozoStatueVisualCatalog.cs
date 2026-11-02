@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Enemies.Chozo.Artwork;
 /// </summary>
 public sealed class RoomPlmChozoStatueVisualCatalog
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding mechanics.</summary>
-    public string ContentIdentity => ChozoStatueArtwork.ContentIdentity(this);
-
     /// <summary>Visual-only overrides keyed by draw; absent when every selected block uses its compiled appearance.</summary>
     private readonly PlmVisualOverrides customBlocks;
 

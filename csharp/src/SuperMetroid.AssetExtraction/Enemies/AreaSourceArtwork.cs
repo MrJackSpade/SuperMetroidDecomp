@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
@@ -33,8 +32,8 @@ public sealed record AreaSourceArtwork : AreaArtworkBundle
     /// </summary>
     public CeresEscapeOverlays? CeresEscapeOverlayTilemaps { get; init; }
 
-    /// <inheritdoc/>
-    public override string ContentIdentity => SelectedPresentationHash.Create("area-bundle-v1", content =>
+    /// <summary>The selected area presentation, computed from the installed content rather than kept with the game state.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("area-bundle-v1", content =>
     {
         content.AppendIdentity("CeresDoorVisual", CeresDoor?.ContentIdentity);
         content.AppendIdentity("CeresEscapeTiles", CeresEscapeTiles?.ContentIdentity);

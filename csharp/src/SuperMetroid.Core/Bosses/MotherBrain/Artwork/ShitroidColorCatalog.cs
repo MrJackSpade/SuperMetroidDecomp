@@ -6,9 +6,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Editable live-Shitroid RGB5 images; timer and fade destinations stay compiled.</summary>
 public sealed class ShitroidColorCatalog
 {
-    /// <summary>Canonical selected RGB5 colors and ordered pulse phases, independent of JSON encoding.</summary>
-    public string ContentIdentity => ShitroidColors.ContentIdentity(this);
-
     /// <summary>The selected normal pulse and initialization targets.</summary>
     internal readonly ShitroidColorSelection selection;
 

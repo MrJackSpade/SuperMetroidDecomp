@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -10,16 +9,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmBotwoonWallVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmBotwoonWallVisuals),
-        content =>
-        {
-            Span<RoomBlockAppearance> selected = stackalloc RoomBlockAppearance[BotwoonWallPlmDrawDefinitions.BlockCount];
-            for (int index = 0; index < selected.Length; index++)
-                selected[index] = GetAppearance(BotwoonWallPlmDrawDefinitions.Clear, 0, index);
-            content.AppendAppearances("blocks", selected);
-        });
-
     /// <summary>Owned nine-block clear appearance retained only when it differs from compiled stock visuals.</summary>
     private readonly RoomBlockAppearance[]? blocks;
 

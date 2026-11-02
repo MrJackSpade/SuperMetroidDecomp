@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
@@ -28,8 +27,12 @@ public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
         ProjectileSpritemaps = parts.ProjectileSpritemaps;
     }
 
-    /// <inheritdoc/>
-    public override string ContentIdentity =>
+    /// <summary>
+    /// Complete selected enemy presentation, including legacy-override merges, display
+    /// bindings, special uploads and colors. Gameplay definitions are excluded.
+    /// This is computed from the installed content rather than kept with the game state.
+    /// </summary>
+    public string ContentIdentity =>
         SelectedPresentationHash.Create("enemy-bundle-v1", content =>
         {
             foreach ((EnemyDefinitionId definition, RoomCharacterAtlas sheet, EnemyPaletteSheet palette) in SheetsInDefinitionOrder)

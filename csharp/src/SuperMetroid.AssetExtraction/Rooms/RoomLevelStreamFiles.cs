@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -141,8 +140,7 @@ public static class RoomLevelStreamFiles
             if (!levels.ContainsKey(level))
                 throw new InvalidDataException(
                     $"Room-level manifest {manifestPath} lacks {Path.Combine(directory, LevelFileName(level))}.");
-        return new InstalledRoomLevelStreams(levels, Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(manifestPath))),
-            RoomVisualLayoutSourceDefinitions.All);
+        return new InstalledRoomLevelStreams(levels, RoomVisualLayoutSourceDefinitions.All);
     }
 
     /// <summary>Loads and validates every stock level through <see cref="Load"/> with no cartridge reads or file writes.</summary>

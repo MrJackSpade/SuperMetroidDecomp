@@ -83,12 +83,4 @@ internal sealed class BabyMetroidInitialPalette
     /// <summary>Averages each RGB5 channel down to the intermediate fang paint.</summary>
     internal static RgbColor Midpoint(RgbColor light, RgbColor dark) =>
         light.Zip(dark, (_, lightChannel, darkChannel) => (lightChannel + darkChannel) / 2);
-
-    /// <summary>Hashes all resolved initial colors so supplied edits affect presentation identity.</summary>
-    internal void AppendIdentity(SelectedPresentationHash content)
-    {
-        Span<RgbColor> colors = stackalloc RgbColor[BabyMetroidCutsceneColorDefinitions.InitialColorCount];
-        for (int color = 0; color < colors.Length; color++) colors[color] = Resolve(color);
-        content.AppendColors("initial", colors);
-    }
 }

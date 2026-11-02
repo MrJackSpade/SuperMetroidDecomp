@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -10,19 +9,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmBlueDoorVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmBlueDoorVisuals), content =>
-    {
-        Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[4];
-        foreach (var frame in BlueDoorCaps.Editable.OrderBy(item => BlueDoorCaps.VisualId(item.Draw), StringComparer.Ordinal))
-        {
-            for (int row = 0; row < appearances.Length; row++) appearances[row] = GetAppearance(frame.Draw, row);
-            content.AppendName("frame", BlueDoorCaps.VisualId(frame.Draw));
-            content.Append("runs", 1);
-            content.AppendAppearances("blocks", appearances);
-        }
-    });
-
     /// <summary>Owned appearance overrides keyed by draw; null means every frame uses stock art.</summary>
     private readonly PlmVisualOverrides customBlocks;
 

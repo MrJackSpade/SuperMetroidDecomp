@@ -23,9 +23,6 @@ public abstract class InstalledSamusArmCannonArtwork
         this.placements = [.. placements];
     }
 
-    /// <summary>SHA-256 of selected cannon placement, cover appearances, tile selectors and characters.</summary>
-    public abstract string ContentIdentity { get; }
-
     /// <summary>Where <paramref name="pose"/> draws the cover.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The pose has no record in the pose tables.</exception>
     public SamusArmCannonPlacement Placement(SamusPoseId pose) => SamusPoseNumbering.HasRecord(pose)

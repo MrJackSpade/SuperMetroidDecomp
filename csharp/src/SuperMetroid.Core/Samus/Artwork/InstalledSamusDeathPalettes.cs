@@ -172,29 +172,6 @@ public sealed class InstalledSamusDeathPalettes
                 this.explosionPaletteIndices.Add(frame, explosionPaletteIndices[frame]);
     }
 
-    /// <summary>SHA-256 of selected suited/suitless colors, whiteout shades and explosion selectors.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledSamusDeathPalettes), content =>
-    {
-        Span<RgbColor> stepColours = stackalloc RgbColor[ColorCount];
-        for (int suit = 0; suit < SuitCount; suit++)
-        for (int palette = 0; palette < SamusPaletteDefinitions.Death.PaletteCount; palette++)
-        {
-            for (int color = 0; color < ColorCount; color++) stepColours[color] = SuitedColor(suit, palette, color);
-            content.AppendColors("suited row", stepColours);
-        }
-        for (int palette = 0; palette < SamusPaletteDefinitions.Death.PaletteCount; palette++)
-        {
-            for (int color = 0; color < ColorCount; color++) stepColours[color] = SuitlessColor(palette, color);
-            content.AppendColors("suitless row", stepColours);
-        }
-        Span<RgbColor> whiteoutColors = stackalloc RgbColor[SamusPaletteDefinitions.Death.WhiteoutShadeCount];
-        for (int index = 0; index < whiteoutColors.Length; index++) whiteoutColors[index] = WhiteoutColor(index);
-        content.AppendColors("whiteout", whiteoutColors);
-        Span<int> selectors = stackalloc int[SamusDeathExplosionTimingDefinitions.RecordCount];
-        for (int frame = 0; frame < selectors.Length; frame++) selectors[frame] = ExplosionPaletteIndex(frame);
-        content.AppendWords("explosion palette indices", selectors);
-    });
-
     /// <summary>Resolves the suited palette view, calculating its seven whitening steps.</summary>
     /// <remarks>The suited steps are, in order: the base, the yellow flash, eighth-step shades 1 to 7, and the final shared
     /// step. The flash repeats one yellow colour across all sixteen inks and suits; the final step repeats one gray colour

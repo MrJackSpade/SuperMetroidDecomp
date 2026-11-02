@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Samus.Artwork;
 using SuperMetroid.Verification.Harness;
 

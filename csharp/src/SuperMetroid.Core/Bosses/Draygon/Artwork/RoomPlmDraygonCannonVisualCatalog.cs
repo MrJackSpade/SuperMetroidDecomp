@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 /// </summary>
 public sealed class RoomPlmDraygonCannonVisualCatalog
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => DraygonCannonArtwork.ContentIdentity(this);
-
     /// <summary>Owned edited appearances by canonical frame pointer; null retains compiled stock appearance.</summary>
     private readonly PlmVisualOverrides customBlocks;
 

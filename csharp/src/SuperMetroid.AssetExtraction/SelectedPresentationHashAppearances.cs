@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms.LevelData;
 
-namespace SuperMetroid.Core.Rooms.LevelData;
+namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Hashes block appearances into a selected presentation's identity (#1469).</summary>
 internal static class SelectedPresentationHashAppearances

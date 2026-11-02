@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -9,19 +8,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmGrappleBlockVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmGrappleBlockVisuals), content =>
-    {
-        Span<RoomBlockAppearance> block = stackalloc RoomBlockAppearance[1];
-        foreach (var draw in GrappleBlockPlmDraws.All.OrderBy(draw => GrappleBlockPlmDraws.VisualId(draw.Frame), StringComparer.Ordinal))
-        {
-            content.AppendName("frame", GrappleBlockPlmDraws.VisualId(draw.Frame));
-            content.Append("runs", 1);
-            block[0] = GetAppearance(PlmDraw.Of(draw.Frame));
-            content.AppendAppearances("blocks", block);
-        }
-    });
-
     /// <summary>Only Grapple-block frame appearances that differ from compiled appearance.</summary>
     private readonly Dictionary<GrappleBlockDraw, RoomBlockAppearance>? customBlocks;
 

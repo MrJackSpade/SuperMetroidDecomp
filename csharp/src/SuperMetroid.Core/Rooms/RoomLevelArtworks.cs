@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms;
@@ -7,7 +6,7 @@ namespace SuperMetroid.Core.Rooms;
 public sealed class RoomLevelArtworks
 {
     /// <summary>Validated level selection for all installed room-level visual planes.</summary>
-    private readonly Dictionary<RoomLevelId, RoomLevelArtwork> layouts;
+    internal readonly Dictionary<RoomLevelId, RoomLevelArtwork> layouts;
 
     /// <summary>Copies a level-keyed installation and requires each of <paramref name="requiredLevels"/> to have a matching non-null layout.</summary>
     /// <param name="layouts">Initial visual layouts keyed by their own <see cref="RoomLevelArtwork.Level"/>.</param>
@@ -27,19 +26,6 @@ public sealed class RoomLevelArtworks
                 throw new InvalidDataException(
                     $"Installed room visual layouts lack required level {level}.");
     }
-
-    /// <summary>SHA-256 of selected room geometry and both ordered planes of appearances.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomLevelArtworks), content =>
-    {
-        foreach ((RoomLevelId level, RoomLevelArtwork layout) in this.layouts.OrderBy(pair => pair.Key.Name, StringComparer.Ordinal))
-        {
-            content.AppendName("level", level.Name);
-            content.Append("width", layout.Size.X);
-            content.Append("height", layout.Size.Y);
-            content.AppendAppearances("foreground", layout.Foreground.Span);
-            content.AppendAppearances("background", layout.Background.Span);
-        }
-    });
 
     /// <summary>Resolves installed initial artwork by the room state's level, without selecting room state or reading the original game data.</summary>
     /// <param name="level">The level the room state names, used as the installation key.</param>

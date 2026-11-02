@@ -12,11 +12,4 @@ public sealed class InstalledSpriteSheets
 
     /// <summary>The installed sheet <paramref name="sheet"/>.</summary>
     public SpriteSheet Get(SpriteSheetId sheet) => sheets[sheet];
-
-    /// <summary>SHA-256 of every sheet's pixels and frames, in identity order.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledSpriteSheets), content =>
-    {
-        foreach (SpriteSheetId sheet in Enum.GetValues<SpriteSheetId>())
-            sheets[sheet].AppendIdentity(content);
-    });
 }

@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 
@@ -13,10 +12,10 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 public sealed class RoomBlockAppearances
 {
     /// <summary>The inputs each block depends on over the tileset's artwork, by block.</summary>
-    private readonly ImmutableArray<AppearanceInput>[] tileset;
+    internal readonly ImmutableArray<AppearanceInput>[] tileset;
 
     /// <summary>The inputs each block depends on over the sprites' artwork, by block; null where no room shows it.</summary>
-    private readonly ImmutableArray<AppearanceInput>[]? sprites;
+    internal readonly ImmutableArray<AppearanceInput>[]? sprites;
 
     /// <summary>Keeps the inputs each block depends on over each artwork the tileset's rooms' blocks show.</summary>
     /// <param name="tileset">Each block's inputs over the tileset's artwork, by block index.</param>
@@ -52,21 +51,5 @@ public sealed class RoomBlockAppearances
         };
         return (uint)block < (uint)blocks.Length ? blocks[block]
             : throw new InvalidDataException($"Block {block} is not among the tileset's {blocks.Length} blocks.");
-    }
-
-    /// <summary>Appends every block's inputs to a content identity.</summary>
-    internal void AppendIdentity(SelectedPresentationHash content)
-    {
-        content.Append("blocks", tileset.Length);
-        ImmutableArray<AppearanceInput>[][] artworks = sprites is null ? [tileset] : [tileset, sprites];
-        foreach (ImmutableArray<AppearanceInput>[] artwork in artworks)
-        {
-            foreach (ImmutableArray<AppearanceInput> inputs in artwork)
-            {
-                content.Append("inputs", inputs.Length);
-                foreach (AppearanceInput input in inputs)
-                    content.AppendName("input", input.Token);
-            }
-        }
     }
 }

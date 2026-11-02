@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -7,19 +6,19 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 public sealed class EndingPaletteSet
 {
     /// <summary>Escape and cloud-scene color image.</summary>
-    private readonly EndingPalette escape;
+    internal readonly EndingPalette escape;
     /// <summary>Post-credits reward-scene color image.</summary>
-    private readonly EndingPalette postCredits;
+    internal readonly EndingPalette postCredits;
     /// <summary>Credits text and background color image.</summary>
-    private readonly EndingPalette credits;
+    internal readonly EndingPalette credits;
     /// <summary>Explosion and flyaway color image with separate BG and OBJ transfers.</summary>
-    private readonly EndingPalette explosion;
+    internal readonly EndingPalette explosion;
     /// <summary>Final gunship BG palette restored before the operation text.</summary>
-    private readonly EndingPalette finalGunship;
+    internal readonly EndingPalette finalGunship;
     /// <summary>Initial assembling-logo OBJ palette.</summary>
-    private readonly EndingPalette logoInitial;
+    internal readonly EndingPalette logoInitial;
     /// <summary>Sixteen ordered BG and OBJ palette pairs for the final logo transition.</summary>
-    private readonly EndingPalette logoCrossfade;
+    internal readonly EndingPalette logoCrossfade;
 
     /// <summary>Groups seven independently selected immutable palette resources without copying them or validating their sizes.</summary>
     /// <param name="escape">Full palette for escape and cloud imagery.</param>
@@ -57,17 +56,4 @@ public sealed class EndingPaletteSet
         EndingPaletteId.LogoCrossfade => logoCrossfade,
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
-
-    /// <summary>Identity of all selected static colors and every ordered logo-crossfade color.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("EndingPaletteCatalog", content =>
-    {
-        content.Append("palette-count", 7);
-        content.Append("palette", escape.Bytes.Span);
-        content.Append("palette", postCredits.Bytes.Span);
-        content.Append("palette", credits.Bytes.Span);
-        content.Append("palette", explosion.Bytes.Span);
-        content.Append("palette", finalGunship.Bytes.Span);
-        content.Append("palette", logoInitial.Bytes.Span);
-        content.Append("palette", logoCrossfade.Bytes.Span);
-    });
 }

@@ -10,19 +10,6 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// </summary>
 internal static class CrocomirePalette
 {
-    /// <summary>Hashes each complete resolved transfer in the original color order.</summary>
-    internal static string ContentIdentity(CrocomireColorCatalog colors) =>
-        SelectedPresentationHash.Create("CrocomireColorCatalog-v1", content =>
-        {
-            Span<RgbColor> buffer = stackalloc RgbColor[CrocomireColorCatalog.Counts.Values.Max()];
-            foreach ((Band band, string label) in CrocomireColorCatalog.IdentityOrder)
-            {
-                Span<RgbColor> transfer = buffer[..CrocomireColorCatalog.Counts[band]];
-                for (int color = 0; color < transfer.Length; color++) transfer[color] = colors.Get(band, color);
-                content.AppendColors(label, transfer);
-            }
-        });
-
     /// <summary>Keeps each supplied color of every band that differs from its calculated stock paint.</summary>
     internal static Dictionary<CrocomireColorKey, RgbColor> Edits(Dictionary<Band, RgbColor[]> supplied)
     {

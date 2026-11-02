@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -10,23 +9,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmSamusEaterVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmSamusEaterVisuals), content =>
-    {
-        Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[8];
-        foreach (var draw in SamusEaterPlmDraws.All.OrderBy(item => SamusEaterPlmDraws.VisualId(item.Draw), StringComparer.Ordinal))
-        {
-            int index = 0;
-            for (int run = 0; run < 3; run++)
-                for (int block = 0; block < SamusEaterPlmDraws.Draw.Count(run); block++)
-                    appearances[index++] = GetAppearance(draw.Draw, run, block);
-            content.AppendName("frame", SamusEaterPlmDraws.VisualId(draw.Draw));
-            // Preserve the original flattened-frame hash, not the three physical runs.
-            content.Append("runs", 1);
-            content.AppendAppearances("blocks", appearances);
-        }
-    });
-
     /// <summary>Owned appearance overrides keyed by plant pose; null uses every stock appearance.</summary>
     private readonly PlmVisualOverrides customBlocks;
 

@@ -25,7 +25,4 @@ public abstract class CeresFlightArtwork
     public CeresFlightPalette Palette { get; }
     /// <summary>Selected initial screen-pixel positions for the five named rear-view actors; their movement and instruction timing remain compiled logic.</summary>
     public CeresFlightActorPlacements Actors { get; }
-
-    /// <summary>Identity of all selected approach maps, characters, colors, compositions and placements.</summary>
-    public abstract string ContentIdentity { get; }
 }

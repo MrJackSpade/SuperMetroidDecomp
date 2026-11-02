@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core;
 
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Verification access to <see cref="SelectedPresentationHash"/> members production does not use.</summary>
 internal static class SelectedPresentationHashAccess

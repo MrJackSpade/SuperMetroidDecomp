@@ -9,26 +9,6 @@ namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 /// </summary>
 internal static class PhantoonColors
 {
-    /// <summary>Hashes the fade-out and power-on targets, then every health band.</summary>
-    internal static string ContentIdentity(PhantoonColorCatalog colors) =>
-        SelectedPresentationHash.Create("PhantoonColorCatalog-v1", content =>
-        {
-            Span<RgbColor> target = stackalloc RgbColor[PhantoonColorDefinitions.FadeOutCount];
-            for (int color = 0; color < target.Length; color++) target[color] = colors.ResolveFadeOut(color);
-            content.AppendColors("fadeOut", target);
-            var power = new List<RgbColor>(PhantoonColorDefinitions.PowerOnSets.Length * ColourSets.SetColours);
-            foreach (BackgroundColourSet set in PhantoonColorDefinitions.PowerOnSets)
-                for (int color = 0; color < ColourSets.SetColours; color++) power.Add(colors.ResolvePowerOn(set, color));
-            content.AppendColors("powerOn", power.ToArray());
-            var frames = new RgbColor[PhantoonColorDefinitions.HealthBandCount][];
-            for (int band = 0; band < frames.Length; band++)
-            {
-                frames[band] = new RgbColor[PhantoonColorDefinitions.HealthBandColorCount];
-                for (int color = 0; color < frames[band].Length; color++) frames[band][color] = colors.ResolveHealth(band, color);
-            }
-            content.AppendColorFrames("healthBands", frames);
-        });
-
     /// <summary>Keeps the health-band colours that differ from the calculated material and damage shades.</summary>
     internal static Dictionary<ColourCell, RgbColor> HealthEdits(RgbColor[][] healthBands)
     {

@@ -10,22 +10,22 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 public sealed class InstalledEnemySheets : IEnemySheetSource
 {
     /// <summary>Each set's sheet for each of its enemies.</summary>
-    private readonly Dictionary<EnemySheetKey, SpriteSheet> sheets;
+    internal readonly Dictionary<EnemySheetKey, SpriteSheet> sheets;
 
     /// <summary>Each set's spawned-object sheet for each tile base.</summary>
-    private readonly Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet> spawned;
+    internal readonly Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet> spawned;
 
     /// <summary>Each set's enemy sheets' frames drawn over characters its encounters upload, and the layers they draw as.</summary>
-    private readonly Dictionary<EnemySheetKey, IReadOnlyDictionary<string, LookRegion[][]>> pictures;
+    internal readonly Dictionary<EnemySheetKey, IReadOnlyDictionary<string, LookRegion[][]>> pictures;
 
     /// <summary>The same for each set's spawned-object sheets.</summary>
-    private readonly Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, LookRegion[][]>> spawnedPictures;
+    internal readonly Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, LookRegion[][]>> spawnedPictures;
 
     /// <summary>Each set's enemy sheets' frames drawn over a rotting corpse's rows, and the kind of corpse whose rot each shows.</summary>
-    private readonly Dictionary<EnemySheetKey, IReadOnlyDictionary<string, string>> rotPictures;
+    internal readonly Dictionary<EnemySheetKey, IReadOnlyDictionary<string, string>> rotPictures;
 
     /// <summary>The same for each set's spawned-object sheets.</summary>
-    private readonly Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, string>> spawnedRotPictures;
+    internal readonly Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, string>> spawnedRotPictures;
     /// <summary>What covers each region of each set's characters, by set name.</summary>
     private readonly Dictionary<string, SetLookCoverage> coverage;
 
@@ -96,75 +96,4 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
     public SpawnedObjectSheet Spawned(string set, int tileBase) =>
         spawned.TryGetValue(new SpawnedObjectSheetKey(set, tileBase), out SpawnedObjectSheet? sheet) ? sheet
             : throw new InvalidDataException($"Enemy graphics set {set} installs no spawned-object sheet for tile base ${tileBase:X3}.");
-
-    /// <summary>SHA-256 of every distinct sheet and each set's choice of them.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledEnemySheets), content =>
-    {
-        foreach ((EnemySheetKey key, SpriteSheet sheet) in sheets.OrderBy(entry => entry.Key.Set, StringComparer.Ordinal)
-                     .ThenBy(entry => entry.Key.Enemy))
-        {
-            content.Append("set", System.Text.Encoding.UTF8.GetBytes(key.Set));
-            content.Append("enemy", System.Text.Encoding.UTF8.GetBytes(key.Enemy.ToString()));
-            sheet.AppendIdentity(content);
-        }
-        foreach ((SpawnedObjectSheetKey key, SpawnedObjectSheet sheet) in spawned.OrderBy(entry => entry.Key.Set, StringComparer.Ordinal)
-                     .ThenBy(entry => entry.Key.TileBase))
-        {
-            content.Append("spawned-set", System.Text.Encoding.UTF8.GetBytes(key.Set));
-            content.Append("tile-base", key.TileBase);
-            content.Append("palette", sheet.ColourGroup.Number);
-            sheet.Sheet.AppendIdentity(content);
-        }
-        AppendPictures(content, "pictures", pictures.Select(entry => new PictureOwner(entry.Key.Set, entry.Key.Enemy.ToString(), entry.Value)));
-        AppendPictures(content, "spawned-pictures", spawnedPictures.Select(entry => new PictureOwner(entry.Key.Set,
-            entry.Key.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture), entry.Value)));
-        AppendRotPictures(content, "rot-pictures", rotPictures.Select(entry => new RotPictureOwner(entry.Key.Set, entry.Key.Enemy.ToString(), entry.Value)));
-        AppendRotPictures(content, "spawned-rot-pictures", spawnedRotPictures.Select(entry => new RotPictureOwner(entry.Key.Set,
-            entry.Key.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture), entry.Value)));
-    });
-
-    /// <summary>Appends each sheet's frames drawn over a rotting corpse's rows and the corpse each shows, in a stable order.</summary>
-    private static void AppendRotPictures(SelectedPresentationHash content, string label, IEnumerable<RotPictureOwner> owners)
-    {
-        foreach (RotPictureOwner owner in owners.OrderBy(owner => owner.Set, StringComparer.Ordinal).ThenBy(owner => owner.Owner, StringComparer.Ordinal))
-        {
-            content.Append(label, System.Text.Encoding.UTF8.GetBytes($"{owner.Set}/{owner.Owner}"));
-            foreach ((string frame, string corpse) in owner.Frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
-                content.Append("rot-frame", System.Text.Encoding.UTF8.GetBytes($"{frame}={corpse}"));
-        }
-    }
-
-    /// <summary>One sheet's frames drawn over a rotting corpse's rows.</summary>
-    /// <param name="Set">The graphics set's name.</param>
-    /// <param name="Owner">The enemy's name, or the spawned objects' tile base.</param>
-    /// <param name="Frames">The frames and the kind of corpse whose rot each shows.</param>
-    private sealed record RotPictureOwner(string Set, string Owner, IReadOnlyDictionary<string, string> Frames);
-
-    /// <summary>Appends each sheet's frames drawn over uploaded characters and their regions, in a stable order.</summary>
-    private static void AppendPictures(SelectedPresentationHash content, string label, IEnumerable<PictureOwner> owners)
-    {
-        foreach (PictureOwner owner in owners.OrderBy(owner => owner.Set, StringComparer.Ordinal).ThenBy(owner => owner.Owner, StringComparer.Ordinal))
-        {
-            content.Append(label, System.Text.Encoding.UTF8.GetBytes($"{owner.Set}/{owner.Owner}"));
-            foreach ((string frame, LookRegion[][] layers) in owner.Frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
-            {
-                content.Append("frame", System.Text.Encoding.UTF8.GetBytes(frame));
-                foreach (LookRegion[] layer in layers)
-                {
-                    content.Append("layer", layer.Length);
-                    foreach (LookRegion region in layer)
-                    {
-                        content.Append("region", region.Ordinal);
-                        content.Append("region-name", System.Text.Encoding.UTF8.GetBytes(region.Name));
-                    }
-                }
-            }
-        }
-    }
-
-    /// <summary>One sheet's frames drawn over uploaded characters.</summary>
-    /// <param name="Set">The graphics set's name.</param>
-    /// <param name="Owner">The enemy's name, or the spawned objects' tile base.</param>
-    /// <param name="Frames">The frames and the layers each draws as.</param>
-    private sealed record PictureOwner(string Set, string Owner, IReadOnlyDictionary<string, LookRegion[][]> Frames);
 }

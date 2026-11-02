@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -10,26 +9,6 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 /// </summary>
 internal static class DraygonCannonArtwork
 {
-    /// <summary>Hashes every cannon frame's selected appearances, in visual-identity order.</summary>
-    internal static string ContentIdentity(RoomPlmDraygonCannonVisualCatalog visuals) =>
-        SelectedPresentationHash.Create(nameof(RoomPlmDraygonCannonVisualCatalog), content =>
-        {
-            var appearances = new RoomBlockAppearance[4];
-            foreach (var frame in DraygonCannonDraws.All.OrderBy(item => DraygonCannonDraws.VisualId(item.Draw), StringComparer.Ordinal))
-            {
-                DraygonCannonDraws.TryDescribe(frame.Draw, out var shape);
-                int count = 0;
-                for (int run = 0; run < shape.RunCount; run++)
-                    for (int cell = 0; cell < shape.BlockCount(run); cell++)
-                        appearances[count++] = visuals.GetAppearance(frame.Draw, run, cell) ??
-                            throw new InvalidDataException($"{nameof(visuals)} lack frame {frame.Draw}.");
-                content.AppendName("frame", DraygonCannonDraws.VisualId(frame.Draw));
-                // Preserve the flattened single-run framing of installed cannon artwork.
-                content.Append("runs", 1);
-                content.AppendAppearances("blocks", appearances.AsSpan(0, count));
-            }
-        });
-
     /// <summary>Resolves a cannon block's selected appearance by projecting run-local indices into the flattened authored frame.</summary>
     /// <exception cref="InvalidDataException">The draw is not a supported cannon frame.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the compiled draw shape.</exception>

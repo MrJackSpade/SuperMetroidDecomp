@@ -24,14 +24,6 @@ internal sealed class BabyMetroidFade
             }
     }
 
-    /// <summary>Hashes the initial image, then the six resolved fade frames.</summary>
-    internal static string ContentIdentity(BabyMetroidCutsceneColorCatalog colors) =>
-        SelectedPresentationHash.Create("BabyMetroidCutsceneColorCatalog-v1", content =>
-        {
-            colors.selection.Initial.AppendIdentity(content);
-            colors.selection.Fade.AppendIdentity(content);
-        });
-
     /// <summary>
     /// One displayed fade color: <paramref name="paletteIndex"/> one through six and <paramref name="color"/> zero
     /// through thirteen; the exception names <paramref name="paletteIndex"/> for both invalid cases.
@@ -55,17 +47,5 @@ internal sealed class BabyMetroidFade
         int remaining = BabyMetroidCutsceneColorDefinitions.FadeFrameCount - 1 - frame;
         int intervals = BabyMetroidCutsceneColorDefinitions.FadeFrameCount + 1;
         return Endpoint(color).Map((_, channel) => channel * remaining / intervals);
-    }
-
-    /// <summary>Hashes the six resolved frames so and equivalent supplied artwork share an identity.</summary>
-    internal void AppendIdentity(SelectedPresentationHash content)
-    {
-        content.Append("fade", BabyMetroidCutsceneColorDefinitions.FadeFrameCount);
-        Span<RgbColor> frameColors = stackalloc RgbColor[BabyMetroidCutsceneColorDefinitions.FadeColorCount];
-        for (int frame = 0; frame < BabyMetroidCutsceneColorDefinitions.FadeFrameCount; frame++)
-        {
-            for (int color = 0; color < frameColors.Length; color++) frameColors[color] = Resolve(frame, color);
-            content.AppendColors("row", frameColors);
-        }
     }
 }

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;

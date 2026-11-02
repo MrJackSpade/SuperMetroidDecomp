@@ -28,7 +28,4 @@ public abstract class IntroCinematicArtwork
     public CeresFlightArtwork CeresFlight { get; }
     /// <summary>The destruction and Zebes-reveal actors' placements.</summary>
     public CeresDestructionArtwork CeresDestruction { get; }
-
-    /// <summary>Identity of the entire selected opening bundle, including the artwork its sheets are composed from.</summary>
-    public abstract string ContentIdentity { get; }
 }

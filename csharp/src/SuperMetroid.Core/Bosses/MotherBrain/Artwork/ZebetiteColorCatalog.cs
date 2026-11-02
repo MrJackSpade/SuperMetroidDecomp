@@ -5,9 +5,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Immutable RGB5 artwork for Zebetite's eight-frame two-color pulse.</summary>
 public sealed class ZebetiteColorCatalog
 {
-    /// <summary>Canonical selected RGB5 colors and ordered pulse frames, independent of JSON encoding.</summary>
-    public string ContentIdentity => ZebetitePulse.ContentIdentity(edits);
-
     /// <summary>Only palette cells edited away from the calculated pulse, keyed by frame and color.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> edits;
 

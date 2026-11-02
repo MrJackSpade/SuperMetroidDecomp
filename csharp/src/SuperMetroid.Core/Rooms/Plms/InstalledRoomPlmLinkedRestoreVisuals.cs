@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -9,23 +8,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmLinkedRestoreVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmLinkedRestoreVisuals), content =>
-    {
-        Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[4];
-        foreach (var draw in RoomPlmLinkedRestoreDrawDefinitions.All.OrderBy(item => LinkedRestorePlmDraws.VisualId(item.Draw), StringComparer.Ordinal))
-        {
-            Describe(draw.Draw, out int runs, out _);
-            for (int run = 0; run < runs; run++)
-                for (int block = 0; block < 2; block++)
-                    appearances[run * 2 + block] = GetAppearance(draw.Draw, run, block);
-            content.AppendName("frame", LinkedRestorePlmDraws.VisualId(draw.Draw));
-            // The original catalog hashes each flattened frame as one run.
-            content.Append("runs", 1);
-            content.AppendAppearances("blocks", appearances[..(runs * 2)]);
-        }
-    });
-
     /// <summary>Only layouts whose visual appearances differ from the compiled common appearance need stored overrides.</summary>
     private readonly PlmVisualOverrides customBlocks;
 
@@ -60,7 +42,7 @@ public sealed class InstalledRoomPlmLinkedRestoreVisuals
     /// Resolves a bomb or contact-crumble draw's geometry and shared visual tile.
     /// Every cell uses that tile while collision links remain owned by the draw definitions.
     /// </summary>
-    private static bool Describe(PlmDraw draw, out int runs, out RoomBlockAppearance stock)
+    internal static bool Describe(PlmDraw draw, out int runs, out RoomBlockAppearance stock)
     {
         if (LinkedRestorePlmFamily.TryDescribeAny(draw, out var shape))
         {

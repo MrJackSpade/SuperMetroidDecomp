@@ -10,9 +10,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => MotherBrainFakeDeathArtwork.ContentIdentity(this);
-
     /// <summary>Only changed draw appearances, keyed by draw; unchanged draws use compiled visuals.</summary>
     private readonly PlmVisualOverrides customAppearances;
 

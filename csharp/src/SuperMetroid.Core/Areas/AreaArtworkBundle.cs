@@ -15,7 +15,4 @@ public abstract record AreaArtworkBundle
 
     /// <summary>Editable entrance, eye and grey colors; statue unlocking stays compiled.</summary>
     public TourianStatuePalettes? TourianStatueColors { get; init; }
-
-    /// <summary>The selected area presentation, computed from the installed content rather than kept with the game state.</summary>
-    public abstract string ContentIdentity { get; }
 }

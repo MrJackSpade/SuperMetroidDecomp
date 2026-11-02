@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;

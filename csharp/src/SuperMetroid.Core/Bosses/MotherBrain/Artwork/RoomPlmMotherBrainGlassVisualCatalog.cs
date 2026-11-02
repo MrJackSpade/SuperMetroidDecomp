@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 public sealed class RoomPlmMotherBrainGlassVisualCatalog
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => MotherBrainGlassArtwork.ContentIdentity(this);
-
     /// <summary>Copied visual overrides by compiled glass-layout pointer; unchanged layouts use stock appearances.</summary>
     private readonly PlmVisualOverrides customBlocks;
 

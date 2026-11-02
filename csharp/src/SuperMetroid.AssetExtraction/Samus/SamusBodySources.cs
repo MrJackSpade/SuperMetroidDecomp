@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 
@@ -37,16 +36,24 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
     /// <param name="bodyCharactersContentIdentity">Identity of the body characters the frames select, composed into the body sheets at installation.</param>
     /// <exception cref="InvalidDataException">A table has an invalid length, a selector component is out of range, or a pose's frame list is outside the selectors.</exception>
     public SamusBodySources(SamusBodyArtworkParts parts, string bodyCharactersContentIdentity)
-        : base(Content(Ensure.NotNull(parts), bodyCharactersContentIdentity))
+        : base(Content(Ensure.NotNull(parts)))
     {
+        DeathTilesContentIdentity = Ensure.NotNull(parts.DeathTilesContentIdentity);
+        BodyCharactersContentIdentity = Ensure.NotNull(bodyCharactersContentIdentity);
         topSetStarts = (int[])parts.TopSetStarts.Clone();
         bottomSetStarts = (int[])parts.BottomSetStarts.Clone();
         poseFirstFrames = (int[])parts.PoseFirstFrames.Clone();
         frames = (SamusBodyFrameSelection[])parts.Frames.Clone();
     }
 
+    /// <summary>Identity of the selected death-explosion characters, whose pre-coloured sheet is installed separately.</summary>
+    public string DeathTilesContentIdentity { get; }
+
+    /// <summary>Identity of the selected body characters, whose pre-coloured sheets are installed separately.</summary>
+    public string BodyCharactersContentIdentity { get; }
+
     /// <summary>SHA-256 of all visual selectors, the body characters' identity and bundled Samus presentation catalogs.</summary>
-    public override string ContentIdentity => field ??= SelectedPresentationHash.Create("samus-body-v3", content =>
+    public string ContentIdentity => field ??= SelectedPresentationHash.Create("samus-body-v3", content =>
     {
         foreach (int start in TopSetStarts) content.Append("top set start", start);
         foreach (int start in BottomSetStarts) content.Append("bottom set start", start);
@@ -113,7 +120,7 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
     /// Validates the native tables and resolves, for every pose and every animation frame the body sheets cover that the
     /// selector table holds, the half pictures the frame's selector names, or none when either named record is not installed.
     /// </summary>
-    private static SamusBodyArtworkContent Content(SamusBodyArtworkParts parts, string bodyCharactersContentIdentity)
+    private static SamusBodyArtworkContent Content(SamusBodyArtworkParts parts)
     {
         Ensure.NotNull(parts.TopSetStarts);
         Ensure.NotNull(parts.BottomSetStarts);
@@ -151,9 +158,7 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
             Spritemaps = parts.Spritemaps,
             Atmosphere = parts.Atmosphere,
             DeathPalettes = parts.DeathPalettes,
-            DeathTilesContentIdentity = parts.DeathTilesContentIdentity,
             ArmCannon = parts.ArmCannon,
-            BodyCharactersContentIdentity = bodyCharactersContentIdentity,
         };
     }
 

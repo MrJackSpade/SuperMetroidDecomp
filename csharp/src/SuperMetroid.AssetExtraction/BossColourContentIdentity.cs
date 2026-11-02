@@ -1,0 +1,290 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Bosses.Botwoon.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
+
+namespace SuperMetroid.AssetExtraction;
+
+/// <summary>The installed content identities of the bosses' colour catalogs, which only the import pipeline and its diagnostics compare (#1502).</summary>
+internal static class BossColourContentIdentity
+{
+    /// <summary>The installed content identity of a <see cref="BotwoonColorCatalog"/>.</summary>
+    extension(BotwoonColorCatalog colors)
+    {
+        /// <summary>Hashes every health band's sixteen colours in band order.</summary>
+        public string ContentIdentity =>
+            SelectedPresentationHash.Create("BotwoonColorCatalog-v1", content =>
+            {
+                content.Append("health", BotwoonHealthPaletteDefinitions.PaletteCount);
+                Span<RgbColor> bandColors = stackalloc RgbColor[BotwoonHealthPaletteDefinitions.ColorsPerPalette];
+                for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
+                {
+                    for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.HealthColor(band, color);
+                    content.AppendColors("row", bandColors);
+                }
+            });
+    }
+
+    /// <summary>The installed content identity of a <see cref="CrocomireColorCatalog"/>.</summary>
+    extension(CrocomireColorCatalog colors)
+    {
+        /// <summary>Hashes each complete resolved transfer in the original color order.</summary>
+        public string ContentIdentity =>
+            SelectedPresentationHash.Create("CrocomireColorCatalog-v1", content =>
+            {
+                Span<RgbColor> buffer = stackalloc RgbColor[CrocomireColorCatalog.Counts.Values.Max()];
+                foreach ((CrocomireColorCatalog.Band band, string label) in CrocomireColorCatalog.IdentityOrder)
+                {
+                    Span<RgbColor> transfer = buffer[..CrocomireColorCatalog.Counts[band]];
+                    for (int color = 0; color < transfer.Length; color++) transfer[color] = colors.Get(band, color);
+                    content.AppendColors(label, transfer);
+                }
+            });
+    }
+
+    /// <summary>The installed content identity of a <see cref="DraygonColorCatalog"/>.</summary>
+    extension(DraygonColorCatalog colors)
+    {
+        /// <summary>Hashes the opening, background, sprite and flash colours, then every health band's colours.</summary>
+        public string ContentIdentity =>
+            SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
+            {
+                Span<RgbColor> introWords = stackalloc RgbColor[DraygonColorDefinitions.IntroCount];
+                for (int color = 0; color < introWords.Length; color++) introWords[color] = colors.selection.Intro.Color(color);
+                content.AppendColors("intro", introWords);
+                Span<RgbColor> backgroundWords = stackalloc RgbColor[DraygonColorDefinitions.BackgroundCount];
+                for (int color = 0; color < backgroundWords.Length; color++) backgroundWords[color] = colors.selection.Background.Color(color);
+                content.AppendColors("background", backgroundWords);
+                Span<RgbColor> spriteWords = stackalloc RgbColor[DraygonColorDefinitions.SpriteCount];
+                for (int color = 0; color < spriteWords.Length; color++) spriteWords[color] = colors.selection.Sprite.Color(color);
+                content.AppendColors("sprite", spriteWords);
+                Span<RgbColor> flash = stackalloc RgbColor[DraygonColorDefinitions.WhiteFlashCount];
+                for (int color = 0; color < flash.Length; color++) flash[color] = colors.ResolveWhiteFlash(color);
+                content.AppendColors("whiteFlash", flash);
+                content.Append("healthBands", DraygonColorDefinitions.HealthBandCount);
+                Span<RgbColor> bandColors = stackalloc RgbColor[DraygonColorDefinitions.HealthBandColorCount];
+                for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
+                {
+                    for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.ResolveHealthBand(band, color);
+                    content.AppendColors("row", bandColors);
+                }
+            });
+    }
+
+    /// <summary>The installed content identity of a <see cref="KraidColorCatalog"/>.</summary>
+    extension(KraidColorCatalog colors)
+    {
+        /// <summary>Hashes the five sources, each tagged by its position: room backdrop, initial target, health, secondary, death arm.</summary>
+        public string ContentIdentity =>
+            SelectedPresentationHash.Create("enemy-kraid-colors-v1", content =>
+            {
+                for (int tag = 0; tag < KraidIdentityOrder.Length; tag++)
+                {
+                    content.Append("source", tag);
+                    content.AppendColors("colors", colors.sources[KraidIdentityOrder[tag]].ToArray());
+                }
+            });
+    }
+
+    /// <summary>The installed content identity of a <see cref="BabyMetroidCutsceneColorCatalog"/>.</summary>
+    extension(BabyMetroidCutsceneColorCatalog colors)
+    {
+        /// <summary>Hashes the initial image, then the six resolved fade frames.</summary>
+        public string ContentIdentity =>
+            SelectedPresentationHash.Create("BabyMetroidCutsceneColorCatalog-v1", content =>
+            {
+                colors.selection.Initial.AppendIdentity(content);
+                colors.selection.Fade.AppendIdentity(content);
+            });
+    }
+
+    /// <summary>The installed content identity of a <see cref="MotherBrainDeathColorCatalog"/>.</summary>
+    extension(MotherBrainDeathColorCatalog colors)
+    {
+        /// <summary>Hashes the exploded door, then the body, leg and corpse fades.</summary>
+        public string ContentIdentity =>
+            SelectedPresentationHash.Create("MotherBrainDeathColorCatalog-v1", content =>
+            {
+                Span<RgbColor> door = stackalloc RgbColor[MotherBrainExplodedDoorPaintDefinitions.ColorCount];
+                for (int color = 0; color < door.Length; color++) door[color] = colors.ExplodedDoorColor(color);
+                content.AppendColors("explodedDoor", door);
+                colors.selection.BodyFade.AppendIdentity(content, "bodyFade");
+                colors.selection.LegFade.AppendIdentity(content, "legFade");
+                colors.selection.CorpseFade.AppendIdentity(content, "corpseFade");
+            });
+    }
+
+    /// <summary>The installed content identity of a <see cref="ShitroidColorCatalog"/>.</summary>
+    extension(ShitroidColorCatalog colors)
+    {
+        /// <summary>Hashes the Sidehopper, Shitroid and dead-Sidehopper targets, then the eight normal pulse phases.</summary>
+        public string ContentIdentity =>
+            SelectedPresentationHash.Create("ShitroidColorCatalog-v1", content =>
+            {
+                Span<RgbColor> selectedSidehopper = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
+                for (int color = 0; color < selectedSidehopper.Length; color++) selectedSidehopper[color] = colors.selection.Sidehopper.Resolve(color);
+                content.AppendColors("sidehopper", selectedSidehopper);
+                Span<RgbColor> selectedShitroid = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
+                for (int color = 0; color < selectedShitroid.Length; color++) selectedShitroid[color] = colors.TargetColor(ShitroidColorTarget.Shitroid, color);
+                content.AppendColors("shitroid", selectedShitroid);
+                Span<RgbColor> selectedCorpse = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
+                for (int color = 0; color < selectedCorpse.Length; color++) selectedCorpse[color] = colors.selection.DeadSidehopper.Resolve(color);
+                content.AppendColors("deadSidehopper", selectedCorpse);
+                content.Append("normal", ShitroidColorDefinitions.NormalFrameCount);
+                for (int frame = 0; frame < ShitroidColorDefinitions.NormalFrameCount; frame++)
+                {
+                    var phaseColors = new RgbColor[ShitroidColorDefinitions.NormalColorsPerFrame];
+                    for (int color = 0; color < phaseColors.Length; color++) phaseColors[color] = colors.NormalColor(frame, color);
+                    content.AppendColors("row", phaseColors);
+                }
+            });
+    }
+
+    /// <summary>The installed content identity of a <see cref="PhantoonColorCatalog"/>.</summary>
+    extension(PhantoonColorCatalog colors)
+    {
+        /// <summary>Hashes the fade-out and power-on targets, then every health band.</summary>
+        public string ContentIdentity =>
+            SelectedPresentationHash.Create("PhantoonColorCatalog-v1", content =>
+            {
+                Span<RgbColor> target = stackalloc RgbColor[PhantoonColorDefinitions.FadeOutCount];
+                for (int color = 0; color < target.Length; color++) target[color] = colors.ResolveFadeOut(color);
+                content.AppendColors("fadeOut", target);
+                var power = new List<RgbColor>(PhantoonColorDefinitions.PowerOnSets.Length * ColourSets.SetColours);
+                foreach (BackgroundColourSet set in PhantoonColorDefinitions.PowerOnSets)
+                    for (int color = 0; color < ColourSets.SetColours; color++) power.Add(colors.ResolvePowerOn(set, color));
+                content.AppendColors("powerOn", power.ToArray());
+                var frames = new RgbColor[PhantoonColorDefinitions.HealthBandCount][];
+                for (int band = 0; band < frames.Length; band++)
+                {
+                    frames[band] = new RgbColor[PhantoonColorDefinitions.HealthBandColorCount];
+                    for (int color = 0; color < frames[band].Length; color++) frames[band][color] = colors.ResolveHealth(band, color);
+                }
+                content.AppendColorFrames("healthBands", frames);
+            });
+    }
+
+    /// <summary>The installed content identity of a <see cref="NorfairRidleyColorCatalog"/>.</summary>
+    extension(NorfairRidleyColorCatalog colors)
+    {
+        /// <summary>Hashes the initial colours, then the fifteen reveal steps.</summary>
+        public string ContentIdentity =>
+            SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
+            {
+                Span<RgbColor> initialWords = stackalloc RgbColor[NorfairRidleyPaletteDefinitions.InitialColorCount];
+                for (int color = 0; color < initialWords.Length; color++) initialWords[color] = colors.selection.Initial.ColorAt(color);
+                content.AppendColors("initial", initialWords);
+                RgbColor[][] revealWords = new RgbColor[NorfairRidleyPaletteDefinitions.RevealStepCount][];
+                for (int step = 0; step < revealWords.Length; step++)
+                {
+                    revealWords[step] = new RgbColor[NorfairRidleyPaletteDefinitions.RevealColorCount];
+                    for (int color = 0; color < revealWords[step].Length; color++) revealWords[step][color] = colors.selection.Reveal.ColorAt(step, color);
+                }
+                content.AppendColorFrames("reveal", revealWords);
+            });
+    }
+
+    /// <summary>The installed content identity of a <see cref="SporeSpawnColorCatalog"/>.</summary>
+    extension(SporeSpawnColorCatalog colors)
+    {
+        /// <summary>Hashes the spores, then the health bands and the death-sprite, death-level and death-background fade steps.</summary>
+        public string ContentIdentity =>
+            SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
+            {
+                content.AppendColors("spores", Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame).Select(colors.ResolveSpore).ToArray());
+                content.AppendColorFrames("health", Enumerable.Range(0, SporeSpawnColorDefinitions.HealthFrameCount)
+                    .Select(frame => Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame)
+                        .Select(color => colors.selection.Health.Resolve(frame, color)).ToArray()).ToArray());
+                content.AppendColorFrames("deathSprite", Enumerable.Range(0, SporeSpawnColorDefinitions.DeathSpriteFrameCount)
+                    .Select(frame => Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame)
+                        .Select(color => colors.ResolveDeathSprite(frame, color)).ToArray()).ToArray());
+                content.AppendColorFrames("deathLevel", Enumerable.Range(0, SporeSpawnColorDefinitions.DeathSceneFrameCount)
+                    .Select(frame => Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame)
+                        .Select(color => colors.ResolveDeathLevel(frame, color)).ToArray()).ToArray());
+                content.AppendColorFrames("deathBackground", Enumerable.Range(0, SporeSpawnColorDefinitions.DeathSceneFrameCount)
+                    .Select(frame => Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame)
+                        .Select(color => colors.ResolveDeathBackground(frame, color)).ToArray()).ToArray());
+            });
+    }
+
+    /// <summary>The installed content identity of a <see cref="ZebetiteColorCatalog"/>.</summary>
+    extension(ZebetiteColorCatalog colors)
+    {
+        /// <summary>Hashes the eight resolved pulse frames.</summary>
+        public string ContentIdentity =>
+            SelectedPresentationHash.Create("ZebetiteColorCatalog-v1", content =>
+            {
+                content.Append("frames", ZebetiteColorFormat.FrameCount);
+                Span<RgbColor> frameColors = stackalloc RgbColor[ZebetiteColorFormat.ColorsPerFrame];
+                for (int frame = 0; frame < ZebetiteColorFormat.FrameCount; frame++)
+                {
+                    for (int color = 0; color < frameColors.Length; color++) frameColors[color] = ZebetitePulse.Resolve(colors.edits, frame, color);
+                    content.AppendColors("row", frameColors);
+                }
+            });
+    }
+
+    /// <summary>The cutscene Baby fade's frames in a content identity.</summary>
+    extension(BabyMetroidFade fade)
+    {
+        /// <summary>Hashes the six resolved frames so and equivalent supplied artwork share an identity.</summary>
+        internal void AppendIdentity(SelectedPresentationHash content)
+        {
+            content.Append("fade", BabyMetroidCutsceneColorDefinitions.FadeFrameCount);
+            Span<RgbColor> frameColors = stackalloc RgbColor[BabyMetroidCutsceneColorDefinitions.FadeColorCount];
+            for (int frame = 0; frame < BabyMetroidCutsceneColorDefinitions.FadeFrameCount; frame++)
+            {
+                for (int color = 0; color < frameColors.Length; color++) frameColors[color] = fade.Resolve(frame, color);
+                content.AppendColors("row", frameColors);
+            }
+        }
+    }
+
+    /// <summary>The cutscene Baby's initial colours in a content identity.</summary>
+    extension(BabyMetroidInitialPalette palette)
+    {
+        /// <summary>Hashes all resolved initial colors so supplied edits affect presentation identity.</summary>
+        internal void AppendIdentity(SelectedPresentationHash content)
+        {
+            Span<RgbColor> colors = stackalloc RgbColor[BabyMetroidCutsceneColorDefinitions.InitialColorCount];
+            for (int color = 0; color < colors.Length; color++) colors[color] = palette.Resolve(color);
+            content.AppendColors("initial", colors);
+        }
+    }
+
+    /// <summary>A Mother Brain death fade's frames in a content identity.</summary>
+    extension(MotherBrainDeathFade fade)
+    {
+        /// <summary>Appends resolved stage colors to the identity independent of storage representation.</summary>
+        internal void AppendIdentity(SelectedPresentationHash content, string label)
+        {
+            content.Append(label, fade.FrameCount);
+            Span<RgbColor> frameColors = stackalloc RgbColor[fade.ColorCount];
+            for (int frame = 0; frame < fade.FrameCount; frame++)
+            {
+                for (int color = 0; color < fade.ColorCount; color++)
+                    frameColors[color] = fade.Resolve(frame, color);
+                content.AppendColors("row", frameColors);
+            }
+        }
+    }
+
+    /// <summary>Kraid's colour sources in the order its identity tags them.</summary>
+    private static readonly KraidPaletteSource[] KraidIdentityOrder =
+    [
+        KraidPaletteSource.RoomBackdrop, KraidPaletteSource.InitialTarget, KraidPaletteSource.Health,
+        KraidPaletteSource.Secondary, KraidPaletteSource.DeathArm,
+    ];
+}

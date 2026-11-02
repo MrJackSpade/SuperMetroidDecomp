@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 /// </summary>
 public sealed class DraygonColorCatalog
 {
-    /// <summary>Canonical selected RGB5 colors and ordered health bands, independent of JSON encoding.</summary>
-    public string ContentIdentity => DraygonPalette.ContentIdentity(this);
-
     /// <summary><c>Palette_Draygon_WhiteFlash</c>: every visible flash ink is white.</summary>
     internal static readonly RgbColor FlashInk = new(31, 31, 31);
 

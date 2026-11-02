@@ -1,12 +1,15 @@
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction;
 
 /// <summary>
-/// Canonical identity of decoded, selected presentation data, not its path or file encoding.
-/// Length framing keeps labels, dimensions, and payload boundaries unambiguous.
+/// Canonical identity of decoded, selected presentation data, not its path or file encoding. Length framing keeps
+/// labels, dimensions, and payload boundaries unambiguous. Only the import pipeline and its diagnostics identify installed
+/// content (#1502).
 /// </summary>
 [EncodingOwner("length-framed bytes of a selected-presentation content identity")]
 internal sealed class SelectedPresentationHash

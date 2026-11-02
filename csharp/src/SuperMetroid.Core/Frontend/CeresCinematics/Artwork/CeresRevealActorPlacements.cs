@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
@@ -41,16 +40,4 @@ public sealed class CeresRevealActorPlacements
         var actor = CeresDestructionActors.ZebesActor(index);
         return new() { Id = CeresDestructionActors.ZebesPlacementId(index), X = actor.Position.X, Y = actor.Position.Y };
     }
-    /// <summary>Identity of ordered selected actor IDs and both initial visual coordinates.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("CeresRevealActorLayout", content =>
-    {
-        content.Append("actors", CeresDestructionActorDefinitions.ZebesActorCount);
-        for (int index = 0; index < CeresDestructionActorDefinitions.ZebesActorCount; index++)
-        {
-            CeresRevealActorPlacement placement = this[index];
-            content.Append("id", System.Text.Encoding.UTF8.GetBytes(placement.Id));
-            content.Append("x", placement.X);
-            content.Append("y", placement.Y);
-        }
-    });
 }

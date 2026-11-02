@@ -35,12 +35,6 @@ public abstract class InstalledSamusBodyArtwork
     /// <summary>Editable fatal-damage suit, suitless, and whiteout colors.</summary>
     public InstalledSamusDeathPalettes DeathPalettes { get; }
 
-    /// <summary>Identity of the selected death-explosion characters, whose pre-coloured sheet is installed separately.</summary>
-    public string DeathTilesContentIdentity { get; }
-
-    /// <summary>Identity of the selected body characters, whose pre-coloured sheets are installed separately.</summary>
-    public string BodyCharactersContentIdentity { get; }
-
     /// <summary>Where each pose places the independent arm-cannon cover.</summary>
     public InstalledSamusArmCannonArtwork ArmCannon { get; }
 
@@ -55,12 +49,10 @@ public abstract class InstalledSamusBodyArtwork
         Ensure.NotNull(content.Spritemaps);
         Ensure.NotNull(content.Atmosphere);
         Ensure.NotNull(content.DeathPalettes);
-        Ensure.NotNull(content.DeathTilesContentIdentity);
         Ensure.NotNull(content.ArmCannon);
         Ensure.NotNull(content.LandingYOffsets);
         Ensure.NotNull(content.PostureYOffsets);
         Ensure.NotNull(content.DrainedYOffsets);
-        Ensure.NotNull(content.BodyCharactersContentIdentity);
         if (content.GraphicsYOffsets.Length != PoseCount ||
             content.LandingYOffsets.Length != SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount ||
             content.PostureYOffsets.Length != SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount ||
@@ -88,13 +80,8 @@ public abstract class InstalledSamusBodyArtwork
         Spritemaps = content.Spritemaps;
         Atmosphere = content.Atmosphere;
         DeathPalettes = content.DeathPalettes;
-        DeathTilesContentIdentity = content.DeathTilesContentIdentity;
-        BodyCharactersContentIdentity = content.BodyCharactersContentIdentity;
         ArmCannon = content.ArmCannon;
     }
-
-    /// <summary>SHA-256 of all visual selectors, the body characters' identity and every bundled Samus catalog.</summary>
-    public abstract string ContentIdentity { get; }
 
     /// <summary>Gets the resolved signed art-origin offset for every pose.</summary>
     public ReadOnlySpan<int> GraphicsYOffsets => graphicsYOffsetsTable ??= Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset(SamusPoseNumbering.FromNumber(index))).ToArray();

@@ -1,6 +1,5 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -11,26 +10,12 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmKraidVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmKraidVisuals), content =>
-    {
-        foreach (KraidRoomDraw draw in ContentOrder.OrderBy(draw => KraidRoomPlmDraws.VisualId(PlmDraw.Of(draw)), StringComparer.Ordinal))
-            Append(draw, frames[draw]);
-
-        void Append(KraidRoomDraw draw, RoomBlockAppearance[] appearances)
-        {
-            content.AppendName("frame", KraidRoomPlmDraws.VisualId(PlmDraw.Of(draw)));
-            content.Append("runs", 1);
-            content.AppendAppearances("blocks", appearances);
-        }
-    });
-
     /// <summary>
     /// The ten draw roles in content-identity order: the three ceiling-crumble stages, the three ceiling background draws
     /// of Kraid's room sequence, the two floor-spike appearances, and the two room-clearing layouts that replace the
     /// ceiling blocks and the floor spikes after Kraid is defeated.
     /// </summary>
-    private static readonly KraidRoomDraw[] ContentOrder =
+    internal static readonly KraidRoomDraw[] ContentOrder =
     [
         KraidRoomDraw.CrumbleFirst, KraidRoomDraw.CrumbleSecond, KraidRoomDraw.CrumbleThird,
         KraidRoomDraw.CeilingBackground1, KraidRoomDraw.CeilingBackground2, KraidRoomDraw.CeilingBackground3,
@@ -38,7 +23,7 @@ public sealed class InstalledRoomPlmKraidVisuals
     ];
 
     /// <summary>Each draw role's installed block appearances; empty until its entry is copied.</summary>
-    private readonly Dictionary<KraidRoomDraw, RoomBlockAppearance[]> frames = ContentOrder.ToDictionary(draw => draw, _ => Array.Empty<RoomBlockAppearance>());
+    internal readonly Dictionary<KraidRoomDraw, RoomBlockAppearance[]> frames = ContentOrder.ToDictionary(draw => draw, _ => Array.Empty<RoomBlockAppearance>());
 
     /// <summary>Selects one of the ten named Kraid draw roles; installed block values stay editable.</summary>
     private ref RoomBlockAppearance[] Frame(KraidRoomDraw draw)

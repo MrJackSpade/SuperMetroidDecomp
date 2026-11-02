@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Enemies.Elevator.Artwork;
 /// </summary>
 public sealed class RoomPlmElevatorPlatformVisualCatalog
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding mechanics.</summary>
-    public string ContentIdentity => ElevatorPlatformArtwork.ContentIdentity(this);
-
     /// <summary>Only frames whose appearances differ from the compiled source are stored here.</summary>
     private readonly Dictionary<PlmDraw, RoomBlockAppearance[][]>? customAppearances;
 

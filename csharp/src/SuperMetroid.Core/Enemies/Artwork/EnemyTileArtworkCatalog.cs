@@ -21,13 +21,6 @@ public abstract class EnemyTileArtworkCatalog
             Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(Ensure.NotNull(parts.Palettes)),
         };
 
-    /// <summary>
-    /// Complete selected enemy presentation, including legacy-override merges, display
-    /// bindings, special uploads and colors. Gameplay definitions are excluded.
-    /// This is computed from the installed content rather than kept with the game state.
-    /// </summary>
-    public abstract string ContentIdentity { get; }
-
     /// <summary>Finds the installed palette of <paramref name="enemy"/>.</summary>
     internal bool TryGetPalette(EnemyDefinitionId enemy, [NotNullWhen(true)] out EnemyPaletteSheet? palette) =>
         installed.Palettes.TryGetValue(enemy, out palette);

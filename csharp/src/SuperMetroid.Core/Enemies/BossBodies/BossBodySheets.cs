@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.BossBodies;
 
@@ -28,14 +27,4 @@ public sealed class BossBodySheets
 
     /// <summary><paramref name="owner"/>'s sheet.</summary>
     public BossBodySheet Of(BossBodyOwner owner) => sheets[owner];
-
-    /// <summary>The identity of every sheet's pixels and frames, in boss order.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(BossBodySheets), content =>
-    {
-        foreach (BossBodyOwner owner in Enum.GetValues<BossBodyOwner>())
-        {
-            content.AppendName("boss", owner.ToString());
-            sheets[owner].Sheet.AppendIdentity(content);
-        }
-    });
 }

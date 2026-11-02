@@ -26,9 +26,6 @@ public abstract class EndingFloorArtwork
         this.planetExplosion = Ensure.NotNull(planetExplosion);
     }
 
-    /// <summary>Identity of each decoded scene's two transfer lanes and the import's reward-icon transfer.</summary>
-    public abstract string ContentIdentity { get; }
-
     /// <summary>Gets the map and character lanes for the selected ending backdrop.</summary>
     /// <param name="id">The escape or planet-explosion scene whose artwork is required.</param>
     /// <exception cref="ArgumentOutOfRangeException">The value does not identify one of the three supported scenes.</exception>

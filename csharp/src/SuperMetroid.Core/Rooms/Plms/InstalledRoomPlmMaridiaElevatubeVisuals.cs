@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -9,10 +8,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmMaridiaElevatubeVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmMaridiaElevatubeVisuals),
-        content => content.AppendAppearances("block", [appearance]));
-
     /// <summary>
     /// Captured metatile and flip selection for the tube's sole visible cell,
     /// independent of the compiled physical block and hold behavior.

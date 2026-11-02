@@ -75,10 +75,10 @@ public static class CeresRidleyGetawayBoostDelayFiles
     /// <exception cref="InvalidDataException">A frame or delay is missing, extra or out of range.</exception>
     private static int[][] Validated(int[][] wings)
     {
-        if (wings.Length != CeresRidleyGetawayBoostDelays.WingFrameCount)
-            throw new InvalidDataException($"Ceres Ridley's getaway needs {CeresRidleyGetawayBoostDelays.WingFrameCount} wing frames' delays; found {wings.Length}.");
-        var copy = new int[CeresRidleyGetawayBoostDelays.WingFrameCount][];
-        for (int frame = 0; frame < CeresRidleyGetawayBoostDelays.WingFrameCount; frame++)
+        if (wings.Length != CeresRidleyGetawayBoostDelayFormat.WingFrameCount)
+            throw new InvalidDataException($"Ceres Ridley's getaway needs {CeresRidleyGetawayBoostDelayFormat.WingFrameCount} wing frames' delays; found {wings.Length}.");
+        var copy = new int[CeresRidleyGetawayBoostDelayFormat.WingFrameCount][];
+        for (int frame = 0; frame < CeresRidleyGetawayBoostDelayFormat.WingFrameCount; frame++)
         {
             int[] delays = wings[frame] ?? throw new InvalidDataException($"Ceres Ridley wing frame {frame} has no delays.");
             if (delays.Length != UnauthoredBoostCadence.FrameCount)

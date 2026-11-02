@@ -10,9 +10,6 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// </summary>
 public sealed class CeresRidleyGetawayBoostDelays
 {
-    /// <summary>Ridley's wings' two frames.</summary>
-    public const int WingFrameCount = 2;
-
     /// <summary>Each wing frame's ten delays, by frame then running frame.</summary>
     private readonly int[][] wings;
 

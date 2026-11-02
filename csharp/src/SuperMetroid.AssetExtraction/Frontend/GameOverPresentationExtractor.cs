@@ -73,7 +73,7 @@ public static class GameOverPresentationExtractor
         var palettes = new Dictionary<string, ushort[]>(StringComparer.Ordinal);
         foreach (GameOverBabyPalette palette in Enum.GetValues<GameOverBabyPalette>())
         {
-            var colors = new ushort[GameOverMenuDefinitions.BabyPaletteColorCount];
+            var colors = new ushort[GameOverPresentationFormat.BabyPaletteColorCount];
             int pointer = GameOverBabyAnimationDefinitions.NativePalettePointer(palette);
             for (int color = 0; color < colors.Length; color++)
                 colors[color] = ReadBank82Word(unchecked((ushort)(pointer + color * 2)));
@@ -146,7 +146,7 @@ public static class GameOverPresentationExtractor
         const int FrameRecordBytes = 6;
         const int CryCallbackBytes = 2;
         int pointer = GameOverBabyAnimationDefinitions.FirstPointer;
-        foreach (GameOverBabyScriptStep instruction in GameOverBabyAnimation.All)
+        foreach (GameOverBabyScriptStep instruction in Enumerable.Range(0, GameOverBabyAnimation.StepCount).Select(GameOverBabyAnimation.Get))
         {
             int address = GameOverSourceDefinitions.SpriteBank | pointer;
             int duration = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);

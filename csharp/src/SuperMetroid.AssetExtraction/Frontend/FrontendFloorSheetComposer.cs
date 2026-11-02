@@ -26,6 +26,14 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// </summary>
 internal static class FrontendFloorSheetComposer
 {
+    /// <summary>The installed sheets of frontend turning floors' pictures (#1392, #1467).</summary>
+    internal static IReadOnlyList<SpriteSheetId> Sheets { get; } =
+    [
+        SpriteSheetId.TitleFloor, SpriteSheetId.CeresFloor, SpriteSheetId.EndingEscapeAFloor,
+        SpriteSheetId.EndingEscapeBFloor, SpriteSheetId.EndingPlanetExplosionFloor, SpriteSheetId.EndingFlyawayFloor,
+        SpriteSheetId.EndingRewardIconFloor,
+    ];
+
     /// <summary>Composes floor sheet <paramref name="sheet"/> from the stock artwork <paramref name="sources"/> read.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The sheet holds no frontend floor.</exception>
     internal static ComposedSpriteSheet Compose(SpriteSheetId sheet, ScreenTileSources sources)

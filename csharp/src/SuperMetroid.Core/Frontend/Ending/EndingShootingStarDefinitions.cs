@@ -35,7 +35,4 @@ internal static class EndingShootingStarDefinitions
 
     /// <summary>The first animation frame showing the full star; every later frame shows it too.</summary>
     internal const int FullStarFrame = 4;
-
-    /// <summary>The visible animation frames with a sheet frame of their own: the growing star's steps and the full star.</summary>
-    internal static IEnumerable<int> SheetFrames => Enumerable.Range(1, FullStarFrame);
 }

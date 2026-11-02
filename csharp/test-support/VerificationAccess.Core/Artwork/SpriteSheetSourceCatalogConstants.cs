@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Assets;
@@ -17,6 +18,6 @@ internal static class SpriteSheetSourceCatalogConstants
             or SpriteSheetId.IntroNarrationPictures)
         && !ScreenTileSheetDefinitions.AreaMapForegrounds.Values.Contains(sheet)
         && !ScreenTileSheetDefinitions.AreaMapBackgrounds.Values.Contains(sheet)
-        && !ScreenTileSheetDefinitions.FloorSheets.Contains(sheet)
+        && !FrontendFloorSheetComposer.Sheets.Contains(sheet)
         && !EndingPictureSheetComposer.Sheets.Contains(sheet);
 }

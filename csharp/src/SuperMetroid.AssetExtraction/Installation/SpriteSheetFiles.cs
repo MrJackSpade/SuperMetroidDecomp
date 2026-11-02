@@ -84,7 +84,7 @@ public static class SpriteSheetFiles
         }
         var installed = new InstalledSpriteSheets(sheets);
         // Every frontend floor picture is the whole floor (#1467).
-        foreach (SpriteSheetId sheet in ScreenTileSheetDefinitions.FloorSheets)
+        foreach (SpriteSheetId sheet in FrontendFloorSheetComposer.Sheets)
         {
             foreach (string frame in FrameNames(sheet, body, maps, intro, ending))
                 _ = FloorShots.Of(installed, sheet, frame);

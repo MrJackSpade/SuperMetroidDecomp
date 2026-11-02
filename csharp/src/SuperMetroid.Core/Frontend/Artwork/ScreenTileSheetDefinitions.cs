@@ -4,18 +4,10 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Artwork;
 
 /// <summary>
-/// The installed sheets of frontend turning floors' pictures and of the menu's world-map pages (#1392, #1467).
+/// The installed sheets of the menu's world-map pages (#1392, #1467).
 /// </summary>
 public static class ScreenTileSheetDefinitions
 {
-    /// <summary>The installed sheets of frontend turning floors' pictures (#1392, #1467).</summary>
-    public static IReadOnlyList<SpriteSheetId> FloorSheets { get; } =
-    [
-        SpriteSheetId.TitleFloor, SpriteSheetId.CeresFloor, SpriteSheetId.EndingEscapeAFloor,
-        SpriteSheetId.EndingEscapeBFloor, SpriteSheetId.EndingPlanetExplosionFloor, SpriteSheetId.EndingFlyawayFloor,
-        SpriteSheetId.EndingRewardIconFloor,
-    ];
-
     /// <summary>The menu's world foreground characters under each Zebes area's world-map palette, which its area map shows.</summary>
     public static IReadOnlyDictionary<AreaId, SpriteSheetId> AreaMapForegrounds { get; } = new Dictionary<AreaId, SpriteSheetId>
     {

@@ -37,7 +37,7 @@ internal static class EndingMode7ArtworkVerification
                 EndingSourceDefinitions.Artwork.DecompressionLimit);
             byte[] nativePacked = RomDataReader.Decompress(nativeBus, packedSource,
                 EndingSourceDefinitions.Artwork.DecompressionLimit);
-            EndingFloorSceneArtwork compiledScene = stock[id];
+            EndingFloorSceneArtwork compiledScene = EndingFloorCharacters.SceneOf(stock, id);
             AssertTrue(compiledScene.Characters.Span.SequenceEqual(nativeCharacters.AsSpan(0,
                     EndingFloorArtworkFormat.CharacterByteCount)),
                 $"installed ending {id} PNG preserves every high-lane character byte");
@@ -234,7 +234,7 @@ internal static class EndingMode7ArtworkVerification
         persistentMap.Tiles[0] = unchecked((byte)(persistentMap.Tiles[0] + 1));
         using (var output = File.Create(invalidMapPath))
             EndingFloorSceneCharacters.WriteMap(output, persistentMap);
-        byte[] selectedMap = installation.LoadEndingMode7Art()[EndingFloorSceneId.EscapeA]
+        byte[] selectedMap = EndingFloorCharacters.SceneOf(installation.LoadEndingMode7Art(), EndingFloorSceneId.EscapeA)
             .Map.ToArray();
         string stockPngPath = Path.Combine(installation.EndingMode7Directory,
             EndingFloorArtworkFormat.CharacterFileName(EndingFloorSceneId.EscapeA));
@@ -243,10 +243,10 @@ internal static class EndingMode7ArtworkVerification
             "corrupt stock ending Mode-7 PNG cannot be hidden by a valid override");
         GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
             ?? throw new InvalidOperationException("Ending art vanished during stock repair.");
-        AssertTrue(repaired.LoadEndingMode7Art()[EndingFloorSceneId.EscapeA]
-                .Characters.Span.SequenceEqual(stock[EndingFloorSceneId.EscapeA].Characters.Span),
+        AssertTrue(EndingFloorCharacters.SceneOf(repaired.LoadEndingMode7Art(), EndingFloorSceneId.EscapeA)
+                .Characters.Span.SequenceEqual(EndingFloorCharacters.SceneOf(stock, EndingFloorSceneId.EscapeA).Characters.Span),
             "stock ending Mode-7 PNG is regenerated from the installed cartridge");
-        AssertTrue(repaired.LoadEndingMode7Art()[EndingFloorSceneId.EscapeA]
+        AssertTrue(EndingFloorCharacters.SceneOf(repaired.LoadEndingMode7Art(), EndingFloorSceneId.EscapeA)
                 .Map.Span.SequenceEqual(selectedMap),
             "stock ending art repair preserves the external map override");
         File.Delete(invalidMapPath);

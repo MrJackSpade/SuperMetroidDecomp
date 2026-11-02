@@ -159,12 +159,12 @@ internal static class FrontendFloorSheetComposer
     /// <summary>An ending escape or explosion scene's floor: its map laid out twice, one copy after the other, over its characters.</summary>
     private static ComposedSpriteSheet EndingScene(ScreenTileSources sources, EndingFloorSceneId scene, EndingPaletteId palette)
     {
-        ReadOnlySpan<byte> map = sources.EndingMode7[scene].Map.Span;
+        ReadOnlySpan<byte> map = EndingFloorCharacters.SceneOf(sources.EndingMode7, scene).Map.Span;
         var cells = new byte[FloorSheetComposer.CellCount];
         map.CopyTo(cells);
         map.CopyTo(cells.AsSpan(EndingFloorArtworkFormat.MapByteCount));
         return FloorSheetComposer.Compose(
-            [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, cells, EndingFloorSceneCharacters.Of(sources.EndingMode7[scene]).Characters.Span)],
+            [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, cells, EndingFloorSceneCharacters.Of(EndingFloorCharacters.SceneOf(sources.EndingMode7, scene)).Characters.Span)],
             ScreenPaletteColours.EndingColours(sources.EndingPalettes, palette));
     }
 

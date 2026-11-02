@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class SpriteSheet
 {
     /// <summary>The frames by name.</summary>
-    private readonly Dictionary<string, SpriteSheetFrame> frames;
+    internal readonly Dictionary<string, SpriteSheetFrame> frames;
 
     /// <summary>Keeps the frames the import pipeline cut from <paramref name="image"/>.</summary>
     internal SpriteSheet(SpriteImage image, Dictionary<string, SpriteSheetFrame> frames)
@@ -20,7 +20,4 @@ public sealed class SpriteSheet
     /// <exception cref="InvalidDataException">The sheet has no such frame.</exception>
     public SpriteSheetFrame Frame(string name) =>
         frames.TryGetValue(name, out SpriteSheetFrame? frame) ? frame : throw new InvalidDataException($"Sprite sheet {Image.Name} has no frame {name}.");
-
-    /// <summary>The names of the sheet's frames.</summary>
-    internal IEnumerable<string> FrameNames => frames.Keys;
 }

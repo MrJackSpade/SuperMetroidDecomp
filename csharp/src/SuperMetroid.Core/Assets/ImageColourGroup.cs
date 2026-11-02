@@ -32,10 +32,6 @@ public readonly record struct ImageColourGroup
     /// <exception cref="ArgumentOutOfRangeException">The place is not one of the image's groups.</exception>
     internal static ImageColourGroup Numbered(int number) => Every[Ensure.BetweenInclusive(0, Count - 1, number)];
 
-    /// <summary>The group a pixel inked <paramref name="paletteIndex"/> among a sixteen-colour image's colours was coloured from.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The index lies past the image's groups.</exception>
-    internal static ImageColourGroup OfInk(int paletteIndex) => Numbered(paletteIndex / Colours);
-
     /// <summary>The group's place among the image's standard colours, which the installed image's inks store.</summary>
     internal int Number { get; }
 

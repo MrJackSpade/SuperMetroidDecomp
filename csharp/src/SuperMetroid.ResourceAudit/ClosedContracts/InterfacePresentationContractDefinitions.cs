@@ -43,7 +43,7 @@ internal static class InterfacePresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerTileAtlas.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphs.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/IInstalledArtworkContent.cs")]),        new("SuperMetroid.Core.Map.IAreaMapSource", "area-map-source-single-catalog", ["Get"],
+             new("csharp/src/SuperMetroid.AssetExtraction/Artwork/IInstalledArtworkContent.cs")]),        new("SuperMetroid.Core.Map.IAreaMapSource", "area-map-source-single-catalog", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Map/IAreaMapSource.cs"),
              new("csharp/src/SuperMetroid.Core/Gameplay/IGameplayPresentationContent.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentation.cs"),
@@ -53,7 +53,7 @@ internal static class InterfacePresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerTileAtlas.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphs.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/IInstalledArtworkContent.cs")]),    ];
+             new("csharp/src/SuperMetroid.AssetExtraction/Artwork/IInstalledArtworkContent.cs")]),    ];
 
     /// <summary>Locates a reviewed production asset source file by its catalog type name.</summary>
 

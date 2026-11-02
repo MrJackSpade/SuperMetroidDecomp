@@ -26,6 +26,6 @@ internal static class BackgroundTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/GunshipLiftoffArtwork.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/GunshipLiftoffCharacterDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/GunshipLiftoffTransferDefinition.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/IInstalledArtworkContent.cs")]),
+             new("csharp/src/SuperMetroid.AssetExtraction/Artwork/IInstalledArtworkContent.cs")]),
     ];
 }

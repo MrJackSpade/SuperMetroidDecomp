@@ -9,15 +9,15 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// Reads and writes a clip manifest's sound entry in its installed form, <c>{context, library, command, policy,
 /// activeFrames, layers}</c>, decoding the library and request number into the sound (#1410).
 /// </summary>
-internal sealed class SoundEffectClipEntryJsonConverter : JsonConverter<SoundEffectClipEntry>
+internal sealed class SoundEffectClipEntryJsonConverter : JsonConverter<InstalledSoundEffectClip>
 {
     /// <inheritdoc />
     /// <exception cref="InvalidDataException">The entry names no sound of its library.</exception>
-    public override SoundEffectClipEntry Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override InstalledSoundEffectClip Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         InstalledEntry entry = JsonSerializer.Deserialize<InstalledEntry>(ref reader, options)
             ?? throw new InvalidDataException("A clip manifest sound entry is null.");
-        return new SoundEffectClipEntry(
+        return new InstalledSoundEffectClip(
             entry.Context,
             SoundEffectCommands.Decode(entry.Library, entry.Command),
             entry.Policy,
@@ -26,7 +26,7 @@ internal sealed class SoundEffectClipEntryJsonConverter : JsonConverter<SoundEff
     }
 
     /// <inheritdoc />
-    public override void Write(Utf8JsonWriter writer, SoundEffectClipEntry value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, InstalledSoundEffectClip value, JsonSerializerOptions options)
     {
         Ensure.NotNull(value);
         JsonSerializer.Serialize(writer, new InstalledEntry(
@@ -51,5 +51,5 @@ internal sealed class SoundEffectClipEntryJsonConverter : JsonConverter<SoundEff
         int Command,
         SoundEffectClipPolicy Policy,
         long? ActiveFrames,
-        IReadOnlyList<SoundEffectClipLayer> Layers);
+        IReadOnlyList<InstalledSoundEffectLayer> Layers);
 }

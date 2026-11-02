@@ -95,7 +95,7 @@ internal static class AudioClipExporter
             catalog.ContentIdentity,
             SpcAudioClipRenderer.NativeSampleRate,
             music,
-            [.. outcomes.OfType<SoundEffectClipEntry>()],
+            [.. outcomes.OfType<InstalledSoundEffectClip>()],
             [.. outcomes.OfType<UnrenderableSoundEffect>()]);
         File.WriteAllText(
             Path.Combine(root, InstalledAudioClips.ManifestFileName),
@@ -154,17 +154,17 @@ internal static class AudioClipExporter
         {
             IReadOnlyList<SoundEffectRendering.LoopingLayer> layers = SoundEffectRendering.RenderLoopingLayers(
                 catalog, key.Context, key.Library, key.Command, effect.ChannelPrograms.Count);
-            return new SoundEffectClipEntry(context, SoundEffectCommands.Decode(key.Library, key.Command), policy, null,
-                [.. layers.Select(layer => new SoundEffectClipLayer(
+            return new InstalledSoundEffectClip(context, SoundEffectCommands.Decode(key.Library, key.Command), policy, null,
+                [.. layers.Select(layer => new InstalledSoundEffectLayer(
                     Write(root, SoundEffectDirectory, files, layer.Clip), layer.LoopStart,
                     SoundEffectVoicesCodec.FromVoiceMask(layer.Voice), layer.KeyOnFrames))]);
         }
         SoundEffectRendering.OneShot shot = SoundEffectRendering.RenderOneShot(catalog, key.Context, key.Library, key.Command);
         // A silent effect still occupies its library until its logical end, so it keeps an entry without layers.
-        return new SoundEffectClipEntry(context, SoundEffectCommands.Decode(key.Library, key.Command), policy, shot.ActiveFrames,
+        return new InstalledSoundEffectClip(context, SoundEffectCommands.Decode(key.Library, key.Command), policy, shot.ActiveFrames,
             shot.Clip.Length == 0
                 ? []
-                : [new SoundEffectClipLayer(Write(root, SoundEffectDirectory, files, shot.Clip), null,
+                : [new InstalledSoundEffectLayer(Write(root, SoundEffectDirectory, files, shot.Clip), null,
                     SoundEffectVoicesCodec.FromVoiceMask(shot.Voices), shot.KeyOnFrames)]);
     }
 

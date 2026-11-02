@@ -18,7 +18,7 @@ public sealed record AudioClipManifest(
     string SourceContentIdentity,
     int SampleRate,
     IReadOnlyList<MusicClipEntry> Music,
-    IReadOnlyList<SoundEffectClipEntry> SoundEffects,
+    IReadOnlyList<InstalledSoundEffectClip> SoundEffects,
     IReadOnlyList<UnrenderableSoundEffect> Unrenderable)
 {
     /// <summary>The manifest schema this build reads and writes.</summary>

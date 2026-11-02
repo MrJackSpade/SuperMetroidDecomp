@@ -79,7 +79,7 @@ internal static class ClipAudioOverrides
         }
 
         List<MusicClipEntry> music = [.. stock.Music];
-        List<SoundEffectClipEntry> soundEffects = [.. stock.SoundEffects];
+        List<InstalledSoundEffectClip> soundEffects = [.. stock.SoundEffects];
         var files = new Dictionary<AudioClipFile, string>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
         var identity = new List<byte>(manifestBytes);
@@ -147,12 +147,12 @@ internal static class ClipAudioOverrides
     }
 
     /// <summary>Replaces one sound's layers in every data set with the replacement clip.</summary>
-    private static void ReplaceSoundEffect(List<SoundEffectClipEntry> soundEffects, AudioClipOverride replacement, AudioClipFile clip)
+    private static void ReplaceSoundEffect(List<InstalledSoundEffectClip> soundEffects, AudioClipOverride replacement, AudioClipFile clip)
     {
         bool found = false;
         for (int index = 0; index < soundEffects.Count; index++)
         {
-            SoundEffectClipEntry entry = soundEffects[index];
+            InstalledSoundEffectClip entry = soundEffects[index];
             if (SoundEffectId(entry.Sound) != replacement.Id)
                 continue;
             found = true;
@@ -163,9 +163,9 @@ internal static class ClipAudioOverrides
                     : $"Audio override '{replacement.Id}' replaces a one-shot sound and cannot loop.");
             }
             SoundEffectVoices voices = SoundEffectVoices.None;
-            foreach (SoundEffectClipLayer layer in entry.Layers)
+            foreach (InstalledSoundEffectLayer layer in entry.Layers)
                 voices |= layer.Voices;
-            soundEffects[index] = entry with { Layers = [new SoundEffectClipLayer(clip, replacement.LoopStart, voices, [0])] };
+            soundEffects[index] = entry with { Layers = [new InstalledSoundEffectLayer(clip, replacement.LoopStart, voices, [0])] };
         }
         if (!found)
             throw new InvalidDataException($"Audio override '{replacement.Id}' names no installed sound effect.");

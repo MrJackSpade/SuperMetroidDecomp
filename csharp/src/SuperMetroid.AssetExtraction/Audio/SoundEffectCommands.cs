@@ -17,12 +17,17 @@ internal static class SoundEffectCommands
     /// <summary>Each library-three request's sound.</summary>
     private static readonly FrozenDictionary<int, Library3Sound> Library3Sounds = Invert(SoundEffectCommandDefinitions.Library3);
 
+    /// <summary>Each sound's request number in its own library.</summary>
+    private static readonly FrozenDictionary<SoundEffectId, int> Commands =
+        SoundEffectCommandDefinitions.Library1.Select(entry => KeyValuePair.Create((SoundEffectId)entry.Key, (int)entry.Value))
+            .Concat(SoundEffectCommandDefinitions.Library2.Select(entry => KeyValuePair.Create((SoundEffectId)entry.Key, (int)entry.Value)))
+            .Concat(SoundEffectCommandDefinitions.Library3.Select(entry => KeyValuePair.Create((SoundEffectId)entry.Key, (int)entry.Value)))
+            .ToFrozenDictionary();
+
     /// <summary>The request number, 1 through 255, that asks the sound's library for <paramref name="sound"/>.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="sound"/> is the default identity.</exception>
-    internal static int Command(SoundEffectId sound) => sound.Match<int>(
-        library1 => SoundEffectCommandDefinitions.Library1[library1],
-        library2 => SoundEffectCommandDefinitions.Library2[library2],
-        library3 => SoundEffectCommandDefinitions.Library3[library3]);
+    internal static int Command(SoundEffectId sound) => Commands.TryGetValue(sound, out int command)
+        ? command : throw new InvalidOperationException("The default sound identity names no sound.");
 
     /// <summary>The sound <paramref name="library"/>'s request <paramref name="command"/> names.</summary>
     /// <exception cref="InvalidDataException">The library has no such request.</exception>

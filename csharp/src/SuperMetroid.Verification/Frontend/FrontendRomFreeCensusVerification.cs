@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Compares installed-art and cartridge-backed frontend rendering from isolated
@@ -35,7 +36,7 @@ internal static class FrontendRomFreeCensusVerification
         const int frameCount = 1;
         var failures = new List<string>();
         int checkedRooms = 0;
-        foreach (RoomHeaderDefinition room in RoomHeaderDefinitions.All)
+        foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
         {
             checkedRooms++;
             nativeSnapshot.Position = 0;

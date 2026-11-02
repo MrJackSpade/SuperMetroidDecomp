@@ -274,7 +274,7 @@ public static class RoomVisualLayoutFiles
     private static ReadOnlyDictionary<RoomLevelId, int> BuildRetailLevels()
     {
         var levels = new Dictionary<RoomLevelId, int>();
-        foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)
+        foreach (RoomHeaderDefinition header in RetailRoomHeaders.All)
         {
             int width = header.Size.ToRoomBlocks().X;
             foreach (RoomStateSettings state in RoomStateLists.GetStates(header))

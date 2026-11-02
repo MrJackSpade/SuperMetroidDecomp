@@ -6,6 +6,7 @@ namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Checks the compiled room roster and header fields against the pinned retail cartridge.</summary>
 internal static class RoomHeaderDefinitionsVerification
@@ -37,7 +38,7 @@ internal static class RoomHeaderDefinitionsVerification
     private static void VerifyRoomHeaderIdentities(ushort[] rooms)
     {
         AssertEqual(262, rooms.Length, "Independent retail room roster");
-        AssertTrue(RoomHeaderDefinitions.All.Select(header => header.Pointer).SequenceEqual(rooms),
+        AssertTrue(RetailRoomHeaders.All.Select(header => header.Pointer).SequenceEqual(rooms),
             "Header enumeration preserves original sorted identities");
         var known = rooms.ToHashSet();
         for (int value = 0; value <= ushort.MaxValue; value++)
@@ -97,7 +98,7 @@ internal static class RoomHeaderDefinitionsVerification
     private static void VerifyRoomHeaderField(SuperMetroidAddressSpace rom, ushort[] rooms,
         int offset, Func<RoomHeaderDefinition, int> field)
     {
-        RoomHeaderDefinition[] enumerated = RoomHeaderDefinitions.All.ToArray();
+        RoomHeaderDefinition[] enumerated = RetailRoomHeaders.All.ToArray();
         for (int index = 0; index < rooms.Length; index++)
         {
             ushort pointer = rooms[index];

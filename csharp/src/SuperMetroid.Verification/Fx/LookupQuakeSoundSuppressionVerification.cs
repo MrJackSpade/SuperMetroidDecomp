@@ -7,6 +7,7 @@ namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Checks the complete native room set that suppresses statue earthquake sound.</summary>
 internal static class LookupQuakeSoundSuppressionVerification
@@ -24,7 +25,7 @@ internal static class LookupQuakeSoundSuppressionVerification
             nativeRooms.Add(ReadVerificationWord(rom, instruction + 1));
         }
         AssertEqual(6, nativeRooms.Count, "Six distinct native suppressed rooms");
-        foreach (RoomHeaderDefinition room in RoomHeaderDefinitions.All)
+        foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
             AssertEqual(nativeRooms.Contains(RoomHeaderDefinitions.PointerOf(room)),
                 RoomEarthquakeDefinitions.SoundSuppressedRooms.Contains(room),
                 "Quake suppression complete room domain");

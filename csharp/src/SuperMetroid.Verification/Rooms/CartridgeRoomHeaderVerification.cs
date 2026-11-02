@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Checks the loaded room's typed header fields against the compiled header for every retail room: the isolated door
@@ -14,7 +15,7 @@ internal static class CartridgeRoomHeaderVerification
     internal static void VerifyRoomIsolatedDoorTransition()
     {
         int isolated = 0;
-        foreach (RoomHeaderDefinition definition in RoomHeaderDefinitions.All)
+        foreach (RoomHeaderDefinition definition in RetailRoomHeaders.All)
         {
             SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(definition);
             AssertEqual(definition.UsesIsolatedDoorTransition, room.UsesIsolatedDoorTransition,

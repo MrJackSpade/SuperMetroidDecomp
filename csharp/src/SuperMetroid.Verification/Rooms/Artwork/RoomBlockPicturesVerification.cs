@@ -283,7 +283,7 @@ internal static class RoomBlockPicturesVerification
         var rooms = new List<RoomHeaderDefinition> { RoomHeaderDefinitions.Kraid };
         foreach (RoomFxType effect in new[] { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water, RoomFxType.Rain, RoomFxType.Fog, RoomFxType.Spores })
         {
-            rooms.Add(RoomHeaderDefinitions.All.First(room => RoomStateLists.GetStates(room)[0].Fx?.Records
+            rooms.Add(RetailRoomHeaders.All.First(room => RoomStateLists.GetStates(room)[0].Fx?.Records
                 .Any(record => record.Type == effect) == true));
         }
         foreach (RoomHeaderDefinition room in rooms)

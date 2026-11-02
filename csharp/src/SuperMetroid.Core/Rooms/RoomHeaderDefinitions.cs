@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms;
 public static class RoomHeaderDefinitions
 {
     /// <summary>Retail rooms in their authored header order.</summary>
-    private static readonly RoomHeaderDefinition[] Definitions =
+    internal static readonly RoomHeaderDefinition[] Retail =
     [
         new(nameof(LandingSite), 0, AreaId.Crateria, new(23, 0), new(9, 5), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(GauntletEntrance), 1, AreaId.Crateria, new(18, 2), new(5, 1), 112, 160, RoomDoorTransitionStyle.Standard),
@@ -276,11 +276,8 @@ public static class RoomHeaderDefinitions
         new(nameof(CeresRidley), 5, AreaId.Ceres, new(20, 16), new(1, 1), 112, 160, RoomDoorTransitionStyle.ObjectsOnly),
     ];
 
-    /// <summary>Every retail room, in its authored header order.</summary>
-    public static IReadOnlyList<RoomHeaderDefinition> All => Definitions;
-
     /// <summary>Every compiled room by its name.</summary>
-    private static readonly Dictionary<string, RoomHeaderDefinition> ByName = Definitions.ToDictionary(room => room.Name);
+    private static readonly Dictionary<string, RoomHeaderDefinition> ByName = Retail.ToDictionary(room => room.Name);
 
     /// <summary>The compiled room named <paramref name="name"/>.</summary>
     private static RoomHeaderDefinition Find(string name) => ByName[name];

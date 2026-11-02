@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
@@ -138,7 +139,7 @@ public static class RoomBlockSheetFiles
     /// <exception cref="InvalidDataException">The tokens are missing or spell an unknown input.</exception>
     private static ImmutableArray<AppearanceInput> Inputs(string[]? tokens) =>
         [.. (tokens ?? throw new InvalidDataException("A manifest entry records no appearance inputs."))
-            .Select(token => AppearanceInputTokens.Parse(token, EncounterCharacterPlacements.Catalog.LookNamed))];
+            .Select(token => AppearanceInputSpellings.Parse(token, EncounterCharacterPlacements.Catalog.LookNamed))];
 
     /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);

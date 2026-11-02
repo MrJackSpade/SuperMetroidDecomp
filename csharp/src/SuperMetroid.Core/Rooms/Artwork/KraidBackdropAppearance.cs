@@ -6,11 +6,8 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// </summary>
 public sealed record KraidBackdropAppearance : AppearanceInput
 {
-    /// <summary>The one backdrop input.</summary>
-    public static KraidBackdropAppearance Instance { get; } = new();
-
-    /// <summary>Creates the one backdrop input.</summary>
-    private KraidBackdropAppearance()
+    /// <summary>Creates the backdrop input; every instance is the same input.</summary>
+    internal KraidBackdropAppearance()
     {
     }
 

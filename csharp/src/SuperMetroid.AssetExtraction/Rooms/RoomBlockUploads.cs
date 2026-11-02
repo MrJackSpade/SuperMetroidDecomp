@@ -24,6 +24,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.AssetExtraction.Areas.Tourian;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -118,7 +119,7 @@ internal static class RoomBlockUploads
     {
         if (state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
         {
-            yield return new AppearanceOption(KraidBackdropAppearance.Instance, RoomAppearanceValues.Shown,
+            yield return new AppearanceOption(AppearanceInputSpellings.KraidBackdrop, RoomAppearanceValues.Shown,
                 new BgCharacterUpload(RoomBgArtwork.KraidBackdrop, BgCharacterSet.Tiles, RoomTileCharacters.KraidBackdropFirst,
                     (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
                         .RoomBackgroundTiles.Characters));

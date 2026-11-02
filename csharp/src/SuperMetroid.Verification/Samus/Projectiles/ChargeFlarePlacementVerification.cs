@@ -85,6 +85,32 @@ internal static class ChargeFlarePlacementVerification
             AssertEqual(native.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Flare placement preserves OAM admission");
             cases++;
         }
+        // A charged turning pose draws its flare from the turn row its restriction's low four bits select, where the
+        // cartridge draws it; the pose-reading draw once returned before reaching those rows (#1504).
+        foreach (SamusPoseId pose in new[]
+        {
+            SamusPoseId.TurningRightToLeftAimUpPose, SamusPoseId.TurningLeftToRightPose, SamusPoseId.TurningRightToLeftAimDiagonalDownPose,
+        })
+        for (int component = 0; component < 3; component++)
+        {
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+            PrepareRetailSamusFixture(samus);
+            int record = SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbering.Number(pose) * 8;
+            int turnRow = bus.ReadCartridgeByte(record + 3) & 15;
+            AssertTrue(turnRow >= ChargeFlarePlacementDefinitions.DirectionCount, $"{pose} selects a turn row");
+            bool facingLeft = bus.ReadCartridgeByte(record) == 4;
+            byte yOffset = bus.ReadCartridgeByte(record + 4);
+            short Word(int address) => unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWord(address));
+            ushort x = unchecked((ushort)(100 + Word(SamusSourceDefinitions.ChargeFlareDefaultXOffsets.Value + turnRow * 2)));
+            ushort y = unchecked((ushort)(100 + Word(SamusSourceDefinitions.ChargeFlareDefaultYOffsets.Value + turnRow * 2) - yOffset));
+            ushort selector = (ushort)(component == 0 ? 0 : facingLeft ? (component == 1 ? 42 : 48) : (component == 1 ? 30 : 36));
+            var native = new OamBuffer();
+            DrawImportedFlareSpritemap(bus, native, selector, new(x, y));
+            OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => draw(frame, samus, Position16<RoomPixels>.Zero, component, null,
+                new ChargeFlareArtwork { Placement = stock, Objects = objects }));
+            AssertTrue(actual.LastFinalizedSpriteCount > 0, $"charged {pose} draws flare component {component}");
+            AssertTrue(native.ImageEquals(actual), $"charged {pose} draws flare component {component} at its turn row's cartridge placement");
+        }
         // The flare draw places by the low four bits of the pose's shot direction, except for no-firing poses. Every pose
         // selects a named direction or, turning, a turning placement, so a selection past the turning placements standing,
         // or past the named directions running, is rejected rather than read from the rows that follow the tables (#1500).

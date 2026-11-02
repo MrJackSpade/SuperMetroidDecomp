@@ -115,11 +115,14 @@ internal sealed class ProjectileAnimation
         _charge.StartFlareTimer(component, delay);
     }
 
-    /// <summary>Reads Samus's shot direction and movement metadata before drawing an eligible charge-flare component.</summary>
+    /// <summary>
+    /// Reads Samus's shot direction and movement metadata before drawing an eligible charge-flare component. Only a pose
+    /// that disables shooting draws no flare; a turning pose's restriction selects its authored turn row (#1504).
+    /// </summary>
     internal void DrawFlareComponent(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> layer1, int component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork)
     {
         int direction = SamusPoseMetadata.ReadShotDirection(samus);
-        if (direction >= 16)
+        if (direction == SamusPoseAimDefinitions.ShootingDisabled)
             return;
 
         DrawFlareComponentWithMetadata(sprites, samus, layer1, component, turningFloor, artwork, new ChargeFlarePose { Direction = direction, Running = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running, PoseYOffset = WordWrap.LowByte(SamusPoseMetadata.ReadGraphicsYOffset(samus)), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });

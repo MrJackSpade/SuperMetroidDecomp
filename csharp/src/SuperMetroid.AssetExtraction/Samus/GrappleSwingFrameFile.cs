@@ -7,6 +7,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Reads and writes the installed Grapple swing-frame document (#1502).</summary>
 public static class GrappleSwingFrameFile
 {
+    /// <summary>Supported revision of the 256-entry displayed-frame JSON schema.</summary>
+    public const int Version = 1;
+
+    /// <summary>One displayed animation frame for each high angle byte.</summary>
+    public const int AngleCount = 256;
+
     /// <summary>Strict camel-case JSON settings for the editable 256-angle document.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -32,7 +38,7 @@ public static class GrappleSwingFrameFile
                 ?? throw new InvalidDataException("Missing Grapple swing frames.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid Grapple swing-frame JSON.", error); }
-        if (document.Version != GrappleSwingFrameDefinitions.Version || document.Frames is null || document.Frames.Length != GrappleSwingFrameDefinitions.AngleCount ||
+        if (document.Version != GrappleSwingFrameFile.Version || document.Frames is null || document.Frames.Length != GrappleSwingFrameFile.AngleCount ||
             document.Frames.Any(frame => frame is < 0 or >= GrappleSwingFrameDefinitions.FrameCount))
             throw new InvalidDataException("Grapple swing frames require version 1 and 256 frame indices in 0..31.");
         return new(document.Frames.ToArray());

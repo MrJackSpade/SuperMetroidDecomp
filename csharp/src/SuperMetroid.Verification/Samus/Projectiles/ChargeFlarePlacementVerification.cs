@@ -137,10 +137,10 @@ internal static class ChargeFlarePlacementVerification
                 AssertEqual((original.GetEntry(i).Position.X + 7) & 511, changed.GetEntry(i).Position.X, "Public normal/Hyper path forwards selected placement to all components");
             AssertTrue(GraphDigest(originalSystem).SequenceEqual(GraphDigest(editedSystem)), "Normal/Hyper flare visual edits retain identical complete post-tick simulation state");
         }
-        document.Required("offsets").AsObject().Remove(ChargeFlarePlacementOffsets.Key(false, 0));
+        document.Required("offsets").AsObject().Remove(ChargeFlarePlacementFile.Key(false, 0));
         AssertThrows<InvalidDataException>(() => Load(document), "Missing flare placement rejected");
         document = JsonNode.Parse(json);
-        (document ?? throw new InvalidOperationException("Verification requires document.")).Required("offsets").Required(ChargeFlarePlacementOffsets.Key(false, 0))["x"] = 32768;
+        (document ?? throw new InvalidOperationException("Verification requires document.")).Required("offsets").Required(ChargeFlarePlacementFile.Key(false, 0))["x"] = 32768;
         AssertThrows<InvalidDataException>(() => Load(document), "Out-of-range flare position rejected");
         document = JsonNode.Parse(json); (document ?? throw new InvalidOperationException("Verification requires document."))["damage"] = 1;
         AssertThrows<InvalidDataException>(() => Load(document), "Flare placement cannot contain mechanics fields");

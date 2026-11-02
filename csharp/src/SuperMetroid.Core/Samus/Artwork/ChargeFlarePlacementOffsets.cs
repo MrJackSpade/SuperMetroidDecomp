@@ -7,12 +7,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>Where the charge flare is placed for each beam and grapple pose.</summary>
 public static class ChargeFlarePlacementOffsets
 {
-    /// <summary>Formats the exact JSON identity for one movement-mode/direction placement; direction range validation belongs to catalog loading or lookup, not this formatter.</summary>
-    /// <param name="running">True for the running visual-origin table; false for standing.</param>
-    /// <param name="direction">A named aiming direction or, standing, a turning placement; formatted as two decimal digits rather than hexadecimal.</param>
-    /// <returns>A key such as <c>standing-00</c>, <c>standing-12</c> or <c>running-09</c>.</returns>
-    public static string Key(bool running, int direction) => $"{(running ? "running" : "standing")}-{direction:D2}";
-
     /// <summary>
     /// The visual muzzle origins of the ten named aiming directions and, standing, of the three turning placements.
     /// Physical origins remain separate. The game's tables carry rows past them, which no pose selects, so they are not

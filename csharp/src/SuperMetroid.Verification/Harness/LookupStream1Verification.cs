@@ -1369,14 +1369,14 @@ internal static class LookupStream1Verification
             for (int axis = 0; axis < 2; axis++)
             {
                 var document = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(json, options);
-                string key = ChargeFlarePlacementOffsets.Key(mode != 0, direction);
+                string key = ChargeFlarePlacementFile.Key(mode != 0, direction);
                 var before = document.Offsets[key];
                 document.Offsets[key] = axis == 0 ? before with { X = (short)(before.X + 7) } : before with { Y = (short)(before.Y + 7) };
                 var edited = ChargeFlarePlacementFile.Load(new MemoryStream(ChargeFlarePlacementFile.Write(document)));
                 AssertEqual(1, edited.offsets.Count, "One independent origin edit stores exactly one override");
                 for (int selectedMode = 0; selectedMode < 2; selectedMode++)
                 for (int selectedDirection = 0; selectedDirection < (selectedMode == 0 ? ChargeFlarePlacementDefinitions.StandingDirectionCount : ChargeFlarePlacementDefinitions.DirectionCount); selectedDirection++)
-                    AssertEqual(document.Offsets[ChargeFlarePlacementOffsets.Key(selectedMode != 0, selectedDirection)].Offset,
+                    AssertEqual(document.Offsets[ChargeFlarePlacementFile.Key(selectedMode != 0, selectedDirection)].Offset,
                         edited.Resolve(selectedMode != 0, selectedDirection), "Editing one origin leaves every other independent origin");
             }
         }
@@ -1393,14 +1393,14 @@ internal static class LookupStream1Verification
             for (int axis = 0; axis < 2; axis++)
             {
                 var document = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options);
-                string key = ChargeFlarePlacementOffsets.Key(mode != 0, direction);
+                string key = ChargeFlarePlacementFile.Key(mode != 0, direction);
                 var before = document.Offsets[key];
                 document.Offsets[key] = axis == 0 ? before with { X = (short)(before.X + 7) } : before with { Y = (short)(before.Y + 7) };
                 var edited = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(ChargeFlarePlacementFile.WriteGrapple(document)));
                 AssertEqual(1, edited.offsets.Count, "Grapple independent edit stores exactly one override");
                 for (int selectedMode = 0; selectedMode < 2; selectedMode++)
                 for (int selectedDirection = 0; selectedDirection < ChargeFlarePlacementDefinitions.DirectionCount; selectedDirection++)
-                    AssertEqual(document.Offsets[ChargeFlarePlacementOffsets.Key(selectedMode != 0, selectedDirection)].Offset, edited.Resolve(selectedMode != 0, selectedDirection),
+                    AssertEqual(document.Offsets[ChargeFlarePlacementFile.Key(selectedMode != 0, selectedDirection)].Offset, edited.Resolve(selectedMode != 0, selectedDirection),
                         "Grapple edits preserve every other independent origin");
             }
         }

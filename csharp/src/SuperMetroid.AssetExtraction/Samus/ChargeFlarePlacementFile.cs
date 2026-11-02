@@ -8,6 +8,19 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Reads and writes the installed beam-charge and Grapple flare placement documents (#1502).</summary>
 public static class ChargeFlarePlacementFile
 {
+    /// <summary>
+    /// Required revision of the beam and Grapple placement schemas. Revision two holds the ten named directions of each
+    /// movement mode and the beam flare's three turning placements; revision one also held the selections past them,
+    /// which no pose produces (#1500).
+    /// </summary>
+    public const int Version = 2;
+
+    /// <summary>Formats the exact JSON identity for one movement-mode/direction placement; direction range validation belongs to catalog loading or lookup, not this formatter.</summary>
+    /// <param name="running">True for the running visual-origin table; false for standing.</param>
+    /// <param name="direction">A named aiming direction or, standing, a turning placement; formatted as two decimal digits rather than hexadecimal.</param>
+    /// <returns>A key such as <c>standing-00</c>, <c>standing-12</c> or <c>running-09</c>.</returns>
+    public static string Key(bool running, int direction) => $"{(running ? "running" : "standing")}-{direction:D2}";
+
     /// <summary>Rejects unknown JSON properties while writing a stable camel-case authoring document.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -45,13 +58,13 @@ public static class ChargeFlarePlacementFile
             throw new InvalidDataException("A charge-flare placement offset is outside the signed 16-bit range.", error);
         }
         int keys = ChargeFlarePlacements.DirectionsFor(source, running: false) + ChargeFlarePlacements.DirectionsFor(source, running: true);
-        if (document.Version != ChargeFlarePlacementDefinitions.Version || document.Offsets is null || document.Offsets.Count != keys)
-            throw new InvalidDataException($"Charge-flare placement requires version {ChargeFlarePlacementDefinitions.Version} and all standing/running directions.");
+        if (document.Version != ChargeFlarePlacementFile.Version || document.Offsets is null || document.Offsets.Count != keys)
+            throw new InvalidDataException($"Charge-flare placement requires version {ChargeFlarePlacementFile.Version} and all standing/running directions.");
         var offsets = new Dictionary<int, Offset16<RoomPixels>>();
         foreach (bool running in (bool[])[false, true])
         for (int direction = 0; direction < ChargeFlarePlacements.DirectionsFor(source, running); direction++)
         {
-            string key = ChargeFlarePlacementOffsets.Key(running, direction);
+            string key = ChargeFlarePlacementFile.Key(running, direction);
             if (!document.Offsets.TryGetValue(key, out var value) || value is null)
                 throw new InvalidDataException($"Missing charge-flare placement {key}.");
             offsets.Add(ChargeFlarePlacements.Slot(running, direction), value.Offset);

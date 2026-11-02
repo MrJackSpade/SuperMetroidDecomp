@@ -1072,13 +1072,17 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => _ = MotherBrainVisualDefinitionsConstants.Frame(invalid), "stream 3 visual root bounds");
         MotherBrainSpecialSpriteSheetDefinition[] expectedSheets =
         [
-            new(MotherBrainSpritePageSheet.Legs, "mother-brain-leg-tiles.png", 8, 320),
-            new(MotherBrainSpritePageSheet.BabyMetroid, "mother-brain-baby-tiles.png", 4, 448),
-            new(MotherBrainSpritePageSheet.Attack, "mother-brain-attack-tiles.png", 4, 448),
-            new(MotherBrainSpritePageSheet.ExplodedDoor, "mother-brain-exploded-door-tiles.png", 2, 256),
+            new("mother-brain-leg-tiles.png", 8),
+            new("mother-brain-baby-tiles.png", 4),
+            new("mother-brain-attack-tiles.png", 4),
+            new("mother-brain-exploded-door-tiles.png", 2),
         ];
         AssertTrue(expectedSheets.SequenceEqual(MotherBrainSpecialSpriteArtworkDefinitions.All),
             "stream 3 named special sheet order and every field");
+        AssertTrue(MotherBrainSpecialSpriteArtworkDefinitions.All.Select(sheet => (sheet.Sheet, sheet.FirstCharacter)).SequenceEqual(
+            [(MotherBrainSpritePageSheet.Legs, 320), (MotherBrainSpritePageSheet.BabyMetroid, 448),
+             (MotherBrainSpritePageSheet.Attack, 448), (MotherBrainSpritePageSheet.ExplodedDoor, 256)]),
+            "stream 3 special sheet identities and first characters");
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = MotherBrainSpecialSpriteArtworkDefinitions.All[invalid],
                 "stream 3 special sheet original index exception");

@@ -26,7 +26,7 @@ public static class CrystalFlashColorFile
         document = JsonAssetDocument.Read<CrystalFlashColorDocument>(json, ArtworkJson.Options, "Crystal Flash color");
         if (document.Version != Version)
             throw new InvalidDataException("Crystal Flash colors require the supported version.");
-        return new(Compile(document.Body, CrystalFlashColorFormat.BodyFrameCount,
+        return SamusPaletteRecognition.CrystalFlash(Compile(document.Body, CrystalFlashColorFormat.BodyFrameCount,
                 CrystalFlashColorFormat.BodyColorCount, "body"),
             Compile(document.Bubble, CrystalFlashColorFormat.BubbleFrameCount,
                 CrystalFlashColorFormat.BubbleColorCount, "bubble"));

@@ -13,25 +13,15 @@ public sealed class InstalledCrystalFlashColors
     /// <summary>Complete edited body frames, retained only when any supplied color differs from the calculated pulse.</summary>
     internal readonly RgbColor[][]? body;
     /// <summary>Bubble samples that differ from the rotating ramp, including the independently painted stock white.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> bubble = [];
+    internal readonly Dictionary<ColourCell, RgbColor> bubble;
 
     /// <summary>Compares all supplied frames with color rules before retaining only independent edits.</summary>
-    internal InstalledCrystalFlashColors(RgbColor[][] body, RgbColor[][] bubble)
+    /// <param name="body">Every supplied body frame when one color differs from the pulse, otherwise null.</param>
+    /// <param name="bubble">The bubble samples the import found differing from the rotating ramp.</param>
+    internal InstalledCrystalFlashColors(RgbColor[][]? body, Dictionary<ColourCell, RgbColor> bubble)
     {
-        // Discard stock body frames only after checking every supplied color. Edited
-        // resources keep their complete, independent palette content.
-        bool calculated = true;
-        for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
-        for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
-            calculated &= body[frame][color] == CalculateBody(frame, color);
-        this.body = calculated ? null : body;
-        // The rotating ramp accounts for 35 stock words. The remaining white
-        // is an independent painted color choice; retain only that supplied sample.
-        // Arbitrary supplied edits remain exact.
-        for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
-        for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
-            if (bubble[frame][color] != CalculateBubble(frame, color))
-                this.bubble.Add(new ColourCell(frame, color), bubble[frame][color]);
+        this.body = body;
+        this.bubble = bubble;
     }
 
     /// <summary>Returns one editable body color for a playback record, calculating stock frames when they require no stored overrides.</summary>
@@ -54,7 +44,7 @@ public sealed class InstalledCrystalFlashColors
     /// return to19. All nine visible body colors share that intensity. The
     /// transparent color is the fixed RGB5 backdrop (0,0,14) in every frame.
     /// </summary>
-    private static RgbColor CalculateBody(int frame, int color)
+    internal static RgbColor CalculateBody(int frame, int color)
     {
         if (color == 0)
             return new RgbColor(0, 0, 14);
@@ -85,7 +75,7 @@ public sealed class InstalledCrystalFlashColors
     /// operation generating that choice. Only that sample remains supplied stock data;
     /// a formula exception would merely reencode its frame/color identity and value.
     /// </summary>
-    private static RgbColor CalculateBubble(int frame, int color)
+    internal static RgbColor CalculateBubble(int frame, int color)
     {
         int phase = (color - frame + CrystalFlashColorFormat.BubbleColorCount)
             % CrystalFlashColorFormat.BubbleColorCount;

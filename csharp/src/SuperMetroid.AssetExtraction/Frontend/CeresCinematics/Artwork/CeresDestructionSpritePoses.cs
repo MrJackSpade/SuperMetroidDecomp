@@ -1,12 +1,11 @@
 using System.Collections.Frozen;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
-using static SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresDestructionSpriteDefinitions;
+using static SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresDestructionSpriteFrameDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>
-/// Selects the Ceres destruction's sprite poses (<see cref="CeresDestructionSpriteDefinitions"/>): the asteroid and station blast
+/// Selects the Ceres destruction's sprite poses (<see cref="CeresDestructionSpriteFrameDefinitions"/>): the asteroid and station blast
 /// frames, the station blasts' part counts and each backdrop's pose.
 /// </summary>
 internal static class CeresDestructionSpritePoses

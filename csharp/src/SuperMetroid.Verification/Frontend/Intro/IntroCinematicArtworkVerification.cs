@@ -37,7 +37,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -965,7 +964,7 @@ internal static class IntroCinematicArtworkVerification
         if (blocked.HasFlag(IntroArtworkSources.CeresDestructionSprites))
         {
             foreach (CeresDestructionSpriteFrameDefinition frame in
-                CeresDestructionSpriteDefinitions.Frames)
+                CeresDestructionSpriteFrameDefinitions.Frames)
             {
                 int start = (int)new SnesAddress(
                     IntroCinematicSourceDefinitions.SpritemapBank, CinematicSpritemapSources.Of(frame.Pose));

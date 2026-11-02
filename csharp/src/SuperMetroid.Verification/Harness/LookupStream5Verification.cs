@@ -910,13 +910,13 @@ internal static class LookupStream5Verification
     internal static void VerifyLookupStream5ZebesStarFields(SuperMetroidAddressSpace rom)
     {
         var frames = new Dictionary<string, SpriteVisualPart[]>();
-        foreach (var definition in CeresDestructionSpriteDefinitions.Frames)
+        foreach (var definition in CeresDestructionSpriteFrameDefinitions.Frames)
             frames.Add(definition.Name, SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicSpriteFrameExtractor.Extract(
                 rom, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
         var document = new CeresDestructionSpriteDocument { Version = 1, Frames = frames };
         var stock = Load(document);
         int total = 0;
-        foreach (var definition in CeresDestructionSpriteDefinitions.Frames)
+        foreach (var definition in CeresDestructionSpriteFrameDefinitions.Frames)
         {
             if (!definition.Name.StartsWith("zebes-stars-", StringComparison.Ordinal)) continue;
             SpriteVisualPart[] parts = frames[definition.Name];
@@ -967,7 +967,7 @@ internal static class LookupStream5Verification
             CeresDestructionSpritePresentation.Write(json, value);
             json.Position = 0;
             var result = CeresDestructionSpritePresentation.Load(json);
-            var expected = value.Frames.ToDictionary(pair => CeresDestructionSpriteDefinitions.Frames
+            var expected = value.Frames.ToDictionary(pair => CeresDestructionSpriteFrameDefinitions.Frames
                 .Single(definition => definition.Name == pair.Key).Pose,
                 pair => IntroCinematicSpriteCompiler.Compile(pair.Value, pair.Key));
             AssertEqual(CinematicSpriteArtwork.ContentIdentity(nameof(CeresDestructionSpritePresentation), expected),

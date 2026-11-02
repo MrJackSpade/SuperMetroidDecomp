@@ -7,7 +7,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -74,9 +73,9 @@ internal static class IntroMotherBrainExplosionPartsVerification
     /// <summary>Checks that a Ceres alias frame loads and draws the supplied blast composition at both onscreen and wrapped origins.</summary>
     internal static void CheckCeresBlastLoader(CinematicSpritePose pose, SpriteVisualPart[] visual)
     {
-        var definition = CeresDestructionSpriteDefinitions.Frames.FirstOrDefault(frame => frame.Pose == pose);
+        var definition = CeresDestructionSpriteFrameDefinitions.Frames.FirstOrDefault(frame => frame.Pose == pose);
         if (definition.Name is null) return;
-        var frames = CeresDestructionSpriteDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
+        var frames = CeresDestructionSpriteFrameDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
         frames[definition.Name] = visual;
         using var json = new MemoryStream();
         CeresDestructionSpritePresentation.Write(json, new() { Version = CeresDestructionSpriteFormat.Version, Frames = frames });

@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
@@ -16,7 +15,7 @@ internal static class CeresDestructionFrameCatalogVerification
         int[] backdropOperands = [0xcc41, 0xccad, 0xccc3, 0xcd85, 0xcd8d, 0xcd95, 0xcd9d];
         string[] backdropNames = ["station-under-attack-large-asteroid", "planet-zebes", "planet-zebes-title",
             "zebes-stars-upper-left", "zebes-stars-upper-right", "zebes-stars-lower-left", "zebes-stars-lower-right"];
-        var frames = CeresDestructionSpriteDefinitions.Frames;
+        var frames = CeresDestructionSpriteFrameDefinitions.Frames;
         AssertEqual(23, frames.Count, "destruction catalog count");
         var enumerated = frames.ToArray();
         for (int index = 0; index < frames.Count; index++)

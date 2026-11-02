@@ -13,7 +13,7 @@ internal sealed class CeresSceneSpriteSheet(SpriteSheet sheet) : IIntroCinematic
 {
     /// <summary>The poses the destruction family shows; the scene's other poses are the Ceres flight's.</summary>
     private static readonly HashSet<CinematicSpritePose> DestructionPoses =
-        [.. CeresDestructionSpriteDefinitions.Frames.Select(frame => frame.Pose)];
+        [.. CeresDestructionSpriteDefinitions.Poses];
 
     /// <summary>Dispatches a scene frame to the destruction family's frames or the shared Ceres flight family's.</summary>
     public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin,

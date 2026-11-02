@@ -16,7 +16,6 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend.CeresCinematics;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
@@ -54,7 +53,7 @@ internal static class CeresDestructionArtworkVerification
             "installed Zebes reveal PNG preserves every transferred character byte");
 
         foreach (CeresDestructionSpriteFrameDefinition frame in
-            CeresDestructionSpriteDefinitions.Frames)
+            CeresDestructionSpriteFrameDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {

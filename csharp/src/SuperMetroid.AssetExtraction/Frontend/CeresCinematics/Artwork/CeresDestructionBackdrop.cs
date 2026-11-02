@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>The seven unique Ceres destruction and Zebes reveal backdrops, in catalog order.</summary>
 public enum CeresDestructionBackdrop

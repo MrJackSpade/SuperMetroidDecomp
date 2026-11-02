@@ -32,6 +32,7 @@ using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.Sparks;
 using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -346,7 +347,7 @@ internal static class LookupStream3Verification
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = FileSelectSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
-            string anchorKey = FileSelectParts.BorderName(border);
+            string anchorKey = FileSelectPresentationFormat.BorderName(border);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             presentation.DrawBorder(actualOam, MenuSheetFixtures.FileSelect(presentation), border);
@@ -3121,7 +3122,7 @@ internal static class LookupStream3Verification
             AssertTrue(composition.parts is FileSelectHelmetParts,
                 "stock helmet retains semantic frame only");
             Confirm(stock, original, frame);
-            int pointer = ReadVerificationWord(rom, 0x82c569 + FileSelectHelmetAnimation.SpritemapId(frame) * 2);
+            int pointer = ReadVerificationWord(rom, 0x82c569 + FileSelectHelmetSpritemaps.SpritemapId(frame) * 2);
             int address = 0x820000 | pointer;
             AssertEqual(ReadVerificationWord(rom, address), composition.PartCount, "exact native helmet part count");
             for (int part = 0; part < composition.PartCount; part++)

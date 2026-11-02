@@ -52,14 +52,14 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
     {
         MainSlots = document.MainSlots,
         DataSlots = document.DataSlots,
-        BorderAnchors = FileSelectPresentationDefinitions.Borders.ToDictionary(border => border,
-            border => document.BorderAnchors[FileSelectParts.BorderName(border)]),
+        BorderAnchors = FileSelectPresentationFormat.Borders.ToDictionary(border => border,
+            border => document.BorderAnchors[FileSelectPresentationFormat.BorderName(border)]),
         MainCursorAnchors = document.MainCursorAnchors,
         DataCursorAnchors = document.DataCursorAnchors,
         ConfirmationCursorAnchors = document.ConfirmationCursorAnchors,
         HelmetAnchors = document.HelmetAnchors,
-        DynamicAnchors = FileSelectPresentationDefinitions.Anchors.ToDictionary(anchor => anchor,
-            anchor => document.DynamicAnchors[FileSelectParts.AnchorName(anchor)]),
+        DynamicAnchors = FileSelectPresentationFormat.Anchors.ToDictionary(anchor => anchor,
+            anchor => document.DynamicAnchors[FileSelectPresentationFormat.AnchorName(anchor)]),
         CursorFrameDuration = document.CursorFrameDuration,
         HelmetFrameDuration = document.HelmetFrameDuration,
     };
@@ -172,12 +172,12 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
             "file-select pages");
         ValidateExactKeys(document.Patches, FileSelectPresentationFormat.Patches.Select(FileSelectParts.PatchName),
             "file-select patches");
-        ValidateExactKeys(document.Sprites, FileSelectParts.SpriteNames,
+        ValidateExactKeys(document.Sprites, FileSelectPresentationFormat.SpriteNames,
             "file-select sprites");
         ValidateExactKeys(document.BorderAnchors,
-            FileSelectPresentationDefinitions.Borders.Select(FileSelectParts.BorderName), "file-select borders");
+            FileSelectPresentationFormat.Borders.Select(FileSelectPresentationFormat.BorderName), "file-select borders");
         ValidateExactKeys(document.DynamicAnchors,
-            FileSelectPresentationDefinitions.Anchors.Select(FileSelectParts.AnchorName),
+            FileSelectPresentationFormat.Anchors.Select(FileSelectPresentationFormat.AnchorName),
             "file-select dynamic anchors");
         if (document.Digits is null || document.Digits.Length != 10)
             throw new InvalidDataException("File select requires ten digit cells.");
@@ -190,9 +190,9 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
         ValidatePoints(document.DataCursorAnchors, 4, "data cursor");
         ValidatePoints(document.ConfirmationCursorAnchors, 2, "confirmation cursor");
         ValidatePoints(document.HelmetAnchors, 3, "helmet");
-        foreach (string name in FileSelectPresentationDefinitions.Borders.Select(FileSelectParts.BorderName))
+        foreach (string name in FileSelectPresentationFormat.Borders.Select(FileSelectPresentationFormat.BorderName))
             ValidatePoint(document.BorderAnchors[name], $"{name} border");
-        foreach (string name in FileSelectPresentationDefinitions.Anchors.Select(FileSelectParts.AnchorName))
+        foreach (string name in FileSelectPresentationFormat.Anchors.Select(FileSelectPresentationFormat.AnchorName))
             ValidateTilePoint(document.DynamicAnchors[name], $"{name} dynamic anchor");
         if ((uint)document.ObjectPalette >= MapPresentationFormat.PaletteCount)
             throw new InvalidDataException("File-select object palette must be 0..7.");
@@ -231,7 +231,7 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
             CompileCell(cell, $"file-select digit {index}")).ToArray();
         BackgroundTile[] letters = document.SlotLetters.Select((cell, index) =>
             CompileCell(cell, $"file-select slot letter {index}")).ToArray();
-        var borderSprites = FileSelectPresentationDefinitions.Borders.ToDictionary(border => border,
+        var borderSprites = FileSelectPresentationFormat.Borders.ToDictionary(border => border,
             border => MenuHeadingBorder.CalculateIfMatching(Ensure.Listed(FileSelectSpriteDefinitions.Headings, border),
                 MenuBorderParts.CalculateIfMatching(CompileSprite(document, FileSelectParts.BorderSpriteName(border)))));
         SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, FileSelectPresentationFormat.CursorFrameCount).Select(frame =>

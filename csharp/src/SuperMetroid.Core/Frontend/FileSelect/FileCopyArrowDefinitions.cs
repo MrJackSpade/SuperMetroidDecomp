@@ -10,9 +10,6 @@ public static class FileCopyArrowDefinitions
     /// <summary>All file-copy arrows use screen X = 20.</summary>
     internal const int OriginX = 20;
 
-    /// <summary>The file-copy arrow shapes: short and long, downward and upward.</summary>
-    internal const int ShapeCount = 4;
-
     /// <summary>The sheet frame showing arrow shape <paramref name="shape"/>.</summary>
     public static string FrameName(int shape) => $"CopyArrow.{shape}";
 }

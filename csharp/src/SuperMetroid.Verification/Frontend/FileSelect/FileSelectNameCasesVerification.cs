@@ -26,20 +26,20 @@ internal static class FileSelectNameCasesVerification
     /// <summary>Checks border anchor names for the three file-select flows.</summary>
     internal static void VerifyFileSelectBorderNames(byte[] source) => VerifyFileSelectNames(source, "BorderAnchors",
         ["Main", "Copy", "Clear"],
-        [.. FileSelectPresentationDefinitions.Borders.Select(FileSelectParts.BorderName)],
-        () => FileSelectParts.BorderName((FileSelectBorder)byte.MaxValue));
+        [.. FileSelectPresentationFormat.Borders.Select(FileSelectPresentationFormat.BorderName)],
+        () => FileSelectPresentationFormat.BorderName((FileSelectBorder)byte.MaxValue));
 
     /// <summary>Checks copy and clear confirmation anchors that depend on selected slots.</summary>
     internal static void VerifyFileSelectDynamicAnchorNames(byte[] source) => VerifyFileSelectNames(source, "DynamicAnchors",
         ["Copy.Destination.Source", "Copy.Confirm.Source", "Copy.Confirm.Destination", "Clear.Confirm.Source"],
-        [.. FileSelectPresentationDefinitions.Anchors.Select(FileSelectParts.AnchorName)],
-        () => FileSelectParts.AnchorName((FileSelectAnchor)byte.MaxValue));
+        [.. FileSelectPresentationFormat.Anchors.Select(FileSelectPresentationFormat.AnchorName)],
+        () => FileSelectPresentationFormat.AnchorName((FileSelectAnchor)byte.MaxValue));
 
     /// <summary>Checks border, cursor, and helmet sprite identities in the installed schema.</summary>
     internal static void VerifyFileSelectSpriteNames(byte[] source) => VerifyFileSelectNames(source, "Sprites",
         ["Border.Main", "Border.Copy", "Border.Clear", "Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3",
          "Helmet.0", "Helmet.1", "Helmet.2", "Helmet.3", "Helmet.4", "Helmet.5", "Helmet.6", "Helmet.7"],
-        [.. FileSelectParts.SpriteNames],
+        [.. FileSelectPresentationFormat.SpriteNames],
         () => FileSelectParts.HelmetSpriteName(FileSelectPresentationFormat.HelmetFrameCount));
 
     /// <summary>Checks exact names and their codec's rejection of an undefined identity, then rejects missing, extra, or case-changed JSON keys.</summary>

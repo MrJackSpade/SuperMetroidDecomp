@@ -34,7 +34,7 @@ internal static class FileSelectGeometryLookupsVerification
     /// <summary>Compares six main-menu cursor rows with native records and extracted positions.</summary>
     private static void VerifyFileSelectMainCursorY(ISnesAddressSpace rom, FileSelectPresentation presentation)
     {
-        AssertEqual(6, FileSelectLayout.MainSelectionCount, "main selection count");
+        AssertEqual(6, FileSelectCursorPositions.MainSelectionCount, "main selection count");
         for (int row = 0; row < 6; row++)
         {
             ushort expected = ReadVerificationWord(rom, 0x81a312 + row * 4);

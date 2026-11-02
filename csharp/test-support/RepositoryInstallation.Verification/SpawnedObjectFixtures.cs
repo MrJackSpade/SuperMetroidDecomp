@@ -5,6 +5,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -16,21 +17,21 @@ internal static class SpawnedObjectFixtures
 {
     /// <summary>The first retail graphics set loading <paramref name="enemy"/>.</summary>
     internal static RoomEnemyGraphicsSetDefinition SetLoading(EnemyDefinitionId enemy) =>
-        RoomEnemyGraphicsSetDefinitions.All.First(set => set.Records.ToArray().Any(record => record.DefinitionId == enemy));
+        RoomEnemyGraphicsSetLists.All.First(set => set.Records.ToArray().Any(record => record.DefinitionId == enemy));
 
     /// <summary>
     /// The first retail graphics set drawing <paramref name="enemy"/>: one loading it, or else one whose rooms place it
     /// without loading it, where it draws from the standard characters.
     /// </summary>
     internal static RoomEnemyGraphicsSetDefinition SetDrawing(EnemyDefinitionId enemy) =>
-        RoomEnemyGraphicsSetDefinitions.All.FirstOrDefault(set => set.Records.ToArray().Any(record => record.DefinitionId == enemy))
+        RoomEnemyGraphicsSetLists.All.FirstOrDefault(set => set.Records.ToArray().Any(record => record.DefinitionId == enemy))
         ?? RoomStateDefinitions.All.FirstOrDefault(state => state.EnemyPopulation.Records.ToArray().Any(record => record.DefinitionId == enemy))
             ?.EnemyGraphicsSet
         ?? throw new InvalidDataException($"No retail room draws {enemy}.");
 
     /// <summary>Whether a retail room draws <paramref name="enemy"/>: a graphics set loads it or a room places it.</summary>
     internal static bool Drawn(EnemyDefinitionId enemy) =>
-        RoomEnemyGraphicsSetDefinitions.All.Any(set => set.Records.ToArray().Any(record => record.DefinitionId == enemy))
+        RoomEnemyGraphicsSetLists.All.Any(set => set.Records.ToArray().Any(record => record.DefinitionId == enemy))
         || RoomStateDefinitions.All.Any(state => state.EnemyPopulation.Records.ToArray().Any(record => record.DefinitionId == enemy));
 
     /// <summary>
@@ -43,8 +44,8 @@ internal static class SpawnedObjectFixtures
     {
         ArgumentNullException.ThrowIfNull(enemies);
         RoomEnemyGraphicsSetDefinition set = SpawnedObjectFrameDefinitions.Anywhere.Projectiles.Contains(frame)
-            ? RoomEnemyGraphicsSetDefinitions.All[0]
-            : RoomEnemyGraphicsSetDefinitions.All.FirstOrDefault(candidate => candidate.Records.ToArray().Any(record =>
+            ? RoomEnemyGraphicsSetLists.All[0]
+            : RoomEnemyGraphicsSetLists.All.FirstOrDefault(candidate => candidate.Records.ToArray().Any(record =>
                 SpawnedObjectFrameDefinitions.ByEnemy.TryGetValue(record.DefinitionId, out SpawnedObjects? spawned) && spawned.Projectiles.Contains(frame)))
             ?? throw new InvalidOperationException($"No retail graphics set spawns projectile frame {frame}.");
         enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, new SpriteColourSets());

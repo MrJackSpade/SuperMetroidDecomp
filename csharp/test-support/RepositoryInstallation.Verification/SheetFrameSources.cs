@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -106,7 +107,7 @@ internal static class SheetFrameSources
     {
         SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs inputs =
             SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory);
-        foreach (SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinition set in SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitions.DrawnUnder)
+        foreach (SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetLists.DrawnUnder)
         {
             SuperMetroid.AssetExtraction.Enemies.GraphicsSetSheetSources setSources =
                 SuperMetroid.AssetExtraction.Enemies.EnemySheetComposer.Sources(inputs, set);

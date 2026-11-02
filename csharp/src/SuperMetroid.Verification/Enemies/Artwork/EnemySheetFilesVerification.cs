@@ -33,7 +33,7 @@ internal static class EnemySheetFilesVerification
 
             EnemySheetInputs inputs = EnemySheetInputs.Load(content);
             int members = 0, frames = 0;
-            foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetDefinitions.DrawnUnder)
+            foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetLists.DrawnUnder)
             {
                 foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, _, _) in EnemySheetComposer.Sources(inputs, set).Enemies)
                 {

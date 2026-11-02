@@ -38,7 +38,7 @@ internal static class EnemySheetComposer
         var layouts = new List<SpriteSheetLayout>();
         var layoutOf = new Dictionary<string, int>(StringComparer.Ordinal);
         var laidSets = new List<LaidGraphicsSet>();
-        foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetDefinitions.DrawnUnder)
+        foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetLists.DrawnUnder)
         {
             GraphicsSetSheetSources setSources = Sources(inputs, set);
             laidSets.Add(new LaidGraphicsSet(set.Name,

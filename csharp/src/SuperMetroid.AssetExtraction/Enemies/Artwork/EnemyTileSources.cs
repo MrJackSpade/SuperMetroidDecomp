@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
@@ -8,7 +9,7 @@ internal static class EnemyTileSources
     /// <summary>Deduplicates graphics-set enemy definitions with their tile set sizes; the installation checks them against its pinned identity set.</summary>
     internal static System.Collections.ObjectModel.ReadOnlyCollection<EnemyTileSourceDefinition> Build()
     {
-        EnemyTileSourceDefinition[] definitions = RoomEnemyGraphicsSetDefinitions.All
+        EnemyTileSourceDefinition[] definitions = RoomEnemyGraphicsSetLists.All
             .SelectMany(set => set.Records.ToArray())
             .Select(record => record.DefinitionId).Distinct().Order()
             .Select(definition => {

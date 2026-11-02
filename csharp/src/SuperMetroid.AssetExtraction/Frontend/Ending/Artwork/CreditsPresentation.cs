@@ -84,25 +84,26 @@ public sealed class CreditsPresentation
         for (int index = 0; index < definitions.Count; index++)
         {
             CreditsLineDefinition definition = definitions[index];
+            string id = CreditsRoleKeys.Of(index);
             CreditsLineDocument line = document.Lines[index];
-            if (!string.Equals(line.Id, definition.Id, StringComparison.Ordinal))
+            if (!string.Equals(line.Id, id, StringComparison.Ordinal))
             {
                 throw new InvalidDataException(
-                    $"Credits line {index} must retain id '{definition.Id}'.");
+                    $"Credits line {index} must retain id '{id}'.");
             }
             if (line.Text is null || line.Text.Length == 0)
-                throw new InvalidDataException($"Credits line '{definition.Id}' cannot be empty.");
+                throw new InvalidDataException($"Credits line '{id}' cannot be empty.");
             if ((uint)line.Palette >= BackgroundTile.ColourVariants)
-                throw new InvalidDataException($"Credits line '{definition.Id}' has invalid palette {line.Palette}.");
+                throw new InvalidDataException($"Credits line '{id}' has invalid palette {line.Palette}.");
             if (line.Column < 0 || line.Column + line.Text.Length >
                 CreditsPresentationDefinitions.TilemapWidth)
             {
                 throw new InvalidDataException(
-                    $"Credits line '{definition.Id}' exceeds the 32-column tilemap.");
+                    $"Credits line '{id}' exceeds the 32-column tilemap.");
             }
 
             compiledRows += definition.BlankRowsBefore + (definition.Style == CreditsLineStyle.Large ? 2 : 1);
-            ValidateLine(definition, line);
+            ValidateLine(definition, id, line);
         }
         compiledRows += CreditsRollDefinitions.TrailingBlankRows;
         if (compiledRows != CreditsRollDefinitions.ExpectedCompiledRows)
@@ -127,7 +128,7 @@ public sealed class CreditsPresentation
     }
 
     /// <summary>Rejects characters unsupported by the line's small or two-row large font.</summary>
-    private static void ValidateLine(CreditsLineDefinition definition, CreditsLineDocument line)
+    private static void ValidateLine(CreditsLineDefinition definition, string id, CreditsLineDocument line)
     {
         foreach (char character in line.Text)
         {
@@ -140,7 +141,7 @@ public sealed class CreditsPresentation
             catch (ArgumentOutOfRangeException error)
             {
                 throw new InvalidDataException(
-                    $"Credits line '{definition.Id}' contains an unsupported glyph.", error);
+                    $"Credits line '{id}' contains an unsupported glyph.", error);
             }
         }
     }

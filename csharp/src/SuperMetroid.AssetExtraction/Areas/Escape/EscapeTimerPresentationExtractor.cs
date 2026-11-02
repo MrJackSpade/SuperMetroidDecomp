@@ -13,14 +13,14 @@ public static class EscapeTimerPresentationExtractor
         using var output = new MemoryStream();
         Write(output, new()
         {
-            Version = EscapeTimerPresentationDefinitions.Version,
+            Version = EscapeTimerLayoutDefinitions.Version,
             DigitSpacing = 8,
             Anchors = new(StringComparer.Ordinal)
             {
-                [EscapeTimerComposition.AnchorName(EscapeTimerAnchor.Label)] = new(0, 0),
-                [EscapeTimerComposition.AnchorName(EscapeTimerAnchor.Minutes)] = new(-28, 0),
-                [EscapeTimerComposition.AnchorName(EscapeTimerAnchor.Seconds)] = new(-4, 0),
-                [EscapeTimerComposition.AnchorName(EscapeTimerAnchor.Centiseconds)] = new(20, 0),
+                [EscapeTimerLayoutNames.AnchorName(EscapeTimerAnchor.Label)] = new(0, 0),
+                [EscapeTimerLayoutNames.AnchorName(EscapeTimerAnchor.Minutes)] = new(-28, 0),
+                [EscapeTimerLayoutNames.AnchorName(EscapeTimerAnchor.Seconds)] = new(-4, 0),
+                [EscapeTimerLayoutNames.AnchorName(EscapeTimerAnchor.Centiseconds)] = new(20, 0),
             },
         });
         return output.ToArray();

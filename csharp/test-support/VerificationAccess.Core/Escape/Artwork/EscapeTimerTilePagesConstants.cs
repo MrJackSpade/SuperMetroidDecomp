@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Escape.Artwork;
+﻿using SuperMetroid.AssetExtraction.Areas.Escape;
+
+namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Cartridge values and helpers of <see cref="EscapeTimerTilePages"/> that only verification reads.</summary>
 internal static class EscapeTimerTilePagesConstants
@@ -17,7 +19,7 @@ internal static class EscapeTimerTilePagesConstants
     {
         foreach (EscapeTimerTilePage candidate in Pages)
         {
-            if (SourceAddressOf(candidate) == sourceAddress && EscapeTimerTilePages.ByteCountOf(candidate) == byteCount)
+            if (SourceAddressOf(candidate) == sourceAddress && EscapeTimerTilePageTransfers.ByteCountOf(candidate) == byteCount)
             {
                 page = candidate;
                 return true;

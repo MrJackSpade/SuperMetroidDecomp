@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -333,13 +334,13 @@ internal static class InstalledArtworkContentIdentity
         public string ContentIdentity => SelectedPresentationHash.Create("EndingPaletteCatalog", content =>
         {
             content.Append("palette-count", 7);
-            content.Append("palette", palettes.escape.Bytes.Span);
-            content.Append("palette", palettes.postCredits.Bytes.Span);
-            content.Append("palette", palettes.credits.Bytes.Span);
-            content.Append("palette", palettes.explosion.Bytes.Span);
-            content.Append("palette", palettes.finalGunship.Bytes.Span);
-            content.Append("palette", palettes.logoInitial.Bytes.Span);
-            content.Append("palette", palettes.logoCrossfade.Bytes.Span);
+            content.Append("palette", EndingPaletteWords.Of(palettes.escape).Span);
+            content.Append("palette", EndingPaletteWords.Of(palettes.postCredits).Span);
+            content.Append("palette", EndingPaletteWords.Of(palettes.credits).Span);
+            content.Append("palette", EndingPaletteWords.Of(palettes.explosion).Span);
+            content.Append("palette", EndingPaletteWords.Of(palettes.finalGunship).Span);
+            content.Append("palette", EndingPaletteWords.Of(palettes.logoInitial).Span);
+            content.Append("palette", EndingPaletteWords.Of(palettes.logoCrossfade).Span);
         });
     }
 

@@ -11,7 +11,7 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 /// <summary>Confirms the identified atomic map install without loading files or running a screen.</summary>
 internal static class AreaMapPresentationContractChecks
 {
-    /// <summary>Checks that only installed area maps and their owned VRAM transfers receive closed-contract classifications; the HUD's characters are the import's (#1466).</summary>
+    /// <summary>Checks that only installed area maps receive closed-contract classifications; the HUD's and escape timer's characters are the import's (#1466, #1502).</summary>
     internal static void Run()
     {
         var trees = AreaMapClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -29,11 +29,6 @@ internal static class AreaMapPresentationContractChecks
                     maps.Get(AreaId.Crateria);
                     maps.Get(AreaId.Ceres);
                     maps.Get((AreaId)7);
-                    maps.Resolve(InstalledArtworkId.StandardHudTiles);
-                    maps.Resolve(InstalledArtworkId.EscapeTimerFirstTiles);
-                    maps.Resolve(InstalledArtworkId.EscapeTimerSecondTiles);
-                    maps.Resolve(default);
-                    maps.Resolve(InstalledArtworkId.BeamPowerTiles);
                     enemies.LoadPaletteTo(default, default);
                 }
             }
@@ -56,9 +51,9 @@ internal static class AreaMapPresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         FixtureConsumerBinding.Require(compilation, calls, "AreaMapPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 9, "the fixture must first expose absent adapters" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 4 && after.UnresolvedCount == 5 && after.MissingCount == 0 &&
-            after.Consumers.Count == 9, "all installed areas and owned transfers qualify, not unknown areas or another provider's IDs" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 4, "the fixture must first expose absent adapters" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 2 && after.UnresolvedCount == 2 && after.MissingCount == 0 &&
+            after.Consumers.Count == 4, "all installed areas qualify, not unknown areas" + " (" + after.Describe() + ")");
         Require(after.Findings.Any(item => item.Owner == "EnemyTileArtworkCatalog.LoadPaletteTo"),
             "an enemy catalog without its own reviewed sources must not borrow the atomic map install proof");
     }

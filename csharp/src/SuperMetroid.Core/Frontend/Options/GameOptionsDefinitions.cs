@@ -13,10 +13,6 @@ public static class GameOptionsDefinitions
     public const int ControllerScrollLimit = 32;
     /// <summary>Pixels the controller page scrolls per update.</summary>
     public const int ControllerScrollPixelsPerFrame = 2;
-    /// <summary>Cells in each options-page row.</summary>
-    public const int MenuTilemapWidth = 32;
-    /// <summary>Rows in each options page, including rows outside the visible screen.</summary>
-    public const int MenuTilemapHeight = 32;
     /// <summary>The queue limit options navigation and confirmation sounds are requested under.</summary>
     public static readonly SoundRequestPriority MaximumQueuedMenuSounds = SoundRequestPriority.Normal;
     /// <summary>Two tilemap rows for each of the two language labels.</summary>
@@ -46,10 +42,6 @@ public static class GameOptionsDefinitions
         public const int PrimaryX = 24;
         /// <summary>The controller page's cursor column.</summary>
         public const int ControllerX = 40;
-        /// <summary>The cursor's column while a page phase shows no cursor (including scrolling): off screen.</summary>
-        public const int HiddenX = 384;
-        /// <summary>The hidden cursor's row.</summary>
-        public const int HiddenY = 16;
         /// <summary>The special page's cursor column.</summary>
         public const int SpecialX = 16;
         /// <summary>The primary page's first row.</summary>

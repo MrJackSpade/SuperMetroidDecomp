@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Spatial;
 
@@ -28,4 +30,42 @@ public static class FileSelectPresentationFormat
     public static IReadOnlyList<FileSelectPage> Pages { get; } = Enum.GetValues<FileSelectPage>();
     /// <summary>The slot-field patches, in document order.</summary>
     public static IReadOnlyList<FileSelectPatch> Patches { get; } = Enum.GetValues<FileSelectPatch>();
+    /// <summary>The bordered headings, in document order.</summary>
+    public static IReadOnlyList<FileSelectBorder> Borders { get; } = Enum.GetValues<FileSelectBorder>();
+    /// <summary>The copy and clear pages' slot-letter anchors, in document order.</summary>
+    public static IReadOnlyList<FileSelectAnchor> Anchors { get; } = Enum.GetValues<FileSelectAnchor>();
+
+    /// <summary>The JSON name of a bordered heading, which keys its anchor.</summary>
+    private static readonly IReadOnlyDictionary<FileSelectBorder, string> BorderNames =
+        new Dictionary<FileSelectBorder, string>
+        {
+            [FileSelectBorder.Main] = "Main",
+            [FileSelectBorder.Copy] = "Copy",
+            [FileSelectBorder.Clear] = "Clear",
+        };
+
+    /// <summary>The JSON name of a copy or clear page's slot-letter anchor.</summary>
+    private static readonly IReadOnlyDictionary<FileSelectAnchor, string> AnchorNames =
+        new Dictionary<FileSelectAnchor, string>
+        {
+            [FileSelectAnchor.CopyDestinationSource] = "Copy.Destination.Source",
+            [FileSelectAnchor.CopyConfirmSource] = "Copy.Confirm.Source",
+            [FileSelectAnchor.CopyConfirmDestination] = "Copy.Confirm.Destination",
+            [FileSelectAnchor.ClearConfirmSource] = "Clear.Confirm.Source",
+        };
+
+    /// <summary>The JSON name of a bordered heading, which keys its anchor.</summary>
+    public static string BorderName(FileSelectBorder border) => Ensure.Listed(BorderNames, border);
+
+    /// <summary>The JSON name of a copy or clear page's slot-letter anchor.</summary>
+    public static string AnchorName(FileSelectAnchor anchor) => Ensure.Listed(AnchorNames, anchor);
+
+    /// <summary>Every sprite the document names: the three borders, the four cursor frames and the eight helmet frames.</summary>
+    public static IEnumerable<string> SpriteNames =>
+        [.. Borders.Select(FileSelectParts.BorderSpriteName), .. FileSelectPresentationDefinitions.CursorSpriteNames,
+            .. FileSelectPresentationDefinitions.HelmetSpriteNames];
+
+    /// <summary>Every frame of the file-select sheet: each sprite the document names, then each file-copy arrow.</summary>
+    public static IEnumerable<string> SheetFrames =>
+        SpriteNames.Concat(Enumerable.Range(0, FileCopyArrowPartDefinitions.ShapeCount).Select(FileCopyArrowDefinitions.FrameName));
 }

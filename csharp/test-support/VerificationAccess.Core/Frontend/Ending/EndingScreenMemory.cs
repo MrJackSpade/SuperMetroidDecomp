@@ -25,7 +25,7 @@ internal static class EndingScreenMemory
         var artwork = new EndingTransferArtwork(objects, font, reward);
         if (screen.FloorScene is { } loaded)
         {
-            EndingFloorSceneArtwork scene = Required(floor)[loaded];
+            EndingFloorSceneArtwork scene = EndingFloorCharacters.SceneOf(Required(floor), loaded);
             var mode7 = new Mode7Vram(vram);
             mode7.LoadMap(scene.Map.Span);
             mode7.LoadMap(scene.Map.Span, cell: EndingFloorArtworkFormat.MapByteCount);

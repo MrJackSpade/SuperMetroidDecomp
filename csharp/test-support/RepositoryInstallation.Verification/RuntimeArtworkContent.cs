@@ -1,6 +1,8 @@
+using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
@@ -36,7 +38,7 @@ internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCha
     public AreaSourceArtwork AreaTiles =>
         (AreaSourceArtwork?)runtime.AreaArtwork.Artwork ?? throw new InvalidOperationException("No area artwork is installed.");
 
-    /// <summary>The characters a typed asset names, from the standard OBJ sheet, the gunship's takeoff pages or the map presentation.</summary>
+    /// <summary>The characters a typed asset names, from the standard OBJ sheet, the gunship's takeoff pages or the map presentation's escape-timer characters.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No bound catalog holds characters for the asset.</exception>
     public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
         asset == InstalledArtworkId.StandardObjectTiles
@@ -45,9 +47,9 @@ internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCha
                 InstalledArtworkId.GunshipLiftoffThirdTiles or InstalledArtworkId.GunshipLiftoffFourthTiles or
                 InstalledArtworkId.GunshipLiftoffFifthTiles
             ? (EnemyTiles.GunshipLiftoff ?? throw new InvalidOperationException("Gunship takeoff artwork is not bound.")).Resolve(asset)
-            : asset is InstalledArtworkId.StandardHudTiles or
-                InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles
-            ? (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Map presentation artwork is not bound.")).Resolve(asset)
+            : asset is InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles
+            ? EscapeTimerTilePageTransfers.Resolve((runtime.Artwork.MapPresentation as AreaMapPresentation
+                ?? throw new InvalidOperationException("Map presentation artwork is not bound.")).EscapeTimerTiles, asset)
             : throw new ArgumentOutOfRangeException(nameof(asset), asset, "The runtime binds no characters for this asset.");
 
     /// <summary>The gameplay OBJ character page enemy-format sprites draw from: the table's uploads over the bound artwork.</summary>

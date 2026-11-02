@@ -41,10 +41,6 @@ public abstract class PauseSelectorPresentation
         return durationOverrides is not null && durationOverrides.TryGetValue(normalized, out int duration)
             ? duration : MenuSelectorTiming.Duration(normalized);
     }
-    /// <summary>The name of every distinct frame the animation shows.</summary>
-    internal IEnumerable<string> FrameNames =>
-        new[] { reserve, beam, equipment }.SelectMany(phases => phases.Frames).Distinct(StringComparer.Ordinal);
-
     /// <summary>Draws the selected category's normalized selector frame of the pause sheet at the item's anchor.</summary>
     public void Draw(ScreenSprites entries, SpriteSheet sheet, PauseEquipmentCategory category, int item, int phase)
     {
@@ -60,20 +56,15 @@ public abstract class PauseSelectorPresentation
         Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseSelectorAnchors.SheetFrameName(frame)), point);
     }
     /// <summary>The stock selector has zero sprite offsets in every phase: each category
-    /// holds its base frame. Capture only explicitly authored phase differences.</summary>
-    internal sealed class PhaseFrames(string basis)
+    /// holds its base frame. Only explicitly authored phase differences are retained.</summary>
+    /// <param name="basis">The base frame shared by phases without an authored override.</param>
+    /// <param name="overrides">The animation phases the import found selecting a different frame, or null.</param>
+    internal sealed class PhaseFrames(string basis, Dictionary<int, string>? overrides)
     {
         /// <summary>Base frame shared by phases without an authored override.</summary>
         internal readonly string basis = basis;
         /// <summary>Only animation phases selecting a different frame.</summary>
-        internal Dictionary<int, string>? Overrides { get; private set; }
-        /// <summary>Retains a phase frame only when it differs from the base frame.</summary>
-        public void Capture(int phase, string value)
-        {
-            if (!string.Equals(basis, value, StringComparison.Ordinal)) (Overrides ??= new()).Add(phase, value);
-        }
-        /// <summary>The base frame and each authored phase frame.</summary>
-        internal IEnumerable<string> Frames => Overrides is null ? [basis] : [basis, .. Overrides.Values];
+        internal Dictionary<int, string>? Overrides { get; } = overrides;
         /// <summary>Resolves an authored phase frame or falls back to the base frame.</summary>
         public string Get(int phase) => Overrides is not null && Overrides.TryGetValue(phase, out var value)
             ? value : basis;

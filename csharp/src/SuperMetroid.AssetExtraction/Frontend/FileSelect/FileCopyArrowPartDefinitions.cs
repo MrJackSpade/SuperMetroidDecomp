@@ -6,6 +6,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
 /// <summary>File-copy arrow compositions $82:CDCD/CE15/CE5D/CECD, which the file-select sheet pictures.</summary>
 internal static class FileCopyArrowPartDefinitions
 {
+    /// <summary>The file-copy arrow shapes: short and long, downward and upward.</summary>
+    internal const int ShapeCount = 4;
+
     /// <summary>Exposes the selected native OAM part order for the four file-copy arrow shapes.</summary>
     internal static ReadOnlySpan<CompiledSpritePart> Parts(int shape) => Shapes[shape];
     /// <summary>Builds one 16-pixel OBJ part in palette three, optionally flipping it vertically for an upward arrow.</summary>

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Frontend.Intro;
 
-namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>One stable destruction/reveal composition identity with its original sprite geometry; stock part count is descriptive and does not restrict independently edited compositions.</summary>
 /// <param name="Name">Stable JSON key for a backdrop or numbered blast frame.</param>

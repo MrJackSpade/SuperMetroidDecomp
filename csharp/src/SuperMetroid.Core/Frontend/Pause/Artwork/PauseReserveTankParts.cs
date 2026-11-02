@@ -26,11 +26,4 @@ public static class PauseReserveTankParts
     /// <param name="steps">Fill steps, 0 (empty) through 7.</param>
     /// <exception cref="ArgumentOutOfRangeException">The count is outside the eight fill levels.</exception>
     internal static PauseReserveTankVisual FillLevel(int steps) => Ensure.Element(FillLevels, steps);
-
-    /// <summary>Maps each of eight fill-step indices to $20..$27; both tables agree.</summary>
-    /// <param name="index">Entry index, 0..15, covering both identical eight-entry tables.</param>
-    /// <returns>The Empty-through-Fill7 spritemap identity selected by index modulo eight; gameplay computes the index using fourteen energy per step.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside the sixteen entries.</exception>
-    public static PauseReserveTankVisual PartialMap(int index) => (uint)index < PartialMapEntries
-        ? FillLevel(index % FillLevels.Length) : throw new ArgumentOutOfRangeException(nameof(index));
 }

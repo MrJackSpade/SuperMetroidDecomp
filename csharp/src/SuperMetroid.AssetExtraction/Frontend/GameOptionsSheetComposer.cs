@@ -31,7 +31,7 @@ internal static class GameOptionsSheetComposer
         GameOptionsSourcePresentation source = GameOptionsSourcePresentation.Of(options);
         int palette = source.CursorPalette;
         var frames = new List<SheetFrameSource>();
-        foreach (GameOptionsPage menuPage in GameOptionsPresentationDefinitions.MenuPages)
+        foreach (GameOptionsPage menuPage in GameOptionsPresentationFormat.MenuPages)
         {
             string name = GameOptionsNames.HeadingSpriteName(menuPage);
             frames.Add(new(name, source.headingSprites[menuPage].ToFrame(name, 0), page, palette));

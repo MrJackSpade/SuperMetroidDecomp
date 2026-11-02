@@ -36,16 +36,6 @@ public static class GameOverBabyAnimation
     /// <summary>Poses in the third cry group.</summary>
     private const int ThirdGroupSteps = ThirdGroupIdleSteps + CrySteps;
 
-    /// <summary>Lazily enumerates every step once in play order, ending with the step that restarts the program.</summary>
-    public static IEnumerable<GameOverBabyScriptStep> All
-    {
-        get
-        {
-            for (int step = 0; step < StepCount; step++)
-                yield return Get(step);
-        }
-    }
-
     /// <summary>Calculates one step's duration, pose, palette, cry handoff and restart.</summary>
     /// <param name="step">Step ordinal in play order, zero through <see cref="StepCount"/> minus one.</param>
     /// <returns>The step's complete compiled instruction.</returns>

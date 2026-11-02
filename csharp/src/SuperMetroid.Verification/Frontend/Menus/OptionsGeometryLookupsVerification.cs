@@ -28,7 +28,7 @@ internal static class OptionsGeometryLookupsVerification
     /// <summary>Checks the seven controller-label boxes against the native byte offsets their labels are drawn at.</summary>
     internal static void VerifyOptionsLabelDestinations(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f639, 2, 7,
-            action => checked((ushort)((GameOptionsPageCells.ControllerLabelAnchor(action).Y * GameOptionsDefinitions.MenuTilemapWidth
+            action => checked((ushort)((GameOptionsPageCells.ControllerLabelAnchor(action).Y * GameOptionsPageDefinitions.MenuTilemapWidth
                 + GameOptionsPageCells.ControllerLabelAnchor(action).X) * sizeof(ushort))), "controller label box"));
 
     /// <summary>Checks seven source words used by controller-label transfers.</summary>

@@ -59,7 +59,7 @@ public static class EndingPaletteArtworkFiles
             byte[] file = json.ToArray();
             EndingPalette roundTrip = EndingPaletteFile.Read(
                 new MemoryStream(file, writable: false), id);
-            if (!roundTrip.Bytes.Span.SequenceEqual(native))
+            if (!EndingPaletteWords.Of(roundTrip).Span.SequenceEqual(native))
                 throw new InvalidDataException($"Ending {id} palette JSON changed native colors.");
             string name = EndingPaletteFiles.FileName(id);
             using (var output = new FileStream(Path.Combine(directory, name),

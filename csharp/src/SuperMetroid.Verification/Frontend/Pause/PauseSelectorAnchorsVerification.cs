@@ -21,26 +21,27 @@ internal static class PauseSelectorAnchorsVerification
             ["Beam.Charge", "Beam.Ice", "Beam.Wave", "Beam.Spazer", "Beam.Plasma"],
             ["Equipment.Varia", "Equipment.Gravity", "Equipment.MorphBall", "Equipment.Bombs", "Equipment.SpringBall", "Equipment.ScrewAttack"],
             ["Boots.HiJump", "Boots.SpaceJump", "Boots.SpeedBooster"] ];
-        var expectedNames = names.SelectMany((group, category) => group.Select((name, item) => new PauseSelectorAnchor((PauseEquipmentCategory)category, item, name))).ToArray();
-        AssertTrue(expectedNames.SequenceEqual(PauseSelectorAnchors.Anchors()), "original named identity order");
-        foreach (var (category, item, name) in expectedNames)
-            AssertEqual(name, PauseSelectorAnchors.Anchor(category, item), "original named identity case");
-        AssertTrue(expectedNames.Where(entry => entry.Category != PauseEquipmentCategory.Reserves)
-                .Select(entry => entry.Name).SequenceEqual(PauseEquipmentLabelTiles.Labels().Select(label => PauseEquipmentLabelTiles.Name(label.Label))),
+        var expectedNames = names.SelectMany((group, category) => group.Select((name, item) =>
+            (Anchor: new PauseSelectorAnchor((PauseEquipmentCategory)category, item), Name: name))).ToArray();
+        AssertTrue(expectedNames.Select(entry => entry.Anchor).SequenceEqual(PauseSelectorAnchors.Anchors()), "original named identity order");
+        foreach (var (anchor, name) in expectedNames)
+            AssertEqual(name, PauseSelectorAnchors.Anchor(anchor.Category, anchor.Item), "original named identity case");
+        AssertTrue(expectedNames.Where(entry => entry.Anchor.Category != PauseEquipmentCategory.Reserves)
+                .Select(entry => entry.Name).SequenceEqual(PauseEquipmentLabelTiles.Labels().Select(label => PauseEquipmentLabelKeys.Name(label.Label))),
             "label identity view contains exactly the fourteen ordinary controls in order");
         AssertEqual(0, PauseEquipmentLabelTiles.ItemCount(PauseEquipmentCategory.Reserves), "reserve controls have no inventory labels");
         foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
         {
             AssertEqual(names[(int)category].Length, PauseEquipmentLabelTiles.ItemCount(category), "label category capacity");
             for (int item = 0; item < names[(int)category].Length; item++)
-                AssertEqual(names[(int)category][item], PauseEquipmentLabelTiles.Key(category, item), "label alias identity");
+                AssertEqual(names[(int)category][item], PauseEquipmentLabelKeys.Key(category, item), "label alias identity");
         }
         foreach (PauseEquipmentCategory category in new[] { PauseEquipmentCategory.Reserves, (PauseEquipmentCategory)4, (PauseEquipmentCategory)byte.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelTiles.Key(category, 0), "no label for invalid or reserve category");
+            AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelKeys.Key(category, 0), "no label for invalid or reserve category");
         foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
         foreach (int item in new[] { int.MinValue, -1, names[(int)category].Length, 256, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelTiles.Key(category, item), "label category bounds");
-        Suite(nameof(VerifyPauseLabelIdentityAdmission), () => VerifyPauseLabelIdentityAdmission(rom, expectedNames.Where(entry => entry.Category != PauseEquipmentCategory.Reserves).Select(entry => entry.Name)
+            AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelKeys.Key(category, item), "label category bounds");
+        Suite(nameof(VerifyPauseLabelIdentityAdmission), () => VerifyPauseLabelIdentityAdmission(rom, expectedNames.Where(entry => entry.Anchor.Category != PauseEquipmentCategory.Reserves).Select(entry => entry.Name)
             .Append("Beam.Hyper").ToArray()));
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
@@ -99,13 +100,14 @@ internal static class PauseSelectorAnchorsVerification
             foreach (int value in new[] { 0, horizontal ? 255 : 223 })
             {
                 var anchors = new Dictionary<string, Position16<SpritePixels>>(document.Anchors);
-                var previous = anchors[anchor.Name];
-                anchors[anchor.Name] = horizontal ? new(checked((ushort)value), previous.Y) : new(previous.X, checked((ushort)value));
+                string name = PauseSelectorAnchors.Anchor(anchor.Category, anchor.Item);
+                var previous = anchors[name];
+                anchors[name] = horizontal ? new(checked((ushort)value), previous.Y) : new(previous.X, checked((ushort)value));
                 using var stream = new MemoryStream(); PauseSelectorSourcePresentation.Write(stream, document with { Anchors = anchors }); stream.Position = 0;
                 var edited = PauseSelectorSourcePresentation.Load(stream);
                 AssertEqual(1, edited.StoredAnchorComponentCount, "only one independently authored coordinate captured");
                 foreach (var other in PauseSelectorAnchors.Anchors())
-                    AssertEqual(anchors[other.Name], edited.Anchor(other.Category, other.Item), "all edited and unedited coordinates");
+                    AssertEqual(anchors[PauseSelectorAnchors.Anchor(other.Category, other.Item)], edited.Anchor(other.Category, other.Item), "all edited and unedited coordinates");
             }
         }
         foreach (int invalid in new[] { -1, horizontal ? 256 : 224 })

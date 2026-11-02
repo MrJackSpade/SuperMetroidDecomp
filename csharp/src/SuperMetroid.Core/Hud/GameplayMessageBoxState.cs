@@ -368,7 +368,4 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// <summary>Whether the ordinary message coroutine shows <paramref name="messageId"/>.</summary>
     internal static bool IsOrdinary(GameplayMessageId messageId) =>
         messageId != GameplayMessageId.None && Enum.IsDefined(messageId);
-
-    /// <summary>The messages the ordinary message coroutine shows.</summary>
-    internal static IEnumerable<GameplayMessageId> OrdinaryMessages => Enum.GetValues<GameplayMessageId>().Where(IsOrdinary);
 }

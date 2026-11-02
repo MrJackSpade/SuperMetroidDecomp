@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Areas.Escape;

@@ -120,14 +120,14 @@ public sealed class PauseEquipmentLabelPresentation
 
         PauseEquipmentLabelId[] expected = Enum.GetValues<PauseEquipmentLabelId>();
         if (document.Labels.Count != expected.Length ||
-            expected.Any(id => !document.Labels.ContainsKey(PauseEquipmentLabelTiles.Name(id))))
+            expected.Any(id => !document.Labels.ContainsKey(PauseEquipmentLabelKeys.Name(id))))
             throw new InvalidDataException("Pause equipment labels require the fourteen ordinary labels and Beam.Hyper exactly once.");
 
         var compiled = new Dictionary<PauseEquipmentLabelId, CompiledLabel>();
         var occupied = new HashSet<int>();
         foreach (PauseEquipmentLabelId id in expected)
         {
-            string key = PauseEquipmentLabelTiles.Name(id);
+            string key = PauseEquipmentLabelKeys.Name(id);
             PauseEquipmentLabel label = document.Labels[key] ??
                 throw new InvalidDataException($"Pause equipment label {key} is null.");
             int words = PauseEquipmentLabelTiles.IsOrdinaryBeam(id)

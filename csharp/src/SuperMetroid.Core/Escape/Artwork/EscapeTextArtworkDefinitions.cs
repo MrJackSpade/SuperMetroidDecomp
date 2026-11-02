@@ -7,6 +7,4 @@ public static class EscapeTextArtworkDefinitions
     public const int PageCount = 5;
     /// <summary>Two pages of timer-number characters load before the text.</summary>
     public const int TimerPageCount = 2;
-    /// <summary>The two timer-number pages start at sprite character 480.</summary>
-    public const int TimerFirstCharacter = 480;
 }

@@ -25,20 +25,20 @@ internal static class GameplayHudPresentationVerification
         string overrides, AreaMapPresentation original,
         GameplayBasePalette initialPalettes)
     {
-        string stockPath = Path.Combine(stock, GameplayHudDefinitions.FileName);
+        string stockPath = Path.Combine(stock, GameplayHudDocumentDefinitions.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed gameplay HUD JSON is the deterministic cartridge extraction");
         GameplayHudArtwork presentation = GameplayHudPresentationFile.Read(new MemoryStream(extracted));
         ushort[] stockTopRow = BackgroundTileWordBytes.Words(presentation.TopRowTiles());
-        for (int column = 0; column < GameplayHudDefinitions.TopRowCellCount; column++)
+        for (int column = 0; column < GameplayHudDocumentDefinitions.TopRowCellCount; column++)
             AssertEqual((ushort)(GameplayHudPresentationAssetsRomByte(bus, HudSourceDefinitions.TopRow + column * 2)
                     | GameplayHudPresentationAssetsRomByte(bus, HudSourceDefinitions.TopRow + column * 2 + 1) << 8),
                 stockTopRow[column], $"stock immutable HUD row word {column}");
         var guard = new MutableCartridgeReadGuard(bus);
         guard.Forbid(address =>
-                InHudRange(address, HudSourceDefinitions.TopRow, GameplayHudDefinitions.TopRowCellCount * 2) ||
-                InHudRange(address, HudSourceDefinitions.Template, GameplayHudDefinitions.CellCount * 2) ||
+                InHudRange(address, HudSourceDefinitions.TopRow, GameplayHudDocumentDefinitions.TopRowCellCount * 2) ||
+                InHudRange(address, HudSourceDefinitions.Template, GameplayHudDocumentDefinitions.CellCount * 2) ||
                 InHudRange(address, HudSourceDefinitions.Icons, 44) ||
                 InHudRange(address, HudSourceDefinitions.HealthDigits, 20) ||
                 InHudRange(address, HudSourceDefinitions.AmmoDigits, 20) ||
@@ -49,7 +49,7 @@ internal static class GameplayHudPresentationVerification
         // The HUD draws its images over the BG3 plane's top rows (#1466): its current images, as the installed artwork lays
         // their tiles out, show the installed HUD row.
         GameplayHudPresentation boundHud = topRowRuntime.Hud.Presentation ?? throw new InvalidOperationException("The runtime binds the HUD artwork.");
-        AssertTrue(BackgroundTileWordBytes.Words(GameplayHudArtwork.Of(boundHud).Rows(topRowRuntime.Hud.Shown()))[..GameplayHudDefinitions.TopRowCellCount]
+        AssertTrue(BackgroundTileWordBytes.Words(GameplayHudArtwork.Of(boundHud).Rows(topRowRuntime.Hud.Shown()))[..GameplayHudDocumentDefinitions.TopRowCellCount]
             .SequenceEqual(stockTopRow),
             "the HUD's images show the installed immutable HUD row without source reads");
         ushort equipment = ((SamusEquipmentFlags.XrayScope | SamusEquipmentFlags.GrappleBeam).ToEquipmentWord());
@@ -111,7 +111,7 @@ internal static class GameplayHudPresentationVerification
             !document.TopRow[0].FlipX };
         document.Icons["Missile"].Cells[0] = document.Icons["Missile"].Cells[0] with { FlipX = true };
         Directory.CreateDirectory(overrides);
-        string replacement = Path.Combine(overrides, GameplayHudDefinitions.FileName);
+        string replacement = Path.Combine(overrides, GameplayHudDocumentDefinitions.FileName);
         using (var output = File.Create(replacement))
             GameplayHudPresentationFile.Write(output, document);
         var edited = MapPresentationFiles.Load(stock, overrides);
@@ -120,7 +120,7 @@ internal static class GameplayHudPresentationVerification
         var editedTopRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
         editedTopRowRuntime.Artwork.MapPresentation = edited;
         GameplayHudArtwork editedArtwork = GameplayHudArtwork.Of(edited.GameplayHud);
-        AssertTrue(editedArtwork.Rows(editedTopRowRuntime.Hud.Shown())[..GameplayHudDefinitions.TopRowCellCount]
+        AssertTrue(editedArtwork.Rows(editedTopRowRuntime.Hud.Shown())[..GameplayHudDocumentDefinitions.TopRowCellCount]
             .SequenceEqual(editedArtwork.TopRowTiles()),
             "edited top-row cell reaches the HUD the NMI latches");
         AssertTrue(!editedArtwork.TopRowTiles().SequenceEqual(GameplayHudArtwork.Of(original.GameplayHud).TopRowTiles()),

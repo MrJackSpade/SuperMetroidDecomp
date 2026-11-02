@@ -29,7 +29,7 @@ internal static class EscapeTimerPresentationVerification
     {
         Suite(nameof(VerifyEscapeTimerPointerDefinitions), () => VerifyEscapeTimerPointerDefinitions(bus));
 
-        string stockPath = Path.Combine(stock, EscapeTimerPresentationDefinitions.FileName);
+        string stockPath = Path.Combine(stock, EscapeTimerLayoutDefinitions.FileName);
         string stockTilePath = Path.Combine(stock, EscapeTimerTileAtlasFormat.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerPresentationExtractor.Extract();
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
@@ -43,9 +43,9 @@ internal static class EscapeTimerPresentationVerification
             EscapeTimerTileSourceConstants.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount);
         byte[] nativeSecondTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             EscapeTimerTileSourceConstants.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondByteCount);
-        AssertTrue(nativeFirstTiles.SequenceEqual(tileAtlas.Resolve(InstalledArtworkId.EscapeTimerFirstTiles).Span),
+        AssertTrue(nativeFirstTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, InstalledArtworkId.EscapeTimerFirstTiles).Span),
             "first timer PNG page compiles to exact native characters");
-        AssertTrue(nativeSecondTiles.SequenceEqual(tileAtlas.Resolve(InstalledArtworkId.EscapeTimerSecondTiles).Span),
+        AssertTrue(nativeSecondTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, InstalledArtworkId.EscapeTimerSecondTiles).Span),
             "second timer PNG page compiles to exact native characters");
 
         var synchronous = new SpriteArtworkPlacements();
@@ -67,8 +67,8 @@ internal static class EscapeTimerPresentationVerification
                 (EscapeNativePageWords.TimerSecond - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2 / SpriteArtworkPlacements.CharacterByteCount,
                 EscapeTimerTileAtlasFormat.SecondByteCount / SpriteArtworkPlacements.CharacterByteCount),
             synchronous.Uploads[1], "Mother Brain synchronous second timer transfer shows the installed second page");
-        AssertTrue(nativeFirstTiles.SequenceEqual(tileAtlas.Resolve(InstalledArtworkId.EscapeTimerFirstTiles).ToArray()) &&
-                nativeSecondTiles.SequenceEqual(tileAtlas.Resolve(InstalledArtworkId.EscapeTimerSecondTiles).ToArray()),
+        AssertTrue(nativeFirstTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, InstalledArtworkId.EscapeTimerFirstTiles).ToArray()) &&
+                nativeSecondTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, InstalledArtworkId.EscapeTimerSecondTiles).ToArray()),
             "Mother Brain synchronous timer pages hold the installed artwork");
 
         var presentation = EscapeTimerPresentationFile.Load(new MemoryStream(extracted));
@@ -95,7 +95,7 @@ internal static class EscapeTimerPresentationVerification
             X = (short)(document.Anchors["Minutes"].X + 1),
         };
         Directory.CreateDirectory(overrides);
-        string replacement = Path.Combine(overrides, EscapeTimerPresentationDefinitions.FileName);
+        string replacement = Path.Combine(overrides, EscapeTimerLayoutDefinitions.FileName);
         using (var output = File.Create(replacement))
             EscapeTimerPresentationExtractor.Write(output, document);
         var edited = MapPresentationFiles.Load(stock, overrides);
@@ -127,11 +127,11 @@ internal static class EscapeTimerPresentationVerification
         using (var output = File.Create(tileReplacement))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         var editedArtwork = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(!original.EscapeTimerTiles.Resolve(InstalledArtworkId.EscapeTimerFirstTiles).Span.SequenceEqual(
-            editedArtwork.EscapeTimerTiles.Resolve(InstalledArtworkId.EscapeTimerFirstTiles).Span),
+        AssertTrue(!EscapeTimerTilePageTransfers.Resolve(original.EscapeTimerTiles, InstalledArtworkId.EscapeTimerFirstTiles).Span.SequenceEqual(
+            EscapeTimerTilePageTransfers.Resolve(editedArtwork.EscapeTimerTiles, InstalledArtworkId.EscapeTimerFirstTiles).Span),
             "timer PNG edit changes the first compiled transfer");
-        AssertTrue(original.EscapeTimerTiles.Resolve(InstalledArtworkId.EscapeTimerSecondTiles).Span.SequenceEqual(
-            editedArtwork.EscapeTimerTiles.Resolve(InstalledArtworkId.EscapeTimerSecondTiles).Span),
+        AssertTrue(EscapeTimerTilePageTransfers.Resolve(original.EscapeTimerTiles, InstalledArtworkId.EscapeTimerSecondTiles).Span.SequenceEqual(
+            EscapeTimerTilePageTransfers.Resolve(editedArtwork.EscapeTimerTiles, InstalledArtworkId.EscapeTimerSecondTiles).Span),
             "timer PNG edit leaves the second compiled transfer untouched");
 
         using (var output = File.Create(tileReplacement))

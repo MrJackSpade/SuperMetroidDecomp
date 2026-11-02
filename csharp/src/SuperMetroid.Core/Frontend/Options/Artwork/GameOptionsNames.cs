@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Frontend.Options.Artwork.GameOptionsPresentationD
 namespace SuperMetroid.Core.Frontend.Options.Artwork;
 
 /// <summary>
-/// Names the options document's tilemaps, menus, headings, controller labels and toggles, and counts each menu page's
+/// Names the options document's tilemaps, headings, controller labels and toggles, and counts each menu page's
 /// cursor rows (<see cref="GameOptionsPresentationDefinitions"/>).
 /// </summary>
 public static class GameOptionsNames
@@ -12,10 +12,6 @@ public static class GameOptionsNames
     /// <summary>The JSON name of a foreground page.</summary>
     public static string TilemapName(GameOptionsScreen tilemap) =>
         Ensure.Listed(GameOptionsPresentationDefinitions.TilemapNames, tilemap);
-
-    /// <summary>The JSON name of a menu layout, which keys its heading and cursor anchors.</summary>
-    internal static string MenuName(GameOptionsPage page) =>
-        Ensure.Listed(GameOptionsPresentationDefinitions.MenuNames, page);
 
     /// <summary>The JSON name of a menu layout's heading sprite.</summary>
     internal static string HeadingSpriteName(GameOptionsPage page) =>

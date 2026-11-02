@@ -18,6 +18,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// </summary>
 internal static class EndingSpriteSheetComposer
 {
+    /// <summary>The visible shooting-star animation frames with a sheet frame of their own: the growing star's steps and the full star.</summary>
+    private static IEnumerable<int> StarSheetFrames => Enumerable.Range(1, EndingShootingStarDefinitions.FullStarFrame);
 
     /// <summary>What ending sheet <paramref name="sheet"/> composes.</summary>
     internal static SpriteSheetSources Sources(SpriteSheetId sheet, EndingObjectArtwork objects, EndingPaletteSet palettes,
@@ -32,7 +34,7 @@ internal static class EndingSpriteSheetComposer
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(objectSelection);
         List<SheetFrameSource> frames = [.. IntroSpriteSheetComposer.Frames(page.Families(EndingObjectSourceArtwork.Of(objects)), characters, sizes)];
         if (page.Stars)
-            frames.AddRange(EndingShootingStarDefinitions.SheetFrames.Select(frame =>
+            frames.AddRange(StarSheetFrames.Select(frame =>
             {
                 string name = EndingShootingStarFrames.SheetFrameName(frame);
                 return new SheetFrameSource(name, new SpriteFrame(name, [EndingShootingStarParts.Appearance(frame).ToFramePart(0, sizes)]), characters,
@@ -49,7 +51,7 @@ internal static class EndingSpriteSheetComposer
         Ensure.NotNull(objects);
         EndingPage page = Page(sheet);
         IEnumerable<string> families = IntroSpriteSheetComposer.FrameNames(page.Families(EndingObjectSourceArtwork.Of(objects)));
-        return page.Stars ? families.Concat(EndingShootingStarDefinitions.SheetFrames.Select(EndingShootingStarFrames.SheetFrameName)) : families;
+        return page.Stars ? families.Concat(StarSheetFrames.Select(EndingShootingStarFrames.SheetFrameName)) : families;
     }
 
     /// <summary>The page ending sheet <paramref name="sheet"/> shows.</summary>

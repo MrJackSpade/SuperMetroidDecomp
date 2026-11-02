@@ -1,5 +1,5 @@
 using System.Collections;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 

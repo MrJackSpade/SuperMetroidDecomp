@@ -10,6 +10,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
 /// </summary>
 internal static class FileSelectCursorPositions
 {
+    /// <summary>Slots A-C followed by Copy, Clear and Exit.</summary>
+    internal const int MainSelectionCount = 6;
+
     /// <summary>Calculates the main-page cursor Y for choices 0..5.</summary>
     /// <remarks>
     /// Independently reviewed for #1165: save rows start at48 with five-tile spacing;

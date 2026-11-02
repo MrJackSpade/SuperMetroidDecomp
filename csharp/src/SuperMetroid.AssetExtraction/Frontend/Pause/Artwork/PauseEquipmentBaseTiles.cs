@@ -81,7 +81,7 @@ public static class PauseEquipmentBaseTiles
     {
         int first = PauseEquipmentLabelTiles.StockPageByte(PauseEquipmentLabelTiles.Label(category, firstItem)) / sizeof(ushort);
         int last = PauseEquipmentLabelTiles.StockPageByte(PauseEquipmentLabelTiles.Label(category, lastItem)) / sizeof(ushort);
-        int left = first % Columns - 1, right = first % Columns + PauseEquipmentLabelTiles.WordCount(category);
+        int left = first % Columns - 1, right = first % Columns + PauseEquipmentLabelKeys.WordCount(category);
         return new(left, first / Columns - 1, right, last / Columns + 1,
             (left + right - titleWidth + 1) / 2, titleWidth, titleGlyph, titlePalette, true);
     }

@@ -1,37 +1,19 @@
+using SuperMetroid.Core.Frontend.Intro;
+
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
-/// <summary>Named Ceres destruction backdrops and bounded blast-frame catalogs.</summary>
+/// <summary>The poses of the Ceres destruction's backdrops and bounded blast frames.</summary>
 public static class CeresDestructionSpriteDefinitions
 {
     /// <summary>
-    /// The 23 published compositions: the seven backdrops in <see cref="CeresDestructionBackdrop"/> order, six small blasts,
-    /// four large blasts, then six station blasts. Original sprite part counts describe stock geometry without restricting
-    /// edited compositions.
+    /// The 23 poses the destruction family shows: the seven backdrops, six small blasts, four large blasts, then six
+    /// station blasts.
     /// </summary>
-    public static IReadOnlyList<CeresDestructionSpriteFrameDefinition> Frames { get; } =
+    public static IReadOnlyList<CinematicSpritePose> Poses { get; } =
     [
-        new("station-under-attack-large-asteroid", new(33), 19, CeresDestructionBackdrop.LargeAsteroids),
-        new("planet-zebes", new(38), 50, CeresDestructionBackdrop.Planet),
-        new("planet-zebes-title", new(39), 11, CeresDestructionBackdrop.Title),
-        new("zebes-stars-upper-left", new(62), 12, CeresDestructionBackdrop.UpperLeftStars),
-        new("zebes-stars-upper-right", new(63), 6, CeresDestructionBackdrop.UpperRightStars),
-        new("zebes-stars-lower-left", new(64), 4, CeresDestructionBackdrop.LowerLeftStars),
-        new("zebes-stars-lower-right", new(65), 7, CeresDestructionBackdrop.LowerRightStars),
-        new("small-blast-0", new(41), 1),
-        new("small-blast-1", new(42), 1),
-        new("small-blast-2", new(43), 4),
-        new("small-blast-3", new(44), 4),
-        new("small-blast-4", new(45), 4),
-        new("small-blast-5", new(46), 4),
-        new("large-blast-0", new(47), 1),
-        new("large-blast-1", new(48), 1),
-        new("large-blast-2", new(49), 1),
-        new("large-blast-3", new(50), 1),
-        new("station-blast-0", new(76), 4),
-        new("station-blast-1", new(77), 4),
-        new("station-blast-2", new(78), 4),
-        new("station-blast-3", new(79), 12),
-        new("station-blast-4", new(80), 8),
-        new("station-blast-5", new(81), 12),
+        new(33), new(38), new(39), new(62), new(63), new(64), new(65),
+        new(41), new(42), new(43), new(44), new(45), new(46),
+        new(47), new(48), new(49), new(50),
+        new(76), new(77), new(78), new(79), new(80), new(81),
     ];
 }

@@ -40,8 +40,6 @@ internal static class GameOverBabyAnimationVerification
         AssertEqual(original.Count, GameOverBabyAnimationDefinitions.InstructionCount, "Baby count contract");
         AssertEqual(original.Count, GameOverBabyAnimation.StepCount, "Baby step count");
         AssertEqual(original[0].Pointer, GameOverBabyAnimationDefinitions.FirstPointer, "extraction walk starts at the first native record");
-        GameOverBabyScriptStep[] enumerated = GameOverBabyAnimation.All.ToArray();
-        AssertEqual(original.Count, enumerated.Length, "Baby enumeration count");
         for (int index = 0; index < original.Count; index++)
         {
             var expected = original[index];
@@ -67,7 +65,6 @@ internal static class GameOverBabyAnimationVerification
                 AssertEqual((ushort)0x914d, ReadVerificationWord(rom, 0x820004 + expected.Sound), "native library3 queue address");
                 AssertEqual((byte)0x80, GameOverBabyAnimationRomByte(rom, 0x820006 + expected.Sound), "native library3 queue bank");
             }
-            AssertEqual(actual, enumerated[index], "Baby lazy enumeration order");
         }
         foreach (int invalid in new[] { int.MinValue, -1, original.Count, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => GameOverBabyAnimation.Get(invalid), "unsupported Baby step");

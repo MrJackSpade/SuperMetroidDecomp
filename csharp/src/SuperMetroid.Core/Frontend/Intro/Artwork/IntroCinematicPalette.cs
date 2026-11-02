@@ -8,60 +8,19 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// </summary>
 public sealed class IntroCinematicPalette
 {
-    /// <summary>
-    /// The colours whose sprite set repeats the neutral ramp; its set may be held as that ramp.
-    /// </summary>
-    private static readonly ScreenColourGroup NeutralRamp = ScreenColourGroup.IntroNarrationNeutralRamp;
-
-    /// <summary>
-    /// The colours whose sprite set cross-fades: its first eight visible colours may repeat the sepia
-    /// gradient of <see cref="CrossFadeGradientSource"/>.
-    /// </summary>
-    private static readonly ScreenColourGroup CrossFade = ScreenColourGroup.IntroCrossFadeObjects;
-
-    /// <summary>The discovery scene's background colours, whose sepia gradient the cross-fade repeats.</summary>
-    private static readonly ScreenColourGroup CrossFadeGradientSource = ScreenColourGroup.IntroDiscoveryBackground;
-
     /// <summary>Decoded background sets; empty when the installed colours match the compiled stock paint.</summary>
     internal readonly IntroColourSet[] backgroundSets;
 
     /// <summary>Decoded sprite sets; empty when the installed colours match the compiled stock paint.</summary>
     internal readonly IntroColourSet[] spriteSets;
 
-    /// <summary>Keeps the opening's selected colours, recognising stock, neutral-cycle and shared cross-fade sets.</summary>
-    /// <param name="colours">The selected colours by owner, which the import pipeline decoded.</param>
-    internal static IntroCinematicPalette FromColours(ScreenColours colours) => new(Ensure.NotNull(colours));
-
-    /// <summary>Retains exact supplied colors while recognizing stock, neutral-cycle, and shared cross-fade sets.</summary>
-    /// <param name="colours">The selected colours by owner.</param>
-    private IntroCinematicPalette(ScreenColours colours)
+    /// <summary>Retains the colour sets the import recognised in the opening's selected colours.</summary>
+    /// <param name="backgroundSets">The decoded background sets, or none when the colours match the compiled stock paint.</param>
+    /// <param name="spriteSets">The decoded sprite sets, or none when the colours match the compiled stock paint.</param>
+    internal IntroCinematicPalette(IntroColourSet[] backgroundSets, IntroColourSet[] spriteSets)
     {
-        if (IntroCinematicPaint.Matches(colours))
-        {
-            backgroundSets = [];
-            spriteSets = [];
-            return;
-        }
-        backgroundSets = new IntroColourSet[ColourSets.SetCount];
-        for (int set = 0; set < backgroundSets.Length; set++)
-            backgroundSets[set] = new IntroColourSet(colours.BackgroundSet(set).ToArray(), IntroColourSetCycle.None, crossFadeSource: null);
-        spriteSets = new IntroColourSet[ColourSets.SetCount];
-        for (int set = 0; set < spriteSets.Length; set++)
-        {
-            var cell = new ScreenColourCell(ScreenColourOwner.Sprites, set, 0);
-            IntroColourSetCycle cycle = cell == ScreenColourGroups.FirstCell(NeutralRamp)
-                ? IntroColourSetCycle.NeutralRamp : IntroColourSetCycle.None;
-            IntroColourSet? crossFadeSource = cell == ScreenColourGroups.FirstCell(CrossFade)
-                ? SetHolding(CrossFadeGradientSource) : null;
-            spriteSets[set] = new IntroColourSet(colours.SpriteSet(set).ToArray(), cycle, crossFadeSource);
-        }
-    }
-
-    /// <summary>The decoded set that holds <paramref name="group"/>, a whole set.</summary>
-    private IntroColourSet SetHolding(ScreenColourGroup group)
-    {
-        ScreenColourCell first = ScreenColourGroups.FirstCell(group);
-        return first.Owner == ScreenColourOwner.Backgrounds ? backgroundSets[first.Set] : spriteSets[first.Set];
+        this.backgroundSets = backgroundSets;
+        this.spriteSets = spriteSets;
     }
 
     /// <summary>The installed colours by owner.</summary>

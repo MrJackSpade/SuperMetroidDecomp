@@ -10,9 +10,6 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 public sealed class ScreenColours
 {
-    /// <summary>The colours of a whole screen: every set of both owners.</summary>
-    public const int ColourCount = 2 * ColourSets.SetCount * ColourSets.SetColours;
-
     /// <summary>The colours by owner, which nothing else holds.</summary>
     private readonly PerScreenColour<RgbColor> colours = new();
 

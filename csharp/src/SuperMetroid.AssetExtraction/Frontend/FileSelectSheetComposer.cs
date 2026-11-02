@@ -34,7 +34,7 @@ internal static class FileSelectSheetComposer
         FileSelectSourcePresentation source = FileSelectSourcePresentation.Of(fileSelect);
         int palette = source.ObjectPalette;
         var frames = new List<SheetFrameSource>();
-        foreach (FileSelectBorder border in FileSelectPresentationDefinitions.Borders)
+        foreach (FileSelectBorder border in FileSelectPresentationFormat.Borders)
         {
             string name = FileSelectParts.BorderSpriteName(border);
             frames.Add(new(name, source.borderSprites[border].ToFrame(name, 0), page, palette));
@@ -49,7 +49,7 @@ internal static class FileSelectSheetComposer
             string name = FileSelectParts.HelmetSpriteName(frame);
             frames.Add(new(name, source.helmetSprites[frame].ToFrame(name, 0), page, palette));
         }
-        for (int shape = 0; shape < FileCopyArrowDefinitions.ShapeCount; shape++)
+        for (int shape = 0; shape < FileCopyArrowPartDefinitions.ShapeCount; shape++)
         {
             string name = FileCopyArrowDefinitions.FrameName(shape);
             // The arrows' parts are placed with their own attribute words, palette and all.

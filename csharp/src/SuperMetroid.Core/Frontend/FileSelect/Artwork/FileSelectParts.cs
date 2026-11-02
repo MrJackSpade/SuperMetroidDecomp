@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
 /// <summary>
 /// Names the file-select document's parts (<see cref="FileSelectPresentationDefinitions"/>): its pages, patches,
-/// borders and anchors, each bordered heading, and the menus' pictures of its pages and fields (#1467).
+/// each bordered heading's sprite, and the menus' pictures of its pages and fields (#1467).
 /// </summary>
 public static class FileSelectParts
 {
@@ -16,18 +16,9 @@ public static class FileSelectParts
     public static string PatchName(FileSelectPatch patch) =>
         Ensure.Listed(FileSelectPresentationDefinitions.PatchNames, patch);
 
-    /// <summary>The JSON name of a bordered heading, which keys its anchor.</summary>
-    public static string BorderName(FileSelectBorder border) =>
-        Ensure.Listed(FileSelectPresentationDefinitions.BorderNames, border);
-
     /// <summary>The JSON name of a bordered heading's sprite.</summary>
     public static string BorderSpriteName(FileSelectBorder border) =>
         Ensure.Listed(FileSelectPresentationDefinitions.BorderSpriteNames, border);
-
-    /// <summary>The JSON name of a copy or clear page's slot-letter anchor.</summary>
-    public static string AnchorName(FileSelectAnchor anchor) =>
-        Ensure.Listed(FileSelectPresentationDefinitions.AnchorNames, anchor);
-
 
     /// <summary>The menus' picture of the file-select backdrop page (#1467).</summary>
     public const string BackgroundFrame = "FileSelect.Background";
@@ -60,12 +51,4 @@ public static class FileSelectParts
     /// <summary>The JSON name of a selected-slot helmet frame's sprite, for frames 0-7.</summary>
     public static string HelmetSpriteName(int frame) =>
         Ensure.Element(HelmetSpriteNames, frame);
-
-    /// <summary>Every sprite the document names: the three borders, the four cursor frames and the eight helmet frames.</summary>
-    public static IEnumerable<string> SpriteNames =>
-        [.. Borders.Select(FileSelectParts.BorderSpriteName), .. CursorSpriteNames, .. HelmetSpriteNames];
-
-    /// <summary>Every frame of the file-select sheet: each sprite the document names, then each file-copy arrow.</summary>
-    public static IEnumerable<string> SheetFrames =>
-        SpriteNames.Concat(Enumerable.Range(0, FileCopyArrowDefinitions.ShapeCount).Select(FileCopyArrowDefinitions.FrameName));
 }

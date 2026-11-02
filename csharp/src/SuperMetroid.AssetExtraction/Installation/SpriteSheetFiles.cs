@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
-using SuperMetroid.Core.Frontend.FileSelect.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
@@ -84,7 +84,7 @@ public static class SpriteSheetFiles
         }
         var installed = new InstalledSpriteSheets(sheets);
         // Every frontend floor picture is the whole floor (#1467).
-        foreach (SpriteSheetId sheet in ScreenTileSheetDefinitions.FloorSheets)
+        foreach (SpriteSheetId sheet in FrontendFloorSheetComposer.Sheets)
         {
             foreach (string frame in FrameNames(sheet, body, maps, intro, ending))
                 _ = FloorShots.Of(installed, sheet, frame);
@@ -120,14 +120,14 @@ public static class SpriteSheetFiles
             SpriteSheetId.EndingPlanetExplosionFloor or SpriteSheetId.EndingFlyawayFloor or
             SpriteSheetId.EndingRewardIconFloor =>
             [EndingFloorDefinitions.FrameName],
-        SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerComposition.FrameName),
+        SpriteSheetId.EscapeTimer => EscapeTimerLayoutDefinitions.Glyphs.Select(EscapeTimerComposition.FrameName),
         SpriteSheetId.Grapple => GrappleSheetComposer.Frames,
         SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.FrameNames(body.Value, sheet),
         SpriteSheetId.SamusOverlays => SamusOverlaySheetComposer.Frames,
         SpriteSheetId.SamusAtmosphere => SamusAtmosphereSheetComposer.Frames,
         SpriteSheetId.SamusDeath => SamusDeathSheetComposer.Frames,
         SpriteSheetId.GameOver => GameOverPresentationFormat.SpriteNames.ToArray(),
-        SpriteSheetId.FileSelect => FileSelectParts.SheetFrames,
+        SpriteSheetId.FileSelect => FileSelectPresentationFormat.SheetFrames,
         SpriteSheetId.GameOptions => GameOptionsPresentationFormat.SheetFrames,
         SpriteSheetId.MapSprites => MapSpriteArtwork.SheetFrames,
         SpriteSheetId.PauseSprites => PauseSheetComposer.FrameNames(maps.Value),

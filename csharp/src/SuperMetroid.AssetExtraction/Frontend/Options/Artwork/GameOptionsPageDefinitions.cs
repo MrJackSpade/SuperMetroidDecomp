@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
@@ -11,8 +10,16 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 /// </summary>
 public static class GameOptionsPageDefinitions
 {
+    /// <summary>Cells in each options-page row.</summary>
+    public const int MenuTilemapWidth = 32;
+    /// <summary>Rows in each options page, including rows outside the visible screen.</summary>
+    public const int MenuTilemapHeight = 32;
     /// <summary>Number of row-major tile cells in each 32-by-32 options page.</summary>
-    public const int PageCellCount = GameOptionsDefinitions.MenuTilemapWidth * GameOptionsDefinitions.MenuTilemapHeight;
+    public const int PageCellCount = MenuTilemapWidth * MenuTilemapHeight;
+    /// <summary>The cursor's column while a page phase shows no cursor (including scrolling): off screen.</summary>
+    public const int HiddenCursorX = 384;
+    /// <summary>The hidden cursor's row.</summary>
+    public const int HiddenCursorY = 16;
     /// <summary>Height in characters of the atlas addressed by authored background cells.</summary>
     public const int CharacterRows = 32;
     /// <summary>Width in tile cells of a controller-button label patch: three.</summary>

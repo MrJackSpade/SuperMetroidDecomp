@@ -7,20 +7,4 @@ internal static class FileSelectHelmetAnimation
     internal const int FrameCount = 8;
     /// <summary>The animation reloads the frame timer with eight ticks.</summary>
     internal const int FrameDuration = 8;
-    /// <summary>The animation's frame list holds eight consecutive IDs and one repeated terminal ID.</summary>
-    internal const int EntryCount = FrameCount + 1;
-
-    /// <summary>Calculates the complete nine-entry frame list.</summary>
-    /// <remarks>
-    /// Frame indices 0..7 select consecutive spritemaps $2C..33. Entry 8 repeats
-    /// the final image; the game clamps the active frame to 7 before drawing.
-    /// The extractor and runtime share this calculation. No generated table is stored.
-    /// The ninth entry remains representable for exact bounded source parity;
-    /// other indices reject before arithmetic, without narrowing or wrapping.
-    /// </remarks>
-    internal static int SpritemapId(int frame)
-    {
-        if ((uint)frame >= EntryCount) throw new ArgumentOutOfRangeException(nameof(frame));
-        return WordWrap.Unsigned(44 + Math.Min(frame, FrameCount - 1));
-    }
 }

@@ -84,23 +84,23 @@ public static class GameOptionsPresentationExtractor
 
         var headings = new Dictionary<string, Position16<SpritePixels>>(StringComparer.Ordinal)
         {
-            [GameOptionsNames.MenuName(GameOptionsPage.Primary)] = new(
+            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] = new(
                 GameOptionsPositions.HeadingX(GameOptionsPage.Primary),
                 GameOptionsDefinitions.Headings.HeadingY),
-            [GameOptionsNames.MenuName(GameOptionsPage.Controller)] = new(
+            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Controller)] = new(
                 GameOptionsPositions.HeadingX(GameOptionsPage.Controller),
                 GameOptionsDefinitions.Headings.HeadingY),
-            [GameOptionsNames.MenuName(GameOptionsPage.Special)] = new(
+            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Special)] = new(
                 GameOptionsPositions.HeadingX(GameOptionsPage.Special),
                 GameOptionsDefinitions.Headings.HeadingY),
         };
         var cursors = new Dictionary<string, Position16<SpritePixels>[]>(StringComparer.Ordinal)
         {
-            [GameOptionsNames.MenuName(GameOptionsPage.Primary)] = Points(
+            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] = Points(
                 GameOptionsDefinitions.Cursors.PrimaryX, GameOptionsDefinitions.Rows.PrimaryCount, GameOptionsPositions.PrimaryY),
-            [GameOptionsNames.MenuName(GameOptionsPage.Controller)] = Points(
+            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Controller)] = Points(
                 GameOptionsDefinitions.Cursors.ControllerX, GameOptionsDefinitions.Rows.ControllerCount, GameOptionsPositions.ControllerY),
-            [GameOptionsNames.MenuName(GameOptionsPage.Special)] = Points(
+            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Special)] = Points(
                 GameOptionsDefinitions.Cursors.SpecialX, GameOptionsDefinitions.Rows.SpecialCount, GameOptionsPositions.SpecialY),
         };
 
@@ -116,7 +116,7 @@ public static class GameOptionsPresentationExtractor
             Sprites = sprites,
             HeadingAnchors = headings,
             CursorAnchors = cursors,
-            HiddenCursor = new(GameOptionsDefinitions.Cursors.HiddenX, GameOptionsDefinitions.Cursors.HiddenY),
+            HiddenCursor = new(GameOptionsPageDefinitions.HiddenCursorX, GameOptionsPageDefinitions.HiddenCursorY),
             SelectedPalette = GameOptionsPageDefinitions.TilePalettes.Selected,
             UnselectedPalette = GameOptionsPageDefinitions.TilePalettes.Unselected,
             CursorPalette = MenuRenderDefinitions.ObjectPalette,

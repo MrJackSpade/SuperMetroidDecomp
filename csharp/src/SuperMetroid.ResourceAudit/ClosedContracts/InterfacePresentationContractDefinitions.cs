@@ -33,7 +33,7 @@ internal static class InterfacePresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/CinematicSpriteSheet.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresSceneSpriteSheet.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Ending/EndingAnimalEscapeDefinitions.cs")]),
-        new("SuperMetroid.Core.Gameplay.IGameplayPresentationContent", "gameplay-content-single-catalog", ["Get", "Resolve"],
+        new("SuperMetroid.Core.Gameplay.IGameplayPresentationContent", "gameplay-content-single-catalog", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Gameplay/IGameplayPresentationContent.cs"),
              new("csharp/src/SuperMetroid.Core/Map/IAreaMapSource.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentation.cs"),

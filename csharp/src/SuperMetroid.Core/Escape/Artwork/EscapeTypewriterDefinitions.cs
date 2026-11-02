@@ -9,12 +9,6 @@ public static class EscapeTypewriterDefinitions
     /// <summary>The key click the Ceres typewriter plays for every other glyph.</summary>
     public static readonly SoundEffectId CeresClick = Library2Sound.CeresTypewriter;
 
-    /// <summary>The supported editable escape-typewriter JSON schema version.</summary>
-    public const int Version = 2;
-
-    /// <summary>The embedded editable escape-warning program asset file name.</summary>
-    public const string FileName = "escape-typewriter.json";
-
     /// <summary>The delay between typed characters; unchanged and outside the installed programs table payload. No timing exemption is claimed.</summary>
     public const int CharacterDelayFrames = 2;
     /// <summary>Maximum authored warning length and BG tilemap row width, in character cells.</summary>

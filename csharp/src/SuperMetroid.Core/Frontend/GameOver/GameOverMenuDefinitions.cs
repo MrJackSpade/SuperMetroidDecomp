@@ -15,9 +15,6 @@ public static class GameOverMenuDefinitions
     /// <summary>Menu updates the current Baby frame is held for once either answer is accepted, holding it through the fade-out.</summary>
     public const int AcceptedAnswerHoldDuration = 180;
 
-    /// <summary>The colours in each Baby palette phase.</summary>
-    public const int BabyPaletteColorCount = 16;
-
     /// <summary>The cry queued after the first cry group's first frame.</summary>
     public static readonly SoundEffectId FirstCry = Library3Sound.BabyMetroidCry1;
 

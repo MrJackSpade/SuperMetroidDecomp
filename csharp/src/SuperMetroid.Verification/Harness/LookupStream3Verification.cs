@@ -32,6 +32,7 @@ using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.Sparks;
 using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -276,7 +277,7 @@ internal static class LookupStream3Verification
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = GameOptionsSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
-            string anchorKey = GameOptionsNames.MenuName(page);
+            string anchorKey = GameOptionsPresentationFormat.MenuName(page);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             presentation.DrawHeading(actualOam, MenuSheetFixtures.GameOptions(presentation), page, 3);
@@ -345,7 +346,7 @@ internal static class LookupStream3Verification
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = FileSelectSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
-            string anchorKey = FileSelectParts.BorderName(border);
+            string anchorKey = FileSelectPresentationFormat.BorderName(border);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             presentation.DrawBorder(actualOam, MenuSheetFixtures.FileSelect(presentation), border);
@@ -862,15 +863,15 @@ internal static class LookupStream3Verification
                 presentation.ApplyControllerLabel(actual, action, button);
                 AssertTrue(actual.SequenceEqual(expected), "options controller boxes preserve exact stock/edited placement");
             }
-            foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
+            foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
-                Position16<SpritePixels>[] cursors = document.CursorAnchors[GameOptionsNames.MenuName(page)];
+                Position16<SpritePixels>[] cursors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
                 for (int row = 0; row < cursors.Length; row++)
                     AssertEqual(cursors[row], presentation.CursorPosition(page, row), "options stock/edited cursor");
             }
-            foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
+            foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
-                Position16<SpritePixels> heading = document.HeadingAnchors[GameOptionsNames.MenuName(page)];
+                Position16<SpritePixels> heading = document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(page)];
                 var actual = ScreenSpritesFixtures.Blank();
                 var expected = new OamBuffer();
                 presentation.DrawHeading(actual, MenuSheetFixtures.GameOptions(presentation), page, 3);
@@ -1294,7 +1295,7 @@ internal static class LookupStream3Verification
             }
         }
         string[] expectedCreditRoles = ["staff-heading", "producer-heading", "producer-name", "director-heading", "director-name", "background-designers-heading", "background-designer-1", "background-designer-2", "background-designer-3", "object-designers-heading", "object-designer-1", "object-designer-2", "samus-original-designer-heading", "samus-original-designer-name", "samus-designer-heading", "samus-designer-name", "sound-program-heading", "sound-effects-heading", "sound-programmer-name", "music-composers-heading", "music-composer-1", "music-composer-2", "program-director-heading", "program-director-name", "system-coordinator-heading", "system-coordinator-name", "system-programmer-heading", "system-programmer-name", "samus-programmer-heading", "samus-programmer-name", "event-programmer-heading", "event-programmer-name", "enemy-programmer-heading", "enemy-programmer-name", "map-programmer-heading", "map-programmer-name", "assistant-programmer-heading", "assistant-programmer-name", "coordinators-heading", "coordinator-1", "coordinator-2", "printed-art-work-heading", "printed-art-work-1", "printed-art-work-2", "printed-art-work-3", "printed-art-work-4", "printed-art-work-5", "printed-art-work-6", "special-thanks-heading", "special-thanks-01", "special-thanks-02", "special-thanks-03", "special-thanks-04", "special-thanks-05", "special-thanks-06", "special-thanks-07", "special-thanks-08", "special-thanks-09", "special-thanks-10", "special-thanks-11", "special-thanks-12", "special-thanks-13", "special-thanks-14", "special-thanks-15", "special-thanks-r-and-d", "general-manager-heading", "general-manager-name"];
-        AssertTrue(CreditsRoles.Lines.Select(line => line.Id).SequenceEqual(expectedCreditRoles), "stream 3 all credit role identities and order");
+        AssertTrue(Enumerable.Range(0, CreditsRoles.Lines.Count).Select(CreditsRoleKeys.Of).SequenceEqual(expectedCreditRoles), "stream 3 all credit role identities and order");
         Suite(nameof(VerifyCreditsPresentation), () => VerifyCreditsPresentation(Path.GetFullPath("Super Metroid.smc")));
         byte[] creditsJson = SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(rom);
         var credits = CreditsPresentation.Load(new MemoryStream(creditsJson));
@@ -3124,7 +3125,7 @@ internal static class LookupStream3Verification
             AssertTrue(composition.parts is FileSelectHelmetParts,
                 "stock helmet retains semantic frame only");
             Confirm(stock, original, frame);
-            int pointer = ReadVerificationWord(rom, 0x82c569 + FileSelectHelmetAnimation.SpritemapId(frame) * 2);
+            int pointer = ReadVerificationWord(rom, 0x82c569 + FileSelectHelmetSpritemaps.SpritemapId(frame) * 2);
             int address = 0x820000 | pointer;
             AssertEqual(ReadVerificationWord(rom, address), composition.PartCount, "exact native helmet part count");
             for (int part = 0; part < composition.PartCount; part++)

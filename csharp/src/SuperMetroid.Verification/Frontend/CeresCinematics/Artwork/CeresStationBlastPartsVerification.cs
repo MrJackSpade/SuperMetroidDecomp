@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Frontend.Intro.Artwork.IntroMotherBrainEx
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -21,7 +20,7 @@ internal static class CeresStationBlastPartsVerification
     internal static void VerifyCeresStationBlastParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStationBlast", value.AppendIdentity);
-        foreach (var definition in CeresDestructionSpriteDefinitions.Frames.Where(frame => frame.Name.StartsWith("station-blast-", StringComparison.Ordinal)))
+        foreach (var definition in CeresDestructionSpriteFrameDefinitions.Frames.Where(frame => frame.Name.StartsWith("station-blast-", StringComparison.Ordinal)))
         {
             SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name);
             CheckCeresBlastLoader(definition.Pose, visual);

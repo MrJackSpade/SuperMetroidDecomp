@@ -12,10 +12,6 @@ public static class FileSelectPresentationDefinitions
     /// <summary>Three consecutive save-slot letters in the import's slot-letter glyphs.</summary>
     public const int SlotLetterCount = 3;
 
-    /// <summary>The bordered headings, in document order.</summary>
-    public static IReadOnlyList<FileSelectBorder> Borders { get; } = Enum.GetValues<FileSelectBorder>();
-    /// <summary>The copy and clear pages' slot-letter anchors, in document order.</summary>
-    public static IReadOnlyList<FileSelectAnchor> Anchors { get; } = Enum.GetValues<FileSelectAnchor>();
     /// <summary>The JSON names of the cursor frame sprites, by frame.</summary>
     internal static readonly string[] CursorSpriteNames = ["Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];
     /// <summary>The JSON names of the helmet frame sprites, by frame.</summary>
@@ -46,15 +42,6 @@ public static class FileSelectPresentationDefinitions
             [FileSelectPatch.TimeColon] = "TimeColon",
         };
 
-    /// <summary>The JSON name of a bordered heading, which keys its anchor.</summary>
-    internal static readonly IReadOnlyDictionary<FileSelectBorder, string> BorderNames =
-        new Dictionary<FileSelectBorder, string>
-        {
-            [FileSelectBorder.Main] = "Main",
-            [FileSelectBorder.Copy] = "Copy",
-            [FileSelectBorder.Clear] = "Clear",
-        };
-
     /// <summary>The JSON name of a bordered heading's sprite.</summary>
     internal static readonly IReadOnlyDictionary<FileSelectBorder, string> BorderSpriteNames =
         new Dictionary<FileSelectBorder, string>
@@ -62,15 +49,5 @@ public static class FileSelectPresentationDefinitions
             [FileSelectBorder.Main] = "Border.Main",
             [FileSelectBorder.Copy] = "Border.Copy",
             [FileSelectBorder.Clear] = "Border.Clear",
-        };
-
-    /// <summary>The JSON name of a copy or clear page's slot-letter anchor.</summary>
-    internal static readonly IReadOnlyDictionary<FileSelectAnchor, string> AnchorNames =
-        new Dictionary<FileSelectAnchor, string>
-        {
-            [FileSelectAnchor.CopyDestinationSource] = "Copy.Destination.Source",
-            [FileSelectAnchor.CopyConfirmSource] = "Copy.Confirm.Source",
-            [FileSelectAnchor.CopyConfirmDestination] = "Copy.Confirm.Destination",
-            [FileSelectAnchor.ClearConfirmSource] = "Clear.Confirm.Source",
         };
 }

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Frontend.Intro;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -37,7 +36,7 @@ public sealed class CeresDestructionSpritePresentation : ICinematicSpriteFrames
         CeresDestructionSpriteDocument document;
         document = JsonAssetDocument.Read<CeresDestructionSpriteDocument>(json, ArtworkJson.Options, "Ceres destruction sprite");
         IReadOnlyList<CeresDestructionSpriteFrameDefinition> definitions =
-            CeresDestructionSpriteDefinitions.Frames;
+            CeresDestructionSpriteFrameDefinitions.Frames;
         if (document.Version != CeresDestructionSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException(

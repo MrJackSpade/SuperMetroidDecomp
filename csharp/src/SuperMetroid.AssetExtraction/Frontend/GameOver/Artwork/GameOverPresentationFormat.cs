@@ -9,6 +9,8 @@ public static class GameOverPresentationFormat
     public const int Version = 1;
     /// <summary>Extracted JSON filename for game-over artwork, palette phases, and layout.</summary>
     public const string FileName = "game-over.json";
+    /// <summary>The colours in each Baby palette phase.</summary>
+    public const int BabyPaletteColorCount = 16;
 
     /// <summary>Required Baby, egg, and cursor frame identities in schema order.</summary>
     private static readonly string[] spriteNames =

@@ -4,8 +4,6 @@ namespace SuperMetroid.Core.Frontend.Options.Artwork;
 /// <summary>The options menu's pages, controller labels and the names its pieces are pictured under.</summary>
 public static class GameOptionsPresentationDefinitions
 {
-    /// <summary>The three menu layouts headings and cursors are anchored by, in primary, controller and special order.</summary>
-    internal static IReadOnlyList<GameOptionsPage> MenuPages { get; } = Enum.GetValues<GameOptionsPage>();
     /// <summary>The assignable buttons whose glyphs the controller page shows, in selector order: X, A, B, Select, Y, L, R.</summary>
     public static IReadOnlyList<ControllerButton> ControllerLabelButtons { get; } =
         [ControllerButton.X, ControllerButton.A, ControllerButton.B, ControllerButton.Select, ControllerButton.Y, ControllerButton.L, ControllerButton.R];
@@ -21,15 +19,6 @@ public static class GameOptionsPresentationDefinitions
             [GameOptionsScreen.ControllerJapanese] = "Controller.Japanese",
             [GameOptionsScreen.SpecialEnglish] = "Special.English",
             [GameOptionsScreen.SpecialJapanese] = "Special.Japanese",
-        };
-
-    /// <summary>The JSON name of a menu layout, which keys its heading and cursor anchors.</summary>
-    internal static readonly IReadOnlyDictionary<GameOptionsPage, string> MenuNames =
-        new Dictionary<GameOptionsPage, string>
-        {
-            [GameOptionsPage.Primary] = "Primary",
-            [GameOptionsPage.Controller] = "Controller",
-            [GameOptionsPage.Special] = "Special",
         };
 
     /// <summary>The JSON name of a menu layout's heading sprite.</summary>

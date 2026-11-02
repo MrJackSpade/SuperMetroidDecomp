@@ -26,6 +26,14 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// </summary>
 internal static class FrontendFloorSheetComposer
 {
+    /// <summary>The installed sheets of frontend turning floors' pictures (#1392, #1467).</summary>
+    internal static IReadOnlyList<SpriteSheetId> Sheets { get; } =
+    [
+        SpriteSheetId.TitleFloor, SpriteSheetId.CeresFloor, SpriteSheetId.EndingEscapeAFloor,
+        SpriteSheetId.EndingEscapeBFloor, SpriteSheetId.EndingPlanetExplosionFloor, SpriteSheetId.EndingFlyawayFloor,
+        SpriteSheetId.EndingRewardIconFloor,
+    ];
+
     /// <summary>Composes floor sheet <paramref name="sheet"/> from the stock artwork <paramref name="sources"/> read.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The sheet holds no frontend floor.</exception>
     internal static ComposedSpriteSheet Compose(SpriteSheetId sheet, ScreenTileSources sources)
@@ -151,12 +159,12 @@ internal static class FrontendFloorSheetComposer
     /// <summary>An ending escape or explosion scene's floor: its map laid out twice, one copy after the other, over its characters.</summary>
     private static ComposedSpriteSheet EndingScene(ScreenTileSources sources, EndingFloorSceneId scene, EndingPaletteId palette)
     {
-        ReadOnlySpan<byte> map = sources.EndingMode7[scene].Map.Span;
+        ReadOnlySpan<byte> map = EndingFloorCharacters.SceneOf(sources.EndingMode7, scene).Map.Span;
         var cells = new byte[FloorSheetComposer.CellCount];
         map.CopyTo(cells);
         map.CopyTo(cells.AsSpan(EndingFloorArtworkFormat.MapByteCount));
         return FloorSheetComposer.Compose(
-            [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, cells, EndingFloorSceneCharacters.Of(sources.EndingMode7[scene]).Characters.Span)],
+            [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, cells, EndingFloorSceneCharacters.Of(EndingFloorCharacters.SceneOf(sources.EndingMode7, scene)).Characters.Span)],
             ScreenPaletteColours.EndingColours(sources.EndingPalettes, palette));
     }
 

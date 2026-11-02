@@ -10,8 +10,6 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary>Nine tile words in suit, miscellaneous equipment, boot, blank, and stored Hyper strips; also the button-handler overrun width for Plasma.</summary>
     public const int EquipmentWords = 9;
 
-    /// <summary>The JSON key of the Hyper Beam label; separate from ordinary beam controls and placed at the Wave slot by the game's Hyper label selection.</summary>
-    public const string HyperKey = "Beam.Hyper";
     /// <summary>Hyper mode's pointer table places its only nonblank patch in the Wave slot.</summary>
     public const int HyperBeamItem = 2;
 }

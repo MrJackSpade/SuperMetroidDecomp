@@ -6,7 +6,7 @@ using static SuperMetroid.Verification.Frontend.Intro.Artwork.IntroMotherBrainEx
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -21,7 +21,7 @@ internal static class PlanetZebesTitlePartsVerification
     internal static void VerifyPlanetZebesTitleParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("PlanetZebesTitle", value.AppendIdentity);
-        foreach (var definition in CeresDestructionSpriteDefinitions.Frames.Where(frame => frame.Name == "planet-zebes-title"))
+        foreach (var definition in CeresDestructionSpriteFrameDefinitions.Frames.Where(frame => frame.Name == "planet-zebes-title"))
         {
             SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name);
             CheckCeresBlastLoader(definition.Pose, visual);

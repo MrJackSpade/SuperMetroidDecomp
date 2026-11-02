@@ -135,7 +135,7 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
         {
             string name = GameOverPresentationNames.BabyPaletteName(palette);
             if (!document.BabyPalettes.TryGetValue(name, out ushort[]? colors) ||
-                colors is null || colors.Length != GameOverMenuDefinitions.BabyPaletteColorCount ||
+                colors is null || colors.Length != GameOverPresentationFormat.BabyPaletteColorCount ||
                 colors.Any(color => !RgbColor.IsColorWord(color)))
                 throw new InvalidDataException(
                     $"Game-over Baby palette {name} requires sixteen SNES BGR555 colors.");

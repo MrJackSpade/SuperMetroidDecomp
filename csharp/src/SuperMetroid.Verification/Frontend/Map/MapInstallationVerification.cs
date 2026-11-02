@@ -9,9 +9,8 @@ using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Security.Cryptography;
-using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
@@ -23,8 +22,8 @@ using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Frontend.Map;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
@@ -222,8 +221,8 @@ internal static class MapInstallationVerification
         var equipmentLabels = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseEquipmentLabelArtworkDefinitions.FileName)));
         equipmentLabels.Required("labels").Required("Beam.Charge").Required("cells").Required(0)["flipX"] = true;
         File.WriteAllText(equipmentLabelOverride, equipmentLabels.ToJsonString());
-        string escapeTimerOverride = Path.Combine(installation.MapOverrideDirectory, EscapeTimerPresentationDefinitions.FileName);
-        var escapeTimer = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, EscapeTimerPresentationDefinitions.FileName)));
+        string escapeTimerOverride = Path.Combine(installation.MapOverrideDirectory, EscapeTimerLayoutDefinitions.FileName);
+        var escapeTimer = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, EscapeTimerLayoutDefinitions.FileName)));
         escapeTimer.Required("anchors").Required("Minutes")["x"] = -27;
         File.WriteAllText(escapeTimerOverride, escapeTimer.ToJsonString());
         string escapeTimerTileOverride = Path.Combine(
@@ -238,8 +237,8 @@ internal static class MapInstallationVerification
             IndexedPng.Write(output, new(timerImage.Size.X, timerImage.Size.Y),
                 timerImage.Pixels, timerImage.Colours);
         }
-        string gameplayHudOverride = Path.Combine(installation.MapOverrideDirectory, GameplayHudDefinitions.FileName);
-        var gameplayHud = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameplayHudDefinitions.FileName)));
+        string gameplayHudOverride = Path.Combine(installation.MapOverrideDirectory, GameplayHudDocumentDefinitions.FileName);
+        var gameplayHud = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameplayHudDocumentDefinitions.FileName)));
         gameplayHud.Required("digits").Required("healthAnchor")["x"] = 4;
         File.WriteAllText(gameplayHudOverride, gameplayHud.ToJsonString());
         string gameOverOverride = Path.Combine(installation.MapOverrideDirectory, GameOverPresentationFormat.FileName);
@@ -248,7 +247,7 @@ internal static class MapInstallationVerification
         File.WriteAllText(gameOverOverride, gameOver.ToJsonString());
         string gameOptionsOverride = Path.Combine(installation.MapOverrideDirectory, GameOptionsPresentationFormat.FileName);
         var gameOptions = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameOptionsPresentationFormat.FileName)));
-        gameOptions.Required("cursorAnchors").Required(GameOptionsNames.MenuName(GameOptionsPage.Primary)).Required(0)["x"] = 32;
+        gameOptions.Required("cursorAnchors").Required(GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)).Required(0)["x"] = 32;
         File.WriteAllText(gameOptionsOverride, gameOptions.ToJsonString());
         string fileSelectOverride = Path.Combine(installation.MapOverrideDirectory, FileSelectPresentationFormat.FileName);
         var fileSelect = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, FileSelectPresentationFormat.FileName)));
@@ -281,8 +280,8 @@ internal static class MapInstallationVerification
             "full installation consumes options-menu override");
         AssertTrue(FileSelectSourcePresentation.Of(stock.FileSelect).ContentIdentity != FileSelectSourcePresentation.Of(edited.FileSelect).ContentIdentity,
             "full installation consumes file-select override");
-        AssertTrue(!stock.EscapeTimerTiles.Resolve(SuperMetroid.Core.Assets.InstalledArtworkId.EscapeTimerFirstTiles).Span.SequenceEqual(
-            edited.EscapeTimerTiles.Resolve(SuperMetroid.Core.Assets.InstalledArtworkId.EscapeTimerFirstTiles).Span),
+        AssertTrue(!EscapeTimerTilePageTransfers.Resolve(stock.EscapeTimerTiles, SuperMetroid.Core.Assets.InstalledArtworkId.EscapeTimerFirstTiles).Span.SequenceEqual(
+            EscapeTimerTilePageTransfers.Resolve(edited.EscapeTimerTiles, SuperMetroid.Core.Assets.InstalledArtworkId.EscapeTimerFirstTiles).Span),
             "full installation consumes escape-timer artwork override");
         AssertTrue(stock.RoomFxAnimatedTiles.TryResolve(
                 AnimatedTileImageSources.Of(new AnimatedTileImage(AnimatedTileObject.MaridiaSandCeiling, 0)), 0x40,

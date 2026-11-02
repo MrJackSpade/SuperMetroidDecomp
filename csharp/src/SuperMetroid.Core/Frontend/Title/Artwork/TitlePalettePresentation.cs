@@ -17,7 +17,11 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     internal readonly Dictionary<PaletteFxColorKey, RgbColor> animatedColors;
 
     /// <summary>Retains the selected initial image, ambient edits, and independent skip-only inks.</summary>
-    private TitlePalettePresentation(
+    /// <param name="colours">The selected screen colours by owner, which the import pipeline decoded.</param>
+    /// <param name="animatedColors">The selected ambient-program colours the import found the shared calculation does not produce.</param>
+    /// <param name="skipCopyrightWhite">The selected skip-only white.</param>
+    /// <param name="skipCopyrightRed">The selected skip-only red.</param>
+    internal TitlePalettePresentation(
         ScreenColours colours,
         Dictionary<PaletteFxColorKey, RgbColor> animatedColors,
         RgbColor skipCopyrightWhite,
@@ -27,25 +31,6 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
         this.animatedColors = animatedColors;
         SkipCopyrightWhite = skipCopyrightWhite;
         SkipCopyrightRed = skipCopyrightRed;
-    }
-
-    /// <summary>Keeps the selected title colours, dropping each ambient colour the shared ambient calculation already produces.</summary>
-    /// <param name="colours">The selected screen colours by owner, which the import pipeline decoded.</param>
-    /// <param name="animatedColors">Every selected ambient-program colour.</param>
-    /// <param name="skipCopyrightWhite">The selected skip-only white.</param>
-    /// <param name="skipCopyrightRed">The selected skip-only red.</param>
-    internal static TitlePalettePresentation Create(ScreenColours colours,
-        Dictionary<PaletteFxColorKey, RgbColor> animatedColors, RgbColor skipCopyrightWhite, RgbColor skipCopyrightRed)
-    {
-        foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
-        for (int frame = 0; frame < program.FrameCount; frame++)
-        for (int index = 0; index < program.ColorsPerFrame; index++)
-        {
-            PaletteFxColorKey key = program.Color(frame, index);
-            if (TitleAmbientColors.TryCalculate(key, colours, animatedColors, out RgbColor calculated) &&
-                animatedColors[key] == calculated) animatedColors.Remove(key);
-        }
-        return new TitlePalettePresentation(colours, animatedColors, skipCopyrightWhite, skipCopyrightRed);
     }
 
     /// <summary>Selected BGR555 copyright white the title fast-skip route and title-screen presentation rebinding restore to the copyright glyph's white.</summary>

@@ -124,7 +124,7 @@ public static class FileSelectPresentationExtractor
                 MenuSpriteExtractor.Read(bus, MenuMissileSpritemaps.SpritemapId(frame)));
         for (int frame = 0; frame < FileSelectHelmetAnimation.FrameCount; frame++)
             sprites.Add(FileSelectParts.HelmetSpriteName(frame),
-                MenuSpriteExtractor.Read(bus, FileSelectHelmetAnimation.SpritemapId(frame)));
+                MenuSpriteExtractor.Read(bus, FileSelectHelmetSpritemaps.SpritemapId(frame)));
 
         using var output = new MemoryStream();
         FileSelectSourcePresentation.Write(output, new()
@@ -155,11 +155,11 @@ public static class FileSelectPresentationExtractor
             Sprites = sprites,
             BorderAnchors = new(StringComparer.Ordinal)
             {
-                [FileSelectParts.BorderName(FileSelectBorder.Main)] = new(128, 16),
-                [FileSelectParts.BorderName(FileSelectBorder.Copy)] = new(128, 16),
-                [FileSelectParts.BorderName(FileSelectBorder.Clear)] = new(124, 16),
+                [FileSelectPresentationFormat.BorderName(FileSelectBorder.Main)] = new(128, 16),
+                [FileSelectPresentationFormat.BorderName(FileSelectBorder.Copy)] = new(128, 16),
+                [FileSelectPresentationFormat.BorderName(FileSelectBorder.Clear)] = new(124, 16),
             },
-            MainCursorAnchors = Enumerable.Range(0, FileSelectLayout.MainSelectionCount)
+            MainCursorAnchors = Enumerable.Range(0, FileSelectCursorPositions.MainSelectionCount)
                 .Select(FileSelectCursorPositions.MainSelectionY)
                 .Select(y => new Position16<SpritePixels>(14, y)).ToArray(),
             DataCursorAnchors = Enumerable.Range(0, FileSelectLayout.DataSelectionCount)
@@ -172,13 +172,13 @@ public static class FileSelectPresentationExtractor
                 .Select(y => new Position16<SpritePixels>(100, y)).ToArray(),
             DynamicAnchors = new(StringComparer.Ordinal)
             {
-                [FileSelectParts.AnchorName(FileSelectAnchor.CopyDestinationSource)] =
+                [FileSelectPresentationFormat.AnchorName(FileSelectAnchor.CopyDestinationSource)] =
                     Point(FileSelectNativeLayout.CopyDestinationSourceLetterDestination),
-                [FileSelectParts.AnchorName(FileSelectAnchor.CopyConfirmSource)] =
+                [FileSelectPresentationFormat.AnchorName(FileSelectAnchor.CopyConfirmSource)] =
                     Point(FileSelectNativeLayout.CopyConfirmationSourceLetterDestination),
-                [FileSelectParts.AnchorName(FileSelectAnchor.CopyConfirmDestination)] =
+                [FileSelectPresentationFormat.AnchorName(FileSelectAnchor.CopyConfirmDestination)] =
                     Point(FileSelectNativeLayout.CopyConfirmationDestinationLetterDestination),
-                [FileSelectParts.AnchorName(FileSelectAnchor.ClearConfirmSource)] =
+                [FileSelectPresentationFormat.AnchorName(FileSelectAnchor.ClearConfirmSource)] =
                     Point(FileSelectNativeLayout.ClearConfirmationSourceLetterDestination),
             },
             ObjectPalette = MenuRenderDefinitions.ObjectPalette,

@@ -31,7 +31,7 @@ public static class EscapeTypewriterExtractor
         using var output = new MemoryStream();
         Write(output, new()
         {
-            Version = EscapeTypewriterDefinitions.Version,
+            Version = EscapeTypewriterDocumentDefinitions.Version,
             Programs = programs,
         });
         return output.ToArray();

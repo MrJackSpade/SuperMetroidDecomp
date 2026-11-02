@@ -5,16 +5,12 @@ public static class PauseReserveTankDefinitions
 {
     /// <summary>Six origins, including the trailing cap position.</summary>
     public const int AnchorCount = 6;
-    /// <summary>The sprite palette every reserve-gauge part is drawn with.</summary>
-    public const int Palette = 3;
     /// <summary>Screen X of the first tank's anchor.</summary>
     internal const int FirstAnchorX = 24;
     /// <summary>Horizontal distance between neighbouring tank anchors, one eight-pixel column.</summary>
     internal const int AnchorStride = 8;
     /// <summary>Screen Y shared by every anchor, Y96 minus the draw bias.</summary>
     internal const int AnchorY = 95;
-    /// <summary>The two identical eight-entry partial-fill tables together hold sixteen entries.</summary>
-    internal const int PartialMapEntries = 16;
 
     /// <summary>Full tank, trailing cap, empty tank and seven fill levels, as ten stable
     /// frame-name/spritemap pairs in full, end-cap, empty, then Fill1..Fill7 order.</summary>

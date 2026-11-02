@@ -10,8 +10,7 @@ namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
 /// The installed presentation content that gameplay reads: area maps, HUD and escape artwork, boss palettes, room-FX
-/// tiles and Samus palette inputs, plus the installed artwork they show. The frontend's complete presentation
-/// catalog supplies it.
+/// tiles and Samus palette inputs. The frontend's complete presentation catalog supplies it.
 /// </summary>
 public interface IGameplayPresentationContent : IAreaMapSource
 {

@@ -34,9 +34,9 @@ public static class CreditsPresentationExtractor
         for (int index = 0; index < lines.Length; index++)
         {
             CreditsLineDefinition definition = CreditsRoles.Lines[index];
-            RequireBlankRows(nativeRows, row, definition.BlankRowsBefore, definition.Id);
+            RequireBlankRows(nativeRows, row, definition.BlankRowsBefore, CreditsRoleKeys.Of(index));
             row += definition.BlankRowsBefore;
-            lines[index] = DecodeLine(nativeRows, ref row, definition);
+            lines[index] = DecodeLine(nativeRows, ref row, definition, CreditsRoleKeys.Of(index));
         }
         RequireBlankRows(nativeRows, row, CreditsRollDefinitions.TrailingBlankRows,
             "trailing credits gap");
@@ -124,7 +124,7 @@ public static class CreditsPresentationExtractor
 
     /// <summary>Decodes one line's tile bounds, palette, and matching halves into editable text.</summary>
     private static CreditsLineDocument DecodeLine(
-        ushort[][] rows, ref int rowIndex, CreditsLineDefinition definition)
+        ushort[][] rows, ref int rowIndex, CreditsLineDefinition definition, string id)
     {
         ushort[] top = rows[rowIndex++];
         ushort[]? bottom = definition.Style == CreditsLineStyle.Large
@@ -133,12 +133,12 @@ public static class CreditsPresentationExtractor
         int first = Array.FindIndex(top, word => !IsBlank(word));
         int last = Array.FindLastIndex(top, word => !IsBlank(word));
         if (first < 0 || last < first)
-            throw new InvalidDataException($"Native credits line '{definition.Id}' is empty.");
+            throw new InvalidDataException($"Native credits line '{id}' is empty.");
 
         for (int column = 0; column < first; column++)
-            RequireBlankColumn(top, bottom, column, definition.Id);
+            RequireBlankColumn(top, bottom, column, id);
         for (int column = last + 1; column < CreditsPresentationDefinitions.TilemapWidth; column++)
-            RequireBlankColumn(top, bottom, column, definition.Id);
+            RequireBlankColumn(top, bottom, column, id);
 
         int palette = BackgroundTileWords.ToTile(top[first]).ColourVariant;
         var text = new char[last - first + 1];
@@ -148,7 +148,7 @@ public static class CreditsPresentationExtractor
             if (!IsBlank(top[column]) && topTile.ColourVariant != palette)
             {
                 throw new InvalidDataException(
-                    $"Native credits line '{definition.Id}' mixes palettes.");
+                    $"Native credits line '{id}' mixes palettes.");
             }
             char glyph = CreditsGlyphs.DecodeGlyph(topTile, definition.Style);
             if (bottom is not null)
@@ -158,14 +158,14 @@ public static class CreditsPresentationExtractor
                 if (lower != glyph)
                 {
                     throw new InvalidDataException(
-                        $"Native credits line '{definition.Id}' has mismatched glyph halves.");
+                        $"Native credits line '{id}' has mismatched glyph halves.");
                 }
             }
             text[column - first] = glyph;
         }
         return new CreditsLineDocument
         {
-            Id = definition.Id,
+            Id = id,
             Text = new string(text),
             Column = first,
             Palette = palette,

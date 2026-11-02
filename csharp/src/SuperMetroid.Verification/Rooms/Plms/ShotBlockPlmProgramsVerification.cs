@@ -313,7 +313,7 @@ internal static class ShotBlockPlmProgramsVerification
         }
         var stock = InstalledRoomPlmShotBlockVisuals.Stock();
         var loaded = RoomPlmShotBlockVisualFiles.Create(native.Select(pair => new RoomPlmVisualRunEntry(ShotId(pair.Key), pair.Value)));
-        string identity = SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmShotBlockVisuals), native.ToDictionary(pair => ShotId(pair.Key), pair => pair.Value));
+        string identity = SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmShotBlockVisuals), native.ToDictionary(pair => ShotId(pair.Key), pair => pair.Value));
         AssertEqual(identity, stock.ContentIdentity, "shot-block stock preserves original native content identity");
         AssertEqual(identity, loaded.ContentIdentity, "shot-block imported stock preserves identity");
         foreach (var pair in native)
@@ -326,7 +326,7 @@ internal static class ShotBlockPlmProgramsVerification
         native[0xa345][0][0] = RoomBlockAppearance.Of(0x054);
         native[0xa48b][1][1] = RoomBlockAppearance.Of(0x258);
         var edited = RoomPlmShotBlockVisualFiles.Create(native.Select(pair => new RoomPlmVisualRunEntry(ShotId(pair.Key), pair.Value)));
-        AssertEqual(SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmShotBlockVisuals), native.ToDictionary(pair => ShotId(pair.Key), pair => pair.Value)), edited.ContentIdentity,
+        AssertEqual(SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmShotBlockVisuals), native.ToDictionary(pair => ShotId(pair.Key), pair => pair.Value)), edited.ContentIdentity,
             "shot-block mixed stock/custom identity preserves original framing");
         foreach (var pair in native)
         for (int run = 0; run < pair.Value.Length; run++)

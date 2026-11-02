@@ -33,7 +33,7 @@ internal static class LookupBlueDoorStockVerification
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = InstalledRoomPlmBlueDoorVisuals.Stock();
         var imported = RoomPlmBlueDoorVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
             nameof(InstalledRoomPlmBlueDoorVisuals), words.ToDictionary(pair => RoomPlmBlueDoorVisualFiles.VisualId(NativePlmDraws.At<BlueDoorCaps.Draw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {

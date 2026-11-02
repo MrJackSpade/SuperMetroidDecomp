@@ -50,7 +50,7 @@ internal static class LookupMotherBrainStockVerification
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmMotherBrainFakeDeathVisualCatalog.Stock();
         var imported = RoomPlmMotherBrainFakeDeathVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
             nameof(RoomPlmMotherBrainFakeDeathVisualCatalog), appearances.ToDictionary(pair => RoomPlmMotherBrainFakeDeathVisualFiles.VisualId(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {

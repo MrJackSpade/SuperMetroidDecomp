@@ -108,7 +108,7 @@ internal static class TourianAccessVisualsVerification
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmTourianAccessVisuals.Stock();
         var imported = RoomPlmTourianAccessVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
             "RoomPlmTourianAccessVisualCatalog", words.ToDictionary(pair => RoomPlmTourianAccessVisualFiles.VisualId(NativePlmDraws.At<TourianAccessDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {

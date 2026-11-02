@@ -49,7 +49,7 @@ internal static class LinkedRestoreVisualsVerification
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = InstalledRoomPlmLinkedRestoreVisuals.Stock();
         var imported = RoomPlmLinkedRestoreVisualFiles.Create(entries);
-        string expectedHash = SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmLinkedRestoreVisuals), native.ToDictionary(pair => RoomPlmLinkedRestoreVisualFiles.VisualId(LinkedAt(pair.Key)), pair => pair.Value));
+        string expectedHash = SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmLinkedRestoreVisuals), native.ToDictionary(pair => RoomPlmLinkedRestoreVisualFiles.VisualId(LinkedAt(pair.Key)), pair => pair.Value));
         AssertEqual(expectedHash, stock.ContentIdentity, "linked restore calculated stock preserves original flattened hash");
         AssertEqual(expectedHash, imported.ContentIdentity, "linked restore imported stock hash");
         foreach (var frame in frames)
@@ -71,7 +71,7 @@ internal static class LinkedRestoreVisualsVerification
         entries[5].Blocks[0] = RoomBlockAppearance.Of(0x054);
         var mixed = RoomPlmLinkedRestoreVisualFiles.Create(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmLinkedRestoreVisuals), expected.ToDictionary(pair => RoomPlmLinkedRestoreVisualFiles.VisualId(LinkedAt(pair.Key)), pair => pair.Value)),
+        AssertEqual(SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmLinkedRestoreVisuals), expected.ToDictionary(pair => RoomPlmLinkedRestoreVisualFiles.VisualId(LinkedAt(pair.Key)), pair => pair.Value)),
             mixed.ContentIdentity, "linked restore mixed custom/stock hash");
         entries[2].Blocks[3] = RoomBlockAppearance.Of(0x055);
         foreach (var frame in frames)

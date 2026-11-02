@@ -42,7 +42,7 @@ internal static class LookupDownwardGateStockVerification
             native[frame.Pointer].Select(run => run.ToArray()).ToArray())).ToArray();
         var stock = InstalledRoomPlmDownwardGateVisuals.Stock();
         var imported = RoomPlmDownwardGateVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[][]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[][]> words) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
             nameof(InstalledRoomPlmDownwardGateVisuals), words.ToDictionary(pair => RoomPlmDownwardGateVisualFiles.VisualId(NativePlmDraws.At<DownwardGateDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {

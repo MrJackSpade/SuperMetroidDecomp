@@ -109,13 +109,13 @@ public static class RoomPlmGrappleBlockVisualFiles
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     /// <summary>Each one-block Grapple-block run writes along its row.</summary>
-    private const PlmRunDirection RunDirection = PlmRunDirection.Horizontal;
+    internal const PlmRunDirection RunDirection = PlmRunDirection.Horizontal;
     /// <summary>Each Grapple-block run writes its one block.</summary>
-    private const int RunLength = 1;
+    internal const int RunLength = 1;
     /// <summary>The run ends with a zero horizontal offset, leaving the next draw in its column.</summary>
-    private const int RunNextX = 0;
+    internal const int RunNextX = 0;
     /// <summary>The run ends with a zero vertical offset, leaving the next draw in its row.</summary>
-    private const int RunNextY = 0;
+    internal const int RunNextY = 0;
 
     /// <summary>Validates all five compiled one-block frames and builds the visuals from the authored appearances that differ from the compiled frames.</summary>
     /// <param name="entries">Exactly one visual-only entry for each compiled initial, breakup, and blank draw identity.</param>

@@ -28,7 +28,7 @@ internal static class BotwoonWallVisualsVerification
             native[index] = RoomLevelWordCodec.DecodeAppearance(ReadRomWord(rom, 0x849311 + 2 * index));
         var stock = InstalledRoomPlmBotwoonWallVisuals.Stock();
         var loaded = RoomPlmBotwoonWallVisualFiles.Create([new("clear-wall", native)]);
-        string expectedIdentity = SuperMetroid.Core.Assets.SelectedPresentationHash.Create(
+        string expectedIdentity = SuperMetroid.AssetExtraction.SelectedPresentationHash.Create(
             nameof(InstalledRoomPlmBotwoonWallVisuals), content => content.AppendAppearances("blocks", native));
         AssertEqual(expectedIdentity, stock.ContentIdentity, "Botwoon calculated stock preserves prior content identity");
         AssertEqual(expectedIdentity, loaded.ContentIdentity, "Botwoon loaded stock identity");

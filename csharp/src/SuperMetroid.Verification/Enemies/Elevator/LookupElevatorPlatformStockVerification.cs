@@ -42,7 +42,7 @@ internal static class LookupElevatorPlatformStockVerification
         var original = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].Select(run => run.ToArray()).ToArray());
         var stock = RoomPlmElevatorPlatformVisualCatalog.Stock();
         var imported = RoomPlmElevatorPlatformVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[][]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[][]> appearances) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
             nameof(RoomPlmElevatorPlatformVisualCatalog), appearances.ToDictionary(pair => RoomPlmElevatorPlatformVisualFiles.VisualId(NativePlmDraws.At<ElevatorPlatformDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {

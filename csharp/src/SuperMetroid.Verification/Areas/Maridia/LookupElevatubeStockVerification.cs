@@ -18,7 +18,7 @@ internal static class LookupElevatubeStockVerification
         var entry = new RoomPlmVisualEntry("elevatube-block", [original]);
         var stock = InstalledRoomPlmMaridiaElevatubeVisuals.Stock();
         var imported = RoomPlmMaridiaElevatubeVisualFiles.Create([entry]);
-        string Hash(RoomBlockAppearance appearance) => SuperMetroid.Core.Assets.SelectedPresentationHash.Create(
+        string Hash(RoomBlockAppearance appearance) => SuperMetroid.AssetExtraction.SelectedPresentationHash.Create(
             nameof(InstalledRoomPlmMaridiaElevatubeVisuals), content => content.AppendAppearances("block", [appearance]));
         foreach (var catalog in new[] {stock, imported, installed})
         {

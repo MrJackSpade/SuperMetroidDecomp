@@ -41,7 +41,7 @@ internal static class LookupMotherBrainGlassStockVerification
         var flat = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].SelectMany(run => run).ToArray());
         var stock = RoomPlmMotherBrainGlassVisualCatalog.Stock();
         var imported = RoomPlmMotherBrainGlassVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
             nameof(RoomPlmMotherBrainGlassVisualCatalog), appearances.ToDictionary(pair => RoomPlmMotherBrainGlassVisualFiles.VisualId(NativePlmDraws.At<MotherBrainGlassDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {

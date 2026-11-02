@@ -27,7 +27,7 @@ internal static class LookupEscapeGateStockVerification
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmEscapeGateVisualCatalog.Stock();
         var imported = RoomPlmEscapeGateVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
             nameof(RoomPlmEscapeGateVisualCatalog), appearances.ToDictionary(pair => RoomPlmEscapeGateVisualFiles.VisualId(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {

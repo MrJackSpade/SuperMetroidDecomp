@@ -33,7 +33,7 @@ internal static class LookupColoredDoorStockVerification
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = InstalledRoomPlmColoredDoorVisuals.Stock();
         var imported = RoomPlmColoredDoorVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
             nameof(InstalledRoomPlmColoredDoorVisuals), words.ToDictionary(pair => RoomPlmColoredDoorVisualFiles.VisualId(NativePlmDraws.At<ColoredDoorCaps.Draw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {

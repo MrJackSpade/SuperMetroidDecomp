@@ -21,7 +21,7 @@ internal static class LookupCollectibleStockVerification
         var entries = frames.Select(frame => new RoomPlmVisualBlockEntry(frame.Id, native[frame.Pointer])).ToArray();
         var stock = InstalledRoomPlmCollectibleVisuals.Stock();
         var imported = RoomPlmCollectibleVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance> words) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
             nameof(InstalledRoomPlmCollectibleVisuals), words.ToDictionary(pair => RoomPlmCollectibleVisualFiles.VisualId(PlmDraw.FrameOf<RoomPlmCollectibleDrawDefinitions.Draw>(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(pair.Key), "collectible")), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {

@@ -28,7 +28,7 @@ internal static class SpeedBoosterVisualsVerification
         RoomBlockAppearance native = RoomLevelWordCodec.DecodeAppearance(ReadRomWord(rom,0x84a4f5));
         var stock = InstalledRoomPlmSpeedBoosterVisuals.Stock();
         var imported = RoomPlmSpeedBoosterVisualFiles.Create([new("bomb-reveal",[native])]);
-        string Hash(RoomBlockAppearance appearance) => SuperMetroid.Core.Assets.SelectedPresentationHash.Create(
+        string Hash(RoomBlockAppearance appearance) => SuperMetroid.AssetExtraction.SelectedPresentationHash.Create(
             nameof(InstalledRoomPlmSpeedBoosterVisuals), content => content.AppendAppearances("block",[appearance]));
         AssertEqual(native,stock.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed stock visual matches original native draw");
         AssertEqual(native,imported.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed imported visual matches original native draw");

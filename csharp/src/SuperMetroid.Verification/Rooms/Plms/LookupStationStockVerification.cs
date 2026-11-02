@@ -44,7 +44,7 @@ internal static class LookupStationStockVerification
         var original = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].Select(run => run.ToArray()).ToArray());
         var stock = InstalledRoomPlmStationVisuals.Stock();
         var imported = RoomPlmStationVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[][]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[][]> words) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
             nameof(InstalledRoomPlmStationVisuals), words.ToDictionary(pair => RoomPlmStationVisualFiles.VisualId(NativePlmDraws.At<StationDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {

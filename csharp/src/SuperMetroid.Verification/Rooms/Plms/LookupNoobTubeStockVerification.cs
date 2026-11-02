@@ -39,7 +39,7 @@ internal static class LookupNoobTubeStockVerification
         var flat = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].SelectMany(run => run).ToArray());
         var stock = InstalledRoomPlmNoobTubeVisuals.Stock();
         var imported = RoomPlmNoobTubeVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
             nameof(InstalledRoomPlmNoobTubeVisuals), words.ToDictionary(pair => RoomPlmNoobTubeVisualFiles.VisualId(NativePlmDraws.At<NoobTubeDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {

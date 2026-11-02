@@ -3,7 +3,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Rooms.TilemapJsonContractsVerification;
-using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Samus;

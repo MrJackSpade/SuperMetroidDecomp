@@ -82,10 +82,10 @@ internal static class GrappleBlockProgramsVerification
                 continue;
             }
             AssertEqual((ushort)pointer,NativePlmDraws.AddressOf(PlmDraw.Of(draw.Frame)),"Grapple draw identity");
-            AssertRunHeader(ReadRomWord(rom,0x840000 | pointer),RoomPlmGrappleBlockDrawDefinitions.DrawList.Direction,RoomPlmGrappleBlockDrawDefinitions.DrawList.Count,"Grapple native single-block geometry");
+            AssertRunHeader(ReadRomWord(rom,0x840000 | pointer),SuperMetroid.AssetExtraction.Rooms.RoomPlmGrappleBlockVisualFiles.RunDirection,SuperMetroid.AssetExtraction.Rooms.RoomPlmGrappleBlockVisualFiles.RunLength,"Grapple native single-block geometry");
             AssertEqual(RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2))),draw.Terrain,"Grapple native terrain");
-            AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 4))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextX,"Grapple native terminal X");
-            AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 5))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextY,"Grapple native terminal Y");
+            AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 4))),SuperMetroid.AssetExtraction.Rooms.RoomPlmGrappleBlockVisualFiles.RunNextX,"Grapple native terminal X");
+            AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 5))),SuperMetroid.AssetExtraction.Rooms.RoomPlmGrappleBlockVisualFiles.RunNextY,"Grapple native terminal Y");
             AssertEqual(draw,exported.Single(entry => NativePlmDraws.AddressOf(PlmDraw.Of(entry.Frame)) == pointer),"Grapple exported draw matches calculation");
         }
     }
@@ -114,7 +114,7 @@ internal static class GrappleBlockProgramsVerification
         var entries = native.Select(pair => new RoomPlmVisualBlockEntry(GrappleId(pair.Key),pair.Value)).ToArray();
         var stock = InstalledRoomPlmGrappleBlockVisuals.Stock();
         var imported = RoomPlmGrappleBlockVisualFiles.Create(entries);
-        string expectedHash = SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmGrappleBlockVisuals),native.ToDictionary(pair => GrappleId(pair.Key), pair => pair.Value));
+        string expectedHash = SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmGrappleBlockVisuals),native.ToDictionary(pair => GrappleId(pair.Key), pair => pair.Value));
         AssertEqual(expectedHash,stock.ContentIdentity,"Grapple calculated stock original hash");
         AssertEqual(expectedHash,imported.ContentIdentity,"Grapple imported stock original hash");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
@@ -131,7 +131,7 @@ internal static class GrappleBlockProgramsVerification
         entries[4] = new(GrappleId(pointers[4]),RoomBlockAppearance.Of(0x053, BlockMirroring.Horizontal));
         var mixed = RoomPlmGrappleBlockVisualFiles.Create(entries);
         var expected = entries.ToDictionary(entry => entry.Id,entry => entry.Appearance);
-        AssertEqual(SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmGrappleBlockVisuals),expected),
+        AssertEqual(SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmGrappleBlockVisuals),expected),
             mixed.ContentIdentity,"Grapple mixed stock/override identity");
         entries[0] = new(GrappleId(pointers[0]),RoomBlockAppearance.Of(0x054));
         foreach (var pair in expected)

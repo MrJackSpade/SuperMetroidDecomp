@@ -35,7 +35,7 @@ internal static class LookupEyeDoorStockVerification
                 RoomLevelWordCodec.DecodeAppearance(ReadSamusEaterPlmWord(rom,0x840000 | (frame.Pointer + 2 + cell * 2)))).ToArray());
         }
         string Hash(Dictionary<ushort,RoomBlockAppearance[]> words) =>
-            SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmEyeDoorVisuals),words.ToDictionary(pair => RoomPlmEyeDoorVisualFiles.VisualId(NativePlmDraws.At<EyeDoorDraws.Draw>(pair.Key)), pair => pair.Value));
+            SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmEyeDoorVisuals),words.ToDictionary(pair => RoomPlmEyeDoorVisualFiles.VisualId(NativePlmDraws.At<EyeDoorDraws.Draw>(pair.Key)), pair => pair.Value));
         void Compare(InstalledRoomPlmEyeDoorVisuals catalog, Dictionary<ushort,RoomBlockAppearance[]> words)
         {
             AssertEqual(Hash(words),catalog.ContentIdentity,"Eye door original stock identity framing");

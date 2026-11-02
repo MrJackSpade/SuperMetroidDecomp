@@ -40,7 +40,7 @@ internal static class LookupCrocomireStockVerification
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmCrocomireVisualCatalog.Stock();
         var imported = RoomPlmCrocomireVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
             nameof(RoomPlmCrocomireVisualCatalog), appearances.ToDictionary(pair => RoomPlmCrocomireVisualFiles.VisualId(NativePlmDraws.At<CrocomireArenaDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {

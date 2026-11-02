@@ -41,7 +41,7 @@ internal static class LookupBombTorizoHandStockVerification
         var flat = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].SelectMany(run => run).ToArray());
         var stock = RoomPlmBombTorizoHandVisualCatalog.Stock();
         var imported = RoomPlmBombTorizoHandVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
             nameof(RoomPlmBombTorizoHandVisualCatalog), appearances.ToDictionary(pair => RoomPlmBombTorizoHandVisualFiles.VisualId(NativePlmDraws.At<BombTorizoHandDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {

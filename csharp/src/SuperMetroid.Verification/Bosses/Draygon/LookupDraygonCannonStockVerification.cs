@@ -41,7 +41,7 @@ internal static class LookupDraygonCannonStockVerification
         var flat = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].SelectMany(run => run).ToArray());
         var stock = RoomPlmDraygonCannonVisualCatalog.Stock();
         var imported = RoomPlmDraygonCannonVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
             nameof(RoomPlmDraygonCannonVisualCatalog), appearances.ToDictionary(pair => RoomPlmDraygonCannonVisualFiles.VisualId(NativePlmDraws.At<DraygonCannonDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {

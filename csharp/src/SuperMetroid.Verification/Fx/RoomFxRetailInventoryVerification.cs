@@ -370,7 +370,7 @@ internal static class RoomFxRetailInventoryVerification
             bus,
             FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Lava),
             RoomFxNativeSources.LavaFirstInstruction,
-            RoomFxAnimatedTiles.Require(AnimatedTileObject.Lava).FrameByteCount,
+            RoomFxAnimatedTileLoops.Require(AnimatedTileObject.Lava).FrameByteCount,
             AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Lava),
             RoomFxNativeSources.LavaFirstFrame,
             "lava"));
@@ -378,7 +378,7 @@ internal static class RoomFxRetailInventoryVerification
             bus,
             FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Acid),
             RoomFxNativeSources.AcidFirstInstruction,
-            RoomFxAnimatedTiles.Require(AnimatedTileObject.Lava).FrameByteCount,
+            RoomFxAnimatedTileLoops.Require(AnimatedTileObject.Lava).FrameByteCount,
             AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Lava),
             RoomFxNativeSources.AcidFirstFrame,
             "acid"));
@@ -386,7 +386,7 @@ internal static class RoomFxRetailInventoryVerification
             bus,
             FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Rain),
             RoomFxNativeSources.RainFirstInstruction,
-            RoomFxAnimatedTiles.Require(AnimatedTileObject.Rain).FrameByteCount,
+            RoomFxAnimatedTileLoops.Require(AnimatedTileObject.Rain).FrameByteCount,
             AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Rain),
             RoomFxNativeSources.RainFirstFrame,
             "rain"));

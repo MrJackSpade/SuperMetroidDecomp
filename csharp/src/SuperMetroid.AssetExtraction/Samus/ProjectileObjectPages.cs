@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.AssetExtraction.Samus;

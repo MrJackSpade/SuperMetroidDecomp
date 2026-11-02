@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// Owned identity of one sprite artwork sheet. It names installed artwork by what it is, never by the

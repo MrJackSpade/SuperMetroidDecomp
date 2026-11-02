@@ -80,7 +80,7 @@ internal static class InstalledSporesTests
     private static void CheckOwners(AreaMapPresentation stock, AreaMapPresentation edited,
         List<DisplayPacket> packets)
     {
-        var mechanics = RoomFxAnimatedTiles.All.Single(
+        var mechanics = RoomFxAnimatedTileLoops.All.Single(
             value => value.AnimatedObject == AnimatedTileObject.Spores);
         Require(mechanics.InstructionPointer == 0x82ed && mechanics.FrameByteCount == 48 &&
             AnimatedTileVramDestinations.WordOf(mechanics.AnimatedObject) == 0x4280 && mechanics.GotoInstructionPointer == 0x82f9 &&
@@ -209,7 +209,7 @@ internal static class InstalledSporesTests
         }
         Require(segmentOffset == planar.Length, "Installed sheet length differs from its native segment list.");
         int sporesOffset = RoomFxAnimatedTileAtlasFile.PreSporesWidth * 2;
-        var controls = RoomFxAnimatedTiles.All.Single(
+        var controls = RoomFxAnimatedTileLoops.All.Single(
             value => value.AnimatedObject == AnimatedTileObject.Spores);
         for (int frame = 0; frame < 3; frame++)
         {

@@ -66,7 +66,7 @@ internal static class TreadmillVisualVerification
                 // pointer or unrelated enemy animation.
                 byte[] floor = shown.AsSpan(
                     AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards) * 2,
-                    WreckedShipTreadmillMechanicsDefinitions.FrameByteCount).ToArray();
+                    RoomFxAnimatedTileLoops.TreadmillFrameByteCount).ToArray();
                 images.Add(Convert.ToHexString(floor));
                 if (frame > 0)
                 {
@@ -85,8 +85,8 @@ internal static class TreadmillVisualVerification
     {
         var expected = new SnesVram();
         ushort destination = AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards);
-        ImportedVramOracle.ExecuteHardware(expected, bus, source, WreckedShipTreadmillMechanicsDefinitions.FrameByteCount, destination);
-        return expected.Bytes.Slice(destination * 2, WreckedShipTreadmillMechanicsDefinitions.FrameByteCount).ToArray();
+        ImportedVramOracle.ExecuteHardware(expected, bus, source, RoomFxAnimatedTileLoops.TreadmillFrameByteCount, destination);
+        return expected.Bytes.Slice(destination * 2, RoomFxAnimatedTileLoops.TreadmillFrameByteCount).ToArray();
     }
 
     /// <summary>Runs the focused Wrecked Ship treadmill visual comparison.</summary>

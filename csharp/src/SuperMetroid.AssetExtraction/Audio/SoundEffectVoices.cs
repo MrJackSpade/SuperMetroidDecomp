@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Audio;
+namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
 /// The set of the eight playback voices a rendered sound-effect layer sounds on. Voices compose

@@ -18,7 +18,7 @@ internal static class LookupAnimatedHeadersVerification
     internal static void VerifySimpleAnimationObjectDomain()
     {
         AssertTrue(OriginalSimpleAnimationObjects.SequenceEqual(
-            RoomFxAnimatedTiles.All.Select(x => FxNativeWords.AnimatedTileObjects.Word(x.AnimatedObject))),
+            RoomFxAnimatedTileLoops.All.Select(x => FxNativeWords.AnimatedTileObjects.Word(x.AnimatedObject))),
             "Original seven-object enumeration order");
         var original = OriginalSimpleAnimationObjects.ToHashSet();
         foreach (AnimatedTileObject header in Enum.GetValues<AnimatedTileObject>())
@@ -51,7 +51,7 @@ internal static class LookupAnimatedHeadersVerification
     private static void VerifySimpleAnimationHeaderField(SuperMetroidAddressSpace rom, int offset,
         Func<RoomFxAnimatedTileLoop, int> field)
     {
-        var enumerated = RoomFxAnimatedTiles.All.ToDictionary(x => x.AnimatedObject);
+        var enumerated = RoomFxAnimatedTileLoops.All.ToDictionary(x => x.AnimatedObject);
         foreach (ushort pointer in OriginalSimpleAnimationObjects)
         {
             ushort expected = ReadVerificationWord(rom, (0x870000 | pointer) + offset);

@@ -77,9 +77,6 @@ public sealed class RoomFxAnimatedTileLoop
     /// <summary>The timed frame-control records in execution order.</summary>
     public IReadOnlyList<RoomFxAnimatedTileFrameDefinition> Frames => frames;
 
-    /// <summary>The distinct pictures the object's frames show, in order.</summary>
-    public IEnumerable<AnimatedTileImage> Images => Enumerable.Range(0, ImageCount).Select(index => new AnimatedTileImage(AnimatedObject, index));
-
     /// <summary>The picture <paramref name="frame"/> shows: past the last picture, the loop plays its pictures back.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of this object's frames.</exception>
     public AnimatedTileImage Image(RoomFxAnimatedTileFrameDefinition frame)

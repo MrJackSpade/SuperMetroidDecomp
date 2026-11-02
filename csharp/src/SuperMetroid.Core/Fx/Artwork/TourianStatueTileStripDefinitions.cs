@@ -13,9 +13,6 @@ public static class TourianStatueTileStripDefinitions
     /// <summary>The bytes of one two-bit character.</summary>
     public const int BytesPerTile = 16;
 
-    /// <summary>The strip's length in bytes.</summary>
-    public const int ByteCount = TileCount * BytesPerTile;
-
     /// <summary>
     /// Each statue's windows of the strip: its first oscillation picture's first character, its pictures' width in
     /// characters and its released picture's first character (<see cref="TourianStatueTileStrip"/>).

@@ -29,7 +29,7 @@ internal static class AnimatedTileImageSources
     internal static int TourianStatueStripStart => RoomFxAnimatedTileSourceDefinitions.TourianStatueStrip.Value;
 
     /// <summary>The cartridge address after the shared Tourian statue strip.</summary>
-    internal static int TourianStatueStripEnd => TourianStatueStripStart + TourianStatueTileStripDefinitions.ByteCount;
+    internal static int TourianStatueStripEnd => TourianStatueStripStart + RoomFxAnimatedTileLoops.TourianStatueStripByteCount;
 
     /// <summary>Resolves installed characters by the cartridge address a native frame operand names.</summary>
     extension(RoomFxAnimatedTileAtlas atlas)

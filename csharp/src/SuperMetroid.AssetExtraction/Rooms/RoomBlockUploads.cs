@@ -261,7 +261,7 @@ internal static class RoomBlockUploads
         AnimatedTileObject animatedObject = RoomFxAnimatedTilesState.ObjectOf(type);
         if (animatedObject == AnimatedTileObject.None)
             yield break;
-        RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTiles.Require(animatedObject);
+        RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTileLoops.Require(animatedObject);
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             yield return Animated(inputs, animatedObject, frame, mechanics.Image(mechanics.Frames[frame]),
                 mechanics.FrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
@@ -322,13 +322,13 @@ internal static class RoomBlockUploads
         if (WreckedShipTreadmills.TryResolve(animatedObject, out WreckedShipTreadmillLoop? treadmill))
         {
             for (int frame = 0; frame < WreckedShipTreadmillMechanicsDefinitions.FrameCount; frame++)
-                yield return Animated(inputs, animatedObject, frame, treadmill.Image(frame), WreckedShipTreadmillMechanicsDefinitions.FrameByteCount,
+                yield return Animated(inputs, animatedObject, frame, treadmill.Image(frame), RoomFxAnimatedTileLoops.TreadmillFrameByteCount,
                     AnimatedTileVramDestinations.WordOf(animatedObject));
             yield break;
         }
         if (animatedObject is not (AnimatedTileObject.HorizontalSpikes or AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling))
             yield break;
-        RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTiles.Require(animatedObject);
+        RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTileLoops.Require(animatedObject);
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             yield return Animated(inputs, animatedObject, frame, mechanics.Image(mechanics.Frames[frame]),
                 mechanics.FrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));

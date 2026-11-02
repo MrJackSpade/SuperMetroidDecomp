@@ -107,7 +107,7 @@ internal static class AnimatedTileInstructionCodesVerification
     {
         var bus = new TestAddressSpace();
         WriteTestWords(bus, 0x870000 | FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Lava), 0x9000,
-            WreckedShipTreadmillMechanicsDefinitions.FrameByteCount,
+            RoomFxAnimatedTileLoops.TreadmillFrameByteCount,
             AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards));
         WriteTestWords(bus, 0x879000, program);
         return bus;

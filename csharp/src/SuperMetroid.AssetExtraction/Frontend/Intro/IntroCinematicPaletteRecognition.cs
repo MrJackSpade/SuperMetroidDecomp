@@ -30,7 +30,7 @@ internal static class IntroCinematicPaletteRecognition
     internal static IntroCinematicPalette Recognise(ScreenColours colours)
     {
         Ensure.NotNull(colours);
-        if (IntroCinematicPaint.Matches(colours))
+        if (MatchesStockPaint(colours))
             return new IntroCinematicPalette([], []);
         var backgroundSets = new IntroColourSet[ColourSets.SetCount];
         for (int set = 0; set < backgroundSets.Length; set++)
@@ -39,9 +39,9 @@ internal static class IntroCinematicPaletteRecognition
         for (int set = 0; set < spriteSets.Length; set++)
         {
             var cell = new ScreenColourCell(ScreenColourOwner.Sprites, set, 0);
-            IntroColourSetCycle cycle = cell == ScreenColourGroups.FirstCell(NeutralRamp)
+            IntroColourSetCycle cycle = cell == FirstCell(NeutralRamp)
                 ? IntroColourSetCycle.NeutralRamp : IntroColourSetCycle.None;
-            IntroColourSet? crossFadeSource = cell == ScreenColourGroups.FirstCell(CrossFade)
+            IntroColourSet? crossFadeSource = cell == FirstCell(CrossFade)
                 ? SetHolding(CrossFadeGradientSource, backgroundSets, spriteSets) : null;
             spriteSets[set] = new IntroColourSet(colours.SpriteSet(set).ToArray(), cycle, crossFadeSource);
         }
@@ -51,7 +51,27 @@ internal static class IntroCinematicPaletteRecognition
     /// <summary>The decoded set that holds <paramref name="group"/>, a whole set.</summary>
     private static IntroColourSet SetHolding(ScreenColourGroup group, IntroColourSet[] backgroundSets, IntroColourSet[] spriteSets)
     {
-        ScreenColourCell first = ScreenColourGroups.FirstCell(group);
+        ScreenColourCell first = FirstCell(group);
         return first.Owner == ScreenColourOwner.Backgrounds ? backgroundSets[first.Set] : spriteSets[first.Set];
+    }
+
+    /// <summary>Checks every colour of both of the intro screen's owners against the calculated set and ink painting.</summary>
+    private static bool MatchesStockPaint(ScreenColours colours)
+    {
+        for (int set = 0; set < ColourSets.SetCount; set++)
+        for (int ink = 0; ink < ColourSets.SetColours; ink++)
+        {
+            if (colours.BackgroundSet(set)[ink] != IntroCinematicPaint.Background(set, ink) ||
+                colours.SpriteSet(set)[ink] != IntroCinematicPaint.Sprite(set, ink))
+                return false;
+        }
+        return true;
+    }
+
+    /// <summary>The screen colour cell that holds the first colour of <paramref name="group"/>.</summary>
+    private static ScreenColourCell FirstCell(ScreenColourGroup group)
+    {
+        ScreenColourPlacement placement = ScreenColourGroups.Placement(group);
+        return new ScreenColourCell(placement.Owner, placement.Set, placement.Colour);
     }
 }

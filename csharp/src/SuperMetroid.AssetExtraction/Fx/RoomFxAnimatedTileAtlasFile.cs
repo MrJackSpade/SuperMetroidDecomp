@@ -39,7 +39,7 @@ public static class RoomFxAnimatedTileAtlasFile
     private static IEnumerable<RoomFxAtlasSegment> EnumerateSegments()
     {
         int total = 0;
-        foreach (RoomFxAnimatedTileLoop definition in RoomFxAnimatedTiles.All)
+        foreach (RoomFxAnimatedTileLoop definition in RoomFxAnimatedTileLoops.All)
             if (definition.AnimatedObject is not (AnimatedTileObject.Spores or AnimatedTileObject.HorizontalSpikes))
                 foreach (var segment in Frames(definition))
                 {
@@ -50,18 +50,18 @@ public static class RoomFxAnimatedTileAtlasFile
             WreckedShipTreadmills.ForDirection(WreckedShipTreadmillDirection.Rightwards);
         for (int frame = 0; frame < RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount; frame++)
         {
-            total += WreckedShipTreadmillMechanicsDefinitions.FrameByteCount;
-            yield return new RoomFxAtlasSegment.Image(treadmill.Image(frame), WreckedShipTreadmillMechanicsDefinitions.FrameByteCount);
+            total += RoomFxAnimatedTileLoops.TreadmillFrameByteCount;
+            yield return new RoomFxAtlasSegment.Image(treadmill.Image(frame), RoomFxAnimatedTileLoops.TreadmillFrameByteCount);
         }
         var statues = new RoomFxAtlasSegment.TourianStatueStrip();
         total += statues.ByteCount;
         yield return statues;
-        foreach (var segment in Frames(RoomFxAnimatedTiles.Require(AnimatedTileObject.Spores)))
+        foreach (var segment in Frames(RoomFxAnimatedTileLoops.Require(AnimatedTileObject.Spores)))
         {
             total += segment.ByteCount;
             yield return segment;
         }
-        foreach (var segment in Frames(RoomFxAnimatedTiles.Require(AnimatedTileObject.HorizontalSpikes)))
+        foreach (var segment in Frames(RoomFxAnimatedTileLoops.Require(AnimatedTileObject.HorizontalSpikes)))
         {
             total += segment.ByteCount;
             yield return segment;

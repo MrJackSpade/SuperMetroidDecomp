@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileArtworkVerification;
 using SuperMetroid.Core.Hardware;
@@ -43,7 +44,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
         int mechanicsWordCount = 0;
         int frameCount = 0;
         foreach (RoomFxAnimatedTileLoop definition in
-                 RoomFxAnimatedTiles.All)
+                 RoomFxAnimatedTileLoops.All)
         {
             mechanicsWordCount += 3;
 
@@ -82,7 +83,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
                 $"object {definition.AnimatedObject} reads no compiled artwork-source operands");
         }
 
-        AssertEqual(7, RoomFxAnimatedTiles.All.Count(),
+        AssertEqual(7, RoomFxAnimatedTileLoops.All.Count(),
             "simple room-FX animated-tile object count");
         AssertEqual(30, frameCount, "simple room-FX animated-tile frame count");
         AssertEqual(65, mechanicsWordCount,
@@ -122,7 +123,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
     /// </summary>
     private static void VerifySimpleAnimationLoopWrapsToFirstFrame()
     {
-        foreach (RoomFxAnimatedTileLoop definition in RoomFxAnimatedTiles.All)
+        foreach (RoomFxAnimatedTileLoop definition in RoomFxAnimatedTileLoops.All)
         {
             var expected = new List<RoomFxAnimatedTileMechanicsDefinitionsExpected>();
             int update = 0;

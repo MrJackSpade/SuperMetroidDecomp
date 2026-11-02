@@ -33,7 +33,7 @@ internal static class RoomFxAnimatedTileSources
             AnimatedTileObject.Rain => Simple(RoomFxAnimatedTileSourceDefinitions.Rain),
             AnimatedTileObject.Spores => Simple(RoomFxAnimatedTileSourceDefinitions.Spores),
             AnimatedTileObject.WreckedShipTreadmillRightwards => new PictureRun(
-                RoomFxAnimatedTileSourceDefinitions.WreckedShipTreadmill, WreckedShipTreadmillMechanicsDefinitions.FrameByteCount),
+                RoomFxAnimatedTileSourceDefinitions.WreckedShipTreadmill, RoomFxAnimatedTileLoops.TreadmillFrameByteCount),
             AnimatedTileObject.WreckedShipTreadmillLeftwards or AnimatedTileObject.None or AnimatedTileObject.TourianStatuePhantoon or AnimatedTileObject.TourianStatueRidley
                 or AnimatedTileObject.TourianStatueKraid or AnimatedTileObject.TourianStatueDraygon or AnimatedTileObject.Empty
                 or AnimatedTileObject.VerticalSpikes or AnimatedTileObject.CrateriaLake or AnimatedTileObject.UnusedCrateriaLava
@@ -44,7 +44,7 @@ internal static class RoomFxAnimatedTileSources
         return first.AddWithinBank(image.Index * byteCount);
 
         PictureRun Simple(SnesAddress start) =>
-            new(start, RoomFxAnimatedTiles.Require(image.Object).FrameByteCount);
+            new(start, RoomFxAnimatedTileLoops.Require(image.Object).FrameByteCount);
     }
 
     /// <summary>An object's first picture and the bytes between consecutive pictures.</summary>

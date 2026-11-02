@@ -42,14 +42,14 @@ internal static class AnimatedTileFrameArtwork
     {
         if (!frames.TryShown(AnimatedTileFrames.Of(animatedObject), out ArtworkFrame shown))
             return;
-        RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTiles.Require(animatedObject);
+        RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTileLoops.Require(animatedObject);
         vram.LoadBytes(AnimatedTileVramDestinations.WordOf(mechanics.AnimatedObject) * sizeof(ushort), Bytes(BgArtworkIdentity.Frame(shown), atlas).Span);
     }
 
     /// <summary>Every animated-tile frame, with the cartridge source and size of its installed characters.</summary>
     private static IEnumerable<FramePicture> Frames()
     {
-        foreach (RoomFxAnimatedTileLoop mechanics in RoomFxAnimatedTiles.All)
+        foreach (RoomFxAnimatedTileLoop mechanics in RoomFxAnimatedTileLoops.All)
         {
             for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             {
@@ -63,7 +63,7 @@ internal static class AnimatedTileFrameArtwork
             WreckedShipTreadmillLoop treadmill = WreckedShipTreadmills.ForDirection(direction);
             for (int frame = 0; frame < WreckedShipTreadmillMechanicsDefinitions.FrameCount; frame++)
                 yield return new(AnimatedTileFrames.Frame(treadmill.AnimatedObject, frame), AnimatedTileImageSources.Of(treadmill.Image(frame)),
-                    Picture(treadmill.Image(frame), WreckedShipTreadmillMechanicsDefinitions.FrameByteCount));
+                    Picture(treadmill.Image(frame), RoomFxAnimatedTileLoops.TreadmillFrameByteCount));
         }
         foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTilePrograms.All)
         {

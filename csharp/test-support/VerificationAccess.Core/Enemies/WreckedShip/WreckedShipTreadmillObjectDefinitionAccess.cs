@@ -46,7 +46,7 @@ internal static class WreckedShipTreadmillObjectDefinitionAccess
             if (pointer == header)
                 value = self.WaitInstructionPointer;
             else if (pointer == unchecked((ushort)(header + 2)))
-                value = WreckedShipTreadmillMechanicsDefinitions.FrameByteCount;
+                value = RoomFxAnimatedTileLoops.TreadmillFrameByteCount;
             else if (pointer == unchecked((ushort)(header + 4)))
                 value = AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards);
             else if (pointer == self.WaitInstructionPointer)

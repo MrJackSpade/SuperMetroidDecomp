@@ -10,19 +10,6 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// </summary>
 internal static class IntroCinematicPaint
 {
-    /// <summary>Checks every colour of both of the intro screen's owners against the calculated set and ink painting.</summary>
-    internal static bool Matches(ScreenColours colours)
-    {
-        Ensure.NotNull(colours);
-        for (int set = 0; set < ColourSets.SetCount; set++)
-        for (int ink = 0; ink < ColourSets.SetColours; ink++)
-        {
-            if (colours.BackgroundSet(set)[ink] != Background(set, ink) || colours.SpriteSet(set)[ink] != Sprite(set, ink))
-                return false;
-        }
-        return true;
-    }
-
     /// <summary>Selects a font, portrait, sepia scene or fill colour for one colour of an intro background set.</summary>
     internal static RgbColor Background(int set, int ink)
     {

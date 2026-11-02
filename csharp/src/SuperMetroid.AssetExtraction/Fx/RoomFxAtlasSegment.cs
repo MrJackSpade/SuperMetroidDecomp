@@ -33,6 +33,6 @@ public abstract record RoomFxAtlasSegment
     public sealed record TourianStatueStrip : RoomFxAtlasSegment
     {
         /// <inheritdoc/>
-        public override int ByteCount => TourianStatueTileStripDefinitions.ByteCount;
+        public override int ByteCount => RoomFxAnimatedTileLoops.TourianStatueStripByteCount;
     }
 }

@@ -1,5 +1,5 @@
 
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>
 /// One installed ending backdrop (#1409): its low-byte map, copied into both halves of the full map, and how many Mode 7

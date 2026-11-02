@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.WorkRobots;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.AssetExtraction;
 

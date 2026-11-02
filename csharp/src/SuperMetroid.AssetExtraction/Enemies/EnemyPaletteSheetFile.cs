@@ -8,6 +8,9 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>Reads and writes the installed enemy palette sheet document.</summary>
 public static class EnemyPaletteSheetFile
 {
+    /// <summary>Sixteen RGB5 colors in a complete four-bit OBJ palette, including its color-zero entry.</summary>
+    public const int ColorCount = 16;
+
     /// <summary>Loads a version-one palette document with exactly sixteen non-null RGB5 colors, rejecting duplicate or unknown properties and channels outside 0..31; JSON property names are matched case-insensitively.</summary>
     /// <param name="json">UTF-8 JSON stream containing the selected enemy palette in color-index order.</param>
     /// <returns>An immutable sheet owning the compiled sixteen RGB5 words.</returns>
@@ -15,10 +18,10 @@ public static class EnemyPaletteSheetFile
     {
         EnemyPaletteSheetDocument document;
         document = JsonAssetDocument.Read<EnemyPaletteSheetDocument>(json, Options, "enemy palette");
-        if (document.Version != 1 || document.Colors is null || document.Colors.Length != EnemyPaletteSheet.ColorCount)
+        if (document.Version != 1 || document.Colors is null || document.Colors.Length != EnemyPaletteSheetFile.ColorCount)
             throw new InvalidDataException("Enemy palette requires version 1 and exactly sixteen RGB5 colors.");
-        var compiled = new RgbColor[EnemyPaletteSheet.ColorCount];
-        for (int i = 0; i < EnemyPaletteSheet.ColorCount; i++)
+        var compiled = new RgbColor[EnemyPaletteSheetFile.ColorCount];
+        for (int i = 0; i < EnemyPaletteSheetFile.ColorCount; i++)
         {
             PaletteRgb5? color = document.Colors[i];
             if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||

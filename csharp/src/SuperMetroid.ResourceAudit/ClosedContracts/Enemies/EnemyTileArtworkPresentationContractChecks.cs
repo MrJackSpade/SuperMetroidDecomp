@@ -41,7 +41,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
             int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tiles), rows = (tiles + columns - 1) / columns;
             using var png = new MemoryStream();
             IndexedPng.Write(png, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))), new byte[columns * rows * 64],
-                Enumerable.Range(0, EnemyPaletteSheet.ColorCount).Select(index => new RgbaPixel((byte)index, 0, 0)).ToArray());
+                Enumerable.Range(0, EnemyPaletteSheetFile.ColorCount).Select(index => new RgbaPixel((byte)index, 0, 0)).ToArray());
             png.Position = 0;
             RoomCharacterAtlas atlas = RoomCharacterAtlasPng.Read(png, bytes);
             cached.Add(bytes, atlas);
@@ -50,7 +50,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
         var sheets = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId,
             definition => Sheet(definition.ByteCount));
         using var paletteJson = new MemoryStream(EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument {
-            Version = 1, Colors = Enumerable.Range(0, EnemyPaletteSheet.ColorCount)
+            Version = 1, Colors = Enumerable.Range(0, EnemyPaletteSheetFile.ColorCount)
                 .Select(_ => new PaletteRgb5 { Red = 1, Green = 0, Blue = 0 }).ToArray() }));
         EnemyPaletteSheet palette = EnemyPaletteSheetFile.Read(paletteJson);
         var palettes = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId, _ => palette);

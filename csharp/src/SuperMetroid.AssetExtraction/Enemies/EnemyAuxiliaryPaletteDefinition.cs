@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>One auxiliary palette family: how many colour frames it has and how many colours each frame holds.</summary>
 /// <param name="Id">The family.</param>

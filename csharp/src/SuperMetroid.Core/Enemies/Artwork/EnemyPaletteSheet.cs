@@ -5,8 +5,6 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <summary>One editable sixteen-color RGB5 OBJ palette; selection and animation remain engine-owned.</summary>
 public sealed class EnemyPaletteSheet
 {
-    /// <summary>Sixteen RGB5 colors in a complete four-bit OBJ palette, including its color-zero entry.</summary>
-    public const int ColorCount = 16;
     /// <summary>Owned RGB5 palette entries in OBJ color-index order.</summary>
     internal readonly RgbColor[] colors;
     /// <summary>Retains the validated sixteen-color array after JSON decoding.</summary>

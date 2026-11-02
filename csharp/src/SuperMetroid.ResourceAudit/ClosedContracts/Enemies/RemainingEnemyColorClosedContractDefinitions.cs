@@ -46,7 +46,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyAuxiliaryColorCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyAuxiliaryColors.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyAuxiliaryColourFrames.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyAuxiliaryColorDefinitions.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyAuxiliaryColorDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/GoldenTorizoHealthPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/GoldenTorizoHealthPaint.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/FaceBlockGlowPaintDefinitions.cs"),

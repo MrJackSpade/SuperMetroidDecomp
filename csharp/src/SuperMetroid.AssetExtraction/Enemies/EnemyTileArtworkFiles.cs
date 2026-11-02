@@ -106,8 +106,8 @@ public static class EnemyTileArtworkFiles
                 File.WriteAllBytes(Path.Combine(directory, FileName(definitionPointer)), encoded);
                 byte[] nativeColors = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.PaletteAddress(bus, definitionPointer),
-                    EnemyPaletteSheet.ColorCount * sizeof(ushort));
-                var colors = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
+                    EnemyPaletteSheetFile.ColorCount * sizeof(ushort));
+                var colors = new PaletteRgb5[EnemyPaletteSheetFile.ColorCount];
                 for (int color = 0; color < colors.Length; color++)
                 {
                     int word = BinaryPrimitives.ReadUInt16LittleEndian(nativeColors.AsSpan(color * 2));

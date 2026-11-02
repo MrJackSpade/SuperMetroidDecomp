@@ -139,7 +139,7 @@ internal static void VerifyRoomEnemyLoading()
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         stockSheets.Add(pointer, RoomCharacterAtlasPng.Read(new MemoryStream(png.ToArray()), byteCount));
-        var palette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
+        var palette = new PaletteRgb5[EnemyPaletteSheetFile.ColorCount];
         for (int color = 0; color < palette.Length; color++)
         {
             ushort word = LittleEndianBytes.Word(paletteBytes[color * 2], paletteBytes[color * 2 + 1]);
@@ -838,7 +838,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     const EnemyDefinitionId ceresDoorDefinitionPointer = EnemyDefinitionId.CeresDoor;
 
     (ushort[] fixturePaletteWords, byte[] fixturePlanar) = ReadCeresRidleyFixtureArtwork(bus);
-    var fixturePalette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
+    var fixturePalette = new PaletteRgb5[EnemyPaletteSheetFile.ColorCount];
     for (int color = 0; color < fixturePalette.Length; color++)
     {
         ushort word = fixturePaletteWords[color];
@@ -1465,7 +1465,7 @@ static void SeedCeresDoorQuakeOverlay(TestAddressSpace bus)
 /// <summary>Reads back the seeded Ceres Ridley palette words ($A6:E14F) and one planar tile ($A6:9000) as installed fixture artwork.</summary>
 static ReadCeresRidleyFixtureArtworkResult ReadCeresRidleyFixtureArtwork(TestAddressSpace bus)
 {
-    ushort[] paletteWords = Enumerable.Range(0, EnemyPaletteSheet.ColorCount)
+    ushort[] paletteWords = Enumerable.Range(0, EnemyPaletteSheetFile.ColorCount)
         .Select(color => LittleEndianBytes.Word(bus.ReadByte(0xa6e14f + color * 2), bus.ReadByte(0xa6e150 + color * 2)))
         .ToArray();
     byte[] planar = Enumerable.Range(0, 0x20)

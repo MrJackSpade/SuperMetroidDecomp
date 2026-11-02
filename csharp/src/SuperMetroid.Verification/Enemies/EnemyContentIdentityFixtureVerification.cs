@@ -222,9 +222,9 @@ internal static class EnemyContentIdentityFixtureVerification
             var palettes = Ordered(new[]
             {
                 KeyValuePair.Create(firstId, EnemyPaletteSheetFile.Read(Json(new EnemyPaletteSheetDocument
-                    { Version = 1, Colors = Colors("palette-first", EnemyPaletteSheet.ColorCount) }))),
+                    { Version = 1, Colors = Colors("palette-first", EnemyPaletteSheetFile.ColorCount) }))),
                 KeyValuePair.Create((EnemyDefinitionId)2, EnemyPaletteSheetFile.Read(Json(new EnemyPaletteSheetDocument
-                    { Version = 1, Colors = Colors("palette-second", EnemyPaletteSheet.ColorCount) }))),
+                    { Version = 1, Colors = Colors("palette-second", EnemyPaletteSheetFile.ColorCount) }))),
             });
             var heads = Ordered(new[]
             {

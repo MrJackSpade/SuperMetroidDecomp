@@ -72,7 +72,7 @@ internal static class EnemyTileArtworkVerification
         var cgram = new SnesCgram();
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, bus,
             SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.PaletteAddress(bus, definition),
-            EnemyPaletteSheet.ColorCount, destinationIndex: 8 * 16);
+            EnemyPaletteSheetFile.ColorCount, destinationIndex: 8 * 16);
         return cgram;
     }
 

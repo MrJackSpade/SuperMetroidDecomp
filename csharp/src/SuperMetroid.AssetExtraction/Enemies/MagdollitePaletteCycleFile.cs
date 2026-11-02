@@ -43,7 +43,14 @@ public static class MagdollitePaletteCycleFile
                 compiled[frame][color] = rgb.ToRgbColor();
             }
         }
-        return new MagdollitePaletteCycle(compiled);
+        RgbColor[] colors = compiled[0];
+        var edits = new Dictionary<ColourCell, RgbColor>();
+        // Later frames rotate the first frame left one color per frame; keep only the cells that deviate.
+        for (int frame = 1; frame < compiled.Length; frame++)
+            for (int color = 0; color < colors.Length; color++)
+                if (compiled[frame][color] != colors[(color + frame) % colors.Length])
+                    edits.Add(new ColourCell(frame, color), compiled[frame][color]);
+        return new MagdollitePaletteCycle(colors, edits);
     }
 
     /// <summary>Serializes the editable glow cycle to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Read"/>.</summary>

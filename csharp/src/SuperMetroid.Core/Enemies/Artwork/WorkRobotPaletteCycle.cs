@@ -25,26 +25,16 @@ public sealed class WorkRobotPaletteCycle
     /// <summary>Edited RGB5 frames, or null when every cell follows the compiled stock color pattern.</summary>
     internal readonly RgbColor[][]? frames;
 
-    /// <summary>Keeps authored frames only when at least one color differs from the rotation.</summary>
-    internal WorkRobotPaletteCycle(RgbColor[][] frames)
-    {
-        for (int frame = 0; frame < frames.Length; frame++)
-        for (int color = 0; color < frames[frame].Length; color++)
-        {
-            if (frames[frame][color] != StockColor(frame, color))
-            {
-                this.frames = frames;
-                return;
-            }
-        }
-    }
+    /// <summary>Keeps the authored frames when at least one color differs from the rotation.</summary>
+    /// <param name="frames">The authored frames, or null when every cell follows the stock rotation.</param>
+    internal WorkRobotPaletteCycle(RgbColor[][]? frames) => this.frames = frames;
 
     /// <summary>
     /// Six four-color Work Robot records: red-only brightness rotates
     /// forward three positions and back. The four brightness levels form two
     /// pairs separated by sixteen, with seven between the members of each pair.
     /// </summary>
-    private static RgbColor StockColor(int frame, int color)
+    internal static RgbColor StockColor(int frame, int color)
     {
         int phase = Math.Min(frame, 6 - frame);
         int position = (color + phase) & 3;

@@ -41,7 +41,11 @@ public static class WorkRobotPaletteCycleFile
                 compiled[frame][color] = rgb.ToRgbColor();
             }
         }
-        return new WorkRobotPaletteCycle(compiled);
+        for (int frame = 0; frame < compiled.Length; frame++)
+            for (int color = 0; color < compiled[frame].Length; color++)
+                if (compiled[frame][color] != WorkRobotPaletteCycle.StockColor(frame, color))
+                    return new WorkRobotPaletteCycle(compiled);
+        return new WorkRobotPaletteCycle(frames: null);
     }
 
     /// <summary>Validates and serializes a Work Robot palette-cycle document as UTF-8 JSON.</summary>

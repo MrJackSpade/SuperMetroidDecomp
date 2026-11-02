@@ -46,8 +46,9 @@ internal static class EnemyContentIdentityVerification
         AssertEqual(35, childTypes.Length, "all enemy bundle subdomains are accounted for");
         foreach (Type type in childTypes.Concat(catalogs).Append(typeof(EnemyPaletteSheet)))
         {
-            AssertTrue(MetadataShape.DeclaresProperty(type, "ContentIdentity"),
-                type.Name + " exposes typed selected content identity");
+            // The game's catalogs carry no identity; the import pipeline identifies them (#1502).
+            AssertTrue(MetadataShape.DeclaresProperty(type, "ContentIdentity") == (type.Assembly == typeof(EnemyTileSourceArtwork).Assembly),
+                type.Name + " exposes typed selected content identity only on the import side");
             AssertTrue(!MetadataShape.DeclaresField(type, "<ContentIdentity>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic),
                 type.Name + " adds no persisted derived-identity field");
         }

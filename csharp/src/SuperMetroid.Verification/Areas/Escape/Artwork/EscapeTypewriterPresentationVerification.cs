@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
@@ -23,7 +24,7 @@ internal static class EscapeTypewriterPresentationVerification
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus);
-        EscapeTypewriterPresentation presentation = EscapeTypewriterPresentation.Load(
+        EscapeTypewriterPresentation presentation = EscapeTypewriterPresentationFile.Load(
             new MemoryStream(extracted, writable: false));
 
         int comparedFrames = 0;
@@ -48,7 +49,7 @@ internal static class EscapeTypewriterPresentationVerification
         JsonObject zebes = editedDocument.Required("programs").Required(EscapeTypewriterProgramId.Zebes.ToString()).AsObject();
         zebes.Required("lines").Required(0)["text"] = "TEST!";
         byte[] editedBytes = Encoding.UTF8.GetBytes(editedDocument.ToJsonString(ArtworkJson.Options));
-        EscapeTypewriterPresentation edited = EscapeTypewriterPresentation.Load(
+        EscapeTypewriterPresentation edited = EscapeTypewriterPresentationFile.Load(
             new MemoryStream(editedBytes, writable: false));
         var editedState = new EscapeTypewriterState(
             edited.Get(EscapeTypewriterProgramId.Zebes));
@@ -88,7 +89,7 @@ internal static class EscapeTypewriterPresentationVerification
 
         byte[] malformed = Encoding.UTF8.GetBytes(
             editedDocument.ToJsonString(ArtworkJson.Options).Replace("TEST!", "test!"));
-        AssertThrows<InvalidDataException>(() => EscapeTypewriterPresentation.Load(
+        AssertThrows<InvalidDataException>(() => EscapeTypewriterPresentationFile.Load(
             new MemoryStream(malformed, writable: false)),
             "escape typewriter rejects glyphs absent from the documented font mapping");
 

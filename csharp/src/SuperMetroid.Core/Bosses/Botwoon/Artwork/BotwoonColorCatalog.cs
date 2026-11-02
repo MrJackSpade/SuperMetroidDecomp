@@ -5,9 +5,6 @@ namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
 /// <summary>Editable health-band RGB5 images for Botwoon's sprite palette.</summary>
 public sealed class BotwoonColorCatalog
 {
-    /// <summary>Canonical selected RGB5 colors and ordered health bands, independent of JSON encoding.</summary>
-    public string ContentIdentity => BotwoonHealthColors.ContentIdentity(this);
-
     /// <summary>Compiled health-band colours selected by Botwoon's health.</summary>
     internal readonly BotwoonHealthPaint health;
 

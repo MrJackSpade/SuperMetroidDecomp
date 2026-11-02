@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
@@ -89,56 +87,6 @@ public sealed class InstalledRoomArtwork
     /// <exception cref="InvalidDataException">No sheet is installed for the tileset.</exception>
     public WrittenPictureSheet Bg3(TilesetDefinition tileset) =>
         Bg3Pictures.TryGetValue(tileset, out WrittenPictureSheet? pictures) ? pictures : throw new InvalidDataException($"No BG3 picture sheet is installed for {tileset}.");
-
-    /// <summary>A content identity of every sheet, in tileset order.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomArtwork), content =>
-    {
-        foreach ((TilesetDefinition tileset, RoomBlockSheet sheet) in Sheets.OrderBy(entry => RoomBlockSheet.NameOf(entry.Key), StringComparer.Ordinal))
-        {
-            content.AppendName("tileset", RoomBlockSheet.NameOf(tileset));
-            sheet.Sheet.AppendIdentity(content);
-            sheet.Inputs.AppendIdentity(content);
-        }
-        foreach ((string name, RoomBackgroundImage background) in Backgrounds.OrderBy(entry => entry.Key, StringComparer.Ordinal))
-        {
-            content.AppendName("background", name);
-            background.Sheet.AppendIdentity(content);
-            foreach (RoomBackgroundCell cell in background.Cells)
-            {
-                content.Append("cell", cell.Cell);
-                content.AppendName("picture", cell.Picture);
-                AppendInputs(content, cell.Inputs);
-            }
-        }
-        foreach (RoomFloorSheet floor in Floors.Values.OrderBy(floor => floor.Name, StringComparer.Ordinal))
-        {
-            content.AppendName("floor", floor.Name);
-            floor.Sheet.AppendIdentity(content);
-        }
-        foreach (MessageBoxSheet messages in MessageBoxes.Values.OrderBy(messages => messages.Name, StringComparer.Ordinal))
-        {
-            content.AppendName("messages", messages.Name);
-            messages.Sheet.AppendIdentity(content);
-        }
-        foreach (WrittenPictureSheet pictures in Written.Values.Concat(Bg3Pictures.Values).OrderBy(pictures => pictures.Name, StringComparer.Ordinal))
-        {
-            content.AppendName("written", pictures.Name);
-            pictures.Sheet.AppendIdentity(content);
-            foreach ((string picture, ImmutableArray<AppearanceInput> inputs) in pictures.Inputs.OrderBy(entry => entry.Key, StringComparer.Ordinal))
-            {
-                content.AppendName("picture", picture);
-                AppendInputs(content, inputs);
-            }
-        }
-    });
-
-    /// <summary>Appends the tokens of <paramref name="inputs"/> to a content identity.</summary>
-    private static void AppendInputs(SelectedPresentationHash content, ImmutableArray<AppearanceInput> inputs)
-    {
-        content.Append("inputs", inputs.Length);
-        foreach (AppearanceInput input in inputs)
-            content.AppendName("input", input.Token);
-    }
 
     /// <summary>The library background image named <paramref name="name"/>.</summary>
     /// <exception cref="InvalidDataException">No such image is installed.</exception>

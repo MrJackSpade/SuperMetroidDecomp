@@ -5,7 +5,6 @@ using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Plms.CollectibleVisualsVerification;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
 

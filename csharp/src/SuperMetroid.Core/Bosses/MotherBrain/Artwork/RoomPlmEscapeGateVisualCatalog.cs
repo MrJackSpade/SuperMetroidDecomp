@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 public sealed class RoomPlmEscapeGateVisualCatalog
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => EscapeGateArtwork.ContentIdentity(this);
-
     /// <summary>Only escape-gate frames whose appearances differ from compiled stock data.</summary>
     private readonly PlmVisualOverrides customBlocks;
 

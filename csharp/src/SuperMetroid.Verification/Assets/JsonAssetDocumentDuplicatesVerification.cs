@@ -1,8 +1,8 @@
 using System.Text;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Assets;
 

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
@@ -40,16 +39,4 @@ public sealed class CeresFlightActorPlacements
         var actor = CeresFlightActors.RearViewActor(index);
         return new() { Id = CeresFlightActors.RearViewPlacementId(index), X = actor.Position.X, Y = actor.Position.Y };
     }
-    /// <summary>Identity of ordered selected actor IDs and both initial visual coordinates.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("CeresFlightActorLayout", content =>
-    {
-        content.Append("actors", CeresFlightActorDefinitions.RearViewActorCount);
-        for (int index = 0; index < CeresFlightActorDefinitions.RearViewActorCount; index++)
-        {
-            CeresFlightActorPlacement placement = this[index];
-            content.Append("id", System.Text.Encoding.UTF8.GetBytes(placement.Id));
-            content.Append("x", placement.X);
-            content.Append("y", placement.Y);
-        }
-    });
 }

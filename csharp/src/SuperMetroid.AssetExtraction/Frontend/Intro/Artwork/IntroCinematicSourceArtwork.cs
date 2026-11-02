@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Video;
@@ -115,8 +114,8 @@ public sealed class IntroCinematicSourceArtwork : IntroCinematicArtwork
     /// <summary>Station-blast and Zebes-reveal compositions; the approach's are the Ceres flight's.</summary>
     public CeresDestructionSpritePresentation CeresDestructionSprites { get; }
 
-    /// <inheritdoc/>
-    public override string ContentIdentity => SelectedPresentationHash.Create("IntroCinematicArtworkCatalog", content =>
+    /// <summary>Identity of the entire selected opening bundle, including the artwork its sheets are composed from.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("IntroCinematicArtworkCatalog", content =>
     {
         content.Append("background-characters", BackgroundCharacters.Characters.Span);
         content.Append("intro-characters", IntroObjectCharacters.Characters.Span);

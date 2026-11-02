@@ -94,6 +94,7 @@ using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 

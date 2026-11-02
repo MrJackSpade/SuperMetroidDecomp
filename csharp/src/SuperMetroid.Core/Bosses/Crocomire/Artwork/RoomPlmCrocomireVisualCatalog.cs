@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// </summary>
 public sealed class RoomPlmCrocomireVisualCatalog
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => CrocomireArenaArtwork.ContentIdentity(this);
-
     /// <summary>Copied visual-only differences for the five compiled Crocomire arena layouts.</summary>
     private readonly PlmVisualOverrides customAppearances;
 

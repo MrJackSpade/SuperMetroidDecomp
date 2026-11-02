@@ -12,15 +12,11 @@ public sealed class InstalledRoomLevelStreams
 
     /// <summary>Copies a validated installation and requires exactly every retail room level.</summary>
     /// <param name="levels">The installed levels keyed by their room level.</param>
-    /// <param name="contentIdentity">SHA-256 of the installed manifest.</param>
     /// <param name="requiredLevels">Every retail room level, each of which the installation must hold.</param>
     /// <exception cref="InvalidDataException">A level is null, missing or unknown.</exception>
-    internal InstalledRoomLevelStreams(IReadOnlyDictionary<RoomLevelId, InstalledRoomLevel> levels, string contentIdentity,
-        IEnumerable<RoomLevelId> requiredLevels)
+    internal InstalledRoomLevelStreams(IReadOnlyDictionary<RoomLevelId, InstalledRoomLevel> levels, IEnumerable<RoomLevelId> requiredLevels)
     {
         Ensure.NotNull(levels);
-        ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);
-        ContentIdentity = contentIdentity;
         var required = Ensure.NotNull(requiredLevels).ToHashSet();
         this.levels = new Dictionary<RoomLevelId, InstalledRoomLevel>(levels.Count);
         foreach ((RoomLevelId level, InstalledRoomLevel installed) in levels)
@@ -33,9 +29,6 @@ public sealed class InstalledRoomLevelStreams
             if (!this.levels.ContainsKey(level))
                 throw new InvalidDataException($"Installed room levels lack required level {level}.");
     }
-
-    /// <summary>SHA-256 of the installed manifest, which names every level file's hash.</summary>
-    public string ContentIdentity { get; }
 
     /// <summary>Reads one installed level.</summary>
     /// <param name="level">The level the room state names.</param>

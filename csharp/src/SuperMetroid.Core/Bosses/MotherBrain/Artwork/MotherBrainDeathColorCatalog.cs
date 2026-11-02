@@ -5,9 +5,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Editable Mother Brain death-fade and exploded-door RGB5 images.</summary>
 public sealed class MotherBrainDeathColorCatalog
 {
-    /// <summary>Canonical selected RGB5 colors and ordered fade frames, independent of JSON encoding.</summary>
-    public string ContentIdentity => MotherBrainDeathColors.ContentIdentity(this);
-
     /// <summary>The selected body, leg and corpse fades and exploded door.</summary>
     internal readonly MotherBrainDeathColorSelection selection;
 

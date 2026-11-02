@@ -234,7 +234,7 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>Loads the clips of the selected audio directory, or the installation's.</summary>
-    private ClipAudioLibrary LoadAudioAssets()
+    private InstalledClipAudioLibrary LoadAudioAssets()
     {
         var installation = new GameInstallation(playerDataDirectory);
         if (installedAudioDirectory is null || Path.GetFullPath(installedAudioDirectory).Equals(
@@ -271,7 +271,7 @@ public sealed class PlayableGameControl : UserControl
         var installation = new GameInstallation(playerDataDirectory);
         addressSpace = installation.OpenRuntimeAddressSpace();
         mapPresentation = installation.LoadMaps();
-        ClipAudioLibrary selectedAudioAssets = LoadAudioAssets();
+        InstalledClipAudioLibrary selectedAudioAssets = LoadAudioAssets();
         if (hostOptions.AudioEnabled)
             audioDevice = CreateAudioDevice();
         projectilePresentation = installation.LoadProjectiles();

@@ -9,15 +9,6 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// </summary>
 internal static class DachoraColors
 {
-    /// <summary>Hashes the normal palette, then the speed and shine frames.</summary>
-    internal static string ContentIdentity(DachoraColorCatalog colors) =>
-        SelectedPresentationHash.Create("DachoraColorCatalog-v1", content =>
-        {
-            content.AppendColors("normal", colors.selection.Normal);
-            content.AppendColorFrames("speed", Frames(colors, DachoraPalettePhase.Speed));
-            content.AppendColorFrames("shine", Frames(colors, DachoraPalettePhase.Shine));
-        });
-
     /// <summary>The supplied speed-frame colours that differ from the calculated blue ramp.</summary>
     internal static Dictionary<ColourCell, RgbColor> SpeedEdits(RgbColor[] normal, RgbColor[][] speed)
     {
@@ -64,12 +55,6 @@ internal static class DachoraColors
         if (color == 0) return basis;
         return basis.Map((_, channel) => channel + frame * (31 - channel) / 5);
     }
-
-    /// <summary>Materializes four selected animated frames for stable content hashing.</summary>
-    private static RgbColor[][] Frames(DachoraColorCatalog colors, DachoraPalettePhase phase) =>
-        Enumerable.Range(0, DachoraColorDefinitions.AnimatedFrameCount)
-            .Select(frame => Enumerable.Range(0, DachoraColorDefinitions.ColorsPerFrame)
-                .Select(color => Resolve(colors, phase, frame, color)).ToArray()).ToArray();
 
     /// <summary>Resolves one selected Dachora color, preserving every supplied speed/shine deviation.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The phase/frame combination is unsupported or the color index is outside the palette.</exception>

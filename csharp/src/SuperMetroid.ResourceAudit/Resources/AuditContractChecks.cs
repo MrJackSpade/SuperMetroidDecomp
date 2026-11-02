@@ -14,10 +14,10 @@ using SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 using SuperMetroid.ResourceAudit.ClosedContracts.Rooms;
 using SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 using SuperMetroid.ResourceAudit.Reports;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.ResourceAudit.Resources;
 

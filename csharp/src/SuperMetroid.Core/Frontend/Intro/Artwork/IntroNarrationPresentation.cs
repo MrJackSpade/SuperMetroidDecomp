@@ -12,17 +12,8 @@ public sealed class IntroNarrationPresentation
     /// <summary>The six opening text pages, keyed by page in typewriter order.</summary>
     private readonly Dictionary<IntroNarrationPageId, NarrationPage> pages;
 
-    /// <summary>Retains the six pages the import validated and the hash of their installed bytes.</summary>
-    internal IntroNarrationPresentation(
-        Dictionary<IntroNarrationPageId, NarrationPage> pages,
-        string contentIdentity)
-    {
-        this.pages = pages;
-        ContentIdentity = contentIdentity;
-    }
-
-    /// <summary>SHA-256 identity of the validated source document, including its source encoding.</summary>
-    public string ContentIdentity { get; }
+    /// <summary>Retains the six pages the import validated.</summary>
+    internal IntroNarrationPresentation(Dictionary<IntroNarrationPageId, NarrationPage> pages) => this.pages = pages;
 
     /// <summary>Ordered editable lines for one of the six narration pages.</summary>
     public IReadOnlyList<IntroNarrationLine> GetLines(IntroNarrationPageId page) =>

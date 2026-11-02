@@ -33,7 +33,7 @@ internal static class FileSelectSheetComposer
         Ensure.NotNull(maps);
         SpriteArtwork page = MapSpriteArtwork.Of(InstalledAreaMapPresentation.SpritesOf(maps)).Page;
         FileSelectSourcePresentation source = FileSelectSourcePresentation.Of(fileSelect);
-        int palette = fileSelect.ObjectPalette;
+        int palette = source.ObjectPalette;
         var frames = new List<SheetFrameSource>();
         foreach (FileSelectBorder border in FileSelectPresentationDefinitions.Borders)
         {

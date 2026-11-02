@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 /// </summary>
 public sealed class SporeSpawnColorCatalog
 {
-    /// <summary>Canonical selected RGB5 colors and ordered health bands and death fade steps, independent of JSON encoding.</summary>
-    public string ContentIdentity => SporeSpawnColors.ContentIdentity(this);
-
     /// <summary>The selected spore, health and death colours.</summary>
     internal readonly SporeSpawnColorSelection selection;
 

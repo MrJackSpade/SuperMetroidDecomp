@@ -52,7 +52,7 @@ public sealed class SamusSpritemapSources : InstalledSamusSpritemaps
     }
 
     /// <summary>SHA-256 of selected pose bases, table entries and ordered composition parts.</summary>
-    public override string ContentIdentity => field ??= SelectedPresentationHash.Create("samus-spritemaps-v3", content =>
+    public string ContentIdentity => field ??= SelectedPresentationHash.Create("samus-spritemaps-v3", content =>
     {
         content.AppendWords("top bases", TopBases);
         content.AppendWords("bottom bases", BottomBases);

@@ -38,12 +38,12 @@ internal static class ClipAudioOverrides
     /// </summary>
     /// <exception cref="FileNotFoundException">A manifest or a clip file is missing.</exception>
     /// <exception cref="InvalidDataException">The stock or the override is invalid.</exception>
-    internal static ClipAudioLibrary Load(string audioDirectory, string? overrideDirectory)
+    internal static InstalledClipAudioLibrary Load(string audioDirectory, string? overrideDirectory)
     {
         InstalledAudioClips.StockClips stock = InstalledAudioClips.ReadStock(audioDirectory);
         // The stock catalog checks the stock manifest before any override applies, so corrupt stock fails even with a
         // valid override.
-        ClipAudioLibrary stockLibrary = new(
+        InstalledClipAudioLibrary stockLibrary = new(
             stock.Manifest,
             stock.Identity,
             new InstalledClipFiles(stock.Root, stock.Manifest.SampleRate, new Dictionary<AudioClipFile, string>()));
@@ -54,7 +54,7 @@ internal static class ClipAudioOverrides
         string identity = selection.Files.Count == 0
             ? stock.Identity
             : Convert.ToHexString(SHA256.HashData(Convert.FromHexString(stock.Identity + selection.Identity)));
-        return new ClipAudioLibrary(
+        return new InstalledClipAudioLibrary(
             selection.Manifest,
             identity,
             new InstalledClipFiles(stock.Root, selection.Manifest.SampleRate, selection.Files));

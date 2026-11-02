@@ -72,17 +72,4 @@ internal sealed class MotherBrainDeathFade
         int bias = last is null ? 1 : steps / 2;
         return start.Zip(end, (_, from, to) => (from * (steps - frame) + to * frame + bias) / steps);
     }
-
-    /// <summary>Appends resolved stage colors to the identity independent of storage representation.</summary>
-    internal void AppendIdentity(SelectedPresentationHash content, string label)
-    {
-        content.Append(label, FrameCount);
-        Span<RgbColor> frameColors = stackalloc RgbColor[ColorCount];
-        for (int frame = 0; frame < FrameCount; frame++)
-        {
-            for (int color = 0; color < ColorCount; color++)
-                frameColors[color] = Resolve(frame, color);
-            content.AppendColors("row", frameColors);
-        }
-    }
 }

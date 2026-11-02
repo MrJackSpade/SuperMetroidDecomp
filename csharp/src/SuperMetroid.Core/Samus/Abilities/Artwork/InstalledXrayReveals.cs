@@ -1,5 +1,4 @@
 using System.Collections.Frozen;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Samus.Abilities.Artwork;
@@ -40,7 +39,7 @@ public sealed class InstalledXrayReveals
     /// single formula derived from the original data can reproduce every valid installation:
     /// retain this bounded indexed store for the selected visual data.
     /// </remarks>
-    private readonly XrayRevealVisualBlocks?[] blocks = new XrayRevealVisualBlocks?[16 * BehaviorValueCount];
+    internal readonly XrayRevealVisualBlocks?[] blocks = new XrayRevealVisualBlocks?[16 * BehaviorValueCount];
 
     /// <summary>Where a collision kind and behaviour's visuals sit in the store.</summary>
     private static int Index(RoomCollisionType type, RoomBlockBehavior behavior) => TypePosition[type] * BehaviorValueCount + behavior.Value;
@@ -83,23 +82,6 @@ public sealed class InstalledXrayReveals
 
     /// <summary>Installed item and special-room visuals; null only in noninstalled fixtures.</summary>
     public InstalledXrayOverlays? Overlays { get; }
-
-    /// <summary>Identity of every selected drawable rule and its installed overlays, excluding command mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledXrayReveals), content =>
-    {
-        for (int index = 0; index < blocks.Length; index++)
-            if (blocks[index] is { } visual)
-            {
-                content.Append("kind and behaviour", index);
-                content.Append("top left", visual.TopLeft);
-                content.Append("top right", visual.TopRight);
-                content.Append("bottom left", visual.BottomLeft);
-                content.Append("bottom right", visual.BottomRight);
-            }
-        content.Append("has overlays", Overlays is null ? 0 : 1);
-        if (Overlays is not null)
-            content.Append("overlays", Convert.FromHexString(Overlays.ContentIdentity));
-    });
 
     /// <summary>
     /// Resolves the compiled command and its installed blocks from the same collision kind and behaviour. Callers

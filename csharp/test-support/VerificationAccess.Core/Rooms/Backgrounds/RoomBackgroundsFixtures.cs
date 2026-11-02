@@ -323,7 +323,7 @@ internal static class RoomBackgroundsFixtures
         }
         var document = new SpriteSheetDocument
         {
-            Version = SpriteSheet.Version,
+            Version = SpriteSheetFile.Version,
             Palette = kind,
             Colours = standard,
             // A room's seeded sheets are gameplay background images, whose groups the import pipeline names in the
@@ -332,7 +332,7 @@ internal static class RoomBackgroundsFixtures
             Frames = frames,
             PartImages = [],
         };
-        return SpriteSheet.Load(new MemoryStream(SpriteSheetManifestWriter.Write(document), writable: false), name, size, image,
+        return SpriteSheetFile.Load(new MemoryStream(SpriteSheetManifestWriter.Write(document), writable: false), name, size, image,
             indices, priorities, partGroups);
     }
 

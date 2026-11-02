@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -9,24 +8,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmDownwardGateVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmDownwardGateVisuals), content =>
-    {
-        Span<RoomBlockAppearance> buffer = stackalloc RoomBlockAppearance[5];
-        foreach (var frame in DownwardGatePlmDraws.All.OrderBy(item => DownwardGatePlmDraws.VisualId(item.Draw), StringComparer.Ordinal))
-        {
-            DownwardGatePlmDraws.TryDescribe(frame.Draw, out var draw);
-            content.AppendName("frame", DownwardGatePlmDraws.VisualId(frame.Draw));
-            content.Append("runs", draw.RunCount);
-            for (int run = 0; run < draw.RunCount; run++)
-            {
-                int count = draw.BlockCount(run);
-                for (int cell = 0; cell < count; cell++) buffer[cell] = GetAppearance(frame.Draw, run, cell);
-                content.AppendAppearances("blocks", buffer[..count]);
-            }
-        }
-    });
-
     /// <summary>
     /// Deep-copied visual overrides keyed by draw; a gate frame absent here still takes its appearance from the compiled
     /// physical appearances.

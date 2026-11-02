@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Areas;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 

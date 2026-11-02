@@ -9,6 +9,7 @@ using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

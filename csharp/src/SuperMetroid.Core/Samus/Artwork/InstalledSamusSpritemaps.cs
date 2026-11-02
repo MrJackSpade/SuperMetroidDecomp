@@ -36,9 +36,6 @@ public abstract class InstalledSamusSpritemaps
         this.poses = poses.ToDictionary();
     }
 
-    /// <summary>SHA-256 of the compositions each pose half shows and the compositions' parts.</summary>
-    public abstract string ContentIdentity { get; }
-
     /// <summary>The composition <paramref name="frame"/> shows; false only for a frame with none, which draws nothing.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The pose has no record.</exception>
     /// <exception cref="InvalidDataException">The animation frame is past every frame installed for the pose half.</exception>

@@ -5,9 +5,9 @@ using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>Checks file-select slot field destinations and label sources against bank $81 instructions.</summary>

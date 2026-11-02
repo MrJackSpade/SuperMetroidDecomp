@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-using System.Text;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Xray;
 
@@ -22,7 +20,7 @@ public sealed class InstalledXrayOverlays
     /// authored visual choices and reveals.json may replace them, so no
     /// universal formula can replace this bounded installed array.
     /// </remarks>
-    private readonly RoomBlockAppearance[] itemMetatiles;
+    internal readonly RoomBlockAppearance[] itemMetatiles;
     /// <summary>Installed room-specific X-ray tile lists keyed by overlay.</summary>
     /// <remarks>
     /// Issue #1039: among 323 pinned NTSC J/U v1.0 room states, only
@@ -36,7 +34,7 @@ public sealed class InstalledXrayOverlays
     /// algorithm for all valid installations. Retain the bounded lists
     /// and reject missing or duplicate overlays.
     /// </remarks>
-    private readonly Dictionary<XrayRoomOverlayDefinition, XrayRoomOverlayVisual[]> rooms;
+    internal readonly Dictionary<XrayRoomOverlayDefinition, XrayRoomOverlayVisual[]> rooms;
 
     /// <summary>Copies item-slot metatiles and ordered special-room records, requiring all compiled overlay sources without changing item collection or PLM state.</summary>
     /// <param name="itemMetatiles">Exactly eight appearances in graphics-slot order.</param>
@@ -77,24 +75,6 @@ public sealed class InstalledXrayOverlays
     /// <returns>The selected appearance.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The slot is outside the installed eight-entry array.</exception>
     public RoomBlockAppearance ItemMetatile(int graphicsSlot) => itemMetatiles[graphicsSlot];
-
-    /// <summary>Identity of selected item appearances and room overlay coordinates and blocks, in record order.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledXrayOverlays), content =>
-    {
-        content.AppendAppearances("item metatiles", itemMetatiles);
-        foreach ((XrayRoomOverlayDefinition overlay, XrayRoomOverlayVisual[] tiles) in rooms.OrderBy(pair => pair.Key.Name, StringComparer.Ordinal))
-        {
-            content.Append("room overlay", Encoding.UTF8.GetBytes(overlay.Name));
-            content.Append("tiles", tiles.Length);
-            foreach (XrayRoomOverlayVisual tile in tiles)
-            {
-                // Identity hashes the authored byte coordinates.
-                content.Append("x", Ensure.BetweenInclusive(0, byte.MaxValue, tile.Block.X));
-                content.Append("y", Ensure.BetweenInclusive(0, byte.MaxValue, tile.Block.Y));
-                content.AppendAppearances("block", [tile.Appearance]);
-            }
-        }
-    });
 
     /// <summary>Returns a room overlay's installed records in draw order.</summary>
     /// <param name="overlay">The active room state's overlay; a state without one is handled by the caller.</param>

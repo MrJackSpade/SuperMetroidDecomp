@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// </summary>
 public sealed class CrocomireColorCatalog
 {
-    /// <summary>Canonical selected colors preserve the five transfer labels/order.</summary>
-    public string ContentIdentity => CrocomirePalette.ContentIdentity(this);
-
     /// <summary>Five transfer roles whose overlapping stock sources stay independently editable.</summary>
     internal enum Band
     {

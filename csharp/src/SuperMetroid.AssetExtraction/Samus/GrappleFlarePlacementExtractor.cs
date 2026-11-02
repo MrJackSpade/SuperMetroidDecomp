@@ -26,6 +26,6 @@ public static class GrappleFlarePlacementExtractor
                 Y = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), y + direction * 2)),
             });
         }
-        return ChargeFlarePlacements.WriteGrapple(new() { Version = ChargeFlarePlacementDefinitions.Version, Offsets = offsets });
+        return ChargeFlarePlacementFile.WriteGrapple(new() { Version = ChargeFlarePlacementDefinitions.Version, Offsets = offsets });
     }
 }

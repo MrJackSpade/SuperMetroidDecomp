@@ -46,13 +46,13 @@ public static class InstalledAudioClips
     /// <summary>Loads and validates the stock clips beneath <paramref name="audioDirectory"/>.</summary>
     /// <exception cref="FileNotFoundException">The manifest or a clip file is missing.</exception>
     /// <exception cref="InvalidDataException">The format, rate, an identity, a sound, a path, a duplicate key, loop bounds or a file size is invalid.</exception>
-    public static ClipAudioLibrary Load(string audioDirectory) => ClipAudioOverrides.Load(audioDirectory, overrideDirectory: null);
+    public static InstalledClipAudioLibrary Load(string audioDirectory) => ClipAudioOverrides.Load(audioDirectory, overrideDirectory: null);
 
     /// <summary>Loads the catalog and reads every clip, checking every file's SHA-256: the installer's stock validation.</summary>
     /// <exception cref="InvalidDataException">The manifest or any clip is invalid.</exception>
     public static void ValidateStock(string audioDirectory)
     {
-        ClipAudioLibrary library = Load(audioDirectory);
+        InstalledClipAudioLibrary library = Load(audioDirectory);
         foreach (MusicClipEntry entry in library.Manifest.Music)
             _ = library.ReadClip(entry.Clip);
         foreach (SoundEffectClipLayer layer in library.Manifest.SoundEffects.SelectMany(entry => entry.Layers))

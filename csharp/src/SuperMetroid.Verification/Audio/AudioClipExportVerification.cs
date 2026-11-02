@@ -46,7 +46,7 @@ internal static class AudioClipExportVerification
                     .. effects.Select(effect => new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, effect.Library, SoundEffectCommands.Command(effect))),
                     new AudioClipExporter.SoundEffectKey(AudioBank.EmptyCrateria, SoundEffectLibrary.Library2, SoundEffectCommands.Command(Library2Sound.EtecoonTheme)),
                 ]);
-            ClipAudioLibrary clips = InstalledAudioClips.Load(scratch.FullName);
+            InstalledClipAudioLibrary clips = InstalledAudioClips.Load(scratch.FullName);
             AssertEqual(catalog.ContentIdentity, clips.Manifest.SourceContentIdentity, "clips name the catalog they were rendered from");
 
             VerifyMusic(catalog, clips, GreenBrinstarRoomTrack, loopRepeatsExactly: false);
@@ -115,7 +115,7 @@ internal static class AudioClipExportVerification
     }
 
     /// <summary>A tampered clip, an escaping path and a wrong format version are each rejected.</summary>
-    private static void VerifyLoaderRejections(string directory, ClipAudioLibrary clips)
+    private static void VerifyLoaderRejections(string directory, InstalledClipAudioLibrary clips)
     {
         string manifestPath = Path.Combine(directory, InstalledAudioClips.ManifestFileName);
         string manifestText = File.ReadAllText(manifestPath);

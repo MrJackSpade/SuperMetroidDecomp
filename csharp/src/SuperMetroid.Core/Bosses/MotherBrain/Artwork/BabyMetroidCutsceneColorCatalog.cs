@@ -5,9 +5,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Editable initial and six fade RGB5 images for the Mother Brain cutscene Baby.</summary>
 public sealed class BabyMetroidCutsceneColorCatalog
 {
-    /// <summary>Canonical selected RGB5 colors and ordered fade frames, independent of JSON encoding.</summary>
-    public string ContentIdentity => BabyMetroidFade.ContentIdentity(this);
-
     /// <summary>The selected initial image and death fade.</summary>
     internal readonly BabyMetroidCutsceneColorSelection selection;
 

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -9,24 +8,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmStationVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmStationVisuals), content =>
-    {
-        Span<RoomBlockAppearance> buffer = stackalloc RoomBlockAppearance[2];
-        foreach (var frame in StationPlmDraws.All.OrderBy(item => StationPlmDraws.VisualId(item.Draw), StringComparer.Ordinal))
-        {
-            var shape = StationPlmDraws.Describe(frame.Draw);
-            content.AppendName("frame", StationPlmDraws.VisualId(frame.Draw));
-            content.Append("runs", shape.RunCount);
-            for (int run = 0; run < shape.RunCount; run++)
-            {
-                int count = shape.BlockCount(run);
-                for (int cell = 0; cell < count; cell++) buffer[cell] = GetAppearance(frame.Draw, run, cell);
-                content.AppendAppearances("blocks", buffer[..count]);
-            }
-        }
-    });
-
     /// <summary>Deep-copied visual overrides keyed by draw; absent frames use stock artwork.</summary>
     private readonly IReadOnlyDictionary<PlmDraw, RoomBlockAppearance[][]> customBlocks;
 

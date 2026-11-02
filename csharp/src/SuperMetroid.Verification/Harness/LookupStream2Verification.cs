@@ -62,6 +62,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for the second set of gameplay, artwork, and pause-screen catalogs.</summary>
@@ -2030,7 +2031,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2PowerDirectionBindings(ISnesAddressSpace rom)
     {
         byte[] json = ProjectileFrameBindingExtractor.Extract(rom);
-        var stock = InstalledProjectileFrameBindings.Load(new MemoryStream(json));
+        var stock = ProjectileFrameBindingFile.Load(new MemoryStream(json));
         var remaining = (System.Collections.IDictionary)stock.sprites;
         AssertEqual(0, remaining.Count, "All805 stock selector operands calculate; independent selection policies remain required");
         foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
@@ -2048,7 +2049,7 @@ internal static class LookupStream2Verification
             string key = ProjectileFrameBindingFormat.FrameNameAt(pointer);
             string original = document.Frames[key];
             document.Frames[key] = ProjectileSpriteDefinitions.Name(ProjectileSpriteDefinitions.NativePointers[0]);
-            var edited = InstalledProjectileFrameBindings.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
+            var edited = ProjectileFrameBindingFile.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
             var editedShot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), FrameHold = WrappingCountdown.Start(1) };
             system.Animation.FrameBindings = edited;
             _ = system.Animation.RunProjectileInstructionHandler(editedShot);
@@ -2094,7 +2095,7 @@ internal static class LookupStream2Verification
             ushort replacement = stock.Resolve(pointer) == ProjectileSpriteDefinitions.NativePointers[0]
                 ? ProjectileSpriteDefinitions.NativePointers[1] : ProjectileSpriteDefinitions.NativePointers[0];
             document.Frames[key] = ProjectileSpriteDefinitions.Name(replacement);
-            var edited = InstalledProjectileFrameBindings.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
+            var edited = ProjectileFrameBindingFile.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
             system.Animation.FrameBindings = edited;
             var editedShot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), FrameHold = WrappingCountdown.Start(1) };
             _ = system.Animation.RunProjectileInstructionHandler(editedShot);

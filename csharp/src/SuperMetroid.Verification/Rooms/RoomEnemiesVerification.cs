@@ -901,7 +901,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     };
     using (var escapeText = new MemoryStream(
         SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus), writable: false))
-        enemies.BossArtworkBinding.EscapeTypewriterPresentation = EscapeTypewriterPresentation.Load(escapeText);
+        enemies.BossArtworkBinding.EscapeTypewriterPresentation = EscapeTypewriterPresentationFile.Load(escapeText);
     ClearCeresEscapeTypewriterSource(bus);
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay));
 

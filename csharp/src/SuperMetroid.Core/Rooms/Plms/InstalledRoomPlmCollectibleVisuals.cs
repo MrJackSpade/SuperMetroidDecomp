@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -9,19 +8,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmCollectibleVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmCollectibleVisuals), content =>
-    {
-        Span<RoomBlockAppearance> buffer = stackalloc RoomBlockAppearance[1];
-        foreach (var frame in CollectiblePlmDraws.All.OrderBy(frame => frame.Id, StringComparer.Ordinal))
-        {
-            content.AppendName("frame", frame.Id);
-            content.Append("runs", 1);
-            buffer[0] = GetAppearance(PlmDraw.Of(frame.Draw));
-            content.AppendAppearances("blocks", buffer);
-        }
-    });
-
     /// <summary>Only collectible frame appearances that differ from compiled stock appearance.</summary>
     private readonly IReadOnlyDictionary<RoomPlmCollectibleDrawDefinitions.Draw, RoomBlockAppearance> customBlocks;
 

@@ -30,7 +30,7 @@ internal static class GameOptionsSheetComposer
         Ensure.NotNull(maps);
         SpriteArtwork page = MapSpriteArtwork.Of(InstalledAreaMapPresentation.SpritesOf(maps)).Page;
         GameOptionsSourcePresentation source = GameOptionsSourcePresentation.Of(options);
-        int palette = options.CursorPalette;
+        int palette = source.CursorPalette;
         var frames = new List<SheetFrameSource>();
         foreach (GameOptionsPage menuPage in GameOptionsPresentationDefinitions.MenuPages)
         {

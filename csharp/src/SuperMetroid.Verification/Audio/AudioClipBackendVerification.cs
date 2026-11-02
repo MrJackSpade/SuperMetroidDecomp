@@ -5,6 +5,7 @@ using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
+using SuperMetroid.AssetExtraction.Audio;
 
 namespace SuperMetroid.Verification.Audio;
 
@@ -39,7 +40,7 @@ internal static class AudioClipBackendVerification
     /// <summary>Runs both confirmations over the installation's clips and extracted catalog.</summary>
     internal static void VerifyAudioClipBackend(GameInstallation installation)
     {
-        ClipAudioLibrary clips = installation.LoadAudioClips();
+        InstalledClipAudioLibrary clips = installation.LoadAudioClips();
         ExtractedAudioAssetCatalog extracted = installation.LoadAudio();
         VerifyEquivalence(clips, extracted, AudioRequest.ForTrack(new MusicTrack(RoomTrack)), MusicUpdates, "Green Brinstar room track");
         VerifyEquivalence(clips, extracted, new AudioRequest.RequestSound(Library1Sound.UnchargedPowerBeam), SoundUpdates, "Power Beam");
@@ -108,7 +109,7 @@ internal static class AudioClipBackendVerification
     }
 
     /// <summary>Priority, low-health mode, exempt requests and clip-set switch interruption.</summary>
-    private static void VerifySoundCommands(ClipAudioLibrary clips)
+    private static void VerifySoundCommands(InstalledClipAudioLibrary clips)
     {
         SoundEffectClipEntry high = clips.Manifest.SoundEffects.First(entry =>
             entry.Context == MusicDataSet.GreenBrinstar && entry.Sound.Library == SoundEffectLibrary.Library2 &&

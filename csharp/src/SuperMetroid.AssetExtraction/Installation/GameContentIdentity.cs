@@ -2,11 +2,11 @@ using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Audio;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
@@ -48,7 +48,7 @@ public sealed record GameContentIdentity(
 
     /// <summary>Builds an identity from validated audio, map, projectile, and further selected catalogs.</summary>
     public static GameContentIdentity Create(
-        ClipAudioLibrary audio,
+        InstalledClipAudioLibrary audio,
         AreaMapPresentation maps,
         InstalledProjectilePresentation projectiles,
         IEnumerable<KeyValuePair<string, string>>? additionalContentSha256 = null)

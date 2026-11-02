@@ -7,6 +7,4 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// </summary>
 public abstract class EndingObjectArtwork
 {
-    /// <summary>Identity of every selected ending/credits character, map and the compositions its sheets are composed from.</summary>
-    public abstract string ContentIdentity { get; }
 }

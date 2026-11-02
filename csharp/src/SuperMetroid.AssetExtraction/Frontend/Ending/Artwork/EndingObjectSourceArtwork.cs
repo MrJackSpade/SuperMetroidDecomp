@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -107,8 +106,8 @@ public sealed class EndingObjectSourceArtwork : EndingObjectArtwork
     /// <summary>Eight editable compositions for the final assembling logo.</summary>
     public EndingLogoSpritePresentation LogoSprites { get; }
 
-    /// <inheritdoc/>
-    public override string ContentIdentity => SelectedPresentationHash.Create("EndingObjectArtworkCatalog", content =>
+    /// <summary>Identity of every selected ending/credits character, map and the compositions its sheets are composed from.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("EndingObjectArtworkCatalog", content =>
     {
         content.Append("clouds", Clouds.Characters.Span);
         content.Append("explosion", Explosion.Characters.Span);

@@ -36,7 +36,7 @@ internal static class ChargeFlarePlacementVerification
     {
         Suite(nameof(VerifyChargeFlareCompositions), () => VerifyChargeFlareCompositions(bus));
         byte[] json = ChargeFlarePlacementExtractor.Extract(bus);
-        var stock = ChargeFlarePlacements.Load(new MemoryStream(json));
+        var stock = ChargeFlarePlacementFile.Load(new MemoryStream(json));
         var document = RequiredJson.Parse(json);
         foreach (var entry in document.Required("offsets").AsObject())
             (entry.Value ?? throw new InvalidOperationException("Verification requires entry.Value."))["x"] = entry.Value.Required("x").GetValue<int>() + 7;
@@ -144,9 +144,9 @@ internal static class ChargeFlarePlacementVerification
         AssertThrows<InvalidDataException>(() => Load(document), "Out-of-range flare position rejected");
         document = JsonNode.Parse(json); (document ?? throw new InvalidOperationException("Verification requires document."))["damage"] = 1;
         AssertThrows<InvalidDataException>(() => Load(document), "Flare placement cannot contain mechanics fields");
-        AssertThrows<InvalidDataException>(() => ChargeFlarePlacements.Load(new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))), "Duplicate flare properties rejected");
+        AssertThrows<InvalidDataException>(() => ChargeFlarePlacementFile.Load(new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))), "Duplicate flare properties rejected");
         Console.WriteLine($"Flare placement: {cases} native OAM cases with position ROM forbidden, visible edited displacement, whole-state isolation and invalid-resource rejection pass.");
-        static ChargeFlarePlacements Load(JsonNode node) => ChargeFlarePlacements.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
+        static ChargeFlarePlacements Load(JsonNode node) => ChargeFlarePlacementFile.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
     }
     /// <summary>Invokes the renderer's private flare component path with explicit compiled pose metadata.</summary>
     internal delegate void FlareMetadataDraw(SpriteFrameBuffer sprites, SamusState samus,

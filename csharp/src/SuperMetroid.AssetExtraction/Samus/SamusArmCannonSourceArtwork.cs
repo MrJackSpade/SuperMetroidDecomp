@@ -123,7 +123,7 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
         tiles, Ensure.NotNull(body));
 
     /// <summary>SHA-256 of selected cannon placement, cover appearances, tile selectors and characters.</summary>
-    public override string ContentIdentity => SelectedPresentationHash.Create("samus-arm-cannon-v3", content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("samus-arm-cannon-v3", content =>
     {
         for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++) content.Append("pose descriptor", PoseDescriptor(pose));
         Span<byte> selectedDrawing = stackalloc byte[SamusArmCannonArtworkFormat.DrawingDataByteCount];

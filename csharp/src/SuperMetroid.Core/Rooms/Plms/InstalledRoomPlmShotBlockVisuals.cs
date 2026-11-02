@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -6,23 +5,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>Complete, immutable presentation selection for the 19 ordinary shot-block lists.</summary>
 public sealed class InstalledRoomPlmShotBlockVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmShotBlockVisuals), content =>
-    {
-        Span<RoomBlockAppearance> row = stackalloc RoomBlockAppearance[2];
-        foreach (var draw in ShotBlockPlmDraws.Calculated.OrderBy(ShotBlockPlmDraws.VisualId, StringComparer.Ordinal))
-        {
-            content.AppendName("frame", ShotBlockPlmDraws.VisualId(draw));
-            content.Append("runs", draw.RunCount);
-            for (int run = 0; run < draw.RunCount; run++)
-            {
-                for (int block = 0; block < draw.BlocksPerRun; block++)
-                    row[block] = GetAppearance(PlmDraw.Of(draw), run, block);
-                content.AppendAppearances("blocks", row[..draw.BlocksPerRun]);
-            }
-        }
-    });
-
     /// <summary>Deep-copied edited run appearances keyed by draw; stock-identical draw lists stay calculated.</summary>
     private readonly IReadOnlyDictionary<PlmDraw, RoomBlockAppearance[][]> customBlocks;
 

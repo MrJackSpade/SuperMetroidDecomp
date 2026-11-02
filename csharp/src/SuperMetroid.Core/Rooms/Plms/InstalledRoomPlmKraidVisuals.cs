@@ -9,26 +9,12 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmKraidVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmKraidVisuals), content =>
-    {
-        foreach (KraidRoomDraw draw in ContentOrder.OrderBy(draw => KraidRoomPlmDraws.VisualId(PlmDraw.Of(draw)), StringComparer.Ordinal))
-            Append(draw, frames[draw]);
-
-        void Append(KraidRoomDraw draw, RoomBlockAppearance[] appearances)
-        {
-            content.AppendName("frame", KraidRoomPlmDraws.VisualId(PlmDraw.Of(draw)));
-            content.Append("runs", 1);
-            content.AppendAppearances("blocks", appearances);
-        }
-    });
-
     /// <summary>
     /// The ten draw roles in content-identity order: the three ceiling-crumble stages, the three ceiling background draws
     /// of Kraid's room sequence, the two floor-spike appearances, and the two room-clearing layouts that replace the
     /// ceiling blocks and the floor spikes after Kraid is defeated.
     /// </summary>
-    private static readonly KraidRoomDraw[] ContentOrder =
+    internal static readonly KraidRoomDraw[] ContentOrder =
     [
         KraidRoomDraw.CrumbleFirst, KraidRoomDraw.CrumbleSecond, KraidRoomDraw.CrumbleThird,
         KraidRoomDraw.CeilingBackground1, KraidRoomDraw.CeilingBackground2, KraidRoomDraw.CeilingBackground3,
@@ -36,7 +22,7 @@ public sealed class InstalledRoomPlmKraidVisuals
     ];
 
     /// <summary>Each draw role's installed block appearances.</summary>
-    private readonly IReadOnlyDictionary<KraidRoomDraw, RoomBlockAppearance[]> frames;
+    internal readonly IReadOnlyDictionary<KraidRoomDraw, RoomBlockAppearance[]> frames;
 
     /// <summary>The installed block appearances of one of the ten named Kraid draw roles.</summary>
     private RoomBlockAppearance[] Frame(KraidRoomDraw draw) =>

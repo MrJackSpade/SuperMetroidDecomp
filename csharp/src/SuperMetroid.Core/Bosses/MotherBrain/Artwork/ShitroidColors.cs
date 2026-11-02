@@ -5,28 +5,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Reads the live Shitroid scene's installed colours: the normal pulse, the initialization targets and their identity.</summary>
 internal static class ShitroidColors
 {
-    /// <summary>Hashes the Sidehopper, Shitroid and dead-Sidehopper targets, then the eight normal pulse phases.</summary>
-    internal static string ContentIdentity(ShitroidColorCatalog colors) =>
-        SelectedPresentationHash.Create("ShitroidColorCatalog-v1", content =>
-        {
-            Span<RgbColor> selectedSidehopper = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
-            for (int color = 0; color < selectedSidehopper.Length; color++) selectedSidehopper[color] = colors.selection.Sidehopper.Resolve(color);
-            content.AppendColors("sidehopper", selectedSidehopper);
-            Span<RgbColor> selectedShitroid = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
-            for (int color = 0; color < selectedShitroid.Length; color++) selectedShitroid[color] = colors.TargetColor(ShitroidColorTarget.Shitroid, color);
-            content.AppendColors("shitroid", selectedShitroid);
-            Span<RgbColor> selectedCorpse = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
-            for (int color = 0; color < selectedCorpse.Length; color++) selectedCorpse[color] = colors.selection.DeadSidehopper.Resolve(color);
-            content.AppendColors("deadSidehopper", selectedCorpse);
-            content.Append("normal", ShitroidColorDefinitions.NormalFrameCount);
-            for (int frame = 0; frame < ShitroidColorDefinitions.NormalFrameCount; frame++)
-            {
-                var phaseColors = new RgbColor[ShitroidColorDefinitions.NormalColorsPerFrame];
-                for (int color = 0; color < phaseColors.Length; color++) phaseColors[color] = colors.NormalColor(frame, color);
-                content.AppendColors("row", phaseColors);
-            }
-        });
-
     /// <summary>Gets a packed RGB5 ink from normal pulse phase 0–7 and ink 0–3.</summary>
     internal static RgbColor NormalColor(ShitroidColorPulse normal, int frame, int color) =>
         (uint)frame < ShitroidColorDefinitions.NormalFrameCount && (uint)color < ShitroidColorDefinitions.NormalColorsPerFrame

@@ -16,35 +16,8 @@ public sealed class CeresRidleyGetawayBoostDelays
     /// <summary>Each wing frame's ten delays, by frame then running frame.</summary>
     private readonly int[][] wings;
 
-    /// <summary>Keeps validated delays.</summary>
-    private CeresRidleyGetawayBoostDelays(int[][] wings) => this.wings = wings;
-
-    /// <summary>
-    /// Validates the installed delays: two wing frames of <see cref="UnauthoredBoostCadence.FrameCount"/> delays, each
-    /// 0 through <see cref="UnauthoredBoostCadence.LongestDelay"/> ticks.
-    /// </summary>
-    /// <param name="wings">Each wing frame's delays, by frame then running frame.</param>
-    /// <exception cref="InvalidDataException">A frame or delay is missing, extra or out of range.</exception>
-    public static CeresRidleyGetawayBoostDelays Load(IReadOnlyList<IReadOnlyList<int>> wings)
-    {
-        Ensure.NotNull(wings);
-        if (wings.Count != WingFrameCount)
-            throw new InvalidDataException($"Ceres Ridley's getaway needs {WingFrameCount} wing frames' delays; found {wings.Count}.");
-        var copy = new int[WingFrameCount][];
-        for (int frame = 0; frame < WingFrameCount; frame++)
-        {
-            IReadOnlyList<int> delays = wings[frame] ?? throw new InvalidDataException($"Ceres Ridley wing frame {frame} has no delays.");
-            if (delays.Count != UnauthoredBoostCadence.FrameCount)
-                throw new InvalidDataException($"Ceres Ridley wing frame {frame} needs {UnauthoredBoostCadence.FrameCount} delays; found {delays.Count}.");
-            foreach (int delay in delays)
-            {
-                if (delay is < 0 or > UnauthoredBoostCadence.LongestDelay)
-                    throw new InvalidDataException($"Ceres Ridley wing frame {frame} leaves a {delay}-tick delay, outside 0 through {UnauthoredBoostCadence.LongestDelay}.");
-            }
-            copy[frame] = [.. delays];
-        }
-        return new CeresRidleyGetawayBoostDelays(copy);
-    }
+    /// <summary>Keeps the delays the import pipeline validated, by wing frame then running frame.</summary>
+    internal CeresRidleyGetawayBoostDelays(int[][] wings) => this.wings = wings;
 
     /// <summary>The ten delays wing frame <paramref name="frame"/> leaves behind, by running frame.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of the wing's frames.</exception>

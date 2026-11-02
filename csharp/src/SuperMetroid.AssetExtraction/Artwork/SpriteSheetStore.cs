@@ -127,7 +127,7 @@ internal sealed class SpriteSheetStore
         {
             // A player's image is read whole now, so a malformed one fails as the sheet loads.
             SpriteImageLayers layers = Decode(name, out Extent16<ImagePixels> size);
-            return SpriteSheet.Load(new MemoryStream(frames, writable: false), name, size, layers.Pixels,
+            return SpriteSheetFile.Load(new MemoryStream(frames, writable: false), name, size, layers.Pixels,
                 layers.PaletteIndices, layers.Priorities, layers.PartGroups);
         }
         // A stock image's files passed their hashes when the installation was published and opened; its pixels are
@@ -143,7 +143,7 @@ internal sealed class SpriteSheetStore
         {
             throw new InvalidDataException($"Sprite sheet {name}: {error.Message}", error);
         }
-        return SpriteSheet.Load(new MemoryStream(frames, writable: false), name, stockSize, () =>
+        return SpriteSheetFile.Load(new MemoryStream(frames, writable: false), name, stockSize, () =>
         {
             SpriteImageLayers layers = Decode(name, out Extent16<ImagePixels> decoded);
             if (decoded != stockSize)

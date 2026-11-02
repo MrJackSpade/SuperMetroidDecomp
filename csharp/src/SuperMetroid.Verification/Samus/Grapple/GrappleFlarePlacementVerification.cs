@@ -31,7 +31,7 @@ internal static class GrappleFlarePlacementVerification
     internal static void VerifyGrappleFlarePlacement(SuperMetroidAddressSpace rom)
     {
         byte[] json = GrappleFlarePlacementExtractor.Extract(rom);
-        var stock = ChargeFlarePlacements.LoadGrapple(new MemoryStream(json));
+        var stock = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(json));
         var document = RequiredJson.Parse(json);
         foreach (bool running in new[] { false, true })
         for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
@@ -45,7 +45,7 @@ internal static class GrappleFlarePlacementVerification
             editedOffset["x"] = unchecked((short)(offset.X + 7));
             editedOffset["y"] = unchecked((short)(offset.Y - 9));
         }
-        var edited = ChargeFlarePlacements.LoadGrapple(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
+        var edited = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
         var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleBeamDrawing.RefreshFiringDrawOrigins);
         Func<SamusState, SamusGrappleState, Position16<RoomPixels>, GrappleAnchorKind, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
@@ -123,7 +123,7 @@ internal static class GrappleFlarePlacementVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         byte[] beforeBinding = GraphDigest(runtime.Player.IntroducedSamus);
-        var swingFrames = InstalledGrappleSwingFrames.Load(new MemoryStream(GrappleSwingFrameExtractor.Extract(rom)));
+        var swingFrames = GrappleSwingFrameFile.Load(new MemoryStream(GrappleSwingFrameExtractor.Extract(rom)));
         runtime.Artwork.GrappleFlarePlacement = edited;
         runtime.Artwork.GrappleSwingFrames = swingFrames;
         AssertTrue(ReferenceEquals(edited, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Artwork rebinding reaches current Samus immediately");

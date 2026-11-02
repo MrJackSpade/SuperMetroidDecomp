@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -10,20 +9,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmEyeDoorVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmEyeDoorVisuals), content =>
-    {
-        Span<RoomBlockAppearance> buffer = stackalloc RoomBlockAppearance[4];
-        foreach (var frame in EyeDoorDraws.Editable.OrderBy(item => EyeDoorDraws.VisualId(item.Draw), StringComparer.Ordinal))
-        {
-            EyeDoorDraws.TryDescribe(frame.Draw, out var shape);
-            content.AppendName("frame", EyeDoorDraws.VisualId(frame.Draw));
-            content.Append("runs", 1);
-            for (int cell = 0; cell < shape.BlockCount; cell++) buffer[cell] = GetAppearance(frame.Draw, cell);
-            content.AppendAppearances("blocks", buffer[..shape.BlockCount]);
-        }
-    });
-
     /// <summary>
     /// Copied visual overrides keyed by the eye-door frame's shared source draw;
     /// null keeps the compiled appearance for every component and clearing frame.

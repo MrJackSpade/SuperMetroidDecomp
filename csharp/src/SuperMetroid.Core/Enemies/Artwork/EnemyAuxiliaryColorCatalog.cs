@@ -5,9 +5,6 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <summary>Installed RGB5 animation frames independent of stock storage and enemy mechanics.</summary>
 public sealed class EnemyAuxiliaryColorCatalog
 {
-    /// <summary>Identity of the selected colours, computed from them rather than kept with the game state.</summary>
-    public string ContentIdentity => EnemyAuxiliaryColors.ContentIdentity(this);
-
     /// <summary>
     /// Each family's colour frames: the mirrored eight-frame face-block glow sequence, the Sidehopper drain stages with its
     /// separate corpse colors, and Golden Torizo's eight body and eight rear-belly health bands.

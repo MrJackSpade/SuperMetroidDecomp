@@ -88,11 +88,11 @@ internal static void VerifySamusPowerBeamProjectiles()
         new MemoryStream(SamusChargeColorExtractor.Extract(bus))).ToColours();
     var fixtureSuitColors = SamusSuitColorFile.Read(
         new MemoryStream(SamusSuitColorExtractor.Extract(bus)));
-    var fixtureFlarePlacement = ChargeFlarePlacements.Load(
+    var fixtureFlarePlacement = ChargeFlarePlacementFile.Load(
         new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
     var fixtureFlareSprites = ChargeFlareSprites.Load(
         new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
-    var fixtureFrames = InstalledProjectileFrameBindings.Load(
+    var fixtureFrames = ProjectileFrameBindingFile.Load(
         new MemoryStream(ProjectileFrameBindingExtractor.Extract(bus)));
     var fixtureSprites = InstalledProjectileSprites.Load(
         new MemoryStream(ProjectileSpriteExtractor.Extract(bus)));

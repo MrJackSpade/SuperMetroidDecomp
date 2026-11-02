@@ -16,6 +16,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Fx.Artwork;
 using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.Core.Progression;

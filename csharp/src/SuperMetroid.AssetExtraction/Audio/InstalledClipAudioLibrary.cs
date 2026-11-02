@@ -1,0 +1,85 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Compatibility;
+
+namespace SuperMetroid.AssetExtraction.Audio;
+
+/// <summary>
+/// The installed pre-rendered audio clips as the import pipeline reads them (#1502): beside the songs, sound effects and
+/// acceptance policies the game plays, the validated clip manifest they came from and the identity of the selected audio.
+/// </summary>
+public sealed class InstalledClipAudioLibrary : ClipAudioLibrary
+{
+    /// <summary>Game updates per second; the clips' rate is one update's samples this many times.</summary>
+    private const int UpdatesPerSecond = 60;
+
+    /// <summary>
+    /// Creates a catalog over <paramref name="manifest"/>, whose clips <paramref name="source"/> supplies;
+    /// <paramref name="contentIdentity"/> identifies the selected audio.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">An argument is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="contentIdentity"/> is blank.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The rate, an identity, a clip's length, loop bounds or a tempo timeline is invalid, or the manifest repeats an identity.
+    /// </exception>
+    internal InstalledClipAudioLibrary(AudioClipManifest manifest, string contentIdentity, IAudioClipSource source)
+        : base(Validated(manifest).Music, manifest.SoundEffects, manifest.Unrenderable, source)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);
+        Manifest = manifest;
+        ContentIdentity = contentIdentity;
+    }
+
+    /// <summary>The validated manifest.</summary>
+    public AudioClipManifest Manifest { get; }
+
+    /// <summary>
+    /// The selected audio's identity, supplied by the content reader: any audible change alters it.
+    /// </summary>
+    public string ContentIdentity { get; }
+
+    /// <summary>Checks the manifest's rate, source identity, clip lengths, loop bounds and tempo timelines.</summary>
+    /// <returns><paramref name="manifest"/>, once checked.</returns>
+    private static AudioClipManifest Validated(AudioClipManifest manifest)
+    {
+        Ensure.NotNull(manifest);
+        if (manifest.SampleRate != SoundClockTiming.SamplesPerUpdate * UpdatesPerSecond)
+            throw new InvalidDataException($"Audio clip manifest has rate {manifest.SampleRate}.");
+        if (string.IsNullOrWhiteSpace(manifest.SourceContentIdentity))
+            throw new InvalidDataException("Audio clip manifest names no source content identity.");
+        foreach (MusicClipEntry entry in manifest.Music)
+        {
+            ValidateClip(entry.Clip);
+            if (entry.LoopStart is long loop && (loop < 0 || loop >= entry.Clip.Frames))
+                throw new InvalidDataException($"{entry.AudioSet} track {entry.Track} loops at {loop} of {entry.Clip.Frames} frames.");
+            if (entry.TempoSegments.Count == 0 || entry.TempoSegments[0].Frame != 0)
+                throw new InvalidDataException($"{entry.AudioSet} track {entry.Track} has no tempo at frame zero.");
+        }
+        foreach (SoundEffectClipEntry entry in manifest.SoundEffects)
+        {
+            if (entry.Layers.Count == 0 && entry.ActiveFrames is null)
+                throw new InvalidDataException($"Never-ending {entry.Sound} in {ContextName(entry.Context)} has no layers.");
+            foreach (SoundEffectClipLayer layer in entry.Layers)
+            {
+                ValidateClip(layer.Clip);
+                if ((layer.LoopStart is null) != (entry.ActiveFrames is not null) ||
+                    layer.LoopStart is long loop && (loop < 0 || loop >= layer.Clip.Frames))
+                {
+                    throw new InvalidDataException(
+                        $"{entry.Sound} in {ContextName(entry.Context)} has inconsistent loop bounds.");
+                }
+            }
+        }
+        return manifest;
+    }
+
+    /// <summary>Checks a clip has frames and a content hash.</summary>
+    private static void ValidateClip(AudioClipFile clip)
+    {
+        if (clip.Frames <= 0 || string.IsNullOrWhiteSpace(clip.Sha256))
+            throw new InvalidDataException($"Audio clip '{clip.Path}' has {clip.Frames} frames or no hash.");
+    }
+
+    /// <summary>A data set's name in diagnostics.</summary>
+    private static string ContextName(MusicDataSet? context) => context?.ToString() ?? "the shared sounds";
+}

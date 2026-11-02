@@ -6,6 +6,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 

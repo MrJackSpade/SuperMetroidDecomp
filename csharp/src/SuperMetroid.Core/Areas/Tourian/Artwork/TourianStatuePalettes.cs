@@ -6,19 +6,6 @@ namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 /// <summary>Editable entrance, eye-glow, and grey-transition RGB5 colors for the Tourian statue.</summary>
 public sealed class TourianStatuePalettes
 {
-    /// <summary>Canonical selected RGB5 colors and ordered eye glows, independent of JSON encoding.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("TourianStatueColorCatalog-v1", content =>
-        {
-            Span<RgbColor> colours = stackalloc RgbColor[TourianStatueColorDefinitions.BaseColorCount];
-            for (int color = 0; color < colours.Length; color++) colours[color] = ResolveBase(color);
-            content.AppendColors("baseColors", colours);
-            content.AppendColors("statueColors", statueColors.Words());
-            for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++) colours[color] = ResolveGrey(color);
-            content.AppendColors("greyColors", colours[..TourianStatueColorDefinitions.GreyColorCount]);
-            content.AppendColorFrames("eyeColors", Enumerable.Range(0, TourianStatueColorDefinitions.EyeGlowCount).Select(glow =>
-                Enumerable.Range(0, TourianStatueColorDefinitions.EyeColorCount).Select(color => ResolveEye(glow, color)).ToArray()).ToArray());
-        });
-
     /// <summary>Sixteen base-decoration inks installed at OBJ palette seven.</summary>
     internal readonly PaletteBand baseColors;
     /// <summary>Sixteen statue-body inks installed at OBJ palette two.</summary>

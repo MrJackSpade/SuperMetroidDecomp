@@ -8,25 +8,6 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 /// </summary>
 internal static class SporeSpawnColors
 {
-    /// <summary>Hashes the spores, then the health bands and the death-sprite, death-level and death-background fade steps.</summary>
-    internal static string ContentIdentity(SporeSpawnColorCatalog colors) =>
-        SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
-        {
-            content.AppendColors("spores", Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame).Select(colors.ResolveSpore).ToArray());
-            content.AppendColorFrames("health", Enumerable.Range(0, SporeSpawnColorDefinitions.HealthFrameCount)
-                .Select(frame => Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame)
-                    .Select(color => colors.selection.Health.Resolve(frame, color)).ToArray()).ToArray());
-            content.AppendColorFrames("deathSprite", Enumerable.Range(0, SporeSpawnColorDefinitions.DeathSpriteFrameCount)
-                .Select(frame => Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame)
-                    .Select(color => colors.ResolveDeathSprite(frame, color)).ToArray()).ToArray());
-            content.AppendColorFrames("deathLevel", Enumerable.Range(0, SporeSpawnColorDefinitions.DeathSceneFrameCount)
-                .Select(frame => Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame)
-                    .Select(color => colors.ResolveDeathLevel(frame, color)).ToArray()).ToArray());
-            content.AppendColorFrames("deathBackground", Enumerable.Range(0, SporeSpawnColorDefinitions.DeathSceneFrameCount)
-                .Select(frame => Enumerable.Range(0, SporeSpawnColorDefinitions.ColorsPerFrame)
-                    .Select(color => colors.ResolveDeathBackground(frame, color)).ToArray()).ToArray());
-        });
-
     /// <summary>Keeps the spore colours that differ from the supplied healthy band.</summary>
     internal static Dictionary<ColourCell, RgbColor> SporeEdits(RgbColor[] spores, RgbColor[][] health)
     {

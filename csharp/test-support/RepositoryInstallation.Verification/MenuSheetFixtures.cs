@@ -13,6 +13,8 @@ using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -40,7 +42,7 @@ internal static class MenuSheetFixtures
     internal static SpriteSheet FileSelect(FileSelectPresentation fileSelect)
     {
         ArgumentNullException.ThrowIfNull(fileSelect);
-        return fileSelect.ContentIdentity == InstalledFixtures.Maps.FileSelect.ContentIdentity
+        return FileSelectSourcePresentation.Of(fileSelect).ContentIdentity == FileSelectSourcePresentation.Of(InstalledFixtures.Maps.FileSelect).ContentIdentity
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.FileSelect)
             : fileSelects.GetValue(fileSelect, key => Load(SpriteSheetId.FileSelect, FileSelectSheetComposer.Sources(key, InstalledFixtures.Maps),
                 $"presentation-{RuntimeHelpers.GetHashCode(key):X8}"));
@@ -53,7 +55,7 @@ internal static class MenuSheetFixtures
     internal static SpriteSheet GameOptions(GameOptionsPresentation presentation)
     {
         ArgumentNullException.ThrowIfNull(presentation);
-        return presentation.ContentIdentity == InstalledFixtures.Maps.GameOptions.ContentIdentity
+        return GameOptionsSourcePresentation.Of(presentation).ContentIdentity == GameOptionsSourcePresentation.Of(InstalledFixtures.Maps.GameOptions).ContentIdentity
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.GameOptions)
             : options.GetValue(presentation, key => Load(SpriteSheetId.GameOptions, GameOptionsSheetComposer.Sources(key, InstalledFixtures.Maps),
                 $"presentation-{RuntimeHelpers.GetHashCode(key):X8}"));
@@ -125,7 +127,7 @@ internal static class MenuSheetFixtures
 
     /// <summary>Loads one composed fixture tile sheet under a name of its own.</summary>
     private static SpriteSheet LoadTiles(SpriteSheetId id, ComposedSpriteSheet tiles, string fixture) =>
-        SpriteSheet.Load(new MemoryStream(SpriteSheetManifestWriter.Write(tiles.Manifest), writable: false),
+        SpriteSheetFile.Load(new MemoryStream(SpriteSheetManifestWriter.Write(tiles.Manifest), writable: false),
             $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartGroups);
 
     /// <summary>Composes and registers a fixture presentation's menu sheets beside the installed others.</summary>
@@ -162,7 +164,7 @@ internal static class MenuSheetFixtures
     {
         ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
         // A name of its own keeps its frames apart from the installed sheet's in the frame-source registry.
-        SpriteSheet loaded = SpriteSheet.Load(new MemoryStream(SpriteSheetManifestWriter.Write(sheet.Manifest), writable: false),
+        SpriteSheet loaded = SpriteSheetFile.Load(new MemoryStream(SpriteSheetManifestWriter.Write(sheet.Manifest), writable: false),
             $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.Priorities, sheet.PartGroups);
         SheetFrameSources.Register(loaded, sources);
         return loaded;

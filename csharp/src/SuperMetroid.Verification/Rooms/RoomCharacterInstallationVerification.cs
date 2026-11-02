@@ -19,6 +19,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;

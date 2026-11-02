@@ -5,9 +5,6 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// <summary>Editable initial OBJ colors and fifteen steps of fourteen arena-reveal BG colors for Lower Norfair Ridley.</summary>
 public sealed class NorfairRidleyColorCatalog
 {
-    /// <summary>Canonical selected RGB5 colors and ordered steps, independent of JSON encoding.</summary>
-    public string ContentIdentity => NorfairRidleyColors.ContentIdentity(this);
-
     /// <summary>The selected initial colours and reveal steps.</summary>
     internal readonly NorfairRidleyColorSelection selection;
 

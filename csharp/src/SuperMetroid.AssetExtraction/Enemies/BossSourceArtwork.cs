@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
@@ -52,9 +51,9 @@ public sealed record BossSourceArtwork : BossArtworkCatalog
     /// <summary>Editable leg, Baby, attack-restoration and exploded-door OBJ pages.</summary>
     public MotherBrainSpecialSpriteArtworkCatalog? MotherBrainSpecialSprites { get; init; }
 
-    /// <inheritdoc/>
+    /// <summary>The selected boss presentation, computed from the installed content rather than kept with the game state.</summary>
     /// <remarks>Hashes each boss artwork entry's identity, in a fixed order; absent entries hash as absent.</remarks>
-    public override string ContentIdentity =>
+    public string ContentIdentity =>
         SelectedPresentationHash.Create("boss-bundle-v1", content =>
         {
             content.AppendIdentity("CrocomireMelting", CrocomireMelting?.ContentIdentity);

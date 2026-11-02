@@ -5,22 +5,6 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// <summary>Lower Norfair Ridley's installed colours at work: the initial and arena-reveal installs and their identity.</summary>
 internal static class NorfairRidleyColors
 {
-    /// <summary>Hashes the initial colours, then the fifteen reveal steps.</summary>
-    internal static string ContentIdentity(NorfairRidleyColorCatalog colors) =>
-        SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
-        {
-            Span<RgbColor> initialWords = stackalloc RgbColor[NorfairRidleyPaletteDefinitions.InitialColorCount];
-            for (int color = 0; color < initialWords.Length; color++) initialWords[color] = colors.selection.Initial.ColorAt(color);
-            content.AppendColors("initial", initialWords);
-            RgbColor[][] revealWords = new RgbColor[NorfairRidleyPaletteDefinitions.RevealStepCount][];
-            for (int step = 0; step < revealWords.Length; step++)
-            {
-                revealWords[step] = new RgbColor[NorfairRidleyPaletteDefinitions.RevealColorCount];
-                for (int color = 0; color < revealWords[step].Length; color++) revealWords[step][color] = colors.selection.Reveal.ColorAt(step, color);
-            }
-            content.AppendColorFrames("reveal", revealWords);
-        });
-
     /// <summary>Installs the 32 initial RGB5 colors in colours 160..191.</summary>
     internal static void ApplyInitial(NorfairRidleyInitialPaint initial, GameplayColours colours)
     {

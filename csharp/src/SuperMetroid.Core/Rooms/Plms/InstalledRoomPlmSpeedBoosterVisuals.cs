@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -9,10 +8,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmSpeedBoosterVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmSpeedBoosterVisuals),
-        content => content.AppendAppearances("block", [appearance]));
-
     /// <summary>
     /// Captured bomb-reveal metatile and flip bits; collision type and PLM timing
     /// continue to come from the compiled Speed Booster definition.

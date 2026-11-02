@@ -54,6 +54,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -1291,7 +1292,7 @@ internal static class LookupStream1Verification
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1TimerLayoutRomByte(rom, address), LookupStream1TimerLayoutRomByte(rom, address + 1));
         byte[] json = EscapeTimerPresentationExtractor.Extract();
-        var stock = EscapeTimerPresentation.Load(new MemoryStream(json));
+        var stock = EscapeTimerPresentationFile.Load(new MemoryStream(json));
         var document = RequiredJson.Deserialize<EscapeTimerPresentationDocument>(json, ArtworkJson.Options);
         AssertEqual(0, stock.anchors.Count, "Timer stock stores no calculated anchor fallbacks");
         int[] anchorImmediates = [0x809f73, 0x809f7c, 0x809f85, 0x809f8e];
@@ -1326,7 +1327,7 @@ internal static class LookupStream1Verification
         static EscapeTimerPresentation Load(EscapeTimerPresentationDocument value)
         {
             using var stream = new MemoryStream(); EscapeTimerPresentationExtractor.Write(stream, value); stream.Position = 0;
-            return EscapeTimerPresentation.Load(stream);
+            return EscapeTimerPresentationFile.Load(stream);
         }
         OamBuffer DrawDocument(EscapeTimerPresentationDocument selected)
         {
@@ -1355,7 +1356,7 @@ internal static class LookupStream1Verification
     {
         short Word(int address) => unchecked((short)(LittleEndianBytes.Word(LookupStream1FlarePlacementRomByte(rom, address), LookupStream1FlarePlacementRomByte(rom, address + 1))));
         byte[] json = ChargeFlarePlacementExtractor.Extract(rom);
-        var stock = ChargeFlarePlacements.Load(new MemoryStream(json));
+        var stock = ChargeFlarePlacementFile.Load(new MemoryStream(json));
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         AssertEqual(0, stock.offsets.Count, "Beam flare stock has zero stored fallback origins");
         for (int mode = 0; mode < 2; mode++)
@@ -1371,7 +1372,7 @@ internal static class LookupStream1Verification
                 string key = ChargeFlarePlacementOffsets.Key(mode != 0, direction);
                 var before = document.Offsets[key];
                 document.Offsets[key] = axis == 0 ? before with { X = (short)(before.X + 7) } : before with { Y = (short)(before.Y + 7) };
-                var edited = ChargeFlarePlacements.Load(new MemoryStream(ChargeFlarePlacements.Write(document)));
+                var edited = ChargeFlarePlacementFile.Load(new MemoryStream(ChargeFlarePlacementFile.Write(document)));
                 AssertEqual(1, edited.offsets.Count, "One independent origin edit stores exactly one override");
                 for (int selectedMode = 0; selectedMode < 2; selectedMode++)
                 for (int selectedDirection = 0; selectedDirection < (selectedMode == 0 ? ChargeFlarePlacementDefinitions.StandingDirectionCount : ChargeFlarePlacementDefinitions.DirectionCount); selectedDirection++)
@@ -1380,7 +1381,7 @@ internal static class LookupStream1Verification
             }
         }
         var grappleDocument = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options);
-        var grapple = ChargeFlarePlacements.LoadGrapple(new MemoryStream(ChargeFlarePlacements.WriteGrapple(grappleDocument)));
+        var grapple = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(ChargeFlarePlacementFile.WriteGrapple(grappleDocument)));
         AssertEqual(0, grapple.offsets.Count, "Grapple stock has zero stored fallback origins");
         for (int mode = 0; mode < 2; mode++)
         for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
@@ -1395,7 +1396,7 @@ internal static class LookupStream1Verification
                 string key = ChargeFlarePlacementOffsets.Key(mode != 0, direction);
                 var before = document.Offsets[key];
                 document.Offsets[key] = axis == 0 ? before with { X = (short)(before.X + 7) } : before with { Y = (short)(before.Y + 7) };
-                var edited = ChargeFlarePlacements.LoadGrapple(new MemoryStream(ChargeFlarePlacements.WriteGrapple(document)));
+                var edited = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(ChargeFlarePlacementFile.WriteGrapple(document)));
                 AssertEqual(1, edited.offsets.Count, "Grapple independent edit stores exactly one override");
                 for (int selectedMode = 0; selectedMode < 2; selectedMode++)
                 for (int selectedDirection = 0; selectedDirection < ChargeFlarePlacementDefinitions.DirectionCount; selectedDirection++)
@@ -1424,7 +1425,7 @@ internal static class LookupStream1Verification
         var shiftedDocument = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(json, options);
         foreach (string key in shiftedDocument.Offsets.Keys.ToArray())
             shiftedDocument.Offsets[key] = shiftedDocument.Offsets[key] with { X = (short)(shiftedDocument.Offsets[key].X + 7) };
-        var shifted = ChargeFlarePlacements.Load(new MemoryStream(ChargeFlarePlacements.Write(shiftedDocument)));
+        var shifted = ChargeFlarePlacementFile.Load(new MemoryStream(ChargeFlarePlacementFile.Write(shiftedDocument)));
         foreach (SamusPoseId pose in new[]
         {
             SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
@@ -2272,7 +2273,7 @@ internal static class LookupStream1Verification
             using var output = new MemoryStream();
             EscapeTypewriterExtractor.Write(output, value);
             output.Position = 0;
-            return EscapeTypewriterPresentation.Load(output);
+            return EscapeTypewriterPresentationFile.Load(output);
         }
         var stock = Load(document);
         int Stored(EscapeTypewriterProgram program) => ((EscapeTypewriterPresentation.LineSequence)program.Lines).overrides.Count;
@@ -2519,7 +2520,7 @@ internal static class LookupStream1Verification
         {
             if (edited)
                 foreach (ushort pointer in expected) document.Frames[ProjectileFrameBindingFormat.FrameNameAt(pointer)] = ProjectileSpriteDefinitions.Name(0xa117);
-            var bindings = InstalledProjectileFrameBindings.Load(new MemoryStream(InstalledProjectileFrameBindings.Write(document)));
+            var bindings = ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document)));
             var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = bindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
             foreach (ushort pointer in expected)
@@ -2596,7 +2597,7 @@ internal static class LookupStream1Verification
             Frames = records.ToDictionary(pointer => ProjectileFrameBindingFormat.FrameNameAt(pointer),
                 pointer => ProjectileSpriteDefinitions.Name(Word(0x930000 | (pointer + 2)))),
         };
-        var bindings = InstalledProjectileFrameBindings.Load(new MemoryStream(InstalledProjectileFrameBindings.Write(document)));
+        var bindings = ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document)));
         var guard = NewLookupFlareForbiddenBus();
         int actualTicks = 0, loops = 0, deletions = 0;
         foreach (var program in programs)

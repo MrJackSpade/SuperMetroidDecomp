@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 /// </summary>
 public sealed class RoomPlmBombTorizoHandVisualCatalog
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-    public string ContentIdentity => BombTorizoHandArtwork.ContentIdentity(this);
-
     /// <summary>Copied visual-only edits keyed by draw; stock frames use their compiled blocks.</summary>
     private readonly PlmVisualOverrides customBlocks;
 

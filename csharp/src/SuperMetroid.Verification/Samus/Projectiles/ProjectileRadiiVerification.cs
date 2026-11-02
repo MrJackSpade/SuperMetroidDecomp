@@ -98,7 +98,7 @@ internal static class ProjectileRadiiVerification
         AssertEqual(Extent16<RoomPixels>.Zero, SamusProjectilePrograms.InitialRadius(null), "bounded Murder Beam zero-list radii");
 
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
-        var stock = InstalledProjectileFrameBindings.Load(new MemoryStream(stockJson));
+        var stock = ProjectileFrameBindingFile.Load(new MemoryStream(stockJson));
         var editedDocument = RequiredJson.Deserialize<ProjectileFrameBindingDocument>(stockJson,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         ushort[] replacementSprites = ProjectileSpriteDefinitions.NativePointers.ToArray();
@@ -106,8 +106,8 @@ internal static class ProjectileRadiiVerification
             editedDocument.Frames[ProjectileFrameBindingFormat.FrameNameAt(frame)] =
                 ProjectileSpriteDefinitions.Name(stock.Resolve(frame) == replacementSprites[0]
                     ? replacementSprites[1] : replacementSprites[0]);
-        var edited = InstalledProjectileFrameBindings.Load(
-            new MemoryStream(InstalledProjectileFrameBindings.Write(editedDocument)));
+        var edited = ProjectileFrameBindingFile.Load(
+            new MemoryStream(ProjectileFrameBindingFile.Write(editedDocument)));
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         var bombs = new SamusBombProjectileSystem();
         int bombFrames = 0;

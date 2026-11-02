@@ -9,18 +9,6 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// </summary>
 public sealed class MagdollitePaletteCycle
 {
-    /// <summary>Canonical selected RGB5 colors and ordered cycle frames, independent of JSON encoding.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("MagdollitePaletteCycle-v1", content =>
-        {
-            content.Append("frames", MagdollitePaletteDefinitions.FrameCount);
-            Span<RgbColor> frameColours = stackalloc RgbColor[MagdollitePaletteDefinitions.AnimatedColorCount];
-            for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
-            {
-                for (int color = 0; color < frameColours.Length; color++) frameColours[color] = Resolve(frame, color);
-                content.AppendColors("row", frameColours);
-            }
-        });
-
     /// <summary>Four independently authored glow colors underlying the frames' rotations.</summary>
     private readonly RgbColor[] colors;
     /// <summary>Later-frame cells that differ from the rotation of the first frame.</summary>

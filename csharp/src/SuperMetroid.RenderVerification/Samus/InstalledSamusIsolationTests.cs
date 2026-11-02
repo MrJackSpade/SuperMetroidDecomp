@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.RenderVerification.Samus;
 
 using SuperMetroid.Core.Rendering;

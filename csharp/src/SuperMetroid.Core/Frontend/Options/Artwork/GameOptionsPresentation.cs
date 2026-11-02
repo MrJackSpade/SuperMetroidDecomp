@@ -16,29 +16,22 @@ public abstract class GameOptionsPresentation
     internal readonly Dictionary<GameOptionsPage, Position16<SpritePixels>[]>? cursorAnchors;
 
     /// <summary>Retains only the anchor edits that depart from stock geometry.</summary>
-    /// <param name="document">The validated layout.</param>
-    /// <param name="contentIdentity">The identity of the selected presentation's bytes.</param>
-    internal GameOptionsPresentation(GameOptionsLayoutDocument document, string contentIdentity)
+    /// <param name="placements">The validated anchors and cursor duration.</param>
+    internal GameOptionsPresentation(GameOptionsPlacements placements)
     {
-        Dictionary<GameOptionsPage, Position16<SpritePixels>> headings = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(
-            page => page, page => document.HeadingAnchors[GameOptionsNames.MenuName(page)]);
+        Dictionary<GameOptionsPage, Position16<SpritePixels>> headings = placements.HeadingAnchors.ToDictionary(
+            pair => pair.Key, pair => pair.Value);
         headingAnchors = headings.Any(pair => pair.Value != GameOptionsArtworkCells.HeadingAnchor(pair.Key)) ? headings : null;
-        Dictionary<GameOptionsPage, Position16<SpritePixels>[]> cursors = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(
-            page => page, page => document.CursorAnchors[GameOptionsNames.MenuName(page)]);
+        Dictionary<GameOptionsPage, Position16<SpritePixels>[]> cursors = placements.CursorAnchors.ToDictionary(
+            pair => pair.Key, pair => pair.Value);
         cursorAnchors = cursors.Any(pair => pair.Value.Where((point, index) =>
             point != GameOptionsArtworkCells.CursorAnchor(pair.Key, index)).Any()) ? cursors : null;
-        HiddenCursor = document.HiddenCursor;
-        CursorPalette = document.CursorPalette;
-        CursorFrameDuration = document.CursorFrameDuration;
-        ContentIdentity = contentIdentity;
+        HiddenCursor = placements.HiddenCursor;
+        CursorFrameDuration = placements.CursorFrameDuration;
     }
 
-    /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying selected artwork and layout including their encoding.</summary>
-    public string ContentIdentity { get; }
     /// <summary>Cursor origin used during phases without a cursor table, in screen pixels with X=0-511 and Y=0-255; the actor stays among the drawn sprites.</summary>
     public Position16<SpritePixels> HiddenCursor { get; }
-    /// <summary>OBJ palette index 0-7 used for both the missile cursor and menu-heading sprite compositions.</summary>
-    public int CursorPalette { get; }
     /// <summary>Menu updates per frame of the four-frame looping missile cursor, in the range 1-65535.</summary>
     public int CursorFrameDuration { get; }
 

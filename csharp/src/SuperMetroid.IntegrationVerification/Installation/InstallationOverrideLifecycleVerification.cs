@@ -10,6 +10,22 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
+using SuperMetroid.Core.Enemies.Elevator.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus.Abilities.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.IntegrationVerification.Installation;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -179,6 +195,45 @@ internal static class InstallationOverrideLifecycleVerification
                 RoomStaticPalettes palettes => RoomTilesetSources.PaletteIdentity(palettes),
                 // The enemy directory's identity is the one a host records for it (#1463).
                 InstalledEnemyArtwork enemyDirectory => InstalledEnemyArtwork.DirectoryIdentity(enemyDirectory.Enemies, enemyDirectory.Bosses, enemyDirectory.Areas),
+                // The game's catalogs carry no identity of their own: the import pipeline identifies them (#1502).
+                GameplayBasePalette installed => installed.ContentIdentity,
+                InstalledSpriteSheets installed => installed.ContentIdentity,
+                InstalledEnemySheets installed => installed.ContentIdentity,
+                InstalledSamusBodyArtwork installed => installed.ContentIdentity,
+                EndingPaletteSet installed => installed.ContentIdentity,
+                InstalledRoomArtwork installed => installed.ContentIdentity,
+                BossBodySheets installed => installed.ContentIdentity,
+                RoomLevelArtworks installed => installed.ContentIdentity,
+                InstalledXrayReveals installed => installed.ContentIdentity,
+                InstalledRoomPlmShotBlockVisuals installed => installed.ContentIdentity,
+                InstalledRoomPlmGrappleBlockVisuals installed => installed.ContentIdentity,
+                InstalledRoomPlmStationVisuals installed => installed.ContentIdentity,
+                InstalledRoomPlmBlueDoorVisuals installed => installed.ContentIdentity,
+                InstalledRoomPlmColoredDoorVisuals installed => installed.ContentIdentity,
+                InstalledRoomPlmGreyDoorVisuals installed => installed.ContentIdentity,
+                InstalledRoomPlmEyeDoorVisuals installed => installed.ContentIdentity,
+                RoomPlmMotherBrainGlassVisualCatalog installed => installed.ContentIdentity,
+                InstalledRoomPlmNoobTubeVisuals installed => installed.ContentIdentity,
+                InstalledRoomPlmDownwardGateVisuals installed => installed.ContentIdentity,
+                RoomPlmElevatorPlatformVisualCatalog installed => installed.ContentIdentity,
+                RoomPlmEscapeGateVisualCatalog installed => installed.ContentIdentity,
+                RoomPlmBombTorizoHandVisualCatalog installed => installed.ContentIdentity,
+                RoomPlmDraygonCannonVisualCatalog installed => installed.ContentIdentity,
+                RoomPlmChozoStatueVisualCatalog installed => installed.ContentIdentity,
+                InstalledRoomPlmLinkedRestoreVisuals installed => installed.ContentIdentity,
+                RoomPlmTourianAccessVisuals installed => installed.ContentIdentity,
+                InstalledRoomPlmSpeedBoosterVisuals installed => installed.ContentIdentity,
+                InstalledRoomPlmMaridiaElevatubeVisuals installed => installed.ContentIdentity,
+                RoomPlmSporeSpawnCeilingVisualCatalog installed => installed.ContentIdentity,
+                InstalledRoomPlmSamusEaterVisuals installed => installed.ContentIdentity,
+                InstalledRoomPlmBotwoonWallVisuals installed => installed.ContentIdentity,
+                InstalledRoomPlmKraidVisuals installed => installed.ContentIdentity,
+                RoomPlmCrocomireVisualCatalog installed => installed.ContentIdentity,
+                RoomPlmMotherBrainFakeDeathVisualCatalog installed => installed.ContentIdentity,
+                InstalledRoomPlmCollectibleVisuals installed => installed.ContentIdentity,
+                // The room levels are stock only; their manifest names every level file's hash.
+                InstalledRoomLevelStreams => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(
+                    Path.Combine(installation.RoomLevelStreamDirectory, RoomLevelStreamFiles.ManifestFileName)))),
                 _ => catalog.GetType().GetProperty("ContentIdentity")?.GetValue(catalog) as string
                     ?? throw new InvalidDataException($"Catalog {loader.Name} lacks selected-content identity."),
             };
@@ -261,7 +316,7 @@ internal static class InstallationOverrideLifecycleVerification
         File.WriteAllBytes(palettePath, GameplayBasePaletteFiles.Write(palette));
         ushort selectedColor = (ushort)(palette.Initial[0].Red | palette.Initial[0].Green << 5 | palette.Initial[0].Blue << 10);
 
-        ClipAudioLibrary clips = installation.LoadAudioClips();
+        InstalledClipAudioLibrary clips = installation.LoadAudioClips();
         MusicClipEntry song = clips.Manifest.Music[0];
         short[] samples = clips.ReadClip(song.Clip);
         samples[0] = unchecked((short)(samples[0] ^ 1));

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -156,7 +157,7 @@ internal static class SamusBodySheetFixtures
     {
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(sheet => sheet, basis.Get);
         ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
-        SpriteSheet loaded = SpriteSheet.Load(new MemoryStream(SpriteSheetManifestWriter.Write(sheet.Manifest), writable: false),
+        SpriteSheet loaded = SpriteSheetFile.Load(new MemoryStream(SpriteSheetManifestWriter.Write(sheet.Manifest), writable: false),
             $"{SpriteSheetDefinitions.FileNames[id]}-{suffix}", sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.Priorities, sheet.PartGroups);
         SheetFrameSources.Register(loaded, sources);
         sheets[id] = loaded;

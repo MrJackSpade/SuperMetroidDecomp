@@ -27,6 +27,6 @@ public static class ChargeFlarePlacementExtractor
                 Y = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), y + direction * 2)),
             });
         }
-        return ChargeFlarePlacements.Write(new() { Version = ChargeFlarePlacementDefinitions.Version, Offsets = offsets });
+        return ChargeFlarePlacementFile.Write(new() { Version = ChargeFlarePlacementDefinitions.Version, Offsets = offsets });
     }
 }

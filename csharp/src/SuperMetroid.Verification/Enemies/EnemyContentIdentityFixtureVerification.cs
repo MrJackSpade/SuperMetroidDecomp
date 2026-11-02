@@ -37,6 +37,7 @@ using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 
 namespace SuperMetroid.Verification.Enemies;
 
@@ -310,7 +311,7 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("reveal", NorfairRidleyPaletteDefinitions.RevealStepCount, NorfairRidleyPaletteDefinitions.RevealColorCount)), PhantoonBg2Frames = Shared("phantoon-bg2", () => PhantoonBg2FrameCatalog.Load(Bg2("phantoon-bg2", PhantoonBg2FrameDefinitions.Frames, PhantoonBg2FrameDefinitions.Version))), DraygonBg2Frames = Shared("draygon-bg2", () => DraygonBg2FrameCatalog.Load(Bg2("draygon-bg2", DraygonBg2FrameDefinitions.Frames, DraygonBg2FrameDefinitions.Version))), CrocomireBg2Frames = Shared("crocomire-bg2", () => CrocomireBg2FrameCatalog.Load(Bg2("crocomire-bg2", CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version))), MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames ?? MotherBrainBodyBg2FrameCatalog.Load(
                     Bg2("mother-brain-body-bg2", MotherBrainBodyBg2FrameDefinitions.Frames, MotherBrainBodyBg2FrameDefinitions.Version)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(Png("crocomire-skeleton", CrocomireSkeletonCharacterDefinitions.TotalByteCount), CrocomireSkeletonCharacterDefinitions.TotalByteCount)), TorizoSwaps = torizo },
                 new AreaSourceArtwork { CeresDoor = door, TourianStatueColors = ColorCatalog(TourianStatueColorFile.Read,
-                    new EnemyContentIdentityFixtureField("base", 0, TourianStatueColorDefinitions.BaseColorCount), new EnemyContentIdentityFixtureField("statue", 0, TourianStatueColorDefinitions.StatueColorCount),
+                    new EnemyContentIdentityFixtureField("base", 0, TourianStatueColorFormat.BaseColorCount), new EnemyContentIdentityFixtureField("statue", 0, TourianStatueColorFormat.StatueColorCount),
                     new EnemyContentIdentityFixtureField("eye", TourianStatueColorDefinitions.EyeGlowCount, TourianStatueColorDefinitions.EyeColorCount), new EnemyContentIdentityFixtureField("grey", 0, TourianStatueColorDefinitions.GreyColorCount)), CeresEscapeTiles = ceresTiles, CeresEscapeOverlayTilemaps = overlay });
         }
 

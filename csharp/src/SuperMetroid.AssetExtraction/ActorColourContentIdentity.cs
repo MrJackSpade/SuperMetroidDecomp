@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Animals;
@@ -17,11 +18,12 @@ internal static class ActorColourContentIdentity
         /// <summary>Canonical selected RGB5 colors and ordered eye glows, independent of JSON encoding.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create("TourianStatueColorCatalog-v1", content =>
             {
-                Span<RgbColor> colours = stackalloc RgbColor[TourianStatueColorDefinitions.BaseColorCount];
-                for (int color = 0; color < colours.Length; color++) colours[color] = palettes.ResolveBase(color);
+                Span<RgbColor> colours = stackalloc RgbColor[TourianStatueColorFormat.BaseColorCount];
+                for (int color = 0; color < colours.Length; color++) colours[color] = palettes.baseColors.Read(color);
                 content.AppendColors("baseColors", colours);
-                content.AppendColors("statueColors", palettes.statueColors.Words());
-                for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++) colours[color] = palettes.ResolveGrey(color);
+                for (int color = 0; color < TourianStatueColorFormat.StatueColorCount; color++) colours[color] = palettes.statueColors.Read(color);
+                content.AppendColors("statueColors", colours[..TourianStatueColorFormat.StatueColorCount]);
+                for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++) colours[color] = palettes.greyColors.Read(color);
                 content.AppendColors("greyColors", colours[..TourianStatueColorDefinitions.GreyColorCount]);
                 content.AppendColorFrames("eyeColors", Enumerable.Range(0, TourianStatueColorDefinitions.EyeGlowCount).Select(glow =>
                     Enumerable.Range(0, TourianStatueColorDefinitions.EyeColorCount).Select(color => palettes.ResolveEye(glow, color)).ToArray()).ToArray());

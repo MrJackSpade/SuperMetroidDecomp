@@ -23,6 +23,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.World.RoomStates;
+using SuperMetroid.AssetExtraction.Areas.Tourian;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -143,7 +144,7 @@ internal static class RoomBlockUploads
         }
         if (state.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations)
         {
-            foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTiles.All)
+            foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTilePrograms.All)
             {
                 // Phantoon's and Ridley's statues paint characters outside the room's tile characters, which no block reads.
                 if (!BgCharacterWords.AmongTiles(AnimatedTileVramDestinations.WordOf(statue.AnimatedObject)))

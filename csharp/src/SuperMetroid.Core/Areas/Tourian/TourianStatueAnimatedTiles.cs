@@ -9,18 +9,6 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 public static class TourianStatueAnimatedTiles
 {
-    /// <summary>The four boss-statue programs in authored header order.</summary>
-    public static IEnumerable<TourianStatueAnimatedTileProgramDefinition> All
-    {
-        get
-        {
-            yield return Require(AnimatedTileObject.TourianStatuePhantoon);
-            yield return Require(AnimatedTileObject.TourianStatueRidley);
-            yield return Require(AnimatedTileObject.TourianStatueKraid);
-            yield return Require(AnimatedTileObject.TourianStatueDraygon);
-        }
-    }
-
     /// <summary>Resolves one statue's animated-tile definition.</summary>
     public static bool TryResolveObjectHeader(
         AnimatedTileObject animatedObject,
@@ -35,8 +23,4 @@ public static class TourianStatueAnimatedTiles
         Enum.IsDefined(animatedObject)
             ? TourianStatueAnimatedTileMechanicsDefinitions.Statues.GetValueOrDefault(animatedObject)
             : throw new InvalidOperationException($"Undefined AnimatedTileObject {animatedObject}.");
-
-    /// <summary>The definition of a statue's animated-tile object.</summary>
-    private static TourianStatueAnimatedTileProgramDefinition Require(AnimatedTileObject animatedObject) => SelectObject(animatedObject) ??
-        throw new InvalidOperationException($"{animatedObject} has no definition in this catalog.");
 }

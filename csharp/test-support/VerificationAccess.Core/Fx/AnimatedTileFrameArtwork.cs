@@ -4,6 +4,7 @@ using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx.Artwork;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Areas.Tourian;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
@@ -64,7 +65,7 @@ internal static class AnimatedTileFrameArtwork
                 yield return new(AnimatedTileFrames.Frame(treadmill.AnimatedObject, frame), AnimatedTileImageSources.Of(treadmill.Image(frame)),
                     Picture(treadmill.Image(frame), WreckedShipTreadmillMechanicsDefinitions.FrameByteCount));
         }
-        foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTiles.All)
+        foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTilePrograms.All)
         {
             foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
                 yield return new(AnimatedTileFrames.Picture(statue.AnimatedObject, picture),

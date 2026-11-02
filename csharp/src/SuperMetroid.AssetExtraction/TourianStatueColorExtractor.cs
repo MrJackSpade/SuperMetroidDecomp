@@ -31,9 +31,9 @@ public static class TourianStatueColorExtractor
         {
             Version = TourianStatueColorFormat.Version,
             Base = Read(bus, EnemySourceDefinitions.TourianStatueBaseColors,
-                TourianStatueColorDefinitions.BaseColorCount),
+                TourianStatueColorFormat.BaseColorCount),
             Statue = Read(bus, EnemySourceDefinitions.TourianStatueColors,
-                TourianStatueColorDefinitions.StatueColorCount),
+                TourianStatueColorFormat.StatueColorCount),
             Eye = eye,
             Grey = Read(bus, EnemySourceDefinitions.TourianStatueGreyColors,
                 TourianStatueColorDefinitions.GreyColorCount),

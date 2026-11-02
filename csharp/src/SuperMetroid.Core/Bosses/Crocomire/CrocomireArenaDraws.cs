@@ -17,14 +17,6 @@ internal static class CrocomireArenaDraws
 
         /// <summary>Wall layouts draw three columns; bridge layouts draw one horizontal run.</summary>
         internal int RunCount => CrocomireArenaPlmDrawDefinitions.Cells[Frame].Length;
-        /// <summary>Wall columns write down their column; the bridge writes along its row.</summary>
-        internal PlmRunDirection Direction => Wall ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal;
-        /// <summary>Offsets the next wall column from the draw origin rather than from the prior column.</summary>
-        internal int NextX(int run)
-        {
-            if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
-            return run + 1 < RunCount ? WordWrap.SignedLowByte(run + 1) : 0;
-        }
         /// <summary>The bridge tile or the wall's alternating rows and final base row, solid only in the create-wall state.</summary>
         internal RoomTerrainBlock BlockAt(int run, int block)
         {

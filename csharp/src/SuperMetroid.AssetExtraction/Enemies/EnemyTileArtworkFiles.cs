@@ -106,8 +106,8 @@ public static class EnemyTileArtworkFiles
                 File.WriteAllBytes(Path.Combine(directory, FileName(definitionPointer)), encoded);
                 byte[] nativeColors = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.PaletteAddress(bus, definitionPointer),
-                    EnemyPaletteSheet.ColorCount * sizeof(ushort));
-                var colors = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
+                    EnemyPaletteSheetFile.ColorCount * sizeof(ushort));
+                var colors = new PaletteRgb5[EnemyPaletteSheetFile.ColorCount];
                 for (int color = 0; color < colors.Length; color++)
                 {
                     int word = BinaryPrimitives.ReadUInt16LittleEndian(nativeColors.AsSpan(color * 2));
@@ -302,7 +302,7 @@ public static class EnemyTileArtworkFiles
         File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.LowerFileName),
             lowerKraid);
         var kraidHeadHashes = new Dictionary<int, string>();
-        foreach (KraidHeadFrame head in KraidHeadFrame.ByMouthStage)
+        foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
         {
             byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 KraidSourceDefinitions.CodeBank | KraidHeadArtworkDefinitions.Address(head.MouthStage),
@@ -488,7 +488,7 @@ public static class EnemyTileArtworkFiles
         ValidateDefinitionIds(manifest.Entries.Keys);
         // The compiled graphics sets must name the same pinned identities the installation was built from.
         ValidateDefinitionIds(EnemyTileSourceDefinitions.All.Select(source => (int)EnemyDefinitionIds.HeaderPointer(source.DefinitionId)));
-        if (!manifest.KraidHeadsSha256.Keys.Order().SequenceEqual(KraidHeadFrame.ByMouthStage.Select(head => head.MouthStage)))
+        if (!manifest.KraidHeadsSha256.Keys.Order().SequenceEqual(KraidHeadTilemapFormat.HeadsByMouthStage.Select(head => head.MouthStage)))
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a Kraid head frame.");
         if (!manifest.TorizoInstructionTilesSha256.Keys.Order(StringComparer.Ordinal)
                 .SequenceEqual(TorizoSwapArtworkDefinitions.All

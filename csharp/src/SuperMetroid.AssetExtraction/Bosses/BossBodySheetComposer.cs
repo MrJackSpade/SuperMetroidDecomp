@@ -53,7 +53,7 @@ internal static class BossBodySheetComposer
     {
         EnemyDefinitionId enemy = Enemies[owner];
         BossRoomCharacters? characters = null;
-        foreach (RoomHeaderDefinition room in RoomHeaderDefinitions.All)
+        foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
         {
             RoomStateSettings? state = RoomStateLists.GetStates(room)
                 .FirstOrDefault(candidate => candidate.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == enemy));
@@ -124,7 +124,7 @@ internal static class BossBodySheetComposer
             yield return BossBodyFrameSource.Written(KraidBodyFrameNames.Of(appearance, KraidBodyHalf.Lower)
                 ?? throw new InvalidDataException("Kraid's lower body has no frame."), lowerCell, InFront(lower, inFront));
         }
-        foreach (KraidHeadFrame head in KraidHeadFrame.ByMouthStage)
+        foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
             yield return BossBodyFrameSource.Written(KraidBodyFrameNames.Head(head.MouthStage), 0, art.HeadTiles(head));
 
         // Kraid's page with every word's priority set, as his growth sets it, when the page is shown in front.

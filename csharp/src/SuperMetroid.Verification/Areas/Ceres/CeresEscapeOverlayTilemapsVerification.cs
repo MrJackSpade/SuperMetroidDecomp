@@ -32,7 +32,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
             stock.Areas.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException(
                 "Installed Ceres escape overlay tilemaps are absent.");
         foreach (CeresEscapeOverlayTilemapDefinition page in
-                 CeresEscapeOverlayTilemapDefinitions.All)
+                 CeresEscapeOverlayPages.All)
         {
             AssertTrue(stockOverlay.TryResolve(page, out ReadOnlyMemory<BackgroundTile> tiles) && tiles.Length == page.WordCount,
                 $"Ceres overlay {page.Name} resolves completely");

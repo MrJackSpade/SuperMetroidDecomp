@@ -37,7 +37,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
 
         // The initializer requires the installed shared gold-Pirate palette.
         // Import its exact native colors into this bounded instruction fixture.
-        var colors = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
+        var colors = new PaletteRgb5[EnemyPaletteSheetFile.ColorCount];
         for (int color = 0; color < colors.Length; color++)
         {
             ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource + color * 2));

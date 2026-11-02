@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.Kraid;
+
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Supported JSON version and fixed head-frame dimensions matching the $0160-word native copy at $A7:AF3D.</summary>
@@ -9,4 +11,7 @@ public static class KraidHeadTilemapFormat
     public const int Width = 32;
     /// <summary>Eleven tile-reference rows in each head frame; with <see cref="Width"/> this yields 352 native words.</summary>
     public const int Height = 11;
+    /// <summary>The four head poses whose tilemaps are installed, from closed to fully open, indexed by mouth stage.</summary>
+    internal static IReadOnlyList<KraidHeadFrame> HeadsByMouthStage { get; } =
+        [KraidHeadFrame.Closed, KraidHeadFrame.Opening, KraidHeadFrame.Wider, KraidHeadFrame.Open];
 }

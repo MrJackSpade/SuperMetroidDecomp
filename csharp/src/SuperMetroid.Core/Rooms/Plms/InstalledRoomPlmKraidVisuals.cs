@@ -8,18 +8,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmKraidVisuals
 {
-    /// <summary>
-    /// The ten draw roles in content-identity order: the three ceiling-crumble stages, the three ceiling background draws
-    /// of Kraid's room sequence, the two floor-spike appearances, and the two room-clearing layouts that replace the
-    /// ceiling blocks and the floor spikes after Kraid is defeated.
-    /// </summary>
-    internal static readonly KraidRoomDraw[] ContentOrder =
-    [
-        KraidRoomDraw.CrumbleFirst, KraidRoomDraw.CrumbleSecond, KraidRoomDraw.CrumbleThird,
-        KraidRoomDraw.CeilingBackground1, KraidRoomDraw.CeilingBackground2, KraidRoomDraw.CeilingBackground3,
-        KraidRoomDraw.SpikeFirst, KraidRoomDraw.SpikeSecond, KraidRoomDraw.ClearCeiling, KraidRoomDraw.ClearSpikes,
-    ];
-
     /// <summary>Each draw role's installed block appearances.</summary>
     internal readonly IReadOnlyDictionary<KraidRoomDraw, RoomBlockAppearance[]> frames;
 

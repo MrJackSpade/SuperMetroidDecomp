@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Tourian;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -61,7 +62,7 @@ internal static class SpriteArtworkBytes
     private static ReadOnlyMemory<byte> TourianStatue(TourianStatuePictureCharacters statue, IInstalledArtworkContent installed)
     {
         TourianStatueAnimatedTileProgramDefinition definition =
-            TourianStatueAnimatedTiles.All.Single(candidate => candidate.AnimatedObject == statue.Statue);
+            TourianStatueAnimatedTilePrograms.All.Single(candidate => candidate.AnimatedObject == statue.Statue);
         return Sprites(installed).AnimatedTiles.TourianStatuePicture(definition.AnimatedObject, statue.Picture, definition.FrameByteCount);
     }
 

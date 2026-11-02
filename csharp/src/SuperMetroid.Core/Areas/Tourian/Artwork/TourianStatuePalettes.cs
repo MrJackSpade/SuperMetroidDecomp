@@ -28,8 +28,6 @@ public sealed class TourianStatuePalettes
         this.greyColors = greyColors;
     }
 
-    /// <summary>Gets packed RGB5 base-decoration ink 0–15, including its retained transparent-slot word.</summary>
-    public RgbColor ResolveBase(int color) => baseColors.Read(color);
     /// <summary>Gets eye colour 0–3 of eye glow 0–3, in Phantoon, Ridley, Draygon, Kraid order.</summary>
     public RgbColor ResolveEye(int glow, int color)
     {
@@ -39,8 +37,6 @@ public sealed class TourianStatuePalettes
             throw new ArgumentOutOfRangeException(nameof(color));
         return eyeColors.Read(glow * TourianStatueColorDefinitions.EyeColorCount + color);
     }
-    /// <summary>Gets packed RGB5 ink 0–7 from the statue's grey-transition band; destination and transition ordering remain animation-owned.</summary>
-    public RgbColor ResolveGrey(int color) => greyColors.Read(color);
 
     /// <summary>Installs all sixteen base-decoration inks at palette colours 240–255 and all sixteen statue inks at 160–175, matching the entrance initializer's two sprite palette bands.</summary>
     public void ApplyEntrance(GameplayColours colours)
@@ -89,13 +85,6 @@ public sealed class TourianStatuePalettes
         {
             if ((uint)color >= count) throw new ArgumentOutOfRangeException(nameof(color));
             return edits.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : TourianStatuePaint.Color(band, color);
-        }
-        /// <summary>Materializes the selected band for content hashing in indexed color order.</summary>
-        internal RgbColor[] Words()
-        {
-            var result = new RgbColor[count];
-            for (int color = 0; color < count; color++) result[color] = Read(color);
-            return result;
         }
         /// <summary>Writes every selected color into the supplied palette slice.</summary>
         internal void Apply(ColourRun destination)

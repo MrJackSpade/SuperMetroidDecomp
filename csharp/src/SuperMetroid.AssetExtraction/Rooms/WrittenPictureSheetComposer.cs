@@ -274,7 +274,7 @@ internal static class WrittenPictureSheetComposer
     {
         CeresEscapeOverlays overlays = inputs.Objects.Areas.CeresEscapeOverlayTilemaps
             ?? throw new InvalidDataException("The installed area artwork has no Ceres warning tilemaps.");
-        foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayTilemapDefinitions.All)
+        foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayPages.All)
         {
             if (page.Cell % SheetTiles + page.WordCount > SheetTiles)
                 throw new InvalidDataException($"The Ceres warning page {page.Name} runs past the end of its row.");

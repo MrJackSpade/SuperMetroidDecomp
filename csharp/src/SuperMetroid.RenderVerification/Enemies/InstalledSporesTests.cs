@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -24,6 +23,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Tourian;
 
 /// <summary>Source-selected spores FX acceptance, not a gameplay or read-discovery probe.</summary>
 internal static class InstalledSporesTests
@@ -247,7 +247,7 @@ internal static class InstalledSporesTests
             }
             // Statue frames overlap the middle strip and must retain their original
             // aliases even though spores now occupy the final nine characters.
-            foreach (var statue in TourianStatueAnimatedTiles.All)
+            foreach (var statue in TourianStatueAnimatedTilePrograms.All)
             foreach (var picture in TourianStatueTileStripDefinitions.Pictures)
             {
                 int source = AnimatedTileImageSources.TourianStatue(statue.AnimatedObject, picture);

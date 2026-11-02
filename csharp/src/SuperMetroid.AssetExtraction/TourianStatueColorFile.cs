@@ -33,8 +33,8 @@ public static class TourianStatueColorFile
             eye[row] = Compile(document.Eye[row], TourianStatueColorDefinitions.EyeColorCount,
                 $"eye row {row}");
         return new(
-            Band(TourianStatuePaintBand.Base, Compile(document.Base, TourianStatueColorDefinitions.BaseColorCount, "base")),
-            Band(TourianStatuePaintBand.Statue, Compile(document.Statue, TourianStatueColorDefinitions.StatueColorCount, "statue")),
+            Band(TourianStatuePaintBand.Base, Compile(document.Base, TourianStatueColorFormat.BaseColorCount, "base")),
+            Band(TourianStatuePaintBand.Statue, Compile(document.Statue, TourianStatueColorFormat.StatueColorCount, "statue")),
             Band(TourianStatuePaintBand.Eye, eye.SelectMany(glow => glow).ToArray()),
             Band(TourianStatuePaintBand.Grey, Compile(document.Grey, TourianStatueColorDefinitions.GreyColorCount, "grey")));
     }

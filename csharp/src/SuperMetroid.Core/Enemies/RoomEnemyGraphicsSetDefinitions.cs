@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 public static class RoomEnemyGraphicsSetDefinitions
 {
     /// <summary>Retail sets in the game's list order, checked complete when built.</summary>
-    private static readonly RoomEnemyGraphicsSetDefinition[] Definitions = RoomEnemyGraphicsSets.Complete(
+    internal static readonly RoomEnemyGraphicsSetDefinition[] Retail = RoomEnemyGraphicsSets.Complete(
     [
         ..CrateriaRoomEnemyGraphicsSetDefinitions.Build(),
         ..BrinstarRoomEnemyGraphicsSetDefinitions.Build(),
@@ -26,20 +26,14 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>Total four-byte member records across all compiled retail lists, excluding terminators and trailing metadata; not a count of unique enemy definitions or artwork images.</summary>
     public const int RecordCount = 425;
 
-    /// <summary>Every retail graphics set, in the game's list order.</summary>
-    public static IReadOnlyList<RoomEnemyGraphicsSetDefinition> All => Definitions;
-
     /// <summary>
     /// The enemy graphics a room draws under when it loads no set (#1392, #1476): no set's tiles or palettes loaded over
     /// the standard ones. A room whose population is empty loads no set and draws its spawned objects under this.
     /// </summary>
     public static RoomEnemyGraphicsSetDefinition SessionStart { get; } = new(nameof(SessionStart), []);
 
-    /// <summary>Every graphics set rooms draw under: each retail set, then the session start's.</summary>
-    public static IReadOnlyList<RoomEnemyGraphicsSetDefinition> DrawnUnder { get; } = [.. Definitions, SessionStart];
-
     /// <summary>Each retail graphics set by name.</summary>
-    private static readonly Dictionary<string, RoomEnemyGraphicsSetDefinition> ByName = Definitions.ToDictionary(list => list.Name);
+    private static readonly Dictionary<string, RoomEnemyGraphicsSetDefinition> ByName = Retail.ToDictionary(list => list.Name);
 
     /// <summary>The compiled graphics set named <paramref name="name"/>.</summary>
     private static RoomEnemyGraphicsSetDefinition Find(string name) => ByName[name];

@@ -11,6 +11,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Checks X-Ray reveal admission, Fireflea precedence, and room color math.</summary>
 internal static class XrayRoomDisplayVerification
@@ -20,7 +21,7 @@ internal static class XrayRoomDisplayVerification
     {
         // Keep the literal native comparisons independent of the production catalog.
         // Check every room and every boss word, not only named examples.
-        foreach (RoomHeaderDefinition room in RoomHeaderDefinitions.All)
+        foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
         {
             bool excluded = RoomHeaderDefinitions.PointerOf(room) is 0xA66A or 0xCEFB;
             AssertEqual(excluded ? XrayRoomBlendMode.PreserveBackgrounds : XrayRoomBlendMode.RevealBlocks,

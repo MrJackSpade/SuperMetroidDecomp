@@ -23,7 +23,4 @@ internal readonly record struct KraidHeadFrame([property: IntegerQuantity("how f
 
     /// <summary>The fully open mouth.</summary>
     internal static KraidHeadFrame Open { get; } = new(FullyOpenMouthStage, KraidMouthHitbox.OpenVulnerable, KraidMouthHitbox.OpenInvulnerable);
-
-    /// <summary>The four poses, from closed to fully open, indexed by mouth stage.</summary>
-    internal static IReadOnlyList<KraidHeadFrame> ByMouthStage { get; } = [Closed, Opening, Wider, Open];
 }

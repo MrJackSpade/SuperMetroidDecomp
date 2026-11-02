@@ -244,7 +244,7 @@ internal static class RoomBlockSheetComposer
             {
                 if (values.All(value => value == RoomAppearanceValues.Loaded))
                     continue;
-                var shown = new BgArtworkShown[RoomBackgroundImage.CellTiles];
+                var shown = new BgArtworkShown[RoomBackgroundImageGeometry.CellTiles];
                 bool pictured = true;
                 for (int tile = 0; tile < shown.Length && pictured; tile++)
                     pictured = RoomAppearanceComposition.TryShowing(new CharacterSpan(BgCharacterSet.Tiles, cellTiles[tile].Tile, 1), cellInputs, values, options, loaded, out shown[tile]);
@@ -260,7 +260,7 @@ internal static class RoomBlockSheetComposer
     /// </summary>
     private static IEnumerable<BackgroundTile[]> CellsOf(BackgroundTile[] tiles)
     {
-        for (int cell = 0; cell < tiles.Length / RoomBackgroundImage.CellTiles; cell++)
+        for (int cell = 0; cell < tiles.Length / RoomBackgroundImageGeometry.CellTiles; cell++)
         {
             // Sixteen cells to a pair of 32-tile rows.
             int first = cell / (RoomBackgroundImage.PageTiles / 2) * 2 * RoomBackgroundImage.PageTiles + cell % (RoomBackgroundImage.PageTiles / 2) * 2;

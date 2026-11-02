@@ -438,10 +438,8 @@ public sealed class MotherBrainRainbowPalettePresentation
         private readonly Rgb8 tissueDark;
         /// <summary>Fourth cortex anchor between highlight and normal plates.</summary>
         private readonly RgbColor outline;
-        /// <summary>Exact edited colours when no common drained-paint anchors reproduce them.</summary>
-        private readonly RgbColor[]? supplied;
-        /// <summary>Whether the colours can be reconstructed from tissue and outline anchors.</summary>
-        internal bool Calculated => supplied is null;
+        /// <summary>Exact edited colours when no common drained-paint anchors reproduce them; null when the anchors do.</summary>
+        internal readonly RgbColor[]? supplied;
 
         /// <summary>Keeps the tissue and outline anchors, or every supplied colour when no anchors reproduce them.</summary>
         /// <param name="tissueLight">The eight-bit highlight anchor.</param>

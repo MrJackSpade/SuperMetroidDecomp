@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -29,7 +30,7 @@ public static class RoomBlockAppearanceFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Ensure.NotNull(appearances);
         var document = new BlockAppearancesDocument(Version, RoomBlockSheet.NameOf(tileset), Tokens(appearances, RoomBlockArtwork.Tileset),
-            appearances.ShowsSprites ? Tokens(appearances, RoomBlockArtwork.Sprites) : null);
+            appearances.sprites is not null ? Tokens(appearances, RoomBlockArtwork.Sprites) : null);
         using var output = new FileStream(Path.Combine(directory, FileNameOf(tileset)), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(output, document, JsonOptions);
     }
@@ -59,7 +60,7 @@ public static class RoomBlockAppearanceFiles
         static ImmutableArray<AppearanceInput>[] Inputs(string?[]?[]? blocks) =>
             [.. (blocks ?? throw new InvalidDataException("A block appearance record lists no blocks.")).Select((tokens, block) =>
                 ImmutableArray.CreateRange((tokens ?? throw new InvalidDataException($"Block {block} lists no inputs.")).Select(token =>
-                    AppearanceInputTokens.Parse(token ?? throw new InvalidDataException($"Block {block} lists a null input."),
+                    AppearanceInputSpellings.Parse(token ?? throw new InvalidDataException($"Block {block} lists a null input."),
                         EncounterCharacterPlacements.Catalog.LookNamed))))];
     }
 

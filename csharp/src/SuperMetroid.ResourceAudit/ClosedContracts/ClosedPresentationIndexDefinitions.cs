@@ -26,6 +26,8 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 
@@ -71,9 +73,9 @@ internal static class ClosedPresentationIndexDefinitions
         // its narrower seven-row domain inside the reviewed provider.
         ("SporeSpawnColorCatalog", "ResolveDeath", "frame") => new(0, SporeSpawnColorDefinitions.DeathSpriteFrameCount),
         ("MotherBrainRainbowPalettePresentation", "TryReadBeamColor", "index") => new(0,
-            MotherBrainRainbowPaletteFormat.BeamCycleColorCount + 1),
+            MotherBrainRainbowPaletteGeometry.BeamCycleColorCount + 1),
         ("MotherBrainRainbowPalettePresentation", "ApplyRainbow", "frame") => new(0, MotherBrainRainbowPaletteFormat.RainbowFrameCount),
-        ("MotherBrainRainbowPalettePresentation", "ApplyToGrey" or "ApplyFromGrey" or "ApplyFakeDeathFromGrey", "frame") => new(0, MotherBrainRainbowPaletteFormat.GreyFrameCount),
+        ("MotherBrainRainbowPalettePresentation", "ApplyToGrey" or "ApplyFromGrey" or "ApplyFakeDeathFromGrey", "frame") => new(0, MotherBrainRainbowPaletteGeometry.GreyFrameCount),
         ("MotherBrainRainbowPalettePresentation", "ApplyFakeDeathToGrey", "frame") => new(0, MotherBrainFakeDeathPaletteDefinitions.FrameCount),
         ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor", "frame") => new(0, MotherBrainDeathColorFile.BodyFadeFrameCount),
         ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor" or "ExplodedDoorColor", "color") => new(0, MotherBrainDeathDefinitions.BodyColorCount),

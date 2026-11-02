@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
+﻿using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -30,7 +31,7 @@ internal static class MotherBrainBodyVisualDefinitionsConstants
     /// preserve the shorter crouched/dummy frames and skipped unselected roots.</summary>
     internal static NativeEnemySpritemapDefinition Frame(int index)
     {
-        if ((uint)index >= MotherBrainBodyVisualDefinitions.FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if ((uint)index >= MotherBrainBodyFrameDefinitions.FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         ushort pointer = (ushort)(index == 0 ? Standing
             : index < 4 ? WalkingStart + 0x52 * (index - 1)
             : index < 10 ? LaterWalkingStart + 0x4a * (index - 4)

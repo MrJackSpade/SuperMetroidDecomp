@@ -36,10 +36,10 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         TourianStatuePalettes colors = stock.Areas.TourianStatueColors ??
             throw new InvalidDataException("Installed enemy artwork lacks Tourian statue colors.");
         var forbidden = new HashSet<int>();
-        for (int color = 0; color < TourianStatueColorDefinitions.BaseColorCount; color++)
+        for (int color = 0; color < TourianStatueColorFormat.BaseColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueBaseColors + color * sizeof(ushort),
                 colors.ResolveBase(color).ToWord());
-        for (int color = 0; color < TourianStatueColorDefinitions.StatueColorCount; color++)
+        for (int color = 0; color < TourianStatueColorFormat.StatueColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueColors + color * sizeof(ushort),
                 colors.ResolveStatue(color).ToWord());
         for (int row = 0; row < TourianStatueColorDefinitions.EyeGlowCount; row++)

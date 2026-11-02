@@ -435,7 +435,7 @@ internal static class LookupStream5Verification
         var edits = stock.edits;
         AssertEqual(0, edits.Count, "All native Ceres glyph words calculate without overrides");
         int words = 0;
-        foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
+        foreach (var page in CeresEscapeOverlayPages.All)
         {
             for (int index = 0; index < page.WordCount; index++)
             {
@@ -471,7 +471,7 @@ internal static class LookupStream5Verification
             AssertEqual(source.Pages["emergency"].Length, count, "Edited emergency page keeps its native extent");
             for (int index = 0; index < count; index++)
                 AssertEqual(source.Pages["emergency"][index].PackedWord, shownWords[first + index], "Actual shown emergency preserves independent edits");
-            foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
+            foreach (var page in CeresEscapeOverlayPages.All)
             {
                 byte[] expected = new byte[page.WordCount * 2];
                 for (int index = 0; index < page.WordCount; index++)
@@ -482,7 +482,7 @@ internal static class LookupStream5Verification
             string expectedIdentity = SelectedPresentationHash.Create("enemy-ceres-escape-overlay-v2", content =>
             {
                 content.Append("shared", ReadOnlySpan<byte>.Empty);
-                foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
+                foreach (var page in CeresEscapeOverlayPages.All)
                 {
                     content.Append("source", System.Text.Encoding.UTF8.GetBytes(page.Name));
                     content.AppendTiles("tiles", source.Pages[page.Name]);
@@ -579,8 +579,9 @@ internal static class LookupStream5Verification
             AssertTrue(!CeresEscapeTileArtworkDefinitionsTooling.Contains(source - 1, 1) && !CeresEscapeTileArtworkDefinitionsTooling.Contains(source + page.ByteCount, 1), "Outside page rejected");
             AssertTrue(!CeresEscapeTileArtworkDefinitionsTooling.Contains(source, 0), "Zero byte page rejected");
         }
-        CeresEscapeOverlayTilemapDefinition[] overlays = [new("emergency", 9, 0x0cb), new("japanese_0", 12, 0x28a), new("japanese_1", 12, 0x2aa), new("japanese_2", 11, 0x2ca), new("japanese_3", 11, 0x2ea)];
-        AssertTrue(overlays.SequenceEqual(CeresEscapeOverlayTilemapDefinitions.All), "Original named overlay order/extent/cell");
+        CeresEscapeOverlayTilemapDefinition[] overlays = [new("emergency", 0x0cb), new("japanese_0", 0x28a), new("japanese_1", 0x2aa), new("japanese_2", 0x2ca), new("japanese_3", 0x2ea)];
+        AssertTrue(overlays.SequenceEqual(CeresEscapeOverlayPages.All), "Original named overlay order/cell");
+        AssertTrue(overlays.Select(page => page.WordCount).SequenceEqual([9, 12, 12, 11, 11]), "Original overlay extents");
         int[] overlaySources = [0xa6c164, 0xa6c3f4, 0xa6c40c, 0xa6c424, 0xa6c43a];
         for (int index = 0; index < overlays.Length; index++)
         {
@@ -593,8 +594,8 @@ internal static class LookupStream5Verification
         }
         AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[-1], "Tile page lower bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[2], "Tile page upper bound");
-        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayTilemapDefinitions.All[-1], "Overlay lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayTilemapDefinitions.All[5], "Overlay upper bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayPages.All[-1], "Overlay lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayPages.All[5], "Overlay upper bound");
         Console.WriteLine("Ceres source page cases: two character sheets/five overlays preserve exact identities, order, extents, enumeration and range domains.");
     }
     /// <summary>Checks authored area-map landmark tiles and their native reveal cases.</summary>

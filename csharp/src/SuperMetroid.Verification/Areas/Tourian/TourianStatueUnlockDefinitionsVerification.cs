@@ -22,6 +22,7 @@ namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Areas.Tourian;
 
 /// <summary>Checks migrated Tourian statue eye positions and animated-tile control against the cartridge.</summary>
 internal static class TourianStatueUnlockDefinitionsVerification
@@ -90,7 +91,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
         RoomFxAnimatedTileAtlas artwork = RoomFxAnimatedTileAtlasPng.Read(
             new MemoryStream(RoomFxAnimatedTileAtlasExtractor.Extract(rom)));
         foreach (TourianStatueAnimatedTileProgramDefinition definition in
-                 TourianStatueAnimatedTiles.All)
+                 TourianStatueAnimatedTilePrograms.All)
         foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
         {
             int source = AnimatedTileImageSources.TourianStatue(definition.AnimatedObject, picture);
@@ -102,7 +103,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
             pictureCount++;
         }
 
-        AssertEqual(4, TourianStatueAnimatedTiles.All.Count(),
+        AssertEqual(4, TourianStatueAnimatedTilePrograms.All.Count(),
             "Tourian statue animated-tile object count");
         AssertEqual(16, pictureCount, "Tourian statue installed picture count");
 

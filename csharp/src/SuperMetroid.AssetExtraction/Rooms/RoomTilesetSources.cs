@@ -41,7 +41,7 @@ internal static class RoomTilesetSources
 
     /// <summary>The installed content identity of the selected room palettes.</summary>
     internal static string PaletteIdentity(RoomStaticPalettes catalog) => SelectedPresentationHash.FromNamedTransfers(
-        nameof(RoomStaticPalettes), catalog.Palettes.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),
+        nameof(RoomStaticPalettes), catalog.byRoomPaletteSet.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),
         palette => RoomStaticPaletteImage.PackedColours(palette));
 
     /// <summary>The long pointer <paramref name="offset"/> bytes into the tileset entry at <paramref name="entry"/>.</summary>

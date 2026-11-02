@@ -26,13 +26,13 @@ internal static class MotherBrainRainbowPaletteExtractor
                 MotherBrainRainbowPaletteDefinitions.ColorCount,
                 MotherBrainRainbowPaletteDefinitions.ColorCount, false),
             ToGrey = ReadTable(MotherBrainSourceDefinitions.Palettes.DrainedToGreyPointerTable,
-                MotherBrainRainbowPaletteFormat.GreyFrameCount,
-                MotherBrainDrainedPaletteDefinitions.DrainedColors,
-                MotherBrainDrainedPaletteDefinitions.BackLegCount, true),
+                MotherBrainRainbowPaletteGeometry.GreyFrameCount,
+                MotherBrainRainbowPaletteGeometry.DrainedColors,
+                MotherBrainRainbowPaletteGeometry.BackLegCount, true),
             FromGrey = ReadTable(MotherBrainSourceDefinitions.Palettes.RevivalFromGreyPointerTable,
-                MotherBrainRainbowPaletteFormat.GreyFrameCount,
-                MotherBrainDrainedPaletteDefinitions.RevivalColors,
-                MotherBrainDrainedPaletteDefinitions.BackLegCount, true),
+                MotherBrainRainbowPaletteGeometry.GreyFrameCount,
+                MotherBrainRainbowPaletteGeometry.RevivalColors,
+                MotherBrainRainbowPaletteGeometry.BackLegCount, true),
             FakeDeathToGrey = ReadFakeDeathToGrey(),
             Normal = ReadFrame(MotherBrainSourceDefinitions.Palettes.NormalBrainColors,
                 MotherBrainRainbowPaletteDefinitions.ColorCount,
@@ -104,7 +104,7 @@ internal static class MotherBrainRainbowPaletteExtractor
 
         PaletteRgb5[] ReadBeamCycle()
         {
-            var colors = new PaletteRgb5[MotherBrainRainbowPaletteFormat.BeamCycleColorCount];
+            var colors = new PaletteRgb5[MotherBrainRainbowPaletteGeometry.BeamCycleColorCount];
             for (int index = 0; index < colors.Length; index++)
             {
                 int word = CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainSourceDefinitions.Beam.ColorTable +

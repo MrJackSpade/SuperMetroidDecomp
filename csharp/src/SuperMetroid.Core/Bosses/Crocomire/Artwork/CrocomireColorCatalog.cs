@@ -24,16 +24,6 @@ public sealed class CrocomireColorCatalog
         WallSpikes,
     }
 
-    /// <summary>The five transfers in authored order, each with the label its content identity hashes it under.</summary>
-    internal static readonly CrocomireTransferLabel[] IdentityOrder =
-    [
-        new(Band.FightBody, "fightBody"),
-        new(Band.InitialWall, "initialWall"),
-        new(Band.InitialProjectile, "initialProjectile"),
-        new(Band.SkeletonArm, "skeletonArm"),
-        new(Band.WallSpikes, "wallSpikes"),
-    ];
-
     /// <summary>Each named material's calculated paint; supplied edits never alias across fields.</summary>
     internal static readonly Dictionary<Band, Func<int, RgbColor>> StockPaint = new()
     {

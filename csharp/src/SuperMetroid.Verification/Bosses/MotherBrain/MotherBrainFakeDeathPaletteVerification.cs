@@ -10,6 +10,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Checks Mother Brain's fake-death gray fades against native full-CGRAM frames.</summary>
@@ -40,7 +41,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
                 : enemies.MotherBrainBehavior.FakeDeath.TransitionMotherBrainFromGray;
             int table = toGrey ? MotherBrainSourceDefinitions.Palettes.FakeDeathToGreyPointerTable :
                 MotherBrainSourceDefinitions.Palettes.RevivalFromGreyPointerTable;
-            for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.GreyFrameCount; frame++)
+            for (int frame = 0; frame < MotherBrainRainbowPaletteGeometry.GreyFrameCount; frame++)
             {
                 int pointerAddress = table + frame * sizeof(ushort);
                 ushort pointer = LittleEndianBytes.Word(CpuBusRegionRead.Read(rom, pointerAddress), CpuBusRegionRead.Read(rom, pointerAddress + 1));

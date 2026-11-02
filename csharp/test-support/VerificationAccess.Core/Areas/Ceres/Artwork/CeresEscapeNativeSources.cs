@@ -36,7 +36,7 @@ internal static class CeresEscapeNativeSources
         /// <summary>The installed words a native transfer of <paramref name="byteCount"/> bytes from <paramref name="sourceAddress"/> copies, when it is exactly one overlay page.</summary>
         internal bool TryResolveNative(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
         {
-            foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayTilemapDefinitions.All)
+            foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayPages.All)
                 if (OverlaySource(page) == sourceAddress && page.WordCount * sizeof(ushort) == byteCount)
                 {
                     bool resolved = self.TryResolve(page, out ReadOnlyMemory<SuperMetroid.AssetExtraction.Artwork.BackgroundTile> tiles);

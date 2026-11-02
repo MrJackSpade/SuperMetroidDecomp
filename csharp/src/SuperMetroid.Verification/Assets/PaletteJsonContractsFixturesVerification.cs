@@ -106,13 +106,13 @@ internal static class PaletteJsonContractsFixturesVerification
             Version = (int)MotherBrainRainbowPaletteVersion.Current,
             Rainbow = Frames(MotherBrainRainbowPaletteFormat.RainbowFrameCount, MotherBrainRainbowPaletteDefinitions.ColorCount,
                 MotherBrainRainbowPaletteDefinitions.ColorCount, false),
-            ToGrey = Frames(MotherBrainRainbowPaletteFormat.GreyFrameCount, MotherBrainDrainedPaletteDefinitions.DrainedColors,
-                MotherBrainDrainedPaletteDefinitions.BackLegCount, true),
-            FromGrey = Frames(MotherBrainRainbowPaletteFormat.GreyFrameCount, MotherBrainDrainedPaletteDefinitions.RevivalColors,
-                MotherBrainDrainedPaletteDefinitions.BackLegCount, true),
+            ToGrey = Frames(MotherBrainRainbowPaletteGeometry.GreyFrameCount, MotherBrainRainbowPaletteGeometry.DrainedColors,
+                MotherBrainRainbowPaletteGeometry.BackLegCount, true),
+            FromGrey = Frames(MotherBrainRainbowPaletteGeometry.GreyFrameCount, MotherBrainRainbowPaletteGeometry.RevivalColors,
+                MotherBrainRainbowPaletteGeometry.BackLegCount, true),
             Normal = Frames(1, MotherBrainRainbowPaletteDefinitions.ColorCount, MotherBrainRainbowPaletteDefinitions.ColorCount, false)[0],
             FakeDeathToGrey = PaletteContractRows(MotherBrainFakeDeathPaletteDefinitions.FrameCount, MotherBrainFakeDeathPaletteDefinitions.ColorCount),
-            BeamInitial = PaletteContractColors(1)[0], BeamCycle = PaletteContractColors(MotherBrainRainbowPaletteFormat.BeamCycleColorCount),
+            BeamInitial = PaletteContractColors(1)[0], BeamCycle = PaletteContractColors(MotherBrainRainbowPaletteGeometry.BeamCycleColorCount),
         }), json => _ = MotherBrainRainbowPaletteFile.Read(json));
 
         // Only the extractor sees this constructed image. No retail ROM/file is needed

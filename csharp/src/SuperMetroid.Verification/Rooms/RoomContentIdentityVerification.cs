@@ -41,7 +41,7 @@ internal static class RoomContentIdentityVerification
             "shared CRE character edits are fingerprinted");
         // How a room's blocks look is their block sheet's identity (#1431), which covers the appearance inputs each block
         // depends on (#1466).
-        AssertTrue(BlockSheetIdentity([]) != BlockSheetIdentity([KraidBackdropAppearance.Instance]),
+        AssertTrue(BlockSheetIdentity([]) != BlockSheetIdentity([AppearanceInputSpellings.KraidBackdrop]),
             "the inputs a block depends on are fingerprinted with its block sheet");
 
         var callerOwned = new Dictionary<string, string>(hashes);

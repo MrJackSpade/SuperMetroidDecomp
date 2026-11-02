@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -8,6 +9,21 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>Installed, replaceable Crocomire arena bridge and wall tile art.</summary>
 public static class RoomPlmCrocomireVisualFiles
 {
+    /// <summary>The run layout the exported draw lists record for a bridge or wall draw.</summary>
+    extension(CrocomireArenaDraws.Draw shape)
+    {
+        /// <summary>Wall columns write down their column; the bridge writes along its row.</summary>
+        internal PlmRunDirection Direction => shape.Wall ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal;
+
+        /// <summary>Offsets the next wall column from the draw origin rather than from the prior column.</summary>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="run"/> is not one of the draw's runs.</exception>
+        internal int NextX(int run)
+        {
+            if ((uint)run >= shape.RunCount) throw new ArgumentOutOfRangeException(nameof(run));
+            return run + 1 < shape.RunCount ? WordWrap.SignedLowByte(run + 1) : 0;
+        }
+    }
+
     /// <summary>JSON filename for Crocomire bridge and invisible-wall visual layouts.</summary>
     public const string VisualFileName = "crocomire-arena.json";
 
@@ -64,7 +80,7 @@ public static class RoomPlmCrocomireVisualFiles
         bool found = CrocomireArenaDraws.TryDescribe(draw, out CrocomireArenaDraws.Draw shape);
         list = found
             ? RoomPlmDrawListExport.Runs(draw, shape.RunCount, _ => shape.BlocksPerRun, shape.BlockAt,
-                _ => shape.Direction, shape.NextX, static _ => 0)
+                _ => shape.Direction, run => shape.NextX(run), static _ => 0)
             : default;
         return found;
     }

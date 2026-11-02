@@ -36,9 +36,6 @@ public sealed class RoomBlockAppearances
     /// <summary>The blocks a room of the tileset loads.</summary>
     public int Count => tileset.Length;
 
-    /// <summary>Whether a room of the tileset shows its blocks over the sprites' artwork.</summary>
-    public bool ShowsSprites => sprites is not null;
-
     /// <summary>The inputs block <paramref name="block"/>'s picture depends on over <paramref name="artwork"/>.</summary>
     /// <exception cref="InvalidDataException">The tileset loads no such block, or no room of it shows that artwork.</exception>
     public ImmutableArray<AppearanceInput> Of(int block, RoomBlockArtwork artwork)

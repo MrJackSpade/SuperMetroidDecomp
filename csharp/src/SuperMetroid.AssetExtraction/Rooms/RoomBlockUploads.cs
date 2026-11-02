@@ -23,6 +23,8 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.World.RoomStates;
+using SuperMetroid.AssetExtraction.Areas.Tourian;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -36,7 +38,7 @@ internal static class RoomBlockUploads
 {
     /// <summary>The tilesets some retail room state loads, each once in room order: those a block sheet is composed for.</summary>
     internal static IReadOnlyList<TilesetDefinition> Tilesets() =>
-        [.. RoomHeaderDefinitions.All.SelectMany(RoomStateLists.GetStates)
+        [.. RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates)
             .Select(state => RoomTilesets.Get(state.GraphicsSet)).Distinct()];
 
     /// <summary>The rooms of each tileset and what they show over their characters, in room order.</summary>
@@ -45,7 +47,7 @@ internal static class RoomBlockUploads
     {
         Ensure.NotNull(inputs);
         var tilesets = new Dictionary<TilesetDefinition, TilesetUploads>();
-        foreach (RoomHeaderDefinition room in RoomHeaderDefinitions.All)
+        foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
         {
             bool ceres = room.AreaIndex == AreaId.Ceres;
             foreach (RoomStateSettings state in RoomStateLists.GetStates(room))
@@ -117,7 +119,7 @@ internal static class RoomBlockUploads
     {
         if (state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
         {
-            yield return new AppearanceOption(KraidBackdropAppearance.Instance, RoomAppearanceValues.Shown,
+            yield return new AppearanceOption(AppearanceInputSpellings.KraidBackdrop, RoomAppearanceValues.Shown,
                 new BgCharacterUpload(RoomBgArtwork.KraidBackdrop, BgCharacterSet.Tiles, RoomTileCharacters.KraidBackdropFirst,
                     (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
                         .RoomBackgroundTiles.Characters));
@@ -143,7 +145,7 @@ internal static class RoomBlockUploads
         }
         if (state.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations)
         {
-            foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTiles.All)
+            foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTilePrograms.All)
             {
                 // Phantoon's and Ridley's statues paint characters outside the room's tile characters, which no block reads.
                 if (!BgCharacterWords.AmongTiles(AnimatedTileVramDestinations.WordOf(statue.AnimatedObject)))
@@ -203,7 +205,7 @@ internal static class RoomBlockUploads
                 HudArt = inputs.Hud,
                 CharacterArt = inputs.Characters,
             });
-        ushort[] words = [.. Enumerable.Range(0, RoomBackgroundImage.Words).Select(word => vram.ReadWord(GameplayVramLayout.Bg2TilemapWord + word))];
+        ushort[] words = [.. Enumerable.Range(0, RoomBackgroundImageGeometry.Words).Select(word => vram.ReadWord(GameplayVramLayout.Bg2TilemapWord + word))];
         return new RoomBackgroundMap(RoomBackgroundImage.NameOf(program.Background, door, tileset), words, content);
     }
 

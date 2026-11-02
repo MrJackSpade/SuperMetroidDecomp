@@ -12,6 +12,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Checks Mother Brain's rainbow beam cone, colour cycling, and captured render data.</summary>
 internal static class MotherBrainBeamWindowVerification
@@ -25,7 +26,7 @@ internal static class MotherBrainBeamWindowVerification
         var paletteDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
             RepositoryInstallation.Installation.MapDirectory, MotherBrainRainbowPaletteFile.FileName)));
         var cycle = new JsonArray();
-        for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount; frame++)
+        for (int frame = 0; frame < MotherBrainRainbowPaletteGeometry.BeamCycleColorCount; frame++)
             cycle.Add(new JsonObject { ["red"] = frame % 2 == 0 ? 31 : 0,
                 ["green"] = frame % 2 == 0 ? 0 : 31, ["blue"] = 0 });
         paletteDocument["beamCycle"] = cycle;
@@ -58,7 +59,7 @@ internal static class MotherBrainBeamWindowVerification
         AssertEqual(31, beam.Color, "first cycling frame reads entry zero");
         Step();
         AssertEqual(992, beam.Color, "color cursor advances to the second installed sample");
-        for (int frame = 2; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount; frame++)
+        for (int frame = 2; frame < MotherBrainRainbowPaletteGeometry.BeamCycleColorCount; frame++)
         {
             Step();
             AssertEqual((ushort)(frame % 2 == 0 ? 31 : 992), beam.Color,

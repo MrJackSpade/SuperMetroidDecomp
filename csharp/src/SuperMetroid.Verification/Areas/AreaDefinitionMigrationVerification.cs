@@ -13,6 +13,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Escape.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 
 namespace SuperMetroid.Verification.Areas;
 
@@ -79,8 +80,8 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(0x20, TourianStatueSequenceDefinitions.DescentEarthquakeTimer, "descent earthquake timer bit");
         AssertEqual(1, TourianStatueSequenceDefinitions.ReleaseEarthquakeType, "release earthquake");
         AssertEqual(0x20, TourianStatueSequenceDefinitions.ReleaseEarthquakeTimer, "release earthquake timer bit");
-        AssertEqual(16, TourianStatueColorDefinitions.BaseColorCount, "statue base colours");
-        AssertEqual(16, TourianStatueColorDefinitions.StatueColorCount, "statue colours");
+        AssertEqual(16, TourianStatueColorFormat.BaseColorCount, "statue base colours");
+        AssertEqual(16, TourianStatueColorFormat.StatueColorCount, "statue colours");
         AssertEqual(4, TourianStatueColorDefinitions.EyeGlowCount, "eye rows");
         AssertEqual(4, TourianStatueColorDefinitions.EyeColorCount, "eye colours");
         AssertEqual(8, TourianStatueColorDefinitions.GreyColorCount, "grey colours");

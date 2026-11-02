@@ -7,4 +7,8 @@ public static class TourianStatueColorFormat
     public const string FileName = "tourian-statue-colors.json";
     /// <summary>Supported schema revision, requiring the exact palette-band and eye-row geometry.</summary>
     public const int Version = 1;
+    /// <summary>The base decoration's sixteen colours, the whole sprite palette, colour zero included.</summary>
+    public const int BaseColorCount = 16;
+    /// <summary>The entrance statue's sixteen colours, installed as its whole sprite palette, colour zero included.</summary>
+    public const int StatueColorCount = 16;
 }

@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.AssetExtraction.Areas.Tourian;
 
 namespace SuperMetroid.Verification.Areas.Tourian;
 
@@ -30,7 +31,7 @@ internal static class LookupTourianDescriptorsVerification
     private static void VerifyTourianStatueObjectDomain()
     {
         AssertTrue(OriginalTourianObjects.SequenceEqual(
-            TourianStatueAnimatedTiles.All.Select(x => FxNativeWords.AnimatedTileObjects.Word(x.AnimatedObject))),
+            TourianStatueAnimatedTilePrograms.All.Select(x => FxNativeWords.AnimatedTileObjects.Word(x.AnimatedObject))),
             "Original statue descriptor enumeration order");
         var original = OriginalTourianObjects.ToHashSet();
         foreach (AnimatedTileObject header in Enum.GetValues<AnimatedTileObject>())

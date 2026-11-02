@@ -3,12 +3,6 @@ namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 /// <summary>The shape of the Tourian statue's installed colours (#1415).</summary>
 public static class TourianStatueColorDefinitions
 {
-    /// <summary>The base decoration's sixteen colours, the whole sprite palette, colour zero included.</summary>
-    public const int BaseColorCount = 16;
-
-    /// <summary>The entrance statue's sixteen colours, installed as its whole sprite palette, colour zero included.</summary>
-    public const int StatueColorCount = 16;
-
     /// <summary>The four boss-specific eye glows the statues step through, ordered Phantoon, Ridley, Draygon, Kraid.</summary>
     public const int EyeGlowCount = 4;
 

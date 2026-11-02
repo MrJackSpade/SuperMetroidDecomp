@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 /// <summary>The supplied Ceres Ridley colour families a catalog is built from; a family an older override predates is null.</summary>
 internal sealed record CeresRidleySuppliedColors

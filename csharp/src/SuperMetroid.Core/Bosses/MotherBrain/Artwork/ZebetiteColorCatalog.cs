@@ -9,8 +9,8 @@ public sealed class ZebetiteColorCatalog
     internal readonly Dictionary<ColourCell, RgbColor> edits;
 
     /// <summary>Keeps the selected pulse colours that differ from the calculated pulse.</summary>
-    /// <param name="frames">The eight selected two-colour pulse frames.</param>
-    internal ZebetiteColorCatalog(RgbColor[][] frames) => edits = ZebetitePulse.Edits(frames);
+    /// <param name="edits">The pulse colours the import found differing from the calculated pulse.</param>
+    internal ZebetiteColorCatalog(Dictionary<ColourCell, RgbColor> edits) => this.edits = edits;
 
     /// <summary>Writes the selected pulse frame's two colors without advancing the shared palette counter or testing fade/linkage conditions; <c>HandleZebetitePaletteAnimation</c> targets colours 172 and 173 (sprite palette 2 colors 12 and 13).</summary>
     /// <param name="destination">The two pulsing colours.</param>

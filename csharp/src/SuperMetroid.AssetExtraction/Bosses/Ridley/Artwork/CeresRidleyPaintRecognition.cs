@@ -1,0 +1,151 @@
+using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
+
+/// <summary>
+/// Separates Ridley's supplied colours into the material inputs their paint calculates from and the colours that depart
+/// from that calculation: the Ceres fades, Baby, startup, health, alarm and zoom paints and Norfair Ridley's colours.
+/// </summary>
+internal static class CeresRidleyPaintRecognition
+{
+    /// <summary>Retains the selected endpoint paint and exceptions to the shared fade formula.</summary>
+    internal static CeresRidleyFade Fade(CeresRidleyFadeKind kind, RgbColor[][] shades)
+    {
+        bool eyes = kind == CeresRidleyFadeKind.Eyes;
+        int shadeCount = eyes ? CeresRidleyPaletteDefinitions.EyeFadeShadeCount : CeresRidleyPaletteDefinitions.BodyFadeShadeCount;
+        int colorCount = eyes ? CeresRidleyPaletteDefinitions.EyeFadeColorCount : CeresRidleyPaletteDefinitions.BodyFadeColorCount;
+        var overrides = new Dictionary<ColourCell, RgbColor>();
+        var fade = eyes
+            ? new CeresRidleyFade(kind, Eye(shades[0]), bodyPaint: null, overrides)
+            : new CeresRidleyFade(kind, default, Body(shades[shadeCount - 1]), overrides);
+        for (int shade = 0; shade < shadeCount; shade++)
+            for (int color = 0; color < colorCount; color++)
+                if (shades[shade][color] != fade.Resolve(shade, color))
+                    overrides[new ColourCell(shade, color)] = shades[shade][color];
+        return fade;
+    }
+
+    /// <summary>Extracts the selected red step and three green levels from the eye endpoint shade.</summary>
+    private static CeresRidleyFade.EyePaint Eye(ReadOnlySpan<RgbColor> colors) =>
+        new(CeresRidleyFade.EyePaint.MaximumRgb5 - colors[1].Red, colors[0].Green, colors[1].Green, colors[2].Green);
+
+    /// <summary>Extracts the three membrane endpoints from an eleven-color body palette.</summary>
+    private static CeresRidleyBodyPaint Body(ReadOnlySpan<RgbColor> endpoint)
+    {
+        if (endpoint.Length != 11) throw new ArgumentException("Ridley body endpoint requires eleven colors.", nameof(endpoint));
+        return new(endpoint[8], endpoint[9], endpoint[10]);
+    }
+
+    /// <summary>Extracts glass, dome, and outline material inputs from the fifteen resting colours.</summary>
+    private static CeresBabyMaterial Material(ReadOnlySpan<RgbColor> initial)
+    {
+        if (initial.Length != CeresRidleyPaletteDefinitions.BabyColorCount)
+            throw new ArgumentException("Baby paint requires fifteen colors.", nameof(initial));
+        return new(initial[0].Red, initial[0].Blue, initial[12].Red, CeresBabyPaintDefinitions.Maximum - initial[12].Green,
+            initial[1].Red, initial[1].Green, initial[1].Green - initial[2].Green, initial[8].Red);
+    }
+
+    /// <summary>Matches the four Ceres shades to shared body paint while preserving independent color edits.</summary>
+    internal static CeresBabyPaint Baby(CeresBabyShadeColours colours, CeresRidleyFade body)
+    {
+        var edits = new Dictionary<CeresBabyColourCell, RgbColor>();
+        var paint = new CeresBabyPaint(CeresBabyPaintShades.Every, Material(colours.Resting), body, standaloneBody: null, edits);
+        foreach (CeresBabyShade shade in Enum.GetValues<CeresBabyShade>())
+        {
+            RgbColor[] supplied = colours.Of(shade);
+            for (int color = 0; color < CeresRidleyPaletteDefinitions.BabyColorCount; color++)
+                if (paint.Resolve(shade, color) != supplied[color]) edits.Add(new CeresBabyColourCell(shade, color), supplied[color]);
+        }
+        return paint;
+    }
+
+    /// <summary>The same material in Norfair Ridley's initial palette, with its own supplied values.</summary>
+    private static CeresBabyPaint StandaloneBaby(ReadOnlySpan<RgbColor> initial)
+    {
+        var edits = new Dictionary<CeresBabyColourCell, RgbColor>();
+        CeresBabyMaterial material = Material(initial);
+        var paint = new CeresBabyPaint(CeresBabyPaintShades.RestingOnly, material, body: null,
+            new CeresRidleyBodyPaint(initial[4], initial[5], initial[6]), edits);
+        for (int color = 0; color < CeresRidleyPaletteDefinitions.BabyColorCount; color++)
+            if (paint.Resolve(CeresBabyShade.Resting, color) != initial[color])
+                edits.Add(new CeresBabyColourCell(CeresBabyShade.Resting, color), initial[color]);
+        return paint;
+    }
+
+    /// <summary>Separates the two startup palettes, preserving colors that differ from calculated source materials.</summary>
+    internal static CeresRidleyStartColors Start(ReadOnlySpan<RgbColor> colors, CeresBabyPaint initialBaby)
+    {
+        if (colors.Length != 2 * CeresRidleyStartColorDefinitions.PaletteSize)
+            throw new ArgumentException("Ceres additional palettes require 32 colors and fifteen Baby colors.");
+        var edits = new Dictionary<ColourCell, RgbColor>();
+        var start = new CeresRidleyStartColors(
+            CeresDoorPaintRecognition.Normal(colors.Slice(1, CeresRidleyStartColorDefinitions.PaletteSize - 1)), initialBaby, edits);
+        for (int color = 0; color < colors.Length; color++)
+            if (start.Resolve(color) != colors[color]) edits.Add(new ColourCell(0, color), colors[color]);
+        return start;
+    }
+
+    /// <summary>Records only input colors that differ from the calculated healthy-to-membrane tint.</summary>
+    internal static CeresRidleyHealthPaint Health(RgbColor[][] bands, CeresRidleyFade body, CeresRidleyFade eyes)
+    {
+        var edits = new Dictionary<ColourCell, RgbColor>();
+        var health = new CeresRidleyHealthPaint(body, eyes, edits);
+        var differing = new Dictionary<ColourCell, RgbColor>();
+        for (int band = 0; band < CeresRidleyPaletteDefinitions.HealthBandCount; band++)
+            for (int color = 0; color < CeresRidleyPaletteDefinitions.HealthColorCount; color++)
+                if (health.Resolve(band, color) != bands[band][color]) differing.Add(new ColourCell(band, color), bands[band][color]);
+        foreach ((ColourCell cell, RgbColor colour) in differing)
+            edits.Add(cell, colour);
+        return health;
+    }
+
+    /// <summary>Compares supplied warning colors with calculated steps and retains only independently edited cells.</summary>
+    internal static CeresRidleyAlarmColors Alarm(RgbColor[][] steps)
+    {
+        var edits = new Dictionary<ColourCell, RgbColor>();
+        var alarm = new CeresRidleyAlarmColors(edits);
+        for (int step = 0; step < CeresRidleyPaletteDefinitions.AlarmStepCount; step++)
+            for (int color = 0; color < CeresRidleyPaletteDefinitions.AlarmColorCount; color++)
+                if (alarm.Resolve(step, color) != steps[step][color]) edits.Add(new ColourCell(step, color), steps[step][color]);
+        return alarm;
+    }
+
+    /// <summary>Builds the shared contours from the first zoom step and retains only differences in later steps.</summary>
+    internal static CeresRidleyFloorPaint Floor(RgbColor[][] steps)
+    {
+        var edits = new Dictionary<ColourCell, RgbColor>();
+        var floor = new CeresRidleyFloorPaint(Body(steps[0].AsSpan(0, 11)), Eye(steps[0].AsSpan(11, 3)), edits);
+        for (int step = 0; step < CeresRidleyPaletteDefinitions.GetawayZoomStepCount; step++)
+            for (int color = 0; color < CeresRidleyPaletteDefinitions.GetawayZoomColorCount; color++)
+                if (floor.Resolve(step, color) != steps[step][color]) edits.Add(new ColourCell(step, color), steps[step][color]);
+        return floor;
+    }
+
+    /// <summary>Splits Norfair Ridley's 32 supplied targets into two materials and preserves independent clear-slot edits.</summary>
+    internal static NorfairRidleyInitialPaint NorfairInitial(ReadOnlySpan<RgbColor> colors)
+    {
+        Ensure.LengthEqual(colors, 32);
+        int clearBlue = colors[0].Blue;
+        var clearSlot = new RgbColor(0, 0, clearBlue);
+        var edits = new Dictionary<ColourCell, RgbColor>();
+        if (colors[0] != clearSlot) edits.Add(new ColourCell(0, 0), colors[0]);
+        if (colors[16] != clearSlot) edits.Add(new ColourCell(0, 16), colors[16]);
+        return new(CeresDoorPaintRecognition.Escape(colors.Slice(1, 15)), StandaloneBaby(colors.Slice(17, 15)), clearBlue, edits);
+    }
+
+    /// <summary>Captures only palette cells that differ from the calculated fifteen-step reveal.</summary>
+    internal static NorfairRidleyRevealPaint NorfairReveal(RgbColor[][] steps)
+    {
+        var edits = new Dictionary<ColourCell, RgbColor>();
+        var reveal = new NorfairRidleyRevealPaint(edits);
+        for (int step = 0; step < NorfairRidleyRevealPaintDefinitions.Steps; step++)
+            for (int color = 0; color < NorfairRidleyRevealPaintDefinitions.Colors; color++)
+                if (reveal.ColorAt(step, color) != steps[step][color]) edits.Add(new ColourCell(step, color), steps[step][color]);
+        return reveal;
+    }
+}

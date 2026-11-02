@@ -5,17 +5,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>The Zebetites' installed two-colour pulse: its edits, its selected colours and their identity.</summary>
 internal static class ZebetitePulse
 {
-    /// <summary>Keeps the selected pulse colours that differ from the calculated pulse.</summary>
-    internal static Dictionary<ColourCell, RgbColor> Edits(RgbColor[][] frames)
-    {
-        var edits = new Dictionary<ColourCell, RgbColor>();
-        for (int frame = 0; frame < frames.Length; frame++)
-            for (int color = 0; color < frames[frame].Length; color++)
-                if (frames[frame][color] != ZebetitePulsePaint.Color(frame, color))
-                    edits.Add(new ColourCell(frame, color), frames[frame][color]);
-        return edits;
-    }
-
     /// <summary>Selects an edited pulse color when present, otherwise the symmetric color.</summary>
     internal static RgbColor Resolve(Dictionary<ColourCell, RgbColor> edits, int frame, int color) =>
         edits.TryGetValue(new ColourCell(frame, color), out RgbColor edited)

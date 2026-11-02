@@ -5,24 +5,11 @@ using Band = SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireColorCatalog.Ba
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>
-/// Crocomire's five material colour transfers: which supplied colours are edits of the calculated stock paint, how a
-/// colour resolves, how a transfer is installed and how the installed colours are identified.
+/// Crocomire's five material colour transfers: how a colour resolves from its edit or the calculated stock paint, how a
+/// transfer is installed and how the installed colours are identified.
 /// </summary>
 internal static class CrocomirePalette
 {
-    /// <summary>Keeps each supplied color of every band that differs from its calculated stock paint.</summary>
-    internal static Dictionary<CrocomireColorKey, RgbColor> Edits(Dictionary<Band, RgbColor[]> supplied)
-    {
-        var edits = new Dictionary<CrocomireColorKey, RgbColor>();
-        foreach ((Band band, RgbColor[] colors) in supplied)
-        {
-            for (int color = 0; color < colors.Length; color++)
-                if (colors[color] != CrocomireColorCatalog.StockPaint[band](color))
-                    edits.Add(new CrocomireColorKey(band, color), colors[color]);
-        }
-        return edits;
-    }
-
     /// <summary>Returns an edited color or calculates the corresponding stock paint.</summary>
     internal static RgbColor Get(Dictionary<CrocomireColorKey, RgbColor> edits, Band band, int index)
     {

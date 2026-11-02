@@ -22,27 +22,16 @@ internal sealed class SidehopperInitialPalette
     [IntegerQuantity("number of colors in the palette")]
     internal int Count { get; }
 
-    /// <summary>Selects stock, calculated, or independent paint ownership from the supplied palette values.</summary>
-    internal SidehopperInitialPalette(RgbColor[] colors)
+    /// <summary>Keeps the stock, calculated, or independent paint ownership the import selected.</summary>
+    /// <param name="count">Fifteen or sixteen colors.</param>
+    /// <param name="paint">Whether the palette is stock paint, independent paints with calculated shades, or supplied colors.</param>
+    /// <param name="independentOrSupplied">The independent paints of a calculated palette, or every supplied color; empty for stock paint.</param>
+    internal SidehopperInitialPalette(int count, SidehopperPaletteOwnership paint, RgbColor[] independentOrSupplied)
     {
-        Count = colors.Length;
-        if (Count is not (15 or 16)) throw new ArgumentException("Sidehopper palette requires15 or16 colors.", nameof(colors));
-        if (Count == 16 && Enumerable.Range(0, Count).All(color => colors[color] == SidehopperInitialPaint.Color(color)))
-        {
-            stockTarget = true;
-            independentOrSupplied = [];
-            return;
-        }
-        calculated = colors[7] == DetailMidpoint(colors[6], colors[8]) && colors[11] == ClawMidpoint(colors[10], colors[12]) && colors[4] == BodyShadow(colors[3]) && colors[1] == RgbColor.White && colors[9] == RgbColor.White && colors[14] == colors[11] &&
-            (Count == 15 || colors[15] == colors[12]);
-        if (!calculated) { independentOrSupplied = colors; return; }
-        independentOrSupplied = new RgbColor[9];
-        independentOrSupplied[0] = colors[0];
-        colors.AsSpan(2, 2).CopyTo(independentOrSupplied.AsSpan(1));
-        colors.AsSpan(5, 2).CopyTo(independentOrSupplied.AsSpan(3));
-        independentOrSupplied[5] = colors[8];
-        independentOrSupplied[6] = colors[10];
-        colors.AsSpan(12, 2).CopyTo(independentOrSupplied.AsSpan(7));
+        Count = count;
+        stockTarget = paint == SidehopperPaletteOwnership.Stock;
+        calculated = paint == SidehopperPaletteOwnership.Calculated;
+        this.independentOrSupplied = independentOrSupplied;
     }
 
     /// <summary>Resolves one palette slot, deriving dependent shades only when the supplied palette matched their formulas.</summary>

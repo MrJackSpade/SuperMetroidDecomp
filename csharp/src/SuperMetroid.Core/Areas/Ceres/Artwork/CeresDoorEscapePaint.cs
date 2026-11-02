@@ -20,32 +20,20 @@ internal sealed class CeresDoorEscapePaint
     /// <summary>Blue component of the terminal cyan target-paint slot.</summary>
     private readonly int accentBlue;
     /// <summary>Extracted colors that differ from the derived surface and warm-target paint.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
-    /// <summary>Uses the normal door's warm targets when compiling the escape paint.</summary>
-    internal CeresDoorEscapePaint(ReadOnlySpan<RgbColor> colors, CeresDoorNormalPaint normal)
-        : this(colors, (Ensure.NotNull(normal)).WarmTargets) { }
-
-    /// <summary>Derives warm targets from the supplied escape palette when no normal palette is provided.</summary>
-    internal CeresDoorEscapePaint(ReadOnlySpan<RgbColor> colors)
-        : this(colors, WarmFrom(colors)) { }
-
-    /// <summary>Selects six warm entries from a complete fifteen-color escape palette.</summary>
-    private static CeresDoorWarmTargetPaint WarmFrom(ReadOnlySpan<RgbColor> colors)
+    /// <summary>Keeps the derived material paint and every differing supplied ink as an edit.</summary>
+    /// <param name="warm">The warm targets the escape palette shares.</param>
+    /// <param name="surface">The grey-blue surface paint.</param>
+    /// <param name="accentBlue">The terminal cyan slot's blue.</param>
+    /// <param name="edits">The supplied inks the import found differing from the derived paint.</param>
+    internal CeresDoorEscapePaint(CeresDoorWarmTargetPaint warm, CeresDoorEscapeSurfacePaint surface, int accentBlue,
+        Dictionary<ColourCell, RgbColor> edits)
     {
-        if (colors.Length != 15) throw new ArgumentException("Escape door paint requires fifteen colors.", nameof(colors));
-        return new(colors.Slice(8, 6));
-    }
-
-    /// <summary>Captures the derived material paint and retains every differing supplied ink as an edit.</summary>
-    private CeresDoorEscapePaint(ReadOnlySpan<RgbColor> colors, CeresDoorWarmTargetPaint warm)
-    {
-        if (colors.Length != 15) throw new ArgumentException("Escape door paint requires fifteen colors.", nameof(colors));
         this.warm = warm;
-        surface = new(colors[..8]);
-        accentBlue = colors[14].Blue;
-        for (int index = 0; index < colors.Length; index++)
-            if (Calculate(index) != colors[index]) edits.Add(new ColourCell(0, index), colors[index]);
+        this.surface = surface;
+        this.accentBlue = accentBlue;
+        this.edits = edits;
     }
 
     /// <summary>Selects an extracted edit when present, otherwise resolves the derived surface or target color.</summary>

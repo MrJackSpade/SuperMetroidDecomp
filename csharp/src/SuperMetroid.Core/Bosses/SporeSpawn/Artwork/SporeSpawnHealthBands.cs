@@ -13,8 +13,6 @@ internal sealed class SporeSpawnHealthBands
 {
     /// <summary>Shell and glow colors from ink 9 onward interpolate between healthy and critical.</summary>
     private const int FirstInterpolatedColor = 9;
-    /// <summary>Inks 1 through 8 remain painted separately in each intermediate health band.</summary>
-    private const int LastPaintedColor = 8;
     /// <summary>Healthy endpoint supplies the first health band and interpolation source.</summary>
     private readonly RgbColor[] healthy;
     /// <summary>Critical endpoint supplies the last health band and transparent ink zero.</summary>
@@ -22,22 +20,20 @@ internal sealed class SporeSpawnHealthBands
     /// <summary>Authored inks 1 through 8 from the two middle health bands.</summary>
     private readonly RgbColor[][] intermediatePaint;
     /// <summary>Middle-band calculated inks retained only when the supplied RGB5 value differs.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> intermediateEdits = new();
+    internal readonly Dictionary<ColourCell, RgbColor> intermediateEdits;
 
-    /// <summary>Splits four supplied health bands into endpoints, painted middle inks and independent interpolation edits.</summary>
-    internal SporeSpawnHealthBands(RgbColor[][] supplied)
+    /// <summary>Keeps the endpoint bands, the painted middle inks and the independent interpolation edits.</summary>
+    /// <param name="healthy">The healthy band, the first band and the interpolation source.</param>
+    /// <param name="critical">The critical band, the last band and the transparent ink's source.</param>
+    /// <param name="intermediatePaint">Inks 1 through 8 of each middle band.</param>
+    /// <param name="intermediateEdits">Middle-band calculated inks whose supplied colour differs from the interpolation.</param>
+    internal SporeSpawnHealthBands(RgbColor[] healthy, RgbColor[] critical, RgbColor[][] intermediatePaint,
+        Dictionary<ColourCell, RgbColor> intermediateEdits)
     {
-        int last = SporeSpawnColorDefinitions.HealthFrameCount - 1;
-        healthy = supplied[0];
-        critical = supplied[last];
-        intermediatePaint = new RgbColor[last - 1][];
-        for (int frame = 1; frame < last; frame++)
-        {
-            intermediatePaint[frame - 1] = supplied[frame].AsSpan(1, LastPaintedColor).ToArray();
-            for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
-                if (IsCalculated(color) && supplied[frame][color] != Calculate(frame, color))
-                    intermediateEdits.Add(new ColourCell(frame, color), supplied[frame][color]);
-        }
+        this.healthy = healthy;
+        this.critical = critical;
+        this.intermediatePaint = intermediatePaint;
+        this.intermediateEdits = intermediateEdits;
     }
 
     /// <summary>Chooses authored paint or reconstructs the requested middle-band ink from editable endpoints.</summary>
@@ -52,7 +48,7 @@ internal sealed class SporeSpawnHealthBands
     }
 
     /// <summary>Identifies transparent ink zero and shell/glow inks that derive from the endpoint bands.</summary>
-    private static bool IsCalculated(int color) => color is 0 or >= FirstInterpolatedColor;
+    internal static bool IsCalculated(int color) => color is 0 or >= FirstInterpolatedColor;
 
     /// <summary>Interpolates an RGB5 shell/glow ink to nearest integer over the three health intervals; ink zero repeats critical.</summary>
     private RgbColor Calculate(int frame, int color)

@@ -6,15 +6,6 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <summary>Paints Golden Torizo's health bands between its low-health and golden endpoints, front and rear.</summary>
 internal static class GoldenTorizoHealthPaint
 {
-    /// <summary>Checks all eight palette bands and sixteen colors against this front or rear paint composition.</summary>
-    internal static bool Matches(RgbColor[][] frames, bool rear)
-    {
-        for (int frame = 0; frame <= Intervals; frame++)
-        for (int color = 0; color < 16; color++)
-            if (frames[frame][color] != Color(frame, color, rear)) return false;
-        return true;
-    }
-
     /// <summary>Interpolates a color between low-health and golden endpoints for one palette band.</summary>
     internal static RgbColor Color(int frame, int color, bool rear)
     {

@@ -8,9 +8,9 @@ public sealed class BabyMetroidCutsceneColorCatalog
     /// <summary>The selected initial image and death fade.</summary>
     internal readonly BabyMetroidCutsceneColorSelection selection;
 
-    /// <summary>Copies compiled images into immutable catalog-owned palette views.</summary>
-    internal BabyMetroidCutsceneColorCatalog(RgbColor[] initial, RgbColor[][] fade) =>
-        selection = new(new BabyMetroidInitialPalette(initial), new BabyMetroidFade(fade));
+    /// <summary>Keeps the import's catalog-owned palette views.</summary>
+    /// <param name="selection">The initial image and death fade the import recognized.</param>
+    internal BabyMetroidCutsceneColorCatalog(BabyMetroidCutsceneColorSelection selection) => this.selection = selection;
 
     /// <summary>Resolves one initial Baby Metroid sprite color, corresponding to the fifteen-color image; no colour write or cutscene state change occurs.</summary>
     /// <param name="color">Zero-based image index from zero through 14, corresponding to colors 1..15 of sprite palette seven; the transparent slot is excluded.</param>

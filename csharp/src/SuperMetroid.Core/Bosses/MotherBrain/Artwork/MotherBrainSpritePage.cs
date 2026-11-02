@@ -42,10 +42,6 @@ public readonly record struct MotherBrainSpritePage
         _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainSpritePageSheet)} {sheet}."),
     };
 
-    /// <summary>Every page of every sheet, sheet by sheet in their declared order and page by page within each.</summary>
-    public static IEnumerable<MotherBrainSpritePage> All =>
-        Enum.GetValues<MotherBrainSpritePageSheet>().SelectMany(sheet => Enumerable.Range(0, PageCount(sheet)).Select(page => Of(sheet, page)));
-
     /// <summary>Names the page for diagnostics.</summary>
     public override string ToString() => $"Mother Brain {Sheet} page {Page}";
 }

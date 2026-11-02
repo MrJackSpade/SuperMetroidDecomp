@@ -95,7 +95,7 @@ public static class CeresDoorVisualFiles
             Compile(row, CeresDoorVisualDefinitions.AnimationColorCount,
                 $"animation row {index}")).ToArray();
         RoomCharacterAtlas tiles = RoomCharacterAtlasPng.Read(tilePng, CeresDoorVisualFormat.CharacterBytes);
-        return new CeresDoorSourceArtwork(tiles, new CeresDoorVisuals(normal, escape, animation));
+        return new CeresDoorSourceArtwork(tiles, CeresDoorPaintRecognition.Visuals(normal, escape, animation));
     }
 
     /// <summary>Serializes visual JSON as indented camel-case UTF-8, validating version, palette dimensions and RGB5 bounds before returning it; PNG admission is a separate boundary.</summary>

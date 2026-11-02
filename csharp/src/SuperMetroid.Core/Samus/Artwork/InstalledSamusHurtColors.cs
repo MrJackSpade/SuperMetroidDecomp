@@ -17,19 +17,19 @@ public sealed class InstalledSamusHurtColors
     internal readonly Dictionary<ColourCell, RgbColor> hurtOverrides;
 
     /// <summary>Retains only independent palette edits and derives unchanged stock shade relationships.</summary>
-    internal InstalledSamusHurtColors(RgbColor[] hurt, RgbColor[] intro)
+    /// <param name="hurtZero">The hurt palette's edited transparent-slot word, or null.</param>
+    /// <param name="introZero">The intro palette's edited transparent-slot word, or null.</param>
+    /// <param name="introLevels">The intro shade levels that differ from the stock levels.</param>
+    /// <param name="introOverrides">The intro colors their shade levels do not reproduce.</param>
+    /// <param name="hurtOverrides">The hurt colors that differ from the intro-derived flash shade.</param>
+    internal InstalledSamusHurtColors(RgbColor? hurtZero, RgbColor? introZero, Dictionary<int, int> introLevels,
+        Dictionary<ColourCell, RgbColor> introOverrides, Dictionary<ColourCell, RgbColor> hurtOverrides)
     {
-        hurtZero = hurt[0] == SamusHurtColorDefinitions.HurtTransparentWord ? null : hurt[0];
-        introZero = intro[0] == SamusHurtColorDefinitions.IntroTransparentWord ? null : intro[0];
-        introLevels = Enumerable.Range(1, 15)
-            .Where(index => (intro[index].Red) != SamusHurtColorLevels.DefaultIntroLevel(index))
-            .ToDictionary(index => index, index => intro[index].Red);
-        introOverrides = Enumerable.Range(1, 15)
-            .Where(index => intro[index] != SamusHurtColorLevels.IntroFromLevel(IntroLevel(index)))
-            .ToDictionary(index => new ColourCell(0, index), index => intro[index]);
-        hurtOverrides = Enumerable.Range(1, 15)
-            .Where(index => hurt[index] != SamusHurtColorLevels.HurtFromIntro(intro[index]))
-            .ToDictionary(index => new ColourCell(0, index), index => hurt[index]);
+        this.hurtZero = hurtZero;
+        this.introZero = introZero;
+        this.introLevels = introLevels;
+        this.introOverrides = introOverrides;
+        this.hurtOverrides = hurtOverrides;
     }
 
     /// <summary>Returns one display color; counter, phase, and sound rules remain in code.</summary>

@@ -19,21 +19,21 @@ internal sealed class CeresDoorWarmTargetPaint
     /// <summary>Independent paint channels retained from the six supplied target colors so shared shade relationships survive edits.</summary>
     private readonly int highlightBlue, amberRed, amberGreen, red, goldRed, goldGreen, goldBlue;
     /// <summary>Per-color overrides for supplied targets that do not fit the shared warm-paint calculation.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
-    /// <summary>Validates six supplied target colors, captures their shared channels, and preserves independently edited colors as overrides.</summary>
-    internal CeresDoorWarmTargetPaint(ReadOnlySpan<RgbColor> colors)
+    /// <summary>Keeps the shared warm channels and the supplied targets that do not fit them.</summary>
+    /// <param name="channels">The seven shared paint channels.</param>
+    /// <param name="edits">The supplied targets the import found differing from the calculation.</param>
+    internal CeresDoorWarmTargetPaint(CeresDoorWarmTargetChannels channels, Dictionary<ColourCell, RgbColor> edits)
     {
-        Ensure.LengthEqual(colors, 6);
-        highlightBlue = colors[0].Blue;
-        amberRed = colors[1].Red;
-        amberGreen = colors[1].Green;
-        red = colors[2].Red;
-        goldRed = colors[3].Red;
-        goldGreen = colors[3].Green;
-        goldBlue = colors[3].Blue;
-        for (int index = 0; index < colors.Length; index++)
-            if (Calculate(index) != colors[index]) edits.Add(new ColourCell(0, index), colors[index]);
+        highlightBlue = channels.HighlightBlue;
+        amberRed = channels.AmberRed;
+        amberGreen = channels.AmberGreen;
+        red = channels.Red;
+        goldRed = channels.GoldRed;
+        goldGreen = channels.GoldGreen;
+        goldBlue = channels.GoldBlue;
+        this.edits = edits;
     }
 
     /// <summary>Returns an independently supplied target when present, otherwise computes the matching warm highlight, amber, red, or gold shade.</summary>

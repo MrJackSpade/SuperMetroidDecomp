@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
@@ -44,7 +45,7 @@ internal static class MotherBrainPicturesVerification
         var shown = new Dictionary<CorpseRotRow, int>();
         int drawn = 0;
         Draw("as her room loads them");
-        foreach (MotherBrainSpritePage page in MotherBrainSpritePage.All)
+        foreach (MotherBrainSpritePage page in MotherBrainPageCharacters.Pages)
         {
             runtime.Enemies.MotherBrainEncounter.ShowSpritePage(page);
             Draw($"after {page}");
@@ -57,7 +58,7 @@ internal static class MotherBrainPicturesVerification
                 shown[row] = step;
             Draw($"after rot step {step}");
         }
-        Console.WriteLine($"Mother Brain pictures: {frames.Length} brain and neck frames draw their pictures after each of {MotherBrainCharacterSources.All.Count} pages and {steps} rot steps; {drawn} draws paint as the frames over the live characters.");
+        Console.WriteLine($"Mother Brain pictures: {frames.Length} brain and neck frames draw their pictures after each of {MotherBrainPageCharacters.All.Count} pages and {steps} rot steps; {drawn} draws paint as the frames over the live characters.");
 
         void Draw(string context)
         {

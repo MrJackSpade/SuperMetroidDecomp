@@ -27,41 +27,25 @@ internal sealed class CeresBabyPaint
     /// <summary>Independent dome and outline inputs retained from the supplied resting colours.</summary>
     private readonly int domeTint, domeGreen, domeShadeStep, outlineRed;
     /// <summary>Supplied colors that depart from the calculated material composition.</summary>
-    internal readonly Dictionary<CeresBabyColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<CeresBabyColourCell, RgbColor> edits;
 
-    /// <summary>Matches the four Ceres shades to shared body paint while preserving independent color edits.</summary>
-    internal CeresBabyPaint(CeresBabyShadeColours colours, CeresRidleyFade body)
-        : this(colours.Resting, CeresBabyPaintShades.Every)
+    /// <summary>Keeps the material inputs, the body paint they share and the independent color edits.</summary>
+    /// <param name="shades">Which shades the paint holds.</param>
+    /// <param name="material">The glass, dome and outline inputs.</param>
+    /// <param name="body">The Ceres body fade supplying shared body paint, or null for Norfair's standalone material.</param>
+    /// <param name="standaloneBody">Norfair's standalone body paint, or null when the Ceres fade supplies it.</param>
+    /// <param name="edits">The supplied colors the import found differing from the material composition.</param>
+    internal CeresBabyPaint(CeresBabyPaintShades shades, CeresBabyMaterial material, CeresRidleyFade? body,
+        CeresRidleyBodyPaint? standaloneBody, Dictionary<CeresBabyColourCell, RgbColor> edits)
     {
-        this.body = body;
-        foreach (CeresBabyShade shade in Enum.GetValues<CeresBabyShade>())
-        {
-            RgbColor[] supplied = colours.Of(shade);
-            for (int color = 0; color < CeresRidleyPaletteDefinitions.BabyColorCount; color++)
-                if (Calculate(shade, color) != supplied[color]) edits.Add(new CeresBabyColourCell(shade, color), supplied[color]);
-        }
-    }
-
-    /// <summary>The same material in Norfair Ridley's initial palette, with its own supplied values.</summary>
-    internal CeresBabyPaint(ReadOnlySpan<RgbColor> initial)
-        : this(initial, CeresBabyPaintShades.RestingOnly)
-    {
-        standaloneBody = new(initial[4], initial[5], initial[6]);
-        for (int color = 0; color < CeresRidleyPaletteDefinitions.BabyColorCount; color++)
-            if (Calculate(CeresBabyShade.Resting, color) != initial[color])
-                edits.Add(new CeresBabyColourCell(CeresBabyShade.Resting, color), initial[color]);
-    }
-
-    /// <summary>Extracts glass, dome, and outline material inputs from the fifteen resting colours.</summary>
-    private CeresBabyPaint(ReadOnlySpan<RgbColor> initial, CeresBabyPaintShades shades)
-    {
-        if (initial.Length != CeresRidleyPaletteDefinitions.BabyColorCount)
-            throw new ArgumentException("Baby paint requires fifteen colors.", nameof(initial));
         this.shades = shades;
-        glassRed = initial[0].Red; glassBlue = initial[0].Blue;
-        glassMiddleRed = initial[12].Red; glassGreenStep = Maximum - initial[12].Green;
-        domeTint = initial[1].Red; domeGreen = initial[1].Green;
-        domeShadeStep = domeGreen - initial[2].Green; outlineRed = initial[8].Red;
+        glassRed = material.GlassRed; glassBlue = material.GlassBlue;
+        glassMiddleRed = material.GlassMiddleRed; glassGreenStep = material.GlassGreenStep;
+        domeTint = material.DomeTint; domeGreen = material.DomeGreen;
+        domeShadeStep = material.DomeShadeStep; outlineRed = material.OutlineRed;
+        this.body = body;
+        this.standaloneBody = standaloneBody;
+        this.edits = edits;
     }
 
     /// <summary>Returns an edited color when supplied, otherwise the calculated shade and material color.</summary>

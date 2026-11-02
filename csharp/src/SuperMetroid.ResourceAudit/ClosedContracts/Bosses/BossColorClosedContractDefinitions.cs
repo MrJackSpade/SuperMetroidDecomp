@@ -22,7 +22,6 @@ internal static class BossColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresBabyPaint.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresBabyPaintShades.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresBabyColourCell.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresBabyShadeColours.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresBabyPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/BabyMetroidInitialPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorNormalPaint.cs"),

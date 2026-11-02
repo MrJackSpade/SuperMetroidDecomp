@@ -26,7 +26,7 @@ public static class SamusHurtColorFile
         document = JsonAssetDocument.Read<SamusHurtColorDocument>(json, ArtworkJson.Options, "Samus hurt color");
         if (document.Version != Version)
             throw new InvalidDataException("Samus hurt colors require the supported version.");
-        return new(Compile(document.Hurt, "hurt"), Compile(document.Intro, "intro"));
+        return SamusPaletteRecognition.Hurt(Compile(document.Hurt, "hurt"), Compile(document.Intro, "intro"));
     }
 
     /// <summary>Serializes a palette document as indented, camel-case UTF-8 JSON and validates it through the same loader used for installed content.</summary>

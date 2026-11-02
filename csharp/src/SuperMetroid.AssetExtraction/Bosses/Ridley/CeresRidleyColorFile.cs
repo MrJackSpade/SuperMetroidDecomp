@@ -54,11 +54,11 @@ public static class CeresRidleyColorFile
                     ?? throw new InvalidDataException("Ceres Ridley Baby requires its shades.")),
             _ => throw new InvalidDataException("Ceres Ridley colors require the supported version."),
         };
-        return CeresRidleyColors.Create(new CeresRidleySuppliedColors
+        return new CeresRidleyColorCatalog(CeresRidleyColorSelectionBuilder.Select(new CeresRidleySuppliedColors
         {
             Start = start, EyeFade = eyeFade, BodyFade = bodyFade, Health = health, Alarm = alarm,
             RetreatBg = retreatBg, RetreatShared = retreatShared, Baby = baby,
-        }, stockForLegacyOverride);
+        }, stockForLegacyOverride));
     }
 
     /// <summary>Serializes a complete current-version color document as indented camel-case UTF-8 JSON, then reloads it to enforce the same schema, dimension, and RGB5 validation as asset loading.</summary>

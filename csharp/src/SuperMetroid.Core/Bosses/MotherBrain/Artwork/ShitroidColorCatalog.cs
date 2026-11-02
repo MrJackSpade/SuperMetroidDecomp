@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -9,18 +8,9 @@ public sealed class ShitroidColorCatalog
     /// <summary>The selected normal pulse and initialization targets.</summary>
     internal readonly ShitroidColorSelection selection;
 
-    /// <summary>Separates the transparent Shitroid palette word before constructing the visible-ink resolver.</summary>
-    internal ShitroidColorCatalog(RgbColor[][] normal, RgbColor[] sidehopper,
-        RgbColor[] shitroid, RgbColor[] deadSidehopper)
-        : this(new BabyMetroidInitialPalette(shitroid.AsSpan(1).ToArray()), normal, sidehopper, shitroid[0], deadSidehopper)
-    {
-    }
-
-    /// <summary>Retains the visible Shitroid inks and builds the pulse that may share them.</summary>
-    private ShitroidColorCatalog(BabyMetroidInitialPalette shitroid, RgbColor[][] normal, RgbColor[] sidehopper,
-        RgbColor shitroidTransparentSlot, RgbColor[] deadSidehopper) =>
-        selection = new(new ShitroidColorPulse(normal, shitroid), new SidehopperInitialPalette(sidehopper), shitroid,
-            shitroidTransparentSlot, new SidehopperCorpsePalette(deadSidehopper));
+    /// <summary>Keeps the pulse and initialization targets the import recognized.</summary>
+    /// <param name="selection">The normal pulse and the targets.</param>
+    internal ShitroidColorCatalog(ShitroidColorSelection selection) => this.selection = selection;
 
     /// <summary>Gets a packed RGB5 ink from normal pulse phase 0–7 and ink 0–3, written to colours 165–168; phase cadence and cries remain actor behavior.</summary>
     public RgbColor NormalColor(int frame, int color) => ShitroidColors.NormalColor(selection.Normal, frame, color);

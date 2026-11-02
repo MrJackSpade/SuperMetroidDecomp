@@ -15,7 +15,6 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -24,6 +23,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Checks pause equipment, map reveal, sprite placement, and unpause asset transfers.</summary>
 internal static class PauseMenuVerification
@@ -204,7 +204,7 @@ internal static class PauseMenuVerification
         // Keep the fixture's distinctive Wave palette through the real installed binding.
         var colors = Enumerable.Range(0, 12).Select(_ => new ushort[16]).ToArray();
         colors[1] = Enumerable.Range(0, 16).Select(color => (ushort)(0x3200 + color)).ToArray();
-        var beamPalettes = new InstalledBeamPalettes(ToColors(colors));
+        var beamPalettes = SamusPaletteRecognition.Beams(ToColors(colors));
         resumeRuntime.Artwork.BeamPalettes = beamPalettes;
         resumeRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(samus.EquippedBeams);
         resumeRuntime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);

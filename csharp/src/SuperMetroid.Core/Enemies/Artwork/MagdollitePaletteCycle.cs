@@ -12,20 +12,18 @@ public sealed class MagdollitePaletteCycle
     /// <summary>Four independently authored glow colors underlying the frames' rotations.</summary>
     private readonly RgbColor[] colors;
     /// <summary>Later-frame cells that differ from the rotation of the first frame.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
     /// <summary>
-    /// Palette_Magdollite_Glow_0..3 rotates left one color per
-    /// frame of the four-frame cycle. Preserve arbitrary edited later frames
-    /// as deviations from that rotation, without rebuilding the table.
+    /// Palette_Magdollite_Glow_0..3 rotates left one color per frame of the four-frame cycle; keeps the first frame and the
+    /// later-frame cells that deviate from that rotation.
     /// </summary>
-    internal MagdollitePaletteCycle(RgbColor[][] frames)
+    /// <param name="colors">The first frame's four glow colors.</param>
+    /// <param name="edits">The later-frame cells the import found differing from the rotation.</param>
+    internal MagdollitePaletteCycle(RgbColor[] colors, Dictionary<ColourCell, RgbColor> edits)
     {
-        colors = frames[0];
-        for (int frame = 1; frame < frames.Length; frame++)
-        for (int color = 0; color < colors.Length; color++)
-            if (frames[frame][color] != colors[(color + frame) % colors.Length])
-                edits.Add(new ColourCell(frame, color), frames[frame][color]);
+        this.colors = colors;
+        this.edits = edits;
     }
 
     /// <summary>Returns one selected glow color, using the first frame's left rotation unless the requested later-frame cell was independently edited.</summary>

@@ -13,8 +13,8 @@ public sealed class DachoraColorCatalog
     internal readonly DachoraColorSelection selection;
 
     /// <summary>Retains the normal palette and only deviations from calculated speed and shine frames.</summary>
-    internal DachoraColorCatalog(RgbColor[] normal, RgbColor[][] speed, RgbColor[][] shine) =>
-        selection = new(normal, DachoraColors.SpeedEdits(normal, speed), DachoraColors.ShineEdits(normal, shine));
+    /// <param name="selection">The normal palette and deviations the import selected.</param>
+    internal DachoraColorCatalog(DachoraColorSelection selection) => this.selection = selection;
 
     /// <summary>The speed-boost sequence's flash backdrop in its first frame, authored paint.</summary>
     internal static readonly RgbColor SpeedFlashBackdrop = new(0, 12, 5);

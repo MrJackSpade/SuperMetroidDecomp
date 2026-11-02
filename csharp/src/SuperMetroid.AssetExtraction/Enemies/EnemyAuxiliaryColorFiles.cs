@@ -87,7 +87,7 @@ public static class EnemyAuxiliaryColorFiles
             }
             result.Add(definition.Id, compiled);
         }
-        return new EnemyAuxiliaryColorCatalog(result);
+        return new EnemyAuxiliaryColorCatalog(EnemyAuxiliaryColorFrameRecognition.Recognize(result));
     }
 
     /// <summary>Serializes the auxiliary-color document as indented camel-case UTF-8 JSON with named palette identities and validates it through <see cref="Read"/> before returning the bytes.</summary>

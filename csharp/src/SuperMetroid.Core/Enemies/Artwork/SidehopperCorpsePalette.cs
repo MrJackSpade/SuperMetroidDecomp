@@ -18,54 +18,16 @@ internal sealed class SidehopperCorpsePalette
     [IntegerQuantity("number of colors in the palette")]
     internal int Count { get; }
 
-    /// <summary>Preserves supplied paint unless its gradient has one exact reproducible endpoint.</summary>
-    internal SidehopperCorpsePalette(RgbColor[] colors)
+    /// <summary>Keeps the stock, calculated, or independent paint ownership the import selected.</summary>
+    /// <param name="count">Fifteen or sixteen colors.</param>
+    /// <param name="paint">Whether the palette is stock paint, independent colors with a calculated gradient, or supplied colors.</param>
+    /// <param name="independentOrSupplied">The independent colors and gradient endpoint, or every supplied color; empty for stock paint.</param>
+    internal SidehopperCorpsePalette(int count, SidehopperPaletteOwnership paint, RgbColor[] independentOrSupplied)
     {
-        Count = colors.Length;
-        if (Count is not (15 or 16)) throw new ArgumentException("Corpse palette requires15 or16 colors.", nameof(colors));
-        if (Count == 16 && Enumerable.Range(0, Count).All(color => colors[color] == SidehopperCorpsePaint.Color(color)))
-        {
-            stockTarget = true;
-            independentOrSupplied = [];
-            return;
-        }
-        independentOrSupplied = colors;
-        if (colors[5] != RgbColor.White) return;
-        RgbColor endpoint = Count == 16 ? colors[15] : RgbColor.Black;
-        if (Count == 15)
-        {
-            // Ambiguous or incompatible independent content stays raw.
-            if (EndpointChannel(colors, ColorChannel.Red) is not { } red ||
-                EndpointChannel(colors, ColorChannel.Green) is not { } green ||
-                EndpointChannel(colors, ColorChannel.Blue) is not { } blue)
-                return;
-            endpoint = new(red, green, blue);
-        }
-        for (int color = 8; color < Count; color++)
-            if (Interpolate(colors[8], endpoint, color - 8) != colors[color]) return;
-        independentOrSupplied = new RgbColor[9];
-        colors.AsSpan(0, 5).CopyTo(independentOrSupplied);
-        colors.AsSpan(6, 3).CopyTo(independentOrSupplied.AsSpan(5));
-        independentOrSupplied[8] = endpoint;
-        calculated = true;
-    }
-
-    /// <summary>
-    /// The one endpoint channel value every rounded sample of the fifteen-colour gradient admits, found by intersecting
-    /// the exact integer intervals each sample allows, or null when the samples admit none or several.
-    /// </summary>
-    private static int? EndpointChannel(RgbColor[] colors, ColorChannel channel)
-    {
-        int start = colors[8][channel];
-        int lower = 0, upper = 31;
-        for (int phase = 1; phase < colors.Length - 8; phase++)
-        {
-            int sample = colors[8 + phase][channel];
-            int numerator = sample * 7 - start * (7 - phase) - 3;
-            lower = Math.Max(lower, (int)Math.Ceiling((double)numerator / phase));
-            upper = Math.Min(upper, (int)Math.Floor((double)(numerator + 6) / phase));
-        }
-        return lower == upper ? lower : null;
+        Count = count;
+        stockTarget = paint == SidehopperPaletteOwnership.Stock;
+        calculated = paint == SidehopperPaletteOwnership.Calculated;
+        this.independentOrSupplied = independentOrSupplied;
     }
 
     /// <summary>Resolves a stock, independently supplied, or reconstructed corpse palette color.</summary>

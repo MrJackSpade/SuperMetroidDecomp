@@ -11,15 +11,15 @@ internal sealed class KraidStockBand : IReadOnlyList<RgbColor>
     /// <summary>Named source that supplies calculated unedited colors.</summary>
     private readonly KraidPaletteSource source;
     /// <summary>Only supplied colors that differ from the reviewed stock paint.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> deviations = new();
+    internal readonly Dictionary<ColourCell, RgbColor> deviations;
 
-    /// <summary>Records independent edits to one sixteen-color source.</summary>
-    internal KraidStockBand(KraidPaletteSource source, RgbColor[] supplied)
+    /// <summary>Keeps the independent edits to one sixteen-color source.</summary>
+    /// <param name="source">The named source whose stock paint unedited colors calculate.</param>
+    /// <param name="deviations">The supplied colors the import found differing from the stock paint.</param>
+    internal KraidStockBand(KraidPaletteSource source, Dictionary<ColourCell, RgbColor> deviations)
     {
         this.source = source;
-        for (int index = 0; index < supplied.Length; index++)
-            if (KraidPaint.Color(source, index) != supplied[index])
-                deviations.Add(new ColourCell(0, index), supplied[index]);
+        this.deviations = deviations;
     }
 
     /// <summary>Color count of this named source.</summary>

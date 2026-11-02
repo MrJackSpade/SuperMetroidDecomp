@@ -8,8 +8,9 @@ public sealed class BotwoonColorCatalog
     /// <summary>Compiled health-band colours selected by Botwoon's health.</summary>
     internal readonly BotwoonHealthPaint health;
 
-    /// <summary>Retains the validated health-band colours as runtime paint definitions.</summary>
-    internal BotwoonColorCatalog(RgbColor[][] healthBands) => health = new(healthBands);
+    /// <summary>Retains the compiled health-band colours as runtime paint definitions.</summary>
+    /// <param name="health">The health bands the import compiled.</param>
+    internal BotwoonColorCatalog(BotwoonHealthPaint health) => this.health = health;
 
     /// <summary>Gets one compiled colour from an independently editable health-band palette.</summary>
     /// <param name="band">Health-band index from zero through seven.</param>

@@ -265,7 +265,7 @@ public static class RoomPaletteFxPresentationFile
         }
         ValidateAndCompile("Crateria and Brinstar beacon flash", document.BeaconFlashing, BeaconPaletteFxColorDefinitions.ColorFrames, colors);
 
-        return RoomPaletteFxPresentation.Create(colors);
+        return RoomPaletteFxColorRecognition.Create(colors);
     }
 
     /// <summary>Serializes a current-version presentation document and validates it before writing any bytes to the destination.</summary>

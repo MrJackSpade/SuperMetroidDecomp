@@ -7,15 +7,10 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class InstalledBeamPalettes
 {
     /// <summary>Only selected RGB5 words that differ from calculated stock beam paint.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> palettes = new();
+    internal readonly Dictionary<ColourCell, RgbColor> palettes;
     /// <summary>Stores independently edited colors while deriving unchanged words from stock paint.</summary>
-    internal InstalledBeamPalettes(RgbColor[][] selections)
-    {
-        for (int index = 0; index < selections.Length; index++)
-        for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)
-            if (selections[index][color] != BeamPaint.Color(SamusBeamCombinations.FromTableIndex(index), color))
-                palettes.Add(new ColourCell(index, color), selections[index][color]);
-    }
+    /// <param name="palettes">The selected words the import found differing from the stock beam paint.</param>
+    internal InstalledBeamPalettes(Dictionary<ColourCell, RgbColor> palettes) => this.palettes = palettes;
 
     /// <summary>Gets an edited beam color when supplied, otherwise its calculated stock value.</summary>
     private RgbColor Color(SamusBeamCombination selection, int color) =>

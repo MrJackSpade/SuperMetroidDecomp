@@ -25,12 +25,12 @@ public static class PhantoonColorFile
         if (document.HealthBands is null ||
             document.HealthBands.Length != PhantoonColorDefinitions.HealthBandCount)
             throw new InvalidDataException("Phantoon colors require eight health palettes.");
-        return new(
+        return new(PhantoonColorEdits.Select(
             document.HealthBands.Select((band, index) =>
                 Compile(band, PhantoonColorDefinitions.HealthBandColorCount,
                     $"health palette {index}")).ToArray(),
             Compile(document.FadeOut, PhantoonColorDefinitions.FadeOutCount, "fade-out"),
-            PowerOnBySet(Compile(document.PowerOn, PhantoonSourceDefinitions.PowerOnColourCount, "power-on")));
+            PowerOnBySet(Compile(document.PowerOn, PhantoonSourceDefinitions.PowerOnColourCount, "power-on"))));
     }
 
     /// <summary>

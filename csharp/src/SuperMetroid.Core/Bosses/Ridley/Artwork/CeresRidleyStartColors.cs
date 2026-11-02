@@ -21,17 +21,17 @@ internal sealed class CeresRidleyStartColors
     /// <summary>Previously validated Baby material reused by the second palette.</summary>
     private readonly CeresBabyPaint baby;
     /// <summary>Independent supplied changes to either palette, including transparent entries.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
-    /// <summary>Separates the two palettes, preserving colors that differ from calculated source materials.</summary>
-    internal CeresRidleyStartColors(ReadOnlySpan<RgbColor> colors, CeresBabyPaint initialBaby)
+    /// <summary>Keeps the two palettes' source materials and the colors that differ from them.</summary>
+    /// <param name="door">The normal door/container material of the first palette.</param>
+    /// <param name="baby">The Baby material of the second palette.</param>
+    /// <param name="edits">The supplied colors the import found differing from the materials.</param>
+    internal CeresRidleyStartColors(CeresDoorNormalPaint door, CeresBabyPaint baby, Dictionary<ColourCell, RgbColor> edits)
     {
-        if (colors.Length != 2 * PaletteSize)
-            throw new ArgumentException("Ceres additional palettes require 32 colors and fifteen Baby colors.");
-        door = new(colors.Slice(1, PaletteSize - 1));
-        baby = initialBaby;
-        for (int color = 0; color < colors.Length; color++)
-            if (Calculate(color) != colors[color]) edits.Add(new ColourCell(0, color), colors[color]);
+        this.door = door;
+        this.baby = baby;
+        this.edits = edits;
     }
 
     /// <summary>Uses a supplied edit when present, otherwise reconstructing the selected source color.</summary>

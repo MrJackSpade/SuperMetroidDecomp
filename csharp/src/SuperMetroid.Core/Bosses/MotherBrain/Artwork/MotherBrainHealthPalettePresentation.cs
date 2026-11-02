@@ -10,11 +10,13 @@ public sealed class MotherBrainHealthPalettePresentation
     /// <summary>Rear-leg colors whose stock outline and gray basis depend on the selected body palette.</summary>
     internal readonly TintPalette backLegs;
 
-    /// <summary>Compiles body and rear-leg health-band tints, retaining independently supplied colors when they differ from shading.</summary>
-    internal MotherBrainHealthPalettePresentation(RgbColor[][] body, RgbColor[][] backLegs)
+    /// <summary>Keeps the recognized body and rear-leg health-band tints.</summary>
+    /// <param name="body">The body and brain tints.</param>
+    /// <param name="backLegs">The rear-leg tints, whose stock basis depends on the body's.</param>
+    internal MotherBrainHealthPalettePresentation(TintPalette body, TintPalette backLegs)
     {
-        this.body = new TintPalette(body, MotherBrainPalettePart.Body);
-        this.backLegs = new TintPalette(backLegs, MotherBrainPalettePart.BackLeg, this.body);
+        this.body = body;
+        this.backLegs = backLegs;
     }
 
     /// <summary>
@@ -70,15 +72,15 @@ public sealed class MotherBrainHealthPalettePresentation
         /// <summary>Complete edited health bands retained if any sample differs from the basis-derived tint.</summary>
         internal readonly RgbColor[][]? supplied;
 
-        /// <summary>Compares all four supplied health bands with the calculated tint before deciding whether to retain them.</summary>
-        public TintPalette(RgbColor[][] healthBands, MotherBrainPalettePart part, TintPalette? front = null)
+        /// <summary>Keeps the state-zero basis and, when one sample differs from its tint, every supplied health band.</summary>
+        /// <param name="basis">The state-zero colors the tint curve derives from.</param>
+        /// <param name="part">The palette part, which selects the rear-leg tint strength.</param>
+        /// <param name="supplied">Every supplied health band when one sample differs, otherwise null.</param>
+        internal TintPalette(BasePalette basis, MotherBrainPalettePart part, RgbColor[][]? supplied)
         {
+            this.basis = basis;
             this.part = part;
-            basis = BasePalette.Create(healthBands[0], part, front?.basis);
-            for (int state = 0; state < healthBands.Length; state++)
-                for (int color = 0; color < healthBands[state].Length; color++)
-                    if (Calculate(state, color) != healthBands[state][color])
-                    { supplied = healthBands; return; }
+            this.supplied = supplied;
         }
 
         /// <summary>Selects an edited sample or the tint of its state-zero basis color.</summary>
@@ -87,6 +89,16 @@ public sealed class MotherBrainHealthPalettePresentation
         /// <summary>Tints one selected basis ink for a health band.</summary>
         private RgbColor Calculate(int state, int color) => TintColor(basis.Color(color), state, part);
     }
+    /// <summary>The independent endpoint inks a state-zero basis calculates its shade ramps from.</summary>
+    /// <param name="Highlight">Body cortex highlight.</param>
+    /// <param name="Midtone">Body cortex midtone.</param>
+    /// <param name="Shadow">Body cortex shadow.</param>
+    /// <param name="Outline">Body outline; a rear-leg basis derives its own from the body.</param>
+    /// <param name="Gray">Body plate gray endpoint; a rear-leg basis derives its own from the body.</param>
+    /// <param name="Brown">Body tissue endpoint.</param>
+    internal readonly record struct BasePaletteAnchors(RgbColor Highlight, RgbColor Midtone, RgbColor Shadow, RgbColor Outline,
+        RgbColor Gray, RgbColor Brown);
+
     /// <summary>Independent paint colors plus calculated quarter/fifth shade ramps.</summary>
     internal sealed class BasePalette
     {
@@ -124,30 +136,22 @@ public sealed class MotherBrainHealthPalettePresentation
             brown = MotherBrainHealthPaintDefinitions.TissueHighlight;
         }
 
-        /// <summary>Shares a stock basis only when every supplied color and its dependent front palette agree.</summary>
-        internal static BasePalette Create(RgbColor[] colors, MotherBrainPalettePart part, BasePalette? front)
-        {
-            BasePalette stock = part == MotherBrainPalettePart.BackLeg ? StockRear : StockBody;
-            bool matches = part != MotherBrainPalettePart.BackLeg || ReferenceEquals(front, StockBody);
-            for (int color = 0; matches && color < colors.Length; color++)
-                matches = colors[color] == stock.Color(color);
-            return matches ? stock : new BasePalette(colors, part, front);
-        }
-
-        /// <summary>Selects independent endpoint inks and retains every supplied color if shade relationships do not reproduce them.</summary>
-        public BasePalette(RgbColor[] colors, MotherBrainPalettePart part, BasePalette? front)
+        /// <summary>Keeps independent endpoint inks and, when the shade relationships do not reproduce them, every supplied color.</summary>
+        /// <param name="part">The palette part.</param>
+        /// <param name="front">The body basis a rear-leg basis derives its outline and gray from, or null.</param>
+        /// <param name="anchors">The independent endpoint inks.</param>
+        /// <param name="supplied">Every supplied color when the shade relationships do not reproduce them, otherwise null.</param>
+        internal BasePalette(MotherBrainPalettePart part, BasePalette? front, BasePaletteAnchors anchors, RgbColor[]? supplied)
         {
             this.part = part;
             this.front = front;
-            highlight = part == MotherBrainPalettePart.BackLeg ? RgbColor.Black : colors[0];
-            midtone = part == MotherBrainPalettePart.BackLeg ? RgbColor.Black : colors[1];
-            shadow = part == MotherBrainPalettePart.BackLeg ? RgbColor.Black : colors[2];
-            Outline = front is null ? colors[3] : RgbColor.Black;
-            Gray = front is null ? colors[4] : RgbColor.Black;
-            brown = part == MotherBrainPalettePart.BackLeg ? RgbColor.Black : colors[8];
-            for (int color = 0; color < colors.Length; color++)
-                if (Calculate(color) != colors[color])
-                { supplied = colors; return; }
+            highlight = anchors.Highlight;
+            midtone = anchors.Midtone;
+            shadow = anchors.Shadow;
+            Outline = anchors.Outline;
+            Gray = anchors.Gray;
+            brown = anchors.Brown;
+            this.supplied = supplied;
         }
 
         /// <summary>Selects one edited basis ink or its calculated stock shade.</summary>

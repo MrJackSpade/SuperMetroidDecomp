@@ -15,10 +15,8 @@ public sealed class DraygonColorCatalog
     internal readonly DraygonColorSelection selection;
 
     /// <summary>Retains validated colors and stores only flash entries that differ from stock white.</summary>
-    internal DraygonColorCatalog(RgbColor[] intro, RgbColor[] background, RgbColor[] sprite,
-        RgbColor[] whiteFlash, RgbColor[][] healthBands) =>
-        selection = new(new DraygonIntroPaint(intro), new DraygonMaterialPaint(background), new DraygonMaterialPaint(sprite),
-            DraygonPalette.WhiteFlashEdits(whiteFlash), new DraygonHealthPaint(healthBands));
+    /// <param name="selection">The opening, materials, flash edits and health bands the import selected.</param>
+    internal DraygonColorCatalog(DraygonColorSelection selection) => this.selection = selection;
 
     /// <summary>Gets one of the 25 selected RGB5 colors used by Draygon's opening palette.</summary>
     public RgbColor ResolveIntro(int color) => selection.Intro.Color(color);

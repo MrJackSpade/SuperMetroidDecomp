@@ -14,15 +14,11 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 internal sealed class DraygonMaterialPaint
 {
     /// <summary>Selected palette entries whose installed channels differ from calculated stock material paint.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
     /// <summary>Retains only independently edited entries from the sixteen-color Draygon material palette.</summary>
-    internal DraygonMaterialPaint(ReadOnlySpan<RgbColor> colors)
-    {
-        Ensure.LengthEqual(colors, 16);
-        for (int color = 0; color < colors.Length; color++)
-            if (colors[color] != StockColor(color)) edits.Add(new ColourCell(0, color), colors[color]);
-    }
+    /// <param name="edits">The entries the import found differing from the calculated stock material paint.</param>
+    internal DraygonMaterialPaint(Dictionary<ColourCell, RgbColor> edits) => this.edits = edits;
 
     /// <summary>Uses an installed paint edit when present and otherwise calculates the selected stock material shade.</summary>
     internal RgbColor Color(int index)
@@ -35,7 +31,7 @@ internal sealed class DraygonMaterialPaint
     internal static RgbColor ClearTarget => Pack(0, 0, ClearBlue);
 
     /// <summary>Combines carapace ramps, eye paint, and the separately owned healthy belly shades.</summary>
-    private static RgbColor StockColor(int color)
+    internal static RgbColor StockColor(int color)
     {
         if (color is >= 5 and <= 8)
         {

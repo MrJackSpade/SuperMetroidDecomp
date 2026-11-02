@@ -12,11 +12,8 @@ public sealed class SporeSpawnColorCatalog
     internal readonly SporeSpawnColorSelection selection;
 
     /// <summary>Retains palette endpoints and only the supplied intermediate samples that cannot be reconstructed from them.</summary>
-    internal SporeSpawnColorCatalog(RgbColor[] spores, RgbColor[][] health,
-        RgbColor[][] deathSprite, RgbColor[][] deathLevel, RgbColor[][] deathBackground) =>
-        selection = new(SporeSpawnColors.SporeEdits(spores, health), new SporeSpawnHealthBands(health),
-            SporeSpawnColors.DeathSpriteEdits(deathSprite, health), SporeSpawnColors.DeathLevelEdits(deathLevel),
-            SporeSpawnColors.DeathBackgroundEdits(deathBackground));
+    /// <param name="selection">The endpoints and samples the import selected.</param>
+    internal SporeSpawnColorCatalog(SporeSpawnColorSelection selection) => this.selection = selection;
 
     /// <summary>
     /// Spore Spawn's palette repeats the healthy body/spawner health band in sprite

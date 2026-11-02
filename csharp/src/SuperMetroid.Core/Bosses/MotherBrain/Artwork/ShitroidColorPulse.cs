@@ -10,16 +10,13 @@ internal sealed class ShitroidColorPulse
     /// <summary>Independent pulse phases retained when an edited phase differs from the calculated curve.</summary>
     internal readonly RgbColor[][]? supplied;
 
-    /// <summary>Compares each supplied ink with the target-derived pulse before deciding whether the phases can be shared.</summary>
-    public ShitroidColorPulse(RgbColor[][] frames, BabyMetroidInitialPalette target)
+    /// <summary>Keeps the target the pulse may share and, when a phase differs from the shared curve, every supplied phase.</summary>
+    /// <param name="target">The visible target inks the pulse is calculated from.</param>
+    /// <param name="supplied">The supplied phases when one differs from the target-derived curve, otherwise null.</param>
+    internal ShitroidColorPulse(BabyMetroidInitialPalette target, RgbColor[][]? supplied)
     {
         this.target = target;
-        // Sharing the target's innard colors is valid only when every supplied
-        // pulse sample agrees. Independently edited targets or frames stay exact.
-        for (int frame = 0; frame < frames.Length; frame++)
-        for (int color = 0; color < ShitroidColorDefinitions.NormalColorsPerFrame; color++)
-            if (Resolve(frame, color) != frames[frame][color])
-            { supplied = frames; return; }
+        this.supplied = supplied;
     }
 
     /// <summary>Uses the supplied ink or mirrors the eight-phase dimming curve around its two darkest phases, retaining the organ's red floor.</summary>

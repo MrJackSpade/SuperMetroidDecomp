@@ -33,10 +33,19 @@ public static class TourianStatueColorFile
             eye[row] = Compile(document.Eye[row], TourianStatueColorDefinitions.EyeColorCount,
                 $"eye row {row}");
         return new(
-            Compile(document.Base, TourianStatueColorDefinitions.BaseColorCount, "base"),
-            Compile(document.Statue, TourianStatueColorDefinitions.StatueColorCount, "statue"),
-            eye,
-            Compile(document.Grey, TourianStatueColorDefinitions.GreyColorCount, "grey"));
+            Band(TourianStatuePaintBand.Base, Compile(document.Base, TourianStatueColorDefinitions.BaseColorCount, "base")),
+            Band(TourianStatuePaintBand.Statue, Compile(document.Statue, TourianStatueColorDefinitions.StatueColorCount, "statue")),
+            Band(TourianStatuePaintBand.Eye, eye.SelectMany(glow => glow).ToArray()),
+            Band(TourianStatuePaintBand.Grey, Compile(document.Grey, TourianStatueColorDefinitions.GreyColorCount, "grey")));
+    }
+
+    /// <summary>Compares supplied colors with the band's stock paint and retains the independent edits.</summary>
+    private static TourianStatuePalettes.PaletteBand Band(TourianStatuePaintBand band, RgbColor[] supplied)
+    {
+        var edits = new Dictionary<ColourCell, RgbColor>();
+        for (int color = 0; color < supplied.Length; color++)
+            if (supplied[color] != TourianStatuePaint.Color(band, color)) edits.Add(new ColourCell(0, color), supplied[color]);
+        return new TourianStatuePalettes.PaletteBand(band, supplied.Length, edits);
     }
 
     /// <summary>Serializes the editable colors as indented camel-case UTF-8 JSON, validating version, palette dimensions, and RGB5 bounds before returning the bytes.</summary>

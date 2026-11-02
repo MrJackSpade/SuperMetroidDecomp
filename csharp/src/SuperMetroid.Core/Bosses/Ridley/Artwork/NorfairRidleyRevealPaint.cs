@@ -12,15 +12,11 @@ internal sealed class NorfairRidleyRevealPaint
 {
 
     /// <summary>Independently supplied step colors that differ from the scaled material endpoints.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
-    /// <summary>Captures only palette cells that differ from the calculated fifteen-step reveal.</summary>
-    internal NorfairRidleyRevealPaint(RgbColor[][] steps)
-    {
-        for (int step = 0; step < Steps; step++)
-            for (int color = 0; color < Colors; color++)
-                if (steps[step][color] != Calculate(step, color)) edits.Add(new ColourCell(step, color), steps[step][color]);
-    }
+    /// <summary>Keeps the palette cells that differ from the calculated fifteen-step reveal.</summary>
+    /// <param name="edits">The supplied cells the import found differing from the reveal.</param>
+    internal NorfairRidleyRevealPaint(Dictionary<ColourCell, RgbColor> edits) => this.edits = edits;
 
     /// <summary>Resolves an independently edited reveal cell or scales its stock material endpoint.</summary>
     internal RgbColor ColorAt(int step, int color)

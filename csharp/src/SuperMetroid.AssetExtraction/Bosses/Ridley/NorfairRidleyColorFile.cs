@@ -43,7 +43,8 @@ public static class NorfairRidleyColorFile
                 throw new InvalidDataException($"Norfair Ridley reveal row {row} requires fourteen colors.");
             reveal[row] = Compile(document.Reveal[row], $"reveal row {row}");
         }
-        return new(initial, reveal);
+        return new(new NorfairRidleyColorSelection(CeresRidleyPaintRecognition.NorfairInitial(initial),
+            CeresRidleyPaintRecognition.NorfairReveal(reveal)));
     }
 
     /// <summary>Serializes a color document as indented camel-case UTF-8 JSON and validates the result through <see cref="Read"/> before returning it.</summary>

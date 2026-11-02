@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
-/// One of Mother Brain's death fades. The body/leg channels fade to black as (initial*(15-frame)+1)/15.
+/// One of Mother Brain's death fades, as the import selected it. The body/leg channels fade to black as (initial*(15-frame)+1)/15.
 /// The corpse channels interpolate between endpoints, rounded to nearest
 /// over seven intervals. These rules match every original intermediate color.
 /// Starting colors calculate from health state three; the corpse final palette calculates shared
@@ -25,29 +25,22 @@ internal sealed class MotherBrainDeathFade
     /// <summary>Opaque colors in each authored stage.</summary>
     internal int ColorCount { get; }
 
-    /// <summary>Detects whether the supplied stages follow stock interpolation or need exact storage.</summary>
-    /// <param name="frames">The supplied stages.</param>
+    /// <summary>Keeps a fade's endpoints, its geometry and, when it is not the calculated interpolation, its stages.</summary>
+    /// <param name="first">Edited starting colours, or null when the health palette supplies the stock start.</param>
     /// <param name="last">The drained-body colours the corpse fade ends at, or null for a fade that ends at black.</param>
-    /// <param name="part">The palette part whose stock starting colours the fade compares against.</param>
-    internal MotherBrainDeathFade(RgbColor[][] frames, MotherBrainRainbowPalettePresentation.DrainedBodyColors? last,
-        MotherBrainPalettePart part = MotherBrainPalettePart.Body)
+    /// <param name="supplied">Every supplied stage when one differs from the calculation, otherwise null.</param>
+    /// <param name="frameCount">The number of stages.</param>
+    /// <param name="colorCount">The opaque colours in each stage.</param>
+    /// <param name="part">The palette part whose stock starting colours the fade starts from.</param>
+    internal MotherBrainDeathFade(RgbColor[]? first, MotherBrainRainbowPalettePresentation.DrainedBodyColors? last,
+        RgbColor[][]? supplied, int frameCount, int colorCount, MotherBrainPalettePart part)
     {
-        this.part = part;
-        ColorCount = frames[0].Length;
-        for (int color = 0; color < ColorCount; color++)
-            if (frames[0][color] != MotherBrainHealthPalettePresentation.StockDeathStartColor(part, color))
-            { first = frames[0]; break; }
+        this.first = first;
         this.last = last;
-        FrameCount = frames.Length;
-        for (int frame = 0; frame < FrameCount; frame++)
-        for (int color = 0; color < ColorCount; color++)
-        {
-            if (frames[frame][color] != Calculate(frame, color))
-            {
-                supplied = frames;
-                return;
-            }
-        }
+        this.supplied = supplied;
+        FrameCount = frameCount;
+        ColorCount = colorCount;
+        this.part = part;
     }
 
     /// <summary>Checks authored frame and color bounds before resolving a fade color.</summary>

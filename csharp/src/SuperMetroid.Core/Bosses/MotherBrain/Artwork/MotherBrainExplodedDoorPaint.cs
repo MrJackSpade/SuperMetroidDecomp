@@ -6,14 +6,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Paints Mother Brain's exploded escape door from the catalog's reviewed hues and ramps: the violet gamma ramp, the yellow ramp, the neutral metal shades and the white ink.</summary>
 internal static class MotherBrainExplodedDoorPaint
 {
-    /// <summary>Admits a supplied fourteen-color opaque door ramp only when every word matches the reviewed paint calculation.</summary>
-    internal static bool Matches(ReadOnlySpan<RgbColor> colors)
-    {
-        for (int color = 0; color < ColorCount; color++)
-            if (colors[color] != Color(color)) return false;
-        return true;
-    }
-
     /// <summary>Builds the violet gamma ramp, yellow ramp, neutral metal shades, and terminal white door ink by color index.</summary>
     internal static RgbColor Color(int color)
     {

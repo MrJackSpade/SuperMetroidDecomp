@@ -40,7 +40,7 @@ public static class CeresRidleyMode7ColorFile
                 rows[row][color] = rgb.ToRgbColor();
             }
         }
-        return new(rows);
+        return new(CeresRidleyPaintRecognition.Floor(rows));
     }
 
     /// <summary>Serializes all zoom shades as UTF-8 JSON and validates them through <see cref="Read"/> before returning the payload.</summary>

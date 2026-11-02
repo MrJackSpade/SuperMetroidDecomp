@@ -8,13 +8,9 @@ public sealed class MotherBrainDeathColorCatalog
     /// <summary>The selected body, leg and corpse fades and exploded door.</summary>
     internal readonly MotherBrainDeathColorSelection selection;
 
-    /// <summary>Compresses stock fade images into calculated stages while retaining independently edited frames.</summary>
-    internal MotherBrainDeathColorCatalog(RgbColor[][] bodyFade, RgbColor[][] legFade,
-        RgbColor[][] corpseFade, RgbColor[] explodedDoor) =>
-        selection = new(new MotherBrainDeathFade(bodyFade, last: null),
-            new MotherBrainDeathFade(legFade, last: null, MotherBrainPalettePart.BackLeg),
-            new MotherBrainDeathFade(corpseFade, new MotherBrainRainbowPalettePresentation.DrainedBodyColors(corpseFade[^1])),
-            MotherBrainDeathColors.EditedDoor(explodedDoor));
+    /// <summary>Keeps the fades as calculated stages and independently edited frames, and the door's edits.</summary>
+    /// <param name="selection">The fades and door the import selected.</param>
+    internal MotherBrainDeathColorCatalog(MotherBrainDeathColorSelection selection) => this.selection = selection;
 
     /// <summary>Returns one body-fade color from the first segment of the death-fade images, applied to both colours 65..78 and 145..158 during the death fade.</summary>
     /// <param name="frame">Zero-based authored palette stage 0..15, not an elapsed gameplay-update count; the stock sequence ends at black.</param>

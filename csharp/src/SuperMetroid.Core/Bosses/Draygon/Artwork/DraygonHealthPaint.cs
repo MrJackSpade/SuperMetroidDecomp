@@ -10,15 +10,11 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 internal sealed class DraygonHealthPaint
 {
     /// <summary>Extracted belly colors that differ from the interpolated gold-to-red ramp.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
     /// <summary>Retains only differences from the four-shade, eight-band paint calculation.</summary>
-    internal DraygonHealthPaint(RgbColor[][] healthBands)
-    {
-        for (int band = 0; band < Bands; band++)
-            for (int shade = 0; shade < Shades; shade++)
-                if (healthBands[band][shade] != Calculate(band, shade)) edits.Add(new ColourCell(band, shade), healthBands[band][shade]);
-    }
+    /// <param name="edits">The belly colours the import found differing from the calculated ramp.</param>
+    internal DraygonHealthPaint(Dictionary<ColourCell, RgbColor> edits) => this.edits = edits;
 
     /// <summary>Uses an extracted edit when present, otherwise interpolates the requested belly shade.</summary>
     internal RgbColor Color(int band, int shade) => edits.TryGetValue(new ColourCell(band, shade), out RgbColor edited)
@@ -30,7 +26,7 @@ internal sealed class DraygonHealthPaint
     /// nearest sevenths; there are no retained output samples. The gold-to-red
     /// hue transition and shade assignment are selected health-color composition.
     /// </summary>
-    private static RgbColor Calculate(int band, int shade)
+    internal static RgbColor Calculate(int band, int shade)
     {
         int healthyRed = HealthyRedStep * (Shades + 1 - shade);
         int healthyGreen = HealthyGreenStep * (Shades - shade);

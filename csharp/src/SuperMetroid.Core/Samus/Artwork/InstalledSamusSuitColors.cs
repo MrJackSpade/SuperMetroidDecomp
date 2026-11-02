@@ -31,20 +31,15 @@ public sealed class InstalledSamusSuitColors
     /// replace the palette roster. Comparing supplied values preserves arbitrary
     /// independent player edits. This removes duplicated words; the remaining
     /// base-ink disposition is documented on the catalog.</remarks>
-    internal InstalledSamusSuitColors(RgbColor[] power, RgbColor[] varia, RgbColor[] gravity)
+    /// <param name="power">The complete Power palette.</param>
+    /// <param name="varia">The Varia slots the import found differing from the Power palette.</param>
+    /// <param name="gravity">The Gravity slots the import found differing from the Power palette.</param>
+    internal InstalledSamusSuitColors(RgbColor[] power, Dictionary<ColourCell, RgbColor> varia,
+        Dictionary<ColourCell, RgbColor> gravity)
     {
         this.power = power;
-        this.varia = Differences(varia, power);
-        this.gravity = Differences(gravity, power);
-    }
-
-    /// <summary>Finds independently selected suit inks while omitting slots that reuse the Power palette word.</summary>
-    private static Dictionary<ColourCell, RgbColor> Differences(RgbColor[] supplied, RgbColor[] power)
-    {
-        var differences = new Dictionary<ColourCell, RgbColor>();
-        for (int index = 0; index < supplied.Length; index++)
-            if (supplied[index] != power[index]) differences.Add(new ColourCell(0, index), supplied[index]);
-        return differences;
+        this.varia = varia;
+        this.gravity = gravity;
     }
 
     /// <summary>Resolves one of a suit's normal colours.</summary>

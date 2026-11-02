@@ -15,16 +15,16 @@ internal sealed class CeresRidleyHealthPaint
     /// <summary>Source healthy body and eye paints from which the three damage bands are calculated.</summary>
     private readonly CeresRidleyFade body, eyes;
     /// <summary>Authored departures from the calculated health shades, keyed by band and color.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
-    /// <summary>Records only input colors that differ from the calculated healthy-to-membrane tint.</summary>
-    internal CeresRidleyHealthPaint(RgbColor[][] bands,
-        CeresRidleyFade body, CeresRidleyFade eyes)
+    /// <summary>Keeps the healthy paints and the input colors that differ from the calculated tint.</summary>
+    /// <param name="body">The body fade supplying healthy armor and the membrane target.</param>
+    /// <param name="eyes">The eye fade supplying healthy eyes.</param>
+    /// <param name="edits">The supplied colors the import found differing from the tint.</param>
+    internal CeresRidleyHealthPaint(CeresRidleyFade body, CeresRidleyFade eyes, Dictionary<ColourCell, RgbColor> edits)
     {
         this.body = body; this.eyes = eyes;
-        for (int band = 0; band < CeresRidleyPaletteDefinitions.HealthBandCount; band++)
-        for (int color = 0; color < CeresRidleyPaletteDefinitions.HealthColorCount; color++)
-            if (Calculate(band, color) != bands[band][color]) edits.Add(new ColourCell(band, color), bands[band][color]);
+        this.edits = edits;
     }
 
     /// <summary>Uses an authored override where present, otherwise calculates the selected damage-band shade.</summary>

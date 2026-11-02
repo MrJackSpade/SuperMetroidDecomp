@@ -17,19 +17,22 @@ internal sealed class CeresDoorEscapeSurfacePaint
     /// <summary>Selected bevel endpoints and middle blue channel retained from the supplied eight-color surface.</summary>
     private readonly int bevelPeak, bevelShadow, middleBevelBlue;
     /// <summary>Per-color exceptions kept when supplied art differs from the calculated shared material.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
-    /// <summary>Captures the selected color parameters and preserves every independently edited supplied color.</summary>
-    internal CeresDoorEscapeSurfacePaint(ReadOnlySpan<RgbColor> colors)
+    /// <summary>Keeps the selected color parameters and every independently edited supplied color.</summary>
+    /// <param name="highlightAndEdgeLevels">The four highlight and edge brightness levels.</param>
+    /// <param name="bevelPeak">The brightest bevel level.</param>
+    /// <param name="bevelShadow">The darkest bevel level.</param>
+    /// <param name="middleBevelBlue">The middle bevel's blue.</param>
+    /// <param name="edits">The supplied colors the import found differing from the calculated material.</param>
+    internal CeresDoorEscapeSurfacePaint(int[] highlightAndEdgeLevels, int bevelPeak, int bevelShadow, int middleBevelBlue,
+        Dictionary<ColourCell, RgbColor> edits)
     {
-        Ensure.LengthEqual(colors, 8);
-        highlightAndEdgeLevels = new int[4];
-        for (int index = 0; index < highlightAndEdgeLevels.Length; index++) highlightAndEdgeLevels[index] = colors[index].Red;
-        bevelPeak = colors[4].Red;
-        bevelShadow = colors[7].Red;
-        middleBevelBlue = colors[5].Blue;
-        for (int index = 0; index < colors.Length; index++)
-            if (Calculate(index) != colors[index]) edits.Add(new ColourCell(0, index), colors[index]);
+        this.highlightAndEdgeLevels = highlightAndEdgeLevels;
+        this.bevelPeak = bevelPeak;
+        this.bevelShadow = bevelShadow;
+        this.middleBevelBlue = middleBevelBlue;
+        this.edits = edits;
     }
 
     /// <summary>Returns an authored exception where present or the calculated grey-blue door shade.</summary>

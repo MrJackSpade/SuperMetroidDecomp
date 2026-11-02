@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
 /// One ordered strip of characters in the installed room-FX artwork atlas (#1415): a picture of an animated-tile

@@ -44,8 +44,8 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(6, FirefleaShades.FlashingShade(6), "brightest flash level");
 
         // The atlas is keyed by picture; the import reads each picture from the address it was keyed by.
-        AssertEqual(34, RoomFxAnimatedTileAtlasFormat.Segments.Count(), "atlas segments");
-        AssertEqual(0x8791e4, RoomFxAnimatedTileSources.Of(RoomFxAnimatedTileAtlasFormat.Segments.First()).Value, "first atlas segment source");
+        AssertEqual(34, RoomFxAnimatedTileAtlasFile.Segments.Count(), "atlas segments");
+        AssertEqual(0x8791e4, RoomFxAnimatedTileSources.Of(RoomFxAnimatedTileAtlasFile.Segments.First()).Value, "first atlas segment source");
         AssertEqual(0x879e84, RoomFxAnimatedTileSources.Of(new AnimatedTileImage(AnimatedTileObject.HorizontalSpikes, 2)).Value, "third spike picture source");
         AssertEqual(0x879364, RoomFxAnimatedTileSources.Of(new RoomFxAtlasSegment.TourianStatueStrip()).Value, "statue strip source");
         AssertEqual(0x878ec4, AnimatedTileImageSources.Treadmill(3), "fourth treadmill picture source");

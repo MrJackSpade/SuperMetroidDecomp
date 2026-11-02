@@ -19,18 +19,18 @@ public static class RoomFxAnimatedTileAtlasPng
         try
         {
             IndexedPngImage image = IndexedPng.Read(png,
-                new(RoomFxAnimatedTileAtlasFormat.Width, RoomFxAnimatedTileAtlasFormat.Height));
+                new(RoomFxAnimatedTileAtlasFile.Width, RoomFxAnimatedTileAtlasFile.Height));
             return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Size,
-                RoomFxAnimatedTileAtlasFormat.BitsPerPixel));
+                RoomFxAnimatedTileAtlasFile.BitsPerPixel));
         }
         catch (InvalidDataException) when (stockForLegacyOverride is not null && png.CanSeek)
         {
             // Preserve previous user-edited PNGs from before the treadmill,
             // statue, spores or spike extension; inherit only the newly introduced tail.
-            return TryLegacy(RoomFxAnimatedTileAtlasFormat.PreSpikesWidth)
-                ?? TryLegacy(RoomFxAnimatedTileAtlasFormat.PreSporesWidth)
-                ?? TryLegacy(RoomFxAnimatedTileAtlasFormat.PreStatueWidth)
-                ?? TryLegacy(RoomFxAnimatedTileAtlasFormat.LegacyWidth)
+            return TryLegacy(RoomFxAnimatedTileAtlasFile.PreSpikesWidth)
+                ?? TryLegacy(RoomFxAnimatedTileAtlasFile.PreSporesWidth)
+                ?? TryLegacy(RoomFxAnimatedTileAtlasFile.PreStatueWidth)
+                ?? TryLegacy(RoomFxAnimatedTileAtlasFile.LegacyWidth)
                 ?? throw new InvalidDataException("Room-FX PNG matches neither current nor supported legacy sheet geometry.");
 
             RoomFxAnimatedTileAtlas? TryLegacy(int width)
@@ -38,9 +38,9 @@ public static class RoomFxAnimatedTileAtlasPng
                 png.Position = start;
                 try
                 {
-                    IndexedPngImage legacy = IndexedPng.Read(png, new(checked((ushort)width), RoomFxAnimatedTileAtlasFormat.Height));
+                    IndexedPngImage legacy = IndexedPng.Read(png, new(checked((ushort)width), RoomFxAnimatedTileAtlasFile.Height));
                     byte[] legacyPlanar = SnesPlanarTileEncoder.Encode(legacy.Pixels,
-                        legacy.Size, RoomFxAnimatedTileAtlasFormat.BitsPerPixel);
+                        legacy.Size, RoomFxAnimatedTileAtlasFile.BitsPerPixel);
                     var combined = new byte[RoomFxAnimatedTileAtlasFormat.TotalByteCount];
                     legacyPlanar.CopyTo(combined, 0);
                     stockForLegacyOverride.characters.AsSpan(legacyPlanar.Length).CopyTo(

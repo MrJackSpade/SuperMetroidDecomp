@@ -148,7 +148,7 @@ internal static class RoomBlockUploads
                 // Phantoon's and Ridley's statues paint characters outside the room's tile characters, which no block reads.
                 if (!BgCharacterWords.AmongTiles(AnimatedTileVramDestinations.WordOf(statue.AnimatedObject)))
                     continue;
-                foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
+                foreach (TourianStatueTilePicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
                 {
                     yield return AnimatedCharacterPlacement.At(AnimatedTileFrames.Picture(statue.AnimatedObject, picture), AnimatedTileVramDestinations.WordOf(statue.AnimatedObject),
                         inputs.AnimatedTiles.TourianStatuePicture(statue.AnimatedObject, picture, statue.FrameByteCount));

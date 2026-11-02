@@ -19,18 +19,18 @@ public static class RoomFxAnimatedTileAtlasExtractor
     {
         Ensure.NotNull(bus);
         using var planar = new MemoryStream();
-        foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFormat.Segments)
+        foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFile.Segments)
             planar.Write(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 RoomFxAnimatedTileSources.Of(segment), segment.ByteCount));
         if (planar.Length != RoomFxAnimatedTileAtlasFormat.TotalByteCount)
             throw new InvalidDataException(
                 $"Room-FX animation art has {planar.Length} bytes, expected {RoomFxAnimatedTileAtlasFormat.TotalByteCount}.");
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar.ToArray(),
-            RoomFxAnimatedTileAtlasFormat.BitsPerPixel,
+            RoomFxAnimatedTileAtlasFile.BitsPerPixel,
             RoomFxAnimatedTileAtlasFormat.TileCount, out Extent16<ImagePixels> size);
         using var output = new MemoryStream();
         IndexedPng.Write(output, size, pixels,
-            SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
+            SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFile.ColorCount));
         return output.ToArray();
     }
 }

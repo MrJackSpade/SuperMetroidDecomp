@@ -119,13 +119,13 @@ internal static class MapInstallationVerification
         colors.Required("pause").Required(0)["red"] = (oldRed + 1) % 32;
         File.WriteAllText(paletteOverride, colors.ToJsonString());
         string roomFxArtworkOverride = Path.Combine(installation.MapOverrideDirectory,
-            RoomFxAnimatedTileAtlasFormat.FileName);
+            RoomFxAnimatedTileAtlasFile.FileName);
         using (var input = File.OpenRead(Path.Combine(installation.MapDirectory,
-                   RoomFxAnimatedTileAtlasFormat.FileName)))
+                   RoomFxAnimatedTileAtlasFile.FileName)))
         {
             IndexedPngImage image = IndexedPng.Read(input,
-                new(RoomFxAnimatedTileAtlasFormat.Width, RoomFxAnimatedTileAtlasFormat.Height));
-            image.Pixels[0] = (byte)((image.Pixels[0] + 1) % RoomFxAnimatedTileAtlasFormat.ColorCount);
+                new(RoomFxAnimatedTileAtlasFile.Width, RoomFxAnimatedTileAtlasFile.Height));
+            image.Pixels[0] = (byte)((image.Pixels[0] + 1) % RoomFxAnimatedTileAtlasFile.ColorCount);
             using var output = File.Create(roomFxArtworkOverride);
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         }

@@ -66,7 +66,7 @@ internal static class AnimatedTileFrameArtwork
         }
         foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTiles.All)
         {
-            foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
+            foreach (TourianStatueTilePicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
                 yield return new(AnimatedTileFrames.Picture(statue.AnimatedObject, picture),
                     AnimatedTileImageSources.TourianStatue(statue.AnimatedObject, picture),
                     atlas => atlas.TourianStatuePicture(statue.AnimatedObject, picture, statue.FrameByteCount));

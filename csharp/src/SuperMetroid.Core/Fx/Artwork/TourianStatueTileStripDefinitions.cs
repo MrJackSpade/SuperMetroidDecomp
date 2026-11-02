@@ -16,9 +16,6 @@ public static class TourianStatueTileStripDefinitions
     /// <summary>The strip's length in bytes.</summary>
     public const int ByteCount = TileCount * BytesPerTile;
 
-    /// <summary>The pictures each statue shows, each one window of the strip.</summary>
-    public static IReadOnlyList<TourianStatueTilePicture> Pictures { get; } = Enum.GetValues<TourianStatueTilePicture>();
-
     /// <summary>
     /// Each statue's windows of the strip: its first oscillation picture's first character, its pictures' width in
     /// characters and its released picture's first character (<see cref="TourianStatueTileStrip"/>).

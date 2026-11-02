@@ -166,8 +166,8 @@ internal static class CrocomirePresentation1193Verification
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         using var png = new MemoryStream(RoomFxAnimatedTileAtlasExtractor.Extract(rom));
-        var image = IndexedPng.Read(png, new(RoomFxAnimatedTileAtlasFormat.Width, 8));
-        int oldWidth = RoomFxAnimatedTileAtlasFormat.PreSpikesWidth;
+        var image = IndexedPng.Read(png, new(RoomFxAnimatedTileAtlasFile.Width, 8));
+        int oldWidth = RoomFxAnimatedTileAtlasFile.PreSpikesWidth;
         var pixels = new byte[oldWidth * 8];
         for (int row = 0; row < 8; row++)
             image.Pixels.AsSpan(row * image.Size.X, oldWidth).CopyTo(pixels.AsSpan(row * oldWidth));

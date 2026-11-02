@@ -60,7 +60,7 @@ internal static class LookupFxAtlasSegmentsVerification
     internal static void VerifyRoomFxAtlasSegmentSources(SuperMetroid.AssetExtraction.Cartridge.ISnesAddressSpace rom)
     {
         var expected = OriginalRoomFxAtlasSegments();
-        var actual = RoomFxAnimatedTileAtlasFormat.Segments.ToArray();
+        var actual = RoomFxAnimatedTileAtlasFile.Segments.ToArray();
         AssertEqual(expected.Length, actual.Length, "Atlas original segment count");
         var bytes = Enumerable.Range(0, 3616).Select(index => (byte)(index * 37 + index / 256)).ToArray();
         var atlas = new RoomFxAnimatedTileAtlas(bytes);
@@ -99,7 +99,7 @@ internal static class LookupFxAtlasSegmentsVerification
     internal static void VerifyRoomFxAtlasSegmentSizes()
     {
         var expected = OriginalRoomFxAtlasSegments();
-        var actual = RoomFxAnimatedTileAtlasFormat.Segments.ToArray();
+        var actual = RoomFxAnimatedTileAtlasFile.Segments.ToArray();
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index].ByteCount, actual[index].ByteCount, "Atlas segment length");
         AssertEqual(3616, actual.Sum(segment => segment.ByteCount), "Complete original PNG byte geometry");
@@ -109,11 +109,11 @@ internal static class LookupFxAtlasSegmentsVerification
     internal static void VerifyRoomFxAtlasSegmentRoles()
     {
         var expected = OriginalRoomFxAtlasSegments();
-        var actual = RoomFxAnimatedTileAtlasFormat.Segments.ToArray();
+        var actual = RoomFxAnimatedTileAtlasFile.Segments.ToArray();
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index].Source != StatueStrip, actual[index] is RoomFxAtlasSegment.Image,
                 "Atlas standalone picture or shared strip");
-        AssertTrue(RoomFxAnimatedTileAtlasFormat.Segments is not ICollection<RoomFxAtlasSegment>,
+        AssertTrue(RoomFxAnimatedTileAtlasFile.Segments is not ICollection<RoomFxAtlasSegment>,
             "Segments are streamed without a materialized collection");
     }
 }

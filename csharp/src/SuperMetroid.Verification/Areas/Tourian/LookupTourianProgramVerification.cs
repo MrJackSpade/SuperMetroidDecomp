@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -190,7 +191,7 @@ internal static class LookupTourianProgramVerification
     private static TourianStatueTilePicture Picture(TourianStatueAnimatedTileProgramDefinition definition, ushort operand, string at)
     {
         int source = RoomFxNativeSources.AnimatedTilesBank | operand;
-        TourianStatueTilePicture[] matches = [.. TourianStatueTileStripDefinitions.Pictures.Where(picture =>
+        TourianStatueTilePicture[] matches = [.. RoomFxAnimatedTilePictures.TourianStatuePictures.Where(picture =>
             AnimatedTileImageSources.TourianStatue(definition.AnimatedObject, picture) == source)];
         AssertEqual(1, matches.Length, $"{at}: frame source selects exactly one statue picture");
         return matches[0];

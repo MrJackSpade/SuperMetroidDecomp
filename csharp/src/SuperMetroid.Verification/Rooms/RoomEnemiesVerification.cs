@@ -53,6 +53,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>
 /// Focused room-enemy loading and actor verifications that use cartridge-shaped

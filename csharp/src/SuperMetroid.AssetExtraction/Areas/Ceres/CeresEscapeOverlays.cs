@@ -14,7 +14,7 @@ public sealed class CeresEscapeOverlays
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-ceres-escape-overlay-v2", content =>
     {
         content.Append("shared", ReadOnlySpan<byte>.Empty);
-        foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
+        foreach (var page in CeresEscapeOverlayPages.All)
         {
             content.Append("source", Encoding.UTF8.GetBytes(page.Name));
             content.AppendTiles("tiles", PageTiles(page));
@@ -58,7 +58,7 @@ public sealed class CeresEscapeOverlays
     /// <param name="tiles">Its tiles, or empty when it is not one of the overlays.</param>
     internal bool TryResolve(CeresEscapeOverlayTilemapDefinition page, out ReadOnlyMemory<BackgroundTile> tiles)
     {
-        if (CeresEscapeOverlayTilemapDefinitions.All.Contains(page))
+        if (CeresEscapeOverlayPages.All.Contains(page))
         {
             tiles = PageTiles(page);
             return true;
@@ -74,12 +74,12 @@ public sealed class CeresEscapeOverlays
         Ensure.NotNull(document);
         if (document.Version != CeresWarningGlyphDefinitions.Version ||
             document.Pages is null ||
-            document.Pages.Count != CeresEscapeOverlayTilemapDefinitions.All.Length)
+            document.Pages.Count != CeresEscapeOverlayPages.All.Length)
             throw new InvalidDataException(
                 $"Ceres escape overlay requires version {CeresWarningGlyphDefinitions.Version} and five named tilemaps.");
         var compiled = new Dictionary<CeresEscapeOverlayWord, BackgroundTile>();
         foreach (CeresEscapeOverlayTilemapDefinition definition in
-                 CeresEscapeOverlayTilemapDefinitions.All)
+                 CeresEscapeOverlayPages.All)
         {
             if (!document.Pages.TryGetValue(definition.Name, out BackgroundTile[]? tiles) ||
                 tiles is null || tiles.Length != definition.WordCount)
@@ -90,7 +90,7 @@ public sealed class CeresEscapeOverlays
                     compiled.Add(new CeresEscapeOverlayWord(definition.Name, index), tiles[index]);
         }
         if (document.Pages.Keys.Any(name =>
-                !CeresEscapeOverlayTilemapDefinitions.All
+                !CeresEscapeOverlayPages.All
                     .Any(definition => definition.Name == name)))
             throw new InvalidDataException(
                 "Ceres escape overlay contains an unknown tilemap name.");

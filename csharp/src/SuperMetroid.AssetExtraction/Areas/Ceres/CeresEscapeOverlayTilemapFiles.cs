@@ -15,7 +15,7 @@ internal static class CeresEscapeOverlayTilemapFiles
         Ensure.NotNull(bus);
         var pages = new Dictionary<string, BackgroundTile[]>();
         foreach (CeresEscapeOverlayTilemapDefinition page in
-                 CeresEscapeOverlayTilemapDefinitions.All)
+                 CeresEscapeOverlayPages.All)
         {
             var source = new ushort[page.WordCount];
             SnesAddress first = Source(page);
@@ -33,7 +33,7 @@ internal static class CeresEscapeOverlayTilemapFiles
             CeresEscapeOverlays.Load(
                 new MemoryStream(json, writable: false));
         foreach (CeresEscapeOverlayTilemapDefinition page in
-                 CeresEscapeOverlayTilemapDefinitions.All)
+                 CeresEscapeOverlayPages.All)
         {
             if (!roundtrip.TryResolve(page, out ReadOnlyMemory<BackgroundTile> tiles))
                 throw new InvalidDataException(

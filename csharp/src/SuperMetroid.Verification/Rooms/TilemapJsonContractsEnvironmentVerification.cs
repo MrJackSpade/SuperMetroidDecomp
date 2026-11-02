@@ -6,7 +6,6 @@ using System.Buffers.Binary;
 using System.Text;
 using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Rooms.TilemapJsonContractsVerification;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
@@ -117,12 +116,12 @@ internal static class TilemapJsonContractsEnvironmentVerification
         foreach (string corrupt in TilemapContractCorruptions(dividerJson, root => (JsonObject)root.Required("cells").Required(0)))
             Reject("opening divider", corrupt, text => IntroFinalLineTilemap.Load(TilemapContractStream(text)));
 
-        var overlayWords = CeresEscapeOverlayTilemapDefinitions.All.ToDictionary(page => page.Name,
+        var overlayWords = CeresEscapeOverlayPages.All.ToDictionary(page => page.Name,
             page => Enumerable.Range(0, page.WordCount).Select(index => unchecked((ushort)(index * 197 + 23))).ToArray());
         string overlayJson = Encoding.UTF8.GetString(CeresEscapeOverlays.Write(new()
             { Version = CeresWarningGlyphDefinitions.Version, Pages = overlayWords.ToDictionary(page => page.Key, page => BackgroundTileWordBytes.Tiles(page.Value)) }));
         var overlay = CeresEscapeOverlays.Load(TilemapContractStream(overlayJson));
-        foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
+        foreach (var page in CeresEscapeOverlayPages.All)
         {
             AssertTrue(overlay.TryResolve(page, out var actual), "every Ceres warning page resolves");
             for (int index = 0; index < page.WordCount; index++) AssertEqual(overlayWords[page.Name][index],

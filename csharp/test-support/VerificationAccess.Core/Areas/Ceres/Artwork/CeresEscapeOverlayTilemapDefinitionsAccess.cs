@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>Verification access to <see cref="CeresEscapeOverlayTilemapDefinitions"/> members production does not use.</summary>
@@ -9,7 +10,7 @@ internal static class CeresEscapeOverlayTilemapDefinitionsAccess
         /// <summary>Checks whether a byte falls within any page's source-word interval.</summary>
         internal static bool ContainsByteAddress(int address)
         {
-            foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayTilemapDefinitions.All)
+            foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayPages.All)
                 if (address >= CeresEscapeNativeSources.OverlaySource(page) &&
                     address < CeresEscapeNativeSources.OverlaySource(page) + page.WordCount * sizeof(ushort))
                     return true;

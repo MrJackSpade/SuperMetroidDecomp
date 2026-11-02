@@ -247,6 +247,7 @@ using static SuperMetroid.Verification.Frontend.Pause.PauseMomentumVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PausePaletteSoundVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveArrowRebindVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveArrowVerification;
+using static SuperMetroid.Verification.Frontend.Pause.PauseReserveRowToggleVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveHudVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveManualVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveTanksVerification;
@@ -502,6 +503,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPauseReserveManual), () => VerifyPauseReserveManual()),
         new(nameof(VerifyPauseReserveArrow), () => VerifyPauseReserveArrow()),
         new(nameof(VerifyPauseReserveArrowRebindKeepsLatch), () => VerifyPauseReserveArrowRebindKeepsLatch()),
+        new(nameof(VerifyReserveRowToggleMatchesCartridgeRoutine), () => VerifyReserveRowToggleMatchesCartridgeRoutine()),
+        new(nameof(VerifyReserveRowToggleThroughPauseScreen), () => VerifyReserveRowToggleThroughPauseScreen()),
         new(nameof(VerifyPauseReserveTanks), () => VerifyPauseReserveTanks()),
         new(nameof(VerifyPauseReserveHud), () => VerifyPauseReserveHud()),
         new(nameof(VerifyDoorMusicTiming), () => VerifyDoorMusicTiming()),

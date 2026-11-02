@@ -54309,6 +54309,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.ReserveRowToggleSpreadBombSpeed",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/ReserveRowToggleSpreadBombSpeed.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.RoomHandOver",
       "kind": "class",
       "scope": "product",
@@ -159610,6 +159623,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Frontend/Pause/PauseReserveManualVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Frontend.Pause.PauseReserveRowToggleVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Frontend/Pause/PauseReserveRowToggleVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

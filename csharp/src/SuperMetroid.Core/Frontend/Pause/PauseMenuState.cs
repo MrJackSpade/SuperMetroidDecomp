@@ -11,6 +11,7 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 
@@ -174,9 +175,11 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// Runs the pause menu's input after the caller has latched the update's input and applied the
     /// delayed-held filter. Returns true when Start requests unpausing.
     /// The runtime supplies its short frame counter for the colour animation's phase;
-    /// standalone diagnostic callers may leave that phase at zero.
+    /// standalone diagnostic callers may leave that phase at zero. <paramref name="bombs"/> are Samus's bomb slots frozen
+    /// under the pause, which a same-frame toggle into the first reserve row repaints (#1505).
     /// </summary>
-    public bool Step(ControllerButton delayedHeldInput, ControllerButton newlyPressedInput, ControllerButton? heldInput = null, int frameCounterByte = 0)
+    public bool Step(ControllerButton delayedHeldInput, ControllerButton newlyPressedInput, ControllerButton? heldInput = null, int frameCounterByte = 0,
+        SamusBombProjectileSystem? bombs = null)
     {
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
@@ -214,7 +217,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // frame that unpauses still toggles the selected item. EquipmentScreenMain consumes
         // the ordinary rising-edge word for D-pad/A; only the shared L/R/Start chrome
         // uses the delayed-held word.
-        HandleEquipmentInput(newlyPressed, frameCounterByte);
+        HandleEquipmentInput(newlyPressed, frameCounterByte, bombs);
         // EquipmentScreenMain refreshes the reserve amount independently of selected
         // label edits. Keep this per-frame write without rebuilding the whole tilemap,
         // which would erase the game's same-frame VAR overrun.
@@ -655,7 +658,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         PauseEquipmentRules.Mask(category.Category, item);
 
     /// <summary>Dispatches reserve input or moves and toggles equipment in the game's update order.</summary>
-    private void HandleEquipmentInput(ControllerButton pressed, int frameCounterByte)
+    private void HandleEquipmentInput(ControllerButton pressed, int frameCounterByte, SamusBombProjectileSystem? bombs)
     {
         PauseEquipmentCategory dispatchedCategory = SelectedCategory;
         if (dispatchedCategory == PauseEquipmentCategory.Reserves)
@@ -671,14 +674,25 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (dispatchedCategory == PauseEquipmentCategory.Beams && samus.CollectedBeams == SamusBeamFlags.None)
             return;
         // Moving into the reserve rows on the frame A is pressed toggles with the reserve category, whose equipment and
-        // label tables hold no entries: the game takes the scratch words it has just written as the equipment word, its
-        // mask and the label to copy, and writes to wherever they then point in work memory. What it overwrites depends
-        // on scratch left by unrelated code, which only full memory emulation could reproduce, so the toggle is
-        // rejected under the emulation scope limit (#1500).
+        // label tables hold no entries. On the first row the game repaints a fixed run of projectile words, of which
+        // play reads only the last spread bomb's vertical speed (#1505); it changes no equipment or label. The other
+        // rows take their tables from scratch left by unrelated code, which only full memory emulation could reproduce,
+        // so they stay rejected under the emulation scope limit (#1500).
         if (SelectedCategory == PauseEquipmentCategory.Reserves)
-            throw new NotSupportedException(
-                "A same-frame equipment toggle into the reserve rows writes work memory through stale scratch words; " +
-                "reproducing it needs full memory emulation, which is outside the port's scope.");
+        {
+            bool modeRow = (uint)SelectedItem < (uint)PauseReserveEnergyDefinitions.Items.Length &&
+                SelectedReserveItem == PauseReserveItem.Mode;
+            if (!modeRow)
+                throw new NotSupportedException(
+                    "A same-frame equipment toggle into a reserve row past the first writes work memory through stale " +
+                    "scratch words; reproducing it needs full memory emulation, which is outside the port's scope.");
+            audio?.QueueSound(Library1Sound.MenuConfirm, priority: SoundRequestPriority.Normal);
+            SamusBombProjectileSlot last = (bombs ?? throw new InvalidOperationException(
+                "The first reserve row's same-frame toggle needs Samus's bomb slots.")).Slots[^1];
+            last.BombSpreadVerticalVelocity = last.BombSpreadVerticalVelocity.WithWholePixels(
+                ReserveRowToggleSpreadBombSpeed.Repaint(last.BombSpreadVerticalVelocity.WholePixels));
+            return;
+        }
 
         // Dispatch precedes movement. Boots->Plasma therefore retains the Boots copy
         // length and bypasses the Weapons handler's Spazer/Plasma exclusion. Do not use

@@ -52,18 +52,6 @@ public static class ReadOnlySpanQueries
             return count;
         }
 
-        /// <summary>The first element satisfying <paramref name="predicate"/>; throws when none does, as <see cref="Enumerable.First{TSource}(IEnumerable{TSource}, Func{TSource, bool})"/> does.</summary>
-        public T First(Func<T, bool> predicate)
-        {
-            Ensure.NotNull(predicate);
-            foreach (T item in span)
-            {
-                if (predicate(item))
-                    return item;
-            }
-            throw new InvalidOperationException("Sequence contains no matching element");
-        }
-
         /// <summary>The checked sum of <paramref name="selector"/> over the elements; overflow throws, as in <see cref="Enumerable"/>.</summary>
         public int Sum(Func<T, int> selector)
         {
@@ -73,32 +61,6 @@ public static class ReadOnlySpanQueries
                 sum = checked(sum + selector(item));
             return sum;
         }
-
-        /// <summary>A new array of <paramref name="selector"/>'s results, in element order. Allocates exactly that array.</summary>
-        public TResult[] SelectToArray<TResult>(Func<T, TResult> selector)
-        {
-            Ensure.NotNull(selector);
-            var result = new TResult[span.Length];
-            for (int index = 0; index < span.Length; index++)
-                result[index] = selector(span[index]);
-            return result;
-        }
-
-        /// <summary>A new array of the elements satisfying <paramref name="predicate"/>, in element order.</summary>
-        /// <remarks>Counts first, then fills one exactly sized array, so <paramref name="predicate"/> runs twice per element.</remarks>
-        public T[] WhereToArray(Func<T, bool> predicate)
-        {
-            Ensure.NotNull(predicate);
-            var result = new T[span.Count(predicate)];
-            int next = 0;
-            foreach (T item in span)
-            {
-                if (predicate(item))
-                    result[next++] = item;
-            }
-            return result;
-        }
-
 
         /// <summary>A new dictionary keyed by <paramref name="keySelector"/>; a duplicate key throws, as in <see cref="Enumerable"/>.</summary>
         public Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(Func<T, TKey> keySelector, Func<T, TValue> valueSelector)

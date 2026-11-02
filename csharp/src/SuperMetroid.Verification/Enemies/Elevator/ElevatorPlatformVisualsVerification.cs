@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;

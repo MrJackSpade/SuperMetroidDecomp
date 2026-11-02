@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;

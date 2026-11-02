@@ -30,27 +30,8 @@ internal static class SamusMuzzleOrigins
     };
 
     /// <summary>
-    /// Reads the X/Y muzzle offsets at an aim index in the running or ordinary origin table. Indices past the ten
-    /// directions read the adjacent origin and cooldown rows.
+    /// The muzzle offsets of <paramref name="direction"/> in the running or ordinary origin table. A projectile's aim is
+    /// always one of the ten directions: the reads past the tables an aim beyond them would make are unreachable (#1506).
     /// </summary>
-    internal static Offset16<RoomPixels> Read(bool running, int aimIndex)
-    {
-        int offset = aimIndex * sizeof(ushort);
-        int x = running ? SamusFiringTableDefinitions.RunningXOrigins : SamusFiringTableDefinitions.DefaultXOrigins;
-        int y = running ? SamusFiringTableDefinitions.RunningYOrigins : SamusFiringTableDefinitions.DefaultYOrigins;
-        return new Offset16<RoomPixels>(ReadWord(x + offset), ReadWord(y + offset));
-    }
-
-    /// <summary>Resolves authored muzzle words first, then reproduces adjacent cooldown bytes reached by out-of-range low-nibble directions.</summary>
-    private static int ReadWord(int offset)
-    {
-        int originOffset = offset - SamusFiringTableDefinitions.DefaultXOrigins;
-        if (originOffset >= 0 && originOffset < 40 * sizeof(ushort) && (originOffset & 1) == 0)
-        {
-            int word = originOffset / sizeof(ushort);
-            var muzzle = Muzzle(word >= 20, SamusProjectileDirections.At(word % 10));
-            return word % 20 < 10 ? muzzle.X : muzzle.Y;
-        }
-        return CoordinateAxis.AsSigned(LittleEndianWord.Unsigned(SamusProjectileCooldowns.ReadByte(offset), SamusProjectileCooldowns.ReadByte(offset + 1)));
-    }
+    internal static Offset16<RoomPixels> Read(bool running, SamusProjectileDirection direction) => Muzzle(running, direction);
 }

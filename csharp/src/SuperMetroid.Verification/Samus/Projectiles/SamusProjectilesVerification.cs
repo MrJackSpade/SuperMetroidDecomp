@@ -168,7 +168,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             $"power beam direction {direction} increments counter");
         AssertEqual(0x000f, bombs.CooldownTimer.RawValue,
             $"power beam direction {direction} installs cooldown");
-        AssertEqual(SamusProjectileDirections.At(direction), projectiles.Slots[0].Direction,
+        AssertEqual(SamusProjectileDirectionCodec.FromAimIndex(direction), projectiles.Slots[0].Direction,
             $"power beam direction {direction} survives initialization");
         AssertEqual(0x0014, projectiles.Slots[0].Damage,
             $"power beam direction {direction} loads damage");

@@ -55,6 +55,15 @@ internal static class SamusOverreadSourceDefinitions
     /// <summary>$90:C2D1: the beam speed table, a cardinal then a diagonal speed word per beam combination.</summary>
     internal const int BeamSpeedTable = 0x90c2d1;
 
+    /// <summary>$90:C254: the uncharged cooldown row, a byte per beam combination.</summary>
+    internal const int UnchargedCooldowns = 0x90c254;
+
+    /// <summary>$90:C264: the charged cooldown row, a byte per beam combination.</summary>
+    internal const int ChargedCooldowns = 0x90c264;
+
+    /// <summary>$90:C283: the held-fire cooldown row, a byte per beam combination.</summary>
+    internal const int HeldFireCooldowns = 0x90c283;
+
     /// <summary>$91:B010: the table of each pose's animation program, a bank-$91 word per pose number.</summary>
     internal const int SamusAnimationProgramTable = 0x91b010;
 

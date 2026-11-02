@@ -3,9 +3,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>NTSC firing delays, independent of projectile presentation assets.</summary>
 internal static class SamusProjectileCooldownDefinitions
 {
-    /// <summary>The SpaceTime beam's cooldown byte.</summary>
-    internal const int SpacetimeCooldown = 13;
-
     /// <summary>Cooldown that Handle_Samus_Cooldown holds while time is frozen.</summary>
     internal const int FrozenTime = 32;
 

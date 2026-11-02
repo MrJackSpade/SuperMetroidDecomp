@@ -28452,6 +28452,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusOverreadDocument.Cooldowns",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusOverreadDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusOverreadDocument.CrashDepartures",
       "kind": "record",
       "scope": "product",
@@ -53777,6 +53790,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.BeamShotCooldowns",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/BeamShotCooldowns.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.BeamShotCooldowns.Shot",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/BeamShotCooldowns.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices",
       "kind": "class",
       "scope": "product",
@@ -54751,14 +54790,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.UnauthoredBeamLaunchSpeeds\u003CTBeams\u003E",
+      "type": "SuperMetroid.Core.Compatibility.UnauthoredBeamFiring\u003CTBeams\u003E",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/UnauthoredBeamLaunchSpeeds.cs"
+        "csharp/src/SuperMetroid.Core/Compatibility/UnauthoredBeamFiring.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -124034,19 +124073,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirectionCodec.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirections",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirections.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

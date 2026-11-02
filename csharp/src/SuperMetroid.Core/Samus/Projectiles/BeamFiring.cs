@@ -22,19 +22,19 @@ internal sealed class BeamFiring
     private readonly ProjectileSlotTable _slotTable;
     /// <summary>Runs initial muzzle collision against room terrain and PLMs.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
-    /// <summary>The speeds a Spazer and Plasma beam launches at.</summary>
-    private readonly UnauthoredBeamLaunchSpeeds<SamusBeamCombination> _unauthoredSpeeds;
+    /// <summary>The speeds a Spazer and Plasma beam launches at and the cooldowns it waits.</summary>
+    private readonly UnauthoredBeamFiring<SamusBeamCombination> _unauthoredFiring;
 
     /// <summary>Connects firing to charge, animation, slot allocation, combo, and terrain systems.</summary>
     internal BeamFiring(ProjectileAnimation animation, BeamChargeState charge, BeamCombos combos, ProjectileSlotTable slotTable,
-        ProjectileTerrainCollision terrainCollision, UnauthoredBeamLaunchSpeeds<SamusBeamCombination> unauthoredSpeeds)
+        ProjectileTerrainCollision terrainCollision, UnauthoredBeamFiring<SamusBeamCombination> unauthoredFiring)
     {
         _animation = animation;
         _charge = charge;
         _combos = combos;
         _slotTable = slotTable;
         _terrainCollision = terrainCollision;
-        _unauthoredSpeeds = Ensure.NotNull(unauthoredSpeeds);
+        _unauthoredFiring = Ensure.NotNull(unauthoredFiring);
     }
     /// <summary>
     /// Applies the shared side effect of all six <c>SwitchToHudHandler_*</c> routines:
@@ -259,6 +259,13 @@ internal sealed class BeamFiring
 
         if (SamusProjectileDirectionCodec.TryFromAimIndex(direction) is not { } aim)
         {
+            // A pose that cannot shoot fires nothing. A transition shot is never refused by the game, which would fire it
+            // with its low nibble as the aim and its muzzle read past the origin tables, but no retail transition hands one
+            // over: only the normal-jump initializer and the moonwalk transition publish one, and every normal-jump and
+            // moonwalk pose's shot direction is one of the ten aims (#1506).
+            if (samus.PendingTransitionShot is not null)
+                throw new InvalidOperationException(
+                    $"A transition shot in direction {direction} names no aim; no retail transition hands one over.");
             _slotTable.ProjectileCounter = WrappingCounter.DecrementWord(_slotTable.ProjectileCounter);
             return new BeamShot(null, null);
         }
@@ -288,13 +295,14 @@ internal sealed class BeamFiring
         // The cooldown selection checks Charge equipment and both input-edge latches before
         // selecting ordinary cooldown. Only uncharged auto-fire without those
         // conditions uses the longer held-fire delay.
-        int cooldown = charged
-            ? SamusProjectileCooldowns.ReadByte(
-                SamusFiringTableDefinitions.UnchargedCooldowns +
-                SamusFiringTableDefinitions.ChargedRowOffset + beamType.TableIndex)
+        BeamShotCooldowns.Shot shot = charged ? BeamShotCooldowns.Shot.Charged
             : samus.EquippedBeams.HasAny(SamusBeamFlags.Charge) || (controllerNewInput & shoot) != ControllerButton.None
-                ? SamusProjectileCooldowns.ReadByte(SamusFiringTableDefinitions.UnchargedCooldowns + beamType.TableIndex)
-                : SamusProjectileCooldowns.ReadByte(SamusFiringTableDefinitions.AutoFireCooldowns + beamType.TableIndex);
+                ? BeamShotCooldowns.Shot.Uncharged
+                : BeamShotCooldowns.Shot.HeldFire;
+        // A Spazer and Plasma combination waits the cooldowns read past the cooldown rows (#1506).
+        int cooldown = beamType.IsRetail
+            ? SamusProjectileCooldowns.Read(beamType, shot)
+            : _unauthoredFiring.Cooldown(beamType, shot);
         sharedProjectiles.SetSharedCooldown(cooldown);
 
         SoundEffectId? sound = SamusProjectileSoundRouting.Resolve(charged, beamType);
@@ -324,7 +332,7 @@ internal sealed class BeamFiring
             slot.FrameBehavior = callback.Translated ?? throw new NotSupportedException(
                 $"Beam callback {callback.Callback} executes work memory or an unconnected region as code; " +
                 "reproducing it needs full memory and processor emulation, which is outside the port's scope.");
-            InitializePowerBeamVelocity(samus.ProjectileInheritance, slot, _unauthoredSpeeds);
+            InitializePowerBeamVelocity(samus.ProjectileInheritance, slot, _unauthoredFiring);
         }
         return new BeamShot(slotIndex, sound);
     }
@@ -392,7 +400,7 @@ internal sealed class BeamFiring
             waveBeam: true,
             sharedProjectiles.PowerBombExplosion);
         slot.FrameBehavior = SamusProjectileFrameBehavior.HyperBeam;
-        InitializePowerBeamVelocity(samus.ProjectileInheritance, slot, _unauthoredSpeeds);
+        InitializePowerBeamVelocity(samus.ProjectileInheritance, slot, _unauthoredFiring);
 
         // These are literal stores. 32788 is not an ordinary four-call
         // glow timer: its sign bit identifies Hyper's palette phase to the later consumer.
@@ -509,26 +517,26 @@ internal sealed class BeamFiring
         // the two diagonally-up moonwalk MoonwalkAimUpLeftPose and MoonwalkAimUpRightPose. Every other pose uses the default.
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
-        var origin = SamusMuzzleOrigins.Read(runningOrigin, slot.Direction.ToAimIndex());
+        var origin = SamusMuzzleOrigins.Read(runningOrigin, slot.Direction);
         slot.Position = slot.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + origin.X), CoordinateAxis.Wrap(samus.Position.Y.Whole + origin.Y - poseYOffset)));
     }
 
     /// <summary>
     /// Selects beam speed from its combination and diagonal direction before applying inherited velocity. Every retail
     /// combination launches at the same authored pair; a Spazer and Plasma combination launches at the pair
-    /// <paramref name="unauthoredSpeeds"/> decoded for it.
+    /// <paramref name="unauthoredFiring"/> decoded for it.
     /// </summary>
     internal static void InitializePowerBeamVelocity(
         ProjectileInheritanceRecords inheritance,
         SamusProjectileSlot slot,
-        UnauthoredBeamLaunchSpeeds<SamusBeamCombination> unauthoredSpeeds)
+        UnauthoredBeamFiring<SamusBeamCombination> unauthoredFiring)
     {
-        Ensure.NotNull(unauthoredSpeeds);
+        Ensure.NotNull(unauthoredFiring);
         int direction = slot.Direction.ToAimIndex();
         bool diagonal = direction is 1 or 3 or 6 or 8;
         SamusBeamCombination beams = slot.Type.BeamCombination;
         int authoredSpeed = diagonal ? SamusProjectileMotionDefinitions.DiagonalSpeed : SamusProjectileMotionDefinitions.CardinalSpeed;
-        int speed = beams.IsRetail ? authoredSpeed : unauthoredSpeeds.Speed(beams, diagonal);
+        int speed = beams.IsRetail ? authoredSpeed : unauthoredFiring.Speed(beams, diagonal);
 
         InitializeDirectionalVelocity(inheritance, slot, speed);
     }

@@ -27,6 +27,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="PostureAdmissions">Whether the posture-transition admission admits weapons, by the name of each pose outside its table.</param>
 /// <param name="SpeedBoosterOverrunColours">The colours Gravity copies on each Speed Booster step past its cycle, by step name.</param>
 /// <param name="UnauthoredBeamLaunchSpeeds">The speeds each Spazer and Plasma beam combination launches at, by combination name.</param>
+/// <param name="UnauthoredBeamCooldowns">The cooldowns each Spazer and Plasma beam combination waits, by combination name.</param>
 /// <param name="DrainedCrashDepartures">The angles a Shinespark crash finishing in each drained pose releases its echoes at, by pose name.</param>
 /// <param name="ChainsawBeamColours">The sixteen colours the Chainsaw beam's palette holds, in palette order.</param>
 internal sealed record SamusOverreadDocument(
@@ -40,6 +41,7 @@ internal sealed record SamusOverreadDocument(
     IReadOnlyDictionary<string, bool> PostureAdmissions,
     IReadOnlyDictionary<string, IReadOnlyList<PaletteRgb5>> SpeedBoosterOverrunColours,
     IReadOnlyDictionary<string, SamusOverreadDocument.LaunchSpeeds> UnauthoredBeamLaunchSpeeds,
+    IReadOnlyDictionary<string, SamusOverreadDocument.Cooldowns> UnauthoredBeamCooldowns,
     IReadOnlyDictionary<string, SamusOverreadDocument.CrashDepartures> DrainedCrashDepartures,
     IReadOnlyList<PaletteRgb5> ChainsawBeamColours)
 {
@@ -81,6 +83,12 @@ internal sealed record SamusOverreadDocument(
     /// <param name="Cardinal">The horizontal and vertical speed.</param>
     /// <param name="Diagonal">The diagonal speed.</param>
     internal sealed record LaunchSpeeds(int Cardinal, int Diagonal);
+
+    /// <summary>The cooldowns a beam's shots wait, each 0 through 255 updates.</summary>
+    /// <param name="Uncharged">After an uncharged shot fired with Charge equipped or on a fresh press.</param>
+    /// <param name="Charged">After a charged shot.</param>
+    /// <param name="HeldFire">After an uncharged shot repeated by holding the button.</param>
+    internal sealed record Cooldowns(int Uncharged, int Charged, int HeldFire);
 
     /// <summary>The two angles a crash's echoes leave at, each 0 through 255 steps of the 256-step turn.</summary>
     /// <param name="First">The first echo's angle.</param>

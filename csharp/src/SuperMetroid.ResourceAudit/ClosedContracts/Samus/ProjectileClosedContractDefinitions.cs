@@ -16,7 +16,6 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Progression/SamusProjectileFamilies.cs"),
              new("csharp/src/SuperMetroid.Core/Progression/SamusProjectileFamilyDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirection.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirections.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirectionCodec.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Grapple/GrappleFiringDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Grapple/GrappleFiring.cs"),

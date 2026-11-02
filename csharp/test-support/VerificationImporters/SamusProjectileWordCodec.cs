@@ -88,7 +88,7 @@ internal static class SamusProjectileWordCodec
     /// <returns>The direction.</returns>
     /// <exception cref="InvalidDataException">The word's direction bits name none of the ten directions.</exception>
     public static SamusProjectileDirection DecodeDirection(int word) =>
-        SamusProjectileDirections.At((word & DirectionMask) is var index and < SamusProjectileDirectionCount
+        SamusProjectileDirectionCodec.FromAimIndex((word & DirectionMask) is var index and < SamusProjectileDirectionCount
             ? index
             : throw new InvalidDataException($"Projectile direction word ${word:X4} names no direction."));
 

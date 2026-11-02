@@ -21,6 +21,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks beam palette extraction, live ownership, and editable color changes.</summary>
 internal static class BeamPaletteArtworkVerification
@@ -31,6 +32,7 @@ internal static class BeamPaletteArtworkVerification
         byte[] bytes = BeamPaletteExtractor.Extract(bus);
         var catalog = BeamPaletteFile.Read(new MemoryStream(bytes));
         Suite(nameof(VerifyBeamPaletteOwnership), () => VerifyBeamPaletteOwnership(bus, catalog));
+        Suite(nameof(VerifyCrystalFlashFinishBeamPalette), () => VerifyCrystalFlashFinishBeamPalette(catalog));
         for (ushort selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
         {
             var expected = new SnesCgram(); var actual = new SamusColourRig();
@@ -72,6 +74,31 @@ internal static class BeamPaletteArtworkVerification
 
         static void Reject(JsonNode document, string message) => AssertThrows<InvalidDataException>(
             () => BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString()))), message);
+    }
+
+    /// <summary>
+    /// Crystal Flash's finish reloads the equipped beams' palette through the loader equipping a beam uses (#1506): the
+    /// Chainsaw combination takes the colours read past the palette table, where the finish once refused it, and a retail
+    /// combination its installed palette.
+    /// </summary>
+    private static void VerifyCrystalFlashFinishBeamPalette(InstalledBeamPalettes palettes)
+    {
+        ChainsawBeamColours<RgbColor> chainsaw = InstalledFixtures.SamusOverreads.ChainsawColours;
+        SamusBeamFlags chainsawBeams = SamusBeamFlags.Spazer | SamusBeamFlags.Plasma | SamusBeamFlags.Wave;
+        AssertEqual(ChainsawBeamGraphicsDefinitions.Selection, SamusBeamCombinations.Of(chainsawBeams), "Spazer, Plasma and Wave select the Chainsaw beam");
+        foreach (SamusBeamFlags beams in new[] { SamusBeamFlags.Plasma | SamusBeamFlags.Wave, chainsawBeams })
+        {
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { EquippedBeams = beams };
+            samus.CrystalFlash.SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
+            samus.CrystalFlash.SpecialPaletteTimer = WrappingCountdown.Start(ushort.MaxValue);
+            var finished = new SamusColourRig();
+            AssertTrue(samus.CrystalFlash.UpdatePalette(finished.Samus, samus, palettes, colors: null, chainsawColours: chainsaw),
+                $"{beams}: Crystal Flash's finish runs");
+            var expected = new SamusColourRig();
+            SamusProjectileSystem.LoadBeamPalette(expected.Samus.Beam, beams, palettes, chainsaw);
+            AssertTrue(finished.Colors.SequenceEqual(expected.Colors), $"{beams}: Crystal Flash's finish loads the palette equipping the beams loads");
+            AssertEqual(SamusSpecialPaletteType.None, samus.CrystalFlash.SpecialPaletteKind, $"{beams}: the finish releases the palette");
+        }
     }
 
     /// <summary>Checks NMI rebinding respects Crystal Flash and Hyper owners and uses edited Grapple colors.</summary>

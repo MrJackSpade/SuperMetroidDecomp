@@ -160,7 +160,8 @@ internal sealed class GameplayActorDrawing
                     _player.Colours,
                     _player.Samus,
                     _artwork.BeamPalettes,
-                    _artwork.MapPresentation?.CrystalFlashColors);
+                    _artwork.MapPresentation?.CrystalFlashColors,
+                    _artwork.ChainsawColours);
             }
             // Handler eight changes only visor color four while active; its teardown
             // restores the complete Power/Varia/Gravity suit palette once.

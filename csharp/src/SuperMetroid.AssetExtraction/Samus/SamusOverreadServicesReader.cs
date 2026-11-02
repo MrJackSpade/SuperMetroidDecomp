@@ -31,7 +31,8 @@ internal static class SamusOverreadServicesReader
             ChainsawFuseShift(Require(document.ChainsawFuseLandings, nameof(document.ChainsawFuseLandings))),
             ChargeFlareDelays(Require(document.ChargeFlareDelaysBelowPrograms, nameof(document.ChargeFlareDelaysBelowPrograms))),
             PostureAdmission(Require(document.PostureAdmissions, nameof(document.PostureAdmissions))),
-            UnauthoredBeamSpeeds(Require(document.UnauthoredBeamLaunchSpeeds, nameof(document.UnauthoredBeamLaunchSpeeds))),
+            UnauthoredFiring(Require(document.UnauthoredBeamLaunchSpeeds, nameof(document.UnauthoredBeamLaunchSpeeds)),
+                Require(document.UnauthoredBeamCooldowns, nameof(document.UnauthoredBeamCooldowns))),
             DrainedCrashDepartures(Require(document.DrainedCrashDepartures, nameof(document.DrainedCrashDepartures))));
         return new SamusOverreadServices(
             AnimationContinuation(Require(document.AnimationContinuations, nameof(document.AnimationContinuations))),
@@ -189,12 +190,14 @@ internal static class SamusOverreadServicesReader
         return new(result);
     }
 
-    /// <summary>The launch speeds of every Spazer and Plasma combination, which the beam speed table does not author.</summary>
-    private static UnauthoredBeamLaunchSpeeds<SamusBeamCombination> UnauthoredBeamSpeeds(
-        IReadOnlyDictionary<string, SamusOverreadDocument.LaunchSpeeds> speeds)
+    /// <summary>The launch speeds and cooldowns of every Spazer and Plasma combination, which the firing tables do not author.</summary>
+    private static UnauthoredBeamFiring<SamusBeamCombination> UnauthoredFiring(
+        IReadOnlyDictionary<string, SamusOverreadDocument.LaunchSpeeds> speeds,
+        IReadOnlyDictionary<string, SamusOverreadDocument.Cooldowns> cooldowns)
     {
         var cardinal = new Dictionary<SamusBeamCombination, int>();
         var diagonal = new Dictionary<SamusBeamCombination, int>();
+        var waits = new Dictionary<SamusBeamCombination, BeamShotCooldowns>();
         foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>().Where(beams => !beams.IsRetail))
         {
             if (!speeds.TryGetValue(beams.ToString(), out SamusOverreadDocument.LaunchSpeeds? pair) || pair is null ||
@@ -202,10 +205,16 @@ internal static class SamusOverreadServicesReader
                 throw new InvalidDataException($"Samus overread file holds no valid launch speeds for {beams}.");
             cardinal.Add(beams, pair.Cardinal);
             diagonal.Add(beams, pair.Diagonal);
+            if (!cooldowns.TryGetValue(beams.ToString(), out SamusOverreadDocument.Cooldowns? wait) || wait is null ||
+                wait.Uncharged is < 0 or > byte.MaxValue || wait.Charged is < 0 or > byte.MaxValue || wait.HeldFire is < 0 or > byte.MaxValue)
+                throw new InvalidDataException($"Samus overread file holds no valid cooldowns for {beams}.");
+            waits.Add(beams, new BeamShotCooldowns(wait.Uncharged, wait.Charged, wait.HeldFire));
         }
         if (speeds.Count != cardinal.Count)
             throw new InvalidDataException($"Samus overread file holds launch speeds for {speeds.Count} combinations, not {cardinal.Count}.");
-        return new(cardinal, diagonal);
+        if (cooldowns.Count != waits.Count)
+            throw new InvalidDataException($"Samus overread file holds cooldowns for {cooldowns.Count} combinations, not {waits.Count}.");
+        return new(cardinal, diagonal, waits);
     }
 
     /// <summary>The echo angles of a crash finishing in each drained pose a crash can finish in.</summary>

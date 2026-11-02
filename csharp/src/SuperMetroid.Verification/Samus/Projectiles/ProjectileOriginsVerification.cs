@@ -49,17 +49,17 @@ internal static class ProjectileOriginsVerification
         foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
             Check(SamusPoseNumbering.FromNumber(pose), direction, boundary, boundary);
 
-        // Ten authored directions; the visual muzzle reads past them at aim indices up to
-        // fifteen, which cross table boundaries; running Y reaches adjacent cooldown bytes.
+        // Ten authored directions; a projectile's aim is always one of them (#1506).
         foreach (bool running in new[] { false, true })
-        for (int aimIndex = 0; aimIndex < 16; aimIndex++)
+        foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
         {
-            var actual = SamusMuzzleOrigins.Read(running, aimIndex);
+            int aimIndex = direction.ToAimIndex();
+            var actual = SamusMuzzleOrigins.Read(running, direction);
             AssertEqual(new Offset16<RoomPixels>(Word((running ? 0x90c22c : 0x90c204) + aimIndex * 2),
                 Word((running ? 0x90c240 : 0x90c218) + aimIndex * 2)), actual,
-                "Forty native origin words and cross-row/cooldown overreads");
+                "Forty native origin words");
         }
-        Console.WriteLine("Projectile origins: forty native words and 343872 real position initializations cover every direction, every pose, coordinate boundaries and adjacent cooldown reads with authored reads forbidden.");
+        Console.WriteLine("Projectile origins: forty native words and 343872 real position initializations cover every direction, every pose and coordinate boundaries with authored reads forbidden.");
     }
 
 }

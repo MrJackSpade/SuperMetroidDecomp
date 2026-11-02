@@ -24,14 +24,25 @@ internal static class ProjectileCooldownsVerification
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var bus = NewProjectileCooldownReadGuard(retail);
-        for (int address = 0x90c254; address < 0x90c28f; address++)
+        // Every combination's three cooldowns are the bytes the fire routines read: the authored cells for retail
+        // combinations, and for Spazer and Plasma the bytes past the rows the installed service decoded (#1506).
+        foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
+        foreach (BeamShotCooldowns.Shot shot in Enum.GetValues<BeamShotCooldowns.Shot>())
+        {
+            int address = shot switch
+            {
+                BeamShotCooldowns.Shot.Uncharged => 0x90c254, BeamShotCooldowns.Shot.Charged => 0x90c264, BeamShotCooldowns.Shot.HeldFire => 0x90c283,
+                _ => throw new ArgumentOutOfRangeException(nameof(shot)),
+            } + beams.TableIndex;
+            int actual = beams.IsRetail
+                ? SamusProjectileCooldowns.Read(beams, shot)
+                : InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring.Cooldown(beams, shot);
+            AssertEqual(retail.ReadCartridgeByte(address), actual, $"{beams} {shot} cooldown matches the byte the fire routine reads");
+        }
+        for (int address = 0x90c27a; address < 0x90c283; address++)
             AssertEqual(retail.ReadCartridgeByte(address), SamusProjectileCooldowns.ReadByte(address - SamusSourceDefinitionsConstants.FiringTables.Value),
-                "Compiled cooldown byte matches native address identity");
-        AssertEqual(retail.ReadCartridgeByte(SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.SpacetimeBeamCooldown),
-            SamusProjectileCooldowns.ReadByte(
-                SamusFiringTableDefinitions.SpacetimeBeamCooldown),
-            "bounded SpaceTime setup retains its exact adjacent native cooldown observation");
-        foreach (int address in new[] { 0x908000, 0x90c253, 0x90c28f, 0x90c290, 0x90c292, 0x90ffff })
+                "non-beam cooldown matches its native byte");
+        foreach (int address in new[] { 0x908000, 0x90c253, 0x90c260, 0x90c270, 0x90c274, 0x90c28f, 0x90c291, 0x90ffff })
             AssertThrows<InvalidDataException>(
                 () => SamusProjectileCooldowns.ReadByte(address - SamusSourceDefinitionsConstants.FiringTables.Value),
                 "Unknown cooldown address fails instead of reading adjacent presentation data");

@@ -16,25 +16,12 @@ internal static class SamusFiringTableDefinitions
     /// <summary>Offset from the uncharged rows to the echo rows of the beam-row-indexed tables.</summary>
     internal const int EchoRowOffset = 32;
 
-    /// <summary>Ten direction-indexed X origins for non-running poses.</summary>
-    internal const int DefaultXOrigins = 0;
-    /// <summary>Ten direction-indexed Y origins for non-running poses.</summary>
-    internal const int DefaultYOrigins = 20;
-    /// <summary>Ten direction-indexed X origins for running poses.</summary>
-    internal const int RunningXOrigins = 40;
-    /// <summary>Ten direction-indexed Y origins for running poses.</summary>
-    internal const int RunningYOrigins = 60;
     /// <summary>Uncharged and charged delays indexed by beam combination.</summary>
     internal const int UnchargedCooldowns = 80;
     /// <summary>Non-beam projectile delays, indexed by projectile kind.</summary>
     internal const int NonBeamCooldowns = 118;
     /// <summary>Held-Shot repeat delays indexed by beam combination.</summary>
     internal const int AutoFireCooldowns = 127;
-    /// <summary>
-    /// The byte the bounded SpaceTime Beam setup reads as its cooldown when it fires its corrupt beam word: three bytes
-    /// beyond the ordinary cooldown table, the low byte <c>$0D</c> of the adjacent instruction operand.
-    /// </summary>
-    internal const int SpacetimeBeamCooldown = 141;
     /// <summary>Direction-indexed missile acceleration records.</summary>
     internal const int MissileAccelerations = 255;
     /// <summary>Direction-indexed Super Missile acceleration records.</summary>

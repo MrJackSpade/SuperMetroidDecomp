@@ -32,10 +32,10 @@ internal static class SamusProjectileRomDataVerification
         Suite(nameof(VerifyProjectileSoundRoutingDefinitions), () => VerifyProjectileSoundRoutingDefinitions(bus));
         foreach (int originTable in new[]
         {
-            SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.DefaultXOrigins,
-            SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.DefaultYOrigins,
-            SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.RunningXOrigins,
-            SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.RunningYOrigins,
+            SamusSourceDefinitionsConstants.DefaultXOrigins,
+            SamusSourceDefinitionsConstants.DefaultYOrigins,
+            SamusSourceDefinitionsConstants.RunningXOrigins,
+            SamusSourceDefinitionsConstants.RunningYOrigins,
             SamusSourceDefinitions.ChargeFlareDefaultXOffsets.Value,
             SamusSourceDefinitions.ChargeFlareDefaultYOffsets.Value,
             SamusSourceDefinitions.ChargeFlareRunningXOffsets.Value,

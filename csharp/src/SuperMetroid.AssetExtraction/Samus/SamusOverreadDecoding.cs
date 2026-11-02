@@ -44,6 +44,7 @@ internal static class SamusOverreadDecoding
             PostureAdmissions(cartridge),
             SpeedBoosterOverrunColours(cartridge),
             UnauthoredBeamLaunchSpeeds(cartridge),
+            UnauthoredBeamCooldowns(cartridge),
             DrainedCrashDepartures(cartridge),
             ChainsawPaletteColours(cartridge));
     }
@@ -327,6 +328,19 @@ internal static class SamusOverreadDecoding
                     unchecked((short)cartridge.ReadCartridgeWord(row)),
                     unchecked((short)cartridge.ReadCartridgeWord(row + sizeof(ushort))));
             });
+
+    /// <summary>
+    /// The cooldowns each Spazer and Plasma combination waits: the fire routines read a combination's byte from the
+    /// uncharged, charged and held-fire rows, so these combinations read the zero bytes after the first two rows' twelve
+    /// cells and the projectile sound table after the held-fire row.
+    /// </summary>
+    private static Dictionary<string, SamusOverreadDocument.Cooldowns> UnauthoredBeamCooldowns(IImportCartridgeSource cartridge) =>
+        Enum.GetValues<SamusBeamCombination>()
+            .Where(beams => !beams.IsRetail)
+            .ToDictionary(beams => beams.ToString(), beams => new SamusOverreadDocument.Cooldowns(
+                cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.UnchargedCooldowns + beams.TableIndex),
+                cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.ChargedCooldowns + beams.TableIndex),
+                cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.HeldFireCooldowns + beams.TableIndex)));
 
     /// <summary>
     /// The angles a crash finishing in each drained pose releases its echoes at: the crash's end reads two angle bytes at

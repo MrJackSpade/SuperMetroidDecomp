@@ -1508,10 +1508,12 @@ internal static class LookupStream1Verification
             AssertThrows<InvalidOperationException>(() => SamusVerticalMotion.BombJump(invalid), "stream1 invalid bomb medium");
             AssertThrows<InvalidOperationException>(() => SamusVerticalMotion.Gravity(invalid), "stream1 invalid gravity medium");
         }
-        for (int address = 0x90c254; address <= 0x90c28e; address++)
-            AssertEqual(LookupStream1RomByte(rom, address), SamusProjectileCooldowns.ReadByte(address - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 all native cooldown bytes including padding");
-        AssertEqual(LookupStream1RomByte(rom, 0x90c291), SamusProjectileCooldowns.ReadByte(0x90c291 - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 bounded spacetime beam cooldown");
-        foreach (int invalid in new[] { int.MinValue, 0x90c253, 0x90c28f, 0x90c290, 0x90c292, int.MaxValue })
+        foreach (int row in new[] { 0x90c254, 0x90c264, 0x90c283 })
+        for (int address = row; address < row + SamusFiringTableDefinitions.CombinationCount; address++)
+            AssertEqual(LookupStream1RomByte(rom, address), SamusProjectileCooldowns.ReadByte(address - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 authored beam cooldown bytes");
+        for (int address = 0x90c27a; address < 0x90c283; address++)
+            AssertEqual(LookupStream1RomByte(rom, address), SamusProjectileCooldowns.ReadByte(address - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 non-beam cooldown bytes");
+        foreach (int invalid in new[] { int.MinValue, 0x90c253, 0x90c260, 0x90c274, 0x90c28f, 0x90c291, int.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusProjectileCooldowns.ReadByte(invalid - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 invalid cooldown address");
     }
 
@@ -1620,7 +1622,7 @@ internal static class LookupStream1Verification
         foreach (int invalid in new[] { int.MinValue, 0x90c2d0, 0x90c2d1, 0x90c2d2, 0x90c37b, int.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusProjectileAccelerations.ReadWord(invalid - SamusSourceDefinitionsConstants.FiringTables.Value), "stream1 exact projectile motion address domain");
         var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>((records, launched) =>
-            BeamFiring.InitializePowerBeamVelocity(records, launched, InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamSpeeds));
+            BeamFiring.InitializePowerBeamVelocity(records, launched, InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring));
         var stationary = new ProjectileInheritanceRecords();
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)

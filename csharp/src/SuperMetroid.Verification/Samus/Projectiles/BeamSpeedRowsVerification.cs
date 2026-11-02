@@ -52,7 +52,7 @@ internal static class BeamSpeedRowsVerification
         }
         // Unlike the twelve identical authored rows, the Spazer and Plasma combinations C..F read different words past
         // the speed table, which the installed service holds (#1500). Each pair is the two words at its four-byte row.
-        UnauthoredBeamLaunchSpeeds<SamusBeamCombination> unauthored = InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamSpeeds;
+        UnauthoredBeamFiring<SamusBeamCombination> unauthored = InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring;
         foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
         {
             int row = 0x90c2d1 + beams.TableIndex * 4;

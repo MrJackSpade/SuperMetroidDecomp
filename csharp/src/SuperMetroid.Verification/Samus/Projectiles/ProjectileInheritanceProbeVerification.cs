@@ -48,7 +48,7 @@ internal static class ProjectileInheritanceProbeVerification
     internal static void ProbeProjectileVelocityInheritance()
     {
         var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>((launchRecords, launched) =>
-            BeamFiring.InitializePowerBeamVelocity(launchRecords, launched, InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamSpeeds));
+            BeamFiring.InitializePowerBeamVelocity(launchRecords, launched, InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring));
         var inheritance = new ProjectileInheritanceRecords();
         var records = new ProjectileInheritanceRecordsAccess(inheritance);
         int failures = 0;
@@ -121,7 +121,7 @@ internal static class ProjectileInheritanceProbeVerification
                     3 or 4 or 5 or 6 => speed + LittleEndianBytes.Word(LittleEndianBytes.HighByte(snapshot[6]), unchecked((byte)snapshot[7])),
                     _ => 0,
                 }));
-                AssertEqual(new EightEightVector<RoomPixels>(x, y), inheritance.ReadVelocity(SamusProjectileDirections.At(direction), speed),
+                AssertEqual(new EightEightVector<RoomPixels>(x, y), inheritance.ReadVelocity(SamusProjectileDirectionCodec.FromAimIndex(direction), speed),
                     "projectile inheritance preserves each directional overlapping word");
             }
         }

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -357,7 +357,8 @@ public sealed class SamusCrystalFlashState
         SamusColours colours,
         SamusState samus,
         SuperMetroid.Core.Samus.Artwork.InstalledBeamPalettes? palettes = null,
-        SuperMetroid.Core.Samus.Artwork.InstalledCrystalFlashColors? colors = null)
+        SuperMetroid.Core.Samus.Artwork.InstalledCrystalFlashColors? colors = null,
+        ChainsawBeamColours<RgbColor>? chainsawColours = null)
     {
         Ensure.NotNull(colours);
         Ensure.NotNull(samus);
@@ -366,12 +367,10 @@ public sealed class SamusCrystalFlashState
 
         if (SpecialPaletteTimer.IsNegative)
         {
-            // Completion reloads the equipped combination's retail beam palette.
-            SamusBeamCombination beamType = SamusBeamCombinations.Of(samus.EquippedBeams);
-            if (!beamType.IsRetail)
-                throw new ArgumentOutOfRangeException(nameof(samus), "Equipped beam combination is outside the retail table.");
-            (palettes ?? throw new InvalidOperationException(
-                "Crystal Flash requires installed beam palettes.")).LoadTo(colours.Beam, beamType);
+            // Completion reloads the equipped combination's beam palette with the loader equipping a beam uses, so a Spazer
+            // and Plasma combination takes the colours read past the palette table as everywhere else (#1506).
+            SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(
+                colours.Beam, samus.EquippedBeams, palettes, chainsawColours);
 
             SpecialPaletteKind = SamusSpecialPaletteType.None;
             BubbleStep = 0;

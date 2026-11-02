@@ -80,8 +80,8 @@ public static class GameplayHudPresentationFile
         var parts = new GameplayHudArtworkParts
         {
             ContentIdentity = identity,
-            TopRow = CompileCells(document.TopRow, GameplayHudDefinitions.TopRowCellCount, "HUD immutable top row"),
-            Template = CompileCells(document.Template, GameplayHudDefinitions.CellCount, "HUD template"),
+            TopRow = CompileCells(document.TopRow, GameplayHudDocumentDefinitions.TopRowCellCount, "HUD immutable top row"),
+            Template = CompileCells(document.Template, GameplayHudDocumentDefinitions.CellCount, "HUD template"),
             Blank = CompileCell(document.Blank, "HUD blank"),
             FilledEnergyTank = CompileCell(document.EnergyTanks.Filled, "filled energy tank"),
             EmptyEnergyTank = CompileCell(document.EnergyTanks.Empty, "empty energy tank"),
@@ -115,7 +115,7 @@ public static class GameplayHudPresentationFile
         void Own(Position16<TilemapCells> cell, string owner)
         {
             if (!owners.TryAdd(cell, owner))
-                throw new InvalidDataException($"Gameplay HUD {owner} overlaps {owners[cell]} at cell {GameplayHudDefinitions.Size.RowMajorIndex(cell)}.");
+                throw new InvalidDataException($"Gameplay HUD {owner} overlaps {owners[cell]} at cell {GameplayHudDocumentDefinitions.Size.RowMajorIndex(cell)}.");
         }
         void OwnRun(Position16<TilemapCells> anchor, int width, int height, string owner)
         {

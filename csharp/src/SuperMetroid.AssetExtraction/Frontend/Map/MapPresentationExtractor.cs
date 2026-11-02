@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
@@ -184,9 +183,9 @@ public static class MapPresentationExtractor
             file.Write(escapeTimerTileBytes);
         hashes.Add(EscapeTimerTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(escapeTimerTileBytes)));
         byte[] gameplayHudBytes = GameplayHudPresentationExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, GameplayHudDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(Path.Combine(directory, GameplayHudDocumentDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(gameplayHudBytes);
-        hashes.Add(GameplayHudDefinitions.FileName, Convert.ToHexString(SHA256.HashData(gameplayHudBytes)));
+        hashes.Add(GameplayHudDocumentDefinitions.FileName, Convert.ToHexString(SHA256.HashData(gameplayHudBytes)));
         byte[] gameOverBytes = GameOverPresentationExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, GameOverPresentationFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(gameOverBytes);

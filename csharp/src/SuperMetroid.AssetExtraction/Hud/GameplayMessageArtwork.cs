@@ -73,7 +73,7 @@ public sealed class GameplayMessageArtwork(
     /// </summary>
     public static IEnumerable<ShownMessage> Forms()
     {
-        foreach (GameplayMessageId message in GameplayMessageBoxState.OrdinaryMessages)
+        foreach (GameplayMessageId message in OrdinaryMessages)
         {
             if (GameplayMessageButtons.PanelBinding(message) != GameplayMessagePanelButtonBinding.None)
             {
@@ -90,4 +90,8 @@ public sealed class GameplayMessageArtwork(
                 yield return new ShownMessage(message, null, null);
         }
     }
+
+    /// <summary>The messages the ordinary message coroutine shows.</summary>
+    private static IEnumerable<GameplayMessageId> OrdinaryMessages =>
+        Enum.GetValues<GameplayMessageId>().Where(GameplayMessageBoxState.IsOrdinary);
 }

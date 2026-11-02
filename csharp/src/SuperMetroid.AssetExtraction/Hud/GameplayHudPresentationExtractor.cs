@@ -36,8 +36,8 @@ public static class GameplayHudPresentationExtractor
         {
             Version = GameplayHudStockDefinitions.Version,
             TopRow = ReadCells(bus, HudSourceDefinitions.TopRow,
-                GameplayHudDefinitions.TopRowCellCount),
-            Template = ReadCells(bus, HudSourceDefinitions.Template, GameplayHudDefinitions.CellCount),
+                GameplayHudDocumentDefinitions.TopRowCellCount),
+            Template = ReadCells(bus, HudSourceDefinitions.Template, GameplayHudDocumentDefinitions.CellCount),
             Blank = Cell(BackgroundTileWords.ToWord(GameplayHudStockDefinitions.Blank)),
             SelectedPalette = GameplayHudStockDefinitions.SelectedPalette,
             DeselectedPalette = GameplayHudStockDefinitions.DeselectedPalette,

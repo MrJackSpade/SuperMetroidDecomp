@@ -1,0 +1,17 @@
+using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Hud;
+
+/// <summary>The installed gameplay-HUD document's file name and cell extents, which only the import reads (#1502).</summary>
+public static class GameplayHudDocumentDefinitions
+{
+    /// <summary>Installed JSON filename for the gameplay HUD's artwork and layout.</summary>
+    public const string FileName = "gameplay-hud.json";
+    /// <summary>Ninety-six cells in the three rows the HUD's values are drawn over; the static top row is excluded.</summary>
+    public const int CellCount = GameplayHudDefinitions.Width * GameplayHudDefinitions.Height;
+    /// <summary>The drawn rows' size in cells.</summary>
+    public static Extent16<TilemapCells> Size => new(GameplayHudDefinitions.Width, GameplayHudDefinitions.Height);
+    /// <summary>Thirty-two cells in the static minimap-border row.</summary>
+    public const int TopRowCellCount = GameplayHudDefinitions.Width;
+}

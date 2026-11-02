@@ -86,7 +86,7 @@ public sealed class GameplayHudArtwork : GameplayHudPresentation
     internal HudImageTiles Tiles(HudImage image) => Ensure.NotNull(image) switch
     {
         HudTopRowImage => new HudImageTiles(image, new(GameplayHudDefinitions.Width, 1), parts.TopRow),
-        HudTemplateImage => new HudImageTiles(image, GameplayHudDefinitions.Size, parts.Template),
+        HudTemplateImage => new HudImageTiles(image, GameplayHudDocumentDefinitions.Size, parts.Template),
         HudEnergyTankImage tank => OneCell(image, TankTile(tank.Tank)),
         HudEnergyDigitImage digit => OneCell(image, parts.HealthDigits[digit.Numeral]),
         HudAmmoDigitImage digit => OneCell(image, parts.AmmoDigits[digit.Numeral]),
@@ -100,7 +100,7 @@ public sealed class GameplayHudArtwork : GameplayHudPresentation
     /// <summary>The cells of item icon <paramref name="image"/> names: the template, the icon added over it, then the shade.</summary>
     private HudImageTiles IconTiles(HudIconImage image)
     {
-        var drawn = new BackgroundTile[GameplayHudDefinitions.CellCount];
+        var drawn = new BackgroundTile[GameplayHudDocumentDefinitions.CellCount];
         ApplyTemplate(drawn);
         if (image.Cover == HudIconCover.Icon)
             TryApplyIcon(drawn, image.Item);
@@ -154,12 +154,12 @@ public sealed class GameplayHudArtwork : GameplayHudPresentation
         : throw new ArgumentOutOfRangeException(nameof(itemIndex));
 
     /// <summary>Converts an HUD tile coordinate to the mutable row-major cell index.</summary>
-    private static int Index(Position16<TilemapCells> point) => GameplayHudDefinitions.Size.RowMajorIndex(point);
+    private static int Index(Position16<TilemapCells> point) => GameplayHudDocumentDefinitions.Size.RowMajorIndex(point);
 
     /// <summary>Requires a destination span for exactly three 32-cell HUD rows.</summary>
     private static void ValidateTilemap(Span<BackgroundTile> tiles)
     {
-        if (tiles.Length != GameplayHudDefinitions.CellCount)
+        if (tiles.Length != GameplayHudDocumentDefinitions.CellCount)
             throw new ArgumentException("Gameplay HUD requires exactly 96 mutable cells.", nameof(tiles));
     }
 
@@ -168,7 +168,7 @@ public sealed class GameplayHudArtwork : GameplayHudPresentation
     private static GameplayHudPresentationParts Layout(GameplayHudArtworkParts parts)
     {
         Ensure.NotNull(parts);
-        if (parts.TopRow.Length != GameplayHudDefinitions.TopRowCellCount || parts.Template.Length != GameplayHudDefinitions.CellCount ||
+        if (parts.TopRow.Length != GameplayHudDocumentDefinitions.TopRowCellCount || parts.Template.Length != GameplayHudDocumentDefinitions.CellCount ||
             parts.EnergyTankCells.Length != GameplayHudDefinitions.EnergyTankCount || parts.AutoReserveCells.Length != GameplayHudDefinitions.AutoReserveCellCount ||
             parts.AutoReserveFilled.Length != GameplayHudDefinitions.AutoReserveCellCount || parts.AutoReserveEmpty.Length != GameplayHudDefinitions.AutoReserveCellCount ||
             parts.HealthDigits.Length != GameplayHudDefinitions.Numerals || parts.AmmoDigits.Length != GameplayHudDefinitions.Numerals ||

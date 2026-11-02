@@ -11,7 +11,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
@@ -238,8 +238,8 @@ internal static class MapInstallationVerification
             IndexedPng.Write(output, new(timerImage.Size.X, timerImage.Size.Y),
                 timerImage.Pixels, timerImage.Colours);
         }
-        string gameplayHudOverride = Path.Combine(installation.MapOverrideDirectory, GameplayHudDefinitions.FileName);
-        var gameplayHud = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameplayHudDefinitions.FileName)));
+        string gameplayHudOverride = Path.Combine(installation.MapOverrideDirectory, GameplayHudDocumentDefinitions.FileName);
+        var gameplayHud = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameplayHudDocumentDefinitions.FileName)));
         gameplayHud.Required("digits").Required("healthAnchor")["x"] = 4;
         File.WriteAllText(gameplayHudOverride, gameplayHud.ToJsonString());
         string gameOverOverride = Path.Combine(installation.MapOverrideDirectory, GameOverPresentationFormat.FileName);

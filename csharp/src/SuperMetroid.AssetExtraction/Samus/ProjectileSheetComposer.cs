@@ -83,7 +83,7 @@ internal static class ProjectileSheetComposer
         foreach (ProjectileTrailFrame pose in Enum.GetValues<ProjectileTrailFrame>())
             frames.Add(new(ProjectileSheetFrames.TrailFrame(pose), SpritePartFrames.SmallObject(projectiles.Trails.Resolve(pose), 0), page));
         frames.Add(new(ProjectileSheetDefinitions.UnshownTrailFrame, SpritePartFrames.SmallObject(default, 0), page));
-        return new SpriteSheetSources(frames, cgram.SpriteSets.All.Colors.ToArray(), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection));
+        return new SpriteSheetSources(frames, cgram.SpriteSets.All.Colors.ToArray(), ObjectSelectionCodec.GameplaySizes);
     }
 
     /// <summary>The beam combination whose gameplay sheet <paramref name="sheet"/> is.</summary>

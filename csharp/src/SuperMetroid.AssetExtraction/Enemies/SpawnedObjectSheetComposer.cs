@@ -7,7 +7,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.SpriteObjects;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
@@ -99,7 +98,7 @@ internal static class SpawnedObjectSheetComposer
                 RotEncounterFrames.Contains(frame))))];
         return new SpawnedObjectSheetSource(plan,
             new SpriteSheetSources([.. frames.SelectMany(pictures => pictures.Sources)], colours,
-                ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection), plan.Palette),
+                ObjectSelectionCodec.GameplaySizes, plan.Palette),
             frames.Where(pictures => pictures.Layers.Length > 0)
                 .ToDictionary(pictures => pictures.Name, pictures => pictures.Layers, StringComparer.Ordinal),
             frames.Where(pictures => pictures.RotCorpse is not null)

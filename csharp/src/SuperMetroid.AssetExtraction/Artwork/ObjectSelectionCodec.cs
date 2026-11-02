@@ -16,6 +16,12 @@ internal static class ObjectSelectionCodec
         new(new(16, 32), new(32, 32)),
     ];
 
+    /// <summary>The object selection gameplay draws its sprites with: small sprites are 8 pixels and large ones 16, drawn from the gameplay sprite tiles.</summary>
+    private const int GameplayObjectSelection = 3;
+
+    /// <summary>The object sizes gameplay draws its sprites at.</summary>
+    public static ScreenObjectSizes GameplaySizes => Sizes(GameplayObjectSelection);
+
     /// <summary>The object sizes <paramref name="objectSelection"/> selects.</summary>
     public static ScreenObjectSizes Sizes(int objectSelection)
     {

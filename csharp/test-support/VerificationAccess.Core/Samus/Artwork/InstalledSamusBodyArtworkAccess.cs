@@ -24,6 +24,18 @@ internal static class InstalledSamusBodyArtworkAccess
         /// <summary>The contiguous frame-selector interval.</summary>
         internal ReadOnlySpan<SamusBodyFrameSelection> Frames => self.Source.Frames;
 
+        /// <summary>The resolved signed art-origin offset of every pose, in pose-number order.</summary>
+        internal ReadOnlySpan<int> GraphicsYOffsets => self.Source.GraphicsYOffsets;
+
+        /// <summary>The landing table: four unsigned bytes for each landing pose.</summary>
+        internal ReadOnlySpan<int> LandingYOffsets => self.Source.LandingYOffsets;
+
+        /// <summary>The installed posture-transition vertical-offset table.</summary>
+        internal ReadOnlySpan<sbyte> PostureYOffsets => self.Source.PostureYOffsets;
+
+        /// <summary>The installed drained-state vertical-offset table.</summary>
+        internal ReadOnlySpan<sbyte> DrainedYOffsets => self.Source.DrainedYOffsets;
+
         /// <summary>The frame selector <paramref name="animationFrame"/> places after <paramref name="pose"/>'s first.</summary>
         /// <exception cref="InvalidDataException">The pose has no record, or the selector is outside the table.</exception>
         internal SamusBodyFrameSelection Selection(SamusPoseId pose, int animationFrame)

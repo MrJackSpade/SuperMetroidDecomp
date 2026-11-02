@@ -49,10 +49,6 @@ public abstract class InstalledSamusSpritemaps
         return shown is not null;
     }
 
-    /// <summary>Whether <paramref name="frame"/> is an animation frame installed for its pose half.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The pose has no record.</exception>
-    internal bool Covers(SamusBodyHalfFrame frame) => (uint)frame.AnimationFrame < (uint)Frames(frame).Count;
-
     /// <summary>
     /// The pre-coloured body picture <paramref name="frame"/> shows with <paramref name="pictures"/> selected: its
     /// composition with the selected half picture of each half the composition shows. False only for a frame with no
@@ -74,7 +70,7 @@ public abstract class InstalledSamusSpritemaps
 
     /// <summary>The compositions <paramref name="frame"/>'s pose half shows, by animation frame.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The pose has no record.</exception>
-    private IReadOnlyList<SamusSpritemapId?> Frames(SamusBodyHalfFrame frame) =>
+    internal IReadOnlyList<SamusSpritemapId?> Frames(SamusBodyHalfFrame frame) =>
         poses.TryGetValue(frame.Pose, out SamusPoseSpritemaps? pose)
             ? pose.Frames(frame.Half)
             : throw new ArgumentOutOfRangeException(nameof(frame), frame.Pose, "The pose has no Samus spritemaps.");

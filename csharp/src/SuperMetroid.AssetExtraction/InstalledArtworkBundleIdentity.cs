@@ -90,6 +90,15 @@ internal static class InstalledArtworkBundleIdentity
             : throw new InvalidDataException("The Samus arm-cannon artwork was not read from installed artwork.");
     }
 
+    /// <summary>The installed content identity of the Samus atmospheric artwork.</summary>
+    extension(InstalledSamusAtmosphericArtwork artwork)
+    {
+        /// <summary>The identity the import pipeline computed for <paramref name="artwork"/>, which it read as a <see cref="SamusAtmosphericSourceArtwork"/>.</summary>
+        /// <exception cref="InvalidDataException">The Samus atmospheric artwork was not read from installed artwork.</exception>
+        public string ContentIdentity => artwork is SamusAtmosphericSourceArtwork installed ? installed.ContentIdentity
+            : throw new InvalidDataException("The Samus atmospheric artwork was not read from installed artwork.");
+    }
+
     /// <summary>The installed content identity of the Samus body artwork.</summary>
     extension(InstalledSamusBodyArtwork artwork)
     {

@@ -41,7 +41,7 @@ public sealed class SamusAtmosphericSourceArtwork : InstalledSamusAtmosphericArt
 
     /// <summary>SHA-256 of both selected atmospheric appearance lists.</summary>
     /// <remarks>The hash keeps the name the runtime catalog had when it held these lists, so its value is unchanged.</remarks>
-    public override string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledSamusAtmosphericArtwork) + ".v2", content =>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledSamusAtmosphericArtwork) + ".v2", content =>
     {
         content.Append("type one", TypeOne.Count);
         foreach (SpritePart part in TypeOne)

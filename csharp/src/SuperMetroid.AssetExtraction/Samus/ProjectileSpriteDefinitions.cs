@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Samus.Artwork;
+﻿using SuperMetroid.Core.Samus.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The Samus projectile compositions timed projectile records draw, by family.</summary>
 public static class ProjectileSpriteDefinitions

@@ -1,5 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -51,6 +52,33 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
 
     /// <summary>Identity of the selected body characters, whose pre-coloured sheets are installed separately.</summary>
     public string BodyCharactersContentIdentity { get; }
+
+    /// <summary>The resolved signed art-origin offset of every pose, in pose-number order.</summary>
+    public ReadOnlySpan<int> GraphicsYOffsets => graphicsYOffsetsTable ??=
+        [.. Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset(SamusPoseNumbering.FromNumber(index)))];
+    /// <summary>The materialized <see cref="GraphicsYOffsets"/>; the installed tables never change after construction.</summary>
+    private int[]? graphicsYOffsetsTable;
+
+    /// <summary>The landing table: four unsigned bytes for each landing pose.</summary>
+    public ReadOnlySpan<int> LandingYOffsets => landingYOffsetsTable ??=
+        [.. Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount)
+            .Select(index => TryLandingYOffset(index, out int value) ? value : throw new InvalidOperationException($"Landing byte {index} is outside the table."))];
+    /// <summary>The materialized <see cref="LandingYOffsets"/>; the installed tables never change after construction.</summary>
+    private int[]? landingYOffsetsTable;
+
+    /// <summary>The installed posture-transition vertical-offset table.</summary>
+    public ReadOnlySpan<sbyte> PostureYOffsets => postureYOffsetsTable ??=
+        [.. Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount)
+            .Select(index => TryPostureYOffset(index, out int value) ? checked((sbyte)value) : throw new InvalidOperationException($"Posture byte {index} is outside the table."))];
+    /// <summary>The materialized <see cref="PostureYOffsets"/>; the installed tables never change after construction.</summary>
+    private sbyte[]? postureYOffsetsTable;
+
+    /// <summary>The installed drained-state vertical-offset table.</summary>
+    public ReadOnlySpan<sbyte> DrainedYOffsets => drainedYOffsetsTable ??=
+        [.. Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount)
+            .Select(index => TryDrainedYOffset(index, out int value) ? checked((sbyte)value) : throw new InvalidOperationException($"Drained byte {index} is outside the table."))];
+    /// <summary>The materialized <see cref="DrainedYOffsets"/>; the installed tables never change after construction.</summary>
+    private sbyte[]? drainedYOffsetsTable;
 
     /// <summary>SHA-256 of all visual selectors, the body characters' identity and bundled Samus presentation catalogs.</summary>
     public string ContentIdentity => field ??= SelectedPresentationHash.Create("samus-body-v3", content =>

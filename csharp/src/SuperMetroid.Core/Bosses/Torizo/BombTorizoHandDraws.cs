@@ -24,18 +24,6 @@ internal static class BombTorizoHandDraws
         internal int OriginX(int run) => Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, Strip(run).Origin.X);
         /// <summary>Gets a strip's vertical origin relative to the hand PLM block.</summary>
         internal int OriginY(int run) => Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, Strip(run).Origin.Y);
-        /// <summary>Gets the next strip's relative X origin or zero at list termination.</summary>
-        internal int NextX(int run)
-        {
-            _ = Strip(run);
-            return run + 1 == RunCount ? 0 : OriginX(run + 1);
-        }
-        /// <summary>Gets the next strip's relative Y origin or zero at list termination.</summary>
-        internal int NextY(int run)
-        {
-            _ = Strip(run);
-            return run + 1 == RunCount ? 0 : OriginY(run + 1);
-        }
         /// <summary>Gets one strip cell's terrain block.</summary>
         internal RoomTerrainBlock BlockAt(int run, int cell)
         {

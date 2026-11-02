@@ -8,6 +8,26 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>Installed, replaceable visual references for Bomb Torizo's hand PLM.</summary>
 public static class RoomPlmBombTorizoHandVisualFiles
 {
+    /// <summary>The origin-relative continuations the exported draw lists record for a hand draw's strips.</summary>
+    extension(BombTorizoHandDraws.Draw draw)
+    {
+        /// <summary>Gets the next strip's relative X origin or zero at list termination.</summary>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="run"/> is not one of the draw's strips.</exception>
+        internal int NextX(int run)
+        {
+            if ((uint)run >= draw.RunCount) throw new ArgumentOutOfRangeException(nameof(run));
+            return run + 1 == draw.RunCount ? 0 : draw.OriginX(run + 1);
+        }
+
+        /// <summary>Gets the next strip's relative Y origin or zero at list termination.</summary>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="run"/> is not one of the draw's strips.</exception>
+        internal int NextY(int run)
+        {
+            if ((uint)run >= draw.RunCount) throw new ArgumentOutOfRangeException(nameof(run));
+            return run + 1 == draw.RunCount ? 0 : draw.OriginY(run + 1);
+        }
+    }
+
     /// <summary>Editable Bomb Torizo hand PLM visual JSON filename.</summary>
     public const string VisualFileName = "bomb-torizo-hand.json";
 
@@ -60,7 +80,7 @@ public static class RoomPlmBombTorizoHandVisualFiles
         bool found = BombTorizoHandDraws.TryDescribe(request, out BombTorizoHandDraws.Draw draw);
         list = found
             ? RoomPlmDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.BlockAt,
-                RoomPlmDrawListExport.Horizontal, draw.NextX, draw.NextY)
+                RoomPlmDrawListExport.Horizontal, run => draw.NextX(run), run => draw.NextY(run))
             : default;
         return found;
     }

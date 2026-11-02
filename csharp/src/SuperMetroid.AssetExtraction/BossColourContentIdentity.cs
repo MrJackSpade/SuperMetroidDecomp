@@ -21,16 +21,6 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>The installed content identities of the bosses' colour catalogs, which only the import pipeline and its diagnostics compare (#1502).</summary>
 internal static class BossColourContentIdentity
 {
-    /// <summary>Crocomire's five transfers in authored order, each with the label its content identity hashes it under.</summary>
-    private static readonly CrocomireTransferLabel[] CrocomireIdentityOrder =
-    [
-        new(CrocomireColorCatalog.Band.FightBody, "fightBody"),
-        new(CrocomireColorCatalog.Band.InitialWall, "initialWall"),
-        new(CrocomireColorCatalog.Band.InitialProjectile, "initialProjectile"),
-        new(CrocomireColorCatalog.Band.SkeletonArm, "skeletonArm"),
-        new(CrocomireColorCatalog.Band.WallSpikes, "wallSpikes"),
-    ];
-
     /// <summary>The installed content identity of a <see cref="BotwoonColorCatalog"/>.</summary>
     extension(BotwoonColorCatalog colors)
     {
@@ -297,5 +287,15 @@ internal static class BossColourContentIdentity
     [
         KraidPaletteSource.RoomBackdrop, KraidPaletteSource.InitialTarget, KraidPaletteSource.Health,
         KraidPaletteSource.Secondary, KraidPaletteSource.DeathArm,
+    ];
+
+    /// <summary>Crocomire's five transfers in authored order, each with the label its content identity hashes it under.</summary>
+    private static readonly CrocomireTransferLabel[] CrocomireIdentityOrder =
+    [
+        new(CrocomireColorCatalog.Band.FightBody, "fightBody"),
+        new(CrocomireColorCatalog.Band.InitialWall, "initialWall"),
+        new(CrocomireColorCatalog.Band.InitialProjectile, "initialProjectile"),
+        new(CrocomireColorCatalog.Band.SkeletonArm, "skeletonArm"),
+        new(CrocomireColorCatalog.Band.WallSpikes, "wallSpikes"),
     ];
 }

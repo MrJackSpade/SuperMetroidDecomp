@@ -39,6 +39,7 @@ internal static class BossColorClosedContractDefinitions
         new("SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireColorCatalog", "crocomire-v1-complete-fixed-palettes",
             ["ApplyInitial", "ApplyFightBody", "ApplySkeletonArm", "ApplyWallSpikes"],
             [new("csharp/src/SuperMetroid.Core/Bosses/Crocomire/Artwork/CrocomireColorCatalog.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Bosses/Crocomire/Artwork/CrocomireTransferLabel.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Crocomire/Artwork/CrocomirePaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Crocomire/Artwork/CrocomirePaint.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Crocomire/Artwork/CrocomirePalette.cs"),

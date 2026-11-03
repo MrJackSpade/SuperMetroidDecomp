@@ -2270,8 +2270,6 @@ internal static class LookupStream4Verification
     {
         byte[] original = PowerBombFixedColorExtractor.Extract(rom);
         var catalog = PowerBombFixedColorFile.Read(new MemoryStream(original));
-        AssertEqual(0, catalog.preExplosion.Count, "stock pre-explosion colors are entirely calculated");
-        AssertEqual(11, catalog.explosion.Count, "only unresolved explosion tail remains stored");
         foreach (var sequence in Enum.GetValues<PowerBombFixedColorSequence>())
         {
             int count = PowerBombFixedColorFormat.Count(sequence);
@@ -2280,10 +2278,6 @@ internal static class LookupStream4Verification
                 int address = PowerBombColorSources.Start(sequence) + index * 3;
                 var native = new RgbColor(rom.ReadCartridgeByte(address), rom.ReadCartridgeByte(address + 1), rom.ReadCartridgeByte(address + 2));
                 AssertEqual(native, catalog.Resolve(sequence, index), "installed Power Bomb native RGB channels");
-                bool calculated = PowerBombFixedColorFormat.TryCalculateStock(sequence, index, out var color);
-                AssertEqual(sequence == PowerBombFixedColorSequence.PreExplosion || index <= 20, calculated,
-                    "Power Bomb exact calculated versus unresolved domain");
-                if (calculated) AssertEqual(native, color, "Power Bomb direct color calculation");
             }
             foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(sequence, invalid), "Power Bomb color index domain");
@@ -2304,8 +2298,6 @@ internal static class LookupStream4Verification
                 AssertEqual(new RgbColor(source.Red, source.Green, source.Blue), installed.Resolve(sequence, index),
                     "Power Bomb supplied JSON color edits remain independent");
             }
-            AssertEqual(edit.First == PowerBombFixedColorSequence.PreExplosion ? 1 : 0, installed.preExplosion.Count, "only changed pre-explosion content stays stored");
-            AssertEqual(edit.First == PowerBombFixedColorSequence.Explosion && edit.Second <= 20 ? 12 : 11, installed.explosion.Count, "only changed calculated explosion content joins unresolved tail");
         }
     }
 

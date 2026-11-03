@@ -2,36 +2,44 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Editable RGB5 colors for Power Bomb, Crystal Flash and Ceres explosions.</summary>
+/// <summary>
+/// The installed colours a Power Bomb, Crystal Flash or Ceres station explosion adds inside its window, one per
+/// radius step of each sequence. The import resolves every entry; the explosion selects one by its radius and fades
+/// it in its own state.
+/// </summary>
 public sealed class InstalledPowerBombFixedColors
 {
-    /// <summary>Authored pre-explosion colors that differ from the calculated sixteen-entry stock sequence.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> preExplosion;
-    /// <summary>Authored explosion colors, including later entries without a calculated stock definition.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> explosion;
+    /// <summary>The pre-explosion flash's colours, indexed by its radius step.</summary>
+    private readonly RgbColor[] preExplosion;
 
-    /// <summary>Retains the selected colours that differ from the calculated stock, separately for the two radius-selected sequences.</summary>
-    /// <param name="preExplosion">The pre-explosion colours the import found differing from, or missing in, the calculated stock.</param>
-    /// <param name="explosion">The explosion colours the import found differing from, or missing in, the calculated stock.</param>
-    internal InstalledPowerBombFixedColors(Dictionary<ColourCell, RgbColor> preExplosion, Dictionary<ColourCell, RgbColor> explosion)
+    /// <summary>The damaging explosion's colours, indexed by its radius step.</summary>
+    private readonly RgbColor[] explosion;
+
+    /// <summary>Keeps both complete sequences, checking each holds one colour per radius step.</summary>
+    /// <param name="preExplosion">Every pre-explosion colour, in radius-step order.</param>
+    /// <param name="explosion">Every explosion colour, in radius-step order.</param>
+    /// <exception cref="InvalidDataException">A sequence does not hold exactly its radius-step count.</exception>
+    internal InstalledPowerBombFixedColors(RgbColor[] preExplosion, RgbColor[] explosion)
     {
+        if (preExplosion.Length != PowerBombFixedColorFormat.Count(PowerBombFixedColorSequence.PreExplosion) ||
+            explosion.Length != PowerBombFixedColorFormat.Count(PowerBombFixedColorSequence.Explosion))
+            throw new InvalidDataException("Power Bomb explosion colours require one colour per radius step of each sequence.");
         this.preExplosion = preExplosion;
         this.explosion = explosion;
     }
 
-    /// <summary>Returns authored display color; phase and radius indexing remain engine-owned.</summary>
+    /// <summary>Returns the colour a sequence adds at a radius step; phase and radius selection stay with the explosion.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The sequence is undefined or the step is outside it.</exception>
     public RgbColor Resolve(PowerBombFixedColorSequence sequence, int index)
     {
-        Dictionary<ColourCell, RgbColor> colors = sequence switch
+        RgbColor[] colors = sequence switch
         {
             PowerBombFixedColorSequence.PreExplosion => preExplosion,
             PowerBombFixedColorSequence.Explosion => explosion,
             _ => throw new ArgumentOutOfRangeException(nameof(sequence)),
         };
-        if ((uint)index >= PowerBombFixedColorFormat.Count(sequence))
+        if ((uint)index >= (uint)colors.Length)
             throw new ArgumentOutOfRangeException(nameof(index));
-        if (colors.TryGetValue(new ColourCell(0, index), out var supplied)) return supplied;
-        if (PowerBombFixedColorFormat.TryCalculateStock(sequence, index, out var calculated)) return calculated;
-        throw new InvalidDataException("Power Bomb color has neither supplied content nor a calculated definition.");
+        return colors[index];
     }
 }

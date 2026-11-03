@@ -10,6 +10,8 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.FrameRendering;
@@ -59,7 +61,17 @@ internal static class PauseReserveLabelsVerification
                         BinaryPrimitives.WriteUInt16LittleEndian(expectedVram.AsSpan(offset), (ushort)((before & 0xfc00) | source));
                     }
             }
-            var expectedMemory = snapshot.Paint.WithNativeColours(snapshot.Paint.Colors);
+            // The page's characters match the native label writes, and every picture the page shows in its standard
+            // shading resolves to the cartridge's pause colours (#1512): the pause screen holds no colours of its own.
+            AssertTrue(expectedVram.AsSpan(0x6000, 0x800).SequenceEqual(snapshotVram.AsSpan(0x6000, 0x800)),
+                $"reserve label characters match native ownership/mode ({capacity}/{mode})");
+            var nativeColours = new SnesCgram();
+            CartridgePaletteImporter.LoadToCgram(nativeColours, bus, MapSourceDefinitions.Artwork.PauseColors);
+            foreach (PlacedPlanePicture placed in snapshot.Layers.OfType<PicturedPlaneLayer>().SelectMany(layer => layer.Plane.Pictures)
+                .Where(placed => placed.Shading == PictureShading.Standard))
+                AssertTrue(PictureShading.Standard.InkColours(placed.Picture.Sheet).SequenceEqual(nativeColours.Colors[..SpriteImage.SpriteColourCount].ToArray()),
+                    $"pause picture {placed.Picture.Sheet.Name} shows the cartridge's pause colours ({capacity}/{mode})");
+            var expectedMemory = snapshot.Paint.WithNativeColours(PauseShownColours.Of(pause));
             var expectedPixels = DisplayRendering.Render(new LayeredScene(expectedMemory, snapshot.Layers, snapshot.Brightness));
             var actualPixels = pause.Render();
 

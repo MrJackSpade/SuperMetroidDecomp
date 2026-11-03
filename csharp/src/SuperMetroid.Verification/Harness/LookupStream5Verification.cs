@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend;
@@ -993,7 +992,7 @@ internal static class LookupStream5Verification
         var document = RequiredJson.Deserialize<TourianStatueColorDocument>(nativeJson,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         var stock = Check(document);
-        foreach (var ramp in new[] { stock.baseColors, stock.statueColors, stock.eyeColors, stock.greyColors }) CheckResidualCount(ramp.edits, 0);
+        foreach (var ramp in new[] { stock.baseColors, stock.statueColors, stock.eyeColors, stock.greyColors }) CheckResidualCount(ramp.edits.Count, 0);
         for (int domain = 0; domain < 4; domain++)
         {
             PaletteRgb5[] source = domain switch
@@ -1024,8 +1023,8 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveGrey(8), "Grey ramp upper bound");
         Console.WriteLine("Tourian statue ramps: all56 native palette colors,168 independent full-range channel edits, zero stock overrides, actual CGRAM and canonical identities pass; selected material paint scope complete.");
 
-        void CheckResidualCount(Dictionary<ColourCell, RgbColor> edits, int expected) =>
-            AssertEqual(expected, edits.Count, "Exact stock ramp residual count");
+        void CheckResidualCount(int edits, int expected) =>
+            AssertEqual(expected, edits, "Exact stock ramp residual count");
 
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
 
@@ -1970,11 +1969,10 @@ internal static class LookupStream5Verification
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
                 var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
-                var cgram = new SamusColourRig();
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(EnemyDefinitionId.CeresDoor, variant);
                 new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
-                int destination = variant == 3 ? CeresDoorVisualConstants.NormalTargetColor : CeresDoorVisualConstants.ActiveTargetColor;
-                for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), cgram.Colors[destination + color], "Actual normal/target initializer copy");
+                // The initializer shows the normal colours as the door's shade, which the import paints from this paint (#1512).
+                AssertEqual(CeresDoorShades.InNormalColours, slot.Shading, "Actual normal/target initializer shows the normal colours");
             }
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
             {
@@ -2031,11 +2029,10 @@ internal static class LookupStream5Verification
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
                 var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
-                var cgram = new SamusColourRig();
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(EnemyDefinitionId.CeresDoor, variant);
                 new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
-                int destination = CeresDoorVisualConstants.ActiveTargetColor;
-                for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), cgram.Colors[destination + color], "Actual escape initializer copy");
+                // Once the self-destruct starts, the initializer shows the escaping colours as the door's shade (#1512).
+                AssertEqual(CeresDoorShades.InEscapingColours, slot.Shading, "Actual escape initializer shows the escaping colours");
             }
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
             {
@@ -2066,8 +2063,8 @@ internal static class LookupStream5Verification
         CeresDoorAnimationPaint stock = Check(-1);
         AssertEqual(17, stock.firstSeedBlue, "Selected beacon blue");
         AssertEqual(14, stock.dimMiddleAmberRed, "Selected dim amber red");
-        foreach (Dictionary<ColourCell, RgbColor> overrides in new[] { stock.seedEdits, stock.edits })
-            AssertEqual(0, overrides.Count, "All native beacon dependencies calculate without overrides");
+        foreach (int overrides in new[] { stock.seedEdits.Count, stock.edits.Count })
+            AssertEqual(0, overrides, "All native beacon dependencies calculate without overrides");
         for (int row = 0; row < 8; row++)
         for (int color = 0; color < 6; color++)
         {
@@ -2093,16 +2090,14 @@ internal static class LookupStream5Verification
             for (int row = 0; row < 8; row++) for (int color = 0; color < 6; color++)
                 AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel remains independent");
             var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), services: new StandaloneRoomEnemyServices(() => 0) { Floor = RoomBackgroundsFixtures.CeresFloor() }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
-            var cgram = new SamusColourRig();
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             Action tick = system.CeresDoorBehavior.RunCeresDoorPaletteAnimation;
             foreach (int counter in editedRow < 0 ? Enumerable.Range(0, 64) : new[] { editedRow * 8 })
             {
                 system.SlotTable.Slots[0].FrameCounter = (ushort)counter; tick();
                 int row = (counter & 0x38) >> 3;
-                for (int color = 0; color < 6; color++) AssertEqual(Pack(document.Animation[row][color]), cgram.Colors[41 + color], "Actual native eight-tick row selection and six CGRAM writes");
-                AssertEqual(0, cgram.Colors[40], "Beacon lower neighbor unchanged");
-                AssertEqual(0, cgram.Colors[47], "Beacon upper neighbor unchanged");
+                // The tick names the glow step the room's pictures show, which the import paints from this row (#1512).
+                AssertEqual((int?)row, system.CeresDoorBehavior.ElevatorRoomGlowStep, "Actual native eight-tick row selection");
             }
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
             {

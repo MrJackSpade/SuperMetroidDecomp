@@ -8,6 +8,11 @@ using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.Ending;
@@ -31,6 +36,9 @@ internal static class EndingSnapshotTestsVerification
             var phaseEntryFrames = new Dictionary<EndingCreditsPhase, int>();
             var gunshipPalettes = new HashSet<string>();
             RgbColor[]? explosionBackgroundSource = null;
+            // The shades the import pre-colours the ending's sheets in, which the screen names (#1512).
+            EndingPaletteSet installedPalettes = RepositoryInstallation.Installation.LoadEndingPalettes();
+            IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(installedPalettes, InstalledFixtures.Maps.RoomPaletteFx);
             int finaleDisplayFrames = 0;
             int burstDisplayFrames = 0;
             EndingRewardJump? referenceJump = null;
@@ -48,24 +56,43 @@ internal static class EndingSnapshotTestsVerification
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.FadeInZebesExplosion];
                     var explosion = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
-                    if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.FadeInZebesExplosion)
-                        explosionBackgroundSource = explosion.Paint.Colors.Slice(112, 16).ToArray();
-                    for (int i = 0; i < 16; i++)
+                    // The screen names each group's fade level on the cartridge's cadence (#1512): the far background
+                    // keeps the escape's colours until its first step, and the planet's sprite groups start at level zero.
+                    ImmutableArray<PictureShade> shown = legacy.screen.Colours.Shading.Shades;
+                    int step = elapsed / 2;
+                    AssertTrue(step == 0
+                            ? !shown.Any(shade => shade.Effect == EndingShades.Faded(EndingFade.ExplosionBackground, 0).Effect)
+                            : shown.Contains(EndingShades.Faded(EndingFade.ExplosionBackground, 32 - step)),
+                        "native explosion BG palette fades out on the same cadence");
+                    AssertTrue(shown.Contains(EndingShades.Faded(EndingFade.ExplosionLava, step)) && shown.Contains(EndingShades.Faded(EndingFade.ExplodingPlanet, step)),
+                        "native explosion OBJ palette fades in over both fade-in and crossfade phases");
+                    if (explosionBackgroundSource is null)
                     {
-                        int remaining = 32 - elapsed / 2;
-                        RgbColor expectedColor = (explosionBackgroundSource ?? throw new InvalidOperationException("Verification requires explosionBackgroundSource."))[i].Map((_, channel) => channel * remaining / 32);
-                        AssertEqual(expectedColor, explosion.Paint.Colors[112 + i], "native explosion BG palette fades out on the same cadence");
-                    }
-
-                    foreach (int start in new[] { 208, 240 })
-                    for (int i = start; i < start + 16; i++)
-                    {
-                        ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8cebe9 + i * 2);
-                        int step = elapsed / 2;
-                        ushort expectedColor = (ushort)(((source & 31) * step / 32)
-                            | (((source >> 5 & 31) * step / 32) << 5)
-                            | (((source >> 10 & 31) * step / 32) << 10));
-                        AssertEqual(expectedColor, explosion.Paint.Colors[i], "native explosion OBJ palette fades in over both fade-in and crossfade phases");
+                        // The import's levels scale the escape's far background and the cartridge's explosion sprite colours.
+                        explosionBackgroundSource = [.. installedPalettes[EndingPaletteId.Escape].Colours.Skip(112).Take(16)];
+                        for (int level = 0; level <= 32; level++)
+                        {
+                            SheetShade background = installedShades.Single(shade => shade.Shade == EndingShades.Faded(EndingFade.ExplosionBackground, level));
+                            for (int i = 0; i < 16; i++)
+                            {
+                                int remaining = level;
+                                AssertEqual(explosionBackgroundSource[i].Map((_, channel) => channel * remaining / 32), background.Colours[i],
+                                    "the import's explosion BG fade level scales the escape's far background");
+                            }
+                            foreach ((EndingFade fade, int start) in new[] { (EndingFade.ExplosionLava, 208), (EndingFade.ExplodingPlanet, 240) })
+                            {
+                                SheetShade sprite = installedShades.Single(shade => shade.Shade == EndingShades.Faded(fade, level));
+                                AssertTrue(sprite.Inks.SequenceEqual(Enumerable.Range(start, 16)), "an explosion OBJ fade level covers its colour group");
+                                for (int i = start; i < start + 16; i++)
+                                {
+                                    ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8cebe9 + i * 2);
+                                    ushort expectedColor = (ushort)(((source & 31) * level / 32)
+                                        | (((source >> 5 & 31) * level / 32) << 5)
+                                        | (((source >> 10 & 31) * level / 32) << 10));
+                                    AssertEqual(expectedColor, sprite.Colours[i - start].ToWord(), "the import's explosion OBJ fade level scales the cartridge's colours");
+                                }
+                            }
+                        }
                     }
                     AssertTrue(explosion.LayersOf<SpritesLayer>().Single().AddToScreen,
                         "explosion transition adds OBJ subscreen to BG1 and backdrop");
@@ -79,14 +106,16 @@ internal static class EndingSnapshotTestsVerification
                 if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsShootingStars)
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShootingStars];
-                    var colors = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Paint.Colors;
+                    SheetShade waiting = installedShades.Single(shade => shade.Shade == EndingShades.Faded(EndingFade.WaitingBackdrop, elapsed));
+                    AssertTrue(legacy.screen.Colours.Shading.Shades.Contains(waiting.Shade), "the screen names the waiting backdrop's fade level");
+                    RgbColor[] colors = [.. Enumerable.Repeat(RgbColor.Black, 32), .. waiting.Colours];
                     for (int i = 32; i < 48; i++)
                     {
                         ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + i * 2);
                         int expectedColor = ((source & 31) * elapsed / 32)
                             | (((source >> 5 & 31) * elapsed / 32) << 5)
                             | (((source >> 10 & 31) * elapsed / 32) << 10);
-                        AssertEqual((ushort)expectedColor, colors[i], "native 8.8 waiting-backdrop palette fade");
+                        AssertEqual((ushort)expectedColor, colors[i].ToWord(), "native 8.8 waiting-backdrop palette fade");
                     }
                 }
                 bool sample = firstPhaseFrame || tick % 97 == 0;
@@ -206,17 +235,19 @@ internal static class EndingSnapshotTestsVerification
                     int elapsed = tick - rewardStart;
                     int activeElapsed = elapsed <= 64 ? elapsed : elapsed < 244 ? 64 : elapsed - 180;
                     int fadeStep = activeElapsed / 4;
-                    var colors = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Paint.Colors;
                     foreach (int start in hours < 3 ? new[] { 32, 208 } : new[] { 32, 208, 224 })
                     {
                         int factor = start == 32 ? 32 - fadeStep : fadeStep;
+                        EndingFade group = start == 32 ? EndingFade.WaitingBackdrop : start == 208 ? EndingFade.SuitlessSamus : EndingFade.SuitedSamus;
+                        SheetShade level = installedShades.Single(shade => shade.Shade == EndingShades.Faded(group, factor));
+                        AssertTrue(legacy.screen.Colours.Shading.Shades.Contains(level.Shade), "the screen names the reward dissolve's fade level");
                         for (int i = start; i < start + 16; i++)
                         {
                             ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + i * 2);
                             ushort expectedColor = (ushort)(((source & 31) * factor / 32)
                                 | (((source >> 5 & 31) * factor / 32) << 5)
                                 | (((source >> 10 & 31) * factor / 32) << 10));
-                            AssertEqual(expectedColor, colors[i], "native reward dissolve pauses and resumes around copyright");
+                            AssertEqual(expectedColor, level.Colours[i - start].ToWord(), "native reward dissolve pauses and resumes around copyright");
                         }
                     }
                 }
@@ -238,7 +269,7 @@ internal static class EndingSnapshotTestsVerification
                 {
                     var flash = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     AssertEqual(0, flash.Layers.Length, "native F32B disables both screens for explosion whiteout");
-                    AssertEqual(0x7fff, flash.Paint.Colors[0], "native explosion whiteout backdrop");
+                    AssertEqual(0x7fff, flash.Paint.Backdrop.ToWord(), "native explosion whiteout backdrop");
                     if (firstPhaseFrame)
                         AssertTrue(legacy.Render().All(pixel => pixel == new RgbaPixel(255, 255, 255)),
                             "explosion whiteout is white across the actual rendered viewport");
@@ -256,7 +287,8 @@ internal static class EndingSnapshotTestsVerification
                 }
                 if (legacy.Stage.Phase is EndingCreditsPhase.PlanetEscapeFast or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating)
                 {
-                    gunshipPalettes.Add(string.Join(',', EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Paint.Colors.Slice(80, 16).ToArray()));
+                    gunshipPalettes.Add(string.Join(',', legacy.screen.Colours.Shading.Shades
+                        .Where(shade => shade.Effect == PaletteFxShades.Of(PaletteFxColours.GunshipEmergingFromExplosion, new PaletteFxFrame(0)).Effect)));
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PlanetEscapeFast];
                     int expectedWhite = elapsed <= 192 ? 31 : Math.Max(0, 30 - (elapsed - 193) / 8);
                     var flight = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);

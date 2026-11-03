@@ -1064,11 +1064,16 @@ internal static class MapPresentationVerification
             // A title or cinematic effect animates a frontend screen's colours (#1464); every other one animates gameplay's.
             if (PaletteFxColourPlacementDefinitions.Placements[animated] is ScreenColoursPlacement)
             {
-                var stockScreen = new ScreenPaletteFxColours(new ScreenPalette());
-                var editedScreen = new ScreenPaletteFxColours(new ScreenPalette());
-                Step(stockScreen, original);
-                Step(editedScreen, edited);
-                AssertTrue(!stockScreen.ScreenColours(animated).Colors.SequenceEqual(editedScreen.ScreenColours(animated).Colors), context);
+                // A frontend screen's step shows the record without writing colours (#1512); the import pre-colours its shade
+                // from the installed colours, so the override reaches the shade the screen names.
+                var screenFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
+                screenFx.SpawnDefinition(definitionPointer, 0);
+                var shown = new List<PaletteFxFrame>();
+                screenFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false },
+                    (colours, record) => { if (colours == animated) shown.Add(record); });
+                AssertTrue(shown.Count == 1, $"{context}: the first screen step shows one record");
+                AssertTrue(!PaletteFxScreenShades.Shade(animated, shown[0], 0, int.MaxValue, original.RoomPaletteFx).Colours
+                    .SequenceEqual(PaletteFxScreenShades.Shade(animated, shown[0], 0, int.MaxValue, edited.RoomPaletteFx).Colours), context);
                 return;
             }
             var stockRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);

@@ -39,7 +39,6 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
@@ -79,6 +78,7 @@ using SuperMetroid.AssetExtraction.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Verification.Bosses;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
 {

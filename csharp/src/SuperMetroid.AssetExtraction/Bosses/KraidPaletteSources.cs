@@ -1,5 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.AssetExtraction.Bosses.Kraid;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 

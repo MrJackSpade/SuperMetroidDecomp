@@ -7,9 +7,7 @@ using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidPaletteDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -18,6 +16,9 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -33,8 +34,6 @@ internal static class EnemyTileArtworkKraidColorsVerification
         KraidColorCatalog catalog = stock.Bosses.KraidColors
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid colors.");
         var guardForAllColors = NewKraidPaletteSourceGuard(rom);
-        var colorReaderOwner = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
-        Func<KraidPaletteSource, int, RgbColor> productionReader = colorReaderOwner.KraidBehavior.Background.ReadKraidColor;
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         {
             int count = KraidPalettes.ColorCount(source);
@@ -44,14 +43,22 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 AssertEqual(LittleEndianBytes.Word(native[index * 2], native[index * 2 + 1]),
                     catalog.Resolve(source, index),
                     $"Kraid {source} stock RGB5 color {index}");
-            for (int index = 0; index < count; index++)
-                AssertEqual(catalog.Resolve(source, index), productionReader(source, index),
-                    $"Kraid {source} installed production color {index}");
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(source, count),
                 $"Kraid {source} rejects adjacent ROM words");
-            AssertThrows<ArgumentOutOfRangeException>(() => productionReader(source, count),
-                $"Kraid {source} production lookup rejects adjacent ROM words");
         }
+        // Gameplay keeps only Kraid's eye colours (#1512): the hurt flash's and each health band's, which his eye glow
+        // reads back. They are the installed health colours at the eyes' inks.
+        var eyeReaderOwner = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        KraidEyeColours eyes = eyeReaderOwner.KraidBehavior.Background.EyeColours;
+        for (int band = -1; band < KraidHealthThresholdDefinitions.EighthCount; band++)
+        {
+            RgbColor[] shown = (band < 0 ? eyes.Hurt : eyes.HealthBand(band)).ToArray();
+            for (int eye = 0; eye < KraidEyeGlow.Eyes; eye++)
+                AssertEqual(catalog.Resolve(KraidPaletteSource.Health, KraidPalettes.BandColors * (band + 1) + KraidPalettes.FirstEyeColour + eye),
+                    shown[eye], $"Kraid band {band} eye {eye} installed production colour");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => eyes.HealthBand(KraidHealthThresholdDefinitions.EighthCount).ToArray(),
+            "Kraid's eye colours reject a ninth health band");
         AssertEqual(0, guardForAllColors.ForbiddenReadAttempts,
             "all installed Kraid palette rows avoid their ROM sources");
 

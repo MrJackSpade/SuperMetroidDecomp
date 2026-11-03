@@ -1,10 +1,10 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Bosses.Kraid;
 
 /// <summary>Checks that Kraid's five named editable palette sources retain separate values and identities.</summary>
 internal static class KraidColorSourceSelectionVerification

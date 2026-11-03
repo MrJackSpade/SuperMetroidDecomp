@@ -3,10 +3,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Botwoon;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using CrocomireBand = SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireColorCatalog.Band;
-using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using CrocomireBand = SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork.CrocomireColorCatalog.Band;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
@@ -15,6 +12,12 @@ using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Kraid;
+using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 

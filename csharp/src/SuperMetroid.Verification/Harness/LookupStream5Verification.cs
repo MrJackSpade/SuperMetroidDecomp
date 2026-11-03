@@ -48,7 +48,6 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -82,6 +81,8 @@ using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for Ceres, boss, projectile and map visual definitions in lookup stream five.</summary>

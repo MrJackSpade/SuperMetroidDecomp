@@ -70,19 +70,16 @@ internal sealed class KraidHead
     }
 
     /// <summary>The eye colours of health band <paramref name="band"/>, or of the hurt flash for minus one.</summary>
-    internal RgbColor[] BandEyes(int band)
+    internal ReadOnlySpan<RgbColor> BandEyes(int band)
     {
-        int first = BandColorStart(band) + KraidPalettes.FirstEyeColour;
-        var eyes = new RgbColor[KraidEyeGlow.Eyes];
-        for (int eye = 0; eye < eyes.Length; eye++)
-            eyes[eye] = _background.ReadKraidColor(KraidPaletteSource.Health, first + eye);
-        return eyes;
+        KraidEyeColours eyes = _background.EyeColours;
+        return band == HurtBand ? eyes.Hurt : eyes.HealthBand(band);
     }
 
     /// <summary>The health band his colours start in, before any update: the band of his health as he initializes.</summary>
     internal int InitialBand(RoomEnemySlot body, KraidEnemyState state) => HealthBand(body, state);
 
-    /// <summary>The band a hurt flash shows, before the health bands in the health colours.</summary>
+    /// <summary>The band a hurt flash shows, which shows the hurt flash's colours in place of a health band's.</summary>
     private const int HurtBand = -1;
 
     /// <summary>
@@ -96,11 +93,6 @@ internal sealed class KraidHead
             band--;
         return band;
     }
-
-    /// <summary>
-    /// The first of a band's colours in the health colours: the hurt flash's sixteen, then each health band's sixteen.
-    /// </summary>
-    private static int BandColorStart(int band) => KraidPalettes.BandColors * (band + 1);
 
     /// <summary>Restores the small-body thinking state after an attack.</summary>
     internal void SetupKraidFirstPhaseThinking(RoomEnemySlot body, KraidEnemyState state)

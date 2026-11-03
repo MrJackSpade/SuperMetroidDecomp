@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Drawing;
 
@@ -31,15 +30,10 @@ internal sealed class KraidBackground
         _access = access;
     }
 
-    /// <summary>Separates immutable RGB5 artwork from Kraid's palette timing.</summary>
-    internal RgbColor ReadKraidColor(KraidPaletteSource source, int index)
-    {
-        if ((uint)index >= KraidPalettes.ColorCount(source))
-            throw new ArgumentOutOfRangeException(nameof(index));
-        KraidColorCatalog colors = _bossArtwork.Artwork?.KraidColors ?? throw new InvalidDataException(
-            "Installed enemy artwork has no Kraid RGB5 palette catalog.");
-        return colors.Resolve(source, index);
-    }
+    /// <summary>Kraid's installed eye colours, which his eye glow shows and times his roar from.</summary>
+    /// <exception cref="InvalidDataException">No boss artwork with Kraid's eye colours is installed.</exception>
+    internal KraidEyeColours EyeColours => _bossArtwork.Artwork?.KraidEyes ?? throw new InvalidDataException(
+        "Kraid's eyes require the installed Kraid eye colours.");
 
     /// <summary>
     /// Takes one step of the room backdrop's fade toward <paramref name="fade"/>'s colours on the shared gradual colour

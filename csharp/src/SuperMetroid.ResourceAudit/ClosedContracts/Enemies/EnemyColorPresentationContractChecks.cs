@@ -21,6 +21,9 @@ internal static class EnemyColorPresentationContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
             using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
+            using SuperMetroid.AssetExtraction.Bosses.Kraid;
+            using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
+            using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
             using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
             using SuperMetroid.Core.Areas.Ceres;
             using SuperMetroid.Core.Bosses.Botwoon;

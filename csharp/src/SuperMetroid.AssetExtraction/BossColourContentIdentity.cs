@@ -1,10 +1,6 @@
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Botwoon;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Bosses.SporeSpawn;
@@ -16,7 +12,10 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Kraid;
+using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.MotherBrain;
 
 namespace SuperMetroid.AssetExtraction;
 

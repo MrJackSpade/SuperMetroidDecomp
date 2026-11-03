@@ -26,7 +26,9 @@ internal static class ClosedPresentationContractChecks
             using SuperMetroid.AssetExtraction.Samus.Artwork;
             using SuperMetroid.AssetExtraction.Enemies.Artwork;
             using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
+            using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
             using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
+            using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
             using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
             using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
             using SuperMetroid.Core.Areas.Tourian.Artwork;

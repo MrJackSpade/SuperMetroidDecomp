@@ -1,15 +1,12 @@
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Botwoon;
-using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
@@ -27,6 +24,9 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

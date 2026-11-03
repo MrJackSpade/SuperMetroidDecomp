@@ -4,9 +4,7 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using System.Text.Json;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -20,6 +18,9 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// <summary>Checks installed Crocomire palette bands against native RGB5 data
 /// and live boss CGRAM writes under a cartridge-read guard.</summary>
 internal static class EnemyTileArtworkCrocomireColorsVerification

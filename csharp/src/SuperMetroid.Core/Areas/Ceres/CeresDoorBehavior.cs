@@ -30,14 +30,12 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>Provides slot zero's frame counter for the shared palette cycle.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Owns the tile and palette destinations for Ceres door artwork.</summary>
+    /// <summary>Shows the pre-explosion overlay's characters over the room's sprite characters.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Spawns smoke or explosion effects around the shaking door.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Supplies Ridley's escape status and receives the completed-escape marker.</summary>
     private readonly ICeresEscapeStatus _ridleyEncounter;
-    /// <summary>The session's installed area artwork.</summary>
-    private readonly AreaArtworkBinding _areaArtwork;
 
 
     /// <summary>Captures the room systems used by the Ceres door's variants and escape sequence.</summary>
@@ -50,8 +48,13 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         _presentation = dependencies.Presentation;
         _projectiles = dependencies.Projectiles;
         _ridleyEncounter = dependencies.CeresEscape;
-        _areaArtwork = dependencies.AreaArtwork;
     }
+
+    /// <summary>
+    /// The step of the elevator room's six-colour glow the rotating-room door cycles, which the room's tiles show as
+    /// <see cref="CeresDoorShades.ElevatorRoomGlow"/> (#1512); null before the door first cycles it.
+    /// </summary>
+    internal int? ElevatorRoomGlowStep { get; private set; }
 
     /// <summary>Each door slot's typed program cursor in the loaded room.</summary>
     internal readonly Dictionary<int, AnimationProgramCursor<CeresDoorProgram>> DoorPrograms = [];
@@ -134,11 +137,6 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Room graphics animation selected for the explosion outcome.</summary>
     private const MiscDustAnimation CeresDoorExplosionAnimation = MiscDustAnimation.Smoke;
 
-    /// <summary>Gets the installed Ceres door artwork required by initialization and animation.</summary>
-    private CeresDoorVisuals SelectedCeresDoorVisual =>
-        _areaArtwork.Artwork?.CeresDoorVisual ?? throw new InvalidOperationException(
-            "Ceres door requires installed visual artwork.");
-
     /// <summary>Initializes the Ceres door for every retail population variant.</summary>
     internal void InitializeCeresDoor(RoomEnemySlot slot)
     {
@@ -149,31 +147,20 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.CeresDoor];
-        slot.Colouring = new EncounterSpriteColouring(CeresDoorColourDefinitions.Inactive);
         var state = new CeresDoorEnemyState { Function = initialization.MainFunction };
         slot.SetSpeciesState(state, state.ClearWithRecord);
         DoorPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresDoorProgram>.Start(initialization.Program);
 
         // CeresDoor_Func_1 copies the door's characters over the OBJ characters only for the pre-explosion overlay (#1406).
         if (variant == CeresDoorVariant.RotatingElevatorPreExplosionOverlay)
-        {
-            _ = SelectedCeresDoorVisual;
             _presentation.ShowLook(CeresDoorCharacters.Shown);
-        }
 
-        if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped && variant == CeresDoorVariant.RidleyRoomFacingRight)
-        {
-            // The destination is the target palette's colours
-            // 161..175. This runtime exposes the final fade target directly in the live palette.
-            SelectedCeresDoorVisual.LoadNormalColors(CeresDoorColourDefinitions.Inactive.In(_presentation.Colours));
-            return;
-        }
-
-        slot.Colouring = new EncounterSpriteColouring(CeresDoorColourDefinitions.Active);
-        if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
-            SelectedCeresDoorVisual.LoadEscapeColors(CeresDoorColourDefinitions.Active.In(_presentation.Colours));
-        else
-            SelectedCeresDoorVisual.LoadNormalColors(CeresDoorColourDefinitions.Active.In(_presentation.Colours));
+        // The game loads the door's colours into one of two palettes, the inactive door's or the active door's, whose
+        // completed fade target this runtime shows directly: the escaping colours once Ridley has escaped, otherwise the
+        // normal ones. The door shows them as its shade (#1512); which palette held them is not kept.
+        slot.Shading = _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped
+            ? CeresDoorShades.InEscapingColours
+            : CeresDoorShades.InNormalColours;
     }
 
     /// <summary>Dispatches the door's main-AI function.</summary>
@@ -192,13 +179,13 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case CeresDoorFunction.RidleyEscapeFloorWall:
-                // Ridley's room overlay begins hidden. Ridley's escape reveals it and swap
-                // to enemy palette seven; the actor remains present so later Mode-7 drawing
+                // Ridley's room overlay begins hidden. Ridley's escape reveals it in the doors' escaping colours
+                // (#1512); the actor remains present so later Mode-7 drawing
                 // can retain the priority relationship with Samus and Ridley.
                 slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
                 if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyEscaped)
                 {
-                    slot.Colouring = new EncounterSpriteColouring(CeresDoorColourDefinitions.Active);
+                    slot.Shading = CeresDoorShades.InEscapingColours;
                     slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
                 }
                 return;
@@ -316,7 +303,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Bits 3..5 of the frame counter: a new step of six colors every eight frames.
         int colorRow = (frame >> 3) % 8;
-        SelectedCeresDoorVisual.LoadAnimationColors(_presentation.BackgroundSets, colorRow);
+        ElevatorRoomGlowStep = colorRow;
     }
 
     /// <summary>Advances CeresDoor's typed animation.</summary>

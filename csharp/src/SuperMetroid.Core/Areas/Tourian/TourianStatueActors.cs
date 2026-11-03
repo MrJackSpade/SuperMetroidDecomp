@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>The statue sequence's operations over the entrance statue and the unlock effects.</summary>
@@ -37,4 +39,7 @@ internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, 
 
     /// <inheritdoc/>
     public void SpawnDescentDust() => unlock.SpawnTourianDescentDust();
+
+    /// <inheritdoc/>
+    public void ShowStatueLook(PictureShade look) => statue.ShowStatueLook(look);
 }

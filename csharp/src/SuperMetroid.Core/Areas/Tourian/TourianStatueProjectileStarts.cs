@@ -27,6 +27,13 @@ internal static class TourianStatueProjectileStarts
     internal static EnemyProjectileAnimation? ForKind(RoomEnemyProjectileKind kind) =>
         InitialPrograms.TryGetValue(kind, out Func<EnemyProjectileAnimation>? start) ? start() : null;
 
+    /// <summary>
+    /// Whether a <paramref name="kind"/> projectile is one of the statue scene's, drawn in the scene's look (#1512):
+    /// every kind these spawners start, and the descent's dust.
+    /// </summary>
+    internal static bool ShowsStatueScene(RoomEnemyProjectileKind kind) =>
+        InitialPrograms.ContainsKey(kind) || kind == RoomEnemyProjectileKind.TourianStatueDescentDust;
+
     /// <summary>Initializes <paramref name="projectile"/> from its definition and starts the typed program its kind names.</summary>
     internal static void Initialize(RoomEnemyProjectileSlot projectile, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
     {

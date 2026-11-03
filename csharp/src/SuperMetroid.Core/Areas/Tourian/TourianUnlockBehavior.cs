@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 [RoomLifetime]
 internal sealed class TourianUnlockBehavior
 {
-    /// <summary>Live room randomness and installed statue eye artwork.</summary>
+    /// <summary>Live room randomness.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocator and initializer for statue, dust, particle, and splash projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -17,21 +17,18 @@ internal sealed class TourianUnlockBehavior
     private readonly RoomEarthquake _earthquake;
     /// <summary>Audio queue receiving the statue eye release sound.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Palette owner receiving installed statue eye colors.</summary>
-    private readonly EnemyPresentation _presentation;
-    /// <summary>The session's installed area artwork.</summary>
-    private readonly AreaArtworkBinding _areaArtwork;
+    /// <summary>The entrance statue, whose scene look every unlock effect shows and whose eyes each release lights.</summary>
+    private readonly TourianEntranceStatueBehavior _statue;
 
 
-    /// <summary>Binds the unlock effects to the current room's projectile, audio, FX, and artwork owners.</summary>
-    internal TourianUnlockBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemyPresentation presentation, AreaArtworkBinding areaArtwork)
+    /// <summary>Binds the unlock effects to the current room's projectile, audio, FX and statue owners.</summary>
+    internal TourianUnlockBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyAudioQueue audio, TourianEntranceStatueBehavior statue)
     {
-        _areaArtwork = areaArtwork;
         _room = room;
         _projectiles = projectiles;
         _earthquake = earthquake;
         _audio = audio;
-        _presentation = presentation;
+        _statue = statue;
     }
 
     /// <summary>How far above the water surface a splash sits.</summary>
@@ -52,7 +49,7 @@ internal sealed class TourianUnlockBehavior
             TourianStatueProjectileStarts.Initialize(
                 projectile,
                 RoomEnemyProjectileKind.TourianStatueDescentDust,
-                default);
+                _statue.SceneGraphics);
             projectile.State = new AnchoredProjectileState(TourianDescentDustAnchor);
         }
     }
@@ -61,9 +58,9 @@ internal sealed class TourianUnlockBehavior
     public void SpawnTourianEyeGlow(int parameter)
     {
         if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueEyeGlow, parameter) is null) return;
-        (_areaArtwork.Artwork?.TourianStatueColors ?? throw new InvalidOperationException(
-            "Tourian statue eye requires installed colors."))
-            .ApplyEye(_presentation.Colours, parameter);
+        if (parameter > 6 || (parameter & 1) != 0)
+            throw new ArgumentOutOfRangeException(nameof(parameter), parameter, "A statue eye glow names Phantoon 0, Ridley 2, Draygon 4 or Kraid 6.");
+        _statue.ShowEyeGlow(parameter >> 1);
     }
 
     /// <summary>Spawns a statue's released soul from the definition, rising from the eye.</summary>
@@ -79,7 +76,7 @@ internal sealed class TourianUnlockBehavior
         Position16<RoomPixels> position = TourianStatueUnlock.EyePosition(parameter);
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return null;
-        TourianStatueProjectileStarts.Initialize(projectile, kind, default);
+        TourianStatueProjectileStarts.Initialize(projectile, kind, _statue.SceneGraphics);
         projectile.Position = projectile.Position.WithWhole(position);
         return projectile;
     }
@@ -92,7 +89,7 @@ internal sealed class TourianUnlockBehavior
             throw new InvalidOperationException($"{kind} is not a Tourian statue child projectile.");
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return;
-        TourianStatueProjectileStarts.Initialize(projectile, kind, default);
+        TourianStatueProjectileStarts.Initialize(projectile, kind, _statue.SceneGraphics);
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
         if (kind == RoomEnemyProjectileKind.TourianStatueSplash)
             projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
